@@ -1,0 +1,23 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import click
+import os
+import functools
+from lib import helpers
+
+plugin_folder = os.path.join(os.path.dirname(__file__), 'commands')
+CONTEXT_SETTINGS = dict(auto_envvar_prefix='MUSICBOT')
+
+@click.command(cls=helpers.SubCommandLineInterface, context_settings=CONTEXT_SETTINGS)
+@click.version_option("1.0")
+@helpers.add_options(helpers.global_options)
+@helpers.pass_context
+def cli(ctx, verbosity, quiet, dry_run):
+    """A complex command line interface."""
+    ctx.verbosity = verbosity
+    ctx.quiet = quiet
+    ctx.dry_run = dry_run
+
+if __name__ == '__main__':
+    cli()
