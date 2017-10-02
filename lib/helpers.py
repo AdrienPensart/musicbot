@@ -1,5 +1,6 @@
 import click
 import functools
+import os
 
 from logging import debug, info, warning, error, critical
 from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL, basicConfig
@@ -64,21 +65,4 @@ class Context(object):
         debug('new verbosity: {}'.format(self.verbosity))
 
 pass_context = click.make_pass_decorator(Context, ensure=True)
-
-class SubCommandLineInterface(click.MultiCommand):
-    def list_commands(self, ctx):
-        rv = []
-        for filename in os.listdir(plugin_folder):
-            if filename.endswith('.py'):
-                rv.append(filename[:-3])
-        rv.sort()
-        return rv
-
-    def get_command(self, ctx, name):
-        ns = {}
-        fn = os.path.join(plugin_folder, name + '.py')
-        with open(fn) as f:
-            code = compile(f.read(), fn, 'exec')
-            eval(code, ns, ns)
-        return ns['cli']
 
