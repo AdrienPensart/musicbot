@@ -1,0 +1,55 @@
+{
+    "_meta": {
+        "hash": {
+            "sha256": "f18546eec4b459abefb5d842b38b6fb7ebabbff6f843e6a28578812e71998e55"
+        },
+        "host-environment-markers": {
+            "implementation_name": "cpython",
+            "implementation_version": "3.6.3",
+            "os_name": "posix",
+            "platform_machine": "x86_64",
+            "platform_python_implementation": "CPython",
+            "platform_release": "4.13.0-1-amd64",
+            "platform_system": "Linux",
+            "platform_version": "#1 SMP Debian 4.13.4-2 (2017-10-15)",
+            "python_full_version": "3.6.3",
+            "python_version": "3.6",
+            "sys_platform": "linux"
+        },
+        "pipfile-spec": 6,
+        "requires": {},
+        "sources": [
+            {
+                "name": "pypi",
+                "url": "https://pypi.python.org/simple",
+                "verify_ssl": true
+            }
+        ]
+    },
+    "default": {
+        "asyncpg": {
+            "hashes": [
+                "sha256:3c04bbd4352eaa68e1a6f0923f8e45e512d4fab32f047ae7549b3389f948efd3",
+                "sha256:0755224e9a0a02692669471f9335844cd7ab71aca4a0d53460a2e82329702fbc",
+                "sha256:e5e322a1f8208271ef101f35a4ca9c517a87180452ca63f1dfa6d3d4b08dc46c",
+                "sha256:88d440fef2a61cbd97add25970aec124ed0a7eb57afc7f3c219ebf2d80fdf967",
+                "sha256:85fa780604cb63500f4e7579230b0c2e3e9db591cfadd96bd8a6a4c0b6a0b3f6",
+                "sha256:c5c88f87aa7e58e1338df4338965ffaefef3bf2ebd64a90602f539dd756e7416",
+                "sha256:bc254d6c8cb9c23b281e076b4e72b15854a39aa1f08baddfa933f3773e124600",
+                "sha256:20cf32e69c13b0603b1525965b8c2766dac1989c7e0cca7b40e3975f1042eeed",
+                "sha256:d77e9301723eaeeba2ec545dc46e4b6aac5d31e808a0a80ac7900cd2c66462a6",
+                "sha256:a1b79091f53999dd4ec7fc02ccebb039174559efc65ea80ae0f18cf723c94881",
+                "sha256:f5d59fdde5b26f0f56db82906606344e9b5c9804efd50dfcc858862625dcf858"
+            ],
+            "version": "==0.13.0"
+        },
+        "click": {
+            "hashes": [
+                "sha256:29f99fc6125fbc931b758dc053b3114e55c77a6e4c6c3a2674a2dc986016381d",
+                "sha256:f15516df478d5a56180fbf80e68f206010e6d160fc39fa508b65e035fd75130b"
+            ],
+            "version": "==6.7"
+        }
+    },
+    "develop": {}
+}

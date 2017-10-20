@@ -3,11 +3,12 @@
 
 import click
 import os
-import functools
+from logging import debug
 from lib import helpers
 
 plugin_folder = os.path.join(os.path.dirname(__file__), 'commands')
 CONTEXT_SETTINGS = dict(auto_envvar_prefix='MUSICBOT')
+
 
 class SubCommandLineInterface(click.MultiCommand):
     def list_commands(self, ctx):
@@ -30,12 +31,15 @@ class SubCommandLineInterface(click.MultiCommand):
 @click.command(cls=SubCommandLineInterface, context_settings=CONTEXT_SETTINGS)
 @click.version_option("1.0")
 @helpers.add_options(helpers.global_options)
-@helpers.pass_context
+@helpers.global_context
 def cli(ctx, verbosity, quiet, dry_run):
     """A complex command line interface."""
     ctx.verbosity = verbosity
     ctx.quiet = quiet
     ctx.dry_run = dry_run
+    debug('main cli')
+    debug(ctx)
+
 
 if __name__ == '__main__':
     cli()
