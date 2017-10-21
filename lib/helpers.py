@@ -2,8 +2,11 @@
 import click
 import asyncio
 import asyncpg
-from functools import update_wrapper
-from logging import debug
+import sys
+import os
+import time
+from functools import wraps
+from logging import debug, info
 from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL, basicConfig, getLogger
 
 verbosities = {'debug': DEBUG,
@@ -14,7 +17,7 @@ verbosities = {'debug': DEBUG,
 
 global_options = [
     click.option('--verbosity', help='Verbosity levels', default='error', type=click.Choice(verbosities.keys())),
-    click.option('--dry-run', help='Take no real action', default=False, is_flag=True),
+    click.option('--dry', help='Take no real action', default=False, is_flag=True),
     click.option('--quiet', help='Silence any output (like progress bars)', default=False, is_flag=True)
 ]
 
@@ -60,20 +63,54 @@ def add_options(options):
     return _add_options
 
 
+def timeit(f):
+    async def process(f, *args, **params):
+        if asyncio.iscoroutinefunction(f):
+            return await f(*args, **params)
+        else:
+            return f(*args, **params)
+
+    @wraps(f)
+    async def helper(*args, **params):
+        start = time.time()
+        result = await process(f, *args, **params)
+        # Test normal function route...
+        # result = await process(lambda *a, **p: print(*a, **p), *args, **params)
+        info('{}: {}'.format(f.__name__, time.time() - start))
+        return result
+
+    return helper
+
+
 def coro(f):
     f = asyncio.coroutine(f)
 
+    @wraps(f)
     def wrapper(*args, **kwargs):
         loop = asyncio.get_event_loop()
         loop.set_debug(True)
         return loop.run_until_complete(f(*args, **kwargs))
-    return update_wrapper(wrapper, f)
+    return wrapper
+
+
+def drier(f):
+    dry = False
+
+    @wraps(f)
+    async def wrapper(*args, **kwargs):
+        if dry:
+            args = [str(a) for a in args] + ["%s=%s" % (k, v) for (k, v) in kwargs.items()]
+            info('DRY RUN: {}({})'.format(f.__name__, ','.join(args)))
+            await asyncio.sleep(0)
+        else:
+            return await f(*args, **kwargs)
+    return wrapper
 
 
 class GlobalContext(object):
     def __init__(self):
         self.quiet = False
-        self.dry_run = False
+        self.dry = False
         self._verbosity = ERROR
 
     @property
@@ -88,6 +125,9 @@ class GlobalContext(object):
         getLogger('asyncio').setLevel(level)
         debug('new verbosity: {}'.format(self.verbosity))
 
+    def __repr__(self):
+        return '{} {} {}'.format(self.quiet, self.dry, self._verbosity)
+
 
 class DbContext(object):
     settings = {
@@ -96,6 +136,7 @@ class DbContext(object):
         'database': 'musicbot',
         'user': 'postgres',
         'password': 'musicbot', }
+    schema = 'public'
 
     def __init__(self, **kwargs):
         self.settings.update(kwargs)
@@ -103,6 +144,12 @@ class DbContext(object):
 
     def connection_string(self):
         return 'postgresql://{}:{}@{}:{}/{}'.format(self.settings['host'], self.settings['password'], self.settings['host'], self.settings['port'], self.settings['database'])
+
+    # def __repr__(self):
+    #     return self.connection_string()
+
+    def __str__(self):
+        return self.connection_string()
 
     @property
     async def pool(self):
@@ -112,6 +159,41 @@ class DbContext(object):
 
     async def fetch(self, *args, **kwargs):
         return (await (await self.pool).fetch(*args, **kwargs))
+
+    @drier
+    @timeit
+    async def executefile(self, filepath):
+        schema_path = os.path.join(os.path.dirname(sys.argv[0]), filepath)
+        info('loading schema: {}'.format(schema_path))
+        with open(schema_path, "r") as s:
+            sql = s.read()
+            async with (await self.pool).acquire() as connection:
+                async with connection.transaction():
+                    await connection.execute(sql)
+
+    @drier
+    @timeit
+    async def execute(self, sql):
+        info('executing: {}'.format(sql))
+        async with (await self.pool).acquire() as connection:
+            async with connection.transaction():
+                await connection.execute(sql)
+
+    async def create(self):
+        debug('db create')
+        sql = 'create schema if not exists {}'.format(self.schema)
+        await self.execute(sql)
+        await self.executefile('lib/musicbot.sql')
+
+    async def drop(self):
+        debug('db drop')
+        sql = 'drop schema if exists {} cascade'.format(self.schema)
+        await self.execute(sql)
+
+    async def clear(self):
+        debug('clear')
+        await self.drop()
+        await self.create()
 
 
 global_context = click.make_pass_decorator(GlobalContext, ensure=True)

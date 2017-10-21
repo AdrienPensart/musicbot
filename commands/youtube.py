@@ -2,11 +2,13 @@
 import click
 from lib import helpers
 
+
 @click.group(invoke_without_command=True)
-@helpers.pass_context
+@click.pass_context
 def cli(ctx):
     click.echo('cli')
 
-@helpers.command()
+
+@click.command()
 def sync():
     click.echo('The subcommand')

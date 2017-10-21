@@ -1,53 +1,64 @@
 # -*- coding: utf-8 -*-
 import click
-from logging import debug
+from logging import debug, info
 from lib import helpers
 
 
 @click.group(invoke_without_command=False)
 @helpers.add_options(helpers.db_options)
-@helpers.global_context
-@helpers.db_context
-def cli(dbctx, gctx, host, port, user, password, db, **kwargs):
+# @helpers.global_context
+# @helpers.db_context
+@click.pass_context
+def cli(ctx, host, port, user, password, db, **kwargs):
     debug('db cli')
-    dbctx.host = host
-    dbctx.port = port
-    dbctx.user = user
-    dbctx.password = password
-    dbctx.database = db
-    debug(dbctx)
-    debug(gctx)
-    debug(dbctx.connection_string())
+    db = helpers.DbContext()
+    db.host = host
+    db.port = port
+    db.user = user
+    db.password = password
+    db.database = db
+    info(db.connection_string())
+    ctx.obj['db'] = db
 
 
 @cli.command()
-@helpers.global_context
-@helpers.db_context
+# @helpers.global_context
+# @helpers.db_context
 @helpers.coro
-async def create(dbctx, gctx, **kwargs):
-    debug('db create')
-    debug(kwargs)
-    musics = await dbctx.fetch('select * from musics limit 2')
-    for m in musics:
-        print(m)
+@click.pass_context
+async def create(ctx, **kwargs):
+    db = ctx.obj['db']
+    await db.create()
 
 
 @cli.command()
-@helpers.global_context
-@helpers.db_context
-def drop(ctx, **kwargs):
-    click.echo('drop')
+# @helpers.global_context
+# @helpers.db_context
+@helpers.coro
+@click.pass_context
+async def drop(ctx, **kwargs):
+    db = ctx.obj['db']
+    await db.drop()
 
 
 @cli.command()
-@helpers.global_context
-@helpers.db_context
-def clear(ctx, **kwargs):
-    click.echo('clear')
+# @helpers.global_context
+# @helpers.db_context
+@helpers.coro
+@click.pass_context
+async def clear(ctx, **kwargs):
+    db = ctx.obj['db']
+    await db.clear()
 
 
 @cli.command()
-@helpers.global_context
-@helpers.db_context
-def clean(ctx, **kwargs):
-    click.echo('clean')
+# @helpers.global_context
+# @helpers.db_context
+@helpers.coro
+@click.pass_context
+async def clean(ctx, **kwargs):
+    debug('clean')
+    # for m in self.musics:
+    # if(not os.path.isfile(m.path)):
+    #     info('{} does not exist'.format(m.path))
+    #     self.collection.delete(m.path)
