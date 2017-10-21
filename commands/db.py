@@ -6,8 +6,6 @@ from lib import helpers
 
 @click.group(invoke_without_command=False)
 @helpers.add_options(helpers.db_options)
-# @helpers.global_context
-# @helpers.db_context
 @click.pass_context
 def cli(ctx, host, port, user, password, db, **kwargs):
     debug('db cli')
@@ -22,8 +20,6 @@ def cli(ctx, host, port, user, password, db, **kwargs):
 
 
 @cli.command()
-# @helpers.global_context
-# @helpers.db_context
 @helpers.coro
 @click.pass_context
 async def create(ctx, **kwargs):
@@ -32,8 +28,6 @@ async def create(ctx, **kwargs):
 
 
 @cli.command()
-# @helpers.global_context
-# @helpers.db_context
 @helpers.coro
 @click.pass_context
 async def drop(ctx, **kwargs):
@@ -42,8 +36,6 @@ async def drop(ctx, **kwargs):
 
 
 @cli.command()
-# @helpers.global_context
-# @helpers.db_context
 @helpers.coro
 @click.pass_context
 async def clear(ctx, **kwargs):
@@ -52,8 +44,6 @@ async def clear(ctx, **kwargs):
 
 
 @cli.command()
-# @helpers.global_context
-# @helpers.db_context
 @helpers.coro
 @click.pass_context
 async def clean(ctx, **kwargs):

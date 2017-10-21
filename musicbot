@@ -35,14 +35,13 @@ class SubCommandLineInterface(click.MultiCommand):
 @click.pass_context
 def cli(ctx, verbosity, quiet, dry):
     """A complex command line interface."""
-    config = helpers.GlobalContext()
-    config.verbosity = verbosity
-    config.quiet = quiet
-    config.dry = dry
+    helpers.config.verbosity = verbosity
+    helpers.config.quiet = quiet
+    helpers.config.dry = dry
     debug('main cli')
     if ctx.obj is None:
         ctx.obj = {}
-    ctx.obj['config'] = config
+    ctx.obj['config'] = helpers.config
     debug(ctx)
 
 

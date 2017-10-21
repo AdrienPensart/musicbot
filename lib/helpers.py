@@ -94,11 +94,9 @@ def coro(f):
 
 
 def drier(f):
-    dry = False
-
     @wraps(f)
     async def wrapper(*args, **kwargs):
-        if dry:
+        if config.dry:
             args = [str(a) for a in args] + ["%s=%s" % (k, v) for (k, v) in kwargs.items()]
             info('DRY RUN: {}({})'.format(f.__name__, ','.join(args)))
             await asyncio.sleep(0)
@@ -157,7 +155,9 @@ class DbContext(object):
             self._pool: asyncpg.pool.Pool = await asyncpg.create_pool(**self.settings)
         return self._pool
 
+    @timeit
     async def fetch(self, *args, **kwargs):
+        info('fetching: {}'.format(*args))
         return (await (await self.pool).fetch(*args, **kwargs))
 
     @drier
@@ -174,7 +174,7 @@ class DbContext(object):
     @drier
     @timeit
     async def execute(self, sql):
-        info('executing: {}'.format(sql))
+        info(sql)
         async with (await self.pool).acquire() as connection:
             async with connection.transaction():
                 await connection.execute(sql)
@@ -195,6 +195,9 @@ class DbContext(object):
         await self.drop()
         await self.create()
 
+    async def folders(self):
+        sql = '''select name from folders'''
+        return await self.fetch(sql)
 
-global_context = click.make_pass_decorator(GlobalContext, ensure=True)
-db_context = click.make_pass_decorator(DbContext, ensure=True)
+
+config = GlobalContext()
