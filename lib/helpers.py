@@ -1,6 +1,10 @@
+# -*- coding: utf-8 -*-
 import click
+import asyncio
+import asyncpg
+from functools import update_wrapper
 from logging import debug
-from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL, basicConfig
+from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL, basicConfig, getLogger
 
 verbosities = {'debug': DEBUG,
                'info': INFO,
@@ -56,6 +60,16 @@ def add_options(options):
     return _add_options
 
 
+def coro(f):
+    f = asyncio.coroutine(f)
+
+    def wrapper(*args, **kwargs):
+        loop = asyncio.get_event_loop()
+        loop.set_debug(True)
+        return loop.run_until_complete(f(*args, **kwargs))
+    return update_wrapper(wrapper, f)
+
+
 class GlobalContext(object):
     def __init__(self):
         self.quiet = False
@@ -69,20 +83,35 @@ class GlobalContext(object):
     @verbosity.setter
     def verbosity(self, verbosity):
         self._verbosity = verbosity
-        basicConfig(level=verbosities[verbosity])
+        level = verbosities[verbosity]
+        basicConfig(level=level)
+        getLogger('asyncio').setLevel(level)
         debug('new verbosity: {}'.format(self.verbosity))
 
 
 class DbContext(object):
-    def __init__(self):
-        self.host = 'localhost'
-        self.port = 5432
-        self.db = 'musicbot'
-        self.user = 'postgres'
-        self.password = 'musicbot'
+    settings = {
+        'host': 'localhost',
+        'port': 5432,
+        'database': 'musicbot',
+        'user': 'postgres',
+        'password': 'musicbot', }
+
+    def __init__(self, **kwargs):
+        self.settings.update(kwargs)
+        self._pool = None
 
     def connection_string(self):
-        return 'postgresql://{}:{}@{}:{}/{}'.format(self.user, self.password, self.host, self.port, self.db)
+        return 'postgresql://{}:{}@{}:{}/{}'.format(self.settings['host'], self.settings['password'], self.settings['host'], self.settings['port'], self.settings['database'])
+
+    @property
+    async def pool(self):
+        if self._pool is None:
+            self._pool: asyncpg.pool.Pool = await asyncpg.create_pool(**self.settings)
+        return self._pool
+
+    async def fetch(self, *args, **kwargs):
+        return (await (await self.pool).fetch(*args, **kwargs))
 
 
 global_context = click.make_pass_decorator(GlobalContext, ensure=True)

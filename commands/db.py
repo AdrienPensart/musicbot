@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import click
-import asyncio
-import asyncpg
 from logging import debug
 from lib import helpers
 
@@ -16,7 +14,7 @@ def cli(dbctx, gctx, host, port, user, password, db, **kwargs):
     dbctx.port = port
     dbctx.user = user
     dbctx.password = password
-    dbctx.db = db
+    dbctx.database = db
     debug(dbctx)
     debug(gctx)
     debug(dbctx.connection_string())
@@ -25,20 +23,13 @@ def cli(dbctx, gctx, host, port, user, password, db, **kwargs):
 @cli.command()
 @helpers.global_context
 @helpers.db_context
-def create(dbctx, gctx, **kwargs):
+@helpers.coro
+async def create(dbctx, gctx, **kwargs):
     debug('db create')
     debug(kwargs)
-
-    async def main():
-        conn = await asyncpg.connect(dbctx.connection_string())
-        musics = await conn.fetch('select * from musics limit 2')
-        for m in musics:
-            print(m)
-
-        await conn.close()
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())
-    loop.close()
+    musics = await dbctx.fetch('select * from musics limit 2')
+    for m in musics:
+        print(m)
 
 
 @cli.command()
