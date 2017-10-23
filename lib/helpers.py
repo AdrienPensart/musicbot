@@ -8,6 +8,7 @@ import time
 from functools import wraps
 from logging import debug, info
 from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL, basicConfig, getLogger
+from . import lib
 
 verbosities = {'debug': DEBUG,
                'info': INFO,
@@ -29,12 +30,11 @@ db_options = [
     click.option('--password', help='DB password', default='musicbot')
 ]
 
-default_formats = ["mp3", "flac"]
 filter_options = [
     click.option('--filter', help='Filter file to load'),
     click.option('--limit', help='Fetch a maximum limit of music'),
     click.option('--youtube', help='Select musics with a youtube link', default=None, is_flag=True),
-    click.option('--formats', help='Select musics with file format, comma separated', default=','.join(default_formats)),
+    click.option('--formats', help='Select musics with file format, comma separated', default=','.join(lib.default_formats)),
     click.option('--no-formats', help='Filter musics without format, comma separated, can be "None" for empty string'),
     click.option('--keywords', help='Select musics with keywords, comma separated, can be "None" for empty string'),
     click.option('--no-keywords', help='Filter musics without keywords, comma separated, can be "None" for empty string'),
@@ -88,7 +88,8 @@ def coro(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         loop = asyncio.get_event_loop()
-        loop.set_debug(True)
+        if config.verbosity is DEBUG:
+            loop.set_debug(True)
         return loop.run_until_complete(f(*args, **kwargs))
     return wrapper
 
@@ -139,12 +140,16 @@ class DbContext(object):
     def __init__(self, **kwargs):
         self.settings.update(kwargs)
         self._pool = None
+        info(self.connection_string())
 
     def connection_string(self):
         return 'postgresql://{}:{}@{}:{}/{}'.format(self.settings['host'], self.settings['password'], self.settings['host'], self.settings['port'], self.settings['database'])
 
-    # def __repr__(self):
-    #     return self.connection_string()
+    @drier
+    @timeit
+    async def update(self, m):
+        sql = '''select * from upsert($1::music)'''
+        await self.execute(sql, [0, m.title, m.album, m.genre, m.artist, m.folder, m.youtube, m.number, m.path, m.rating, m.duration, m.size, m.keywords])
 
     def __str__(self):
         return self.connection_string()
@@ -173,11 +178,11 @@ class DbContext(object):
 
     @drier
     @timeit
-    async def execute(self, sql):
+    async def execute(self, sql, *args, **kwargs):
         info(sql)
         async with (await self.pool).acquire() as connection:
             async with connection.transaction():
-                await connection.execute(sql)
+                await connection.execute(sql, *args, **kwargs)
 
     async def create(self):
         debug('db create')

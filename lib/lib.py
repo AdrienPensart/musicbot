@@ -1,0 +1,559 @@
+import os
+try:
+    from os import scandir, walk
+except ImportError:
+    from scandir import scandir, walk
+import sys
+import re
+import random
+import yaml
+import queue
+import threading
+from tqdm import tqdm
+from . import file
+from timeit import default_timer as timer
+from logging import debug, info, warning, error, critical
+
+
+quiet = False
+default_formats = ["mp3", "flac"]
+output_types = ["list", "json"]
+default_output_type = 'json'
+default_min_rating = 0.0
+default_max_rating = 5.0
+default_playlist_type = 'm3u'
+playlist_types = ['list', 'm3u']
+
+
+def empty_dirs(root_dir, recursive=True):
+    empty_dirs = []
+    for root, dirs, files in os.walk(root_dir, topdown=False):
+        if recursive:
+            all_subs_empty = True  # until proven otherwise
+            for sub in dirs:
+                full_sub = os.path.join(root, sub)
+                if full_sub not in empty_dirs:
+                    all_subs_empty = False
+                    break
+        else:
+            all_subs_empty = (len(dirs) == 0)
+        if all_subs_empty and is_empty(files):
+            empty_dirs.append(root)
+            yield root
+
+
+def is_empty(files):
+    return len(files) == 0
+
+
+class benchmark(object):
+
+    def __init__(self, msg, fmt="%0.3g"):
+        self.msg = msg
+        self.fmt = fmt
+
+    def __enter__(self):
+        self.start = timer()
+        return self
+
+    def __exit__(self, *args):
+        t = timer() - self.start
+        info(("%s : " + self.fmt + " seconds") % (self.msg, t))
+        self.time = t
+
+
+class lazy_property(object):
+
+    def __init__(self, fget):
+        self.fget = fget
+        self.func_name = fget.__name__
+
+    def __get__(self, obj, cls):
+        if obj is None:
+            return None
+        value = self.fget(obj)
+        setattr(obj, self.func_name, value)
+        return value
+
+
+min_int = 0
+max_int = 2147483647
+default_max_limit = max_int
+default_min_size = min_int
+default_max_size = max_int
+default_min_duration = min_int
+default_max_duration = max_int
+
+
+class MusicFilter(object):
+
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            if value is not None:
+                setattr(self, key, value)
+
+    def __repr__(self):
+        from bson.json_util import dumps
+        return dumps(self.tuple())
+
+    def tuple(self):
+        return (self.id,
+                self.min_duration, self.max_duration,
+                self.min_size, self.max_size,
+                self.min_rating, self.max_rating,
+                self.artists, self.no_artists,
+                self.albums, self.no_albums,
+                self.titles, self.no_titles,
+                self.genres, self.no_genres,
+                self.formats, self.no_formats,
+                self.keywords, self.no_keywords,
+                self.shuffle, self.limit, self.youtube)
+
+    id = 0
+    relative = False
+    shuffle = False
+    youtube = None
+    formats = default_formats
+    no_formats = list()
+    genres = list()
+    no_genres = list()
+    limit = default_max_limit
+    min_duration = default_min_duration
+    max_duration = default_max_duration
+    min_size = default_min_size
+    max_size = default_max_size
+    min_rating = default_min_rating
+    max_rating = default_max_rating
+    keywords = list()
+    no_keywords = list()
+    artists = list()
+    no_artists = list()
+    titles = list()
+    no_titles = list()
+    albums = list()
+    no_albums = list()
+    checks = list()
+    no_checks = list()
+
+
+def dump_filter(data, path):
+    with open(path, 'w') as stream:
+        yaml.dump(data, stream, default_flow_style=False)
+
+
+def load_filter(path):
+    with open(path, 'r') as stream:
+        mf = MusicFilter()
+        mf = yaml.load(stream)
+        return mf
+
+
+def raise_limits():
+    import resource
+    try:
+        _, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
+        info("Current limits, soft and hard : {} {}".format(_, hard))
+        resource.setrlimit(resource.RLIMIT_NOFILE, (hard, hard))
+    except ValueError:
+        error("Exceeds limit {}, infinity is {}".format(hard, resource.RLIM_INFINITY))
+    except resource.error:
+        return False
+    except OSError as e:
+        critical('You may need to check ulimit parameter: {}'.format(e))
+        raise e
+    return True
+
+
+def find_files(directories):
+    directories = [os.path.abspath(d) for d in directories]
+    for directory in directories:
+        for root, _, files in walk(directory):
+            for basename in files:
+                filename = os.path.join(root, basename)
+                yield (directory, filename)
+
+
+def scantree(path):
+    for entry in scandir(path):
+        if entry.is_dir(follow_symlinks=False):
+            yield from scantree(entry.path)
+        else:
+            yield entry
+
+
+def filecount(path):
+    return len(list(scantree(path)))
+
+
+def all_files(directory):
+    for root, _, files in walk(directory):
+        for basename in files:
+            yield os.path.join(root, basename)
+
+
+def first(iterable, default=None):
+    if iterable:
+        if type(iterable) is str:
+            return iterable
+        for item in iterable:
+            return item
+    return default
+
+
+def num(s):
+    try:
+        return int(s)
+    except ValueError:
+        return float(s)
+
+
+def convert_rating(arg):
+    if type(arg) is float:
+        return arg / 5.0
+    return float(first(arg)) / 5.0
+
+
+def duration_to_seconds(duration):
+    if re.match("\d+s", duration):
+        return int(duration[:-1])
+    if re.match("\d+m", duration):
+        return int(duration[:-1]) * 60
+    if re.match("\d+h", duration):
+        return int(duration[:-1]) * 3600
+    raise ValueError(duration)
+
+
+def seconds_to_str(duration):
+    import datetime
+    return str(datetime.timedelta(seconds=duration))
+
+
+def process_stats(musics):
+    albums = set()
+    genres = set()
+    artists = set()
+    keywords = set()
+    total_seconds = 0
+    total_size = 0
+    for m in musics:
+        albums.add(m.album)
+        genres.add(m.genre)
+        artists.add(m.artist)
+        for k in m.keywords:
+            keywords.add(k)
+        total_seconds += m.duration
+        total_size += m.size
+    stats = {
+        'id': 1,
+        'musics': len(musics),
+        'artists': len(artists),
+        'albums': len(albums),
+        'genres': len(genres),
+        'keywords': len(keywords),
+        'duration': total_seconds,
+        'size': total_size
+    }
+    return stats
+
+
+class ListAccumulator:
+
+    def __init__(self):
+        self.musics = []
+
+    def add(self, m):
+        self.musics.append(m)
+
+    def execute(self):
+        return self.musics
+
+
+class BulkUpsertAccumulator:
+    musics = []
+
+    def __init__(self, collection):
+        self.collection = collection
+
+    def add(self, m):
+        self.musics.append(m)
+
+    def execute(self):
+        self.collection.load(self.musics)
+        return self.collection
+
+
+default_accumulator = 'bulk_upsert'
+accumulators = ['bulk_upsert', 'queue_upsert', 'upsert', 'array']
+
+
+class UpsertAccumulator:
+
+    def __init__(self, collection):
+        self.collection = collection
+
+    def add(self, m):
+        self.collection.update(m)
+
+    def execute(self):
+        self.collection.commit()
+        return self.collection
+
+
+class QueueUpsertAccumulator:
+    maxsize = 0
+
+    def __init__(self, collection, size, n=100):
+        self.collection = collection
+        self.n = n
+        self.q = queue.Queue()
+        self.bar = tqdm(total=size, file=sys.stdout, desc="Database inserts", leave=True, position=1, disable=quiet)
+
+        self.thread = threading.Thread(target=self.consume, args=(self,))
+        self.thread.daemon = True
+        self.thread.start()
+
+    @staticmethod
+    def consume(this):
+        while True:
+            result = [this.q.get()]
+            try:
+                while len(result) < this.n:
+                    m = this.q.get(block=False)
+                    if m is None:
+                        this.load(result)
+                        return
+                    result.append(m)
+            except queue.Empty:
+                pass
+            this.load(result)
+
+    def load(self, result):
+        self.collection.load(result)
+        self.bar.update(len(result))
+
+    def add(self, m):
+        self.maxsize += 1
+        self.q.put(m)
+
+    def execute(self):
+        self.q.put(None)
+        self.bar.total = self.maxsize
+        with benchmark("Queue Upsert"):
+            self.thread.join()
+            self.collection.commit()
+        return self.collection
+
+
+def music_filter(musics, mf=None, acc=None):
+    if mf is None:
+        mf = MusicFilter()
+    if acc is None:
+        acc = ListAccumulator()
+    with tqdm(total=len(musics), file=sys.stdout, desc="Music loading", leave=True, position=0, disable=quiet) as bar:
+        for idx, t in enumerate(musics):
+            do_filter(t[0], t[1], mf, acc)
+            bar.update(1)
+    return acc.execute()
+
+
+def do_filter(directory, filename, mf, acc):
+    debug('Analyzing: {}'.format(filename))
+    if not filename.endswith(tuple(mf.formats)):
+        debug('Bad format: {} does not end with {}'.format(filename, mf.formats))
+        return
+    if filename.endswith(tuple(mf.no_formats)):
+        debug('Bad format: {} end with {}'.format(filename, mf.formats))
+        return
+    m = file.MusicFile(filename, directory)
+    if m.duration < mf.min_duration:
+        debug('Bad min duration: {} {}'.format(m.duration, mf.min_duration))
+        return
+    if m.duration > mf.max_duration:
+        debug('Bad max duration: {} {}'.format(m.duration, mf.max_duration))
+        return
+    if m.size < mf.min_size:
+        debug('Bad min size: {} {}'.format(m.size, mf.min_size))
+        return
+    if m.size > mf.max_size:
+        debug('Bad max size: {} {}'.format(m.size, mf.max_size))
+        return
+    if float(m.rating) < mf.min_rating:
+        debug('Bad min rating: {} {}'.format(m.rating, mf.min_rating))
+        return
+    if float(m.rating) > mf.max_rating:
+        debug('Bad max rating: {} {}'.format(m.rating, mf.max_rating))
+        return
+    if len(mf.genres):
+        mgenre = m.genre
+        found = False
+        for genre in mf.genres:
+            if genre == mgenre:
+                found = True
+                break
+        if not found:
+            debug('Bad genre: {} {}'.format(genre, mf.genres))
+            return
+    if len(mf.no_genres):
+        mgenre = m.genre
+        found = False
+        for genre in mf.no_genres:
+            if genre == mgenre:
+                found = True
+                break
+        if found:
+            debug('Bad no genre: {} {}'.format(mgenre, mf.no_genres))
+            return
+    if len(mf.artists):
+        martist = m.artist
+        found = False
+        for artist in mf.artists:
+            if artist == martist:
+                found = True
+                break
+        if not found:
+            debug('Bad artist: {} {}'.format(martist, mf.artists))
+            return
+    if len(mf.no_artists):
+        martist = m.artist
+        found = False
+        for artist in mf.no_artists:
+            if artist == martist:
+                found = True
+                break
+        if found:
+            debug('Bad no artist: {} {}'.format(martist, mf.no_artists))
+            return
+    if len(mf.albums):
+        malbum = m.album
+        found = False
+        for album in mf.albums:
+            if album == malbum:
+                found = True
+                break
+        if not found:
+            debug('Bad album: {} {}'.format(malbum, mf.albums))
+            return
+    if len(mf.no_albums):
+        martist = m.artist
+        found = False
+        for album in mf.no_albums:
+            if album == malbum:
+                found = True
+                break
+        if found:
+            debug('Bad no album: {} {}'.format(malbum, mf.no_albums))
+            return
+    if len(mf.titles):
+        mtitle = m.title
+        found = False
+        for title in mf.titles:
+            if title == mtitle:
+                found = True
+                break
+        if not found:
+            debug('Bad title: {} {}'.format(mtitle, mf.titles))
+            return
+    if len(mf.no_titles):
+        mtitle = m.title
+        found = False
+        for title in mf.no_titles:
+            if title == mtitle:
+                found = True
+                break
+        if found:
+            debug('Bad no title: {} {}'.format(mtitle, mf.no_titles))
+            return
+    if len(mf.no_keywords):
+        found = False
+        for mtag in mf.no_keywords:
+            if mtag in m.keywords:
+                debug('A no-keyword found: {} / {}'.format(mtag, m.keywords))
+                found = True
+                break
+        if found:
+            return
+    if len(mf.keywords):
+        notfound = False
+        for mtag in mf.keywords:
+            if mtag not in m.keywords:
+                debug('{} is not in {}'.format(mtag, m.keywords))
+                notfound = True
+                break
+        if notfound:
+            debug('Keyword not found: {} {}'.format(m.keywords, mf.keywords))
+            return
+    debug("Adding {}".format(m))
+    acc.add(m)
+
+
+def new_playlist(playlist_type, musics, mf):
+    lines = []
+    for m in musics:
+        if mf.relative:
+            beginning = os.path.join(m.folder + '/')
+            if m.path.startswith(beginning):
+                lines.append(m.path[len(beginning):])
+            else:
+                warning("Invalid beginning for relative path {} beginning is {}".format(m.path, beginning))
+                continue
+        else:
+            lines.append(m.path)
+    if mf.shuffle:
+        random.shuffle(lines)
+    else:
+        lines.sort()
+    if playlist_type == 'm3u':
+        lines.insert(0, "#EXTM3U")
+        return "\n".join(lines)
+    elif playlist_type == 'list':
+        return lines
+    raise ValueError(playlist_type)
+
+
+default_checks = ['keywords', 'strict_title', 'title', 'path',
+                  'genre', 'album', 'artist', 'rating', 'number']
+
+
+def check_consistency(musics, checks, no_checks):
+    report = []
+    for m in musics:
+        try:
+            if 'keywords' in checks and 'keywords' not in no_checks:
+                f = file.MusicFile(m.path)
+                if m.path.endswith('.flac'):
+                    if f.comment and not f.description:
+                        report.append('Comment (' + f.comment +
+                                      ') used in flac: ' + m.path)
+                if m.path.endswith('.mp3'):
+                    if f.description and not f.comment:
+                        report.append(
+                            'Description (' +
+                            f.description +
+                            ') used in mp3 : ' +
+                            m.path)
+            if 'title' in checks and 'title' not in no_checks and not len(m.title):
+                report.append("No title  : '" + m.title + "' on " + m.path)
+            if 'strict_title' in checks and 'strict_title' not in no_checks:
+                filename = os.path.basename(m.path)
+                if filename == "{} - {}.mp3".format(str(m.number).zfill(2), m.title):
+                    continue
+                if filename == "{} - {}.flac".format(str(m.number).zfill(2), m.title):
+                    continue
+                report.append("Invalid title format, '{}' should start by '{}'".
+                              format(filename, '{} - {}'.format(str(m.number).zfill(2), m.title)))
+            if 'path' in checks and 'path' not in no_checks and m.artist not in m.path:
+                report.append("Artist invalid : " +
+                              m.artist + " is not in " + m.path)
+            if 'genre' in checks and 'genre' not in no_checks and m.genre == '':
+                report.append("No genre : " + m.path)
+            if 'album' in checks and 'album' not in no_checks and m.album == '':
+                report.append("No album :i " + m.path)
+            if 'artist' in checks and 'artist' not in no_checks and m.artist == '':
+                report.append("No artist : " + m.path)
+            if 'rating' in checks and 'rating' not in no_checks and m.rating == 0.0:
+                report.append("No rating : " + m.path)
+            if 'number' in checks and m.number == -1:
+                report.append("Invalid track number : " + m.path)
+        except OSError:
+            report.append("Could not open file : " + m.path)
+    return report

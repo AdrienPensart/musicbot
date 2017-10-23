@@ -3,6 +3,7 @@
 
 import click
 import os
+from attrdict import AttrDict
 from logging import debug
 from lib import helpers
 
@@ -31,17 +32,15 @@ class SubCommandLineInterface(click.MultiCommand):
 @click.command(cls=SubCommandLineInterface, context_settings=CONTEXT_SETTINGS)
 @click.version_option("1.0")
 @helpers.add_options(helpers.global_options)
-# @helpers.global_context
 @click.pass_context
 def cli(ctx, verbosity, quiet, dry):
     """A complex command line interface."""
+    ctx.obj = AttrDict
     helpers.config.verbosity = verbosity
     helpers.config.quiet = quiet
     helpers.config.dry = dry
     debug('main cli')
-    if ctx.obj is None:
-        ctx.obj = {}
-    ctx.obj['config'] = helpers.config
+    ctx.obj.config = helpers.config
     debug(ctx)
 
 

@@ -9,38 +9,30 @@ from lib import helpers
 @click.pass_context
 def cli(ctx, host, port, user, password, db, **kwargs):
     debug('db cli')
-    db = helpers.DbContext()
-    db.host = host
-    db.port = port
-    db.user = user
-    db.password = password
-    db.database = db
+    db = helpers.DbContext(host=host, port=port, user=user, password=password, database=db)
     info(db.connection_string())
-    ctx.obj['db'] = db
+    ctx.obj.db = db
 
 
 @cli.command()
 @helpers.coro
 @click.pass_context
 async def create(ctx, **kwargs):
-    db = ctx.obj['db']
-    await db.create()
+    await ctx.obj.db.create()
 
 
 @cli.command()
 @helpers.coro
 @click.pass_context
 async def drop(ctx, **kwargs):
-    db = ctx.obj['db']
-    await db.drop()
+    await ctx.obj.db.drop()
 
 
 @cli.command()
 @helpers.coro
 @click.pass_context
 async def clear(ctx, **kwargs):
-    db = ctx.obj['db']
-    await db.clear()
+    await ctx.obj.db.clear()
 
 
 @cli.command()
