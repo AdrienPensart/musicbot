@@ -21,20 +21,45 @@ class MusicFile(object):
         self.handle = taglib.File(filename)
         self.youtube_link = None
 
-    def __repr__(self):
-        from bson.json_util import dumps
-        return dumps(self.tuple())
+    def __iter__(self):
+        yield 'duration', self.duration
+        yield 'number', self.number
+        yield 'folder', self._folder
+        yield 'path', self.path
+        yield 'size', self.size
+        yield 'rating', self.rating
+        yield 'artist', self.artist
+        yield 'album', self.album
+        yield 'genre', self.genre
+        yield 'title', self.title
+        yield 'keywords', self.keywords
+        yield 'youtube', self.youtube
 
-    def tuple(self):
-        return (self.duration,
-                self.size,
-                self.rating,
-                self.artist,
-                self.album,
-                self.title,
-                self.genre,
-                self.keywords,
-                self.youtube)
+    def __len__(self):
+        # return len(self.tuple())
+        return 12
+
+    # def __repr__(self):
+    #     from bson.json_util import dumps
+    #     return dumps(self.tuple())
+
+    # def tuple(self):
+    #     return (self.duration,
+    #             self._folder,
+    #             self.number,
+    #             self.path,
+    #             self.size,
+    #             self.rating,
+    #             self.artist,
+    #             self.album,
+    #             self.title,
+    #             self.genre,
+    #             self.keywords,
+    #             self.youtube)
+
+    # def __str__(self):
+    #     from bson.json_util import dumps
+    #     return dumps(self.handle.tags)
 
     @property
     def path(self):
@@ -173,7 +198,3 @@ class MusicFile(object):
 
     def save(self):
         self.handle.save()
-
-    def __str__(self):
-        from bson.json_util import dumps
-        return dumps(self.handle.tags)

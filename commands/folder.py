@@ -31,13 +31,20 @@ def find(ctx, folders, **kwargs):
 @click.argument('folders', nargs=-1)
 @click.pass_context
 async def scan(ctx, folders, **kwargs):
+    lib.raise_limits()
     files = list(lib.find_files(list(folders)))
+    # musics = []
     with tqdm(total=len(files), file=sys.stdout, desc="Music loading", leave=True, position=0, disable=ctx.obj.config.quiet) as bar:
         for f in files:
             if f[1].endswith(tuple(lib.default_formats)):
                 m = file.MusicFile(f[1], f[0])
-                await ctx.obj.db.update(m)
+                await ctx.obj.db.upsert(m)
+                # musics.append(m)
+                # musics.append((m.artist, m.album, m.genre, m.folder, m.youtube, m.number, m.rating, m.duration, m.size, m.title, m.path, m.keywords), )
+                # await ctx.obj.db.append(m)
             bar.update(1)
+    # await ctx.obj.db.appendmany(musics)
+    # await ctx.obj.db.upsertall(musics)
 
 
 @cli.command()

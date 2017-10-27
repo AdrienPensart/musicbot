@@ -76,7 +76,7 @@ def timeit(f):
         result = await process(f, *args, **params)
         # Test normal function route...
         # result = await process(lambda *a, **p: print(*a, **p), *args, **params)
-        info('{}: {}'.format(f.__name__, time.time() - start))
+        debug('{}: {}'.format(f.__name__, time.time() - start))
         return result
 
     return helper
@@ -136,6 +136,7 @@ class DbContext(object):
         'user': 'postgres',
         'password': 'musicbot', }
     schema = 'public'
+    insert_log = '''insert into musics_log (artist, album, genre, folder, youtube, number, rating, duration, size, title, path, keywords) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)'''
 
     def __init__(self, **kwargs):
         self.settings.update(kwargs)
@@ -143,13 +144,42 @@ class DbContext(object):
         info(self.connection_string())
 
     def connection_string(self):
-        return 'postgresql://{}:{}@{}:{}/{}'.format(self.settings['host'], self.settings['password'], self.settings['host'], self.settings['port'], self.settings['database'])
+        return 'postgresql://{}:{}@{}:{}/{}'.format(self.settings['user'], self.settings['password'], self.settings['host'], self.settings['port'], self.settings['database'])
 
     @drier
     @timeit
-    async def update(self, m):
+    async def upsert(self, m):
         sql = '''select * from upsert($1::music)'''
         await self.execute(sql, [0, m.title, m.album, m.genre, m.artist, m.folder, m.youtube, m.number, m.path, m.rating, m.duration, m.size, m.keywords])
+
+    # @drier
+    # @timeit
+    # async def upsertall(self, musics):
+    #     sql = '''select * from upsert_all($1::music[])'''
+    #     # await self.execute(sql, [[m.title, m.album, m.genre, m.artist, m.folder, m.youtube, m.number, m.path, m.rating, m.duration, m.size, m.keywords] for m in musics])
+    #     await self.execute(sql, musics)
+    #     # async with (await self.pool).acquire() as connection:
+    #     #     stmt = await connection.prepare(sql)
+    #     #     print(stmt.get_parameters())
+    #     #     await stmt.fetch(musics)
+
+    @drier
+    @timeit
+    async def append(self, m):
+        await self.execute(self.insert_log, m.artist, m.album, m.genre, m.folder, m.youtube, m.number, m.rating, m.duration, m.size, m.title, m.path, m.keywords)
+
+    @drier
+    @timeit
+    async def appendall(self, musics):
+        for m in musics:
+            await self.execute(self.insert_log, m.artist, m.album, m.genre, m.folder, m.youtube, m.number, m.rating, m.duration, m.size, m.title, m.path, m.keywords)
+
+    @drier
+    @timeit
+    async def appendmany(self, musics):
+        async with (await self.pool).acquire() as connection:
+            await connection.executemany(self.insert_log, musics)
+        # await self.executemany(sql, musics)
 
     def __str__(self):
         return self.connection_string()
@@ -179,10 +209,18 @@ class DbContext(object):
     @drier
     @timeit
     async def execute(self, sql, *args, **kwargs):
-        info(sql)
+        debug(sql)
         async with (await self.pool).acquire() as connection:
             async with connection.transaction():
                 await connection.execute(sql, *args, **kwargs)
+
+    @drier
+    @timeit
+    async def executemany(self, sql, *args, **kwargs):
+        debug(sql)
+        async with (await self.pool).acquire() as connection:
+            async with connection.transaction():
+                await connection.executemany(sql, *args, **kwargs)
 
     async def create(self):
         debug('db create')
