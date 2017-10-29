@@ -3,6 +3,7 @@ import click
 import codecs
 import os
 from lib import helpers, database, playlist
+from logging import info
 from lib.filter import Filter
 from logging import debug
 
@@ -25,9 +26,12 @@ async def bests(ctx, **kwargs):
     ctx.obj.playlist = playlist.Playlist(**kwargs)
     for p in playlists:
         playlist_filepath = os.path.join(ctx.obj.playlist.path, p['name'])
-        with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:
-            debug('{} {}'.format(playlist_filepath, p['content']))
-            playlist_file.write(p['content'])
+        try:
+            with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:
+                debug('{} {}'.format(playlist_filepath, p['content']))
+                playlist_file.write(p['content'])
+        except:
+            info('Unable to write playlist {}'.format(playlist_filepath))
 
 
 @cli.command()
