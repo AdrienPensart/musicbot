@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 import click
 from logging import debug, info
-from lib import helpers
+from lib import helpers, database
 
 
-@click.group(invoke_without_command=False)
+# @click.group(invoke_without_command=False)
+@click.group()
 @helpers.add_options(helpers.db_options)
 @click.pass_context
-def cli(ctx, host, port, user, password, db, **kwargs):
+def cli(ctx, **kwargs):
     debug('db cli')
-    db = helpers.DbContext(host=host, port=port, user=user, password=password, database=db)
+    db = database.DbContext(**kwargs)
     info(db.connection_string())
     ctx.obj.db = db
 

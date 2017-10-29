@@ -15,6 +15,7 @@ def mysplit(s, delim=','):
 
 
 class File(object):
+    id = 0
 
     def __init__(self, filename, _folder=''):
         self._folder = _folder
@@ -22,7 +23,7 @@ class File(object):
         self.youtube_link = None
 
     def to_list(self):
-        return [0,
+        return [self.id,
                 self.title,
                 self.album,
                 self.genre,

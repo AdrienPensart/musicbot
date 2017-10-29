@@ -1,6 +1,6 @@
 from logging import debug, info
 from .helpers import drier, timeit
-from . import filter
+from .filter import Filter
 import asyncpg
 import sys
 import os
@@ -20,7 +20,6 @@ class DbContext(object):
         for s in self.settings.keys():
             if s in kwargs:
                 self.settings[s] = kwargs[s]
-        print(self.settings)
         self._pool = None
         info(self.connection_string())
 
@@ -32,25 +31,33 @@ class DbContext(object):
     async def upsert(self, m):
         sql = '''select * from upsert($1::music)'''
         l = m.to_list()
-        print(l)
         await self.execute(sql, l)
 
-    async def filter(self, f=filter.Filter()):
+    async def filter(self, f=Filter()):
         sql = '''select * from do_filter($1::filter)'''
         l = f.to_list()
-        print(l)
         return await self.fetch(sql, l)
 
-    # @drier
-    # @timeit
-    # async def upsertall(self, musics):
-    #     sql = '''select * from upsert_all($1::music[])'''
-    #     # await self.execute(sql, [[m.title, m.album, m.genre, m.artist, m.folder, m.youtube, m.number, m.path, m.rating, m.duration, m.size, m.keywords] for m in musics])
-    #     await self.execute(sql, musics)
-    #     # async with (await self.pool).acquire() as connection:
-    #     #     stmt = await connection.prepare(sql)
-    #     #     print(stmt.get_parameters())
-    #     #     await stmt.fetch(musics)
+    async def playlist(self, f=Filter()):
+        sql = '''select * from generate_playlist($1::filter)'''
+        l = f.to_list()
+        return await self.fetchrow(sql, l)
+
+    async def bests(self, f=Filter()):
+        sql = '''select * from generate_bests($1::filter)'''
+        l = f.to_list()
+        return await self.fetch(sql, l)
+
+    @drier
+    @timeit
+    async def upsertall(self, musics):
+        sql = '''select * from upsert_all($1::music[])'''
+        l = [m.to_list() for m in musics]
+        await self.execute(sql, l)
+        # async with (await self.pool).acquire() as connection:
+        #     stmt = await connection.prepare(sql)
+        #     print(stmt.get_parameters())
+        #     await stmt.fetch(musics)
 
     @drier
     @timeit
@@ -84,6 +91,11 @@ class DbContext(object):
         info('fetching: {}'.format(*args))
         return (await (await self.pool).fetch(*args, **kwargs))
 
+    @timeit
+    async def fetchrow(self, *args, **kwargs):
+        info('fetching row: {}'.format(*args))
+        return (await (await self.pool).fetchrow(*args, **kwargs))
+
     @drier
     @timeit
     async def executefile(self, filepath):
@@ -111,17 +123,23 @@ class DbContext(object):
             async with connection.transaction():
                 await connection.executemany(sql, *args, **kwargs)
 
+    @drier
+    @timeit
     async def create(self):
         debug('db create')
         sql = 'create schema if not exists {}'.format(self.schema)
         await self.execute(sql)
         await self.executefile('lib/musicbot.sql')
 
+    @drier
+    @timeit
     async def drop(self):
         debug('db drop')
         sql = 'drop schema if exists {} cascade'.format(self.schema)
         await self.execute(sql)
 
+    @drier
+    @timeit
     async def clear(self):
         debug('clear')
         await self.drop()

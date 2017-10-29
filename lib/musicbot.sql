@@ -410,6 +410,14 @@ create type playlist as
     content varchar
 );
 
+create or replace function generate_playlist(mf filter default new_filter())
+returns table(content text) as
+$$
+        select
+            '#EXTM3U' || E'\n' || string_agg(f.path, E'\n') as content
+        from do_filter(mf) f;
+$$ language sql;
+
 create or replace function generate_bests_artist_keyword(mf filter default new_filter(min_rating := 0.8))
 returns setof playlist as
 $$
@@ -429,7 +437,7 @@ $$
     with recursive
         musics as (select path, artist from do_filter(mf))
         select
-            (m.artist || '.m3u') as name,
+            (m.artist || '/bests.m3u') as name,
             '#EXTM3U' || E'\n' || string_agg(path, E'\n') as content
         from musics m
         group by m.artist;

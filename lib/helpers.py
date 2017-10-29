@@ -27,6 +27,12 @@ db_options = [
     click.option('--password', help='DB password', default='musicbot')
 ]
 
+default_fields = ['title', 'album', 'artist', 'genre', 'path', 'keywords', 'folder', 'rating', 'number', 'folder', 'youtube', 'duration', 'size']
+tag_options = [
+    click.option('--fields', help='Show only those fields', default=default_fields, multiple=True),
+    click.option('--output', help='Tags output format'),
+]
+
 filter_options = [
     click.option('--filter', help='Filter file to load'),
     click.option('--limit', help='Fetch a maximum limit of music'),
@@ -52,8 +58,8 @@ filter_options = [
 ]
 
 playlist_options = [
-    click.option('--relative', help='Generate relatives paths'),
-    click.option('--shuffle', help='Randomize selection'),
+    click.option('--relative', help='Generate relatives paths', is_flag=True),
+    click.option('--shuffle', help='Randomize selection', is_flag=True),
     click.option('--path', help='Playlist output file path'),
     click.option('--type', help='Playlist format', type=click.Choice(playlist.playlist_types), default=playlist.default_playlist_type)
 ]

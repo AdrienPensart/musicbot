@@ -1,33 +1,43 @@
 # -*- coding: utf-8 -*-
 import click
-from lib import helpers
-from logging import debug, info, warning, error, critical
+from lib import helpers, database
+from lib.filter import Filter
 
 
-@click.group(invoke_without_command=True)
-@helpers.add_options(helpers.filter_options)
+@click.group(invoke_without_command=False)
+@helpers.add_options(helpers.db_options)
 @click.pass_context
 def cli(ctx, **kwargs):
-    debug(kwargs)
-    click.echo('cli')
+    ctx.obj.db = database.DbContext(**kwargs)
 
 
 @cli.command()
+@helpers.coro
+@helpers.add_options(helpers.filter_options)
+@helpers.add_options(helpers.tag_options)
 @click.pass_context
-def show(ctx, **kwargs):
-    debug(kwargs)
-    click.echo('show')
+async def show(ctx, fields, **kwargs):
+    ctx.obj.mf = Filter(**kwargs)
+    musics = await ctx.obj.db.filter(ctx.obj.mf)
+    for m in musics:
+        print([m[f] for f in fields])
 
 
 @cli.command()
+@helpers.coro
+@helpers.add_options(helpers.filter_options)
 @click.pass_context
-def add(ctx, **kwargs):
-    debug(kwargs)
-    click.echo('add')
+async def add(ctx, **kwargs):
+    ctx.obj.mf = Filter(**kwargs)
+    musics = await ctx.obj.db.filter(ctx.obj.mf)
+    print(musics)
 
 
 @cli.command()
+@helpers.coro
+@helpers.add_options(helpers.filter_options)
 @click.pass_context
-def delete(ctx, *kwargs):
-    debug(kwargs)
-    click.echo('delete')
+async def delete(ctx, *kwargs):
+    ctx.obj.mf = Filter(**kwargs)
+    musics = await ctx.obj.db.filter(ctx.obj.mf)
+    print(musics)
