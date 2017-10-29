@@ -10,13 +10,14 @@ name = "pypi"
 click = "*"
 asyncpg = "*"
 attrdict = "*"
-pyyaml = "*"
+PyYAML = "*"
 tqdm = "*"
 pytaglib = "*"
 google-api-python-client = "*"
 isodate = "*"
-sanic = "*"
+Sanic = "*"
 pymongo = "*"
+watchdog = "*"
 
 
 [dev-packages]

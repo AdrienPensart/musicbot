@@ -4,7 +4,6 @@
 import click
 import os
 from attrdict import AttrDict
-from logging import debug
 from lib import helpers
 
 plugin_folder = os.path.join(os.path.dirname(__file__), 'commands')
@@ -39,9 +38,7 @@ def cli(ctx, verbosity, quiet, dry):
     helpers.config.verbosity = verbosity
     helpers.config.quiet = quiet
     helpers.config.dry = dry
-    debug('main cli')
     ctx.obj.config = helpers.config
-    debug(ctx)
 
 
 if __name__ == '__main__':

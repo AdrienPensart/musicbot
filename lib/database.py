@@ -6,6 +6,7 @@ import sys
 import os
 
 
+# class DbContext(metaclass=Synchronizer):
 class DbContext(object):
     settings = {
         'host': 'localhost',
@@ -25,6 +26,12 @@ class DbContext(object):
 
     def connection_string(self):
         return 'postgresql://{}:{}@{}:{}/{}'.format(self.settings['user'], self.settings['password'], self.settings['host'], self.settings['port'], self.settings['database'])
+
+    @drier
+    @timeit
+    def delete(self, path):
+        sql = '''select delete($1)'''
+        self.execute(sql, path)
 
     @drier
     @timeit
