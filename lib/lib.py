@@ -5,24 +5,18 @@ except ImportError:
     from scandir import scandir, walk
 import sys
 import re
-import random
 import yaml
 import queue
 import threading
 from tqdm import tqdm
-from . import file
+from . import file, filter
 from timeit import default_timer as timer
-from logging import debug, info, warning, error, critical
+from logging import debug, info, error, critical
 
 
 quiet = False
-default_formats = ["mp3", "flac"]
 output_types = ["list", "json"]
 default_output_type = 'json'
-default_min_rating = 0.0
-default_max_rating = 5.0
-default_playlist_type = 'm3u'
-playlist_types = ['list', 'm3u']
 
 
 def empty_dirs(root_dir, recursive=True):
@@ -76,66 +70,6 @@ class lazy_property(object):
         return value
 
 
-min_int = 0
-max_int = 2147483647
-default_max_limit = max_int
-default_min_size = min_int
-default_max_size = max_int
-default_min_duration = min_int
-default_max_duration = max_int
-
-
-class MusicFilter(object):
-
-    def __init__(self, **kwargs):
-        for key, value in kwargs.items():
-            if value is not None:
-                setattr(self, key, value)
-
-    def __repr__(self):
-        from bson.json_util import dumps
-        return dumps(self.tuple())
-
-    def tuple(self):
-        return (self.id,
-                self.min_duration, self.max_duration,
-                self.min_size, self.max_size,
-                self.min_rating, self.max_rating,
-                self.artists, self.no_artists,
-                self.albums, self.no_albums,
-                self.titles, self.no_titles,
-                self.genres, self.no_genres,
-                self.formats, self.no_formats,
-                self.keywords, self.no_keywords,
-                self.shuffle, self.limit, self.youtube)
-
-    id = 0
-    relative = False
-    shuffle = False
-    youtube = None
-    formats = default_formats
-    no_formats = list()
-    genres = list()
-    no_genres = list()
-    limit = default_max_limit
-    min_duration = default_min_duration
-    max_duration = default_max_duration
-    min_size = default_min_size
-    max_size = default_max_size
-    min_rating = default_min_rating
-    max_rating = default_max_rating
-    keywords = list()
-    no_keywords = list()
-    artists = list()
-    no_artists = list()
-    titles = list()
-    no_titles = list()
-    albums = list()
-    no_albums = list()
-    checks = list()
-    no_checks = list()
-
-
 def dump_filter(data, path):
     with open(path, 'w') as stream:
         yaml.dump(data, stream, default_flow_style=False)
@@ -143,7 +77,7 @@ def dump_filter(data, path):
 
 def load_filter(path):
     with open(path, 'r') as stream:
-        mf = MusicFilter()
+        mf = musicfilter.MusicFilter()
         mf = yaml.load(stream)
         return mf
 
@@ -346,7 +280,7 @@ class QueueUpsertAccumulator:
 
 def music_filter(musics, mf=None, acc=None):
     if mf is None:
-        mf = MusicFilter()
+        mf = musicfilter.MusicFilter()
     if acc is None:
         acc = ListAccumulator()
     with tqdm(total=len(musics), file=sys.stdout, desc="Music loading", leave=True, position=0, disable=quiet) as bar:
@@ -484,30 +418,6 @@ def do_filter(directory, filename, mf, acc):
             return
     debug("Adding {}".format(m))
     acc.add(m)
-
-
-def new_playlist(playlist_type, musics, mf):
-    lines = []
-    for m in musics:
-        if mf.relative:
-            beginning = os.path.join(m.folder + '/')
-            if m.path.startswith(beginning):
-                lines.append(m.path[len(beginning):])
-            else:
-                warning("Invalid beginning for relative path {} beginning is {}".format(m.path, beginning))
-                continue
-        else:
-            lines.append(m.path)
-    if mf.shuffle:
-        random.shuffle(lines)
-    else:
-        lines.sort()
-    if playlist_type == 'm3u':
-        lines.insert(0, "#EXTM3U")
-        return "\n".join(lines)
-    elif playlist_type == 'list':
-        return lines
-    raise ValueError(playlist_type)
 
 
 default_checks = ['keywords', 'strict_title', 'title', 'path',

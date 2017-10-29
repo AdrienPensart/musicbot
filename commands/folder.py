@@ -3,16 +3,15 @@ import click
 import sys
 from tqdm import tqdm
 from logging import debug, info
-from lib import helpers, lib, file
+from lib import helpers, lib, file, database, filter
 
 
 @click.group(invoke_without_command=False)
 @helpers.add_options(helpers.db_options)
 @click.pass_context
-def cli(ctx, host, port, user, password, db, **kwargs):
+def cli(ctx, **kwargs):
     debug('folder cli')
-    db = helpers.DbContext(host=host, port=port, user=user, password=password, database=db)
-    ctx.obj.db = db
+    ctx.obj.db = database.DbContext(**kwargs)
 
 
 @cli.command()
@@ -36,8 +35,8 @@ async def scan(ctx, folders, **kwargs):
     # musics = []
     with tqdm(total=len(files), file=sys.stdout, desc="Music loading", leave=True, position=0, disable=ctx.obj.config.quiet) as bar:
         for f in files:
-            if f[1].endswith(tuple(lib.default_formats)):
-                m = file.MusicFile(f[1], f[0])
+            if f[1].endswith(tuple(filter.default_formats)):
+                m = file.File(f[1], f[0])
                 await ctx.obj.db.upsert(m)
                 # musics.append(m)
                 # musics.append((m.artist, m.album, m.genre, m.folder, m.youtube, m.number, m.rating, m.duration, m.size, m.title, m.path, m.keywords), )

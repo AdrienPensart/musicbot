@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 import click
 import asyncio
-import asyncpg
-import sys
-import os
 import time
 from functools import wraps
 from logging import debug, info
 from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL, basicConfig, getLogger
-from . import lib
+from . import filter, playlist
 
 verbosities = {'debug': DEBUG,
                'info': INFO,
@@ -25,7 +22,7 @@ global_options = [
 db_options = [
     click.option('--host', help='DB host', default='localhost'),
     click.option('--port', help='DB port', default=5432),
-    click.option('--db', help='DB name', default='musicbot'),
+    click.option('--database', help='DB name', default='musicbot'),
     click.option('--user', help='DB user', default='postgres'),
     click.option('--password', help='DB password', default='musicbot')
 ]
@@ -34,24 +31,31 @@ filter_options = [
     click.option('--filter', help='Filter file to load'),
     click.option('--limit', help='Fetch a maximum limit of music'),
     click.option('--youtube', help='Select musics with a youtube link', default=None, is_flag=True),
-    click.option('--formats', help='Select musics with file format, comma separated', default=','.join(lib.default_formats)),
-    click.option('--no-formats', help='Filter musics without format, comma separated, can be "None" for empty string'),
-    click.option('--keywords', help='Select musics with keywords, comma separated, can be "None" for empty string'),
-    click.option('--no-keywords', help='Filter musics without keywords, comma separated, can be "None" for empty string'),
-    click.option('--artists', help='Select musics with artists, comma separated, can be "None" for empty string'),
-    click.option('--no-artists', help='Filter musics without artists, comma separated, can be "None" for empty string'),
-    click.option('--albums', help='Select musics with albums, comma separated, can be "None" for empty string'),
-    click.option('--no-albums', help='Filter musics without albums, comma separated, can be "None" for empty string'),
-    click.option('--titles', help='Select musics with titles, comma separated, can be "None" for empty string'),
-    click.option('--no-titles', help='Filter musics without titless, comma separated, can be "None" for empty string'),
-    click.option('--genres', help='Select musics with genres, comma separated, can be "None" for empty string'),
-    click.option('--no-genres', help='Filter musics without genres, comma separated, can be "None" for empty string'),
+    click.option('--formats', help='Select musics with file format, comma separated', default=filter.default_formats, multiple=True),
+    click.option('--no-formats', help='Filter musics without format, comma separated, can be "None" for empty string', multiple=True),
+    click.option('--keywords', help='Select musics with keywords, comma separated, can be "None" for empty string', multiple=True),
+    click.option('--no-keywords', help='Filter musics without keywords, comma separated, can be "None" for empty string', multiple=True),
+    click.option('--artists', help='Select musics with artists, comma separated, can be "None" for empty string', multiple=True),
+    click.option('--no-artists', help='Filter musics without artists, comma separated, can be "None" for empty string', multiple=True),
+    click.option('--albums', help='Select musics with albums, comma separated, can be "None" for empty string', multiple=True),
+    click.option('--no-albums', help='Filter musics without albums, comma separated, can be "None" for empty string', multiple=True),
+    click.option('--titles', help='Select musics with titles, comma separated, can be "None" for empty string', multiple=True),
+    click.option('--no-titles', help='Filter musics without titless, comma separated, can be "None" for empty string', multiple=True),
+    click.option('--genres', help='Select musics with genres, comma separated, can be "None" for empty string', multiple=True),
+    click.option('--no-genres', help='Filter musics without genres, comma separated, can be "None" for empty string', multiple=True),
     click.option('--min-duration', help='Minimum duration filter (hours:minutes:seconds)'),
     click.option('--max-duration', help='Maximum duration filter (hours:minutes:seconds))'),
     click.option('--min-size', help='Minimum file size filter (in bytes)'),
     click.option('--max-size', help='Maximum file size filter (in bytes)'),
     click.option('--min-rating', help='Minimum rating (between {default_min_rating} and {default_max_rating})'),
     click.option('--max-rating', help='Maximum rating (between {default_min_rating} and {default_max_rating})')
+]
+
+playlist_options = [
+    click.option('--relative', help='Generate relatives paths'),
+    click.option('--shuffle', help='Randomize selection'),
+    click.option('--path', help='Playlist output file path'),
+    click.option('--type', help='Playlist format', type=click.Choice(playlist.playlist_types), default=playlist.default_playlist_type)
 ]
 
 
@@ -126,121 +130,6 @@ class GlobalContext(object):
 
     def __repr__(self):
         return '{} {} {}'.format(self.quiet, self.dry, self._verbosity)
-
-
-class DbContext(object):
-    settings = {
-        'host': 'localhost',
-        'port': 5432,
-        'database': 'musicbot',
-        'user': 'postgres',
-        'password': 'musicbot', }
-    schema = 'public'
-    insert_log = '''insert into musics_log (artist, album, genre, folder, youtube, number, rating, duration, size, title, path, keywords) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)'''
-
-    def __init__(self, **kwargs):
-        self.settings.update(kwargs)
-        self._pool = None
-        info(self.connection_string())
-
-    def connection_string(self):
-        return 'postgresql://{}:{}@{}:{}/{}'.format(self.settings['user'], self.settings['password'], self.settings['host'], self.settings['port'], self.settings['database'])
-
-    @drier
-    @timeit
-    async def upsert(self, m):
-        sql = '''select * from upsert($1::music)'''
-        await self.execute(sql, [0, m.title, m.album, m.genre, m.artist, m.folder, m.youtube, m.number, m.path, m.rating, m.duration, m.size, m.keywords])
-
-    # @drier
-    # @timeit
-    # async def upsertall(self, musics):
-    #     sql = '''select * from upsert_all($1::music[])'''
-    #     # await self.execute(sql, [[m.title, m.album, m.genre, m.artist, m.folder, m.youtube, m.number, m.path, m.rating, m.duration, m.size, m.keywords] for m in musics])
-    #     await self.execute(sql, musics)
-    #     # async with (await self.pool).acquire() as connection:
-    #     #     stmt = await connection.prepare(sql)
-    #     #     print(stmt.get_parameters())
-    #     #     await stmt.fetch(musics)
-
-    @drier
-    @timeit
-    async def append(self, m):
-        await self.execute(self.insert_log, m.artist, m.album, m.genre, m.folder, m.youtube, m.number, m.rating, m.duration, m.size, m.title, m.path, m.keywords)
-
-    @drier
-    @timeit
-    async def appendall(self, musics):
-        for m in musics:
-            await self.execute(self.insert_log, m.artist, m.album, m.genre, m.folder, m.youtube, m.number, m.rating, m.duration, m.size, m.title, m.path, m.keywords)
-
-    @drier
-    @timeit
-    async def appendmany(self, musics):
-        async with (await self.pool).acquire() as connection:
-            await connection.executemany(self.insert_log, musics)
-        # await self.executemany(sql, musics)
-
-    def __str__(self):
-        return self.connection_string()
-
-    @property
-    async def pool(self):
-        if self._pool is None:
-            self._pool: asyncpg.pool.Pool = await asyncpg.create_pool(**self.settings)
-        return self._pool
-
-    @timeit
-    async def fetch(self, *args, **kwargs):
-        info('fetching: {}'.format(*args))
-        return (await (await self.pool).fetch(*args, **kwargs))
-
-    @drier
-    @timeit
-    async def executefile(self, filepath):
-        schema_path = os.path.join(os.path.dirname(sys.argv[0]), filepath)
-        info('loading schema: {}'.format(schema_path))
-        with open(schema_path, "r") as s:
-            sql = s.read()
-            async with (await self.pool).acquire() as connection:
-                async with connection.transaction():
-                    await connection.execute(sql)
-
-    @drier
-    @timeit
-    async def execute(self, sql, *args, **kwargs):
-        debug(sql)
-        async with (await self.pool).acquire() as connection:
-            async with connection.transaction():
-                await connection.execute(sql, *args, **kwargs)
-
-    @drier
-    @timeit
-    async def executemany(self, sql, *args, **kwargs):
-        debug(sql)
-        async with (await self.pool).acquire() as connection:
-            async with connection.transaction():
-                await connection.executemany(sql, *args, **kwargs)
-
-    async def create(self):
-        debug('db create')
-        sql = 'create schema if not exists {}'.format(self.schema)
-        await self.execute(sql)
-        await self.executefile('lib/musicbot.sql')
-
-    async def drop(self):
-        debug('db drop')
-        sql = 'drop schema if exists {} cascade'.format(self.schema)
-        await self.execute(sql)
-
-    async def clear(self):
-        debug('clear')
-        await self.drop()
-        await self.create()
-
-    async def folders(self):
-        sql = '''select name from folders'''
-        return await self.fetch(sql)
 
 
 config = GlobalContext()
