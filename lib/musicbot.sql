@@ -414,7 +414,7 @@ create or replace function generate_playlist(mf filter default new_filter())
 returns table(content text) as
 $$
         select
-            '#EXTM3U' || E'\n' || string_agg(f.path, E'\n') as content
+            coalesce('#EXTM3U' || E'\n' || string_agg(f.path, E'\n'), '') as content
         from do_filter(mf) f;
 $$ language sql;
 

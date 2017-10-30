@@ -1,5 +1,8 @@
+# -*- coding: utf-8 -*-
+from .lib import convert_rating
 default_min_rating = 0.0
 default_max_rating = 5.0
+rating_choices = [str(x * 0.5) for x in range(0, 11)]
 default_formats = ["mp3", "flac"]
 min_int = 0
 max_int = 2147483647
@@ -16,6 +19,17 @@ class Filter(object):
         for key, value in kwargs.items():
             if value is not None:
                 setattr(self, key, value)
+        self.min_rating = convert_rating(float(self.min_rating))
+        self.max_rating = convert_rating(float(self.max_rating))
+        assert self.min_duration <= self.max_duration
+        assert self.min_rating <= self.max_rating
+        assert len(set(self.formats).intersection(self.no_formats)) == 0
+        assert len(set(self.artists).intersection(self.no_artists)) == 0
+        assert len(set(self.genres).intersection(self.no_genres)) == 0
+        assert len(set(self.albums).intersection(self.no_albums)) == 0
+        assert len(set(self.titles).intersection(self.no_titles)) == 0
+        assert len(set(self.keywords).intersection(self.no_keywords)) == 0
+        assert len(set(self.checks).intersection(self.no_checks)) == 0
 
     def to_list(self):
         # return [a for a in dir(self) if not a.startswith('__')]

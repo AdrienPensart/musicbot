@@ -5,7 +5,7 @@ import time
 from functools import wraps
 from logging import debug, info
 from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL, basicConfig, getLogger
-from . import filter, playlist
+from . import filter
 
 verbosities = {'debug': DEBUG,
                'info': INFO,
@@ -37,64 +37,30 @@ filter_options = [
     click.option('--filter', help='Filter file to load'),
     click.option('--limit', help='Fetch a maximum limit of music'),
     click.option('--youtube', help='Select musics with a youtube link', default=None, is_flag=True),
-    click.option('--formats', help='Select musics with file format, comma separated', default=filter.default_formats, multiple=True),
-    click.option('--no-formats', help='Filter musics without format, comma separated, can be "None" for empty string', multiple=True),
-    click.option('--keywords', help='Select musics with keywords, comma separated, can be "None" for empty string', multiple=True),
-    click.option('--no-keywords', help='Filter musics without keywords, comma separated, can be "None" for empty string', multiple=True),
-    click.option('--artists', help='Select musics with artists, comma separated, can be "None" for empty string', multiple=True),
-    click.option('--no-artists', help='Filter musics without artists, comma separated, can be "None" for empty string', multiple=True),
-    click.option('--albums', help='Select musics with albums, comma separated, can be "None" for empty string', multiple=True),
-    click.option('--no-albums', help='Filter musics without albums, comma separated, can be "None" for empty string', multiple=True),
-    click.option('--titles', help='Select musics with titles, comma separated, can be "None" for empty string', multiple=True),
-    click.option('--no-titles', help='Filter musics without titless, comma separated, can be "None" for empty string', multiple=True),
-    click.option('--genres', help='Select musics with genres, comma separated, can be "None" for empty string', multiple=True),
-    click.option('--no-genres', help='Filter musics without genres, comma separated, can be "None" for empty string', multiple=True),
+    click.option('--formats', help='Select musics with file format', default=filter.default_formats, multiple=True),
+    click.option('--no-formats', help='Filter musics without format', multiple=True),
+    click.option('--keywords', help='Select musics with keywords', multiple=True),
+    click.option('--no-keywords', help='Filter musics without keywords', multiple=True),
+    click.option('--artists', help='Select musics with artists', multiple=True),
+    click.option('--no-artists', help='Filter musics without artists', multiple=True),
+    click.option('--albums', help='Select musics with albums', multiple=True),
+    click.option('--no-albums', help='Filter musics without albums', multiple=True),
+    click.option('--titles', help='Select musics with titles', multiple=True),
+    click.option('--no-titles', help='Filter musics without titless', multiple=True),
+    click.option('--genres', help='Select musics with genres', multiple=True),
+    click.option('--no-genres', help='Filter musics without genres', multiple=True),
     click.option('--min-duration', help='Minimum duration filter (hours:minutes:seconds)'),
     click.option('--max-duration', help='Maximum duration filter (hours:minutes:seconds))'),
     click.option('--min-size', help='Minimum file size filter (in bytes)'),
     click.option('--max-size', help='Maximum file size filter (in bytes)'),
-    click.option('--min-rating', help='Minimum rating (between {default_min_rating} and {default_max_rating})'),
-    click.option('--max-rating', help='Maximum rating (between {default_min_rating} and {default_max_rating})')
+    click.option('--min-rating', help='Minimum rating', type=click.Choice(filter.rating_choices)),
+    click.option('--max-rating', help='Maximum rating', type=click.Choice(filter.rating_choices))
 ]
 
 playlist_options = [
     click.option('--relative', help='Generate relatives paths', is_flag=True),
     click.option('--shuffle', help='Randomize selection', is_flag=True),
-    click.option('--path', help='Playlist output file path'),
-    click.option('--type', help='Playlist format', type=click.Choice(playlist.playlist_types), default=playlist.default_playlist_type)
 ]
-
-
-# class Synchronizer(type):
-#     """ A metaclass which adds synchronous version of coroutines.
-#
-#     This metaclass finds all coroutine functions defined on a class
-#     and adds a synchronous version with a '_s' suffix appended to the
-#     original function name.
-#
-#     """
-#     def __new__(cls, clsname, bases, dct, **kwargs):
-#         new_dct = {}
-#         for name, val in dct.items():
-#             # Make a sync version of all coroutine functions
-#             if asyncio.iscoroutinefunction(val):
-#                 meth = cls.sync_maker(name)
-#                 syncname = '{}_s'.format(name)
-#                 meth.__name__ = syncname
-#                 meth.__qualname__ = '{}.{}'.format(clsname, syncname)
-#                 new_dct[syncname] = meth
-#         dct.update(new_dct)
-#         return super().__new__(cls, clsname, bases, dct)
-#
-#     @staticmethod
-#     def sync_maker(func):
-#         def sync_func(self, *args, **kwargs):
-#             meth = getattr(self, func)
-#             loop = asyncio.new_event_loop()
-#             asyncio.set_event_loop(loop)
-#             return asyncio.get_event_loop().run_until_complete(meth(*args, **kwargs))
-#
-#         return sync_func
 
 
 def add_options(options):
