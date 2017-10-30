@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 import click
 import sys
+import os
 import asyncio
 from tqdm import tqdm
 from logging import debug, info
 from lib import helpers, lib, file, database, filter
+from lib.filter import Filter
+from lib.lib import empty_dirs
 
 
 @click.group(invoke_without_command=False)
@@ -22,6 +25,48 @@ def find(ctx, folders, **kwargs):
     files = lib.find_files(folders)
     for f in files:
         print(f[1])
+
+
+@cli.command()
+@helpers.coro
+@helpers.add_options(helpers.filter_options)
+@click.argument('destination')
+@click.pass_context
+async def sync(ctx, destination, **kwargs):
+    info('Destination: {}'.format(destination))
+    ctx.obj.mf = Filter(**kwargs)
+    musics = await ctx.obj.db.filter(ctx.obj.mf)
+
+    files = lib.all_files(destination)
+    destinations = {f[len(destination) + 1:]: f for f in files}
+    sources = {m['path'][len(m['folder']) + 1:]: m['path'] for m in musics}
+    to_delete = set(destinations.keys()) - set(sources.keys())
+    to_copy = set(sources.keys()) - set(destinations.keys())
+    with tqdm(total=len(to_delete), file=sys.stdout, desc="Deleting music", leave=True, position=0, disable=ctx.obj.config.quiet) as bar:
+        for d in to_delete:
+            if not ctx.obj.config.dry:
+                info("Deleting {}".format(destinations[d]))
+                os.remove(destinations[d])
+            else:
+                info("[DRY-RUN] False Deleting {}".format(destinations[d]))
+            bar.update(1)
+    with tqdm(total=len(to_copy), file=sys.stdout, desc="Copying music", leave=True, position=0, disable=ctx.obj.config.quiet) as bar:
+        from shutil import copyfile
+        for c in sorted(to_copy):
+            final_destination = os.path.join(destination, c)
+            if not ctx.obj.config.dry:
+                info("Copying {} to {}".format(sources[c], final_destination))
+                os.makedirs(os.path.dirname(final_destination), exist_ok=True)
+                copyfile(sources[c], final_destination)
+            else:
+                info("[DRY-RUN] False Copying {} to {}".format(sources[c], final_destination))
+            bar.update(1)
+
+    import shutil
+    for d in empty_dirs(destination):
+        if not ctx.obj.config.dry:
+            shutil.rmtree(d)
+        info("[DRY-RUN] Removing empty dir {}".format(d))
 
 
 @cli.command()
@@ -75,7 +120,6 @@ async def watch(ctx, **kwargs):
                     f = file.File(path, folder['name'])
                     c = ctx.obj.db.upsert(f)
                     asyncio.run_coroutine_threadsafe(c, self.loop)
-                    # ctx.obj.db.upsert(f)
                     break
 
         def on_modified(self, event):

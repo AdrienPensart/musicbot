@@ -54,10 +54,7 @@ filter_options = [
     click.option('--min-size', help='Minimum file size filter (in bytes)'),
     click.option('--max-size', help='Maximum file size filter (in bytes)'),
     click.option('--min-rating', help='Minimum rating', type=click.Choice(filter.rating_choices)),
-    click.option('--max-rating', help='Maximum rating', type=click.Choice(filter.rating_choices))
-]
-
-playlist_options = [
+    click.option('--max-rating', help='Maximum rating', type=click.Choice(filter.rating_choices)),
     click.option('--relative', help='Generate relatives paths', is_flag=True),
     click.option('--shuffle', help='Randomize selection', is_flag=True),
 ]

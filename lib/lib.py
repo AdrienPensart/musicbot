@@ -25,7 +25,7 @@ def empty_dirs(root_dir, recursive=True):
     empty_dirs = []
     for root, dirs, files in os.walk(root_dir, topdown=False):
         if recursive:
-            all_subs_empty = True  # until proven otherwise
+            all_subs_empty = True
             for sub in dirs:
                 full_sub = os.path.join(root, sub)
                 if full_sub not in empty_dirs:

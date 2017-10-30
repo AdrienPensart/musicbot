@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import click
+import os
 from logging import debug, info
 from lib import helpers, database
 
@@ -40,8 +41,8 @@ async def clear(ctx, **kwargs):
 @helpers.coro
 @click.pass_context
 async def clean(ctx, **kwargs):
-    debug('clean')
-    # for m in self.musics:
-    # if(not os.path.isfile(m.path)):
-    #     info('{} does not exist'.format(m.path))
-    #     self.collection.delete(m.path)
+    musics = await ctx.obj.db.filter()
+    for m in musics:
+        if not os.path.isfile(m['path']):
+            info('{} does not exist'.format(m['path']))
+            await ctx.obj.db.delete(m['path'])

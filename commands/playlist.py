@@ -26,12 +26,15 @@ async def bests(ctx, path, **kwargs):
     playlists = await ctx.obj.db.bests(ctx.obj.mf)
     for p in playlists:
         playlist_filepath = os.path.join(path, p['name'])
-        try:
-            with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:
-                debug('{} {}'.format(playlist_filepath, p['content']))
-                playlist_file.write(p['content'])
-        except:
-            info('Unable to write playlist {}'.format(playlist_filepath))
+        if not ctx.obj.config.dry:
+            try:
+                with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:
+                    debug('{} {}'.format(playlist_filepath, p['content']))
+                    playlist_file.write(p['content'])
+            except:
+                info('Unable to write playlist {}'.format(playlist_filepath))
+        else:
+            info('Writing playlist to {} with content {}'.format(playlist_filepath, p['content']))
 
 
 @cli.command()

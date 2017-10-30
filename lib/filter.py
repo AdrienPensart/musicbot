@@ -43,7 +43,7 @@ class Filter(object):
                 self.genres, self.no_genres,
                 self.formats, self.no_formats,
                 self.keywords, self.no_keywords,
-                self.shuffle, self.limit, self.youtube]
+                self.shuffle, self.relative, self.limit, self.youtube]
 
     id = 0
     relative = False

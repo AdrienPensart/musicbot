@@ -107,6 +107,7 @@ create table if not exists filter
     keywords varchar[] default '{}',
     no_keywords varchar[] default '{}',
     shuffle boolean default 'false',
+    relative boolean default 'false',
     "limit" integer default +2147483647,
     youtube boolean default null,
     constraint min_rating_range check (min_rating between 0.0 and 1.0),
@@ -134,6 +135,7 @@ create or replace function new_filter
     keywords varchar[] default '{}',
     no_keywords varchar[] default '{}',
     shuffle boolean default 'false',
+    relative boolean default 'false',
     "limit" integer default +2147483647,
     youtube boolean default null
 ) returns filter as
@@ -148,7 +150,7 @@ begin
             genres, no_genres,
             formats, no_formats,
             keywords, no_keywords,
-            shuffle, "limit", youtube);
+            shuffle, relative, "limit", youtube);
 end;
 $$ language plpgsql;
 
@@ -341,52 +343,52 @@ $$
    limit mf.limit;
 $$ language sql;
 
-create or replace function generate_form(mf filter default new_filter())
-returns filter as
-$$
-    with filtered as (
-        select * from do_filter(mf)
-    ),
-    extract_keywords as (
-        select coalesce(array_agg(distinct keywords), array[]::text[]) as keywords
-        from (select unnest(array_cat_agg(keywords)) as keywords from filtered) k
-    ),
-    extract_genres as (
-        select coalesce(array_agg(distinct genre), array[]::text[]) as genres from filtered
-    ),
-    extract_artists as (
-        select coalesce(array_agg(distinct artist), array[]::text[]) as artists from filtered
-    ),
-    extract_titles as (
-        select coalesce(array_agg(distinct title), array[]::text[]) as titles from filtered
-    ),
-    extract_albums as (
-        select coalesce(array_agg(distinct album), array[]::text[]) as albums from filtered
-    )
-    select
-        0,
-        0,
-        0,
-        0,
-        0,
-        CAST ('NaN' AS DOUBLE PRECISION),
-        CAST ('NaN' AS DOUBLE PRECISION),
-        (select * from extract_artists) as artists,
-        ARRAY[]::varchar[],
-        (select * from extract_albums) as albums,
-        ARRAY[]::varchar[],
-        (select * from extract_titles) as titles,
-        ARRAY[]::varchar[],
-        (select * from extract_genres) as genres,
-        ARRAY[]::varchar[],
-        ARRAY[]::varchar[],
-        ARRAY[]::varchar[],
-        (select * from extract_keywords) as keywords,
-        ARRAY[]::varchar[],
-        False,
-        0,
-        False;
-$$ language sql;
+-- create or replace function generate_form(mf filter default new_filter())
+-- returns filter as
+-- $$
+--     with filtered as (
+--         select * from do_filter(mf)
+--     ),
+--     extract_keywords as (
+--         select coalesce(array_agg(distinct keywords), array[]::text[]) as keywords
+--         from (select unnest(array_cat_agg(keywords)) as keywords from filtered) k
+--     ),
+--     extract_genres as (
+--         select coalesce(array_agg(distinct genre), array[]::text[]) as genres from filtered
+--     ),
+--     extract_artists as (
+--         select coalesce(array_agg(distinct artist), array[]::text[]) as artists from filtered
+--     ),
+--     extract_titles as (
+--         select coalesce(array_agg(distinct title), array[]::text[]) as titles from filtered
+--     ),
+--     extract_albums as (
+--         select coalesce(array_agg(distinct album), array[]::text[]) as albums from filtered
+--     )
+--     select
+--         0,
+--         0,
+--         0,
+--         0,
+--         0,
+--         CAST ('NaN' AS DOUBLE PRECISION),
+--         CAST ('NaN' AS DOUBLE PRECISION),
+--         (select * from extract_artists) as artists,
+--         ARRAY[]::varchar[],
+--         (select * from extract_albums) as albums,
+--         ARRAY[]::varchar[],
+--         (select * from extract_titles) as titles,
+--         ARRAY[]::varchar[],
+--         (select * from extract_genres) as genres,
+--         ARRAY[]::varchar[],
+--         ARRAY[]::varchar[],
+--         ARRAY[]::varchar[],
+--         (select * from extract_keywords) as keywords,
+--         ARRAY[]::varchar[],
+--         False,
+--         0,
+--         False;
+-- $$ language sql;
 
 create or replace function do_stats(mf filter default new_filter())
 returns stats as
@@ -414,7 +416,9 @@ create or replace function generate_playlist(mf filter default new_filter())
 returns table(content text) as
 $$
         select
-            coalesce('#EXTM3U' || E'\n' || string_agg(f.path, E'\n'), '') as content
+            case when mf.relative is false then coalesce('#EXTM3U' || E'\n' || string_agg(f.path, E'\n'), '')
+            else coalesce('#EXTM3U' || E'\n' || string_agg(substring(f.path from char_length(f.folder)+2), E'\n'), '')
+            end
         from do_filter(mf) f;
 $$ language sql;
 
@@ -422,23 +426,28 @@ create or replace function generate_bests_artist_keyword(mf filter default new_f
 returns setof playlist as
 $$
     with recursive
-        musics as (select path, artist, keywords from do_filter(mf)),
-        keywords as (select path, artist, unnest(keywords) as k from musics group by path, artist, keywords order by k)
+        musics as (select path, folder, artist, keywords from do_filter(mf)),
+        keywords as (select path, folder, artist, unnest(keywords) as k from musics group by path, folder, artist, keywords order by k)
         select
             (artist || '/' || k.k || '.m3u') as name,
-            '#EXTM3U' || E'\n' || string_agg(path, E'\n') as content
+            case when mf.relative is false then coalesce('#EXTM3U' || E'\n' || string_agg(path, E'\n'), '')
+            else coalesce('#EXTM3U' || E'\n' || string_agg(substring(path from char_length(folder)+2), E'\n'), '')
+            end
         from keywords k
         group by artist, k;
 $$ language sql;
+
 
 create or replace function generate_bests_artist(mf filter default new_filter(min_rating := 0.8))
 returns setof playlist as
 $$
     with recursive
-        musics as (select path, artist from do_filter(mf))
+        musics as (select path, folder, artist from do_filter(mf))
         select
             (m.artist || '/bests.m3u') as name,
-            '#EXTM3U' || E'\n' || string_agg(path, E'\n') as content
+            case when mf.relative is false then coalesce('#EXTM3U' || E'\n' || string_agg(path, E'\n'), '')
+            else coalesce('#EXTM3U' || E'\n' || string_agg(substring(path from char_length(folder)+2), E'\n'), '')
+            end
         from musics m
         group by m.artist;
 $$ language sql;
@@ -447,10 +456,12 @@ create or replace function generate_bests_genre(mf filter default new_filter(min
 returns setof playlist as
 $$
     with recursive
-        musics as (select path, genre from do_filter(mf))
+        musics as (select path, folder, genre from do_filter(mf))
         select
             (m.genre || '.m3u') as name,
-            '#EXTM3U' || E'\n' || string_agg(path, E'\n') as content
+            case when mf.relative is false then coalesce('#EXTM3U' || E'\n' || string_agg(path, E'\n'), '')
+            else coalesce('#EXTM3U' || E'\n' || string_agg(substring(path from char_length(folder)+2), E'\n'), '')
+            end
         from musics m
         group by m.genre;
 $$ language sql;
@@ -459,14 +470,17 @@ create or replace function generate_bests_keyword(mf filter default new_filter(m
 returns setof playlist as
 $$
     with recursive
-        musics as (select path, keywords from do_filter(mf)),
-        keywords as (select path, unnest(keywords) as k from musics group by path, keywords order by k)
+        musics as (select path, folder, keywords from do_filter(mf)),
+        keywords as (select path, folder, unnest(keywords) as k from musics group by path, folder, keywords order by k)
         select
             (k.k || '.m3u') as name,
-            '#EXTM3U' || E'\n' || string_agg(path, E'\n') as content
+            case when mf.relative is false then coalesce('#EXTM3U' || E'\n' || string_agg(path, E'\n'), '')
+            else coalesce('#EXTM3U' || E'\n' || string_agg(substring(path from char_length(folder)+2), E'\n'), '')
+            end
         from keywords k
         group by k;
 $$ language sql;
+
 
 create or replace function generate_bests(mf filter default new_filter(min_rating := 0.8))
 returns setof playlist as
