@@ -77,7 +77,7 @@ async def scan(ctx, folders, **kwargs):
     lib.raise_limits()
     files = list(lib.find_files(list(folders)))
     # musics = []
-    with tqdm(total=len(files), file=sys.stdout, desc="Music loading", leave=True, position=0, disable=ctx.obj.config.quiet) as bar:
+    with tqdm(total=len(files), file=sys.stdout, desc="Loading music", leave=True, position=0, disable=ctx.obj.config.quiet) as bar:
         for f in files:
             if f[1].endswith(tuple(filter.default_formats)):
                 m = file.File(f[1], f[0])
