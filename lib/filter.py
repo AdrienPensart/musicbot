@@ -45,6 +45,10 @@ class Filter(object):
                 self.keywords, self.no_keywords,
                 self.shuffle, self.relative, self.limit, self.youtube]
 
+    @property
+    def comment(self, defaults=''):
+        return self.__get_first('COMMENT', defaults)
+
     id = 0
     relative = False
     shuffle = False

@@ -419,7 +419,7 @@ $$
             case when mf.relative is false then coalesce('#EXTM3U' || E'\n' || string_agg(f.path, E'\n'), '')
             else coalesce('#EXTM3U' || E'\n' || string_agg(substring(f.path from char_length(f.folder)+2), E'\n'), '')
             end
-        from do_filter(mf) f;
+        from (select path, folder from do_filter(mf) order by rating desc) f;
 $$ language sql;
 
 create or replace function generate_bests_artist_keyword(mf filter default new_filter(min_rating := 0.8))
@@ -429,7 +429,7 @@ $$
         musics as (select path, folder, artist, keywords from do_filter(mf)),
         keywords as (select path, folder, artist, unnest(keywords) as k from musics group by path, folder, artist, keywords order by k)
         select
-            (artist || '/' || k.k || '.m3u') as name,
+            (artist || '/' || k.k) as name,
             case when mf.relative is false then coalesce('#EXTM3U' || E'\n' || string_agg(path, E'\n'), '')
             else coalesce('#EXTM3U' || E'\n' || string_agg(substring(path from char_length(folder)+2), E'\n'), '')
             end
@@ -444,7 +444,7 @@ $$
     with recursive
         musics as (select path, folder, artist from do_filter(mf))
         select
-            (m.artist || '/bests.m3u') as name,
+            (m.artist || '/bests') as name,
             case when mf.relative is false then coalesce('#EXTM3U' || E'\n' || string_agg(path, E'\n'), '')
             else coalesce('#EXTM3U' || E'\n' || string_agg(substring(path from char_length(folder)+2), E'\n'), '')
             end
@@ -458,7 +458,7 @@ $$
     with recursive
         musics as (select path, folder, genre from do_filter(mf))
         select
-            (m.genre || '.m3u') as name,
+            (m.genre) as name,
             case when mf.relative is false then coalesce('#EXTM3U' || E'\n' || string_agg(path, E'\n'), '')
             else coalesce('#EXTM3U' || E'\n' || string_agg(substring(path from char_length(folder)+2), E'\n'), '')
             end
@@ -473,7 +473,7 @@ $$
         musics as (select path, folder, keywords from do_filter(mf)),
         keywords as (select path, folder, unnest(keywords) as k from musics group by path, folder, keywords order by k)
         select
-            (k.k || '.m3u') as name,
+            (k.k) as name,
             case when mf.relative is false then coalesce('#EXTM3U' || E'\n' || string_agg(path, E'\n'), '')
             else coalesce('#EXTM3U' || E'\n' || string_agg(substring(path from char_length(folder)+2), E'\n'), '')
             end
