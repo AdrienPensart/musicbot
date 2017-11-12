@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<h2>{{ artist }} - {{ album }}</h2>
+    {% for m in musics: %}
+    {{ m.number }} -
+    <a href="{{ url_for('get_music', artist=m.artist, album=m.album, title=m.title) }}">{{ m.title }}</a> -
+    <a href="{{ url_for('get_playlist', artists=m.artist, albums=m.album, titles=m.title, name=download_title(m), download=1) }}">download</a> -
+    <a href="{{ url_for('get_playlist', artists=m.artist, albums=m.album, titles=m.title, name=download_title(m), listen=1) }}">listen</a>
+    <br>
+    {% endfor %}
+{% endblock %}

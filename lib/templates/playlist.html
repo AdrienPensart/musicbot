@@ -1,0 +1,4 @@
+#EXTM3U
+{% for m in musics: %}#EXTINF:{{ m.duration }},{{ m.artist }} - {{ m.title }}
+{{ url_for('get_playlist', _external = True, artists='"'+m.artist+'"', albums='"'+m.album+'"', titles='"'+m.title+'"', download=1, name=download_title(m)) | safe }}
+{% endfor %}

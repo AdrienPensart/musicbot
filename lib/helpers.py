@@ -2,10 +2,13 @@
 import click
 import asyncio
 import time
+import uvloop
 from functools import wraps
 from logging import debug, info
 from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL, basicConfig, getLogger
 from . import filter
+
+asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 verbosities = {'debug': DEBUG,
                'info': INFO,
@@ -116,6 +119,9 @@ class GlobalContext(object):
         self.quiet = False
         self.dry = False
         self._verbosity = ERROR
+
+    def isDebug(self):
+        return self._verbosity is DEBUG
 
     @property
     def verbosity(self):
