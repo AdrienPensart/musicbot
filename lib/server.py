@@ -5,9 +5,7 @@ from sanic import response
 from sanic.exceptions import RequestTimeout
 from jinja2 import Environment, FileSystemLoader
 from urllib.parse import unquote
-from .filter import Filter
-from .file import mysplit
-from .lib import convert_rating, num
+from .webfilter import WebFilter
 from logging import debug
 import os
 import time
@@ -23,7 +21,7 @@ def get_flashed_messages():
 
 
 def download_title(m):
-    return m.artist + ' - ' + m.album + ' - ' + basename(m.path)
+    return m['artist'] + ' - ' + m['album'] + ' - ' + basename(m['path'])
 
 
 app = Sanic()
@@ -36,57 +34,15 @@ env.globals['download_title'] = download_title
 env.globals['request_time'] = lambda: time.time() - env.globals['request_start_time']
 
 
-def webfilter(request, mf=None):
-    if mf is None:
-        mf = Filter()
-
-    youtube = request.args.get('youtube', getattr(mf, 'youtube'))
-    if youtube == "2":
-        mf.youtube = None
-    elif youtube == "1":
-        mf.youtube = True
-    elif youtube == "0":
-        mf.youtube = False
-    else:
-        debug("BAD VALUE: {} {}".format(type(youtube), youtube))
-    debug('youtube: {} {}'.format(youtube, mf.youtube))
-
-    mf.shuffle = request.args.get('shuffle', getattr(mf, 'shuffle'))
-    debug('shuffle : {}'.format(mf.shuffle))
-    mf.relative = request.args.get('relative', getattr(mf, 'relative'))
-    debug('relative: {}'.format(mf.relative))
-
-    for param in ['formats', 'no_formats', 'artists', 'no_artists', 'genres', 'no_genres', 'albums', 'no_albums', 'titles', 'no_titles', 'keywords', 'no_keywords']:
-        raw = request.args.get(param, getattr(mf, param))
-        data = mysplit(raw, '","')
-        if len(data) == 1 and data[0].startswith('"') and data[0].endswith('"'):
-            data[0] = data[0][1:-1]
-        debug('{} {}'.format(param, data))
-        setattr(mf, param, data)
-
-    for param in ['min_rating', 'max_rating']:
-        data = convert_rating(request.args.get(param, getattr(mf, param)))
-        debug('{} {}'.format(param, data))
-        setattr(mf, param, data)
-
-    for param in ['limit', 'min_size', 'max_size', 'min_duration', 'min_duration']:
-        data = num(request.args.get(param, getattr(mf, param)))
-        debug('{} {}'.format(param, data))
-        setattr(mf, param, data)
-
-    debug('Filter: {}'.format(mf.to_list()))
-    return mf
-
-
 @app.middleware('request')
 async def set_request_start(request):
     env.globals['request_start_time'] = time.time()
 
 
-async def template(tpl, **kwargs):
+async def template(tpl, headers=None, **kwargs):
     template = env.get_template(tpl)
     rendered_template = await template.render_async(**kwargs)
-    return html(rendered_template)
+    return html(rendered_template, headers=headers)
 
 
 @app.exception(RequestTimeout)
@@ -113,7 +69,7 @@ async def get_consistency(request):
 async def get_keywords(request):
     '''Get keywords'''
     db = app.config['CTX'].obj.db
-    mf = webfilter(request)
+    mf = WebFilter(request)
     keywords = await db.keywords(mf)
     # return json(keywords)
     debug(keywords)
@@ -124,8 +80,7 @@ async def get_keywords(request):
 async def get_keyword(request, keyword):
     '''List objects related to keyword'''
     db = app.config['CTX'].obj.db
-    mf = Filter(keywords=[keyword])
-    mf = webfilter(request, mf)
+    mf = WebFilter(request, keywords=[keyword])
     artists = await db.artists(mf)
     return await template("keyword.html", keyword=keyword, artists=artists)
 
@@ -134,7 +89,7 @@ async def get_keyword(request, keyword):
 async def get_artists(request):
     '''List artists'''
     db = app.config['CTX'].obj.db
-    mf = webfilter(request)
+    mf = WebFilter(request)
     artists = await db.artists(mf)
     return await template("artists.html", artists=artists)
 
@@ -144,8 +99,7 @@ async def get_albums(request, artist):
     '''List albums for artist'''
     artist = unquote(artist)
     db = app.config['CTX'].obj.db
-    mf = Filter(artists=[artist])
-    mf = webfilter(request, mf)
+    mf = WebFilter(request, artists=[artist])
     albums = await db.albums(mf)
     return await template("artist.html", artist=artist, albums=albums, keywords=mf.keywords)
 
@@ -156,8 +110,7 @@ async def get_musics(request, artist, album):
     artist = unquote(artist)
     album = unquote(album)
     db = app.config['CTX'].obj.db
-    mf = Filter(artists=[artist], albums=[album])
-    mf = webfilter(request, mf)
+    mf = WebFilter(request, artists=[artist], albums=[album])
     musics = await db.filter(mf)
     return await template("album.html", artist=artist, album=album, musics=musics)
 
@@ -169,8 +122,7 @@ async def get_music(request, artist, album, title):
     album = unquote(album)
     title = unquote(title)
     db = app.config['CTX'].obj.db
-    mf = Filter(artists=[artist], albums=[album], titles=[title])
-    mf = webfilter(request, mf)
+    mf = WebFilter(request, artists=[artist], albums=[album], titles=[title])
     musics = await db.filter(mf)
     if len(musics) != 1:
         return ('Music not found', 404)
@@ -182,9 +134,9 @@ async def get_music(request, artist, album, title):
 async def get_playlist(request):
     '''Generate a playlist'''
     db = app.config['CTX'].obj.db
-    mf = webfilter(request)
+    mf = WebFilter(request)
     musics = await db.filter(mf)
-    return await template('playlist.html', musics)
+    return await template('playlist.html', headers={'Content-Type': 'text/plain; charset=utf-8'}, musics=musics)
 
     # downloadstr = request.args.get('download', '0')
     # listenstr = request.args.get('listen', '0')
