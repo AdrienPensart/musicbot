@@ -343,52 +343,53 @@ $$
    limit mf.limit;
 $$ language sql;
 
--- create or replace function generate_form(mf filter default new_filter())
--- returns filter as
--- $$
---     with filtered as (
---         select * from do_filter(mf)
---     ),
---     extract_keywords as (
---         select coalesce(array_agg(distinct keywords), array[]::text[]) as keywords
---         from (select unnest(array_cat_agg(keywords)) as keywords from filtered) k
---     ),
---     extract_genres as (
---         select coalesce(array_agg(distinct genre), array[]::text[]) as genres from filtered
---     ),
---     extract_artists as (
---         select coalesce(array_agg(distinct artist), array[]::text[]) as artists from filtered
---     ),
---     extract_titles as (
---         select coalesce(array_agg(distinct title), array[]::text[]) as titles from filtered
---     ),
---     extract_albums as (
---         select coalesce(array_agg(distinct album), array[]::text[]) as albums from filtered
---     )
---     select
---         0,
---         0,
---         0,
---         0,
---         0,
---         CAST ('NaN' AS DOUBLE PRECISION),
---         CAST ('NaN' AS DOUBLE PRECISION),
---         (select * from extract_artists) as artists,
---         ARRAY[]::varchar[],
---         (select * from extract_albums) as albums,
---         ARRAY[]::varchar[],
---         (select * from extract_titles) as titles,
---         ARRAY[]::varchar[],
---         (select * from extract_genres) as genres,
---         ARRAY[]::varchar[],
---         ARRAY[]::varchar[],
---         ARRAY[]::varchar[],
---         (select * from extract_keywords) as keywords,
---         ARRAY[]::varchar[],
---         False,
---         0,
---         False;
--- $$ language sql;
+create or replace function generate_form(mf filter default new_filter())
+returns filter as
+$$
+    with filtered as (
+        select * from do_filter(mf)
+    ),
+    extract_keywords as (
+        select coalesce(array_agg(distinct keywords), array[]::text[]) as keywords
+        from (select unnest(array_cat_agg(keywords)) as keywords from filtered) k
+    ),
+    extract_genres as (
+        select coalesce(array_agg(distinct genre), array[]::text[]) as genres from filtered
+    ),
+    extract_artists as (
+        select coalesce(array_agg(distinct artist), array[]::text[]) as artists from filtered
+    ),
+    extract_titles as (
+        select coalesce(array_agg(distinct title), array[]::text[]) as titles from filtered
+    ),
+    extract_albums as (
+        select coalesce(array_agg(distinct album), array[]::text[]) as albums from filtered
+    )
+    select
+        0,
+        0,
+        0,
+        0,
+        0,
+        CAST ('NaN' AS DOUBLE PRECISION),
+        CAST ('NaN' AS DOUBLE PRECISION),
+        (select * from extract_artists) as artists,
+        ARRAY[]::varchar[],
+        (select * from extract_albums) as albums,
+        ARRAY[]::varchar[],
+        (select * from extract_titles) as titles,
+        ARRAY[]::varchar[],
+        (select * from extract_genres) as genres,
+        ARRAY[]::varchar[],
+        ARRAY[]::varchar[],
+        ARRAY[]::varchar[],
+        (select * from extract_keywords) as keywords,
+        ARRAY[]::varchar[],
+        False,
+        False,
+        0,
+        False;
+$$ language sql;
 
 create or replace function do_stats(mf filter default new_filter())
 returns stats as

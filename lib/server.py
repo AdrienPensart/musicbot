@@ -6,10 +6,21 @@ from sanic.exceptions import RequestTimeout
 from jinja2 import Environment, FileSystemLoader
 from urllib.parse import unquote
 from .webfilter import WebFilter
+from .forms import FilterForm
 from logging import debug
+import humanfriendly
 import os
 import time
 import sys
+
+
+def bytesToHuman(b):
+    return humanfriendly.format_size(b)
+
+
+def secondsToHuman(s):
+    import datetime
+    return str(datetime.timedelta(seconds=s))
 
 
 def basename(path):
@@ -25,13 +36,22 @@ def download_title(m):
 
 
 app = Sanic()
+app.config['WTF_CSRF_SECRET_KEY'] = 'top secret!'
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 enable_async = sys.version_info >= (3, 6)
 env = Environment(loader=FileSystemLoader(os.path.join(THIS_DIR, 'templates')), enable_async=enable_async)
 env.globals['get_flashed_messages'] = get_flashed_messages
 env.globals['url_for'] = app.url_for
+env.globals['bytesToHuman'] = bytesToHuman
+env.globals['secondsToHuman'] = secondsToHuman
 env.globals['download_title'] = download_title
 env.globals['request_time'] = lambda: time.time() - env.globals['request_start_time']
+session = {}
+
+
+@app.middleware('request')
+async def add_session_to_request(request):
+    request['session'] = session
 
 
 @app.middleware('request')
@@ -52,12 +72,22 @@ def timeout(request, exception):
 
 @app.route("/stats")
 async def get_stats(request):
-    return await template('stats.html')
+    '''Music library statistics'''
+    db = app.config['CTX'].obj.db
+    mf = WebFilter(request)
+    stats = await db.stats(mf)
+    return await template('stats.html', stats=stats)
 
 
 @app.route("/generate")
 async def get_generate(request):
-    return await template('generate.html')
+    db = app.config['CTX'].obj.db
+    # precedent = request.form
+    mf = WebFilter(request)
+    records = await db.form(mf)
+    form = FilterForm()
+    form.initialize(records)
+    return await template('generate.html', form=form)
 
 
 @app.route("/consistency")

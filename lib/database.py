@@ -216,3 +216,13 @@ class DbContext(object):
             else:
                 sql = """select coalesce(array_agg(distinct genre), array[]::text[]) as genres from do_filter($1::filter)"""
         return (await self.fetchrow(sql, mf.to_list()))['genres']
+
+    @timeit
+    async def form(self, mf=Filter()):
+        sql = '''select * from generate_form($1::filter)'''
+        return await self.fetchrow(sql, mf.to_list())
+
+    @timeit
+    async def stats(self, mf=Filter()):
+        sql = 'select * from do_stats($1::filter)'
+        return await self.fetchrow(sql, mf.to_list())
