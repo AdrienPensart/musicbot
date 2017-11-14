@@ -152,6 +152,67 @@ class DbContext(object):
         await self.drop()
         await self.create()
 
+    @timeit
     async def folders(self):
         sql = '''select name from folders'''
         return await self.fetch(sql)
+
+    @timeit
+    async def keywords(self, mf=Filter(), fast=False):
+        if fast:
+            sql = """select distinct name from tags"""
+            return await self.fetch(sql)
+        else:
+            if mf is None:
+                sql = """select coalesce(array_agg(distinct name), array[]::text[]) as keywords from tags"""
+            else:
+                sql = """select coalesce(array_agg(distinct keywords), array[]::text[]) as keywords from (select unnest(array_cat_agg(keywords)) as keywords from do_filter($1::filter)) k"""
+        return (await self.fetchrow(sql, mf.to_list()))['keywords']
+
+    @timeit
+    async def artists(self, mf=Filter(), fast=False):
+        if fast:
+            sql = """select distinct name from artists"""
+            return await self.fetch(sql)
+        else:
+            if mf is None:
+                sql = """select coalesce(array_agg(distinct name), array[]::text[]) as artists from artists"""
+            else:
+                sql = """select coalesce(array_agg(distinct artist), array[]::text[]) as artists from do_filter($1::filter)"""
+        return (await self.fetchrow(sql, mf.to_list()))['artists']
+
+    @timeit
+    async def titles(self, mf=Filter(), fast=False):
+        if fast:
+            sql = """select distinct title as name from musics"""
+            return await self.fetch(sql)
+        else:
+            if mf is None:
+                sql = """select coalesce(array_agg(distinct title), array[]::text[]) as titles from musics"""
+            else:
+                sql = """select coalesce(array_agg(distinct title), array[]::text[]) as titles from do_filter($1::filter)"""
+        return (await self.fetchrow(sql, mf.to_list()))['titles']
+
+    @timeit
+    async def albums(self, mf=Filter(), fast=False):
+        if fast:
+            sql = """select distinct name from albums"""
+            return await self.fetch(sql)
+        else:
+            if mf is None:
+                sql = """select coalesce(array_agg(distinct name), array[]::text[]) as albums from albums"""
+            else:
+                sql = """select coalesce(array_agg(distinct album), array[]::text[]) as albums from do_filter($1::filter)"""
+        return (await self.fetchrow(sql, mf.to_list()))['albums']
+
+    @timeit
+    async def genres(self, mf=Filter(), fast=False):
+        if fast:
+            sql = """select distinct name from genres"""
+            return self.fetch(sql)
+        else:
+            if mf is None:
+                sql = """select coalesce(array_agg(distinct name), array[]::text[]) as genres from genres"""
+            else:
+                sql = """select coalesce(array_agg(distinct genre), array[]::text[]) as genres from do_filter($1::filter)"""
+        return (await self.fetchrow(sql, mf.to_list()))['genres']

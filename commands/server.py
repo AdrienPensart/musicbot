@@ -24,4 +24,5 @@ def cli(ctx, **kwargs):
 @click.option('--workers', help='Number of workers', default=1)
 @click.pass_context
 def web(ctx, host, port, workers, **kwargs):
+    app.config['CTX'] = ctx
     app.run(host=host, port=port, debug=ctx.obj.config.isDebug(), workers=workers)
