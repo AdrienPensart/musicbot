@@ -4,8 +4,8 @@
 import click
 import os
 from attrdict import AttrDict
-from lib import config, options
-from lib.config import Config
+from lib import options
+from lib.config import config, global_options
 
 plugin_folder = os.path.join(os.path.dirname(__file__), 'commands')
 CONTEXT_SETTINGS = {'auto_envvar_prefix': 'MUSICBOT', 'help_option_names': ['-h', '--help']}
@@ -35,12 +35,15 @@ class SubCommandLineInterface(click.MultiCommand):
 
 @click.command(cls=SubCommandLineInterface, context_settings=CONTEXT_SETTINGS)
 @click.version_option("1.0")
-@options.add_options(config.global_options)
+@options.add_options(global_options)
 @click.pass_context
-def cli(ctx, **kwargs):
+def cli(ctx, verbosity, dry, quiet):
     """A complex command line interface."""
     ctx.obj = AttrDict
-    ctx.obj.config = Config(**kwargs)
+    config.verbosity = verbosity
+    config.dry = dry
+    config.quiet = quiet
+    ctx.obj.config = config
 
 
 if __name__ == '__main__':

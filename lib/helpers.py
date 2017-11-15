@@ -3,7 +3,7 @@ import time
 import uvloop
 from functools import wraps
 from logging import debug, info
-from .config import Config
+from .config import config
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
@@ -40,7 +40,7 @@ def coro(f):
 def drier(f):
     @wraps(f)
     async def wrapper(*args, **kwargs):
-        if Config.dry:
+        if config.dry:
             args = [str(a) for a in args] + ["%s=%s" % (k, v) for (k, v) in kwargs.items()]
             info('DRY RUN: {}({})'.format(f.__name__, ','.join(args)))
             await asyncio.sleep(0)
