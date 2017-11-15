@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 import click
-from lib import youtube, helpers, database
+from lib import youtube, helpers, database, options
 from lib.filter import Filter
 from multiprocessing.pool import ThreadPool
 from logging import debug
 from tqdm import tqdm
 
 
-@click.group(invoke_without_command=True)
 @click.pass_context
 def cli(ctx, **kwargs):
     ctx.obj.db = database.DbContext(**kwargs)
@@ -16,7 +15,7 @@ def cli(ctx, **kwargs):
 @cli.command()
 @click.pass_context
 @helpers.coro
-@helpers.add_options(helpers.filter_options)
+@options.add_options(options.filters)
 async def sync(ctx, **kwargs):
     ctx.obj.mf = Filter(**kwargs)
     musics = await ctx.obj.db.filter(ctx.obj.mf)

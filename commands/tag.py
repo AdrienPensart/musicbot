@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import click
-from lib import helpers, database
+from lib import helpers, options, database
 from lib.filter import Filter
 
 
 @click.group(invoke_without_command=False)
-@helpers.add_options(helpers.db_options)
+@options.add_options(options.db)
 @click.pass_context
 def cli(ctx, **kwargs):
     ctx.obj.db = database.DbContext(**kwargs)
@@ -13,8 +13,8 @@ def cli(ctx, **kwargs):
 
 @cli.command()
 @helpers.coro
-@helpers.add_options(helpers.filter_options)
-@helpers.add_options(helpers.tag_options)
+@options.add_options(options.filters)
+@options.add_options(options.tag)
 @click.pass_context
 async def show(ctx, fields, **kwargs):
     ctx.obj.mf = Filter(**kwargs)
@@ -25,7 +25,7 @@ async def show(ctx, fields, **kwargs):
 
 @cli.command()
 @helpers.coro
-@helpers.add_options(helpers.filter_options)
+@options.add_options(options.filters)
 @click.pass_context
 async def add(ctx, **kwargs):
     ctx.obj.mf = Filter(**kwargs)
@@ -35,7 +35,7 @@ async def add(ctx, **kwargs):
 
 @cli.command()
 @helpers.coro
-@helpers.add_options(helpers.filter_options)
+@options.add_options(options.filters)
 @click.pass_context
 async def delete(ctx, *kwargs):
     ctx.obj.mf = Filter(**kwargs)

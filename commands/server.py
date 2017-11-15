@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import click
-from lib import helpers, database
+from lib import database, options
 from lib.server import app
 
 
@@ -12,7 +12,7 @@ def restart_program():
 
 
 @click.group(invoke_without_command=False)
-@helpers.add_options(helpers.db_options)
+@options.add_options(options.db)
 @click.pass_context
 def cli(ctx, **kwargs):
     ctx.obj.db = database.DbContext(**kwargs)

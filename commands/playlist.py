@@ -8,11 +8,12 @@ import sys
 from lib import helpers, database
 from logging import info
 from lib.filter import Filter
+from lib import options
 from logging import debug
 
 
 @click.group(invoke_without_command=False)
-@helpers.add_options(helpers.db_options)
+@options.add_options(options.db)
 @click.pass_context
 def cli(ctx, **kwargs):
     ctx.obj.db = database.DbContext(**kwargs)
@@ -21,7 +22,7 @@ def cli(ctx, **kwargs):
 @cli.command()
 @click.pass_context
 @helpers.coro
-@helpers.add_options(helpers.filter_options)
+@options.add_options(options.filters)
 @click.argument('path', type=click.Path(exists=True))
 @click.option('--prefix', help="Append prefix before each path (implies relative)", default='')
 @click.option('--suffix', help="Append this suffix to playlist name", default='')
@@ -49,7 +50,7 @@ async def bests(ctx, path, prefix, suffix, **kwargs):
 @cli.command()
 @helpers.coro
 @click.pass_context
-@helpers.add_options(helpers.filter_options)
+@options.add_options(options.filters)
 @click.argument('path', type=click.File('w'), default='-')
 @click.option('--prefix', help="Append prefix before each path (implies relative)", default='')
 async def new(ctx, path, **kwargs):

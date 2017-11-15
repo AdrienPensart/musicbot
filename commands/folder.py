@@ -5,20 +5,20 @@ import os
 import asyncio
 from tqdm import tqdm
 from logging import debug, info
-from lib import helpers, lib, file, database, filter
+from lib import options, helpers, lib, file, database, filter
 from lib.filter import Filter
 from lib.lib import empty_dirs
 
 
 @click.group(invoke_without_command=False)
-@helpers.add_options(helpers.db_options)
+@options.add_options(options.db)
 @click.pass_context
 def cli(ctx, **kwargs):
     ctx.obj.db = database.DbContext(**kwargs)
 
 
 @cli.command()
-@helpers.add_options(helpers.filter_options)
+@options.add_options(options.filters)
 @click.argument('folders', nargs=-1)
 @click.pass_context
 def find(ctx, folders, **kwargs):
@@ -29,7 +29,7 @@ def find(ctx, folders, **kwargs):
 
 @cli.command()
 @helpers.coro
-@helpers.add_options(helpers.filter_options)
+@options.add_options(options.filters)
 @click.argument('destination')
 @click.pass_context
 async def sync(ctx, destination, **kwargs):
