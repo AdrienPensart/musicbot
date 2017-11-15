@@ -4,10 +4,11 @@
 import click
 import os
 from attrdict import AttrDict
-from lib import helpers
+from lib import helpers, config
+from lib.config import Config
 
 plugin_folder = os.path.join(os.path.dirname(__file__), 'commands')
-CONTEXT_SETTINGS = dict(auto_envvar_prefix='MUSICBOT')
+CONTEXT_SETTINGS = {'auto_envvar_prefix': 'MUSICBOT', 'help_option_names': ['-h', '--help']}
 
 
 class SubCommandLineInterface(click.MultiCommand):
@@ -22,23 +23,24 @@ class SubCommandLineInterface(click.MultiCommand):
     def get_command(self, ctx, name):
         ns = {}
         fn = os.path.join(plugin_folder, name + '.py')
-        with open(fn) as f:
-            code = compile(f.read(), fn, 'exec')
-            eval(code, ns, ns)
+        try:
+            with open(fn) as f:
+                code = compile(f.read(), fn, 'exec')
+                eval(code, ns, ns)
+        except FileNotFoundError:
+            print(ctx.get_help())
+            return
         return ns['cli']
 
 
 @click.command(cls=SubCommandLineInterface, context_settings=CONTEXT_SETTINGS)
 @click.version_option("1.0")
-@helpers.add_options(helpers.global_options)
+@helpers.add_options(config.global_options)
 @click.pass_context
-def cli(ctx, verbosity, quiet, dry):
+def cli(ctx, **kwargs):
     """A complex command line interface."""
     ctx.obj = AttrDict
-    helpers.config.verbosity = verbosity
-    helpers.config.quiet = quiet
-    helpers.config.dry = dry
-    ctx.obj.config = helpers.config
+    ctx.obj.config = Config(**kwargs)
 
 
 if __name__ == '__main__':

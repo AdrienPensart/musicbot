@@ -5,22 +5,11 @@ import time
 import uvloop
 from functools import wraps
 from logging import debug, info
-from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL, basicConfig, getLogger
 from . import filter
+from .config import Config
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
-verbosities = {'debug': DEBUG,
-               'info': INFO,
-               'warning': WARNING,
-               'error': ERROR,
-               'critical': CRITICAL}
-
-global_options = [
-    click.option('--verbosity', help='Verbosity levels', default='error', type=click.Choice(verbosities.keys())),
-    click.option('--dry', help='Take no real action', default=False, is_flag=True),
-    click.option('--quiet', help='Silence any output (like progress bars)', default=False, is_flag=True)
-]
 
 db_options = [
     click.option('--host', help='DB host', default='localhost'),
@@ -96,7 +85,6 @@ def coro(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         loop = asyncio.get_event_loop()
-        loop.set_debug(config.isDebug())
         return loop.run_until_complete(f(*args, **kwargs))
     return wrapper
 
@@ -104,38 +92,10 @@ def coro(f):
 def drier(f):
     @wraps(f)
     async def wrapper(*args, **kwargs):
-        if config.dry:
+        if Config.dry:
             args = [str(a) for a in args] + ["%s=%s" % (k, v) for (k, v) in kwargs.items()]
             info('DRY RUN: {}({})'.format(f.__name__, ','.join(args)))
             await asyncio.sleep(0)
         else:
             return await f(*args, **kwargs)
     return wrapper
-
-
-class GlobalContext(object):
-    def __init__(self):
-        self.quiet = False
-        self.dry = False
-        self._verbosity = ERROR
-
-    def isDebug(self):
-        return self._verbosity is DEBUG
-
-    @property
-    def verbosity(self):
-        return self._verbosity
-
-    @verbosity.setter
-    def verbosity(self, verbosity):
-        self._verbosity = verbosity
-        level = verbosities[verbosity]
-        basicConfig(level=level)
-        getLogger('asyncio').setLevel(level)
-        debug('new verbosity: {}'.format(self.verbosity))
-
-    def __repr__(self):
-        return '{} {} {}'.format(self.quiet, self.dry, self._verbosity)
-
-
-config = GlobalContext()
