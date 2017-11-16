@@ -2,7 +2,8 @@
 from sanic import Sanic
 from sanic.response import html
 from sanic import response
-from sanic.exceptions import RequestTimeout
+from sanic.exceptions import RequestTimeout, abort
+from sanic_openapi import swagger_blueprint, openapi_blueprint
 from jinja2 import Environment, FileSystemLoader
 from urllib.parse import unquote
 from .webfilter import WebFilter
@@ -35,7 +36,10 @@ def download_title(m):
     return m['artist'] + ' - ' + m['album'] + ' - ' + basename(m['path'])
 
 
-app = Sanic()
+# app = Sanic(name='musicbot', log_config=None)
+app = Sanic(name='musicbot')
+app.blueprint(openapi_blueprint)
+app.blueprint(swagger_blueprint)
 app.config['WTF_CSRF_SECRET_KEY'] = 'top secret!'
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 enable_async = sys.version_info >= (3, 6)
@@ -215,7 +219,7 @@ async def get_playlist(request):
 
 @app.route("/favicon.ico")
 def get_favicon(request):
-    return ("", 404)
+    abort(404)
 
 
 @app.route("/")

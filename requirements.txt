@@ -1,3 +1,4 @@
+aiocache==0.8.0
 aiofiles==0.3.2
 argh==0.26.2
 asyncpg==0.13.0
@@ -18,6 +19,7 @@ pytaglib==1.4.1
 PyYAML==3.12
 rsa==3.4.2
 sanic==0.6.0
+sanic-openapi==0.4.0
 Sanic-WTF==0.5.0
 six==1.11.0
 tqdm==4.19.4
