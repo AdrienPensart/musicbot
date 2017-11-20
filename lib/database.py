@@ -33,6 +33,9 @@ class DbContext(object):
         sql = '''select delete($1)'''
         self.execute(sql, path)
 
+    async def close(self):
+        await (await self.pool).close()
+
     @drier
     @timeit
     async def upsert(self, m):

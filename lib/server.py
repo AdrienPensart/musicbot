@@ -9,6 +9,9 @@ from urllib.parse import unquote
 from .webfilter import WebFilter
 from .forms import FilterForm
 from logging import debug
+from aiocache import cached, SimpleMemoryCache
+from aiocache.serializers import PickleSerializer
+from .helpers import timeit
 import humanfriendly
 import os
 import time
@@ -75,6 +78,8 @@ def timeout(request, exception):
 
 
 @app.route("/stats")
+@timeit
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def get_stats(request):
     '''Music library statistics'''
     db = app.config['CTX'].obj.db

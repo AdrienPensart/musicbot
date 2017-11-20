@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import click
-from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL, basicConfig, getLogger
+from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL, basicConfig, getLogger, debug
 
 verbosities = {'debug': DEBUG,
                'info': INFO,
@@ -10,21 +10,28 @@ verbosities = {'debug': DEBUG,
 
 
 class Config(object):
-    quiet = False,
-    dry = False,
-    verbosity = 'error'
-    level = ERROR
-
-    def __init__(self, verbosity='error', dry=False, quiet=False):
-        self.verbosity = verbosity
-        self.dry = dry
-        self.quiet = quiet
-        self.level = verbosities[verbosity]
-        basicConfig(level=self.level)
-        getLogger('asyncio').setLevel(self.level)
+    def __init__(self):
+        self.quiet = False
+        self.dry = False
+        self._verbosity = ERROR
 
     def isDebug(self):
-        return Config.level is DEBUG
+        return self._verbosity is DEBUG
+
+    @property
+    def verbosity(self):
+        return self._verbosity
+
+    @verbosity.setter
+    def verbosity(self, verbosity):
+        self._verbosity = verbosity
+        level = verbosities[verbosity]
+        basicConfig(level=level)
+        getLogger('asyncio').setLevel(level)
+        debug('new verbosity: {}'.format(self.verbosity))
+
+    def __repr__(self):
+        return '{} {} {}'.format(self.quiet, self.dry, self._verbosity)
 
 
 global_options = [

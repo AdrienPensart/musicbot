@@ -6,11 +6,6 @@ db=musicbot_test
 
 ./musicbot db --database=$db drop
 ./musicbot db --database=$db create
-
-# unit tests
-# /usr/bin/env python -m unittest test.py $@
-
-# full functional tests
 ./musicbot db --database=$db clear
 ./musicbot folder --database=$db scan tests/folder1 tests/folder2
 ./musicbot folder --database=$db find tests/folder1 tests/folder2
