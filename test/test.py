@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 import unittest
+import os
 from asynctest import TestCase
 from lib import file, database, lib, filter
 
-folder1 = "tests/folder1"
-folder2 = "tests/folder2"
+my_dir = os.path.dirname(os.path.abspath(__file__))
+folder1 = my_dir + "/fixtures/folder1"
+folder2 = my_dir + "/fixtures/folder2"
 flac = "/Buckethead/1994 - Giant Robot/02 - Welcome To Bucketheadland.flac"
 teststats = {
     'id': 1,

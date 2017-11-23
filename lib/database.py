@@ -139,7 +139,8 @@ class DbContext(object):
         debug('db create')
         sql = 'create schema if not exists {}'.format(self.schema)
         await self.execute(sql)
-        await self.executefile('lib/musicbot.sql')
+        await self.executefile('schema/tables.sql')
+        await self.executefile('schema/functions.sql')
 
     @drier
     @timeit
