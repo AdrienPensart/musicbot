@@ -12,10 +12,11 @@ from lib import options
 from logging import debug
 
 
-@click.group(invoke_without_command=False)
+@click.group()
 @options.add_options(options.db)
 @click.pass_context
 def cli(ctx, **kwargs):
+    '''Playlist management'''
     ctx.obj.db = database.DbContext(**kwargs)
 
 
@@ -27,6 +28,7 @@ def cli(ctx, **kwargs):
 @click.option('--prefix', help="Append prefix before each path (implies relative)", default='')
 @click.option('--suffix', help="Append this suffix to playlist name", default='')
 async def bests(ctx, path, prefix, suffix, **kwargs):
+    '''Generate bests playlists with some rules'''
     ctx.obj.mf = Filter(**kwargs)
     if len(prefix):
         ctx.obj.mf.relative = True
@@ -54,6 +56,7 @@ async def bests(ctx, path, prefix, suffix, **kwargs):
 @click.argument('path', type=click.File('w'), default='-')
 @click.option('--prefix', help="Append prefix before each path (implies relative)", default='')
 async def new(ctx, path, **kwargs):
+    '''Generate a new playlist'''
     ctx.obj.mf = Filter(**kwargs)
     p = await ctx.obj.db.playlist(ctx.obj.mf)
     print(p['content'], file=path)

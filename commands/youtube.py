@@ -7,8 +7,10 @@ from logging import debug
 from tqdm import tqdm
 
 
+@click.group()
 @click.pass_context
 def cli(ctx, **kwargs):
+    '''Youtube management'''
     ctx.obj.db = database.DbContext(**kwargs)
 
 
@@ -17,6 +19,7 @@ def cli(ctx, **kwargs):
 @helpers.coro
 @options.add_options(options.filters)
 async def sync(ctx, **kwargs):
+    '''Fetch youtube links for each music'''
     ctx.obj.mf = Filter(**kwargs)
     musics = await ctx.obj.db.filter(ctx.obj.mf)
     with tqdm(desc='Youtube crawling', total=len(musics), disable=ctx.obj.config.quiet) as bar:

@@ -11,10 +11,11 @@ def restart_program():
     os.execl(python, python, * sys.argv)
 
 
-@click.group(invoke_without_command=False)
+@click.group()
 @options.add_options(options.db)
 @click.pass_context
 def cli(ctx, **kwargs):
+    '''API Server'''
     ctx.obj.db = database.DbContext(**kwargs)
 
 
@@ -23,6 +24,7 @@ def cli(ctx, **kwargs):
 @click.option('--port', help='Port to listen on', default=8000)
 @click.option('--workers', help='Number of workers', default=1)
 @click.pass_context
-def web(ctx, host, port, workers, **kwargs):
+def start(ctx, host, port, workers, **kwargs):
+    '''Start musicbot web API'''
     app.config['CTX'] = ctx
     app.run(host=host, port=port, debug=ctx.obj.config.isDebug(), workers=workers)

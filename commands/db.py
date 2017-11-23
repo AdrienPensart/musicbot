@@ -9,6 +9,7 @@ from lib import options, helpers, database
 @options.add_options(options.db)
 @click.pass_context
 def cli(ctx, **kwargs):
+    '''Database management'''
     db = database.DbContext(**kwargs)
     info(db.connection_string())
     ctx.obj.db = db
@@ -18,6 +19,7 @@ def cli(ctx, **kwargs):
 @helpers.coro
 @click.pass_context
 async def create(ctx, **kwargs):
+    '''Create database and load schema'''
     await ctx.obj.db.create()
 
 
@@ -25,6 +27,7 @@ async def create(ctx, **kwargs):
 @helpers.coro
 @click.pass_context
 async def drop(ctx, **kwargs):
+    '''Drop database schema'''
     await ctx.obj.db.drop()
 
 
@@ -32,6 +35,7 @@ async def drop(ctx, **kwargs):
 @helpers.coro
 @click.pass_context
 async def clear(ctx, **kwargs):
+    '''Drop and recreate database and schema'''
     await ctx.obj.db.clear()
 
 
@@ -39,6 +43,7 @@ async def clear(ctx, **kwargs):
 @helpers.coro
 @click.pass_context
 async def clean(ctx, **kwargs):
+    '''Clean deleted musics from database'''
     musics = await ctx.obj.db.filter()
     for m in musics:
         if not os.path.isfile(m['path']):

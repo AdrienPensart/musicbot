@@ -14,14 +14,15 @@ from lib.lib import empty_dirs
 @options.add_options(options.db)
 @click.pass_context
 def cli(ctx, **kwargs):
+    '''Folder scanning'''
     ctx.obj.db = database.DbContext(**kwargs)
 
 
 @cli.command()
-@options.add_options(options.filters)
 @click.argument('folders', nargs=-1)
 @click.pass_context
 def find(ctx, folders, **kwargs):
+    '''Only list files in selected folders'''
     files = lib.find_files(folders)
     for f in files:
         print(f[1])
@@ -33,6 +34,7 @@ def find(ctx, folders, **kwargs):
 @click.argument('destination')
 @click.pass_context
 async def sync(ctx, destination, **kwargs):
+    '''Copy selected musics with filters to destination folder'''
     info('Destination: {}'.format(destination))
     ctx.obj.mf = Filter(**kwargs)
     musics = await ctx.obj.db.filter(ctx.obj.mf)
@@ -74,6 +76,7 @@ async def sync(ctx, destination, **kwargs):
 @click.argument('folders', nargs=-1)
 @click.pass_context
 async def scan(ctx, folders, **kwargs):
+    '''Load musics files in database'''
     lib.raise_limits()
     files = list(lib.find_files(list(folders)))
     # musics = []
@@ -94,6 +97,7 @@ async def scan(ctx, folders, **kwargs):
 @helpers.coro
 @click.pass_context
 async def rescan(ctx, **kwargs):
+    '''Rescan all folders registered in database'''
     folders = await ctx.obj.db.folders()
     for folder in folders:
         info('rescanning {}'.format(folder))
@@ -103,6 +107,7 @@ async def rescan(ctx, **kwargs):
 @helpers.coro
 @click.pass_context
 async def watch(ctx, **kwargs):
+    '''Check file modification in realtime and updates database'''
     from watchdog.observers import Observer
     from watchdog.events import PatternMatchingEventHandler
 

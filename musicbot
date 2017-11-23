@@ -38,7 +38,7 @@ class SubCommandLineInterface(click.MultiCommand):
 @options.add_options(global_options)
 @click.pass_context
 def cli(ctx, verbosity, dry, quiet):
-    """A complex command line interface."""
+    """Music swiss knife, new gen."""
     ctx.obj = AttrDict
     config.verbosity = verbosity
     config.dry = dry

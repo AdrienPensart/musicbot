@@ -4,10 +4,11 @@ from lib import helpers, options, database
 from lib.filter import Filter
 
 
-@click.group(invoke_without_command=False)
+@click.group()
 @options.add_options(options.db)
 @click.pass_context
 def cli(ctx, **kwargs):
+    '''Music tags management'''
     ctx.obj.db = database.DbContext(**kwargs)
 
 
@@ -17,6 +18,7 @@ def cli(ctx, **kwargs):
 @options.add_options(options.tag)
 @click.pass_context
 async def show(ctx, fields, **kwargs):
+    '''Show tags of musics with filters'''
     ctx.obj.mf = Filter(**kwargs)
     musics = await ctx.obj.db.filter(ctx.obj.mf)
     for m in musics:
@@ -28,6 +30,7 @@ async def show(ctx, fields, **kwargs):
 @options.add_options(options.filters)
 @click.pass_context
 async def add(ctx, **kwargs):
+    '''Add tags - Not Implemented'''
     ctx.obj.mf = Filter(**kwargs)
     musics = await ctx.obj.db.filter(ctx.obj.mf)
     print(musics)
@@ -38,6 +41,7 @@ async def add(ctx, **kwargs):
 @options.add_options(options.filters)
 @click.pass_context
 async def delete(ctx, *kwargs):
+    '''Delete tags - Not implemented'''
     ctx.obj.mf = Filter(**kwargs)
     musics = await ctx.obj.db.filter(ctx.obj.mf)
     print(musics)
