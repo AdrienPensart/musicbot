@@ -644,7 +644,12 @@ musicbot youtube
     Youtube management
   
   Options:
-    -h, --help  Show this message and exit.
+    --host TEXT      DB host
+    --port INTEGER   DB port
+    --database TEXT  DB name
+    --user TEXT      DB user
+    --password TEXT  DB password
+    -h, --help       Show this message and exit.
   
   Commands:
     sync  Fetch youtube links for each music
