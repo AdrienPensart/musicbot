@@ -2,6 +2,7 @@ aiocache==0.8.0
 aiofiles==0.3.2
 argh==0.26.2
 asyncpg==0.13.0
+asynctest==0.11.1
 attrdict==2.0.0
 click==6.7
 google-api-python-client==1.6.4
@@ -13,8 +14,8 @@ Jinja2==2.10
 MarkupSafe==1.0
 oauth2client==4.1.2
 pathtools==0.1.2
-pyasn1==0.3.7
-pyasn1-modules==0.1.5
+pyasn1==0.4.2
+pyasn1-modules==0.2.1
 pytaglib==1.4.1
 PyYAML==3.12
 rsa==3.4.2
