@@ -2,12 +2,12 @@
 import click
 from lib import youtube, helpers, database, options
 from lib.filter import Filter
-from multiprocessing.pool import ThreadPool
 from logging import debug
 from tqdm import tqdm
 
 
 @click.group()
+@options.add_options(options.db)
 @click.pass_context
 def cli(ctx, **kwargs):
     '''Youtube management'''
@@ -23,13 +23,20 @@ async def sync(ctx, **kwargs):
     ctx.obj.mf = Filter(**kwargs)
     musics = await ctx.obj.db.filter(ctx.obj.mf)
     with tqdm(desc='Youtube crawling', total=len(musics), disable=ctx.obj.config.quiet) as bar:
-        def search_local(m):
+        for m in musics:
             bar.update(1)
-            m = dict(m)
             result = youtube.search(m['artist'], m['title'], m['duration'])
-            m['youtube'] = result
-            debug(m['artist'], m['title'], m['duration'], m['youtube'])
-            return m
-        pool = ThreadPool(1)
-        musics = pool.imap_unordered(search_local, musics)
-        await ctx.obj.db.upsertall(musics)
+            debug(m['artist'], m['title'], m['duration'], result)
+            await ctx.obj.db.set_youtube(m['path'], result)
+
+        # async def search_local(m):
+        #     bar.update(1)
+        #     m = dict(m)
+        #     result = youtube.search(m['artist'], m['title'], m['duration'])
+        #     m['youtube'] = result
+        #     debug(m['artist'], m['title'], m['duration'], m['youtube'])
+        #     await ctx.obj.db.upsert(m)
+        #     return m
+        # from multiprocessing.pool import ThreadPool
+        # pool = ThreadPool(1)
+        # musics = pool.imap_unordered(search_local, musics)

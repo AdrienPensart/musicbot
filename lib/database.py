@@ -38,21 +38,30 @@ class DbContext(object):
 
     @drier
     @timeit
+    async def set_youtube(self, path, youtube):
+        sql = '''update musics set youtube=$2 where path=$1'''
+        await self.execute(sql, path, youtube)
+
+    @drier
+    @timeit
     async def upsert(self, m):
         sql = '''select * from upsert($1::music)'''
         l = m.to_list()
         await self.execute(sql, l)
 
+    @timeit
     async def filter(self, f=Filter()):
         sql = '''select * from do_filter($1::filter)'''
         l = f.to_list()
         return await self.fetch(sql, l)
 
+    @timeit
     async def playlist(self, f=Filter()):
         sql = '''select * from generate_playlist($1::filter)'''
         l = f.to_list()
         return await self.fetchrow(sql, l)
 
+    @timeit
     async def bests(self, f=Filter()):
         sql = '''select * from generate_bests($1::filter)'''
         l = f.to_list()

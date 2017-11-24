@@ -87,7 +87,7 @@ async def scan(ctx, folders, **kwargs):
                 await ctx.obj.db.upsert(m)
                 # musics.append(m)
                 # musics.append((m.artist, m.album, m.genre, m.folder, m.youtube, m.number, m.rating, m.duration, m.size, m.title, m.path, m.keywords), )
-                # await ctx.obj.db.append(m)
+                # await ctx.obj.db.append(m.to_list())
             bar.update(1)
     # await ctx.obj.db.appendmany(musics)
     # await ctx.obj.db.upsertall(musics)
@@ -123,7 +123,7 @@ async def watch(ctx, **kwargs):
             for folder in folders:
                 if path.startswith(folder['name']):
                     f = file.File(path, folder['name'])
-                    c = ctx.obj.db.upsert(f)
+                    c = ctx.obj.db.upsert(f.to_list())
                     asyncio.run_coroutine_threadsafe(c, self.loop)
                     break
 

@@ -13,6 +13,7 @@ python3 $musicbot folder --database=$db scan $my_dir/fixtures/*
 python3 $musicbot folder --database=$db find $my_dir/fixtures/*
 python3 $musicbot folder --database=$db rescan
 python3 $musicbot db --database=$db clean
+python3 $musicbot youtube --database=$db sync
 python3 $musicbot folder --database=$db sync tests2
 rm -rf tests2
 python3 $musicbot folder --database=$db watch &
