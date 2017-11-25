@@ -21,4 +21,4 @@
 
 set -e
 test/tests.sh
-doc/gendoc.sh
+doc/gen.sh

@@ -6,7 +6,6 @@ import sys
 import os
 
 
-# class DbContext(metaclass=Synchronizer):
 class DbContext(object):
     settings = {
         'host': 'localhost',
@@ -15,7 +14,6 @@ class DbContext(object):
         'user': 'postgres',
         'password': 'musicbot', }
     schema = 'public'
-    insert_log = '''insert into musics_log (artist, album, genre, folder, youtube, number, rating, duration, size, title, path, keywords) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)'''
 
     def __init__(self, **kwargs):
         for s in self.settings.keys():
@@ -77,24 +75,6 @@ class DbContext(object):
         #     stmt = await connection.prepare(sql)
         #     print(stmt.get_parameters())
         #     await stmt.fetch(musics)
-
-    @drier
-    @timeit
-    async def append(self, m):
-        await self.execute(self.insert_log, m.artist, m.album, m.genre, m.folder, m.youtube, m.number, m.rating, m.duration, m.size, m.title, m.path, m.keywords)
-
-    @drier
-    @timeit
-    async def appendall(self, musics):
-        for m in musics:
-            await self.execute(self.insert_log, m.artist, m.album, m.genre, m.folder, m.youtube, m.number, m.rating, m.duration, m.size, m.title, m.path, m.keywords)
-
-    @drier
-    @timeit
-    async def appendmany(self, musics):
-        async with (await self.pool).acquire() as connection:
-            await connection.executemany(self.insert_log, musics)
-        # await self.executemany(sql, musics)
 
     def __str__(self):
         return self.connection_string()

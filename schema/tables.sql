@@ -21,24 +21,6 @@ create table if not exists albums (
     foreign key(artist_id) references artists (id),
     unique(artist_id,name)
 );
-create table if not exists musics_log (
-    id serial primary key,
-    artist varchar not null,
-    album varchar not null,
-    genre varchar not null,
-    folder varchar not null,
-    youtube varchar default null,
-    number integer not null,
-    rating float,
-    duration integer,
-    size integer,
-    title varchar,
-    path varchar not null,
-    keywords varchar[] default '{}',
-    created_at timestamp default null,
-    updated_at timestamp default null,
-    constraint rating_range check (rating between 0.0 and 1.0)
-);
 create table if not exists musics (
     id serial primary key,
     artist_id integer,
