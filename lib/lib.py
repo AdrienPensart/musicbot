@@ -5,6 +5,7 @@ except ImportError:
     from scandir import scandir, walk
 import re
 import yaml
+import humanfriendly
 from . import file
 from timeit import default_timer as timer
 from logging import info, error, critical
@@ -13,6 +14,15 @@ from logging import info, error, critical
 quiet = False
 output_types = ["list", "json"]
 default_output_type = 'json'
+
+
+def bytesToHuman(b):
+    return humanfriendly.format_size(b)
+
+
+def secondsToHuman(s):
+    import datetime
+    return str(datetime.timedelta(seconds=s))
 
 
 def convert_rating(arg):

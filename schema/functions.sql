@@ -285,8 +285,8 @@ $$
         count(distinct f.artist) as artists,
         count(distinct f.genre) as genres,
         (select count(distinct k.keywords) from (select unnest(array_cat_agg(f.keywords)) as keywords) as k) as keywords,
-        sum(f.duration) as duration,
-        sum(f.size) as size
+        coalesce(sum(f.duration),0) as duration,
+        coalesce(sum(f.size),0) as size
     from do_filter(mf) f;
 $$ language sql;
 

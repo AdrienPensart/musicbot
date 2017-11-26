@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 import click
-from lib import database, options
+import os
+import sys
+from logging import debug
+from lib import database, options, lib
 from lib.server import app
 
+THIS_DIR = os.path.dirname(os.path.abspath(sys.argv[0]))
 
-def restart_program():
-    import sys
-    import os
+
+def self_restart():
     python = sys.executable
     os.execl(python, python, * sys.argv)
 
@@ -17,6 +20,36 @@ def restart_program():
 def cli(ctx, **kwargs):
     '''API Server'''
     ctx.obj.db = database.DbContext(**kwargs)
+    lib.raise_limits()
+    from watchdog.observers import Observer
+    from watchdog.events import PatternMatchingEventHandler
+
+    class PyWatcherHandler(PatternMatchingEventHandler):
+        patterns = ['*.py']
+
+        def __init__(self):
+            super().__init__()
+
+        def on_modified(self, event):
+            debug('Modified: {} {}'.format(event.src_path, event.event_type))
+            self_restart()
+
+        def on_created(self, event):
+            debug('Created: {} {}'.format(event.src_path, event.event_type))
+            self_restart()
+
+        def on_deleted(self, event):
+            debug('Deleted: {} {}'.format(event.src_path, event.event_type))
+            self_restart()
+
+        def on_moved(self, event):
+            debug('Moved: {} {}'.format(event.src_path, event.event_type))
+            self_restart()
+
+    event_handler = PyWatcherHandler()
+    observer = Observer()
+    observer.schedule(event_handler, THIS_DIR, recursive=True)
+    observer.start()
 
 
 @cli.command()

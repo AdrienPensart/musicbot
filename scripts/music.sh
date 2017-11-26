@@ -3,7 +3,7 @@
 dst="/home/admin/music"
 
 alias musicbot="env/bin/python musicbot"
-#musicbot folder scan "$dst"
+musicbot folder scan "$dst"
 musicbot db clean
 find "$dst" -name \*.m3u -delete
 musicbot $@ playlist bests --suffix '_4' --min-rating 4.0 --no-keywords cutoff --no-keywords bad --no-keywords demo --no-keywords intro "$dst"

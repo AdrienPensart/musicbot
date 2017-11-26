@@ -5,6 +5,7 @@ import uvloop
 from functools import wraps
 from logging import debug, info
 from .config import config
+from .lib import secondsToHuman
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
@@ -20,9 +21,8 @@ def timeit(f):
     async def helper(*args, **params):
         start = time.time()
         result = await process(f, *args, **params)
-        # Test normal function route...
-        # result = await process(lambda *a, **p: print(*a, **p), *args, **params)
-        debug('{}: {}'.format(f.__name__, time.time() - start))
+        for_human = secondsToHuman(time.time() - start)
+        debug('{}: {}'.format(f.__name__, for_human))
         return result
 
     return helper

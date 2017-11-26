@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import humanfriendly
 import os
 import time
 from sanic import Sanic, response
@@ -9,19 +8,11 @@ from urllib.parse import unquote
 from logging import debug
 from aiocache import cached, SimpleMemoryCache
 from aiocache.serializers import PickleSerializer
+from .lib import bytesToHuman, secondsToHuman
 from .helpers import timeit
 from .web.filter import WebFilter
-from .web.helpers import env, template
+from .web.helpers import env, template, basicauth
 from .web.forms import FilterForm
-
-
-def bytesToHuman(b):
-    return humanfriendly.format_size(b)
-
-
-def secondsToHuman(s):
-    import datetime
-    return str(datetime.timedelta(seconds=s))
 
 
 def basename(path):
@@ -51,13 +42,11 @@ session = {}
 
 
 @app.middleware('request')
-async def add_session_to_request(request):
-    request['session'] = session
-
-
-@app.middleware('request')
-async def set_request_start(request):
+@basicauth
+@timeit
+async def global_middleware(request):
     env.globals['request_start_time'] = time.time()
+    request['session'] = session
 
 
 @app.exception(RequestTimeout)
@@ -66,13 +55,13 @@ def timeout(request, exception):
 
 
 @app.route("/stats")
-@timeit
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def get_stats(request):
     '''Music library statistics'''
     db = app.config['CTX'].obj.db
     mf = WebFilter(request)
     stats = await db.stats(mf)
+    debug(stats)
     return await template('stats.html', stats=stats)
 
 

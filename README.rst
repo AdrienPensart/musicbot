@@ -72,6 +72,9 @@ ToDo
   - configuration : global conf -> user conf -> env var -> arguments
   - database / folders / filters
   - autodoc
+  - web auth
+  - api version
+  - full API / template separation
 - filters
   - backup all the music
   - local selection (3.5+ ?)
