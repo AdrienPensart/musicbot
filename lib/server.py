@@ -10,6 +10,7 @@ from aiocache import cached, SimpleMemoryCache
 from aiocache.serializers import PickleSerializer
 from .lib import bytesToHuman, secondsToHuman
 from .helpers import timeit
+from .database import DbContext
 from .web.filter import WebFilter
 from .web.helpers import env, template, basicauth
 from .web.forms import FilterForm
@@ -34,6 +35,7 @@ app.blueprint(api_v1)
 app.blueprint(openapi_blueprint)
 app.blueprint(swagger_blueprint)
 app.config['WTF_CSRF_SECRET_KEY'] = 'top secret!'
+app.config['DB'] = DbContext()
 env.globals['get_flashed_messages'] = get_flashed_messages
 env.globals['url_for'] = app.url_for
 env.globals['bytesToHuman'] = bytesToHuman
@@ -60,7 +62,7 @@ def timeout(request, exception):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def get_stats(request):
     '''Music library statistics'''
-    db = app.config['CTX'].obj.db
+    db = app.config['DB']
     mf = WebFilter(request)
     stats = await db.stats(mf)
     debug(stats)
@@ -69,7 +71,7 @@ async def get_stats(request):
 
 @app.route("/collection/generate")
 async def get_generate(request):
-    db = app.config['CTX'].obj.db
+    db = app.config['DB']
     # precedent = request.form
     mf = WebFilter(request)
     records = await db.form(mf)
@@ -87,7 +89,7 @@ async def get_consistency(request):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def get_keywords(request):
     '''Get keywords'''
-    db = app.config['CTX'].obj.db
+    db = app.config['DB']
     mf = WebFilter(request)
     keywords = await db.keywords(mf)
     debug(keywords)
@@ -98,7 +100,7 @@ async def get_keywords(request):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def get_keyword(request, keyword):
     '''List objects related to keyword'''
-    db = app.config['CTX'].obj.db
+    db = app.config['DB']
     mf = WebFilter(request, keywords=[keyword])
     artists = await db.artists(mf)
     return await template("keyword.html", keyword=keyword, artists=artists)
@@ -108,7 +110,7 @@ async def get_keyword(request, keyword):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def get_artists(request):
     '''List artists'''
-    db = app.config['CTX'].obj.db
+    db = app.config['DB']
     mf = WebFilter(request)
     artists = await db.artists(mf)
     return await template("artists.html", artists=artists)
@@ -119,7 +121,7 @@ async def get_artists(request):
 async def get_albums(request, artist):
     '''List albums for artist'''
     artist = unquote(artist)
-    db = app.config['CTX'].obj.db
+    db = app.config['DB']
     mf = WebFilter(request, artists=[artist])
     albums = await db.albums(mf)
     return await template("artist.html", artist=artist, albums=albums, keywords=mf.keywords)
@@ -131,7 +133,7 @@ async def get_musics(request, artist, album):
     '''List tracks for artist/album'''
     artist = unquote(artist)
     album = unquote(album)
-    db = app.config['CTX'].obj.db
+    db = app.config['DB']
     mf = WebFilter(request, artists=[artist], albums=[album])
     musics = await db.filter(mf)
     return await template("album.html", artist=artist, album=album, musics=musics)
@@ -144,7 +146,7 @@ async def get_music(request, artist, album, title):
     artist = unquote(artist)
     album = unquote(album)
     title = unquote(title)
-    db = app.config['CTX'].obj.db
+    db = app.config['DB']
     mf = WebFilter(request, artists=[artist], albums=[album], titles=[title])
     musics = await db.filter(mf)
     if len(musics) != 1:
@@ -157,7 +159,7 @@ async def get_music(request, artist, album, title):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def get_playlist(request):
     '''Generate a playlist'''
-    db = app.config['CTX'].obj.db
+    db = app.config['DB']
     mf = WebFilter(request)
     musics = await db.filter(mf)
     return await template('playlist.html', headers={'Content-Type': 'text/plain; charset=utf-8'}, musics=musics)
@@ -207,7 +209,7 @@ async def get_playlist(request):
     #     return resp
 
 
-@app.route("/favicon.ico")
+@app.route("/favicon*")
 def get_favicon(request):
     abort(404)
 

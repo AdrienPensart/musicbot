@@ -20,7 +20,7 @@ def self_restart():
 @click.option('--dev', help='Dev mode, reload server on file changes', is_flag=True)
 def cli(ctx, dev, **kwargs):
     '''API Server'''
-    ctx.obj.db = database.DbContext(**kwargs)
+    app.config['DB'] = database.DbContext(**kwargs)
     if not dev:
         return
     lib.raise_limits()

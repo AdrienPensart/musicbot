@@ -12,6 +12,7 @@ chardet==3.0.4
 click==6.7
 docutils==0.14
 google-api-python-client==1.6.4
+gunicorn==19.7.1
 httplib2==0.10.3
 httptools==0.0.9
 humanfriendly==4.4.1
