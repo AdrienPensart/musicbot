@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from .filter import Filter
 from logging import debug
-from .lib import convert_rating, num
-from .file import mysplit
+from ..filter import Filter
+from ..lib import convert_rating, num
+from ..file import mysplit
 
 
 class WebFilter(Filter):

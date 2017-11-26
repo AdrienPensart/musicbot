@@ -1,21 +1,18 @@
 # -*- coding: utf-8 -*-
-from sanic import Sanic
-from sanic.response import html
-from sanic import response
+import humanfriendly
+import os
+import time
+from sanic import Sanic, response
 from sanic.exceptions import RequestTimeout, abort
 from sanic_openapi import swagger_blueprint, openapi_blueprint
-from jinja2 import Environment, FileSystemLoader
 from urllib.parse import unquote
-from .webfilter import WebFilter
-from .forms import FilterForm
 from logging import debug
 from aiocache import cached, SimpleMemoryCache
 from aiocache.serializers import PickleSerializer
 from .helpers import timeit
-import humanfriendly
-import os
-import time
-import sys
+from .web.filter import WebFilter
+from .web.helpers import env, template
+from .web.forms import FilterForm
 
 
 def bytesToHuman(b):
@@ -44,9 +41,6 @@ app = Sanic(name='musicbot')
 app.blueprint(openapi_blueprint)
 app.blueprint(swagger_blueprint)
 app.config['WTF_CSRF_SECRET_KEY'] = 'top secret!'
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-enable_async = sys.version_info >= (3, 6)
-env = Environment(loader=FileSystemLoader(os.path.join(THIS_DIR, 'templates')), enable_async=enable_async)
 env.globals['get_flashed_messages'] = get_flashed_messages
 env.globals['url_for'] = app.url_for
 env.globals['bytesToHuman'] = bytesToHuman
@@ -64,12 +58,6 @@ async def add_session_to_request(request):
 @app.middleware('request')
 async def set_request_start(request):
     env.globals['request_start_time'] = time.time()
-
-
-async def template(tpl, headers=None, **kwargs):
-    template = env.get_template(tpl)
-    rendered_template = await template.render_async(**kwargs)
-    return html(rendered_template, headers=headers)
 
 
 @app.exception(RequestTimeout)

@@ -1,6 +1,6 @@
 from sanic_wtf import SanicForm
 from wtforms import IntegerField, BooleanField, SelectField, SelectMultipleField, SubmitField
-from .filter import default_formats
+from ..filter import default_formats
 
 rating_choices = [(x * 0.5, x * 0.5) for x in range(0, 11)]
 formats_choices = [(x, x) for x in default_formats]
