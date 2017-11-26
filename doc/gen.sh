@@ -32,7 +32,7 @@ do
     done
 done
 
-cat $my_dir/HELP.rst $my_dir/TODO.rst $commands > $my_dir/../README.rst
+cat $my_dir/help.rst $my_dir/todo.rst $commands > $my_dir/../README.rst
 
 rm $commands
 

@@ -49,7 +49,7 @@ Enable auto-completion (works for bash and zsh) :
 Installation
 ------------
 
-.. code-block::
+.. code-block:: bash
 
   sudo apt-get install sox libsox-fmt-mp3 sqlite3 cmake libyaml-dev
   git clone https://github.com/taglib/taglib.git
@@ -72,7 +72,6 @@ ToDo
   - configuration : global conf -> user conf -> env var -> arguments
   - database / folders / filters
   - autodoc
-  - web auth
   - api version
   - full API / template separation
 - filters

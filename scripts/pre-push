@@ -22,3 +22,4 @@
 set -e
 test/tests.sh
 doc/gen.sh
+sphinx-build -b html doc doc/html
