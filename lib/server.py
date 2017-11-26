@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import time
-from sanic import Sanic, response
+from sanic import response
 from sanic.exceptions import RequestTimeout, abort
 from sanic_openapi import swagger_blueprint, openapi_blueprint
 from urllib.parse import unquote
@@ -13,6 +13,8 @@ from .helpers import timeit
 from .web.filter import WebFilter
 from .web.helpers import env, template, basicauth
 from .web.forms import FilterForm
+from .web.api import api_v1
+from .web.app import app
 
 
 def basename(path):
@@ -28,7 +30,7 @@ def download_title(m):
 
 
 # app = Sanic(name='musicbot', log_config=None)
-app = Sanic(name='musicbot')
+app.blueprint(api_v1)
 app.blueprint(openapi_blueprint)
 app.blueprint(swagger_blueprint)
 app.config['WTF_CSRF_SECRET_KEY'] = 'top secret!'
@@ -54,7 +56,7 @@ def timeout(request, exception):
     return response.text('RequestTimeout from error_handler.', 408)
 
 
-@app.route("/stats")
+@app.route("/collection/stats")
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def get_stats(request):
     '''Music library statistics'''
@@ -65,7 +67,7 @@ async def get_stats(request):
     return await template('stats.html', stats=stats)
 
 
-@app.route("/generate")
+@app.route("/collection/generate")
 async def get_generate(request):
     db = app.config['CTX'].obj.db
     # precedent = request.form
@@ -76,23 +78,22 @@ async def get_generate(request):
     return await template('generate.html', form=form)
 
 
-@app.route("/consistency")
+@app.route("/collection/consistency")
 async def get_consistency(request):
     return await template('consistency.html')
 
 
-@app.route("/keywords")
+@app.route("/collection/keywords")
 async def get_keywords(request):
     '''Get keywords'''
     db = app.config['CTX'].obj.db
     mf = WebFilter(request)
     keywords = await db.keywords(mf)
-    # return json(keywords)
     debug(keywords)
     return await template('keywords.html', keywords=keywords)
 
 
-@app.route("/keywords/<keyword>")
+@app.route("/collection/keywords/<keyword>")
 async def get_keyword(request, keyword):
     '''List objects related to keyword'''
     db = app.config['CTX'].obj.db
@@ -101,7 +102,7 @@ async def get_keyword(request, keyword):
     return await template("keyword.html", keyword=keyword, artists=artists)
 
 
-@app.route('/artists')
+@app.route('/collection/artists')
 async def get_artists(request):
     '''List artists'''
     db = app.config['CTX'].obj.db
@@ -110,7 +111,7 @@ async def get_artists(request):
     return await template("artists.html", artists=artists)
 
 
-@app.route('/<artist>')
+@app.route('/collection/<artist>')
 async def get_albums(request, artist):
     '''List albums for artist'''
     artist = unquote(artist)
@@ -120,7 +121,7 @@ async def get_albums(request, artist):
     return await template("artist.html", artist=artist, albums=albums, keywords=mf.keywords)
 
 
-@app.route('/<artist>/<album>')
+@app.route('/collection/<artist>/<album>')
 async def get_musics(request, artist, album):
     '''List tracks for artist/album'''
     artist = unquote(artist)
@@ -131,7 +132,7 @@ async def get_musics(request, artist, album):
     return await template("album.html", artist=artist, album=album, musics=musics)
 
 
-@app.route('/<artist>/<album>/<title>')
+@app.route('/collection/<artist>/<album>/<title>')
 async def get_music(request, artist, album, title):
     '''Get a track tags or download it'''
     artist = unquote(artist)
@@ -146,7 +147,7 @@ async def get_music(request, artist, album, title):
     return await template("music.html", music=music)
 
 
-@app.route("/playlist")
+@app.route("/collection/playlist")
 async def get_playlist(request):
     '''Generate a playlist'''
     db = app.config['CTX'].obj.db
@@ -206,4 +207,5 @@ def get_favicon(request):
 
 @app.route("/")
 async def get_root(request):
+    print(app.router.routes_all)
     return await template('index.html')

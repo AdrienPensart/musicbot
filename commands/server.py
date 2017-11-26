@@ -25,9 +25,10 @@ def cli(ctx, **kwargs):
     from watchdog.events import PatternMatchingEventHandler
 
     class PyWatcherHandler(PatternMatchingEventHandler):
-        patterns = ['*.py']
+        patterns = []
 
         def __init__(self):
+            self.patterns = ['*.py', '*.html']
             super().__init__()
 
         def on_modified(self, event):
@@ -48,6 +49,9 @@ def cli(ctx, **kwargs):
 
     event_handler = PyWatcherHandler()
     observer = Observer()
+    debug('Observing recursively: {}'.format(THIS_DIR))
+    observer.schedule(event_handler, THIS_DIR+'/lib', recursive=True)
+    observer.schedule(event_handler, THIS_DIR+'/commands', recursive=True)
     observer.schedule(event_handler, THIS_DIR, recursive=True)
     observer.start()
 

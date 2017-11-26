@@ -12,7 +12,7 @@
     {% endif %}
   {% endwith %}
   <strong>Rendered in {{ request_time() }}</strong><br>
-  <a href="{{ url_for('get_stats') }}">Stats</a><br>
+  <a href="{{ url_for('get_stats') }}">Stats</a> (<a href="{{ url_for('api_v1.stats') }}">api</a>)<br>
   <a href="{{ url_for('get_artists') }}">Artists</a><br>
   <a href="{{ url_for('get_generate') }}">Generate playlists</a><br>
   <a href="{{ url_for('get_consistency') }}">Consistency</a><br>

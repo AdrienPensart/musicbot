@@ -71,7 +71,6 @@ ToDo
   - invocation_id / logs
   - configuration : global conf -> user conf -> env var -> arguments
   - database / folders / filters
-  - autodoc
   - api version
   - full API / template separation
 - filters
