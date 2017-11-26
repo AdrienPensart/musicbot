@@ -48,10 +48,14 @@ class DbContext(object):
         await self.execute(sql, l)
 
     @timeit
-    async def filter(self, f=Filter()):
-        sql = '''select * from do_filter($1::filter)'''
+    async def filter(self, f=Filter(), json=False):
         l = f.to_list()
-        return await self.fetch(sql, l)
+        if json:
+            sql = '''select array_to_json(array_agg(row_to_json(m))) as playlist from do_filter($1::filter) m'''
+            return (await self.fetchrow(sql, l))['playlist']
+        else:
+            sql = '''select * from do_filter($1::filter)'''
+            return await self.fetch(sql, l)
 
     @timeit
     async def playlist(self, f=Filter()):

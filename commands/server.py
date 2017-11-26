@@ -50,8 +50,8 @@ def cli(ctx, **kwargs):
     event_handler = PyWatcherHandler()
     observer = Observer()
     debug('Observing recursively: {}'.format(THIS_DIR))
-    observer.schedule(event_handler, THIS_DIR+'/lib', recursive=True)
-    observer.schedule(event_handler, THIS_DIR+'/commands', recursive=True)
+    observer.schedule(event_handler, THIS_DIR + '/lib', recursive=True)
+    observer.schedule(event_handler, THIS_DIR + '/commands', recursive=True)
     observer.schedule(event_handler, THIS_DIR, recursive=True)
     observer.start()
 

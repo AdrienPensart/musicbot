@@ -84,6 +84,7 @@ async def get_consistency(request):
 
 
 @app.route("/collection/keywords")
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def get_keywords(request):
     '''Get keywords'''
     db = app.config['CTX'].obj.db
@@ -94,6 +95,7 @@ async def get_keywords(request):
 
 
 @app.route("/collection/keywords/<keyword>")
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def get_keyword(request, keyword):
     '''List objects related to keyword'''
     db = app.config['CTX'].obj.db
@@ -103,6 +105,7 @@ async def get_keyword(request, keyword):
 
 
 @app.route('/collection/artists')
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def get_artists(request):
     '''List artists'''
     db = app.config['CTX'].obj.db
@@ -112,6 +115,7 @@ async def get_artists(request):
 
 
 @app.route('/collection/<artist>')
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def get_albums(request, artist):
     '''List albums for artist'''
     artist = unquote(artist)
@@ -122,6 +126,7 @@ async def get_albums(request, artist):
 
 
 @app.route('/collection/<artist>/<album>')
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def get_musics(request, artist, album):
     '''List tracks for artist/album'''
     artist = unquote(artist)
@@ -133,6 +138,7 @@ async def get_musics(request, artist, album):
 
 
 @app.route('/collection/<artist>/<album>/<title>')
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def get_music(request, artist, album, title):
     '''Get a track tags or download it'''
     artist = unquote(artist)
@@ -148,6 +154,7 @@ async def get_music(request, artist, album, title):
 
 
 @app.route("/collection/playlist")
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def get_playlist(request):
     '''Generate a playlist'''
     db = app.config['CTX'].obj.db

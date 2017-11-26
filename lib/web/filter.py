@@ -16,7 +16,7 @@ class WebFilter(Filter):
         elif youtube == "0":
             self.youtube = False
         else:
-            debug("BAD VALUE: {} {}".format(type(youtube), youtube))
+            debug("bad value for youtube: {} {}".format(type(youtube), youtube))
         debug('youtube: {} {}'.format(youtube, self.youtube))
 
         self.shuffle = request.args.get('shuffle', getattr(self, 'shuffle'))
@@ -33,7 +33,7 @@ class WebFilter(Filter):
             setattr(self, param, data)
 
         for param in ['min_rating', 'max_rating']:
-            data = convert_rating(request.args.get(param, getattr(self, param)))
+            data = request.args.get(param, getattr(self, param))
             debug('{} {}'.format(param, data))
             setattr(self, param, data)
 

@@ -33,17 +33,18 @@ class Filter(object):
 
     def to_list(self):
         # return [a for a in dir(self) if not a.startswith('__')]
-        return [self.id,
-                self.min_duration, self.max_duration,
-                self.min_size, self.max_size,
-                self.min_rating, self.max_rating,
-                self.artists, self.no_artists,
-                self.albums, self.no_albums,
-                self.titles, self.no_titles,
-                self.genres, self.no_genres,
-                self.formats, self.no_formats,
-                self.keywords, self.no_keywords,
-                self.shuffle, self.relative, self.limit, self.youtube]
+        my_list = [self.id,
+                   self.min_duration, self.max_duration,
+                   self.min_size, self.max_size,
+                   self.min_rating, self.max_rating,
+                   self.artists, self.no_artists,
+                   self.albums, self.no_albums,
+                   self.titles, self.no_titles,
+                   self.genres, self.no_genres,
+                   self.formats, self.no_formats,
+                   self.keywords, self.no_keywords,
+                   self.shuffle, self.relative, self.limit, self.youtube]
+        return my_list
 
     @property
     def comment(self, defaults=''):

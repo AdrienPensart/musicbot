@@ -14,3 +14,12 @@ async def stats(request):
     stats = await db.stats(mf)
     debug(stats)
     return response.json(dict(stats))
+
+
+@api_v1.route("/playlist")
+async def playlist(request):
+    '''Generate a playlist, APIv1'''
+    db = app.config['CTX'].obj.db
+    mf = WebFilter(request)
+    musics = await db.filter(mf, True)
+    return response.HTTPResponse(musics, content_type="application/json")
