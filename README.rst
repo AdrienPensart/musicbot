@@ -430,6 +430,7 @@ musicbot server
     --database TEXT  DB name
     --user TEXT      DB user
     --password TEXT  DB password
+    --dev            Dev mode, reload server on file changes
     -h, --help       Show this message and exit.
   
   Commands:

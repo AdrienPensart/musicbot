@@ -17,9 +17,12 @@ def self_restart():
 @click.group()
 @options.add_options(options.db)
 @click.pass_context
-def cli(ctx, **kwargs):
+@click.option('--dev', help='Dev mode, reload server on file changes', is_flag=True)
+def cli(ctx, dev, **kwargs):
     '''API Server'''
     ctx.obj.db = database.DbContext(**kwargs)
+    if not dev:
+        return
     lib.raise_limits()
     from watchdog.observers import Observer
     from watchdog.events import PatternMatchingEventHandler

@@ -214,5 +214,4 @@ def get_favicon(request):
 
 @app.route("/")
 async def get_root(request):
-    print(app.router.routes_all)
     return await template('index.html')
