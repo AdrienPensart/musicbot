@@ -21,6 +21,7 @@ def self_restart():
 def cli(ctx, dev, **kwargs):
     '''API Server'''
     app.config['DB'] = database.DbContext(**kwargs)
+    app.config['CACHE'] = not dev
     if not dev:
         return
     lib.raise_limits()

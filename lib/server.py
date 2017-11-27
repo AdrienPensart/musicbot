@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 import time
-from sanic import response
-from sanic.exceptions import RequestTimeout, abort
 from sanic_openapi import swagger_blueprint, openapi_blueprint
 from urllib.parse import unquote
 from logging import debug
@@ -51,11 +49,6 @@ session = {}
 async def global_middleware(request):
     env.globals['request_start_time'] = time.time()
     request['session'] = session
-
-
-@app.exception(RequestTimeout)
-def timeout(request, exception):
-    return response.text('RequestTimeout from error_handler.', 408)
 
 
 @app.route("/collection/stats")
@@ -207,11 +200,6 @@ async def get_playlist(request):
     #     resp = make_response(render_template("playlist.html", musics=musics, download_title=download_title))
     #     resp.headers['Content-Type'] = 'text/plain; charset=utf-8'
     #     return resp
-
-
-@app.route("/favicon*")
-def get_favicon(request):
-    abort(404)
 
 
 @app.route("/")

@@ -1,0 +1,15 @@
+[Unit]
+Description=Musicbot Server
+Requires=network.target
+After=network.target
+
+[Service]
+User=admin
+Type=simple
+ExecStart=/home/admin/musicbot/scripts/web.sh
+StandardOutput=null
+PrivateTmp=true
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
