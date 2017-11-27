@@ -17,7 +17,7 @@ def self_restart():
 @click.group()
 @options.add_options(options.db)
 @click.pass_context
-@click.option('--dev', help='Dev mode, reload server on file changes', is_flag=True)
+@click.option('--dev', envvar='MB_DEV', help='Dev mode, reload server on file changes', is_flag=True)
 def cli(ctx, dev, **kwargs):
     '''API Server'''
     app.config['DB'] = database.DbContext(**kwargs)
@@ -61,9 +61,9 @@ def cli(ctx, dev, **kwargs):
 
 
 @cli.command()
-@click.option('--host', help='Host interface to listen on', default='0.0.0.0')
-@click.option('--port', help='Port to listen on', default=8000)
-@click.option('--workers', help='Number of workers', default=1)
+@click.option('--host', envvar='MB_HOST', help='Host interface to listen on', default='0.0.0.0')
+@click.option('--port', envvar='MB_PORT', help='Port to listen on', default=8000)
+@click.option('--workers', envvar='MB_WORKERS', help='Number of workers', default=1)
 @click.pass_context
 def start(ctx, host, port, workers, **kwargs):
     '''Start musicbot web API'''

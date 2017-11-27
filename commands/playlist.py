@@ -25,8 +25,8 @@ def cli(ctx, **kwargs):
 @helpers.coro
 @options.add_options(options.filters)
 @click.argument('path', type=click.Path(exists=True))
-@click.option('--prefix', help="Append prefix before each path (implies relative)", default='')
-@click.option('--suffix', help="Append this suffix to playlist name", default='')
+@click.option('--prefix', envvar='MB_PREFIX', help="Append prefix before each path (implies relative)", default='')
+@click.option('--suffix', envvar='MB_SUFFIX', help="Append this suffix to playlist name", default='')
 async def bests(ctx, path, prefix, suffix, **kwargs):
     '''Generate bests playlists with some rules'''
     ctx.obj.mf = Filter(**kwargs)
@@ -54,7 +54,7 @@ async def bests(ctx, path, prefix, suffix, **kwargs):
 @click.pass_context
 @options.add_options(options.filters)
 @click.argument('path', type=click.File('w'), default='-')
-@click.option('--prefix', help="Append prefix before each path (implies relative)", default='')
+@click.option('--prefix', envvar='MB_SUFFIX', help="Append prefix before each path (implies relative)", default='')
 async def new(ctx, path, **kwargs):
     '''Generate a new playlist'''
     ctx.obj.mf = Filter(**kwargs)
