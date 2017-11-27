@@ -122,6 +122,7 @@ Options:
 
 Commands:
   db        Database management
+  filter    Filter creation
   folder    Folder scanning
   playlist  Playlist management
   server    API Server
@@ -199,6 +200,45 @@ musicbot db drop
   
   Options:
     -h, --help  Show this message and exit.
+
+
+musicbot filter
+***************
+.. code-block::
+
+  Usage: musicbot filter [OPTIONS] [PATH] COMMAND [ARGS]...
+  
+    Filter creation
+  
+  Options:
+    --filter TEXT                   Filter file to load
+    --limit TEXT                    Fetch a maximum limit of music
+    --youtube                       Select musics with a youtube link
+    --formats TEXT                  Select musics with file format
+    --no-formats TEXT               Filter musics without format
+    --keywords TEXT                 Select musics with keywords
+    --no-keywords TEXT              Filter musics without keywords
+    --artists TEXT                  Select musics with artists
+    --no-artists TEXT               Filter musics without artists
+    --albums TEXT                   Select musics with albums
+    --no-albums TEXT                Filter musics without albums
+    --titles TEXT                   Select musics with titles
+    --no-titles TEXT                Filter musics without titless
+    --genres TEXT                   Select musics with genres
+    --no-genres TEXT                Filter musics without genres
+    --min-duration TEXT             Minimum duration filter
+                                    (hours:minutes:seconds)
+    --max-duration TEXT             Maximum duration filter
+                                    (hours:minutes:seconds))
+    --min-size TEXT                 Minimum file size filter (in bytes)
+    --max-size TEXT                 Maximum file size filter (in bytes)
+    --min-rating [0.0|0.5|1.0|1.5|2.0|2.5|3.0|3.5|4.0|4.5|5.0]
+                                    Minimum rating
+    --max-rating [0.0|0.5|1.0|1.5|2.0|2.5|3.0|3.5|4.0|4.5|5.0]
+                                    Maximum rating
+    --relative                      Generate relatives paths
+    --shuffle                       Randomize selection
+    -h, --help                      Show this message and exit.
 
 
 musicbot folder
