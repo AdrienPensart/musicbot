@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from .lib import convert_rating
+from bson.json_util import dumps
 default_min_rating = 0.0
 default_max_rating = 5.0
 rating_choices = [str(x * 0.5) for x in range(0, 11)]
@@ -30,6 +31,9 @@ class Filter(object):
         assert len(set(self.titles).intersection(self.no_titles)) == 0
         assert len(set(self.keywords).intersection(self.no_keywords)) == 0
         assert len(set(self.checks).intersection(self.no_checks)) == 0
+
+    def __repr__(self):
+        return dumps(self.to_list())
 
     def to_list(self):
         # return [a for a in dir(self) if not a.startswith('__')]
