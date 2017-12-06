@@ -5,7 +5,7 @@ import os
 import asyncio
 from tqdm import tqdm
 from logging import debug, info
-from lib import options, helpers, lib, file, database, filter
+from lib import options, helpers, lib, file, database
 from lib.filter import Filter
 from lib.lib import empty_dirs
 
@@ -82,7 +82,7 @@ async def scan(ctx, folders, **kwargs):
     # musics = []
     with tqdm(total=len(files), file=sys.stdout, desc="Loading music", leave=True, position=0, disable=ctx.obj.config.quiet) as bar:
         for f in files:
-            if f[1].endswith(tuple(filter.default_formats)):
+            if f[1].endswith(tuple(Filter.formats)):
                 m = file.File(f[1], f[0])
                 await ctx.obj.db.upsert(m)
                 # musics.append(m)
@@ -117,7 +117,7 @@ async def watch(ctx, **kwargs):
         def __init__(self, loop=None):
             super().__init__()
             self.loop = loop or asyncio.get_event_loop()
-            self.patterns = ['*.' + f for f in filter.default_formats]
+            self.patterns = ['*.' + f for f in Filter.formats]
 
         def update(self, path):
             for folder in folders:

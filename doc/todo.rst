@@ -3,12 +3,10 @@ ToDo
 - application
   - invocation_id / logs
   - configuration : global conf -> user conf -> env var -> arguments
-  - database / folders / filters
-  - api version
   - full API / template separation
 - filters
-  - backup all the music
-  - local selection (3.5+ ?)
+  - backup all the music (all)
+  - local selection (4.5+ ?)
   - portable x5 bests selection (4+ ?)
 - youtube
   - playlists

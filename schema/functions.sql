@@ -6,18 +6,18 @@ create or replace function new_filter
     max_size integer default +2147483647,
     min_rating float default 0.0,
     max_rating float default 1.0,
-    artists varchar[] default '{}',
-    no_artists varchar[] default '{}',
-    albums varchar[] default '{}',
-    no_albums varchar[] default '{}',
-    titles varchar[] default '{}',
-    no_titles varchar[] default '{}',
-    genres varchar[] default '{}',
-    no_genres varchar[] default '{}',
-    formats varchar[] default '{}',
-    no_formats varchar[] default '{}',
-    keywords varchar[] default '{}',
-    no_keywords varchar[] default '{}',
+    artists text[] default '{}',
+    no_artists text[] default '{}',
+    albums text[] default '{}',
+    no_albums text[] default '{}',
+    titles text[] default '{}',
+    no_titles text[] default '{}',
+    genres text[] default '{}',
+    no_genres text[] default '{}',
+    formats text[] default '{}',
+    no_formats text[] default '{}',
+    keywords text[] default '{}',
+    no_keywords text[] default '{}',
     shuffle boolean default 'false',
     relative boolean default 'false',
     "limit" integer default +2147483647,
@@ -41,33 +41,33 @@ $$ language plpgsql;
 create table if not exists music
 (
     id serial primary key,
-    title varchar default '',
-    album varchar default '',
-    genre varchar default '',
-    artist varchar default '',
-    folder varchar default '',
-    youtube varchar default null,
+    title text default '',
+    album text default '',
+    genre text default '',
+    artist text default '',
+    folder text default '',
+    youtube text default null,
     number integer default 0,
-    path varchar default '' unique not null,
+    path text default '' unique not null,
     rating float default 0.0,
     duration integer default 0,
     size integer default 0,
-    keywords varchar[] default '{}'
+    keywords text[] default '{}'
 );
 
 create or replace function new_music
 (
-    title varchar default '',
-    album varchar default '',
-    genre varchar default '',
-    artist varchar default '',
-    folder varchar default '',
+    title text default '',
+    album text default '',
+    genre text default '',
+    artist text default '',
+    folder text default '',
     number integer default 0,
-    path varchar default '',
+    path text default '',
     rating float default 0.0,
     duration integer default 0,
     size integer default 0,
-    keywords varchar[] default '{}'
+    keywords text[] default '{}'
 ) returns music as
 $$
 begin
@@ -75,7 +75,7 @@ begin
 end;
 $$ language plpgsql;
 
-create or replace function delete(p varchar)
+create or replace function delete(p text)
 returns void as
 $$
 --begin
@@ -258,17 +258,17 @@ $$
         CAST ('NaN' AS DOUBLE PRECISION),
         CAST ('NaN' AS DOUBLE PRECISION),
         (select * from extract_artists) as artists,
-        ARRAY[]::varchar[],
+        ARRAY[]::text[],
         (select * from extract_albums) as albums,
-        ARRAY[]::varchar[],
+        ARRAY[]::text[],
         (select * from extract_titles) as titles,
-        ARRAY[]::varchar[],
+        ARRAY[]::text[],
         (select * from extract_genres) as genres,
-        ARRAY[]::varchar[],
-        ARRAY[]::varchar[],
-        ARRAY[]::varchar[],
+        ARRAY[]::text[],
+        ARRAY[]::text[],
+        ARRAY[]::text[],
         (select * from extract_keywords) as keywords,
-        ARRAY[]::varchar[],
+        ARRAY[]::text[],
         False,
         False,
         0,
@@ -293,8 +293,8 @@ $$ language sql;
 drop type if exists playlist cascade;
 create type playlist as
 (
-    name varchar,
-    content varchar
+    name text,
+    content text
 );
 
 create or replace function generate_playlist(mf filter default new_filter())

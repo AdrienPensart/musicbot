@@ -1,27 +1,22 @@
 # -*- coding: utf-8 -*-
-from .lib import convert_rating
+import yaml
+from logging import debug
 from bson.json_util import dumps
-default_min_rating = 0.0
-default_max_rating = 5.0
-rating_choices = [str(x * 0.5) for x in range(0, 11)]
-default_formats = ["mp3", "flac"]
-min_int = 0
-max_int = 2147483647
-default_max_limit = max_int
-default_min_size = min_int
-default_max_size = max_int
-default_min_duration = min_int
-default_max_duration = max_int
 
 
 class Filter(object):
 
-    def __init__(self, **kwargs):
+    def __init__(self, filter=None, **kwargs):
+        if filter is not None:
+            debug('Loading filter: {}'.format(self))
+            self = yaml.load(filter)
         for key, value in kwargs.items():
-            if value is not None:
-                setattr(self, key, value)
-        self.min_rating = convert_rating(float(self.min_rating))
-        self.max_rating = convert_rating(float(self.max_rating))
+            if hasattr(self, key) and value is not None:
+                if value != getattr(Filter, key):
+                    setattr(self, key, value)
+        debug('Final: {}'.format(self))
+        assert self.min_rating in self.rating_choices
+        assert self.max_rating in self.rating_choices
         assert self.min_duration <= self.max_duration
         assert self.min_rating <= self.max_rating
         assert len(set(self.formats).intersection(self.no_formats)) == 0
@@ -30,7 +25,7 @@ class Filter(object):
         assert len(set(self.albums).intersection(self.no_albums)) == 0
         assert len(set(self.titles).intersection(self.no_titles)) == 0
         assert len(set(self.keywords).intersection(self.no_keywords)) == 0
-        assert len(set(self.checks).intersection(self.no_checks)) == 0
+        # assert len(set(self.checks).intersection(self.no_checks)) == 0
 
     def __repr__(self):
         return dumps(self.to_list())
@@ -55,27 +50,32 @@ class Filter(object):
         return self.__get_first('COMMENT', defaults)
 
     id = 0
+    filter = None
+    rating_choices = [x * 0.5 for x in range(0, 11)]
+    min_int = 0
+    max_int = 2147483647
+
     relative = False
     shuffle = False
     youtube = None
-    formats = default_formats
-    no_formats = list()
-    genres = list()
-    no_genres = list()
-    limit = default_max_limit
-    min_duration = default_min_duration
-    max_duration = default_max_duration
-    min_size = default_min_size
-    max_size = default_max_size
-    min_rating = default_min_rating
-    max_rating = default_max_rating
-    keywords = list()
-    no_keywords = list()
-    artists = list()
-    no_artists = list()
-    titles = list()
-    no_titles = list()
-    albums = list()
-    no_albums = list()
-    checks = list()
-    no_checks = list()
+    formats = ("mp3", "flac")
+    no_formats = tuple()
+    genres = tuple()
+    no_genres = tuple()
+    limit = max_int
+    min_duration = min_int
+    max_duration = max_int
+    min_size = min_int
+    max_size = max_int
+    min_rating = 0.0
+    max_rating = 5.0
+    keywords = tuple()
+    no_keywords = tuple()
+    artists = tuple()
+    no_artists = tuple()
+    titles = tuple()
+    no_titles = tuple()
+    albums = tuple()
+    no_albums = tuple()
+    # checks = list()
+    # no_checks = list()

@@ -37,11 +37,6 @@ class MusicTagsTest(unittest.TestCase):
         files = list(lib.find_files([folder1, folder2]))
         self.assertEqual(len(files), 5)
 
-    def test_rating_conversion(self):
-        self.assertEqual(lib.convert_rating(["5.0"]), 1.0)
-        self.assertEqual(lib.convert_rating(["3.5"]), 0.7)
-        self.assertEqual(lib.convert_rating(["0.0"]), 0.0)
-
     def test_flac_tags(self):
         m = file.File(folder1 + flac, folder1)
 
@@ -52,7 +47,7 @@ class MusicTagsTest(unittest.TestCase):
         self.assertEqual(m.number, 2)
         self.assertEqual(m.description, "rock cutoff")
         self.assertEqual(m.keywords, ["rock", "cutoff"])
-        self.assertEqual(m.rating, 1)
+        self.assertEqual(m.rating, 5.0)
         self.assertEqual(m.duration, 1)
 
     def test_mp3_tags(self):
@@ -65,7 +60,7 @@ class MusicTagsTest(unittest.TestCase):
         self.assertEqual(m.number, 2)
         self.assertEqual(m.comment, "rap french")
         self.assertEqual(m.keywords, ["rap", "french"])
-        self.assertEqual(m.rating, 0.9)
+        self.assertEqual(m.rating, 4.5)
         self.assertEqual(m.duration, 258)
 
     def test_duration(self):

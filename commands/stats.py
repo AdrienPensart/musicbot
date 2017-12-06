@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import click
+from datetime import timedelta
+from logging import debug
 from lib import helpers, options, database
+from lib.lib import bytesToHuman
 from lib.filter import Filter
 
 
@@ -19,5 +22,5 @@ async def cli(ctx, **kwargs):
     print("Album    :", stats['albums'])
     print("Genre    :", stats['genres'])
     print("Keywords :", stats['keywords'])
-    from datetime import timedelta
+    print("Size     :", bytesToHuman(stats['size']))
     print("Total duration :", str(timedelta(seconds=stats['duration'])))

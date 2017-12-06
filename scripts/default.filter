@@ -6,8 +6,8 @@ formats: !!python/tuple
 - flac
 genres: !!python/tuple []
 keywords: !!python/tuple []
-max_rating: 1.0
-min_rating: 0.8
+max_rating: 5.0
+min_rating: 4.0
 no_albums: !!python/tuple []
 no_artists: !!python/tuple []
 no_formats: !!python/tuple []

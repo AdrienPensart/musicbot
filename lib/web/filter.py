@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from logging import debug
 from ..filter import Filter
-from ..lib import convert_rating, num
+from ..lib import num
 from ..file import mysplit
 
 

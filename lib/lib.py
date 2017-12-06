@@ -25,12 +25,6 @@ def secondsToHuman(s):
     return str(datetime.timedelta(seconds=s))
 
 
-def convert_rating(arg):
-    if type(arg) is float:
-        return arg / 5.0
-    return float(first(arg)) / 5.0
-
-
 def empty_dirs(root_dir, recursive=True):
     empty_dirs = []
     for root, dirs, files in os.walk(root_dir, topdown=False):

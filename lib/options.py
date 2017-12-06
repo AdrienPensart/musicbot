@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import click
-from lib.filter import default_formats, rating_choices
+from lib.filter import Filter
 
 
 def add_options(options):
@@ -26,10 +26,10 @@ tag = [
 ]
 
 filters = [
-    click.option('--filter', envvar='MB_FILTER', help='Filter file to load'),
-    click.option('--limit', envvar='MB_LIMIT', help='Fetch a maximum limit of music'),
+    click.option('--filter', envvar='MB_FILTER', help='Filter file to load', type=click.File('r')),
+    click.option('--limit', envvar='MB_LIMIT', help='Fetch a maximum limit of music', default=2147483647),
     click.option('--youtube', envvar='MB_YOUTUBE', help='Select musics with a youtube link', default=None, is_flag=True),
-    click.option('--formats', envvar='MB_FORMATS', help='Select musics with file format', default=default_formats, multiple=True),
+    click.option('--formats', envvar='MB_FORMATS', help='Select musics with file format', default=Filter.formats),
     click.option('--no-formats', envvar='MB_NO_FORMATS', help='Filter musics without format', multiple=True),
     click.option('--keywords', envvar='MB_KEYWORDS', help='Select musics with keywords', multiple=True),
     click.option('--no-keywords', envvar='MB_NO_KEYWORDS', help='Filter musics without keywords', multiple=True),
@@ -45,8 +45,8 @@ filters = [
     click.option('--max-duration', envvar='MB_MAX_DURATION', help='Maximum duration filter (hours:minutes:seconds))'),
     click.option('--min-size', envvar='MB_MIN_SIZE', help='Minimum file size filter (in bytes)'),
     click.option('--max-size', envvar='MB_MAX_SIZE', help='Maximum file size filter (in bytes)'),
-    click.option('--min-rating', envvar='MB_MIN_RATING', help='Minimum rating', type=click.Choice(rating_choices)),
-    click.option('--max-rating', envvar='MB_MAX_RATING', help='Maximum rating', type=click.Choice(rating_choices)),
+    click.option('--min-rating', envvar='MB_MIN_RATING', help='Minimum rating', default=Filter.min_rating),
+    click.option('--max-rating', envvar='MB_MAX_RATING', help='Maximum rating', default=Filter.max_rating),
     click.option('--relative', envvar='MB_RELATIVE', help='Generate relatives paths', is_flag=True),
     click.option('--shuffle', envvar='MB_SHUFFLE', help='Randomize selection', is_flag=True),
 ]

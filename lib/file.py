@@ -80,7 +80,7 @@ class File(object):
             n = float(s)
             if n < 0.0:
                 return default
-            return n
+            return n * 5.0
         except ValueError:
             return default
 
