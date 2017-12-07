@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from logging import debug
 from urllib.parse import unquote
-from sanic import Blueprint
+from sanic import Blueprint, response
 from aiocache import cached, SimpleMemoryCache
 from aiocache.serializers import PickleSerializer
-from .helpers import template
+from .helpers import template, download_title
 from .forms import FilterForm
 from .app import app
 from .filter import WebFilter
@@ -108,55 +108,56 @@ async def music(request, artist, album, title):
     return await template("music.html", music=music)
 
 
+def send_file(music, name, attachment='attachment'):
+    debug("sending file: {}".format(music['path']))
+    headers = {}
+    headers['Content-Description'] = 'File Transfer'
+    headers['Cache-Control'] = 'no-cache'
+    headers['Content-Type'] = 'audio/mpeg'
+    headers['Content-Disposition'] = '{}; filename={}'.format(attachment, name)
+    headers['Content-Length'] = music['size']
+    server_path = "/download" + music['path'][len(music['folder']):]
+    debug('server_path: {}'.format(server_path))
+    headers['X-Accel-Redirect'] = server_path
+    return response.HTTPResponse(headers=headers)
+
+
 @collection.route("/playlist")
-@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
-async def playlist(request):
+# @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
+async def playlist(request, noauth=True):
     '''Generate a playlist'''
     db = app.config['DB']
     mf = WebFilter(request)
     musics = await db.filter(mf)
+
+    downloadstr = request.args.get('download', '0')
+    listenstr = request.args.get('listen', '0')
+    name = request.args.get('name', 'archive')
+    debug("download? = {}, listen? = {}, name = {}, size = {}".format(downloadstr, listenstr, name, len(musics)))
+    if len(musics) == 0:
+        return response.text('Empty playlist')
+    if listenstr in ['True', 'true', '1']:
+        if len(musics) == 1:
+            return send_file(music=musics[0], name=name, attachment='inline')
+        else:
+            headers = {}
+            headers['Content-Disposition'] = '{}; filename={}'.format('attachment', name + '.m3u')
+            return await template("playlist.html", headers=headers, musics=musics)
+    if downloadstr in ['True', 'true', '1']:
+        if len(musics) == 1 and name == download_title(musics[0]):
+            return send_file(music=musics[0], name=name, attachment='attachment')
+        # filename = name + '.zip'
+        # filepath = os.path.join('/tmp', filename)
+        # totalsize = sum([m.size for m in musics])
+        # if totalsize > humanfriendly.parse_size("1G"):
+        #     return 'Archive too big, do not break my server !'
+
+        # zf = zipfile.ZipFile(filepath, mode='w')
+        # try:
+        #     for m in musics:
+        #         debug("adding to archive: {}".format(m.path))
+        #         zf.write(m.path, os.path.join(m.artist, m.album, os.path.basename(m.path)))
+        # finally:
+        #     zf.close()
+        # return send_file(filepath, as_attachment=True, attachment_filename=filename)
     return await template('playlist.html', headers={'Content-Type': 'text/plain; charset=utf-8'}, musics=musics)
-
-    # downloadstr = request.args.get('download', '0')
-    # listenstr = request.args.get('listen', '0')
-    # name = request.args.get('name', 'archive')
-    # debug("download? = {}, listen? = {}, name = {}, size = {}".format(downloadstr, listenstr, name, len(musics)))
-    # # debug(musics)
-    # if len(musics) == 0:
-    #     return 'Empty playlist'
-    # if listenstr in ['True', 'true', '1']:
-    #     if len(musics) == 1:
-    #         m = musics[0]
-    #         debug("sending file: {}".format(m.path))
-    #         return send_file(m.path, mimetype="audio/mpeg", attachment_filename=os.path.basename(m.path))
-    #     else:
-    #         bio = io.BytesIO()
-    #         result = render_template("playlist.html", musics=musics, download_title=download_title)
-    #         data = result.encode('utf-8')
-    #         bio.write(data)
-    #         bio.seek(0)
-    #         return send_file(bio, as_attachment=True, attachment_filename=name+'.m3u')
-    # elif downloadstr in ['True', 'true', '1']:
-    #     filename = name + '.zip'
-    #     filepath = os.path.join('/tmp', filename)
-    #     if len(musics) == 1 and name == download_title(musics[0]):
-    #         m = musics[0]
-    #         debug("sending file: {}".format(m.path))
-    #         return send_file(m.path, as_attachment=True, conditional=True, mimetype="audio/mpeg", attachment_filename=os.path.basename(m.path))
-
-    #     totalsize = sum([m.size for m in musics])
-    #     if totalsize > humanfriendly.parse_size("1G"):
-    #         return 'Archive too big, do not break my server !'
-
-    #     zf = zipfile.ZipFile(filepath, mode='w')
-    #     try:
-    #         for m in musics:
-    #             debug("adding to archive: {}".format(m.path))
-    #             zf.write(m.path, os.path.join(m.artist, m.album, os.path.basename(m.path)))
-    #     finally:
-    #         zf.close()
-    #     return send_file(filepath, as_attachment=True, attachment_filename=filename)
-    # else:
-    #     resp = make_response(render_template("playlist.html", musics=musics, download_title=download_title))
-    #     resp.headers['Content-Type'] = 'text/plain; charset=utf-8'
-    #     return resp

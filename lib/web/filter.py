@@ -25,7 +25,8 @@ class WebFilter(Filter):
         debug('relative: {}'.format(self.relative))
 
         for param in ['formats', 'no_formats', 'artists', 'no_artists', 'genres', 'no_genres', 'albums', 'no_albums', 'titles', 'no_titles', 'keywords', 'no_keywords']:
-            raw = request.args.get(param, getattr(self, param))
+            raw = request.args.get(param, '","'.join(getattr(self, param)))
+            debug(raw)
             data = mysplit(raw, '","')
             if len(data) == 1 and data[0].startswith('"') and data[0].endswith('"'):
                 data[0] = data[0][1:-1]

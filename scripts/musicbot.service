@@ -6,7 +6,7 @@ After=network.target
 [Service]
 User=admin
 Type=simple
-ExecStart=/home/admin/musicbot/scripts/web.sh
+ExecStart=/home/admin/musicbot/scripts/prod.sh
 StandardOutput=null
 PrivateTmp=true
 Restart=always

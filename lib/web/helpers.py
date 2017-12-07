@@ -11,6 +11,22 @@ env = Environment(loader=FileSystemLoader(os.path.join(THIS_DIR, 'templates')), 
 env.globals['auth'] = {'user': 'musicbot', 'password': 'musicbot'}
 
 
+def server():
+    return env.globals['auth']['user'] + ':' + env.globals['auth']['password'] + '@' + env.globals['server_name']
+
+
+def basename(path):
+    return os.path.basename(path)
+
+
+def get_flashed_messages():
+    return ()
+
+
+def download_title(m):
+    return m['artist'] + ' - ' + m['album'] + ' - ' + basename(m['path'])
+
+
 def check_auth(h):
     auth = env.globals['auth']
     s = auth['user'].encode() + b':' + auth['password'].encode()
