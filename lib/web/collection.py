@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from logging import debug
-from urllib.parse import unquote
+from urllib.parse import quote, unquote
 from sanic import Blueprint, response
 from aiocache import cached, SimpleMemoryCache
 from aiocache.serializers import PickleSerializer
@@ -146,18 +146,17 @@ async def playlist(request, noauth=True):
     if downloadstr in ['True', 'true', '1']:
         if len(musics) == 1 and name == download_title(musics[0]):
             return send_file(music=musics[0], name=name, attachment='attachment')
-        # filename = name + '.zip'
-        # filepath = os.path.join('/tmp', filename)
-        # totalsize = sum([m.size for m in musics])
-        # if totalsize > humanfriendly.parse_size("1G"):
-        #     return 'Archive too big, do not break my server !'
-
-        # zf = zipfile.ZipFile(filepath, mode='w')
-        # try:
-        #     for m in musics:
-        #         debug("adding to archive: {}".format(m.path))
-        #         zf.write(m.path, os.path.join(m.artist, m.album, os.path.basename(m.path)))
-        # finally:
-        #     zf.close()
-        # return send_file(filepath, as_attachment=True, attachment_filename=filename)
+        headers = {}
+        headers['X-Archive-Files'] = 'zip'
+        headers['Content-Disposition'] = 'attachment; filename={}'.format(name + '.zip')
+        import os
+        # see mod_zip documentation :p
+        lines = [' '.join(['-',
+                           str(m['size']),
+                           quote("/download" + m['path'][len(m['folder']):]),
+                           os.path.join(m['artist'], m['album'], os.path.basename(m['path']))])
+                 for m in musics]
+        body = '\n'.join(lines)
+        debug(body)
+        return response.HTTPResponse(headers=headers, body=body)
     return await template('playlist.html', headers={'Content-Type': 'text/plain; charset=utf-8'}, musics=musics)
