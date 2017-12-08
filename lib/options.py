@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import click
-from lib.filter import Filter
+from .filter import Filter
 
 
 def add_options(options):

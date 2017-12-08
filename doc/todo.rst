@@ -4,6 +4,7 @@ ToDo
   - invocation_id / logs
   - configuration : global conf -> user conf -> env var -> arguments
   - full API / template separation
+  - CLI
 - filters
   - backup all the music (all)
   - local selection (4.5+ ?)
@@ -11,9 +12,7 @@ ToDo
 - youtube
   - playlists
 - production
-  - domain
-  - letsencrypt with caddy
-  - nginx for static files
+  - dockerize
 - tests / optimizations
   - fast bulk inserts
   - web caching of templates

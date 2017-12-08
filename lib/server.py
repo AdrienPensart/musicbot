@@ -9,7 +9,6 @@ from .web.api import api_v1
 from .web.collection import collection
 from .web.app import app
 
-# app = Sanic(name='musicbot', log_config=None)
 app.blueprint(collection)
 app.blueprint(api_v1)
 app.blueprint(openapi_blueprint)
@@ -33,6 +32,8 @@ session = {}
 async def global_middleware(request):
     env.globals['request_start_time'] = time.time()
     request['session'] = session
+    from logging_tree import printout
+    printout()
 
 
 @app.route("/")

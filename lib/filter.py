@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import yaml
+import json
 from logging import debug
-from bson.json_util import dumps
 
 
 class Filter(object):
@@ -28,7 +28,7 @@ class Filter(object):
         # assert len(set(self.checks).intersection(self.no_checks)) == 0
 
     def __repr__(self):
-        return dumps(self.to_list())
+        return json.dumps(self.to_list())
 
     def to_list(self):
         # return [a for a in dir(self) if not a.startswith('__')]

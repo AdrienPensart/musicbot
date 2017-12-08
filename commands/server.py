@@ -21,7 +21,6 @@ def self_restart():
 def cli(ctx, dev, **kwargs):
     '''API Server'''
     app.config['DB'] = database.DbContext(**kwargs)
-    app.config['CACHE'] = not dev
     if not dev:
         return
     lib.raise_limits()
@@ -53,10 +52,8 @@ def cli(ctx, dev, **kwargs):
 
     event_handler = PyWatcherHandler()
     observer = Observer()
-    debug('Observing recursively: {}'.format(THIS_DIR))
     observer.schedule(event_handler, THIS_DIR + '/lib', recursive=True)
     observer.schedule(event_handler, THIS_DIR + '/commands', recursive=True)
-    observer.schedule(event_handler, THIS_DIR, recursive=True)
     observer.start()
 
 

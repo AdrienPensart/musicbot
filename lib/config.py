@@ -28,6 +28,7 @@ class Config(object):
         level = verbosities[verbosity]
         getLogger().setLevel(level)
         getLogger('asyncio').setLevel(level)
+        getLogger('sanic').setLevel(level)
         debug('new verbosity: {}'.format(verbosity))
 
     def __repr__(self):

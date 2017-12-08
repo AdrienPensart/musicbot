@@ -1,11 +1,21 @@
 # -*- coding: utf-8 -*-
-from logging import debug
+from logging import debug, info
 from sanic import response, Blueprint
 from aiocache import cached, SimpleMemoryCache
 from aiocache.serializers import PickleSerializer
 from .app import app
 from .filter import WebFilter
 api_v1 = Blueprint('api_v1', url_prefix='/v1')
+
+
+@api_v1.route('/rescan')
+async def rescan(request):
+    '''Rescan music library, APIv1'''
+    db = app.config['DB']
+    folders = await db.folders()
+    for folder in folders:
+        info('rescanning {}'.format(folder))
+    return response.json(dict(stats))
 
 
 @api_v1.route('/stats')
