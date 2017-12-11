@@ -5,7 +5,9 @@
     {% for artist in artists: %}
     <a href="{{ url_for('collection.albums', artist=artist) }}">{{ artist }}</a> -
     <a href="{{ url_for('collection.generate', artists=artist) }}">generate</a> -
-    <a href="{{ url_for('collection.playlist', artists=artist, download=1, name=artist) }}">download</a>
+    <a href="{{ url_for('collection.playlist', artists=artist, name=artist) }}">show</a> -
+    <a href="{{ url_for('collection.playlist', artists=artist, download=1, name=artist) }}">download</a> -
+    <a href="{{ url_for('collection.playlist', artists=artist, listen=1, name=artist) }}">listen</a>
     <br>
     {% endfor %}
 {% endblock %}

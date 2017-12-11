@@ -3,12 +3,14 @@ from logging import debug, info
 from sanic import response, Blueprint
 from aiocache import cached, SimpleMemoryCache
 from aiocache.serializers import PickleSerializer
+from .helpers import basicauth
 from .app import app
 from .filter import WebFilter
 api_v1 = Blueprint('api_v1', url_prefix='/v1')
 
 
-@api_v1.route('/rescan')
+@api_v1.route('/rescan', strict_slashes=True)
+@basicauth
 async def rescan(request):
     '''Rescan music library, APIv1'''
     db = app.config['DB']
@@ -18,7 +20,8 @@ async def rescan(request):
     return response.json(dict(stats))
 
 
-@api_v1.route('/stats')
+@api_v1.route('/stats', strict_slashes=True)
+@basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def stats(request):
     '''Music library statistics, APIv1'''
@@ -29,7 +32,8 @@ async def stats(request):
     return response.json(dict(stats))
 
 
-@api_v1.route("/playlist")
+@api_v1.route("/playlist", strict_slashes=True)
+@basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def playlist(request):
     '''Generate a playlist, APIv1'''
@@ -40,7 +44,8 @@ async def playlist(request):
     return response.HTTPResponse(musics, content_type="application/json")
 
 
-@api_v1.route('/artists')
+@api_v1.route('/artists', strict_slashes=True)
+@basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def artists(request):
     '''List artists'''
@@ -50,7 +55,8 @@ async def artists(request):
     return response.json(artists)
 
 
-@api_v1.route("/keywords")
+@api_v1.route("/keywords", strict_slashes=True)
+@basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def keywords(request):
     '''Get keywords, APIv1'''

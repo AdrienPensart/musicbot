@@ -4,14 +4,15 @@ from urllib.parse import quote, unquote
 from sanic import Blueprint, response
 from aiocache import cached, SimpleMemoryCache
 from aiocache.serializers import PickleSerializer
-from .helpers import template, download_title
+from .helpers import template, download_title, basicauth
 from .forms import FilterForm
 from .app import app
 from .filter import WebFilter
 collection = Blueprint('collection', url_prefix='/collection')
 
 
-@collection.route("/stats")
+@collection.route("/stats", strict_slashes=True)
+@basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def stats(request):
     '''Music library statistics'''
@@ -22,7 +23,8 @@ async def stats(request):
     return await template('stats.html', stats=stats)
 
 
-@collection.route("/generate")
+@collection.route("/generate", strict_slashes=True)
+@basicauth
 async def generate(request):
     db = app.config['DB']
     # precedent = request.form
@@ -33,12 +35,14 @@ async def generate(request):
     return await template('generate.html', form=form)
 
 
-@collection.route("/consistency")
+@collection.route("/consistency", strict_slashes=True)
+@basicauth
 async def consistency(request):
     return await template('consistency.html')
 
 
-@collection.route("/keywords")
+@collection.route("/keywords", strict_slashes=True)
+@basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def keywords(request):
     '''Get keywords'''
@@ -49,7 +53,8 @@ async def keywords(request):
     return await template('keywords.html', keywords=keywords)
 
 
-@collection.route("/keywords/<keyword>")
+@collection.route("/keywords/<keyword>", strict_slashes=True)
+@basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def keyword(request, keyword):
     '''List objects related to keyword'''
@@ -59,7 +64,8 @@ async def keyword(request, keyword):
     return await template("keyword.html", keyword=keyword, artists=artists)
 
 
-@collection.route('/artists')
+@collection.route('/artists', strict_slashes=True)
+@basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def artists(request):
     '''List artists'''
@@ -69,7 +75,8 @@ async def artists(request):
     return await template("artists.html", artists=artists)
 
 
-@collection.route('/<artist>')
+@collection.route('/<artist>', strict_slashes=True)
+@basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def albums(request, artist):
     '''List albums for artist'''
@@ -80,7 +87,8 @@ async def albums(request, artist):
     return await template("artist.html", artist=artist, albums=albums, keywords=mf.keywords)
 
 
-@collection.route('/<artist>/<album>')
+@collection.route('/<artist>/<album>', strict_slashes=True)
+@basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def musics(request, artist, album):
     '''List tracks for artist/album'''
@@ -92,7 +100,8 @@ async def musics(request, artist, album):
     return await template("album.html", artist=artist, album=album, musics=musics)
 
 
-@collection.route('/<artist>/<album>/<title>')
+@collection.route('/<artist>/<album>/<title>', strict_slashes=True)
+@basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def music(request, artist, album, title):
     '''Get a track tags or download it'''
@@ -122,7 +131,8 @@ def send_file(music, name, attachment='attachment'):
     return response.HTTPResponse(headers=headers)
 
 
-@collection.route("/playlist")
+@collection.route("/playlist", strict_slashes=True)
+@basicauth
 # @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def playlist(request, noauth=True):
     '''Generate a playlist'''
