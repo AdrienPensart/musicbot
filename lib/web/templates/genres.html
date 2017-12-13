@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <h2>Genres</h2>
+    {% for genre in genres: %}
+    <a href="{{ url_for('collection.artists_by_genre', genre=genre) }}">{{ genre }}</a> -
+    <a href="{{ url_for('collection.generate', genres=genre) }}">generate</a> -
+    <a href="{{ url_for('collection.playlist', genres=genre, name=genre) }}">show</a> -
+    <a href="{{ url_for('collection.playlist', genres=genre, download=1, name=genre) }}">download</a> -
+    <a href="{{ url_for('collection.playlist', genres=genre, listen=1, name=genre) }}">listen</a>
+    <br>
+    {% endfor %}
+{% endblock %}

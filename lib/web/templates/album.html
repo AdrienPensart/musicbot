@@ -6,7 +6,8 @@
     {{ m.number }} -
     <a href="{{ url_for('collection.music', artist=m.artist, album=m.album, title=m.title) }}">{{ m.title }}</a> -
     <a href="{{ url_for('collection.playlist', artists=m.artist, albums=m.album, titles=m.title, name=download_title(m)) }}">show</a> -
-    <a href="{{ url_for('collection.playlist', artists=m.artist, albums=m.album, titles=m.title, name=download_title(m), download=1) }}">download</a> -
+    <a href="{{ url_for('collection.download', artist=m.artist, album=m.album, title=m.title) }}">download</a> -
+    <a href="{{ url_for('collection.playlist', artists=m.artist, albums=m.album, titles=m.title, name=download_title(m), download=1) }}">download (playlist api)</a> -
     <a href="{{ url_for('collection.playlist', artists=m.artist, albums=m.album, titles=m.title, name=download_title(m), listen=1) }}">listen</a>
     <br>
     {% endfor %}

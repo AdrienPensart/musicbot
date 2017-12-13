@@ -21,6 +21,7 @@ idna==2.6
 imagesize==0.7.1
 isodate==0.6.0
 Jinja2==2.10
+limits==1.2.1
 logging-tree==1.7
 MarkupSafe==1.0
 motor==1.1
@@ -30,12 +31,14 @@ prompt-toolkit==1.0.15
 pyasn1==0.4.2
 pyasn1-modules==0.2.1
 Pygments==2.2.0
+pymongo==3.6.0
 pytaglib==1.4.1
 pytz==2017.3
 PyYAML==3.12
 requests==2.18.4
 rsa==3.4.2
 sanic==0.7.0
+sanic-limiter==0.1.2
 sanic-mongo==1.7.1
 sanic-openapi==0.4.0
 Sanic-WTF==0.5.0
@@ -43,7 +46,7 @@ six==1.11.0
 snowballstemmer==1.2.1
 Sphinx==1.6.5
 sphinxcontrib-websupport==1.0.1
-tqdm==4.19.4
+tqdm==4.19.5
 ua-parser==0.7.3
 ujson==1.35
 uritemplate==3.0.0

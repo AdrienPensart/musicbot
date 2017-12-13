@@ -14,7 +14,8 @@
   <strong>Rendered in {{ request_time() }}</strong><br>
   <a href="{{ url_for('collection.stats') }}">Stats</a> (<a href="{{ url_for('api_v1.stats') }}">api</a>)<br>
   <a href="{{ url_for('collection.artists') }}">Artists</a> (<a href="{{ url_for('api_v1.artists') }}">api</a>)<br>
-  <a href="{{ url_for('collection.generate') }}">Playlist</a> (<a href="{{ url_for('api_v1.playlist') }}">api</a>)<br>
+  <a href="{{ url_for('collection.genres') }}">Genres</a><br>
+  <a href="{{ url_for('collection.generate') }}">Generate a playlist</a> (<a href="{{ url_for('api_v1.playlist') }}">api</a>)<br>
   <a href="{{ url_for('collection.keywords') }}">Keywords</a> (<a href="{{ url_for('api_v1.keywords') }}">api</a>)<br>
   <a href="{{ url_for('collection.consistency') }}">Consistency</a><br>
   <a href="/swagger">Swagger</a><br>

@@ -6,7 +6,10 @@ from aiocache.serializers import PickleSerializer
 from .helpers import basicauth
 from .app import app
 from .filter import WebFilter
+
 api_v1 = Blueprint('api_v1', url_prefix='/v1')
+# from .limiter import limiter
+# limiter.limit("2 per hour")(api_v1)
 
 
 @api_v1.route('/rescan', strict_slashes=True)
@@ -39,7 +42,7 @@ async def playlist(request):
     '''Generate a playlist, APIv1'''
     db = app.config['DB']
     mf = WebFilter(request)
-    musics = await db.filter(mf, True)
+    musics = await db.filter(mf, json=True)
     debug(musics)
     return response.HTTPResponse(musics, content_type="application/json")
 
@@ -53,6 +56,17 @@ async def artists(request):
     mf = WebFilter(request)
     artists = await db.artists(mf)
     return response.json(artists)
+
+
+@api_v1.route('/genres', strict_slashes=True)
+@basicauth
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
+async def genres(request):
+    '''List artists'''
+    db = app.config['DB']
+    mf = WebFilter(request)
+    genres = await db.genres(mf)
+    return response.json(genres)
 
 
 @api_v1.route("/keywords", strict_slashes=True)
