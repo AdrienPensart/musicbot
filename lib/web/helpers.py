@@ -7,8 +7,22 @@ from jinja2 import Environment, FileSystemLoader
 from functools import wraps
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
-env = Environment(loader=FileSystemLoader(os.path.join(THIS_DIR, 'templates')), enable_async=True)
+env = Environment(extensions=['jinja2.ext.loopcontrols'], loader=FileSystemLoader(os.path.join(THIS_DIR, 'templates')), enable_async=True)
 env.globals['auth'] = {'user': 'musicbot', 'password': 'musicbot'}
+
+
+def send_file(music, name, attachment='attachment'):
+    debug("sending file: {}".format(music['path']))
+    headers = {}
+    headers['Content-Description'] = 'File Transfer'
+    headers['Cache-Control'] = 'no-cache'
+    headers['Content-Type'] = 'audio/mpeg'
+    headers['Content-Disposition'] = '{}; filename={}'.format(attachment, name)
+    headers['Content-Length'] = music['size']
+    server_path = "/download" + music['path'][len(music['folder']):]
+    debug('server_path: {}'.format(server_path))
+    headers['X-Accel-Redirect'] = server_path
+    return response.HTTPResponse(headers=headers)
 
 
 def server():
@@ -24,7 +38,7 @@ def get_flashed_messages():
 
 
 def download_title(m):
-    return m['artist'] + ' - ' + m['album'] + ' - ' + basename(m['path'])
+    return m['artist'] + ' - ' + m['album'] + ' - ' + str(m['number']) + ' - ' + m['title']
 
 
 def check_auth(h):

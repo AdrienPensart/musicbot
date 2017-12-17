@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import time
-from sanic import response
 from sanic_openapi import swagger_blueprint, openapi_blueprint
 from .lib import bytesToHuman, secondsToHuman
 from .database import DbContext
@@ -8,7 +7,8 @@ from .web.helpers import env, template, get_flashed_messages, download_title, se
 from .web.api import api_v1
 from .web.collection import collection
 from .web.app import app
-from .web.limiter import limiter
+# from sanic import response
+# from .web.limiter import limiter
 # from logging_tree import printout
 # printout()
 
@@ -46,8 +46,4 @@ async def global_middleware(request):
 async def get_root(request):
     return await template('index.html')
 
-
-@app.route("/test")
-@limiter.limit("2 per hour;10/minute")
-async def get_test(request):
-    return response.text('test')
+app.static('/static', './lib/web/templates/static')

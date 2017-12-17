@@ -4,7 +4,7 @@ from urllib.parse import quote, unquote
 from sanic import Blueprint, response
 from aiocache import cached, SimpleMemoryCache
 from aiocache.serializers import PickleSerializer
-from .helpers import template, download_title, basicauth
+from .helpers import download_title, template, basicauth, send_file
 from .forms import FilterForm
 from .app import app
 from .filter import WebFilter
@@ -132,7 +132,7 @@ async def get_music(request, artist, album, title):
     mf = WebFilter(request, artists=[artist], albums=[album], titles=[title])
     musics = await db.filter(mf)
     if len(musics) != 1:
-        return ('Music not found', 404)
+        return ('Too much music : ' + str(len(musics)), 404)
     return musics[0]
 
 
@@ -141,69 +141,67 @@ async def get_music(request, artist, album, title):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def music(request, artist, album, title):
     '''Get a track tags or download it'''
-    music = get_music(request, artist, album, title)
+    music = await get_music(request, artist, album, title)
     return await template("music.html", music=music)
 
 
 @collection.route('/artist/<artist>/album/<album>/musics/title/<title>/download', strict_slashes=True)
 @basicauth
-@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def download(request, artist, album, title):
-    '''Get a track tags or download it'''
-    music = get_music(request, artist, album, title)
+    '''Get a track and download it'''
+    music = await get_music(request, artist, album, title)
     return send_file(music, music['title'])
 
 
-def send_file(music, name, attachment='attachment'):
-    debug("sending file: {}".format(music['path']))
-    headers = {}
-    headers['Content-Description'] = 'File Transfer'
-    headers['Cache-Control'] = 'no-cache'
-    headers['Content-Type'] = 'audio/mpeg'
-    headers['Content-Disposition'] = '{}; filename={}'.format(attachment, name)
-    headers['Content-Length'] = music['size']
-    server_path = "/download" + music['path'][len(music['folder']):]
-    debug('server_path: {}'.format(server_path))
-    headers['X-Accel-Redirect'] = server_path
-    return response.HTTPResponse(headers=headers)
-
-
-@collection.route("/playlist", strict_slashes=True)
+@collection.route("/artist/<artist>/album/<album>/musics/title/<title>/listen", strict_slashes=True)
 @basicauth
-# @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
-async def playlist(request, noauth=True):
+async def listen(request, artist, album, title):
+    music = await get_music(request, artist, album, title)
+    return send_file(music=music, name=download_title(music), attachment='inline')
+
+
+@collection.route("/m3u", strict_slashes=True)
+@basicauth
+async def m3u(request):
+    db = app.config['DB']
+    mf = WebFilter(request)
+    musics = await db.filter(mf)
+    name = request.args.get('name', 'playlist')
+    headers = {}
+    headers['Content-Disposition'] = 'attachment; filename={}'.format(name + '.m3u')
+    return await template("m3u.html", headers=headers, musics=musics)
+
+
+@collection.route("/zip", strict_slashes=True)
+@basicauth
+async def zip(request):
     '''Generate a playlist'''
     db = app.config['DB']
     mf = WebFilter(request)
     musics = await db.filter(mf)
-
-    downloadstr = request.args.get('download', '0')
-    listenstr = request.args.get('listen', '0')
-    name = request.args.get('name', 'archive')
-    debug("download? = {}, listen? = {}, name = {}, size = {}".format(downloadstr, listenstr, name, len(musics)))
     if len(musics) == 0:
         return response.text('Empty playlist')
-    if listenstr in ['True', 'true', '1']:
-        if len(musics) == 1:
-            return send_file(music=musics[0], name=name, attachment='inline')
-        else:
-            headers = {}
-            headers['Content-Disposition'] = '{}; filename={}'.format('attachment', name + '.m3u')
-            return await template("playlist.html", headers=headers, musics=musics)
-    if downloadstr in ['True', 'true', '1']:
-        if len(musics) == 1 and name == download_title(musics[0]):
-            return send_file(music=musics[0], name=name, attachment='attachment')
-        headers = {}
-        headers['X-Archive-Files'] = 'zip'
-        headers['Content-Disposition'] = 'attachment; filename={}'.format(name + '.zip')
-        import os
-        # see mod_zip documentation :p
-        lines = [' '.join(['-',
-                           str(m['size']),
-                           quote("/download" + m['path'][len(m['folder']):]),
-                           os.path.join(m['artist'], m['album'], os.path.basename(m['path']))])
-                 for m in musics]
-        body = '\n'.join(lines)
-        debug(body)
-        return response.HTTPResponse(headers=headers, body=body)
-    return await template('playlist.html', headers={'Content-Type': 'text/plain; charset=utf-8'}, musics=musics)
+
+    name = request.args.get('name', 'archive')
+    headers = {}
+    headers['X-Archive-Files'] = 'zip'
+    headers['Content-Disposition'] = 'attachment; filename={}'.format(name + '.zip')
+    import os
+    # see mod_zip documentation :p
+    lines = [' '.join(['-',
+                       str(m['size']),
+                       quote("/download" + m['path'][len(m['folder']):]),
+                       os.path.join(m['artist'], m['album'], os.path.basename(m['path']))])
+             for m in musics]
+    body = '\n'.join(lines)
+    debug(body)
+    return response.HTTPResponse(headers=headers, body=body)
+
+
+@collection.route("/player", strict_slashes=True)
+@basicauth
+async def player(request):
+    db = app.config['DB']
+    mf = WebFilter(request)
+    musics = await db.filter(mf)
+    return await template('player.html', musics=musics)

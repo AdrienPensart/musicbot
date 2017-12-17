@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block body %}
+<audio controls id="audio" preload="auto" tabindex="0">
+  {% for m in musics: %}
+  <source  src="{{ url_for('collection.download', artist=m.artist, album=m.album, title=m.title) }}"/>
+  {%- if loop.index == 1 %}{% break %}{% endif %}
+  {% endfor %}
+  Your browser does not support the audio element.
+</audio>
+<ul id="playlist">
+  {% for m in musics: %}
+  <li {%- if loop.index == 1 %} class='active'{% endif %}>
+      <a href="{{ url_for('collection.download', artist=m.artist, album=m.album, title=m.title) }}">
+          {{ download_title(m) }}
+      </a>
+  </li>
+  {% endfor %}
+</ul>
+<script src="/static/player.js"></script>
+{% endblock %}

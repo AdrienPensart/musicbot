@@ -4,9 +4,9 @@
     {% for album in albums: %}
     <a href="{{ url_for('collection.musics', artist=artist, album=album, keywords=keywords) }}">{{ album }}</a> -
     <a href="{{ url_for('collection.generate', artist=artist, album=album) }}">generate</a> -
-    <a href="{{ url_for('collection.playlist', keywords=keywords, artists=artist, albums=album, name=(artist + ' - ' + album)) }}">show</a> -
-    <a href="{{ url_for('collection.playlist', keywords=keywords, artists=artist, albums=album, name=(artist + ' - ' + album), download=1) }}">download</a> -
-    <a href="{{ url_for('collection.playlist', keywords=keywords, artists=artist, albums=album, name=(artist + ' - ' + album), listen=1) }}">listen</a>
+    <a href="{{ url_for('collection.m3u', keywords=keywords, artists=artist, albums=album, name=(artist + ' - ' + album)) }}">m3u</a> -
+    <a href="{{ url_for('collection.zip', keywords=keywords, artists=artist, albums=album, name=(artist + ' - ' + album)) }}">zip</a> -
+    <a href="{{ url_for('collection.player', keywords=keywords, artists=artist, albums=album, name=(artist + ' - ' + album)) }}">play</a>
     <br>
     {% endfor %}
 {% endblock %}
