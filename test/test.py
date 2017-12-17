@@ -4,6 +4,9 @@ import unittest
 import os
 from asynctest import TestCase
 from lib import file, database, lib, filter
+from logging import DEBUG, getLogger
+
+getLogger().setLevel(DEBUG)
 
 my_dir = os.path.dirname(os.path.abspath(__file__))
 folder1 = my_dir + "/fixtures/folder1"

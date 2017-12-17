@@ -8,13 +8,13 @@ class Filter(object):
 
     def __init__(self, filter=None, **kwargs):
         if filter is not None:
-            debug('Loading filter: {}'.format(self))
+            debug('loading filter: {}'.format(self))
             self = yaml.load(filter)
         for key, value in kwargs.items():
             if hasattr(self, key) and value is not None:
                 if value != getattr(Filter, key):
                     setattr(self, key, value)
-        debug('Final: {}'.format(self))
+        debug('filter: {}'.format(self))
         assert self.min_rating in self.rating_choices
         assert self.max_rating in self.rating_choices
         assert self.min_duration <= self.max_duration
@@ -58,10 +58,10 @@ class Filter(object):
     relative = False
     shuffle = False
     youtube = None
-    formats = ("mp3", "flac")
-    no_formats = tuple()
-    genres = tuple()
-    no_genres = tuple()
+    formats = ["mp3", "flac"]
+    no_formats = []
+    genres = []
+    no_genres = []
     limit = max_int
     min_duration = min_int
     max_duration = max_int
@@ -69,13 +69,13 @@ class Filter(object):
     max_size = max_int
     min_rating = 0.0
     max_rating = 5.0
-    keywords = tuple()
-    no_keywords = tuple()
-    artists = tuple()
-    no_artists = tuple()
-    titles = tuple()
-    no_titles = tuple()
-    albums = tuple()
-    no_albums = tuple()
+    keywords = []
+    no_keywords = []
+    artists = []
+    no_artists = []
+    titles = []
+    no_titles = []
+    albums = []
+    no_albums = []
     # checks = list()
     # no_checks = list()

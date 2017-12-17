@@ -13,11 +13,12 @@ ToDo
   - playlists
 - production
   - dockerize
-- tests / optimizations
+- optimizations
   - fast bulk inserts
   - web caching of templates
   - postgresql materialized view
   - fast stats
+- web tests
 
 Bugs/Flows
 --

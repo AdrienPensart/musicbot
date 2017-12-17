@@ -2,6 +2,7 @@ from logging import debug, info
 from .helpers import drier, timeit
 from .filter import Filter
 import asyncpg
+from asyncpg import utils
 import sys
 import os
 
@@ -90,14 +91,18 @@ class DbContext(object):
         return self._pool
 
     @timeit
-    async def fetch(self, *args, **kwargs):
-        info('fetching: {}'.format(*args))
-        return (await (await self.pool).fetch(*args, **kwargs))
+    async def fetch(self, sql, *args):
+        async with (await self.pool).acquire() as connection:
+            mogrified = await utils._mogrify(connection, sql, args)
+            debug('mogrified: {}'.format(mogrified))
+            return await connection.fetch(sql, *args)
 
     @timeit
-    async def fetchrow(self, *args, **kwargs):
-        info('fetching row: {}'.format(*args))
-        return (await (await self.pool).fetchrow(*args, **kwargs))
+    async def fetchrow(self, sql, *args):
+        async with (await self.pool).acquire() as connection:
+            mogrified = await utils._mogrify(connection, sql, args)
+            debug('mogrified: {}'.format(mogrified))
+            return await connection.fetchrow(sql, *args)
 
     @drier
     @timeit
@@ -113,10 +118,12 @@ class DbContext(object):
     @drier
     @timeit
     async def execute(self, sql, *args, **kwargs):
-        debug(sql)
+        debug('request: {}'.format(sql))
         async with (await self.pool).acquire() as connection:
             async with connection.transaction():
-                await connection.execute(sql, *args, **kwargs)
+                mogrified = await utils._mogrify(connection, sql, args)
+                debug('mogrified: {}'.format(mogrified))
+                await connection.execute(sql, *args)
 
     @drier
     @timeit
