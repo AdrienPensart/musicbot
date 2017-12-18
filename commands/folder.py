@@ -107,7 +107,7 @@ async def scan(ctx, folders, **kwargs):
 async def rescan(ctx, **kwargs):
     '''Rescan all folders registered in database'''
     folders = await ctx.obj.db.folders()
-    await fullscan(ctx, folders)
+    await fullscan(ctx, [f['name'] for f in folders])
 
 
 @cli.command()
