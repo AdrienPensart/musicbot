@@ -3,8 +3,9 @@ import click
 import sys
 import os
 import asyncio
+import asyncpg
 from tqdm import tqdm
-from logging import debug, info
+from logging import debug, info, warning
 from lib import options, helpers, lib, file, database
 from lib.filter import Filter
 from lib.lib import empty_dirs
@@ -71,26 +72,33 @@ async def sync(ctx, destination, **kwargs):
         info("[DRY-RUN] Removing empty dir {}".format(d))
 
 
+async def fullscan(ctx, folders):
+    lib.raise_limits()
+    files = list(lib.find_files(list(folders)))
+    # musics = []
+    with tqdm(total=len(files), file=sys.stdout, desc="Loading music", leave=True, position=0, disable=ctx.obj.config.quiet) as bar:
+        for f in files:
+            try:
+                if f[1].endswith(tuple(Filter.formats)):
+                    m = file.File(f[1], f[0])
+                    await ctx.obj.db.upsert(m)
+                    # musics.append(m)
+                    # musics.append((m.artist, m.album, m.genre, m.folder, m.youtube, m.number, m.rating, m.duration, m.size, m.title, m.path, m.keywords), )
+                    # await ctx.obj.db.append(m.to_list())
+            except asyncpg.exceptions.CheckViolationError as e:
+                warning("Violation: {}".format(e))
+            bar.update(1)
+    # await ctx.obj.db.appendmany(musics)
+    # await ctx.obj.db.upsertall(musics)
+
+
 @cli.command()
 @helpers.coro
 @click.argument('folders', nargs=-1)
 @click.pass_context
 async def scan(ctx, folders, **kwargs):
     '''Load musics files in database'''
-    lib.raise_limits()
-    files = list(lib.find_files(list(folders)))
-    # musics = []
-    with tqdm(total=len(files), file=sys.stdout, desc="Loading music", leave=True, position=0, disable=ctx.obj.config.quiet) as bar:
-        for f in files:
-            if f[1].endswith(tuple(Filter.formats)):
-                m = file.File(f[1], f[0])
-                await ctx.obj.db.upsert(m)
-                # musics.append(m)
-                # musics.append((m.artist, m.album, m.genre, m.folder, m.youtube, m.number, m.rating, m.duration, m.size, m.title, m.path, m.keywords), )
-                # await ctx.obj.db.append(m.to_list())
-            bar.update(1)
-    # await ctx.obj.db.appendmany(musics)
-    # await ctx.obj.db.upsertall(musics)
+    await fullscan(ctx, folders)
 
 
 @cli.command()
@@ -99,8 +107,7 @@ async def scan(ctx, folders, **kwargs):
 async def rescan(ctx, **kwargs):
     '''Rescan all folders registered in database'''
     folders = await ctx.obj.db.folders()
-    for folder in folders:
-        info('rescanning {}'.format(folder))
+    await fullscan(ctx, folders)
 
 
 @cli.command()

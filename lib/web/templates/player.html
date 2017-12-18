@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block body %}
-<audio controls id="audio" preload="auto" tabindex="0" autoplay>
+<audio controls id="audio" preload="auto" tabindex="0" autoplay volume="1.0">
   {% for m in musics: %}
   <source  src="{{ url_for('collection.download', artist=m.artist, album=m.album, title=m.title) }}"/>
   {%- if loop.index == 1 %}{% break %}{% endif %}

@@ -4,22 +4,26 @@ create table if not exists folders (
 );
 create table if not exists tags (
     id serial primary key,
-    name text unique not null
+    name text unique not null,
+    constraint slash_name check (name !~ '/')
 );
 create table if not exists artists (
     id serial primary key,
-    name text unique not null
+    name text unique not null,
+    constraint slash_name check (name !~ '/')
 );
 create table if not exists genres (
     id serial primary key,
-    name text unique not null
+    name text unique not null,
+    constraint slash_name check (name !~ '/')
 );
 create table if not exists albums (
     id serial primary key,
     artist_id integer not null,
     name text not null,
     foreign key(artist_id) references artists (id),
-    unique(artist_id,name)
+    unique(artist_id,name),
+    constraint slash_name check (name !~ '/')
 );
 create table if not exists musics (
     id serial primary key,
@@ -40,7 +44,8 @@ create table if not exists musics (
     foreign key(album_id)  references albums (id),
     foreign key(genre_id)  references genres (id),
     foreign key(folder_id) references folders (id),
-    constraint rating_range check (rating between 0.0 and 5.0)
+    constraint rating_range check (rating between 0.0 and 5.0),
+    constraint slash_title check (title !~ '/')
 );
 create table if not exists music_tags (
     music_id integer not null,
