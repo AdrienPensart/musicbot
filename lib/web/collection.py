@@ -24,6 +24,7 @@ async def stats(request):
 
 @collection.route("/generate", strict_slashes=True)
 @basicauth
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def generate(request):
     '''Generate a playlist step by step'''
     db = app.config['DB']
@@ -37,9 +38,10 @@ async def generate(request):
 
 @collection.route("/consistency", strict_slashes=True)
 @basicauth
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def consistency(request):
     '''Consistency'''
-    return await template('consistency.html')
+    return response.text('not implemented')
 
 
 @collection.route("/keywords", strict_slashes=True)
@@ -199,6 +201,7 @@ async def listen(request, artist, album, title):
 
 @collection.route("/m3u", strict_slashes=True)
 @basicauth
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def m3u(request):
     '''Download m3u'''
     db = app.config['DB']
@@ -238,6 +241,7 @@ async def zip(request):
 
 @collection.route("/player", strict_slashes=True)
 @basicauth
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def player(request):
     '''Play a playlist in browser'''
     db = app.config['DB']

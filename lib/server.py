@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import time
+from datetime import datetime
 from sanic_openapi import swagger_blueprint, openapi_blueprint
+from logging import debug
 from .lib import bytesToHuman, secondsToHuman
 from .database import DbContext
 from .web.helpers import env, template, get_flashed_messages, download_title, server
@@ -37,9 +39,21 @@ app.config.API_CONTACT_EMAIL = 'crunchengine@gmail.com'
 
 
 @app.middleware('request')
-async def global_middleware(request):
+async def before(request):
     env.globals['request_start_time'] = time.time()
     request['session'] = session
+
+
+@app.middleware('response')
+async def after(request, response):
+    if app.config['DEV']:
+        debug('Browser cache disabled')
+        response.headers['Last-Modified'] = datetime.now()
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '-1'
+    else:
+        debug('Browser cache enabled')
 
 
 @app.route("/")
