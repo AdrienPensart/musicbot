@@ -5,9 +5,9 @@
     {% for keyword in keywords: %}
     <a href="{{ url_for('collection.artists_by_keyword', keyword=keyword) }}">{{ keyword }}</a> -
     <a href="{{ url_for('collection.generate', keywords=keyword) }}">generate</a> -
-    <a href="{{ url_for('collection.playlist', keywords=keyword, name=keyword) }}">show</a> -
-    <a href="{{ url_for('collection.playlist', keywords=keyword, name=keyword, download=1) }}">download</a> -
-    <a href="{{ url_for('collection.playlist', keywords=keyword, name=keyword, listen=1) }}">listen</a>
+    <a href="{{ url_for('collection.m3u', keywords=keyword, name=keyword) }}">m3u</a> -
+    <a href="{{ url_for('collection.zip', keywords=keyword, name=keyword) }}">zip</a> -
+    <a href="{{ url_for('collection.player', keywords=keyword, name=keyword) }}">play</a>
     <br />
     {% endfor %}
 {% endblock %}

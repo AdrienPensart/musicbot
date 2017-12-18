@@ -19,10 +19,10 @@ class WebFilter(Filter):
             debug("bad value for youtube: {} {}".format(type(youtube), youtube))
         debug('youtube: {} {}'.format(youtube, self.youtube))
 
-        self.shuffle = request.args.get('shuffle', getattr(self, 'shuffle'))
-        debug('shuffle : {}'.format(self.shuffle))
-        self.relative = request.args.get('relative', getattr(self, 'relative'))
-        debug('relative: {}'.format(self.relative))
+        # self.shuffle = request.args.get('shuffle', getattr(self, 'shuffle'))
+        # debug('shuffle : {}'.format(self.shuffle))
+        # self.relative = request.args.get('relative', getattr(self, 'relative'))
+        # debug('relative: {}'.format(self.relative))
 
         for param in ['formats', 'no_formats', 'artists', 'no_artists', 'genres', 'no_genres', 'albums', 'no_albums', 'titles', 'no_titles', 'keywords', 'no_keywords']:
             raw = request.args.get(param, getattr(self, param))
@@ -35,7 +35,12 @@ class WebFilter(Filter):
             debug('{} {}'.format(param, data))
             setattr(self, param, float(data))
 
+        for param in ['shuffle', 'relative']:
+            data = num(request.args.get(param, getattr(self, param)))
+            debug('param:{} data:{}'.format(param, data))
+            setattr(self, param, bool(data))
+
         for param in ['limit', 'min_size', 'max_size', 'min_duration', 'min_duration']:
             data = num(request.args.get(param, getattr(self, param)))
-            debug('{} {}'.format(param, data))
-            setattr(self, param, data)
+            debug('param:{} data:{}'.format(param, data))
+            setattr(self, param, int(data))

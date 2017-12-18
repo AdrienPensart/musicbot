@@ -3,7 +3,10 @@
 {% block body %}
     <h2>Artists</h2>
     {% for artist in artists: %}
-    <a href="{{ url_for('collection.albums', artist=artist) }}">{{ artist }}</a> -
+    {{ artist }} -
+    <a href="{{ url_for('collection.artist_albums', artist=artist) }}">albums</a> -
+    <a href="{{ url_for('collection.artist_musics', artist=artist) }}">musics</a> -
+    <a href="{{ url_for('collection.artist_stats', artist=artist) }}">stats</a> -
     <a href="{{ url_for('collection.generate', artists=artist) }}">generate</a> -
     <a href="{{ url_for('collection.m3u', artists=artist, name=artist) }}">m3u</a> -
     <a href="{{ url_for('collection.zip', artists=artist, name=artist) }}">zip</a> -

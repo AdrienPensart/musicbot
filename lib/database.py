@@ -118,7 +118,6 @@ class DbContext(object):
     @drier
     @timeit
     async def execute(self, sql, *args, **kwargs):
-        debug('request: {}'.format(sql))
         async with (await self.pool).acquire() as connection:
             async with connection.transaction():
                 mogrified = await utils._mogrify(connection, sql, args)

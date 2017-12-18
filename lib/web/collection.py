@@ -19,7 +19,6 @@ async def stats(request):
     db = app.config['DB']
     mf = WebFilter(request)
     stats = await db.stats(mf)
-    debug(stats)
     return await template('stats.html', stats=stats)
 
 
@@ -31,8 +30,8 @@ async def generate(request):
     # precedent = request.form
     mf = WebFilter(request)
     records = await db.form(mf)
-    form = FilterForm()
-    form.initialize(records)
+    form = FilterForm(obj=records)
+    # form.initialize(records)
     return await template('generate.html', form=form)
 
 
@@ -102,7 +101,7 @@ async def artists(request):
 @collection.route('/artist/<artist>/albums', strict_slashes=True)
 @basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
-async def albums(request, artist):
+async def artist_albums(request, artist):
     '''List albums for artist'''
     artist = unquote(artist)
     db = app.config['DB']
@@ -111,10 +110,34 @@ async def albums(request, artist):
     return await template("artist.html", artist=artist, albums=albums, keywords=mf.keywords)
 
 
-@collection.route('/artist/<artist>/album/<album>/musics', strict_slashes=True)
+@collection.route('/artist/<artist>/musics', strict_slashes=True)
 @basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
-async def musics(request, artist, album):
+async def artist_musics(request, artist):
+    '''List musics for artist'''
+    artist = unquote(artist)
+    db = app.config['DB']
+    mf = WebFilter(request, artists=[artist])
+    musics = await db.filter(mf)
+    return await template("musics.html", artist=artist, musics=musics)
+
+
+@collection.get("/artist/<artist>/stats", strict_slashes=True)
+@basicauth
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
+async def artist_stats(request, artist):
+    '''Artist statistics'''
+    db = app.config['DB']
+    artist = unquote(artist)
+    mf = WebFilter(request, artists=[artist])
+    stats = await db.stats(mf)
+    return await template('stats.html', stats=stats)
+
+
+@collection.route('/artist/<artist>/album/<album>', strict_slashes=True)
+@basicauth
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
+async def album_musics(request, artist, album):
     '''List tracks for artist/album'''
     artist = unquote(artist)
     album = unquote(album)
@@ -122,6 +145,19 @@ async def musics(request, artist, album):
     mf = WebFilter(request, artists=[artist], albums=[album])
     musics = await db.filter(mf)
     return await template("album.html", artist=artist, album=album, musics=musics)
+
+
+@collection.route('/artist/<artist>/album/<album>/stats', strict_slashes=True)
+@basicauth
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
+async def album_stats(request, artist, album):
+    '''Album statistics'''
+    db = app.config['DB']
+    artist = unquote(artist)
+    album = unquote(album)
+    mf = WebFilter(request, artists=[artist], albums=[album])
+    stats = await db.stats(mf)
+    return await template('stats.html', stats=stats)
 
 
 async def get_music(request, artist, album, title):
@@ -136,26 +172,27 @@ async def get_music(request, artist, album, title):
     return musics[0]
 
 
-@collection.route('/artist/<artist>/album/<album>/musics/title/<title>', strict_slashes=True)
+@collection.route('/artist/<artist>/album/<album>/title/<title>', strict_slashes=True)
 @basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def music(request, artist, album, title):
-    '''Get a track tags or download it'''
+    '''Get a track tags'''
     music = await get_music(request, artist, album, title)
     return await template("music.html", music=music)
 
 
-@collection.route('/artist/<artist>/album/<album>/musics/title/<title>/download', strict_slashes=True)
+@collection.route('/artist/<artist>/album/<album>/title/<title>/download', strict_slashes=True)
 @basicauth
 async def download(request, artist, album, title):
-    '''Get a track and download it'''
+    '''Download a track'''
     music = await get_music(request, artist, album, title)
-    return send_file(music, music['title'])
+    return send_file(music, name=download_title(music))
 
 
-@collection.route("/artist/<artist>/album/<album>/musics/title/<title>/listen", strict_slashes=True)
+@collection.route("/artist/<artist>/album/<album>/title/<title>/listen", strict_slashes=True)
 @basicauth
 async def listen(request, artist, album, title):
+    '''Listen a track'''
     music = await get_music(request, artist, album, title)
     return send_file(music=music, name=download_title(music), attachment='inline')
 
@@ -163,6 +200,7 @@ async def listen(request, artist, album, title):
 @collection.route("/m3u", strict_slashes=True)
 @basicauth
 async def m3u(request):
+    '''Download m3u'''
     db = app.config['DB']
     mf = WebFilter(request)
     musics = await db.filter(mf)
@@ -201,6 +239,7 @@ async def zip(request):
 @collection.route("/player", strict_slashes=True)
 @basicauth
 async def player(request):
+    '''Play a playlist in browser'''
     db = app.config['DB']
     mf = WebFilter(request)
     musics = await db.filter(mf)

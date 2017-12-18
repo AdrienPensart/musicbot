@@ -38,7 +38,8 @@ def get_flashed_messages():
 
 
 def download_title(m):
-    return m['artist'] + ' - ' + m['album'] + ' - ' + str(m['number']) + ' - ' + m['title']
+    _, extension = os.path.splitext(m['path'])
+    return m['artist'] + ' - ' + m['album'] + ' - ' + m['title'] + extension
 
 
 def check_auth(h):

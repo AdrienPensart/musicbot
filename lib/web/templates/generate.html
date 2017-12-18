@@ -2,7 +2,7 @@
 
 {% block body %}
     <h2>Generate</h2>
-<form method="GET" action="/generate">
+<form method="GET" action="{{ url_for('collection.generate') }}">
     {{ form.csrf_token }}
     {#
     {{ form.min_rating.label }} {{ form.min_rating(size=1) }}<br>
