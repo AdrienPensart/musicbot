@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block body %}
+    <h2>Albums</h2>
+    {% for album in albums: %}
+    <a href="{{ url_for('collection.musics', albums=album) }}">{{ album }}</a> -
+    <a href="{{ url_for('collection.stats', albums=album) }}">stats</a> -
+    <a href="{{ url_for('collection.m3u', albums=album, name=album) }}">m3u</a> -
+    <a href="{{ url_for('collection.zip', albums=album, name=album) }}">zip</a> -
+    <a href="{{ url_for('collection.player', albums=album) }}">play</a>
+    <br>
+    {% endfor %}
+{% endblock %}

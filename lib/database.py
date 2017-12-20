@@ -227,5 +227,10 @@ class DbContext(object):
 
     @timeit
     async def stats(self, mf=Filter()):
-        sql = 'select * from do_stats($1::filter)'
+        sql = '''select * from do_stats($1::filter)'''
         return await self.fetchrow(sql, mf.to_list())
+
+    @timeit
+    async def errors(self, mf=Filter()):
+        sql = '''select * from do_filter($1::filter)'''
+        return await self.fetch(sql, mf.to_list())

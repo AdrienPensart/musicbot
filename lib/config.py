@@ -13,7 +13,8 @@ class Config(object):
     def __init__(self):
         self.quiet = False
         self.dry = False
-        self._verbosity = ERROR
+        # self._verbosity = ERROR
+        self._verbosity = WARNING
 
     def isDebug(self):
         return self._verbosity is DEBUG

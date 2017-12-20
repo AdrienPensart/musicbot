@@ -194,7 +194,9 @@ $$
                     select distinct name
                     from music_tags mt
                     inner join tags t on mt.tag_id = t.id
-                    where mt.music_id = m.id
+                    where
+                        mt.music_id = m.id and
+                        name !~ '/'
                 ) as separated_keywords
             ) as keywords
         from musics m
@@ -202,6 +204,10 @@ $$
         inner join artists a on a.id = m.artist_id
         inner join genres g on g.id = m.genre_id
         inner join folders f on f.id = m.folder_id
+        --where m.title !~ '/' and
+        --      al.name !~ '/' and
+        --      g.name !~ '/' and
+        --      a.name !~ '/'
         order by artist, album, number
     )
     select *

@@ -1,13 +1,14 @@
 {% extends "layout.html" %}
 
 {% block body %}
-<h2>{{ artist }}</h2>
+<h2>Musics</h2>
     {% for m in musics: %}
-    {{ m.number }} -
-    <a href="{{ url_for('collection.music', artist=m.artist, album=m.album, title=m.title) }}">{{ m.title }}</a> -
-    <a href="{{ url_for('collection.m3u', artists=m.artist, albums=m.album, titles=m.title, name=download_title(m)) }}">m3u</a> -
+        {% for field in m: %}
+        {{ field }} -
+        {% endfor %}
     <a href="{{ url_for('collection.download', artist=m.artist, album=m.album, title=m.title, name=download_title(m)) }}">download</a> -
-    <a href="{{ url_for('collection.player', artists=m.artist, albums=m.album, titles=m.title, name=download_title(m)) }}">play</a>
+    <a href="{{ url_for('collection.listen', artist=m.artist, album=m.album, title=m.title) }}">listen</a> -
+    <a href="{{ url_for('collection.player', artists=m.artist, albums=m.album, titles=m.title) }}">play</a>
     <br>
     {% endfor %}
 {% endblock %}
