@@ -2,7 +2,7 @@
 {% block body %}
 <audio controls id="audio" preload="auto" tabindex="0" autoplay volume="1.0">
   {% for m in musics: %}
-  <source  src="{{ url_for('collection.download', artist=m.artist, album=m.album, title=m.title) }}"/>
+  <source  src="{{ url_for('collection.download', artists=m.artist, albums=m.album, titles=m.title) }}"/>
   {%- if loop.index == 1 %}{% break %}{% endif %}
   {% endfor %}
   Your browser does not support the audio element.
@@ -10,7 +10,7 @@
 <ul id="playlist">
   {% for m in musics: %}
   <li {%- if loop.index == 1 %} class='active'{% endif %}>
-      <a href="{{ url_for('collection.download', artist=m.artist, album=m.album, title=m.title) }}">
+      <a href="{{ url_for('collection.download', artists=m.artist, albums=m.album, titles=m.title) }}">
           {{ download_title(m) }}
       </a>
   </li>

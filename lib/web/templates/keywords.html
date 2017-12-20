@@ -4,10 +4,9 @@
     <h2>Keywords</h2>
     {% for keyword in keywords: %}
     {{ keyword }} -
-    <a href="{{ url_for('collection.artists', keyword=keyword) }}">artists</a> -
-    <a href="{{ url_for('collection.albums', keyword=keyword) }}">albums</a> -
-    <a href="{{ url_for('collection.musics', keyword=keyword) }}">musics</a> -
-    <a href="{{ url_for('collection.generate', keywords=keyword) }}">generate</a> -
+    <a href="{{ url_for('collection.artists', keywords=keyword) }}">artists</a> -
+    <a href="{{ url_for('collection.albums', keywords=keyword) }}">albums</a> -
+    <a href="{{ url_for('collection.musics', keywords=keyword) }}">musics</a> -
     <a href="{{ url_for('collection.m3u', keywords=keyword, name=keyword) }}">m3u</a> -
     <a href="{{ url_for('collection.zip', keywords=keyword, name=keyword) }}">zip</a> -
     <a href="{{ url_for('collection.player', keywords=keyword) }}">play</a>

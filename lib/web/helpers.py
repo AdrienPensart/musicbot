@@ -19,7 +19,7 @@ def send_file(music, name, attachment='attachment'):
     headers['Content-Type'] = 'audio/mpeg'
     headers['Content-Disposition'] = '{}; filename={}'.format(attachment, name)
     headers['Content-Length'] = music['size']
-    server_path = "/download" + music['path'][len(music['folder']):]
+    server_path = "/sendfile" + music['path'][len(music['folder']):]
     debug('server_path: {}'.format(server_path))
     headers['X-Accel-Redirect'] = server_path
     return response.HTTPResponse(headers=headers)

@@ -119,14 +119,61 @@ Options:
   -h, --help                      Show this message and exit.
 
 Commands:
-  db        Database management
-  filter    Filter creation
-  folder    Folder scanning
-  playlist  Playlist management
-  server    API Server
-  stats     Generate some stats for music collection with...
-  tag       Music tags management
-  youtube   Youtube management
+  consistency
+  db           Database management
+  filter       Filter creation
+  folder       Folder scanning
+  playlist     Playlist management
+  server       API Server
+  stats        Generate some stats for music collection with...
+  tag          Music tags management
+  youtube      Youtube management
+
+
+musicbot consistency
+********************
+.. code-block::
+
+  Usage: musicbot consistency [OPTIONS] COMMAND [ARGS]...
+  
+  Options:
+    -h, --help  Show this message and exit.
+  
+  Commands:
+    errors
+
+
+musicbot consistency errors
+***************************
+.. code-block::
+
+  Usage: musicbot consistency errors [OPTIONS]
+  
+  Options:
+    --filter FILENAME    Filter file to load
+    --limit INTEGER      Fetch a maximum limit of music
+    --youtube            Select musics with a youtube link
+    --formats TEXT       Select musics with file format
+    --no-formats TEXT    Filter musics without format
+    --keywords TEXT      Select musics with keywords
+    --no-keywords TEXT   Filter musics without keywords
+    --artists TEXT       Select musics with artists
+    --no-artists TEXT    Filter musics without artists
+    --albums TEXT        Select musics with albums
+    --no-albums TEXT     Filter musics without albums
+    --titles TEXT        Select musics with titles
+    --no-titles TEXT     Filter musics without titless
+    --genres TEXT        Select musics with genres
+    --no-genres TEXT     Filter musics without genres
+    --min-duration TEXT  Minimum duration filter (hours:minutes:seconds)
+    --max-duration TEXT  Maximum duration filter (hours:minutes:seconds))
+    --min-size TEXT      Minimum file size filter (in bytes)
+    --max-size TEXT      Maximum file size filter (in bytes)
+    --min-rating FLOAT   Minimum rating
+    --max-rating FLOAT   Maximum rating
+    --relative           Generate relatives paths
+    --shuffle            Randomize selection
+    -h, --help           Show this message and exit.
 
 
 musicbot db
