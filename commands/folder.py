@@ -6,13 +6,12 @@ import asyncio
 import asyncpg
 from tqdm import tqdm
 from logging import debug, info, warning
-from lib import options, helpers, lib, file, database
-from lib.filter import Filter
+from lib import helpers, lib, file, database, filter
 from lib.lib import empty_dirs
 
 
 @click.group(invoke_without_command=False)
-@options.add_options(options.db)
+@helpers.add_options(database.options)
 @click.pass_context
 def cli(ctx, **kwargs):
     '''Folder scanning'''
@@ -31,13 +30,13 @@ def find(ctx, folders, **kwargs):
 
 @cli.command()
 @helpers.coro
-@options.add_options(options.filters)
+@helpers.add_options(filter.options)
 @click.argument('destination')
 @click.pass_context
 async def sync(ctx, destination, **kwargs):
     '''Copy selected musics with filters to destination folder'''
     info('Destination: {}'.format(destination))
-    ctx.obj.mf = Filter(**kwargs)
+    ctx.obj.mf = filter.Filter(**kwargs)
     musics = await ctx.obj.db.filter(ctx.obj.mf)
 
     files = lib.all_files(destination)
@@ -79,7 +78,7 @@ async def fullscan(ctx, folders):
     with tqdm(total=len(files), file=sys.stdout, desc="Loading music", leave=True, position=0, disable=ctx.obj.config.quiet) as bar:
         for f in files:
             try:
-                if f[1].endswith(tuple(Filter.formats)):
+                if f[1].endswith(tuple(filter.default_formats)):
                     m = file.File(f[1], f[0])
                     await ctx.obj.db.upsert(m)
                     # musics.append(m)
@@ -124,7 +123,7 @@ async def watch(ctx, **kwargs):
         def __init__(self, loop=None):
             super().__init__()
             self.loop = loop or asyncio.get_event_loop()
-            self.patterns = ['*.' + f for f in Filter.formats]
+            self.patterns = ['*.' + f for f in filter.default_formats]
 
         def update(self, path):
             for folder in folders:

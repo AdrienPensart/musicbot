@@ -3,7 +3,7 @@ import click
 import os
 import sys
 from logging import debug
-from lib import database, options, lib
+from lib import helpers, database, lib
 from lib.server import app
 
 THIS_DIR = os.path.dirname(os.path.abspath(sys.argv[0]))
@@ -16,7 +16,7 @@ def self_restart():
 
 @click.group()
 @click.pass_context
-@options.add_options(options.db)
+@helpers.add_options(database.options)
 @click.option('--dev', envvar='MB_DEV', help='Dev mode, reload server on file changes', is_flag=True)
 def cli(ctx, dev, **kwargs):
     '''API Server'''

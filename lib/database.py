@@ -1,10 +1,19 @@
+import sys
+import os
+import click
 from logging import debug, info
 from .helpers import drier, timeit
 from .filter import Filter
 import asyncpg
 from asyncpg import utils
-import sys
-import os
+
+options = [
+    click.option('--host', envvar='MB_DB_HOST', help='DB host', default='localhost'),
+    click.option('--port', envvar='MB_DB_PORT', help='DB port', default=5432),
+    click.option('--database', envvar='MB_DB', help='DB name', default='musicbot'),
+    click.option('--user', envvar='MB_DB_USER', help='DB user', default='postgres'),
+    click.option('--password', envvar='MB_DB_PASSWORD', help='DB password', default='musicbot')
+]
 
 
 class DbContext(object):
@@ -49,7 +58,10 @@ class DbContext(object):
         await self.execute(sql, l)
 
     @timeit
-    async def filter(self, f=Filter(), json=False):
+    async def filter(self, f=None, json=False):
+        if f is None:
+            f = Filter()
+        debug('f: {}'.format(f))
         l = f.to_list()
         if json:
             sql = '''select array_to_json(array_agg(row_to_json(m))) as playlist from do_filter($1::filter) m'''
@@ -94,14 +106,14 @@ class DbContext(object):
     async def fetch(self, sql, *args):
         async with (await self.pool).acquire() as connection:
             mogrified = await utils._mogrify(connection, sql, args)
-            debug('mogrified: {}'.format(mogrified))
+            info('mogrified: {}'.format(mogrified))
             return await connection.fetch(sql, *args)
 
     @timeit
     async def fetchrow(self, sql, *args):
         async with (await self.pool).acquire() as connection:
             mogrified = await utils._mogrify(connection, sql, args)
-            debug('mogrified: {}'.format(mogrified))
+            info('mogrified: {}'.format(mogrified))
             return await connection.fetchrow(sql, *args)
 
     @drier
@@ -120,8 +132,9 @@ class DbContext(object):
     async def execute(self, sql, *args, **kwargs):
         async with (await self.pool).acquire() as connection:
             async with connection.transaction():
+                debug(args)
                 mogrified = await utils._mogrify(connection, sql, args)
-                debug('mogrified: {}'.format(mogrified))
+                info('mogrified: {}'.format(mogrified))
                 await connection.execute(sql, *args)
 
     @drier

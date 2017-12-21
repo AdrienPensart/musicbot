@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 import click
-from lib import youtube, helpers, database, options
-from lib.filter import Filter
+from lib import youtube, helpers, database, filter
 from logging import debug
 from tqdm import tqdm
 
 
 @click.group()
-@options.add_options(options.db)
+@helpers.add_options(database.options)
 @click.pass_context
 def cli(ctx, **kwargs):
     '''Youtube management'''
@@ -17,10 +16,10 @@ def cli(ctx, **kwargs):
 @cli.command()
 @click.pass_context
 @helpers.coro
-@options.add_options(options.filters)
+@helpers.add_options(filter.options)
 async def sync(ctx, **kwargs):
     '''Fetch youtube links for each music'''
-    ctx.obj.mf = Filter(**kwargs)
+    ctx.obj.mf = filter.Filter(**kwargs)
     musics = await ctx.obj.db.filter(ctx.obj.mf)
     with tqdm(desc='Youtube crawling', total=len(musics), disable=ctx.obj.config.quiet) as bar:
         for m in musics:

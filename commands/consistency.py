@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import click
-from lib import filter, helpers, database, options
+from lib import filter, helpers, database
 
 
 @click.group(invoke_without_command=True)
@@ -12,7 +12,7 @@ def cli(ctx, **kwargs):
 @cli.command()
 @helpers.coro
 @click.pass_context
-@options.add_options(options.filters)
+@helpers.add_options(filter.options)
 async def errors(ctx, **kwargs):
     ctx.obj.db = database.DbContext(**kwargs)
     mf = filter.Filter(**kwargs)

@@ -23,6 +23,8 @@ ToDo
 Bugs/Flows
 --
 - youtube live version crawling
+- content-disposition filename encoding
+- filter sho/tests
 
 Ideas
 --

@@ -1,22 +1,70 @@
 # -*- coding: utf-8 -*-
-import yaml
-import json
+# import json
+import click
 from logging import debug
+
+rating_choices = [x * 0.5 for x in range(0, 11)]
+min_int = 0
+max_int = 2147483647
+
+default_filter = None
+default_relative = False
+default_shuffle = False
+default_youtube = None
+default_formats = ["mp3", "flac"]
+default_no_formats = []
+default_genres = []
+default_no_genres = []
+default_limit = max_int
+default_min_duration = min_int
+default_max_duration = max_int
+default_min_size = min_int
+default_max_size = max_int
+default_min_rating = 0.0
+default_max_rating = 5.0
+default_keywords = []
+default_no_keywords = []
+default_artists = []
+default_no_artists = []
+default_titles = []
+default_no_titles = []
+default_albums = []
+default_no_albums = []
+# checks = list()
+# no_checks = list()
 
 
 class Filter(object):
 
-    def __init__(self, filter=None, **kwargs):
-        if filter is not None:
-            debug('loading filter: {}'.format(self))
-            self = yaml.load(filter)
-        for key, value in kwargs.items():
-            if hasattr(self, key) and value is not None:
-                if value != getattr(Filter, key):
-                    setattr(self, key, value)
-        debug('filter: {}'.format(self))
-        assert self.min_rating in self.rating_choices
-        assert self.max_rating in self.rating_choices
+    def __init__(self, relative=None, shuffle=None, youtube=None, formats=None, no_formats=None, genres=None, no_genres=None, limit=None, min_duration=None, max_duration=None, min_size=None, max_size=None, min_rating=None, max_rating=None, keywords=None, no_keywords=None, artists=None, no_artists=None, titles=None, no_titles=None, albums=None, no_albums=None, **kwargs):
+        self.id = 0
+        self.relative = relative or default_relative
+        self.shuffle = shuffle or default_shuffle
+        self.youtube = youtube or default_youtube
+        self.formats = formats or default_formats
+        self.no_formats = no_formats or default_no_formats
+        self.genres = genres or default_genres
+        self.no_genres = no_genres or default_no_genres
+        self.limit = limit or max_int
+        self.min_duration = min_duration or min_int
+        self.max_duration = max_duration or max_int
+        self.min_size = min_size or min_int
+        self.max_size = max_size or max_int
+        self.min_rating = min_rating or default_min_rating
+        self.max_rating = max_rating or default_max_rating
+        self.keywords = keywords or default_keywords
+        self.no_keywords = no_keywords or default_no_keywords
+        self.artists = artists or default_artists
+        self.no_artists = no_artists or default_no_artists
+        self.titles = titles or default_titles
+        self.no_titles = no_titles or default_no_titles
+        self.albums = albums or default_albums
+        self.no_albums = no_albums or default_no_albums
+        # checks = list()
+        # no_checks = list()
+        debug(self)
+        assert self.min_rating in rating_choices
+        assert self.max_rating in rating_choices
         assert self.min_duration <= self.max_duration
         assert self.min_rating <= self.max_rating
         assert len(set(self.formats).intersection(self.no_formats)) == 0
@@ -27,8 +75,8 @@ class Filter(object):
         assert len(set(self.keywords).intersection(self.no_keywords)) == 0
         # assert len(set(self.checks).intersection(self.no_checks)) == 0
 
-    def __repr__(self):
-        return json.dumps(self.to_list())
+    # def __repr__(self):
+    #     return json.dumps(self.to_list())
 
     def to_list(self):
         # return [a for a in dir(self) if not a.startswith('__')]
@@ -45,37 +93,28 @@ class Filter(object):
                    self.shuffle, self.relative, self.limit, self.youtube]
         return my_list
 
-    @property
-    def comment(self, defaults=''):
-        return self.__get_first('COMMENT', defaults)
 
-    id = 0
-    filter = None
-    rating_choices = [x * 0.5 for x in range(0, 11)]
-    min_int = 0
-    max_int = 2147483647
-
-    relative = False
-    shuffle = False
-    youtube = None
-    formats = ["mp3", "flac"]
-    no_formats = []
-    genres = []
-    no_genres = []
-    limit = max_int
-    min_duration = min_int
-    max_duration = max_int
-    min_size = min_int
-    max_size = max_int
-    min_rating = 0.0
-    max_rating = 5.0
-    keywords = []
-    no_keywords = []
-    artists = []
-    no_artists = []
-    titles = []
-    no_titles = []
-    albums = []
-    no_albums = []
-    # checks = list()
-    # no_checks = list()
+options = [
+    click.option('--limit', envvar='MB_LIMIT', help='Fetch a maximum limit of music', default=default_limit),
+    click.option('--youtube', envvar='MB_YOUTUBE', help='Select musics with a youtube link', is_flag=True, default=default_youtube),
+    click.option('--formats', envvar='MB_FORMATS', help='Select musics with file format', multiple=True, default=default_formats),
+    click.option('--no-formats', envvar='MB_NO_FORMATS', help='Filter musics without format', multiple=True, default=default_no_formats),
+    click.option('--keywords', envvar='MB_KEYWORDS', help='Select musics with keywords', multiple=True, default=default_keywords),
+    click.option('--no-keywords', envvar='MB_NO_KEYWORDS', help='Filter musics without keywords', multiple=True, default=default_no_keywords),
+    click.option('--artists', envvar='MB_ARTISTS', help='Select musics with artists', multiple=True, default=default_artists),
+    click.option('--no-artists', envvar='MB_NO_ARTISTS', help='Filter musics without artists', multiple=True, default=default_no_artists),
+    click.option('--albums', envvar='MB_ALBUMS', help='Select musics with albums', multiple=True, default=default_albums),
+    click.option('--no-albums', envvar='MB_NO_ALBUMS', help='Filter musics without albums', multiple=True, default=default_no_albums),
+    click.option('--titles', envvar='MB_TITLES', help='Select musics with titles', multiple=True, default=default_titles),
+    click.option('--no-titles', envvar='MB_NO_TITLES', help='Filter musics without titless', multiple=True, default=default_no_titles),
+    click.option('--genres', envvar='MB_GENRES', help='Select musics with genres', multiple=True, default=default_genres),
+    click.option('--no-genres', envvar='MB_NO_GENRES', help='Filter musics without genres', multiple=True, default=default_no_genres),
+    click.option('--min-duration', envvar='MB_MIN_DURATION', help='Minimum duration filter (hours:minutes:seconds)', default=default_min_duration),
+    click.option('--max-duration', envvar='MB_MAX_DURATION', help='Maximum duration filter (hours:minutes:seconds))', default=default_max_duration),
+    click.option('--min-size', envvar='MB_MIN_SIZE', help='Minimum file size filter (in bytes)', default=default_min_size),
+    click.option('--max-size', envvar='MB_MAX_SIZE', help='Maximum file size filter (in bytes)', default=default_max_size),
+    click.option('--min-rating', envvar='MB_MIN_RATING', help='Minimum rating', default=default_min_rating),
+    click.option('--max-rating', envvar='MB_MAX_RATING', help='Maximum rating', default=default_max_rating),
+    click.option('--relative', envvar='MB_RELATIVE', help='Generate relatives paths', default=default_relative, is_flag=True),
+    click.option('--shuffle', envvar='MB_SHUFFLE', help='Randomize selection', default=default_shuffle, is_flag=True),
+]

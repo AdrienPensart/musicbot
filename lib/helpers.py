@@ -10,6 +10,14 @@ from .lib import secondsToHuman
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 
+def add_options(options):
+    def _add_options(func):
+        for option in reversed(options):
+            func = option(func)
+        return func
+    return _add_options
+
+
 def timeit(f):
     async def process(f, *args, **params):
         if asyncio.iscoroutinefunction(f):

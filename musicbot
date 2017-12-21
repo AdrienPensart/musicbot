@@ -4,7 +4,7 @@
 import click
 import os
 from attrdict import AttrDict
-from lib import options
+from lib import helpers
 from lib.config import config, global_options
 
 plugin_folder = os.path.join(os.path.dirname(__file__), 'commands')
@@ -35,7 +35,7 @@ class SubCommandLineInterface(click.MultiCommand):
 
 @click.command(cls=SubCommandLineInterface, context_settings=CONTEXT_SETTINGS)
 @click.version_option("1.0")
-@options.add_options(global_options)
+@helpers.add_options(global_options)
 @click.pass_context
 def cli(ctx, verbosity, dry, quiet):
     """Music swiss knife, new gen."""

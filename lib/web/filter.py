@@ -2,7 +2,7 @@
 from logging import debug
 from ..filter import Filter
 from ..lib import num
-from ..file import mysplit
+# from ..file import mysplit
 
 
 class WebFilter(Filter):
@@ -26,9 +26,9 @@ class WebFilter(Filter):
         # debug('relative: {}'.format(self.relative))
 
         for param in ['formats', 'no_formats', 'artists', 'no_artists', 'genres', 'no_genres', 'albums', 'no_albums', 'titles', 'no_titles', 'keywords', 'no_keywords']:
-            raw = request.args.get(param, getattr(self, param))
-            data = mysplit(raw, ',')
-            debug('param:{} raw:{} data:{}'.format(param, raw, data))
+            data = request.args.getlist(param, getattr(self, param))
+            # data = mysplit(raw, ',')
+            debug('param:{} data:{}'.format(param, data))
             setattr(self, param, data)
 
         for param in ['min_rating', 'max_rating']:

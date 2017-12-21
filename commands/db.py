@@ -2,11 +2,11 @@
 import click
 import os
 from logging import info
-from lib import options, helpers, database
+from lib import helpers, database
 
 
 @click.group()
-@options.add_options(options.db)
+@helpers.add_options(database.options)
 @click.pass_context
 def cli(ctx, **kwargs):
     '''Database management'''

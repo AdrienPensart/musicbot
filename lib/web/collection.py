@@ -113,7 +113,7 @@ async def get_music(request):
 async def download(request):
     '''Download a track'''
     music = await get_music(request)
-    return send_file(music, name=download_title(music))
+    return send_file(music, name=download_title(music), attachment='attachment')
 
 
 @collection.route("/listen", strict_slashes=True)

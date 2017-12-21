@@ -11,14 +11,18 @@ env = Environment(extensions=['jinja2.ext.loopcontrols'], loader=FileSystemLoade
 env.globals['auth'] = {'user': 'musicbot', 'password': 'musicbot'}
 
 
-def send_file(music, name, attachment='attachment'):
+def send_file(music, name, attachment):
     debug("sending file: {}".format(music['path']))
     headers = {}
     headers['Content-Description'] = 'File Transfer'
-    headers['Cache-Control'] = 'no-cache'
+    # headers['Cache-Control'] = 'no-cache'
+    headers['Cache-Control'] = 'public, must-revalidate'
     headers['Content-Type'] = 'audio/mpeg'
     headers['Content-Disposition'] = '{}; filename={}'.format(attachment, name)
+    headers['Accept-Ranges'] = 'bytes'
     headers['Content-Length'] = music['size']
+    headers['Content-Transfer-Encoding'] = 'binary'
+    headers['X-Accel-Buffering'] = 'no'
     server_path = "/sendfile" + music['path'][len(music['folder']):]
     debug('server_path: {}'.format(server_path))
     headers['X-Accel-Redirect'] = server_path

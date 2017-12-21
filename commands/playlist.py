@@ -2,18 +2,15 @@
 import click
 import codecs
 import os
+import sys
 from textwrap import indent
 from tqdm import tqdm
-import sys
-from lib import helpers, database
-from logging import info
-from lib.filter import Filter
-from lib import options
-from logging import debug
+from lib import helpers, database, filter
+from logging import info, debug
 
 
 @click.group()
-@options.add_options(options.db)
+@helpers.add_options(database.options)
 @click.pass_context
 def cli(ctx, **kwargs):
     '''Playlist management'''
@@ -23,13 +20,13 @@ def cli(ctx, **kwargs):
 @cli.command()
 @click.pass_context
 @helpers.coro
-@options.add_options(options.filters)
+@helpers.add_options(filter.options)
 @click.argument('path', type=click.Path(exists=True))
 @click.option('--prefix', envvar='MB_PREFIX', help="Append prefix before each path (implies relative)", default='')
 @click.option('--suffix', envvar='MB_SUFFIX', help="Append this suffix to playlist name", default='')
 async def bests(ctx, path, prefix, suffix, **kwargs):
     '''Generate bests playlists with some rules'''
-    ctx.obj.mf = Filter(**kwargs)
+    ctx.obj.mf = filter.Filter(**kwargs)
     if len(prefix):
         ctx.obj.mf.relative = True
     playlists = await ctx.obj.db.bests(ctx.obj.mf)
@@ -52,11 +49,11 @@ async def bests(ctx, path, prefix, suffix, **kwargs):
 @cli.command()
 @helpers.coro
 @click.pass_context
-@options.add_options(options.filters)
+@helpers.add_options(filter.options)
 @click.argument('path', type=click.File('w'), default='-')
 @click.option('--prefix', envvar='MB_SUFFIX', help="Append prefix before each path (implies relative)", default='')
 async def new(ctx, path, **kwargs):
     '''Generate a new playlist'''
-    ctx.obj.mf = Filter(**kwargs)
+    ctx.obj.mf = filter.Filter(**kwargs)
     p = await ctx.obj.db.playlist(ctx.obj.mf)
     print(p['content'], file=path)
