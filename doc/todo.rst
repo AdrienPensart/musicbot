@@ -24,6 +24,7 @@ ToDo
 Bugs/Flows
 --
 - youtube live version crawling
+- confirm for clear / drop database
 
 Ideas
 --

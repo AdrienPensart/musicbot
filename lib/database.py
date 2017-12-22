@@ -173,37 +173,27 @@ class DbContext(object):
 
     @timeit
     async def keywords(self, mf=Filter()):
-        # sql = """select coalesce(array_agg(distinct keywords), array[]::text[]) as keywords from (select unnest(array_cat_agg(keywords)) as keywords from do_filter($1::filter)) k"""
-        # return (await self.fetchrow(sql, mf.to_list()))['keywords']
-        sql = """select distinct keyword as name from (select unnest(array_cat_agg(keywords)) as keyword from do_filter($1::filter)) k"""
+        sql = """select distinct keyword as name from (select unnest(array_cat_agg(keywords)) as keyword from do_filter($1::filter)) k order by name"""
         return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
 
     @timeit
     async def artists(self, mf=Filter()):
-        # sql = """select coalesce(array_agg(distinct artist), array[]::text[]) as artists from do_filter($1::filter)"""
-        # return (await self.fetchrow(sql, mf.to_list()))['artists']
-        sql = """select distinct artist as name from do_filter($1::filter)"""
+        sql = """select distinct artist as name from do_filter($1::filter) order by name"""
         return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
 
     @timeit
     async def titles(self, mf=Filter()):
-        # sql = """select coalesce(array_agg(distinct title), array[]::text[]) as titles from do_filter($1::filter)"""
-        # return (await self.fetchrow(sql, mf.to_list()))['titles']
-        sql = """select distinct title as name from do_filter($1::filter)"""
+        sql = """select distinct title as name from do_filter($1::filter) order by name"""
         return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
 
     @timeit
     async def albums(self, mf=Filter()):
-        # sql = """select coalesce(array_agg(distinct album), array[]::text[]) as albums from do_filter($1::filter)"""
-        # return (await self.fetchrow(sql, mf.to_list()))['albums']
-        sql = """select distinct album as name from do_filter($1::filter)"""
+        sql = """select distinct album as name from do_filter($1::filter) order by name"""
         return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
 
     @timeit
     async def genres(self, mf=Filter()):
-        # sql = """select coalesce(array_agg(distinct genre), array[]::text[]) as genres from do_filter($1::filter)"""
-        # return (await self.fetchrow(sql, mf.to_list()))['genres']
-        sql = """select distinct genre as name from do_filter($1::filter)"""
+        sql = """select distinct genre as name from do_filter($1::filter) order by name"""
         return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
 
     @timeit

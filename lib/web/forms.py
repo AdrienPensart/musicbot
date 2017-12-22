@@ -39,8 +39,10 @@ class FilterForm(SanicForm):
     albums = SelectMultipleField(label='Albums', default=[], choices=[])
     no_albums = SelectMultipleField(label='No albums', default=[], choices=[])
 
-    progressive = SubmitField(label='Progressive')
-    generate = SubmitField(label='Generate')
+    form = SubmitField(label='Form')
+    play = SubmitField(label='Play')
+    m3u = SubmitField(label='m3u')
+    zip = SubmitField(label='Zip')
 
     def initialize(self, records):
         genres_choices = [(x, x) for x in records['genres']]

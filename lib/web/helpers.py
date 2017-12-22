@@ -12,6 +12,27 @@ env = Environment(extensions=['jinja2.ext.loopcontrols'], loader=FileSystemLoade
 env.globals['auth'] = {'user': 'musicbot', 'password': 'musicbot'}
 
 
+async def m3u(musics, name='playlist'):
+    headers = {}
+    headers['Content-Disposition'] = 'attachment; filename={}'.format(name + '.m3u')
+    return await template("m3u.html", headers=headers, musics=musics)
+
+
+def zip(musics, name='archive'):
+    headers = {}
+    headers['X-Archive-Files'] = 'zip'
+    headers['Content-Disposition'] = 'attachment; filename={}'.format(name + '.zip')
+    # see mod_zip documentation :p
+    lines = [' '.join(['-',
+                       str(m['size']),
+                       quote("/download" + m['path'][len(m['folder']):]),
+                       os.path.join(m['artist'], m['album'], os.path.basename(m['path']))])
+             for m in musics]
+    body = '\n'.join(lines)
+    debug(body)
+    return response.HTTPResponse(headers=headers, body=body)
+
+
 def send_file(music, name, attachment):
     debug("sending file: {}".format(music['path']))
     headers = {}
