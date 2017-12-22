@@ -39,7 +39,11 @@ class Filter(object):
         self.id = 0
         self.relative = relative or default_relative
         self.shuffle = shuffle or default_shuffle
-        self.youtube = youtube or default_youtube
+        if youtube is not default_youtube:
+            self.youtube = youtube
+        else:
+            self.youtube = default_youtube
+
         self.formats = formats or default_formats
         self.no_formats = no_formats or default_no_formats
         self.genres = genres or default_genres
@@ -95,7 +99,7 @@ class Filter(object):
 
 options = [
     click.option('--limit', envvar='MB_LIMIT', help='Fetch a maximum limit of music', default=default_limit),
-    click.option('--youtube', envvar='MB_YOUTUBE', help='Select musics with a youtube link', is_flag=True, default=default_youtube),
+    click.option('--youtube/--no-youtube', envvar='MB_YOUTUBE', help='Select musics with a youtube link', is_flag=True, default=default_youtube),
     click.option('--formats', envvar='MB_FORMATS', help='Select musics with file format', multiple=True, default=default_formats),
     click.option('--no-formats', envvar='MB_NO_FORMATS', help='Filter musics without format', multiple=True, default=default_no_formats),
     click.option('--keywords', envvar='MB_KEYWORDS', help='Select musics with keywords', multiple=True, default=default_keywords),

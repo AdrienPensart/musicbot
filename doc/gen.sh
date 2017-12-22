@@ -36,4 +36,3 @@ done
 cat $my_dir/help.rst $my_dir/todo.rst $commands > $my_dir/../README.rst
 
 rm $commands
-

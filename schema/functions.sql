@@ -43,9 +43,13 @@ create table if not exists music
     id serial primary key,
     title text default '',
     album text default '',
+    album_id integer default 0,
     genre text default '',
+    genre_id integer default 0,
     artist text default '',
+    artist_id integer default 0,
     folder text default '',
+    folder_id integer default 0,
     youtube text default null,
     number integer default 0,
     path text default '' unique not null,
@@ -71,16 +75,13 @@ create or replace function new_music
 ) returns music as
 $$
 begin
-    return (0, title, album, genre, artist, folder, null, number, path, rating, duration, size, keywords);
+    return (0, title, album, 0, genre, 0, artist, 0, folder, 0, null, number, path, rating, duration, size, keywords);
 end;
 $$ language plpgsql;
 
 create or replace function delete(p text)
 returns void as
 $$
---begin
-    --delete from music_tags mt where mt.music_id = (select id from musics m where m.path = p limit 1);
-    --delete from musics m where m.id = (select id from musics m where m.path = path limit 1);
     with delete_music as (
         select id from musics m where m.path = p limit 1
     ),
@@ -88,9 +89,7 @@ $$
         delete from music_tags mt using delete_music dm where mt.music_id = dm.id
     )
     delete from musics m using delete_music dm where m.id = dm.id;
---end;
 $$ language sql;
---$$ language plpgsql;
 
 create or replace function upsert(arg music default new_music())
 returns void as
@@ -165,7 +164,6 @@ begin
     delete from tags t where t.id = (select t.id from tags t left join music_tags mt on t.id = mt.tag_id group by t.id having count(mt.music_id) = 0);
 end;
 $$ language plpgsql;
---$$ language sql;
 
 create or replace function upsert_all(ms music[])
 returns void as
@@ -185,18 +183,22 @@ returns setof music as
 $$
     with all_musics as (
         select
-            m.id       as id,
-            m.title    as title,
-            al.name    as album,
-            g.name     as genre,
-            a.name     as artist,
-            f.name     as folder,
-            m.youtube  as youtube,
-            m.number   as number,
-            m.path     as path,
-            m.rating   as rating,
-            m.duration as duration,
-            m.size     as size,
+            m.id        as id,
+            m.title     as title,
+            al.name     as album,
+            m.album_id  as album_id,
+            g.name      as genre,
+            m.genre_id  as genre_id,
+            a.name      as artist,
+            m.artist_id as artist_id,
+            f.name      as folder,
+            m.folder_id as folder_id,
+            m.youtube   as youtube,
+            m.number    as number,
+            m.path      as path,
+            m.rating    as rating,
+            m.duration  as duration,
+            m.size      as size,
             (
                 select coalesce(array_agg(name), '{}')
                 from
@@ -204,9 +206,7 @@ $$
                     select distinct name
                     from music_tags mt
                     inner join tags t on mt.tag_id = t.id
-                    where
-                        mt.music_id = m.id and
-                        name !~ '/'
+                    where mt.music_id = m.id
                 ) as separated_keywords
             ) as keywords
         from musics m
@@ -214,10 +214,6 @@ $$
         inner join artists a on a.id = m.artist_id
         inner join genres g on g.id = m.genre_id
         inner join folders f on f.id = m.folder_id
-        --where m.title !~ '/' and
-        --      al.name !~ '/' and
-        --      g.name !~ '/' and
-        --      a.name !~ '/'
         order by artist, album, number
     )
     select *

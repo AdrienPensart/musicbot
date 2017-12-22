@@ -18,23 +18,25 @@ def cli(ctx, **kwargs):
 @cli.command()
 @helpers.coro
 @click.pass_context
-async def create(ctx, **kwargs):
+async def create(ctx):
     '''Create database and load schema'''
     await ctx.obj.db.create()
 
 
 @cli.command()
 @helpers.coro
+@click.confirmation_option(help='Are you sure you want to drop the db?')
 @click.pass_context
-async def drop(ctx, **kwargs):
+async def drop(ctx):
     '''Drop database schema'''
     await ctx.obj.db.drop()
 
 
 @cli.command()
 @helpers.coro
+@click.confirmation_option(help='Are you sure you want to drop the db?')
 @click.pass_context
-async def clear(ctx, **kwargs):
+async def clear(ctx):
     '''Drop and recreate database and schema'''
     await ctx.obj.db.clear()
 
@@ -42,7 +44,7 @@ async def clear(ctx, **kwargs):
 @cli.command()
 @helpers.coro
 @click.pass_context
-async def clean(ctx, **kwargs):
+async def clean(ctx):
     '''Clean deleted musics from database'''
     musics = await ctx.obj.db.filter()
     for m in musics:

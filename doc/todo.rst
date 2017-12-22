@@ -5,6 +5,7 @@ ToDo
   - configuration : global conf -> user conf -> env var -> arguments
   - full API / template separation
   - CLI
+  - tasks for background jobs: rescan at fixed hour, watch files, clean DB, crawl metadata / youtube
 - filters
   - in DB
   - backup all the music (all)
@@ -15,16 +16,12 @@ ToDo
 - production
   - dockerize
 - optimizations
-  - fast bulk inserts
-  - web caching of templates
   - postgresql materialized view
-  - fast stats
 - web tests
 
 Bugs/Flows
 --
 - youtube live version crawling
-- confirm for clear / drop database
 
 Ideas
 --

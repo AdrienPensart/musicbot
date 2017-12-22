@@ -89,7 +89,7 @@ async def albums(request):
     '''List albums'''
     db = app.config['DB']
     mf = filter.WebFilter(request)
-    albums = await db.albums(mf)
+    albums = await db.albums_name(mf)
     return await helpers.template("albums.html", albums=albums, mf=mf)
 
 

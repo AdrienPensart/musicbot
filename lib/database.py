@@ -46,9 +46,15 @@ class DbContext(object):
 
     @drier
     @timeit
-    async def set_youtube(self, path, youtube):
+    async def set_music_youtube(self, path, youtube):
         sql = '''update musics set youtube=$2 where path=$1'''
         await self.execute(sql, path, youtube)
+
+    @drier
+    @timeit
+    async def set_album_youtube(self, id, youtube):
+        sql = '''update albums set youtube=$2 where id=$1'''
+        await self.execute(sql, id, youtube)
 
     @drier
     @timeit
@@ -188,8 +194,12 @@ class DbContext(object):
 
     @timeit
     async def albums(self, mf=Filter()):
-        sql = """select distinct album as name from do_filter($1::filter) order by name"""
-        return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
+        sql = """select album as name, artist, album_id as id, sum(duration) as duration from do_filter($1::filter) group by album_id, artist_id, artist, album order by album"""
+        return await self.fetch(sql, mf.to_list())
+
+    @timeit
+    async def albums_name(self, mf=Filter()):
+        return [f['name'] for f in (await self.albums(mf))]
 
     @timeit
     async def genres(self, mf=Filter()):
