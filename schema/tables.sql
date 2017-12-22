@@ -1,29 +1,26 @@
 create table if not exists folders (
     id serial primary key,
-    name text unique not null
+    name text unique not null,
     created_at timestamp default null,
-    updated_at timestamp default null,
+    updated_at timestamp default null
 );
 create table if not exists tags (
     id serial primary key,
-    name text unique not null--,
+    name text unique not null,
     created_at timestamp default null,
-    updated_at timestamp default null,
-    --constraint slash_name check (name !~ '/')
+    updated_at timestamp default null
 );
 create table if not exists artists (
     id serial primary key,
-    name text unique not null--,
+    name text unique not null,
     created_at timestamp default null,
-    updated_at timestamp default null,
-    --constraint slash_name check (name !~ '/')
+    updated_at timestamp default null
 );
 create table if not exists genres (
     id serial primary key,
-    name text unique not null--,
+    name text unique not null,
     created_at timestamp default null,
-    updated_at timestamp default null,
-    --constraint slash_name check (name !~ '/')
+    updated_at timestamp default null
 );
 create table if not exists albums (
     id serial primary key,
@@ -33,8 +30,7 @@ create table if not exists albums (
     foreign key(artist_id) references artists (id),
     created_at timestamp default null,
     updated_at timestamp default null,
-    unique(artist_id,name)--,
-    --constraint slash_name check (name !~ '/')
+    unique(artist_id,name)
 );
 create table if not exists musics (
     id serial primary key,
@@ -55,12 +51,13 @@ create table if not exists musics (
     foreign key(album_id)  references albums (id),
     foreign key(genre_id)  references genres (id),
     foreign key(folder_id) references folders (id),
-    constraint rating_range check (rating between 0.0 and 5.0)--,
-    --constraint slash_title check (title !~ '/')
+    constraint rating_range check (rating between 0.0 and 5.0)
 );
 create table if not exists music_tags (
     music_id integer not null,
     tag_id integer not null,
+    created_at timestamp default null,
+    updated_at timestamp default null,
     primary key (music_id, tag_id),
     foreign key(music_id) references musics (id) on delete cascade,
     foreign key(tag_id)   references tags (id)

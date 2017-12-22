@@ -80,7 +80,8 @@ class DatabaseTest(TestCase):
     async def setUp(self):
         lib.verbose = False
         self.collection = database.DbContext(database='musicbot_test')
-        self.files = list(lib.find_files(["tests/folder1", "tests/folder2"]))
+        await self.collection.clear()
+        self.files = list(lib.find_files([folder1, folder2]))
         for f in self.files:
             m = file.File(f[1], f[0])
             await self.collection.upsert(m)
