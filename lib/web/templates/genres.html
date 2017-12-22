@@ -3,7 +3,9 @@
 {% block body %}
     <h2>Genres</h2>
     {% for genre in genres: %}
-    <a href="{{ url_for('collection.artists', genres=genre) }}">{{ genre }}</a> -
+    {{ genre }} -
+    <a href="{{ url_for('collection.artists', genres=genre) }}">artists</a> -
+    <a href="{{ url_for('collection.albums', genres=genre) }}">albums</a> -
     <a href="{{ url_for('collection.m3u', genres=genre, name=genre) }}">m3u</a> -
     <a href="{{ url_for('collection.zip', genres=genre, name=genre) }}">zip</a> -
     <a href="{{ url_for('collection.player', genres=genre, name=genre) }}">play</a>

@@ -8,7 +8,6 @@ from ..lib import num
 class WebFilter(Filter):
     def __init__(self, request, **kwargs):
         super().__init__(**kwargs)
-        debug(request.args)
         youtube = request.args.get('youtube', self.youtube)
         if youtube == "2":
             self.youtube = None

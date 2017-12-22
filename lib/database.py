@@ -61,7 +61,6 @@ class DbContext(object):
     async def filter(self, f=None, json=False):
         if f is None:
             f = Filter()
-        debug('f: {}'.format(f))
         l = f.to_list()
         if json:
             sql = '''select array_to_json(array_agg(row_to_json(m))) as playlist from do_filter($1::filter) m'''
@@ -132,7 +131,6 @@ class DbContext(object):
     async def execute(self, sql, *args, **kwargs):
         async with (await self.pool).acquire() as connection:
             async with connection.transaction():
-                debug(args)
                 mogrified = await utils._mogrify(connection, sql, args)
                 info('mogrified: {}'.format(mogrified))
                 await connection.execute(sql, *args)
@@ -174,64 +172,39 @@ class DbContext(object):
         return await self.fetch(sql)
 
     @timeit
-    async def keywords(self, mf=Filter(), fast=False):
-        if fast:
-            sql = """select distinct name from tags"""
-            return await self.fetch(sql)
-        else:
-            if mf is None:
-                sql = """select coalesce(array_agg(distinct name), array[]::text[]) as keywords from tags"""
-            else:
-                sql = """select coalesce(array_agg(distinct keywords), array[]::text[]) as keywords from (select unnest(array_cat_agg(keywords)) as keywords from do_filter($1::filter)) k"""
-        return (await self.fetchrow(sql, mf.to_list()))['keywords']
+    async def keywords(self, mf=Filter()):
+        # sql = """select coalesce(array_agg(distinct keywords), array[]::text[]) as keywords from (select unnest(array_cat_agg(keywords)) as keywords from do_filter($1::filter)) k"""
+        # return (await self.fetchrow(sql, mf.to_list()))['keywords']
+        sql = """select distinct keyword as name from (select unnest(array_cat_agg(keywords)) as keyword from do_filter($1::filter)) k"""
+        return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
 
     @timeit
-    async def artists(self, mf=Filter(), fast=False):
-        if fast:
-            sql = """select distinct name from artists"""
-            return await self.fetch(sql)
-        else:
-            if mf is None:
-                sql = """select coalesce(array_agg(distinct name), array[]::text[]) as artists from artists"""
-            else:
-                sql = """select coalesce(array_agg(distinct artist), array[]::text[]) as artists from do_filter($1::filter)"""
-        return (await self.fetchrow(sql, mf.to_list()))['artists']
+    async def artists(self, mf=Filter()):
+        # sql = """select coalesce(array_agg(distinct artist), array[]::text[]) as artists from do_filter($1::filter)"""
+        # return (await self.fetchrow(sql, mf.to_list()))['artists']
+        sql = """select distinct artist as name from do_filter($1::filter)"""
+        return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
 
     @timeit
-    async def titles(self, mf=Filter(), fast=False):
-        if fast:
-            sql = """select distinct title as name from musics"""
-            return await self.fetch(sql)
-        else:
-            if mf is None:
-                sql = """select coalesce(array_agg(distinct title), array[]::text[]) as titles from musics"""
-            else:
-                sql = """select coalesce(array_agg(distinct title), array[]::text[]) as titles from do_filter($1::filter)"""
-        return (await self.fetchrow(sql, mf.to_list()))['titles']
+    async def titles(self, mf=Filter()):
+        # sql = """select coalesce(array_agg(distinct title), array[]::text[]) as titles from do_filter($1::filter)"""
+        # return (await self.fetchrow(sql, mf.to_list()))['titles']
+        sql = """select distinct title as name from do_filter($1::filter)"""
+        return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
 
     @timeit
-    async def albums(self, mf=Filter(), fast=False):
-        if fast:
-            sql = """select distinct name from albums"""
-            return await self.fetch(sql)
-        else:
-            if mf is None:
-                sql = """select coalesce(array_agg(distinct name), array[]::text[]) as albums from albums"""
-            else:
-                sql = """select coalesce(array_agg(distinct album), array[]::text[]) as albums from do_filter($1::filter)"""
-        return (await self.fetchrow(sql, mf.to_list()))['albums']
+    async def albums(self, mf=Filter()):
+        # sql = """select coalesce(array_agg(distinct album), array[]::text[]) as albums from do_filter($1::filter)"""
+        # return (await self.fetchrow(sql, mf.to_list()))['albums']
+        sql = """select distinct album as name from do_filter($1::filter)"""
+        return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
 
     @timeit
-    async def genres(self, mf=Filter(), fast=False):
-        if fast:
-            sql = """select distinct name from genres"""
-            return self.fetch(sql)
-        else:
-            if mf is None:
-                sql = """select coalesce(array_agg(distinct name), array[]::text[]) as genres from genres"""
-            else:
-                sql = """select coalesce(array_agg(distinct genre), array[]::text[]) as genres from do_filter($1::filter)"""
-        return (await self.fetchrow(sql, mf.to_list()))['genres']
+    async def genres(self, mf=Filter()):
+        # sql = """select coalesce(array_agg(distinct genre), array[]::text[]) as genres from do_filter($1::filter)"""
+        # return (await self.fetchrow(sql, mf.to_list()))['genres']
+        sql = """select distinct genre as name from do_filter($1::filter)"""
+        return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
 
     @timeit
     async def form(self, mf=Filter()):
@@ -242,8 +215,3 @@ class DbContext(object):
     async def stats(self, mf=Filter()):
         sql = '''select * from do_stats($1::filter)'''
         return await self.fetchrow(sql, mf.to_list())
-
-    @timeit
-    async def errors(self, mf=Filter()):
-        sql = '''select * from do_filter($1::filter)'''
-        return await self.fetch(sql, mf.to_list())

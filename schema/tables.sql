@@ -1,27 +1,38 @@
 create table if not exists folders (
     id serial primary key,
     name text unique not null
+    created_at timestamp default null,
+    updated_at timestamp default null,
 );
 create table if not exists tags (
     id serial primary key,
     name text unique not null--,
+    created_at timestamp default null,
+    updated_at timestamp default null,
     --constraint slash_name check (name !~ '/')
 );
 create table if not exists artists (
     id serial primary key,
     name text unique not null--,
+    created_at timestamp default null,
+    updated_at timestamp default null,
     --constraint slash_name check (name !~ '/')
 );
 create table if not exists genres (
     id serial primary key,
     name text unique not null--,
+    created_at timestamp default null,
+    updated_at timestamp default null,
     --constraint slash_name check (name !~ '/')
 );
 create table if not exists albums (
     id serial primary key,
     artist_id integer not null,
     name text not null,
+    youtube text default null,
     foreign key(artist_id) references artists (id),
+    created_at timestamp default null,
+    updated_at timestamp default null,
     unique(artist_id,name)--,
     --constraint slash_name check (name !~ '/')
 );

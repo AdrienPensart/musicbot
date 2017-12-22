@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import base64
+from urllib.parse import quote
 from logging import debug
 from sanic import response
 from jinja2 import Environment, FileSystemLoader
@@ -18,7 +19,7 @@ def send_file(music, name, attachment):
     # headers['Cache-Control'] = 'no-cache'
     headers['Cache-Control'] = 'public, must-revalidate'
     headers['Content-Type'] = 'audio/mpeg'
-    headers['Content-Disposition'] = '{}; filename={}'.format(attachment, name)
+    headers['Content-Disposition'] = '{}; filename={}'.format(attachment, quote(name))
     headers['Accept-Ranges'] = 'bytes'
     headers['Content-Length'] = music['size']
     headers['Content-Transfer-Encoding'] = 'binary'

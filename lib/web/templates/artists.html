@@ -4,12 +4,12 @@
     <h2>Artists</h2>
     {% for artist in artists: %}
     {{ artist }} -
-    <a href="{{ url_for('collection.musics', artists=artist) }}">musics</a> -
-    <a href="{{ url_for('collection.albums', artists=artist) }}">albums</a> -
-    <a href="{{ url_for('collection.stats', artists=artist) }}">stats</a> -
-    <a href="{{ url_for('collection.m3u', artists=artist, name=artist) }}">m3u</a> -
-    <a href="{{ url_for('collection.zip', artists=artist, name=artist) }}">zip</a> -
-    <a href="{{ url_for('collection.player', artists=artist) }}">play</a>
+    <a href="{{ url_for('collection.musics', keywords=mf.keywords, artists=artist) }}">musics</a> -
+    <a href="{{ url_for('collection.albums', keywords=mf.keywords, artists=artist) }}">albums</a> -
+    <a href="{{ url_for('collection.stats', keywords=mf.keywords, artists=artist) }}">stats</a> -
+    <a href="{{ url_for('collection.m3u', keywords=mf.keywords, artists=artist, name=artist) }}">m3u</a> -
+    <a href="{{ url_for('collection.zip', keywords=mf.keywords, artists=artist, name=artist) }}">zip</a> -
+    <a href="{{ url_for('collection.player', keywords=mf.keywords, artists=artist) }}">play</a>
     <br>
     {% endfor %}
 {% endblock %}

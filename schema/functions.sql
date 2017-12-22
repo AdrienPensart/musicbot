@@ -98,33 +98,43 @@ $$
 begin
     delete from music_tags mt where mt.music_id = (select old.id from musics old where old.path = arg.path);
     with upsert_folder as (
-        insert into folders as f (name)
-        values (arg.folder)
-        on conflict (name) do update set name=EXCLUDED.name
+        insert into folders as f (name, created_at)
+        values (arg.folder, now())
+        on conflict (name) do update set
+            updated_at=coalesce(EXCLUDED.updated_at, now()),
+            name=EXCLUDED.name
         returning f.id as folder_id
     ),
     upsert_artist as (
-        insert into artists as a (name)
-        values (arg.artist)
-        on conflict (name) do update set name=EXCLUDED.name
+        insert into artists as a (name, created_at)
+        values (arg.artist, now())
+        on conflict (name) do update set
+            updated_at=coalesce(EXCLUDED.updated_at, now()),
+            name=EXCLUDED.name
         returning a.id as artist_iD
     ),
     upsert_album as (
-        insert into albums as al (artist_id, name)
-        values ((select artist_id from upsert_artist), arg.album)
-        on conflict (artist_id, name) do update set name=EXCLUDED.name
+        insert into albums as al (artist_id, name, created_at)
+        values ((select artist_id from upsert_artist), arg.album, now())
+        on conflict (artist_id, name) do update set
+            updated_at=coalesce(EXCLUDED.updated_at, now()),
+            name=EXCLUDED.name
         returning al.id as album_id
     ),
     upsert_genre as (
         insert into genres as g (name)
         values (arg.genre)
-        on conflict (name) do update set name=EXCLUDED.name
+        on conflict (name) do update set
+            updated_at=coalesce(EXCLUDED.updated_at, now()),
+            name=EXCLUDED.name
         returning g.id as genre_id
     ),
     upsert_keywords as (
         insert into tags as t (name)
         select distinct k from unnest(arg.keywords) k
-        on conflict (name) do update set name=EXCLUDED.name
+        on conflict (name) do update set
+            updated_at=coalesce(EXCLUDED.updated_at, now()),
+            name=EXCLUDED.name
         returning t.id as tag_id
     ),
     upsert_music as (

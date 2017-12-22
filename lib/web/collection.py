@@ -19,7 +19,7 @@ async def stats(request):
     db = app.config['DB']
     mf = WebFilter(request)
     stats = await db.stats(mf)
-    return await template('stats.html', stats=stats)
+    return await template('stats.html', stats=stats, mf=mf)
 
 
 @collection.route("/generate", strict_slashes=True)
@@ -33,7 +33,7 @@ async def generate(request):
     records = await db.form(mf)
     form = FilterForm(obj=records)
     # form.initialize(records)
-    return await template('generate.html', form=form)
+    return await template('generate.html', form=form, mf=mf)
 
 
 @collection.route("/consistency", strict_slashes=True)
@@ -52,7 +52,7 @@ async def keywords(request):
     db = app.config['DB']
     mf = WebFilter(request)
     keywords = await db.keywords(mf)
-    return await template('keywords.html', keywords=keywords)
+    return await template('keywords.html', keywords=keywords, mf=mf)
 
 
 @collection.route('/genres', strict_slashes=True)
@@ -63,7 +63,7 @@ async def genres(request):
     db = app.config['DB']
     mf = WebFilter(request)
     genres = await db.genres(mf)
-    return await template("genres.html", genres=genres)
+    return await template("genres.html", genres=genres, mf=mf)
 
 
 @collection.route('/artists', strict_slashes=True)
@@ -74,7 +74,7 @@ async def artists(request):
     db = app.config['DB']
     mf = WebFilter(request)
     artists = await db.artists(mf)
-    return await template("artists.html", artists=artists)
+    return await template("artists.html", artists=artists, mf=mf)
 
 
 @collection.route('/albums', strict_slashes=True)
@@ -85,7 +85,7 @@ async def albums(request):
     db = app.config['DB']
     mf = WebFilter(request)
     albums = await db.albums(mf)
-    return await template("albums.html", albums=albums)
+    return await template("albums.html", albums=albums, mf=mf)
 
 
 @collection.route('/musics', strict_slashes=True)
@@ -96,7 +96,7 @@ async def musics(request):
     db = app.config['DB']
     mf = WebFilter(request)
     musics = await db.filter(mf)
-    return await template("musics.html", musics=musics)
+    return await template("musics.html", musics=musics, mf=mf)
 
 
 async def get_music(request):
@@ -172,4 +172,4 @@ async def player(request):
     db = app.config['DB']
     mf = WebFilter(request)
     musics = await db.filter(mf)
-    return await template('player.html', musics=musics)
+    return await template('player.html', musics=musics, mf=mf)

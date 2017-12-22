@@ -6,6 +6,7 @@ ToDo
   - full API / template separation
   - CLI
 - filters
+  - in DB
   - backup all the music (all)
   - local selection (4.5+ ?)
   - portable x5 bests selection (4+ ?)
@@ -23,8 +24,6 @@ ToDo
 Bugs/Flows
 --
 - youtube live version crawling
-- content-disposition filename encoding
-- filter sho/tests
 
 Ideas
 --

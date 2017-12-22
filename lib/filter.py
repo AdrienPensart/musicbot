@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-# import json
+# from logging import debug
 import click
-from logging import debug
 
 rating_choices = [x * 0.5 for x in range(0, 11)]
 min_int = 0
@@ -62,7 +61,6 @@ class Filter(object):
         self.no_albums = no_albums or default_no_albums
         # checks = list()
         # no_checks = list()
-        debug(self)
         assert self.min_rating in rating_choices
         assert self.max_rating in rating_choices
         assert self.min_duration <= self.max_duration
@@ -75,8 +73,9 @@ class Filter(object):
         assert len(set(self.keywords).intersection(self.no_keywords)) == 0
         # assert len(set(self.checks).intersection(self.no_checks)) == 0
 
-    # def __repr__(self):
-    #     return json.dumps(self.to_list())
+    def __repr__(self):
+        import json
+        return json.dumps(self.to_list())
 
     def to_list(self):
         # return [a for a in dir(self) if not a.startswith('__')]
