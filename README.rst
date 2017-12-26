@@ -148,29 +148,29 @@ musicbot consistency errors
   Usage: musicbot consistency errors [OPTIONS]
   
   Options:
-    --limit INTEGER           Fetch a maximum limit of music
-    --youtube / --no-youtube  Select musics with a youtube link
-    --formats TEXT            Select musics with file format
-    --no-formats TEXT         Filter musics without format
-    --keywords TEXT           Select musics with keywords
-    --no-keywords TEXT        Filter musics without keywords
-    --artists TEXT            Select musics with artists
-    --no-artists TEXT         Filter musics without artists
-    --albums TEXT             Select musics with albums
-    --no-albums TEXT          Filter musics without albums
-    --titles TEXT             Select musics with titles
-    --no-titles TEXT          Filter musics without titless
-    --genres TEXT             Select musics with genres
-    --no-genres TEXT          Filter musics without genres
-    --min-duration INTEGER    Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER    Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER        Minimum file size filter (in bytes)
-    --max-size INTEGER        Maximum file size filter (in bytes)
-    --min-rating FLOAT        Minimum rating
-    --max-rating FLOAT        Maximum rating
-    --relative                Generate relatives paths
-    --shuffle                 Randomize selection
-    -h, --help                Show this message and exit.
+    --limit INTEGER         Fetch a maximum limit of music
+    --youtube TEXT          Select musics with a youtube link
+    --formats TEXT          Select musics with file format
+    --no-formats TEXT       Filter musics without format
+    --keywords TEXT         Select musics with keywords
+    --no-keywords TEXT      Filter musics without keywords
+    --artists TEXT          Select musics with artists
+    --no-artists TEXT       Filter musics without artists
+    --albums TEXT           Select musics with albums
+    --no-albums TEXT        Filter musics without albums
+    --titles TEXT           Select musics with titles
+    --no-titles TEXT        Filter musics without titless
+    --genres TEXT           Select musics with genres
+    --no-genres TEXT        Filter musics without genres
+    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
+    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
+    --min-size INTEGER      Minimum file size filter (in bytes)
+    --max-size INTEGER      Maximum file size filter (in bytes)
+    --min-rating FLOAT      Minimum rating
+    --max-rating FLOAT      Maximum rating
+    --relative              Generate relatives paths
+    --shuffle               Randomize selection
+    -h, --help              Show this message and exit.
 
 
 musicbot db
@@ -315,29 +315,29 @@ musicbot folder sync
     Copy selected musics with filters to destination folder
   
   Options:
-    --limit INTEGER           Fetch a maximum limit of music
-    --youtube / --no-youtube  Select musics with a youtube link
-    --formats TEXT            Select musics with file format
-    --no-formats TEXT         Filter musics without format
-    --keywords TEXT           Select musics with keywords
-    --no-keywords TEXT        Filter musics without keywords
-    --artists TEXT            Select musics with artists
-    --no-artists TEXT         Filter musics without artists
-    --albums TEXT             Select musics with albums
-    --no-albums TEXT          Filter musics without albums
-    --titles TEXT             Select musics with titles
-    --no-titles TEXT          Filter musics without titless
-    --genres TEXT             Select musics with genres
-    --no-genres TEXT          Filter musics without genres
-    --min-duration INTEGER    Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER    Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER        Minimum file size filter (in bytes)
-    --max-size INTEGER        Maximum file size filter (in bytes)
-    --min-rating FLOAT        Minimum rating
-    --max-rating FLOAT        Maximum rating
-    --relative                Generate relatives paths
-    --shuffle                 Randomize selection
-    -h, --help                Show this message and exit.
+    --limit INTEGER         Fetch a maximum limit of music
+    --youtube TEXT          Select musics with a youtube link
+    --formats TEXT          Select musics with file format
+    --no-formats TEXT       Filter musics without format
+    --keywords TEXT         Select musics with keywords
+    --no-keywords TEXT      Filter musics without keywords
+    --artists TEXT          Select musics with artists
+    --no-artists TEXT       Filter musics without artists
+    --albums TEXT           Select musics with albums
+    --no-albums TEXT        Filter musics without albums
+    --titles TEXT           Select musics with titles
+    --no-titles TEXT        Filter musics without titless
+    --genres TEXT           Select musics with genres
+    --no-genres TEXT        Filter musics without genres
+    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
+    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
+    --min-size INTEGER      Minimum file size filter (in bytes)
+    --max-size INTEGER      Maximum file size filter (in bytes)
+    --min-rating FLOAT      Minimum rating
+    --max-rating FLOAT      Maximum rating
+    --relative              Generate relatives paths
+    --shuffle               Randomize selection
+    -h, --help              Show this message and exit.
 
 
 musicbot folder watch
@@ -382,31 +382,31 @@ musicbot playlist bests
     Generate bests playlists with some rules
   
   Options:
-    --limit INTEGER           Fetch a maximum limit of music
-    --youtube / --no-youtube  Select musics with a youtube link
-    --formats TEXT            Select musics with file format
-    --no-formats TEXT         Filter musics without format
-    --keywords TEXT           Select musics with keywords
-    --no-keywords TEXT        Filter musics without keywords
-    --artists TEXT            Select musics with artists
-    --no-artists TEXT         Filter musics without artists
-    --albums TEXT             Select musics with albums
-    --no-albums TEXT          Filter musics without albums
-    --titles TEXT             Select musics with titles
-    --no-titles TEXT          Filter musics without titless
-    --genres TEXT             Select musics with genres
-    --no-genres TEXT          Filter musics without genres
-    --min-duration INTEGER    Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER    Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER        Minimum file size filter (in bytes)
-    --max-size INTEGER        Maximum file size filter (in bytes)
-    --min-rating FLOAT        Minimum rating
-    --max-rating FLOAT        Maximum rating
-    --relative                Generate relatives paths
-    --shuffle                 Randomize selection
-    --prefix TEXT             Append prefix before each path (implies relative)
-    --suffix TEXT             Append this suffix to playlist name
-    -h, --help                Show this message and exit.
+    --limit INTEGER         Fetch a maximum limit of music
+    --youtube TEXT          Select musics with a youtube link
+    --formats TEXT          Select musics with file format
+    --no-formats TEXT       Filter musics without format
+    --keywords TEXT         Select musics with keywords
+    --no-keywords TEXT      Filter musics without keywords
+    --artists TEXT          Select musics with artists
+    --no-artists TEXT       Filter musics without artists
+    --albums TEXT           Select musics with albums
+    --no-albums TEXT        Filter musics without albums
+    --titles TEXT           Select musics with titles
+    --no-titles TEXT        Filter musics without titless
+    --genres TEXT           Select musics with genres
+    --no-genres TEXT        Filter musics without genres
+    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
+    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
+    --min-size INTEGER      Minimum file size filter (in bytes)
+    --max-size INTEGER      Maximum file size filter (in bytes)
+    --min-rating FLOAT      Minimum rating
+    --max-rating FLOAT      Maximum rating
+    --relative              Generate relatives paths
+    --shuffle               Randomize selection
+    --prefix TEXT           Append prefix before each path (implies relative)
+    --suffix TEXT           Append this suffix to playlist name
+    -h, --help              Show this message and exit.
 
 
 musicbot playlist new
@@ -418,30 +418,30 @@ musicbot playlist new
     Generate a new playlist
   
   Options:
-    --limit INTEGER           Fetch a maximum limit of music
-    --youtube / --no-youtube  Select musics with a youtube link
-    --formats TEXT            Select musics with file format
-    --no-formats TEXT         Filter musics without format
-    --keywords TEXT           Select musics with keywords
-    --no-keywords TEXT        Filter musics without keywords
-    --artists TEXT            Select musics with artists
-    --no-artists TEXT         Filter musics without artists
-    --albums TEXT             Select musics with albums
-    --no-albums TEXT          Filter musics without albums
-    --titles TEXT             Select musics with titles
-    --no-titles TEXT          Filter musics without titless
-    --genres TEXT             Select musics with genres
-    --no-genres TEXT          Filter musics without genres
-    --min-duration INTEGER    Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER    Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER        Minimum file size filter (in bytes)
-    --max-size INTEGER        Maximum file size filter (in bytes)
-    --min-rating FLOAT        Minimum rating
-    --max-rating FLOAT        Maximum rating
-    --relative                Generate relatives paths
-    --shuffle                 Randomize selection
-    --prefix TEXT             Append prefix before each path (implies relative)
-    -h, --help                Show this message and exit.
+    --limit INTEGER         Fetch a maximum limit of music
+    --youtube TEXT          Select musics with a youtube link
+    --formats TEXT          Select musics with file format
+    --no-formats TEXT       Filter musics without format
+    --keywords TEXT         Select musics with keywords
+    --no-keywords TEXT      Filter musics without keywords
+    --artists TEXT          Select musics with artists
+    --no-artists TEXT       Filter musics without artists
+    --albums TEXT           Select musics with albums
+    --no-albums TEXT        Filter musics without albums
+    --titles TEXT           Select musics with titles
+    --no-titles TEXT        Filter musics without titless
+    --genres TEXT           Select musics with genres
+    --no-genres TEXT        Filter musics without genres
+    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
+    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
+    --min-size INTEGER      Minimum file size filter (in bytes)
+    --max-size INTEGER      Maximum file size filter (in bytes)
+    --min-rating FLOAT      Minimum rating
+    --max-rating FLOAT      Maximum rating
+    --relative              Generate relatives paths
+    --shuffle               Randomize selection
+    --prefix TEXT           Append prefix before each path (implies relative)
+    -h, --help              Show this message and exit.
 
 
 musicbot server
@@ -489,34 +489,34 @@ musicbot stats
     Generate some stats for music collection with filters
   
   Options:
-    --host TEXT               DB host
-    --port INTEGER            DB port
-    --database TEXT           DB name
-    --user TEXT               DB user
-    --password TEXT           DB password
-    --limit INTEGER           Fetch a maximum limit of music
-    --youtube / --no-youtube  Select musics with a youtube link
-    --formats TEXT            Select musics with file format
-    --no-formats TEXT         Filter musics without format
-    --keywords TEXT           Select musics with keywords
-    --no-keywords TEXT        Filter musics without keywords
-    --artists TEXT            Select musics with artists
-    --no-artists TEXT         Filter musics without artists
-    --albums TEXT             Select musics with albums
-    --no-albums TEXT          Filter musics without albums
-    --titles TEXT             Select musics with titles
-    --no-titles TEXT          Filter musics without titless
-    --genres TEXT             Select musics with genres
-    --no-genres TEXT          Filter musics without genres
-    --min-duration INTEGER    Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER    Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER        Minimum file size filter (in bytes)
-    --max-size INTEGER        Maximum file size filter (in bytes)
-    --min-rating FLOAT        Minimum rating
-    --max-rating FLOAT        Maximum rating
-    --relative                Generate relatives paths
-    --shuffle                 Randomize selection
-    -h, --help                Show this message and exit.
+    --host TEXT             DB host
+    --port INTEGER          DB port
+    --database TEXT         DB name
+    --user TEXT             DB user
+    --password TEXT         DB password
+    --limit INTEGER         Fetch a maximum limit of music
+    --youtube TEXT          Select musics with a youtube link
+    --formats TEXT          Select musics with file format
+    --no-formats TEXT       Filter musics without format
+    --keywords TEXT         Select musics with keywords
+    --no-keywords TEXT      Filter musics without keywords
+    --artists TEXT          Select musics with artists
+    --no-artists TEXT       Filter musics without artists
+    --albums TEXT           Select musics with albums
+    --no-albums TEXT        Filter musics without albums
+    --titles TEXT           Select musics with titles
+    --no-titles TEXT        Filter musics without titless
+    --genres TEXT           Select musics with genres
+    --no-genres TEXT        Filter musics without genres
+    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
+    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
+    --min-size INTEGER      Minimum file size filter (in bytes)
+    --max-size INTEGER      Maximum file size filter (in bytes)
+    --min-rating FLOAT      Minimum rating
+    --max-rating FLOAT      Maximum rating
+    --relative              Generate relatives paths
+    --shuffle               Randomize selection
+    -h, --help              Show this message and exit.
 
 
 musicbot tag
@@ -550,29 +550,29 @@ musicbot tag add
     Add tags - Not Implemented
   
   Options:
-    --limit INTEGER           Fetch a maximum limit of music
-    --youtube / --no-youtube  Select musics with a youtube link
-    --formats TEXT            Select musics with file format
-    --no-formats TEXT         Filter musics without format
-    --keywords TEXT           Select musics with keywords
-    --no-keywords TEXT        Filter musics without keywords
-    --artists TEXT            Select musics with artists
-    --no-artists TEXT         Filter musics without artists
-    --albums TEXT             Select musics with albums
-    --no-albums TEXT          Filter musics without albums
-    --titles TEXT             Select musics with titles
-    --no-titles TEXT          Filter musics without titless
-    --genres TEXT             Select musics with genres
-    --no-genres TEXT          Filter musics without genres
-    --min-duration INTEGER    Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER    Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER        Minimum file size filter (in bytes)
-    --max-size INTEGER        Maximum file size filter (in bytes)
-    --min-rating FLOAT        Minimum rating
-    --max-rating FLOAT        Maximum rating
-    --relative                Generate relatives paths
-    --shuffle                 Randomize selection
-    -h, --help                Show this message and exit.
+    --limit INTEGER         Fetch a maximum limit of music
+    --youtube TEXT          Select musics with a youtube link
+    --formats TEXT          Select musics with file format
+    --no-formats TEXT       Filter musics without format
+    --keywords TEXT         Select musics with keywords
+    --no-keywords TEXT      Filter musics without keywords
+    --artists TEXT          Select musics with artists
+    --no-artists TEXT       Filter musics without artists
+    --albums TEXT           Select musics with albums
+    --no-albums TEXT        Filter musics without albums
+    --titles TEXT           Select musics with titles
+    --no-titles TEXT        Filter musics without titless
+    --genres TEXT           Select musics with genres
+    --no-genres TEXT        Filter musics without genres
+    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
+    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
+    --min-size INTEGER      Minimum file size filter (in bytes)
+    --max-size INTEGER      Maximum file size filter (in bytes)
+    --min-rating FLOAT      Minimum rating
+    --max-rating FLOAT      Maximum rating
+    --relative              Generate relatives paths
+    --shuffle               Randomize selection
+    -h, --help              Show this message and exit.
 
 
 musicbot tag delete
@@ -584,29 +584,29 @@ musicbot tag delete
     Delete tags - Not implemented
   
   Options:
-    --limit INTEGER           Fetch a maximum limit of music
-    --youtube / --no-youtube  Select musics with a youtube link
-    --formats TEXT            Select musics with file format
-    --no-formats TEXT         Filter musics without format
-    --keywords TEXT           Select musics with keywords
-    --no-keywords TEXT        Filter musics without keywords
-    --artists TEXT            Select musics with artists
-    --no-artists TEXT         Filter musics without artists
-    --albums TEXT             Select musics with albums
-    --no-albums TEXT          Filter musics without albums
-    --titles TEXT             Select musics with titles
-    --no-titles TEXT          Filter musics without titless
-    --genres TEXT             Select musics with genres
-    --no-genres TEXT          Filter musics without genres
-    --min-duration INTEGER    Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER    Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER        Minimum file size filter (in bytes)
-    --max-size INTEGER        Maximum file size filter (in bytes)
-    --min-rating FLOAT        Minimum rating
-    --max-rating FLOAT        Maximum rating
-    --relative                Generate relatives paths
-    --shuffle                 Randomize selection
-    -h, --help                Show this message and exit.
+    --limit INTEGER         Fetch a maximum limit of music
+    --youtube TEXT          Select musics with a youtube link
+    --formats TEXT          Select musics with file format
+    --no-formats TEXT       Filter musics without format
+    --keywords TEXT         Select musics with keywords
+    --no-keywords TEXT      Filter musics without keywords
+    --artists TEXT          Select musics with artists
+    --no-artists TEXT       Filter musics without artists
+    --albums TEXT           Select musics with albums
+    --no-albums TEXT        Filter musics without albums
+    --titles TEXT           Select musics with titles
+    --no-titles TEXT        Filter musics without titless
+    --genres TEXT           Select musics with genres
+    --no-genres TEXT        Filter musics without genres
+    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
+    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
+    --min-size INTEGER      Minimum file size filter (in bytes)
+    --max-size INTEGER      Maximum file size filter (in bytes)
+    --min-rating FLOAT      Minimum rating
+    --max-rating FLOAT      Maximum rating
+    --relative              Generate relatives paths
+    --shuffle               Randomize selection
+    -h, --help              Show this message and exit.
 
 
 musicbot tag show
@@ -618,30 +618,30 @@ musicbot tag show
     Show tags of musics with filters
   
   Options:
-    --fields TEXT             Show only those fields
-    --limit INTEGER           Fetch a maximum limit of music
-    --youtube / --no-youtube  Select musics with a youtube link
-    --formats TEXT            Select musics with file format
-    --no-formats TEXT         Filter musics without format
-    --keywords TEXT           Select musics with keywords
-    --no-keywords TEXT        Filter musics without keywords
-    --artists TEXT            Select musics with artists
-    --no-artists TEXT         Filter musics without artists
-    --albums TEXT             Select musics with albums
-    --no-albums TEXT          Filter musics without albums
-    --titles TEXT             Select musics with titles
-    --no-titles TEXT          Filter musics without titless
-    --genres TEXT             Select musics with genres
-    --no-genres TEXT          Filter musics without genres
-    --min-duration INTEGER    Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER    Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER        Minimum file size filter (in bytes)
-    --max-size INTEGER        Maximum file size filter (in bytes)
-    --min-rating FLOAT        Minimum rating
-    --max-rating FLOAT        Maximum rating
-    --relative                Generate relatives paths
-    --shuffle                 Randomize selection
-    -h, --help                Show this message and exit.
+    --fields TEXT           Show only those fields
+    --limit INTEGER         Fetch a maximum limit of music
+    --youtube TEXT          Select musics with a youtube link
+    --formats TEXT          Select musics with file format
+    --no-formats TEXT       Filter musics without format
+    --keywords TEXT         Select musics with keywords
+    --no-keywords TEXT      Filter musics without keywords
+    --artists TEXT          Select musics with artists
+    --no-artists TEXT       Filter musics without artists
+    --albums TEXT           Select musics with albums
+    --no-albums TEXT        Filter musics without albums
+    --titles TEXT           Select musics with titles
+    --no-titles TEXT        Filter musics without titless
+    --genres TEXT           Select musics with genres
+    --no-genres TEXT        Filter musics without genres
+    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
+    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
+    --min-size INTEGER      Minimum file size filter (in bytes)
+    --max-size INTEGER      Maximum file size filter (in bytes)
+    --min-rating FLOAT      Minimum rating
+    --max-rating FLOAT      Maximum rating
+    --relative              Generate relatives paths
+    --shuffle               Randomize selection
+    -h, --help              Show this message and exit.
 
 
 musicbot youtube
@@ -653,12 +653,34 @@ musicbot youtube
     Youtube management
   
   Options:
-    --host TEXT      DB host
-    --port INTEGER   DB port
-    --database TEXT  DB name
-    --user TEXT      DB user
-    --password TEXT  DB password
-    -h, --help       Show this message and exit.
+    --host TEXT             DB host
+    --port INTEGER          DB port
+    --database TEXT         DB name
+    --user TEXT             DB user
+    --password TEXT         DB password
+    --limit INTEGER         Fetch a maximum limit of music
+    --youtube TEXT          Select musics with a youtube link
+    --formats TEXT          Select musics with file format
+    --no-formats TEXT       Filter musics without format
+    --keywords TEXT         Select musics with keywords
+    --no-keywords TEXT      Filter musics without keywords
+    --artists TEXT          Select musics with artists
+    --no-artists TEXT       Filter musics without artists
+    --albums TEXT           Select musics with albums
+    --no-albums TEXT        Filter musics without albums
+    --titles TEXT           Select musics with titles
+    --no-titles TEXT        Filter musics without titless
+    --genres TEXT           Select musics with genres
+    --no-genres TEXT        Filter musics without genres
+    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
+    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
+    --min-size INTEGER      Minimum file size filter (in bytes)
+    --max-size INTEGER      Maximum file size filter (in bytes)
+    --min-rating FLOAT      Minimum rating
+    --max-rating FLOAT      Maximum rating
+    --relative              Generate relatives paths
+    --shuffle               Randomize selection
+    -h, --help              Show this message and exit.
   
   Commands:
     albums  Fetch youtube links for each album
@@ -674,29 +696,7 @@ musicbot youtube albums
     Fetch youtube links for each album
   
   Options:
-    --limit INTEGER           Fetch a maximum limit of music
-    --youtube / --no-youtube  Select musics with a youtube link
-    --formats TEXT            Select musics with file format
-    --no-formats TEXT         Filter musics without format
-    --keywords TEXT           Select musics with keywords
-    --no-keywords TEXT        Filter musics without keywords
-    --artists TEXT            Select musics with artists
-    --no-artists TEXT         Filter musics without artists
-    --albums TEXT             Select musics with albums
-    --no-albums TEXT          Filter musics without albums
-    --titles TEXT             Select musics with titles
-    --no-titles TEXT          Filter musics without titless
-    --genres TEXT             Select musics with genres
-    --no-genres TEXT          Filter musics without genres
-    --min-duration INTEGER    Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER    Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER        Minimum file size filter (in bytes)
-    --max-size INTEGER        Maximum file size filter (in bytes)
-    --min-rating FLOAT        Minimum rating
-    --max-rating FLOAT        Maximum rating
-    --relative                Generate relatives paths
-    --shuffle                 Randomize selection
-    -h, --help                Show this message and exit.
+    -h, --help  Show this message and exit.
 
 
 musicbot youtube musics
@@ -708,28 +708,6 @@ musicbot youtube musics
     Fetch youtube links for each music
   
   Options:
-    --limit INTEGER           Fetch a maximum limit of music
-    --youtube / --no-youtube  Select musics with a youtube link
-    --formats TEXT            Select musics with file format
-    --no-formats TEXT         Filter musics without format
-    --keywords TEXT           Select musics with keywords
-    --no-keywords TEXT        Filter musics without keywords
-    --artists TEXT            Select musics with artists
-    --no-artists TEXT         Filter musics without artists
-    --albums TEXT             Select musics with albums
-    --no-albums TEXT          Filter musics without albums
-    --titles TEXT             Select musics with titles
-    --no-titles TEXT          Filter musics without titless
-    --genres TEXT             Select musics with genres
-    --no-genres TEXT          Filter musics without genres
-    --min-duration INTEGER    Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER    Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER        Minimum file size filter (in bytes)
-    --max-size INTEGER        Maximum file size filter (in bytes)
-    --min-rating FLOAT        Minimum rating
-    --max-rating FLOAT        Maximum rating
-    --relative                Generate relatives paths
-    --shuffle                 Randomize selection
-    -h, --help                Show this message and exit.
+    -h, --help  Show this message and exit.
 
 
