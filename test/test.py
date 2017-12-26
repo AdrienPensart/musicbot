@@ -89,6 +89,10 @@ class DatabaseTest(TestCase):
     async def tearDown(self):
         await self.collection.close()
 
+    async def test_artists(self):
+        artists = await self.collection.artists()
+        self.assertEqual(artists, ['1995', 'Buckethead'])
+
     async def test_tag_filter(self):
         musics = await self.collection.filter(filter.Filter(genres=['Avantgarde']))
         self.assertEqual(len(musics), 4)

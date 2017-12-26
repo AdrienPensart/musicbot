@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-# from logging import debug
+from logging import debug
 import click
 
 rating_choices = [x * 0.5 for x in range(0, 11)]
 min_int = 0
 max_int = 2147483647
 
+default_name = ''
 default_filter = None
 default_relative = False
 default_shuffle = False
@@ -35,15 +36,12 @@ default_no_albums = []
 
 class Filter(object):
 
-    def __init__(self, relative=None, shuffle=None, youtube=None, formats=None, no_formats=None, genres=None, no_genres=None, limit=None, min_duration=None, max_duration=None, min_size=None, max_size=None, min_rating=None, max_rating=None, keywords=None, no_keywords=None, artists=None, no_artists=None, titles=None, no_titles=None, albums=None, no_albums=None, **kwargs):
+    def __init__(self, name=None, relative=None, shuffle=None, youtube=None, formats=None, no_formats=None, genres=None, no_genres=None, limit=None, min_duration=None, max_duration=None, min_size=None, max_size=None, min_rating=None, max_rating=None, keywords=None, no_keywords=None, artists=None, no_artists=None, titles=None, no_titles=None, albums=None, no_albums=None, **kwargs):
         self.id = 0
+        self.name = name or default_name
         self.relative = relative or default_relative
         self.shuffle = shuffle or default_shuffle
-        if youtube is not default_youtube:
-            self.youtube = youtube
-        else:
-            self.youtube = default_youtube
-
+        self.youtube = youtube or default_youtube
         self.formats = formats or default_formats
         self.no_formats = no_formats or default_no_formats
         self.genres = genres or default_genres
@@ -63,6 +61,7 @@ class Filter(object):
         self.no_titles = no_titles or default_no_titles
         self.albums = albums or default_albums
         self.no_albums = no_albums or default_no_albums
+        debug('Filter: {}'.format(self))
         # checks = list()
         # no_checks = list()
         assert self.min_rating in rating_choices
@@ -83,7 +82,7 @@ class Filter(object):
 
     def to_list(self):
         # return [a for a in dir(self) if not a.startswith('__')]
-        my_list = [self.id,
+        my_list = [self.id, self.name,
                    self.min_duration, self.max_duration,
                    self.min_size, self.max_size,
                    self.min_rating, self.max_rating,
@@ -93,13 +92,14 @@ class Filter(object):
                    self.genres, self.no_genres,
                    self.formats, self.no_formats,
                    self.keywords, self.no_keywords,
-                   self.shuffle, self.relative, self.limit, self.youtube]
+                   self.shuffle, self.relative,
+                   self.limit, self.youtube]
         return my_list
 
 
 options = [
     click.option('--limit', envvar='MB_LIMIT', help='Fetch a maximum limit of music', default=default_limit),
-    click.option('--youtube/--no-youtube', envvar='MB_YOUTUBE', help='Select musics with a youtube link', is_flag=True, default=default_youtube),
+    click.option('--youtube', envvar='MB_YOUTUBE', help='Select musics with a youtube link', default=default_youtube),
     click.option('--formats', envvar='MB_FORMATS', help='Select musics with file format', multiple=True, default=default_formats),
     click.option('--no-formats', envvar='MB_NO_FORMATS', help='Filter musics without format', multiple=True, default=default_no_formats),
     click.option('--keywords', envvar='MB_KEYWORDS', help='Select musics with keywords', multiple=True, default=default_keywords),

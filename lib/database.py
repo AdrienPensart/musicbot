@@ -69,21 +69,21 @@ class DbContext(object):
             f = Filter()
         l = f.to_list()
         if json:
-            sql = '''select array_to_json(array_agg(row_to_json(m))) as playlist from do_filter($1::filter) m'''
+            sql = '''select array_to_json(array_agg(row_to_json(m))) as playlist from do_filter($1::filters) m'''
             return (await self.fetchrow(sql, l))['playlist']
         else:
-            sql = '''select * from do_filter($1::filter)'''
+            sql = '''select * from do_filter($1::filters)'''
             return await self.fetch(sql, l)
 
     @timeit
     async def playlist(self, f=Filter()):
-        sql = '''select * from generate_playlist($1::filter)'''
+        sql = '''select * from generate_playlist($1::filters)'''
         l = f.to_list()
         return await self.fetchrow(sql, l)
 
     @timeit
     async def bests(self, f=Filter()):
-        sql = '''select * from generate_bests($1::filter)'''
+        sql = '''select * from generate_bests($1::filters)'''
         l = f.to_list()
         return await self.fetch(sql, l)
 
@@ -157,6 +157,7 @@ class DbContext(object):
         await self.execute(sql)
         await self.executefile('schema/tables.sql')
         await self.executefile('schema/functions.sql')
+        await self.executefile('schema/data.sql')
 
     @drier
     @timeit
@@ -179,22 +180,22 @@ class DbContext(object):
 
     @timeit
     async def keywords(self, mf=Filter()):
-        sql = """select distinct keyword as name from (select unnest(array_cat_agg(keywords)) as keyword from do_filter($1::filter)) k order by name"""
+        sql = """select distinct keyword as name from (select unnest(array_cat_agg(keywords)) as keyword from do_filter($1::filters)) k order by name"""
         return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
 
     @timeit
     async def artists(self, mf=Filter()):
-        sql = """select distinct artist as name from do_filter($1::filter) order by name"""
+        sql = """select distinct artist as name from do_filter($1::filters) order by name"""
         return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
 
     @timeit
     async def titles(self, mf=Filter()):
-        sql = """select distinct title as name from do_filter($1::filter) order by name"""
+        sql = """select distinct title as name from do_filter($1::filters) order by name"""
         return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
 
     @timeit
     async def albums(self, mf=Filter()):
-        sql = """select album as name, artist, album_id as id, sum(duration) as duration from do_filter($1::filter) group by album_id, artist_id, artist, album order by album"""
+        sql = """select album as name, artist, album_id as id, sum(duration) as duration from do_filter($1::filters) group by album_id, artist_id, artist, album order by album"""
         return await self.fetch(sql, mf.to_list())
 
     @timeit
@@ -203,15 +204,15 @@ class DbContext(object):
 
     @timeit
     async def genres(self, mf=Filter()):
-        sql = """select distinct genre as name from do_filter($1::filter) order by name"""
+        sql = """select distinct genre as name from do_filter($1::filters) order by name"""
         return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
 
     @timeit
     async def form(self, mf=Filter()):
-        sql = '''select * from generate_form($1::filter)'''
+        sql = '''select * from generate_form($1::filters)'''
         return await self.fetchrow(sql, mf.to_list())
 
     @timeit
     async def stats(self, mf=Filter()):
-        sql = '''select * from do_stats($1::filter)'''
+        sql = '''select * from do_stats($1::filters)'''
         return await self.fetchrow(sql, mf.to_list())

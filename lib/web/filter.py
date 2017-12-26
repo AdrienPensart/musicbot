@@ -8,22 +8,8 @@ from ..lib import num
 class WebFilter(Filter):
     def __init__(self, request, **kwargs):
         super().__init__(**kwargs)
-        youtube = request.args.get('youtube', self.youtube)
-        if youtube == "2":
-            self.youtube = None
-        elif youtube == "1":
-            self.youtube = True
-        elif youtube == "0":
-            self.youtube = False
-        else:
-            debug("bad value for youtube: {} {}".format(type(youtube), youtube))
-        debug('youtube: {} {}'.format(youtube, self.youtube))
-
-        # self.shuffle = request.args.get('shuffle', getattr(self, 'shuffle'))
-        # debug('shuffle : {}'.format(self.shuffle))
-        # self.relative = request.args.get('relative', getattr(self, 'relative'))
-        # debug('relative: {}'.format(self.relative))
-
+        self.youtube = request.args.get('youtube', self.youtube)
+        debug('youtube: {}'.format(self.youtube))
         for param in ['formats', 'no_formats', 'artists', 'no_artists', 'genres', 'no_genres', 'albums', 'no_albums', 'titles', 'no_titles', 'keywords', 'no_keywords']:
             data = request.args.getlist(param, getattr(self, param))
             # data = mysplit(raw, ',')

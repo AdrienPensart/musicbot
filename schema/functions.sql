@@ -21,11 +21,12 @@ create or replace function new_filter
     shuffle boolean default 'false',
     relative boolean default 'false',
     "limit" integer default +2147483647,
-    youtube boolean default null
-) returns filter as
+    youtube text default null
+) returns filters as
 $$
 begin
-    return (0, min_duration, max_duration,
+    return (0, '',
+            min_duration, max_duration,
             min_size, max_size,
             min_rating, max_rating,
             artists, no_artists,
@@ -50,7 +51,7 @@ create table if not exists music
     artist_id integer default 0,
     folder text default '',
     folder_id integer default 0,
-    youtube text default null,
+    youtube text default '',
     number integer default 0,
     path text default '' unique not null,
     rating float default 0.0,
@@ -178,7 +179,7 @@ begin
 end
 $$ language plpgsql;
 
-create or replace function do_filter(mf filter default new_filter())
+create or replace function do_filter(mf filters default new_filter())
 returns setof music as
 $$
     with all_musics as (
@@ -234,13 +235,14 @@ $$
         mv.duration between mf.min_duration and mf.max_duration and
         mv.size between mf.min_size and mf.max_size and
         mv.rating between mf.min_rating and mf.max_rating and
-        (mf.youtube is null or (mf.youtube is true and mv.youtube is not null) or (mf.youtube is false and mv.youtube is null))
+        mf.youtube is null or (mf.youtube = mv.youtube)
+        --(mf.youtube is null or (mf.youtube is true and mv.youtube is not null) or (mf.youtube is false and mv.youtube is null))
    order by case when (mf.shuffle = 'true') then random() end
    limit mf.limit;
 $$ language sql;
 
-create or replace function generate_form(mf filter default new_filter())
-returns filter as
+create or replace function generate_form(mf filters default new_filter())
+returns filters as
 $$
     with filtered as (
         select * from do_filter(mf)
@@ -263,6 +265,7 @@ $$
     )
     select
         0,
+        '',
         0,
         0,
         0,
@@ -284,10 +287,10 @@ $$
         False,
         False,
         0,
-        False;
+        '';
 $$ language sql;
 
-create or replace function do_stats(mf filter default new_filter())
+create or replace function do_stats(mf filters default new_filter())
 returns stats as
 $$
     select
@@ -309,7 +312,7 @@ create type playlist as
     content text
 );
 
-create or replace function generate_playlist(mf filter default new_filter())
+create or replace function generate_playlist(mf filters default new_filter())
 returns table(content text) as
 $$
         select
@@ -319,7 +322,7 @@ $$
         from (select path, folder from do_filter(mf) order by rating desc) f;
 $$ language sql;
 
-create or replace function generate_bests_artist_keyword(mf filter default new_filter(min_rating := 0.8))
+create or replace function generate_bests_artist_keyword(mf filters default new_filter(min_rating := 0.8))
 returns setof playlist as
 $$
     with recursive
@@ -335,7 +338,7 @@ $$
 $$ language sql;
 
 
-create or replace function generate_bests_artist(mf filter default new_filter(min_rating := 0.8))
+create or replace function generate_bests_artist(mf filters default new_filter(min_rating := 0.8))
 returns setof playlist as
 $$
     with recursive
@@ -349,7 +352,7 @@ $$
         group by m.artist;
 $$ language sql;
 
-create or replace function generate_bests_genre(mf filter default new_filter(min_rating := 0.8))
+create or replace function generate_bests_genre(mf filters default new_filter(min_rating := 0.8))
 returns setof playlist as
 $$
     with recursive
@@ -363,7 +366,7 @@ $$
         group by m.genre;
 $$ language sql;
 
-create or replace function generate_bests_keyword(mf filter default new_filter(min_rating := 0.8))
+create or replace function generate_bests_keyword(mf filters default new_filter(min_rating := 0.8))
 returns setof playlist as
 $$
     with recursive
@@ -379,7 +382,7 @@ $$
 $$ language sql;
 
 
-create or replace function generate_bests(mf filter default new_filter(min_rating := 0.8))
+create or replace function generate_bests(mf filters default new_filter(min_rating := 0.8))
 returns setof playlist as
 $$
     select * from generate_bests_artist(mf) union

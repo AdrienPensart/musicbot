@@ -2,9 +2,12 @@
 
 from apiclient.discovery import build
 from apiclient.errors import HttpError
+import logging
 from logging import debug, error
 import isodate
 
+logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
+logging.getLogger('googleapiclient.discovery').setLevel(logging.CRITICAL)
 
 DEVELOPER_KEY = "AIzaSyAm3XZ3OYj-GlNIHk-YFvpzrtvQ3ZalAoI"
 YOUTUBE_API_SERVICE_NAME = "youtube"
@@ -47,7 +50,7 @@ def search(artist, title, duration):
             videoDuration=youtube_duration(duration)
         ).execute()
 
-        videoIds = ','.join([result["id"].get("videoId",'') for result in search_response.get("items", [])])
+        videoIds = ','.join([result["id"].get("videoId", '') for result in search_response.get("items", [])])
         debug("IDs: {}".format(videoIds))
 
         results = youtube.videos().list(
@@ -56,7 +59,7 @@ def search(artist, title, duration):
         ).execute()
 
         if not len(results.get("items", [])):
-            return None
+            return 'not found'
 
         mapping = {r["id"]: isodate.parse_duration(r["contentDetails"]["duration"]).total_seconds() for r in results.get("items", [])}
         debug("duration: {}, mapping: {}".format(duration, mapping))
@@ -67,4 +70,4 @@ def search(artist, title, duration):
 
     except HttpError as e:
         error("An HTTP error {} occurred: {}".format(e.resp.status, e.content))
-        return None
+        return 'error'

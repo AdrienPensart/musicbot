@@ -26,7 +26,7 @@ create table if not exists albums (
     id serial primary key,
     artist_id integer not null,
     name text not null,
-    youtube text default null,
+    youtube text default '',
     foreign key(artist_id) references artists (id),
     created_at timestamp default null,
     updated_at timestamp default null,
@@ -38,7 +38,7 @@ create table if not exists musics (
     album_id integer,
     genre_id integer,
     folder_id integer,
-    youtube text default null,
+    youtube text default '',
     number integer not null,
     rating float,
     duration integer,
@@ -80,9 +80,10 @@ create table if not exists stats
     size     bigint not null default 0
 );
 
-create table if not exists filter
+create table if not exists filters
 (
     id serial primary key,
+    name text unique not null,
     min_duration integer default 0,
     max_duration integer default +2147483647,
     min_size integer default 0,
@@ -104,7 +105,7 @@ create table if not exists filter
     shuffle boolean default 'false',
     relative boolean default 'false',
     "limit" integer default +2147483647,
-    youtube boolean default null,
+    youtube text default null,
     constraint min_rating_range check (min_rating between 0.0 and 5.0),
     constraint max_rating_range check (max_rating between 0.0 and 5.0)
 );
