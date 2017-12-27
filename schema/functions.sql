@@ -67,6 +67,7 @@ create or replace function new_music
     genre text default '',
     artist text default '',
     folder text default '',
+    youtube text default '',
     number integer default 0,
     path text default '',
     rating float default 0.0,
@@ -76,7 +77,7 @@ create or replace function new_music
 ) returns music as
 $$
 begin
-    return (0, title, album, 0, genre, 0, artist, 0, folder, 0, null, number, path, rating, duration, size, keywords);
+    return (0, title, album, 0, genre, 0, artist, 0, folder, 0, youtube, number, path, rating, duration, size, keywords);
 end;
 $$ language plpgsql;
 

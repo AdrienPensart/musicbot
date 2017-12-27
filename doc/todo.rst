@@ -7,7 +7,6 @@ ToDo
   - full API / CLI separation
   - tasks for background jobs: rescan at fixed hour, watch files, clean DB, crawl metadata / youtube
 - filters
-  - in DB
   - backup all the music (all)
   - local selection (4.5+ ?)
   - portable x5 bests selection (4+ ?)

@@ -20,7 +20,7 @@ class File(object):
     def __init__(self, filename, _folder=''):
         self._folder = _folder
         self.handle = taglib.File(filename)
-        self.youtube_link = None
+        self.youtube_link = ''
 
     def to_list(self):
         return [self.id,

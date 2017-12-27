@@ -71,10 +71,9 @@ ToDo
   - invocation_id / logs
   - configuration : global conf -> user conf -> env var -> arguments
   - full API / template separation
-  - CLI
+  - full API / CLI separation
   - tasks for background jobs: rescan at fixed hour, watch files, clean DB, crawl metadata / youtube
 - filters
-  - in DB
   - backup all the music (all)
   - local selection (4.5+ ?)
   - portable x5 bests selection (4+ ?)
@@ -440,7 +439,6 @@ musicbot playlist new
     --max-rating FLOAT      Maximum rating
     --relative              Generate relatives paths
     --shuffle               Randomize selection
-    --prefix TEXT           Append prefix before each path (implies relative)
     -h, --help              Show this message and exit.
 
 
