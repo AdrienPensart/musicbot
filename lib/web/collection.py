@@ -49,6 +49,16 @@ async def consistency(request):
     return response.text('not implemented')
 
 
+@collection.route("/filters", strict_slashes=True)
+@helpers.basicauth
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
+async def filters(request):
+    '''Get filters'''
+    db = app.config['DB']
+    filters = await db.filters()
+    return await helpers.template('filters.html', filters=filters)
+
+
 @collection.route("/keywords", strict_slashes=True)
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
@@ -99,7 +109,13 @@ async def albums(request):
 async def musics(request):
     '''List musics'''
     db = app.config['DB']
-    mf = filter.WebFilter(request)
+    filter_name = request.args.get('filter', None)
+    if filter_name is None:
+        mf = filter.WebFilter(request)
+    else:
+        d = dict(await db.get_filter(filter_name))
+        from ..filter import Filter
+        mf = Filter(**d)
     musics = await db.filter(mf)
     return await helpers.template("musics.html", musics=musics, mf=mf)
 

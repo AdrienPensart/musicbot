@@ -4,7 +4,7 @@ ToDo
   - invocation_id / logs
   - configuration : global conf -> user conf -> env var -> arguments
   - full API / template separation
-  - CLI
+  - full API / CLI separation
   - tasks for background jobs: rescan at fixed hour, watch files, clean DB, crawl metadata / youtube
 - filters
   - in DB

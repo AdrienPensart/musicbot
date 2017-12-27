@@ -216,3 +216,13 @@ class DbContext(object):
     async def stats(self, mf=Filter()):
         sql = '''select * from do_stats($1::filters)'''
         return await self.fetchrow(sql, mf.to_list())
+
+    @timeit
+    async def filters(self):
+        sql = '''select * from filters'''
+        return await self.fetch(sql)
+
+    @timeit
+    async def get_filter(self, name):
+        sql = '''select * from filters where name=$1'''
+        return await self.fetchrow(sql, name)

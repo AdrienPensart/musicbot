@@ -235,8 +235,7 @@ $$
         mv.duration between mf.min_duration and mf.max_duration and
         mv.size between mf.min_size and mf.max_size and
         mv.rating between mf.min_rating and mf.max_rating and
-        mf.youtube is null or (mf.youtube = mv.youtube)
-        --(mf.youtube is null or (mf.youtube is true and mv.youtube is not null) or (mf.youtube is false and mv.youtube is null))
+        (mf.youtube is null or (mf.youtube = mv.youtube))
    order by case when (mf.shuffle = 'true') then random() end
    limit mf.limit;
 $$ language sql;

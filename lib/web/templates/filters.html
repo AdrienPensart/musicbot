@@ -1,0 +1,8 @@
+{% extends "layout.html" %}
+{% block body %}
+    <h2>Filters</h2>
+    {% for filter in filters: %}
+    <a href="{{ url_for('collection.musics', filter=filter['name']) }}">{{ filter['name'] }}</a>
+    <br>
+    {% endfor %}
+{% endblock %}
