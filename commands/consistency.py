@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import click
-from lib import filter, helpers, database
+from lib import filter, helpers, collection
 
 
 @click.group(invoke_without_command=True)
@@ -14,7 +14,7 @@ def cli(ctx, **kwargs):
 @click.pass_context
 @helpers.add_options(filter.options)
 async def errors(ctx, **kwargs):
-    ctx.obj.db = database.DbContext(**kwargs)
+    ctx.obj.db = collection.collection(**kwargs)
     mf = filter.Filter(**kwargs)
     errors = await ctx.obj.db.errors(mf)
     for e in errors:

@@ -7,13 +7,31 @@ from .app import app
 collection = Blueprint('collection', url_prefix='/collection')
 
 
+async def get_filter(request):
+    filter_name = request.args.get('filter', None)
+    d = {}
+    if filter_name is not None:
+        db = app.config['DB']
+        d = dict(await db.get_filter(filter_name))
+    return filter.WebFilter(request, **d)
+
+
+async def get_music(request):
+    db = app.config['DB']
+    mf = await get_filter(request, limit=1)
+    musics = await db.filter(mf)
+    if not len(musics):
+        return ('music not found', 404)
+    return musics[0]
+
+
 @collection.get("/stats", strict_slashes=True)
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def stats(request):
     '''Music library statistics'''
     db = app.config['DB']
-    mf = filter.WebFilter(request)
+    mf = await get_filter(request)
     stats = await db.stats(mf)
     return await helpers.template('stats.html', stats=stats, mf=mf)
 
@@ -25,7 +43,7 @@ async def generate(request):
     '''Generate a playlist step by step'''
     db = app.config['DB']
     # precedent = request.form
-    mf = filter.WebFilter(request)
+    mf = get_filter(request)
     if request.args.get('play', False):
         musics = await db.filter(mf)
         return await helpers.template('player.html', musics=musics, mf=mf)
@@ -65,7 +83,7 @@ async def filters(request):
 async def keywords(request):
     '''Get keywords'''
     db = app.config['DB']
-    mf = filter.WebFilter(request)
+    mf = await get_filter(request)
     keywords = await db.keywords(mf)
     return await helpers.template('keywords.html', keywords=keywords, mf=mf)
 
@@ -76,7 +94,7 @@ async def keywords(request):
 async def genres(request):
     '''List artists'''
     db = app.config['DB']
-    mf = filter.WebFilter(request)
+    mf = await get_filter(request)
     genres = await db.genres(mf)
     return await helpers.template("genres.html", genres=genres, mf=mf)
 
@@ -87,7 +105,7 @@ async def genres(request):
 async def artists(request):
     '''List artists'''
     db = app.config['DB']
-    mf = filter.WebFilter(request)
+    mf = await get_filter(request)
     artists = await db.artists(mf)
     return await helpers.template("artists.html", artists=artists, mf=mf)
 
@@ -98,7 +116,7 @@ async def artists(request):
 async def albums(request):
     '''List albums'''
     db = app.config['DB']
-    mf = filter.WebFilter(request)
+    mf = await get_filter(request)
     albums = await db.albums_name(mf)
     return await helpers.template("albums.html", albums=albums, mf=mf)
 
@@ -109,24 +127,9 @@ async def albums(request):
 async def musics(request):
     '''List musics'''
     db = app.config['DB']
-    filter_name = request.args.get('filter', None)
-    if filter_name is None:
-        mf = filter.WebFilter(request)
-    else:
-        d = dict(await db.get_filter(filter_name))
-        from ..filter import Filter
-        mf = Filter(**d)
+    mf = await get_filter(request)
     musics = await db.filter(mf)
     return await helpers.template("musics.html", musics=musics, mf=mf)
-
-
-async def get_music(request):
-    db = app.config['DB']
-    mf = filter.WebFilter(request, limit=1)
-    musics = await db.filter(mf)
-    if not len(musics):
-        return ('music not found', 404)
-    return musics[0]
 
 
 @collection.route('/download', strict_slashes=True)
@@ -151,7 +154,7 @@ async def listen(request):
 async def m3u(request):
     '''Download m3u'''
     db = app.config['DB']
-    mf = filter.WebFilter(request)
+    mf = await get_filter(request)
     musics = await db.filter(mf)
     name = request.args.get('name', 'playlist')
     return await helpers.m3u(musics, name)
@@ -162,7 +165,7 @@ async def m3u(request):
 async def zip(request):
     '''Generate a playlist'''
     db = app.config['DB']
-    mf = filter.WebFilter(request)
+    mf = await get_filter(request)
     musics = await db.filter(mf)
     if len(musics) == 0:
         return response.text('Empty playlist')
@@ -176,6 +179,6 @@ async def zip(request):
 async def player(request):
     '''Play a playlist in browser'''
     db = app.config['DB']
-    mf = filter.WebFilter(request)
+    mf = await get_filter(request)
     musics = await db.filter(mf)
     return await helpers.template('player.html', musics=musics, mf=mf)

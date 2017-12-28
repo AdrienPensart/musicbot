@@ -3,7 +3,7 @@ import click
 import os
 import sys
 from logging import debug
-from lib import helpers, database, lib
+from lib import helpers, database, collection, lib
 from lib.server import app
 
 THIS_DIR = os.path.dirname(os.path.abspath(sys.argv[0]))
@@ -20,7 +20,7 @@ def self_restart():
 @click.option('--dev', envvar='MB_DEV', help='Dev mode, reload server on file changes', is_flag=True)
 def cli(ctx, dev, **kwargs):
     '''API Server'''
-    app.config['DB'] = database.DbContext(**kwargs)
+    app.config['DB'] = collection.Collection(**kwargs)
     app.config['DEV'] = dev
     if not dev:
         return

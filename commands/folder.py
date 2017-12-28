@@ -6,7 +6,7 @@ import asyncio
 import asyncpg
 from tqdm import tqdm
 from logging import debug, info, warning
-from lib import helpers, lib, file, database, filter
+from lib import helpers, lib, file, collection, database, filter
 from lib.lib import empty_dirs
 
 
@@ -15,7 +15,7 @@ from lib.lib import empty_dirs
 @click.pass_context
 def cli(ctx, **kwargs):
     '''Folder scanning'''
-    ctx.obj.db = database.DbContext(**kwargs)
+    ctx.obj.db = collection.Collection(**kwargs)
 
 
 @cli.command()

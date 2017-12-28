@@ -2,7 +2,7 @@
 import click
 import asyncio
 from tqdm import tqdm
-from lib import youtube, helpers, database, filter
+from lib import youtube, helpers, database, collection, filter
 
 options = [
     click.option('--concurrency', envvar='MB_CONCURRENCY', help='Number of coroutines', default=32),
@@ -16,7 +16,7 @@ options = [
 @click.pass_context
 def cli(ctx, concurrency, **kwargs):
     '''Youtube management'''
-    ctx.obj.db = database.DbContext(**kwargs)
+    ctx.obj.db = collection.Collection(**kwargs)
     ctx.obj.mf = filter.Filter(**kwargs)
     ctx.obj.concurrency = concurrency
 

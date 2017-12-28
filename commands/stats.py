@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import click
 from datetime import timedelta
-from lib import helpers, database, filter
+from lib import helpers, collection, database, filter
 from lib.lib import bytesToHuman
 
 
@@ -12,7 +12,7 @@ from lib.lib import bytesToHuman
 @click.pass_context
 async def cli(ctx, **kwargs):
     '''Generate some stats for music collection with filters'''
-    ctx.obj.db = database.DbContext(**kwargs)
+    ctx.obj.db = collection.Collection(**kwargs)
     ctx.obj.mf = filter.Filter(**kwargs)
     stats = await ctx.obj.db.stats(ctx.obj.mf)
     print("Music    :", stats['musics'])

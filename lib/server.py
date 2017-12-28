@@ -4,7 +4,7 @@ from datetime import datetime
 from sanic_openapi import swagger_blueprint, openapi_blueprint
 from logging import debug
 from .lib import bytesToHuman, secondsToHuman
-from .database import DbContext
+from .collection import Collection
 from .web.helpers import env, template, get_flashed_messages, download_title, server
 from .web.api import api_v1
 from .web.collection import collection
@@ -19,7 +19,7 @@ app.blueprint(api_v1)
 app.blueprint(openapi_blueprint)
 app.blueprint(swagger_blueprint)
 app.config.WTF_CSRF_SECRET_KEY = 'top secret!'
-app.config.DB = DbContext()
+app.config.DB = Collection()
 env.globals['server_name'] = 'api.musicbot.ovh'
 env.globals['get_flashed_messages'] = get_flashed_messages
 env.globals['url_for'] = app.url_for

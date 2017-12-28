@@ -5,7 +5,7 @@ import os
 import sys
 from textwrap import indent
 from tqdm import tqdm
-from lib import helpers, database, filter
+from lib import helpers, database, collection, filter
 from logging import info, debug
 
 
@@ -14,7 +14,7 @@ from logging import info, debug
 @click.pass_context
 def cli(ctx, **kwargs):
     '''Playlist management'''
-    ctx.obj.db = database.DbContext(**kwargs)
+    ctx.obj.db = collection.Collection(**kwargs)
 
 
 @cli.command()

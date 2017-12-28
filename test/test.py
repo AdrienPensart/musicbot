@@ -3,7 +3,7 @@
 import unittest
 import os
 from asynctest import TestCase
-from lib import file, database, lib, filter
+from lib import file, collection, lib, filter
 from logging import DEBUG, getLogger
 
 getLogger().setLevel(DEBUG)
@@ -79,7 +79,7 @@ class DatabaseTest(TestCase):
 
     async def setUp(self):
         lib.verbose = False
-        self.collection = database.DbContext(database='musicbot_test')
+        self.collection = collection.Collection(database='musicbot_test')
         await self.collection.clear()
         self.files = list(lib.find_files([folder1, folder2]))
         for f in self.files:

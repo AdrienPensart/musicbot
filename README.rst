@@ -67,27 +67,15 @@ Installation
 
 ToDo
 ----
-- application
-  - invocation_id / logs
-  - configuration : global conf -> user conf -> env var -> arguments
-  - full API / template separation
-  - full API / CLI separation
-  - tasks for background jobs: rescan at fixed hour, watch files, clean DB, crawl metadata / youtube
-- filters
-  - backup all the music (all)
-  - local selection (4.5+ ?)
-  - portable x5 bests selection (4+ ?)
-- youtube
-  - playlists
-- production
-  - dockerize
-- optimizations
-  - postgresql materialized view
+- tasks for background jobs: rescan at fixed hour, watch files, clean DB, crawl metadata / youtube
 - web tests
+- benchmarks
 
 Bugs/Flows
 --
-- youtube live version crawling
+- coroutines are not well executed
+- live versions of song / album when searching on youtube
+- youtube quotas
 
 Ideas
 --
@@ -678,6 +666,7 @@ musicbot youtube
     --max-rating FLOAT      Maximum rating
     --relative              Generate relatives paths
     --shuffle               Randomize selection
+    --concurrency INTEGER   Number of coroutines
     -h, --help              Show this message and exit.
   
   Commands:
@@ -694,7 +683,8 @@ musicbot youtube albums
     Fetch youtube links for each album
   
   Options:
-    -h, --help  Show this message and exit.
+    --youtube-album TEXT  Select albums with a youtube link
+    -h, --help            Show this message and exit.
 
 
 musicbot youtube musics

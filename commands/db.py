@@ -2,7 +2,7 @@
 import click
 import os
 from logging import info
-from lib import helpers, database
+from lib import helpers, database, collection
 
 
 @click.group()
@@ -10,9 +10,8 @@ from lib import helpers, database
 @click.pass_context
 def cli(ctx, **kwargs):
     '''Database management'''
-    db = database.DbContext(**kwargs)
-    info(db.connection_string())
-    ctx.obj.db = db
+    ctx.obj.db = collection.Collection(**kwargs)
+    info(ctx.obj.db.connection_string())
 
 
 @cli.command()

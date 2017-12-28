@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import click
-from lib import helpers, database, filter
+from lib import helpers, collection, database, filter
 
 
 default_fields = ['title', 'album', 'artist', 'genre', 'path', 'keywords', 'folder', 'rating', 'number', 'folder', 'youtube', 'duration', 'size']
@@ -15,7 +15,7 @@ tag = [
 @click.pass_context
 def cli(ctx, **kwargs):
     '''Music tags management'''
-    ctx.obj.db = database.DbContext(**kwargs)
+    ctx.obj.db = collection.Collection(**kwargs)
 
 
 @cli.command()
