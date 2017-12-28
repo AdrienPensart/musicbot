@@ -76,7 +76,7 @@ async def fullscan(ctx, folders):
     files = list(lib.find_files(list(folders)))
     # musics = []
     with tqdm(total=len(files), file=sys.stdout, desc="Loading music", leave=True, position=0, disable=ctx.obj.config.quiet) as bar:
-        for f in files:
+        async def insert(f):
             try:
                 if f[1].endswith(tuple(filter.default_formats)):
                     m = file.File(f[1], f[0])
@@ -87,6 +87,8 @@ async def fullscan(ctx, folders):
             except asyncpg.exceptions.CheckViolationError as e:
                 warning("Violation: {}".format(e))
             bar.update(1)
+        tasks = [insert(f) for f in files]
+        await asyncio.gather(*tasks)
     # await ctx.obj.db.appendmany(musics)
     # await ctx.obj.db.upsertall(musics)
 

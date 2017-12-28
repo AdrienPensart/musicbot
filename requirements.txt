@@ -1,5 +1,6 @@
 aiocache==0.8.0
 aiofiles==0.3.2
+aiohttp==2.3.7
 aioprocessing==1.0.0
 aioredis==1.0.0
 alabaster==0.7.10
@@ -31,6 +32,7 @@ limits==1.2.1
 logging-tree==1.7
 MarkupSafe==1.0
 motor==1.2.0
+multidict==3.3.2
 oauth2client==4.1.2
 pathtools==0.1.2
 prompt-toolkit==1.0.15
@@ -63,3 +65,4 @@ watchdog==0.8.3
 wcwidth==0.1.7
 websockets==4.0.1
 WTForms==2.1
+yarl==0.16.0

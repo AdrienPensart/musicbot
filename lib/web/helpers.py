@@ -25,7 +25,7 @@ def zip(musics, name='archive'):
     # see mod_zip documentation :p
     lines = [' '.join(['-',
                        str(m['size']),
-                       quote("/download" + m['path'][len(m['folder']):]),
+                       quote("/sendfile" + m['path'][len(m['folder']):]),
                        os.path.join(m['artist'], m['album'], os.path.basename(m['path']))])
              for m in musics]
     body = '\n'.join(lines)

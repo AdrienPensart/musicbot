@@ -194,9 +194,9 @@ class DbContext(object):
         return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
 
     @timeit
-    async def albums(self, mf=Filter()):
-        sql = """select album as name, artist, album_id as id, sum(duration) as duration from do_filter($1::filters) group by album_id, artist_id, artist, album order by album"""
-        return await self.fetch(sql, mf.to_list())
+    async def albums(self, mf=Filter(), youtube=''):
+        sql = """select album as name, artist, a.youtube as youtube, album_id as id, sum(duration) as duration from do_filter($1::filters) m inner join albums a on a.id=album_id where $2::text is null or $2::text = a.youtube group by m.album_id, m.artist_id, artist, album, a.youtube order by album"""
+        return await self.fetch(sql, mf.to_list(), youtube)
 
     @timeit
     async def albums_name(self, mf=Filter()):

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import click
+import asyncio
 from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL, getLogger, debug
 
 verbosities = {'debug': DEBUG,
@@ -30,6 +31,10 @@ class Config(object):
         getLogger().setLevel(level)
         getLogger('asyncio').setLevel(level)
         getLogger('sanic').setLevel(level)
+        loop = asyncio.get_event_loop()
+        if level is DEBUG:
+            debug('Loop debugging enabled')
+            loop.set_debug(True)
         debug('new verbosity: {}'.format(verbosity))
 
     def __repr__(self):
