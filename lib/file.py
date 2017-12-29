@@ -174,8 +174,8 @@ class File(object):
     def youtube(self):
         return self.youtube_link
 
-    def find_youtube(self):
-        self.youtube_link = youtube.search(self)
+    async def find_youtube(self):
+        self.youtube_link = await youtube.search(self.artist, self.title, self.duration)
 
     def save(self):
         self.handle.save()

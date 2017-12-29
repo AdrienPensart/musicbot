@@ -2,12 +2,17 @@
 import asyncio
 import time
 import uvloop
+import click
 from functools import wraps
 from logging import debug, info
 from .config import config
 from .lib import secondsToHuman
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+
+concurrency = [
+    click.option('--concurrency', envvar='MB_CONCURRENCY', help='Number of coroutines', default=32),
+]
 
 
 def add_options(options):

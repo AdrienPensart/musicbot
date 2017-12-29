@@ -7,6 +7,7 @@ import asyncpg
 from tqdm import tqdm
 from logging import debug, info, warning
 from lib import helpers, lib, file, collection, database, filter
+from lib.helpers import timeit
 from lib.lib import empty_dirs
 
 
@@ -17,6 +18,110 @@ def cli(ctx, **kwargs):
     '''Folder scanning'''
     lib.raise_limits()
     ctx.obj.db = collection.Collection(**kwargs)
+
+
+@timeit
+async def fullscan(ctx, folders):
+    files = [f for f in lib.find_files(list(folders)) if f[1].endswith(tuple(filter.default_formats))]
+    # musics = []
+    with tqdm(total=len(files) * 2, file=sys.stdout, desc="Loading music", leave=True, position=0, disable=ctx.obj.config.quiet) as bar:
+        async def insert(semaphore, f):
+            async with semaphore:
+                try:
+                    m = file.File(f[1], f[0])
+                    if ctx.obj.crawl:
+                        await m.find_youtube()
+                        bar.update(1)
+                    await ctx.obj.db.upsert(m)
+                    bar.update(1)
+                    # musics.append(m)
+                    # musics.append((m.artist, m.album, m.genre, m.folder, m.youtube, m.number, m.rating, m.duration, m.size, m.title, m.path, m.keywords), )
+                    # await ctx.obj.db.append(m.to_list())
+                except asyncpg.exceptions.CheckViolationError as e:
+                    warning("Violation: {}".format(e))
+        semaphore = asyncio.BoundedSemaphore(ctx.obj.concurrency)
+        debug('Gathering futures')
+        tasks = [asyncio.ensure_future(insert(semaphore, f)) for f in files]
+        await asyncio.gather(*tasks)
+
+
+@cli.command()
+@helpers.coro
+@helpers.add_options(helpers.concurrency)
+@click.option('--crawl', envvar='MB_CRAWL', help='Crawl youtube', is_flag=True)
+@click.argument('folders', nargs=-1)
+@click.pass_context
+async def scan(ctx, concurrency, crawl, folders, **kwargs):
+    '''Load musics files in database'''
+    ctx.obj.concurrency = concurrency
+    ctx.obj.crawl = crawl
+    debug('Concurrency: {}'.format(concurrency))
+    await fullscan(ctx, folders)
+
+
+@cli.command()
+@helpers.coro
+@helpers.add_options(helpers.concurrency)
+@click.option('--crawl', envvar='MB_CRAWL', help='Crawl youtube', is_flag=True)
+@click.pass_context
+async def rescan(ctx, concurrency, crawl, **kwargs):
+    '''Rescan all folders registered in database'''
+    folders = await ctx.obj.db.folders()
+    ctx.obj.concurrency = concurrency
+    ctx.obj.crawl = crawl
+    debug('Concurrency: {}'.format(concurrency))
+    await fullscan(ctx, [f['name'] for f in folders])
+
+
+@cli.command()
+@helpers.coro
+@click.pass_context
+async def watch(ctx, **kwargs):
+    folders = await ctx.obj.db.folders()
+    from hachiko.hachiko import AIOEventHandler
+
+    class MusicWatcherHandler(AIOEventHandler):
+
+        def __init__(self, loop=None):
+            super().__init__(loop)
+
+        async def update(self, path):
+            for folder in folders:
+                if path.startswith(folder['name']) and path.endswith(tuple(filter.default_formats)):
+                    f = file.File(path, folder['name'])
+                    await ctx.obj.db.upsert(f)
+                    break
+
+        async def on_modified(self, event):
+            debug('Modifying DB for: {} {}'.format(event.src_path, event.event_type))
+            await self.update(event.src_path)
+
+        async def on_created(self, event):
+            debug('Creating entry DB for: {} {}'.format(event.src_path, event.event_type))
+            await self.update(event.src_path)
+
+        async def on_deleted(self, event):
+            debug('Deleting entry in DB for: {} {}'.format(event.src_path, event.event_type))
+            await ctx.obj.db.delete(event.src_path)
+
+        async def on_moved(self, event):
+            debug('Moving entry in DB for: {} {}'.format(event.src_path, event.event_type))
+            await ctx.obj.db.delete(event.src_path)
+            await self.update(event.dest_path)
+
+    evh = MusicWatcherHandler()
+    from watchdog.observers import Observer
+    observer = Observer()
+    for f in folders:
+        info('Watching: {}'.format(f['name']))
+        observer.schedule(evh, f['name'], recursive=True)
+    observer.start()
+    try:
+        while True:
+            await asyncio.sleep(0.5)
+    except KeyboardInterrupt:
+        observer.stop()
+    observer.join()
 
 
 @cli.command()
@@ -70,152 +175,3 @@ async def sync(ctx, destination, **kwargs):
         if not ctx.obj.config.dry:
             shutil.rmtree(d)
         info("[DRY-RUN] Removing empty dir {}".format(d))
-
-
-async def fullscan(ctx, folders):
-    files = list(lib.find_files(list(folders)))
-    # musics = []
-    with tqdm(total=len(files), file=sys.stdout, desc="Loading music", leave=True, position=0, disable=ctx.obj.config.quiet) as bar:
-        async def insert(f):
-            try:
-                if f[1].endswith(tuple(filter.default_formats)):
-                    m = file.File(f[1], f[0])
-                    await ctx.obj.db.upsert(m)
-                    # musics.append(m)
-                    # musics.append((m.artist, m.album, m.genre, m.folder, m.youtube, m.number, m.rating, m.duration, m.size, m.title, m.path, m.keywords), )
-                    # await ctx.obj.db.append(m.to_list())
-            except asyncpg.exceptions.CheckViolationError as e:
-                warning("Violation: {}".format(e))
-            bar.update(1)
-        tasks = [insert(f) for f in files]
-        await asyncio.gather(*tasks)
-    # await ctx.obj.db.appendmany(musics)
-    # await ctx.obj.db.upsertall(musics)
-
-
-@cli.command()
-@helpers.coro
-@click.argument('folders', nargs=-1)
-@click.pass_context
-async def scan(ctx, folders, **kwargs):
-    '''Load musics files in database'''
-    await fullscan(ctx, folders)
-
-
-@cli.command()
-@helpers.coro
-@click.pass_context
-async def rescan(ctx, **kwargs):
-    '''Rescan all folders registered in database'''
-    folders = await ctx.obj.db.folders()
-    await fullscan(ctx, [f['name'] for f in folders])
-
-
-@cli.command()
-@helpers.coro
-@click.pass_context
-async def watch2(ctx, **kwargs):
-    folders = await ctx.obj.db.folders()
-    from hachiko.hachiko import AIOEventHandler
-
-    class MusicWatcherHandler(AIOEventHandler):
-
-        def __init__(self, loop=None):
-            super().__init__(loop)
-
-        async def update(self, path):
-            for folder in folders:
-                if path.startswith(folder['name']) and path.endswith(tuple(filter.default_formats)):
-                    f = file.File(path, folder['name'])
-                    await ctx.obj.db.upsert(f)
-                    break
-
-        async def on_modified(self, event):
-            debug('Modifying DB for: {} {}'.format(event.src_path, event.event_type))
-            await self.update(event.src_path)
-
-        async def on_created(self, event):
-            debug('Creating entry DB for: {} {}'.format(event.src_path, event.event_type))
-            await self.update(event.src_path)
-
-        async def on_deleted(self, event):
-            debug('Deleting entry in DB for: {} {}'.format(event.src_path, event.event_type))
-            await ctx.obj.db.delete(event.src_path)
-
-        async def on_moved(self, event):
-            debug('Moving entry in DB for: {} {}'.format(event.src_path, event.event_type))
-            await ctx.obj.db.delete(event.src_path)
-            await self.update(event.dest_path)
-
-    evh = MusicWatcherHandler()
-    from watchdog.observers import Observer
-    observer = Observer()
-    for f in folders:
-        info('Watching: {}'.format(f['name']))
-        observer.schedule(evh, f['name'], recursive=True)
-    observer.start()
-    try:
-        while True:
-            await asyncio.sleep(0.5)
-    except KeyboardInterrupt:
-        observer.stop()
-    observer.join()
-
-
-@cli.command()
-@helpers.coro
-@click.pass_context
-async def watch(ctx, **kwargs):
-    '''Check file modification in realtime and updates database'''
-    from watchdog.observers import Observer
-    from watchdog.events import PatternMatchingEventHandler
-
-    class MusicWatcherHandler(PatternMatchingEventHandler):
-        patterns = []
-
-        def __init__(self, loop=None):
-            super().__init__()
-            self.loop = loop or asyncio.get_event_loop()
-            self.patterns = ['*.' + f for f in filter.default_formats]
-
-        def update(self, path):
-            for folder in folders:
-                if path.startswith(folder['name']) and path.endswith(tuple(filter.default_formats)):
-                    f = file.File(path, folder['name'])
-                    c = ctx.obj.db.upsert(f)
-                    asyncio.run_coroutine_threadsafe(c, self.loop)
-                    break
-
-        def on_modified(self, event):
-            debug('Modifying DB for: {} {}'.format(event.src_path, event.event_type))
-            self.update(event.src_path)
-
-        def on_created(self, event):
-            debug('Creating entry DB for: {} {}'.format(event.src_path, event.event_type))
-            self.update(event.src_path)
-
-        def on_deleted(self, event):
-            debug('Deleting entry in DB for: {} {}'.format(event.src_path, event.event_type))
-            c = ctx.obj.db.delete(event.src_path)
-            asyncio.run_coroutine_threadsafe(c, self.loop)
-
-        def on_moved(self, event):
-            debug('Moving entry in DB for: {} {}'.format(event.src_path, event.event_type))
-            c = ctx.obj.db.delete(event.src_path)
-            asyncio.run_coroutine_threadsafe(c, self.loop)
-            self.update(event.dest_path)
-
-    loop = asyncio.get_event_loop()
-    event_handler = MusicWatcherHandler(loop)
-    observer = Observer()
-    folders = await ctx.obj.db.folders()
-    for f in folders:
-        info('Watching: {}'.format(f['name']))
-        observer.schedule(event_handler, f['name'], recursive=True)
-    observer.start()
-    try:
-        while True:
-            await asyncio.sleep(0.5)
-    except KeyboardInterrupt:
-        observer.stop()
-    observer.join()

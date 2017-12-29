@@ -132,17 +132,6 @@ class Collection(Database):
 
     @drier
     @timeit
-    async def upsertall(self, musics):
-        sql = '''select * from upsert_all($1::music[])'''
-        l = [m.to_list() for m in musics]
-        await self.execute(sql, l)
-        # async with (await self.pool).acquire() as connection:
-        #     stmt = await connection.prepare(sql)
-        #     print(stmt.get_parameters())
-        #     await stmt.fetch(musics)
-
-    @drier
-    @timeit
     async def delete(self, path):
         sql = '''select delete($1)'''
         await self.execute(sql, path)
