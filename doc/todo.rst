@@ -1,6 +1,10 @@
 ToDo
 ----
-- tasks for background jobs: rescan at fixed hour, watch files, clean DB, crawl metadata / youtube
+- tasks for background jobs
+  - rescan at fixed hour
+  - watch files
+  - clean DB
+  - crawl metadata / youtube
 - web tests
 - benchmarks
 

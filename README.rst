@@ -67,7 +67,11 @@ Installation
 
 ToDo
 ----
-- tasks for background jobs: rescan at fixed hour, watch files, clean DB, crawl metadata / youtube
+- tasks for background jobs
+  - rescan at fixed hour
+  - watch files
+  - clean DB
+  - crawl metadata / youtube
 - web tests
 - benchmarks
 
@@ -255,6 +259,7 @@ musicbot folder
     scan    Load musics files in database
     sync    Copy selected musics with filters to...
     watch   Check file modification in realtime and...
+    watch2
 
 
 musicbot folder find
@@ -334,6 +339,16 @@ musicbot folder watch
   Usage: musicbot folder watch [OPTIONS]
   
     Check file modification in realtime and updates database
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot folder watch2
+**********************
+.. code-block::
+
+  Usage: musicbot folder watch2 [OPTIONS]
   
   Options:
     -h, --help  Show this message and exit.

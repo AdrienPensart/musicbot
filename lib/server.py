@@ -38,6 +38,10 @@ app.config.API_PRODUCES_CONTENT_TYPES = ['application/json']
 app.config.API_CONTACT_EMAIL = 'crunchengine@gmail.com'
 
 
+# import asyncio
+# app.add_task(notify_every_five_seconds())
+
+
 @app.middleware('request')
 async def before(request):
     env.globals['request_start_time'] = time.time()
