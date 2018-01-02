@@ -29,7 +29,7 @@ async def musics(request):
     '''List musics'''
     db = app.config['DB']
     mf = filter.WebFilter(request)
-    musics = await db.filter(mf, json=True)
+    musics = await db.musics(mf, json=True)
     return response.HTTPResponse(musics, content_type="application/json")
 
 
@@ -52,7 +52,7 @@ async def playlist(request):
     '''Generate a playlist, APIv1'''
     db = app.config['DB']
     mf = filter.WebFilter(request)
-    musics = await db.filter(mf, json=True)
+    musics = await db.musics(mf, json=True)
     return response.HTTPResponse(musics, content_type="application/json")
 
 

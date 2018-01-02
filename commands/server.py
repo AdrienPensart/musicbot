@@ -22,6 +22,7 @@ def cli(ctx, dev, **kwargs):
     '''API Server'''
     app.config['DB'] = collection.Collection(**kwargs)
     app.config['DEV'] = dev
+    app.config['CONFIG'] = ctx.obj.config
     if not dev:
         return
     lib.raise_limits()
@@ -65,5 +66,4 @@ def cli(ctx, dev, **kwargs):
 @click.option('--workers', envvar='MB_WORKERS', help='Number of workers', default=1)
 def start(ctx, host, port, workers, **kwargs):
     '''Start musicbot web API'''
-    app.config['CTX'] = ctx
     app.run(host=host, port=port, debug=app.config['DEV'], workers=workers)

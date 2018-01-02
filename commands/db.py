@@ -45,7 +45,7 @@ async def clear(ctx):
 @click.pass_context
 async def clean(ctx):
     '''Clean deleted musics from database'''
-    musics = await ctx.obj.db.filter()
+    musics = await ctx.obj.db.musics()
     for m in musics:
         if not os.path.isfile(m['path']):
             info('{} does not exist'.format(m['path']))

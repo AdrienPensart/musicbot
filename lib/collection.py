@@ -13,25 +13,23 @@ class Collection(Database):
     @timeit
     async def create(self):
         debug('db create')
-        sql = 'create schema if not exists {}'.format(self.schema)
-        await self.execute(sql)
+        await self.createdb()
         await self.executefile('schema/tables.sql')
         await self.executefile('schema/functions.sql')
         await self.executefile('schema/data.sql')
 
     @drier
     @timeit
-    async def drop(self):
-        debug('db drop')
-        sql = 'drop schema if exists {} cascade'.format(self.schema)
-        await self.execute(sql)
+    async def clear(self):
+        debug('clear')
+        await self.dropdb()
+        await self.create()
 
     @drier
     @timeit
-    async def clear(self):
+    async def drop(self):
         debug('clear')
-        await self.drop()
-        await self.create()
+        await self.dropdb()
 
     @timeit
     async def folders(self):
@@ -107,7 +105,7 @@ class Collection(Database):
         await self.execute(sql, l)
 
     @timeit
-    async def filter(self, f=None, json=False):
+    async def musics(self, f=None, json=False):
         if f is None:
             f = Filter()
         l = f.to_list()

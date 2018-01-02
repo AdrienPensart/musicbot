@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 my_dir="$(dirname "$0")"
 musicbot=$my_dir/../musicbot
 commands=$my_dir/COMMANDS.rst

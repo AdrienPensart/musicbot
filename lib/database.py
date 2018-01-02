@@ -1,35 +1,37 @@
 # -*- coding: utf-8 -*-
 import click
+import os
+from asyncpg import utils, connect
 from logging import debug, info
 from .helpers import drier, timeit
 
+DEFAULT_HOST = 'localhost'
+DEFAULT_PORT = 5432
+DEFAULT_DATABASE = 'musicbot_dev'  # Never modify this
+DEFAULT_USER = 'postgres'
+DEFAULT_PASSWORD = 'musicbot'
+
 options = [
-    click.option('--host', envvar='MB_DB_HOST', help='DB host', default='localhost'),
-    click.option('--port', envvar='MB_DB_PORT', help='DB port', default=5432),
-    click.option('--database', envvar='MB_DB', help='DB name', default='musicbot'),
-    click.option('--user', envvar='MB_DB_USER', help='DB user', default='postgres'),
-    click.option('--password', envvar='MB_DB_PASSWORD', help='DB password', default='musicbot')
+    click.option('--host', envvar='MB_DB_HOST', help='DB host', default=DEFAULT_HOST),
+    click.option('--port', envvar='MB_DB_PORT', help='DB port', default=DEFAULT_PORT),
+    click.option('--database', envvar='MB_DATABASE', help='DB name', default=DEFAULT_DATABASE),
+    click.option('--user', envvar='MB_DB_USER', help='DB user', default=DEFAULT_USER),
+    click.option('--password', envvar='MB_DB_PASSWORD', help='DB password', default=DEFAULT_PASSWORD)
 ]
 
 
 class Database(object):
-    settings = {
-        'host': 'localhost',
-        'port': 5432,
-        'database': 'musicbot',
-        'user': 'postgres',
-        'password': 'musicbot', }
-    schema = 'public'
-
-    def __init__(self, **kwargs):
-        for s in self.settings.keys():
-            if s in kwargs:
-                self.settings[s] = kwargs[s]
+    def __init__(self, host=None, port=None, database=None, user=None, password=None, **kwargs):
+        self.host = host if host is not None else os.getenv('MB_DB_HOST', DEFAULT_HOST)
+        self.port = port if port is not None else os.getenv('MB_DB_PORT', DEFAULT_PORT)
+        self.database = database if database is not None else os.getenv('MB_DATABASE', DEFAULT_DATABASE)
+        self.user = user if user is not None else os.getenv('MB_DB_USER', DEFAULT_USER)
+        self.password = password if password is not None else os.getenv('MB_DB_PASSWORD', DEFAULT_PASSWORD)
         self._pool = None
         info(self.connection_string())
 
     def connection_string(self):
-        return 'postgresql://{}:{}@{}:{}/{}'.format(self.settings['user'], self.settings['password'], self.settings['host'], self.settings['port'], self.settings['database'])
+        return 'postgresql://{}:{}@{}:{}/{}'.format(self.user, self.password, self.host, self.port, self.database)
 
     async def close(self):
         await (await self.pool).close()
@@ -38,15 +40,26 @@ class Database(object):
         return self.connection_string()
 
     async def mogrify(self, connection, sql, *args):
-        from asyncpg import utils
         mogrified = await utils._mogrify(connection, sql, args)
         info('mogrified: {}'.format(mogrified))
+
+    @drier
+    async def dropdb(self):
+        con = await connect(user=self.user, host=self.host, password=self.password, port=self.port)
+        await con.execute('drop database if exists {}'.format(self.database))
+        await con.close()
+
+    @drier
+    async def createdb(self):
+        con = await connect(user=self.user, host=self.host, password=self.password, port=self.port)
+        await con.execute('create database {}'.format(self.database))
+        await con.close()
 
     @property
     async def pool(self):
         if self._pool is None:
             import asyncpg
-            self._pool: asyncpg.pool.Pool = await asyncpg.create_pool(**self.settings)
+            self._pool: asyncpg.pool.Pool = await asyncpg.create_pool(user=self.user, host=self.host, password=self.password, port=self.port, database=self.database)
         return self._pool
 
     @timeit

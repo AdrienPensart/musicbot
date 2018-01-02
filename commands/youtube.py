@@ -24,7 +24,7 @@ async def musics(ctx, **kwargs):
     '''Fetch youtube links for each music'''
     if ctx.obj.mf.youtube is None:
         ctx.obj.mf.youtube = ''
-    musics = await ctx.obj.db.filter(ctx.obj.mf)
+    musics = await ctx.obj.db.musics(ctx.obj.mf)
     with tqdm(desc='Youtube musics', total=len(musics), disable=ctx.obj.config.quiet) as bar:
         async def search(semaphore, m):
             async with semaphore:

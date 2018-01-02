@@ -79,7 +79,7 @@ class DatabaseTest(TestCase):
 
     async def setUp(self):
         lib.verbose = False
-        self.collection = collection.Collection(database='musicbot_test')
+        self.collection = collection.Collection()
         await self.collection.clear()
         self.files = list(lib.find_files([folder1, folder2]))
         for f in self.files:
@@ -94,19 +94,19 @@ class DatabaseTest(TestCase):
         self.assertEqual(artists, ['1995', 'Buckethead'])
 
     async def test_tag_filter(self):
-        musics = await self.collection.filter(filter.Filter(genres=['Avantgarde']))
+        musics = await self.collection.musics(filter.Filter(genres=['Avantgarde']))
         self.assertEqual(len(musics), 4)
-        musics = await self.collection.filter(filter.Filter(artists=['Buckethead']))
+        musics = await self.collection.musics(filter.Filter(artists=['Buckethead']))
         self.assertEqual(len(musics), 4)
-        musics = await self.collection.filter(filter.Filter(artists=['Buckethead'], min_rating=5.0))
+        musics = await self.collection.musics(filter.Filter(artists=['Buckethead'], min_rating=5.0))
         self.assertEqual(len(musics), 3)
-        musics = await self.collection.filter(filter.Filter(artists=['Buckethead'], min_duration=2))
+        musics = await self.collection.musics(filter.Filter(artists=['Buckethead'], min_duration=2))
         self.assertEqual(len(musics), 0)
-        musics = await self.collection.filter(filter.Filter(artists=['Buckethead'], keywords=['experimental']))
+        musics = await self.collection.musics(filter.Filter(artists=['Buckethead'], keywords=['experimental']))
         self.assertEqual(len(musics), 2)
-        musics = await self.collection.filter(filter.Filter(artists=['Buckethead'], no_keywords=['heavy']))
+        musics = await self.collection.musics(filter.Filter(artists=['Buckethead'], no_keywords=['heavy']))
         self.assertEqual(len(musics), 3)
-        musics = await self.collection.filter(filter.Filter(artists=['1995']))
+        musics = await self.collection.musics(filter.Filter(artists=['1995']))
         self.assertEqual(len(musics), 1)
 
     async def test_new_playlist(self):

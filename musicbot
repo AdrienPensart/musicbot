@@ -5,7 +5,7 @@ import click
 import os
 from attrdict import AttrDict
 from lib import helpers
-from lib.config import config, global_options
+from lib.config import config, options
 
 plugin_folder = os.path.join(os.path.dirname(__file__), 'commands')
 CONTEXT_SETTINGS = {'auto_envvar_prefix': 'MUSICBOT', 'help_option_names': ['-h', '--help']}
@@ -35,7 +35,7 @@ class SubCommandLineInterface(click.MultiCommand):
 
 @click.command(cls=SubCommandLineInterface, context_settings=CONTEXT_SETTINGS)
 @click.version_option("1.0")
-@helpers.add_options(global_options)
+@helpers.add_options(options)
 @click.pass_context
 def cli(ctx, verbosity, dry, quiet):
     """Music swiss knife, new gen."""

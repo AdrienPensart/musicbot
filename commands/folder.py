@@ -24,7 +24,8 @@ def cli(ctx, **kwargs):
 async def fullscan(ctx, folders):
     files = [f for f in lib.find_files(list(folders)) if f[1].endswith(tuple(filter.default_formats))]
     # musics = []
-    with tqdm(total=len(files) * 2, file=sys.stdout, desc="Loading music", leave=True, position=0, disable=ctx.obj.config.quiet) as bar:
+    size = len(files) * 2 if ctx.obj.crawl else len(files)
+    with tqdm(total=size, file=sys.stdout, desc="Loading music", leave=True, position=0, disable=ctx.obj.config.quiet) as bar:
         async def insert(semaphore, f):
             async with semaphore:
                 try:
@@ -34,9 +35,6 @@ async def fullscan(ctx, folders):
                         bar.update(1)
                     await ctx.obj.db.upsert(m)
                     bar.update(1)
-                    # musics.append(m)
-                    # musics.append((m.artist, m.album, m.genre, m.folder, m.youtube, m.number, m.rating, m.duration, m.size, m.title, m.path, m.keywords), )
-                    # await ctx.obj.db.append(m.to_list())
                 except asyncpg.exceptions.CheckViolationError as e:
                     warning("Violation: {}".format(e))
         semaphore = asyncio.BoundedSemaphore(ctx.obj.concurrency)
@@ -143,7 +141,7 @@ async def sync(ctx, destination, **kwargs):
     '''Copy selected musics with filters to destination folder'''
     info('Destination: {}'.format(destination))
     ctx.obj.mf = filter.Filter(**kwargs)
-    musics = await ctx.obj.db.filter(ctx.obj.mf)
+    musics = await ctx.obj.db.musics(ctx.obj.mf)
 
     files = lib.all_files(destination)
     destinations = {f[len(destination) + 1:]: f for f in files}

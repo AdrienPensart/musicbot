@@ -7,9 +7,9 @@ from .app import app
 collection = Blueprint('collection', url_prefix='/collection')
 
 
-async def get_filter(request):
+async def get_filter(request, **kwargs):
     filter_name = request.args.get('filter', None)
-    d = {}
+    d = kwargs
     if filter_name is not None:
         db = app.config['DB']
         d = dict(await db.get_filter(filter_name))
@@ -19,7 +19,7 @@ async def get_filter(request):
 async def get_music(request):
     db = app.config['DB']
     mf = await get_filter(request, limit=1)
-    musics = await db.filter(mf)
+    musics = await db.musics(mf)
     if not len(musics):
         return ('music not found', 404)
     return musics[0]
@@ -45,13 +45,13 @@ async def generate(request):
     # precedent = request.form
     mf = get_filter(request)
     if request.args.get('play', False):
-        musics = await db.filter(mf)
+        musics = await db.musics(mf)
         return await helpers.template('player.html', musics=musics, mf=mf)
     if request.args.get('zip', False):
-        musics = await db.filter(mf)
+        musics = await db.musics(mf)
         return helpers.zip(musics)
     if request.args.get('m3u', False):
-        musics = await db.filter(mf)
+        musics = await db.musics(mf)
         return await helpers.m3u(musics)
     records = await db.form(mf)
     form = forms.FilterForm(obj=records)
@@ -73,7 +73,7 @@ async def consistency(request):
 async def filters(request):
     '''Get filters'''
     db = app.config['DB']
-    filters = await db.filters()
+    filters = await db.musics()
     return await helpers.template('filters.html', filters=filters)
 
 
@@ -128,7 +128,7 @@ async def musics(request):
     '''List musics'''
     db = app.config['DB']
     mf = await get_filter(request)
-    musics = await db.filter(mf)
+    musics = await db.musics(mf)
     return await helpers.template("musics.html", musics=musics, mf=mf)
 
 
@@ -155,7 +155,7 @@ async def m3u(request):
     '''Download m3u'''
     db = app.config['DB']
     mf = await get_filter(request)
-    musics = await db.filter(mf)
+    musics = await db.musics(mf)
     name = request.args.get('name', 'playlist')
     return await helpers.m3u(musics, name)
 
@@ -166,7 +166,7 @@ async def zip(request):
     '''Generate a playlist'''
     db = app.config['DB']
     mf = await get_filter(request)
-    musics = await db.filter(mf)
+    musics = await db.musics(mf)
     if len(musics) == 0:
         return response.text('Empty playlist')
     name = request.args.get('name', 'archive')
@@ -180,5 +180,5 @@ async def player(request):
     '''Play a playlist in browser'''
     db = app.config['DB']
     mf = await get_filter(request)
-    musics = await db.filter(mf)
+    musics = await db.musics(mf)
     return await helpers.template('player.html', musics=musics, mf=mf)
