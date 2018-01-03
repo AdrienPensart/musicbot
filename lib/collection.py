@@ -37,41 +37,62 @@ class Collection(Database):
         return await self.fetch(sql)
 
     @timeit
-    async def keywords(self, mf=Filter()):
+    async def new_folder(self, name):
+        sql = '''insert into folders as f(name, created_at, updated_at) values ($1, now(), now())'''
+        return await self.execute(sql, name)
+
+    @timeit
+    async def keywords(self, mf=None):
+        if mf is None:
+            mf = Filter()
         sql = """select distinct keyword as name from (select unnest(array_cat_agg(keywords)) as keyword from do_filter($1::filters)) k order by name"""
         return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
 
     @timeit
-    async def artists(self, mf=Filter()):
+    async def artists(self, mf=None):
+        if mf is None:
+            mf = Filter()
         sql = """select distinct artist as name from do_filter($1::filters) order by name"""
         return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
 
     @timeit
-    async def titles(self, mf=Filter()):
+    async def titles(self, mf=None):
+        if mf is None:
+            mf = Filter()
         sql = """select distinct title as name from do_filter($1::filters) order by name"""
         return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
 
     @timeit
-    async def albums(self, mf=Filter(), youtube=''):
+    async def albums(self, mf=None, youtube=''):
+        if mf is None:
+            mf = Filter()
         sql = """select album as name, artist, a.youtube as youtube, album_id as id, sum(duration) as duration from do_filter($1::filters) m inner join albums a on a.id=album_id where $2::text is null or $2::text = a.youtube group by m.album_id, m.artist_id, artist, album, a.youtube order by album"""
         return await self.fetch(sql, mf.to_list(), youtube)
 
     @timeit
-    async def albums_name(self, mf=Filter()):
+    async def albums_name(self, mf=None):
+        if mf is None:
+            mf = Filter()
         return [f['name'] for f in (await self.albums(mf))]
 
     @timeit
-    async def genres(self, mf=Filter()):
+    async def genres(self, mf=None):
+        if mf is None:
+            mf = Filter()
         sql = """select distinct genre as name from do_filter($1::filters) order by name"""
         return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
 
     @timeit
-    async def form(self, mf=Filter()):
+    async def form(self, mf=None):
+        if mf is None:
+            mf = Filter()
         sql = '''select * from generate_form($1::filters)'''
         return await self.fetchrow(sql, mf.to_list())
 
     @timeit
-    async def stats(self, mf=Filter()):
+    async def stats(self, mf=None):
+        if mf is None:
+            mf = Filter()
         sql = '''select * from do_stats($1::filters)'''
         return await self.fetchrow(sql, mf.to_list())
 
@@ -117,13 +138,17 @@ class Collection(Database):
             return await self.fetch(sql, l)
 
     @timeit
-    async def playlist(self, f=Filter()):
+    async def playlist(self, f=None):
+        if f is None:
+            f = Filter()
         sql = '''select * from generate_playlist($1::filters)'''
         l = f.to_list()
         return await self.fetchrow(sql, l)
 
     @timeit
-    async def bests(self, f=Filter()):
+    async def bests(self, f=None):
+        if f is None:
+            f = Filter()
         sql = '''select * from generate_bests($1::filters)'''
         l = f.to_list()
         return await self.fetch(sql, l)

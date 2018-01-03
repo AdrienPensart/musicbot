@@ -1,19 +1,16 @@
 # -*- coding: utf-8 -*-
 import time
-import asyncpg
-import asyncio
 from datetime import datetime
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from sanic_openapi import swagger_blueprint, openapi_blueprint
-from logging import warning
-from .lib import bytesToHuman, secondsToHuman, find_files
-from . import file
+from .lib import bytesToHuman, secondsToHuman
+from .helpers import crawl_musics, crawl_albums, watcher, fullscan
 from .config import config
 from .collection import Collection
 from .web.helpers import env, template, get_flashed_messages, download_title, server
 from .web.api import api_v1
 from .web.collection import collection
 from .web.app import app
-# from sanic import response
 # from .web.limiter import limiter
 # from logging_tree import printout
 # printout()
@@ -34,6 +31,8 @@ session = {}
 
 app.config.WTF_CSRF_SECRET_KEY = 'top secret!'
 app.config.DB = Collection()
+app.config.CONCURRENCY = 1
+app.config.CRAWL = False
 app.config.CONFIG = config
 app.config.API_VERSION = '1.0.0'
 app.config.API_TITLE = 'Musicbot API'
@@ -43,25 +42,23 @@ app.config.API_PRODUCES_CONTENT_TYPES = ['application/json']
 app.config.API_CONTACT_EMAIL = 'crunchengine@gmail.com'
 
 
-async def fullscan(ctx):
-    folders = await ctx.obj.db.folders()
-    files = [f for f in find_files(list(folders)) if f[1].endswith(tuple(filter.default_formats))]
-
-    async def insert(semaphore, f):
-        async with semaphore:
-            try:
-                m = file.File(f[1], f[0])
-                if ctx.obj.crawl:
-                    await m.find_youtube()
-                await ctx.obj.db.upsert(m)
-            except asyncpg.exceptions.CheckViolationError as e:
-                warning("Violation: {}".format(e))
-    semaphore = asyncio.BoundedSemaphore(ctx.obj.concurrency)
-    tasks = [asyncio.ensure_future(insert(semaphore, f)) for f in files]
-    await asyncio.gather(*tasks)
+@app.listener('before_server_start')
+async def start_watcher(app, loop):
+    app.config.watcher_task = loop.create_task(watcher(app.config.DB))
 
 
-# app.add_task()
+@app.listener('before_server_stop')
+async def stop_watcher(app, loop):
+    app.config.watcher_task.cancel()
+
+
+@app.listener('before_server_start')
+async def initialize_scheduler(app, loop):
+    scheduler = AsyncIOScheduler({'event_loop': loop})
+    scheduler.add_job(fullscan, 'cron', [app.config.DB], hour=3)
+    scheduler.add_job(crawl_musics, 'cron', [app.config.DB], hour=4)
+    scheduler.add_job(crawl_albums, 'cron', [app.config.DB], hour=5)
+    scheduler.start()
 
 
 @app.middleware('request')

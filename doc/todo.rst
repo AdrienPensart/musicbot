@@ -2,8 +2,6 @@ ToDo
 ----
 - dev/prod env
 - tasks for background jobs
-  - rescan at fixed hour
-  - watch files
   - clean DB
   - crawl metadata / youtube
 - tests :
@@ -15,6 +13,7 @@ ToDo
 Bugs/Flows
 --
 - live versions of song / album when searching on youtube
+- syntax resistant scripts
 
 Ideas
 --

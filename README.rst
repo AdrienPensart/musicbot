@@ -69,8 +69,6 @@ ToDo
 ----
 - dev/prod env
 - tasks for background jobs
-  - rescan at fixed hour
-  - watch files
   - clean DB
   - crawl metadata / youtube
 - tests :
@@ -82,6 +80,7 @@ ToDo
 Bugs/Flows
 --
 - live versions of song / album when searching on youtube
+- syntax resistant scripts
 
 Ideas
 --
@@ -255,6 +254,8 @@ musicbot folder
   
   Commands:
     find    Only list files in selected folders
+    list    List existing folders
+    new     Add a new folder in database
     rescan  Rescan all folders registered in database
     scan    Load musics files in database
     sync    Copy selected musics with filters to...
@@ -268,6 +269,30 @@ musicbot folder find
   Usage: musicbot folder find [OPTIONS] [FOLDERS]...
   
     Only list files in selected folders
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot folder list
+********************
+.. code-block::
+
+  Usage: musicbot folder list [OPTIONS]
+  
+    List existing folders
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot folder new
+*******************
+.. code-block::
+
+  Usage: musicbot folder new [OPTIONS] [FOLDERS]...
+  
+    Add a new folder in database
   
   Options:
     -h, --help  Show this message and exit.
@@ -296,9 +321,7 @@ musicbot folder scan
     Load musics files in database
   
   Options:
-    --concurrency INTEGER  Number of coroutines
-    --crawl                Crawl youtube
-    -h, --help             Show this message and exit.
+    -h, --help  Show this message and exit.
 
 
 musicbot folder sync

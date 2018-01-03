@@ -64,6 +64,7 @@ def cli(ctx, dev, **kwargs):
 @click.option('--host', envvar='MB_HOST', help='Host interface to listen on', default='0.0.0.0')
 @click.option('--port', envvar='MB_PORT', help='Port to listen on', default=8000)
 @click.option('--workers', envvar='MB_WORKERS', help='Number of workers', default=1)
+# def start(ctx, host, port, workers, **kwargs):
 def start(ctx, host, port, workers, **kwargs):
     '''Start musicbot web API'''
     app.run(host=host, port=port, debug=app.config['DEV'], workers=workers)

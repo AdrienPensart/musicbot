@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*- import click
 import click
-import asyncio
-from tqdm import tqdm
-from lib import youtube, helpers, database, collection, filter
+from lib import helpers, database, collection, filter
 
 
 @click.group()
@@ -24,16 +22,7 @@ async def musics(ctx, **kwargs):
     '''Fetch youtube links for each music'''
     if ctx.obj.mf.youtube is None:
         ctx.obj.mf.youtube = ''
-    musics = await ctx.obj.db.musics(ctx.obj.mf)
-    with tqdm(desc='Youtube musics', total=len(musics), disable=ctx.obj.config.quiet) as bar:
-        async def search(semaphore, m):
-            async with semaphore:
-                result = await youtube.search(m['artist'], m['title'], m['duration'])
-                await ctx.obj.db.set_music_youtube(m['path'], result)
-                bar.update(1)
-        semaphore = asyncio.BoundedSemaphore(ctx.obj.concurrency)
-        requests = [asyncio.ensure_future(search(semaphore, m)) for m in musics]
-        await asyncio.gather(*requests)
+    await helpers.crawl_musics(ctx.obj.db, ctx.obj.mf, quiet=ctx.obj.config.quiet, concurrency=ctx.obj.concurrency)
 
 
 @cli.command()
@@ -42,13 +31,4 @@ async def musics(ctx, **kwargs):
 @click.option('--youtube-album', envvar='MB_YOUTUBE_ALBUM', help='Select albums with a youtube link', default='')
 async def albums(ctx, youtube_album, **kwargs):
     '''Fetch youtube links for each album'''
-    albums = await ctx.obj.db.albums(ctx.obj.mf, youtube_album)
-    with tqdm(desc='Youtube albums', total=len(albums), disable=ctx.obj.config.quiet) as bar:
-        async def search(semaphore, a):
-            async with semaphore:
-                result = await youtube.search(a['artist'], a['name'] + ' full album', a['duration'])
-                await ctx.obj.db.set_album_youtube(a['id'], result)
-                bar.update(1)
-        semaphore = asyncio.BoundedSemaphore(ctx.obj.concurrency)
-        requests = [asyncio.ensure_future(search(semaphore, a)) for a in albums]
-        await asyncio.gather(*requests)
+    await helpers.crawl_albums(ctx.obj.db, ctx.obj.mf, youtube_album=youtube_album, quiet=ctx.obj.config.quiet, concurrency=ctx.obj.concurrency)

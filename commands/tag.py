@@ -14,8 +14,7 @@ tag = [
 @helpers.add_options(database.options)
 @helpers.add_options(filter.options)
 @click.pass_context
-@helpers.coro
-async def cli(ctx, **kwargs):
+def cli(ctx, **kwargs):
     '''Music tags management'''
     ctx.obj.db = collection.Collection(**kwargs)
     ctx.obj.mf = filter.Filter(**kwargs)
