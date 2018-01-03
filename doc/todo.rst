@@ -14,6 +14,7 @@ Bugs/Flows
 --
 - live versions of song / album when searching on youtube
 - syntax resistant scripts
+- cache invalidation
 
 Ideas
 --

@@ -67,6 +67,16 @@ async def consistency(request):
     return response.text('not implemented')
 
 
+@collection.route("/folders", strict_slashes=True)
+@helpers.basicauth
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
+async def folders(request):
+    '''Get filters'''
+    db = app.config['DB']
+    folders = await db.folders()
+    return await helpers.template('folders.html', folders=folders)
+
+
 @collection.route("/filters", strict_slashes=True)
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())

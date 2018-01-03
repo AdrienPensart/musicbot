@@ -67,6 +67,7 @@ async def rescan(ctx, concurrency, crawl, **kwargs):
 @helpers.coro
 @click.pass_context
 async def watch(ctx, **kwargs):
+    '''Watch files changes in folders'''
     await watcher(ctx.obj.db)
 
 

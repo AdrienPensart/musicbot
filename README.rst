@@ -81,6 +81,7 @@ Bugs/Flows
 --
 - live versions of song / album when searching on youtube
 - syntax resistant scripts
+- cache invalidation
 
 Ideas
 --
@@ -259,7 +260,7 @@ musicbot folder
     rescan  Rescan all folders registered in database
     scan    Load musics files in database
     sync    Copy selected musics with filters to...
-    watch
+    watch   Watch files changes in folders
 
 
 musicbot folder find
@@ -308,6 +309,7 @@ musicbot folder rescan
   
   Options:
     --concurrency INTEGER  Number of coroutines
+    --concurrency INTEGER  Number of coroutines
     --crawl                Crawl youtube
     -h, --help             Show this message and exit.
 
@@ -321,7 +323,9 @@ musicbot folder scan
     Load musics files in database
   
   Options:
-    -h, --help  Show this message and exit.
+    --concurrency INTEGER  Number of coroutines
+    --crawl                Crawl youtube
+    -h, --help             Show this message and exit.
 
 
 musicbot folder sync
@@ -363,6 +367,8 @@ musicbot folder watch
 .. code-block::
 
   Usage: musicbot folder watch [OPTIONS]
+  
+    Watch files changes in folders
   
   Options:
     -h, --help  Show this message and exit.
