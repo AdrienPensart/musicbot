@@ -13,8 +13,10 @@ ToDo
 Bugs/Flows
 --
 - live versions of song / album when searching on youtube
-- syntax resistant scripts
-- cache invalidation
+- syntax / inotify limit resistant scripts
+- youtube caching
+- pagination
+- control dev env
 
 Ideas
 --

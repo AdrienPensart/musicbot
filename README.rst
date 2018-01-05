@@ -80,8 +80,10 @@ ToDo
 Bugs/Flows
 --
 - live versions of song / album when searching on youtube
-- syntax resistant scripts
-- cache invalidation
+- syntax / inotify limit resistant scripts
+- youtube caching
+- pagination
+- control dev env
 
 Ideas
 --
@@ -479,7 +481,10 @@ musicbot server
     --database TEXT  DB name
     --user TEXT      DB user
     --password TEXT  DB password
-    --dev            Dev mode, reload server on file changes
+    --watcher        Watch for file modification
+    --autoscan       Enable auto scan background job
+    --cache          Activate browser cache system
+    --browser-cache  Activate browser cache system
     -h, --help       Show this message and exit.
   
   Commands:
@@ -495,9 +500,11 @@ musicbot server start
     Start musicbot web API
   
   Options:
+    --user TEXT        HTTP Basic auth user
+    --password TEXT    HTTP Basic auth password
     --host TEXT        Host interface to listen on
-    --port INTEGER     Port to listen on
-    --workers INTEGER  Number of workers
+    --port INTEGER     HTTP port to listen on
+    --workers INTEGER  Number of HTTP workers (not tested)
     -h, --help         Show this message and exit.
 
 

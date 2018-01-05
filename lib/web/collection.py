@@ -27,7 +27,7 @@ async def get_music(request):
 
 @collection.get("/stats", strict_slashes=True)
 @helpers.basicauth
-@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='stats')
 async def stats(request):
     '''Music library statistics'''
     db = app.config['DB']
@@ -38,7 +38,6 @@ async def stats(request):
 
 @collection.route("/generate", strict_slashes=True)
 @helpers.basicauth
-@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def generate(request):
     '''Generate a playlist step by step'''
     db = app.config['DB']
@@ -69,7 +68,7 @@ async def consistency(request):
 
 @collection.route("/folders", strict_slashes=True)
 @helpers.basicauth
-@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='folders')
 async def folders(request):
     '''Get filters'''
     db = app.config['DB']
@@ -79,7 +78,7 @@ async def folders(request):
 
 @collection.route("/filters", strict_slashes=True)
 @helpers.basicauth
-@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='filters')
 async def filters(request):
     '''Get filters'''
     db = app.config['DB']
@@ -89,7 +88,7 @@ async def filters(request):
 
 @collection.route("/keywords", strict_slashes=True)
 @helpers.basicauth
-@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='keywords')
 async def keywords(request):
     '''Get keywords'''
     db = app.config['DB']
@@ -100,7 +99,7 @@ async def keywords(request):
 
 @collection.route('/genres', strict_slashes=True)
 @helpers.basicauth
-@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='genres')
 async def genres(request):
     '''List artists'''
     db = app.config['DB']
@@ -111,7 +110,7 @@ async def genres(request):
 
 @collection.route('/artists', strict_slashes=True)
 @helpers.basicauth
-@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='artists')
 async def artists(request):
     '''List artists'''
     db = app.config['DB']
@@ -122,7 +121,7 @@ async def artists(request):
 
 @collection.route('/albums', strict_slashes=True)
 @helpers.basicauth
-@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='albums')
 async def albums(request):
     '''List albums'''
     db = app.config['DB']
@@ -133,7 +132,7 @@ async def albums(request):
 
 @collection.route('/musics', strict_slashes=True)
 @helpers.basicauth
-@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='musics')
 async def musics(request):
     '''List musics'''
     db = app.config['DB']

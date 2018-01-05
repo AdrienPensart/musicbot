@@ -9,7 +9,6 @@ from functools import wraps
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 env = Environment(extensions=['jinja2.ext.loopcontrols'], loader=FileSystemLoader(os.path.join(THIS_DIR, 'templates')), enable_async=True)
-env.globals['auth'] = {'user': 'musicbot', 'password': 'musicbot'}
 
 
 async def m3u(musics, name='playlist'):

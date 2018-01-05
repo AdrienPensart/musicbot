@@ -3,8 +3,7 @@ import click
 import os
 import sys
 from logging import debug
-from lib import helpers, database, collection, lib
-from lib.server import app
+from lib import helpers, database, collection, lib, server
 
 THIS_DIR = os.path.dirname(os.path.abspath(sys.argv[0]))
 
@@ -17,14 +16,21 @@ def self_restart():
 @click.group()
 @click.pass_context
 @helpers.add_options(database.options)
-@click.option('--dev', envvar='MB_DEV', help='Dev mode, reload server on file changes', is_flag=True)
-def cli(ctx, dev, **kwargs):
+@click.option('--watcher', envvar='MB_WATCH', help='Watch for file modification', is_flag=True)
+@click.option('--autoscan', envvar='MB_SCHEDULER', help='Enable auto scan background job', is_flag=True)
+@click.option('--cache', envvar='MB_BROWSER_CACHE', help='Activate browser cache system', is_flag=True)
+@click.option('--browser-cache', envvar='MB_BROWSER_CACHE', help='Activate browser cache system', is_flag=True)
+def cli(ctx, watcher, autoscan, cache, browser_cache, **kwargs):
     '''API Server'''
-    app.config['DB'] = collection.Collection(**kwargs)
-    app.config['DEV'] = dev
-    app.config['CONFIG'] = ctx.obj.config
-    if not dev:
+    server.app.config['DB'] = collection.Collection(**kwargs)
+    server.app.config['CONFIG'] = ctx.obj.config
+    server.app.config['WATCHER'] = watcher
+    server.app.config['AUTOSCAN'] = autoscan
+    server.app.config['CACHE'] = cache
+    server.app.config['BROWSER_CACHE'] = browser_cache
+    if not watcher:
         return
+    debug('Watching for python and html file changes')
     lib.raise_limits()
     from watchdog.observers import Observer
     from watchdog.events import PatternMatchingEventHandler
@@ -54,17 +60,18 @@ def cli(ctx, dev, **kwargs):
 
     event_handler = PyWatcherHandler()
     observer = Observer()
-    observer.schedule(event_handler, THIS_DIR + '/lib', recursive=True)
-    observer.schedule(event_handler, THIS_DIR + '/commands', recursive=True)
+    lib_folder = THIS_DIR + '/lib'
+    debug('Watching lib folder: {}'.format(lib_folder))
+    observer.schedule(event_handler, lib_folder, recursive=True)
+    commands_folder = THIS_DIR + '/commands'
+    debug('Watching commands folder: {}'.format(commands_folder))
+    observer.schedule(event_handler, commands_folder, recursive=True)
     observer.start()
 
 
 @cli.command()
 @click.pass_context
-@click.option('--host', envvar='MB_HOST', help='Host interface to listen on', default='0.0.0.0')
-@click.option('--port', envvar='MB_PORT', help='Port to listen on', default=8000)
-@click.option('--workers', envvar='MB_WORKERS', help='Number of workers', default=1)
-# def start(ctx, host, port, workers, **kwargs):
+@helpers.add_options(server.options)
 def start(ctx, host, port, workers, **kwargs):
     '''Start musicbot web API'''
-    app.run(host=host, port=port, debug=app.config['DEV'], workers=workers)
+    server.app.run(host=host, port=port, debug=ctx.obj.config.isDebug(), workers=workers)

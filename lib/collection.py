@@ -17,6 +17,7 @@ class Collection(Database):
         await self.executefile('schema/tables.sql')
         await self.executefile('schema/functions.sql')
         await self.executefile('schema/data.sql')
+        await self.executefile('schema/triggers.sql')
 
     @drier
     @timeit
