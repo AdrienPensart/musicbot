@@ -25,6 +25,3 @@ python3 $musicbot stats
 python3 $musicbot tag show
 python3 $musicbot playlist new
 python3 $musicbot --dry playlist bests $my_dir/fixtures
-python3 $musicbot server start &
-sleep 1
-kill %%

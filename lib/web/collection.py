@@ -72,7 +72,7 @@ async def consistency(request):
 async def folders(request):
     '''Get filters'''
     db = app.config['DB']
-    folders = await db.folders()
+    folders = await db.folders_name()
     return await helpers.template('folders.html', folders=folders)
 
 
@@ -93,7 +93,7 @@ async def keywords(request):
     '''Get keywords'''
     db = app.config['DB']
     mf = await get_filter(request)
-    keywords = await db.keywords(mf)
+    keywords = await db.keywords_name(mf)
     return await helpers.template('keywords.html', keywords=keywords, mf=mf)
 
 
@@ -104,7 +104,7 @@ async def genres(request):
     '''List artists'''
     db = app.config['DB']
     mf = await get_filter(request)
-    genres = await db.genres(mf)
+    genres = await db.genres_name(mf)
     return await helpers.template("genres.html", genres=genres, mf=mf)
 
 
@@ -115,7 +115,7 @@ async def artists(request):
     '''List artists'''
     db = app.config['DB']
     mf = await get_filter(request)
-    artists = await db.artists(mf)
+    artists = await db.artists_name(mf)
     return await helpers.template("artists.html", artists=artists, mf=mf)
 
 

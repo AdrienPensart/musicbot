@@ -34,8 +34,12 @@ class Collection(Database):
 
     @timeit
     async def folders(self):
-        sql = '''select name from folders'''
+        sql = '''select name from folders order by name'''
         return await self.fetch(sql)
+
+    @timeit
+    async def folders_name(self):
+        return [f['name'] for f in (await self.folders())]
 
     @timeit
     async def new_folder(self, name):
@@ -47,21 +51,33 @@ class Collection(Database):
         if mf is None:
             mf = Filter()
         sql = """select distinct keyword as name from (select unnest(array_cat_agg(keywords)) as keyword from do_filter($1::filters)) k order by name"""
-        return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
+        return await self.fetch(sql, mf.to_list())
+
+    @timeit
+    async def keywords_name(self, mf=None):
+        return [f['name'] for f in (await self.keywords(mf))]
 
     @timeit
     async def artists(self, mf=None):
         if mf is None:
             mf = Filter()
         sql = """select distinct artist as name from do_filter($1::filters) order by name"""
-        return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
+        return await self.fetch(sql, mf.to_list())
+
+    @timeit
+    async def artists_name(self, mf=None):
+        return [f['name'] for f in (await self.artists(mf))]
 
     @timeit
     async def titles(self, mf=None):
         if mf is None:
             mf = Filter()
         sql = """select distinct title as name from do_filter($1::filters) order by name"""
-        return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
+        return await self.fetch(sql, mf.to_list())
+
+    @timeit
+    async def titles_name(self, mf=None):
+        return [f['name'] for f in (await self.titles(mf))]
 
     @timeit
     async def albums(self, mf=None, youtube=''):
@@ -72,8 +88,6 @@ class Collection(Database):
 
     @timeit
     async def albums_name(self, mf=None):
-        if mf is None:
-            mf = Filter()
         return [f['name'] for f in (await self.albums(mf))]
 
     @timeit
@@ -81,7 +95,11 @@ class Collection(Database):
         if mf is None:
             mf = Filter()
         sql = """select distinct genre as name from do_filter($1::filters) order by name"""
-        return [f['name'] for f in (await self.fetch(sql, mf.to_list()))]
+        return await self.fetch(sql, mf.to_list())
+
+    @timeit
+    async def genres_name(self, mf=None):
+        return [f['name'] for f in (await self.genres(mf))]
 
     @timeit
     async def form(self, mf=None):

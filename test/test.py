@@ -89,9 +89,29 @@ class DatabaseTest(TestCase):
     async def tearDown(self):
         await self.collection.close()
 
+    async def test_folders(self):
+        folders = await self.collection.folders_name()
+        self.assertEqual(folders, [folder1, folder2])
+
     async def test_artists(self):
-        artists = await self.collection.artists()
+        artists = await self.collection.artists_name()
         self.assertEqual(artists, ['1995', 'Buckethead'])
+
+    async def test_keywords(self):
+        keywords = await self.collection.keywords_name()
+        self.assertEqual(keywords, ['cut', 'cutoff', 'experimental', 'french', 'heavy', 'intro', 'rap', 'rock', 'talkover'])
+
+    async def test_albums(self):
+        albums = await self.collection.albums_name()
+        self.assertEqual(albums, ['Giant Robot', 'La Source'])
+
+    async def test_genres(self):
+        genres = await self.collection.genres_name()
+        self.assertEqual(genres, ['Avantgarde', 'Rap'])
+
+    async def test_titles(self):
+        titles = await self.collection.titles_name()
+        self.assertEqual(titles, ['Doomride', 'I Come In Peace', 'La Flemme', 'Welcome To Bucketheadland', 'Welcome To Bucketheadland - Cut'])
 
     async def test_tag_filter(self):
         musics = await self.collection.musics(filter.Filter(genres=['Avantgarde']))
