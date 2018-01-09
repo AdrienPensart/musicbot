@@ -67,10 +67,6 @@ Installation
 
 ToDo
 ----
-- dev/prod env
-- tasks for background jobs
-  - clean DB
-  - crawl metadata / youtube
 - tests :
   - web
   - cli
@@ -83,7 +79,8 @@ Bugs/Flows
 - syntax / inotify limit resistant scripts
 - youtube caching
 - pagination
-- control dev env
+- rename tags to keywords
+- can't delete database while other users are using it
 
 Ideas
 --

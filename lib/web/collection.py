@@ -2,27 +2,9 @@
 from sanic import Blueprint, response
 from aiocache import cached, SimpleMemoryCache
 from aiocache.serializers import PickleSerializer
-from . import helpers, forms, filter
+from . import helpers, forms
 from .app import app
 collection = Blueprint('collection', url_prefix='/collection')
-
-
-async def get_filter(request, **kwargs):
-    filter_name = request.args.get('filter', None)
-    d = kwargs
-    if filter_name is not None:
-        db = app.config['DB']
-        d = dict(await db.get_filter(filter_name))
-    return filter.WebFilter(request, **d)
-
-
-async def get_music(request):
-    db = app.config['DB']
-    mf = await get_filter(request, limit=1)
-    musics = await db.musics(mf)
-    if not len(musics):
-        return ('music not found', 404)
-    return musics[0]
 
 
 @collection.get("/stats", strict_slashes=True)
@@ -31,7 +13,7 @@ async def get_music(request):
 async def stats(request):
     '''Music library statistics'''
     db = app.config['DB']
-    mf = await get_filter(request)
+    mf = await helpers.get_filter(request, db)
     stats = await db.stats(mf)
     return await helpers.template('stats.html', stats=stats, mf=mf)
 
@@ -42,7 +24,7 @@ async def generate(request):
     '''Generate a playlist step by step'''
     db = app.config['DB']
     # precedent = request.form
-    mf = get_filter(request)
+    mf = helpers.get_filter(request, db)
     if request.args.get('play', False):
         musics = await db.musics(mf)
         return await helpers.template('player.html', musics=musics, mf=mf)
@@ -82,7 +64,7 @@ async def folders(request):
 async def filters(request):
     '''Get filters'''
     db = app.config['DB']
-    filters = await db.musics()
+    filters = await db.filters()
     return await helpers.template('filters.html', filters=filters)
 
 
@@ -92,7 +74,7 @@ async def filters(request):
 async def keywords(request):
     '''Get keywords'''
     db = app.config['DB']
-    mf = await get_filter(request)
+    mf = await helpers.get_filter(request, db)
     keywords = await db.keywords_name(mf)
     return await helpers.template('keywords.html', keywords=keywords, mf=mf)
 
@@ -103,7 +85,7 @@ async def keywords(request):
 async def genres(request):
     '''List artists'''
     db = app.config['DB']
-    mf = await get_filter(request)
+    mf = await helpers.get_filter(request, db)
     genres = await db.genres_name(mf)
     return await helpers.template("genres.html", genres=genres, mf=mf)
 
@@ -114,7 +96,7 @@ async def genres(request):
 async def artists(request):
     '''List artists'''
     db = app.config['DB']
-    mf = await get_filter(request)
+    mf = await helpers.get_filter(request, db)
     artists = await db.artists_name(mf)
     return await helpers.template("artists.html", artists=artists, mf=mf)
 
@@ -125,7 +107,7 @@ async def artists(request):
 async def albums(request):
     '''List albums'''
     db = app.config['DB']
-    mf = await get_filter(request)
+    mf = await helpers.get_filter(request, db)
     albums = await db.albums_name(mf)
     return await helpers.template("albums.html", albums=albums, mf=mf)
 
@@ -136,7 +118,7 @@ async def albums(request):
 async def musics(request):
     '''List musics'''
     db = app.config['DB']
-    mf = await get_filter(request)
+    mf = await helpers.get_filter(request, db)
     musics = await db.musics(mf)
     return await helpers.template("musics.html", musics=musics, mf=mf)
 
@@ -145,7 +127,8 @@ async def musics(request):
 @helpers.basicauth
 async def download(request):
     '''Download a track'''
-    music = await get_music(request)
+    db = app.config['DB']
+    music = await helpers.get_music(request, db)
     return helpers.send_file(music, name=helpers.download_title(music), attachment='attachment')
 
 
@@ -153,7 +136,8 @@ async def download(request):
 @helpers.basicauth
 async def listen(request):
     '''Listen a track'''
-    music = await get_music(request)
+    db = app.config['DB']
+    music = await helpers.get_music(request, db)
     return helpers.send_file(music=music, name=helpers.download_title(music), attachment='inline')
 
 
@@ -163,7 +147,7 @@ async def listen(request):
 async def m3u(request):
     '''Download m3u'''
     db = app.config['DB']
-    mf = await get_filter(request)
+    mf = await helpers.get_filter(request, db)
     musics = await db.musics(mf)
     name = request.args.get('name', 'playlist')
     return await helpers.m3u(musics, name)
@@ -174,7 +158,7 @@ async def m3u(request):
 async def zip(request):
     '''Generate a playlist'''
     db = app.config['DB']
-    mf = await get_filter(request)
+    mf = await helpers.get_filter(request, db)
     musics = await db.musics(mf)
     if len(musics) == 0:
         return response.text('Empty playlist')
@@ -188,6 +172,6 @@ async def zip(request):
 async def player(request):
     '''Play a playlist in browser'''
     db = app.config['DB']
-    mf = await get_filter(request)
+    mf = await helpers.get_filter(request, db)
     musics = await db.musics(mf)
     return await helpers.template('player.html', musics=musics, mf=mf)

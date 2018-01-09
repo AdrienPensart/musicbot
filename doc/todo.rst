@@ -13,6 +13,7 @@ Bugs/Flows
 - youtube caching
 - pagination
 - rename tags to keywords
+- can't delete database while other users are using it
 
 Ideas
 --

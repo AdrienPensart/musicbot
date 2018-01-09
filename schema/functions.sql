@@ -25,7 +25,7 @@ create or replace function new_filter
 ) returns filters as
 $$
 begin
-    return (0, '',
+    return (0, ''::text,
             min_duration, max_duration,
             min_size, max_size,
             min_rating, max_rating,

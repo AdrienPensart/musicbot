@@ -6,9 +6,26 @@ from logging import debug
 from sanic import response
 from jinja2 import Environment, FileSystemLoader
 from functools import wraps
+from . import filter
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 env = Environment(extensions=['jinja2.ext.loopcontrols'], loader=FileSystemLoader(os.path.join(THIS_DIR, 'templates')), enable_async=True)
+
+
+async def get_filter(request, db, **kwargs):
+    filter_name = request.args.get('filter', None)
+    d = kwargs
+    if filter_name is not None:
+        d = dict(await db.get_filter(filter_name))
+    return filter.WebFilter(request, **d)
+
+
+async def get_music(request, db):
+    mf = await get_filter(request, limit=1)
+    musics = await db.musics(mf)
+    if not len(musics):
+        return ('music not found', 404)
+    return musics[0]
 
 
 async def m3u(musics, name='playlist'):

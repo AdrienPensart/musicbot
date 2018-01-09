@@ -17,9 +17,9 @@ python3 $musicbot youtube musics
 python3 $musicbot youtube albums
 python3 $musicbot folder sync tests2
 rm -rf tests2
-python3 $musicbot folder watch &
-sleep 1
-kill %%
+# python3 $musicbot folder watch &
+# sleep 1
+# kill %%
 
 python3 $musicbot stats
 python3 $musicbot tag show
