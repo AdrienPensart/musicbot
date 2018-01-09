@@ -45,7 +45,7 @@ async def crawl_albums(db, mf=None, youtube_album='', quiet=True, concurrency=1)
         async def search(semaphore, a):
             async with semaphore:
                 result = await youtube.search(a['artist'], a['name'] + ' full album', a['duration'])
-                await db.set_album_youtube(a['id'], result)
+                await db.set_album_youtube(a['name'], result)
                 bar.update(1)
         semaphore = asyncio.BoundedSemaphore(concurrency)
         requests = [asyncio.ensure_future(search(semaphore, a)) for a in albums]

@@ -44,13 +44,9 @@ create table if not exists music
     id serial primary key,
     title text default '',
     album text default '',
-    album_id integer default 0,
     genre text default '',
-    genre_id integer default 0,
     artist text default '',
-    artist_id integer default 0,
     folder text default '',
-    folder_id integer default 0,
     youtube text default '',
     number integer default 0,
     path text default '' unique not null,
@@ -77,7 +73,7 @@ create or replace function new_music
 ) returns music as
 $$
 begin
-    return (0, title, album, 0, genre, 0, artist, 0, folder, 0, youtube, number, path, rating, duration, size, keywords);
+    return (0, title, album, genre, artist, folder, youtube, number, path, rating, duration, size, keywords);
 end;
 $$ language plpgsql;
 
@@ -188,13 +184,9 @@ $$
             m.id        as id,
             m.title     as title,
             al.name     as album,
-            m.album_id  as album_id,
             g.name      as genre,
-            m.genre_id  as genre_id,
             a.name      as artist,
-            m.artist_id as artist_id,
             f.name      as folder,
-            m.folder_id as folder_id,
             m.youtube   as youtube,
             m.number    as number,
             m.path      as path,
