@@ -80,17 +80,16 @@ Bugs/Flows
 - youtube caching
 - pagination
 - rename tags to keywords
-- can't delete database while other users are using it
+- copy prod database
+- cache must be disabled when shuffle = 1
 
 Ideas
 --
 - in database consistency checks
 - tree views configuration (letter,artist,genre,keyword)
-- OVH Functions test
-- OVH with terraform
-- console UI
-- music player
-
+- OVH with terraform plugin
+- use prometheous for metrics
+- use OVH Data Logs
 Commands
 --------
 .. code-block::

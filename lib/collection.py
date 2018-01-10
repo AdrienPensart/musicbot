@@ -96,9 +96,9 @@ class Collection(Database):
             mf = Filter()
         l = mf.to_list()
         if json:
-            sql = '''select array_to_json(array_agg(row_to_json(a))) as json from (select album as name, artist, a.youtube as youtube, sum(duration) as duration from do_filter($1::filters) m inner join albums a on a.name=album where $2::text is null or $2::text = a.youtube group by artist, album, a.youtube order by album) a'''
+            sql = '''select array_to_json(array_agg(row_to_json(a))) as json from (select album as name, artist, a.youtube as youtube, sum(duration) as duration from do_filter($1::filters) m inner join albums a on a.name=album where $2::text is null or $2::text = a.youtube group by album, artist, a.youtube order by album) a'''
             return (await self.fetchrow(sql, l, youtube))['json']
-        sql = """select album as name, artist, a.youtube as youtube, sum(duration) as duration from do_filter($1::filters) m inner join albums a on a.name=album where $2::text is null or $2::text = a.youtube group by artist, album, a.youtube order by album"""
+        sql = """select album as name, artist, a.youtube as youtube, sum(duration) as duration from do_filter($1::filters) m inner join albums a on a.name=album where $2::text is null or $2::text = a.youtube group by album, artist, a.youtube order by album"""
         return await self.fetch(sql, l, youtube)
 
     @timeit

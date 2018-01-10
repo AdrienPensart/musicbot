@@ -7,12 +7,14 @@ from sanic import response
 from jinja2 import Environment, FileSystemLoader
 from functools import wraps
 from . import filter
+from .app import db
+
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 env = Environment(extensions=['jinja2.ext.loopcontrols'], loader=FileSystemLoader(os.path.join(THIS_DIR, 'templates')), enable_async=True)
 
 
-async def get_filter(request, db, **kwargs):
+async def get_filter(request, **kwargs):
     filter_name = request.args.get('filter', None)
     d = kwargs
     if filter_name is not None:
@@ -20,7 +22,7 @@ async def get_filter(request, db, **kwargs):
     return filter.WebFilter(request, **d)
 
 
-async def get_music(request, db):
+async def get_music(request):
     mf = await get_filter(request, limit=1)
     musics = await db.musics(mf)
     if not len(musics):

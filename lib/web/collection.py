@@ -3,7 +3,7 @@ from sanic import Blueprint, response
 from aiocache import cached, SimpleMemoryCache
 from aiocache.serializers import PickleSerializer
 from . import helpers, forms
-from .app import app
+from .app import db
 collection = Blueprint('collection', url_prefix='/collection')
 
 
@@ -12,8 +12,7 @@ collection = Blueprint('collection', url_prefix='/collection')
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='stats')
 async def stats(request):
     '''Music library statistics'''
-    db = app.config['DB']
-    mf = await helpers.get_filter(request, db)
+    mf = await helpers.get_filter(request)
     stats = await db.stats(mf)
     return await helpers.template('stats.html', stats=stats, mf=mf)
 
@@ -22,7 +21,6 @@ async def stats(request):
 @helpers.basicauth
 async def generate(request):
     '''Generate a playlist step by step'''
-    db = app.config['DB']
     # precedent = request.form
     mf = helpers.get_filter(request, db)
     if request.args.get('play', False):
@@ -53,7 +51,6 @@ async def consistency(request):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='folders')
 async def folders(request):
     '''Get filters'''
-    db = app.config['DB']
     folders = await db.folders_name()
     return await helpers.template('folders.html', folders=folders)
 
@@ -63,7 +60,6 @@ async def folders(request):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='filters')
 async def filters(request):
     '''Get filters'''
-    db = app.config['DB']
     filters = await db.filters()
     return await helpers.template('filters.html', filters=filters)
 
@@ -73,8 +69,7 @@ async def filters(request):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='keywords')
 async def keywords(request):
     '''Get keywords'''
-    db = app.config['DB']
-    mf = await helpers.get_filter(request, db)
+    mf = await helpers.get_filter(request)
     keywords = await db.keywords_name(mf)
     return await helpers.template('keywords.html', keywords=keywords, mf=mf)
 
@@ -84,8 +79,7 @@ async def keywords(request):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='genres')
 async def genres(request):
     '''List artists'''
-    db = app.config['DB']
-    mf = await helpers.get_filter(request, db)
+    mf = await helpers.get_filter(request)
     genres = await db.genres_name(mf)
     return await helpers.template("genres.html", genres=genres, mf=mf)
 
@@ -95,8 +89,7 @@ async def genres(request):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='artists')
 async def artists(request):
     '''List artists'''
-    db = app.config['DB']
-    mf = await helpers.get_filter(request, db)
+    mf = await helpers.get_filter(request)
     artists = await db.artists_name(mf)
     return await helpers.template("artists.html", artists=artists, mf=mf)
 
@@ -106,8 +99,7 @@ async def artists(request):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='albums')
 async def albums(request):
     '''List albums'''
-    db = app.config['DB']
-    mf = await helpers.get_filter(request, db)
+    mf = await helpers.get_filter(request)
     albums = await db.albums_name(mf)
     return await helpers.template("albums.html", albums=albums, mf=mf)
 
@@ -117,8 +109,7 @@ async def albums(request):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='musics')
 async def musics(request):
     '''List musics'''
-    db = app.config['DB']
-    mf = await helpers.get_filter(request, db)
+    mf = await helpers.get_filter(request)
     musics = await db.musics(mf)
     return await helpers.template("musics.html", musics=musics, mf=mf)
 
@@ -127,8 +118,7 @@ async def musics(request):
 @helpers.basicauth
 async def download(request):
     '''Download a track'''
-    db = app.config['DB']
-    music = await helpers.get_music(request, db)
+    music = await helpers.get_music(request)
     return helpers.send_file(music, name=helpers.download_title(music), attachment='attachment')
 
 
@@ -136,8 +126,7 @@ async def download(request):
 @helpers.basicauth
 async def listen(request):
     '''Listen a track'''
-    db = app.config['DB']
-    music = await helpers.get_music(request, db)
+    music = await helpers.get_music(request)
     return helpers.send_file(music=music, name=helpers.download_title(music), attachment='inline')
 
 
@@ -146,8 +135,7 @@ async def listen(request):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def m3u(request):
     '''Download m3u'''
-    db = app.config['DB']
-    mf = await helpers.get_filter(request, db)
+    mf = await helpers.get_filter(request)
     musics = await db.musics(mf)
     name = request.args.get('name', 'playlist')
     return await helpers.m3u(musics, name)
@@ -157,8 +145,7 @@ async def m3u(request):
 @helpers.basicauth
 async def zip(request):
     '''Generate a playlist'''
-    db = app.config['DB']
-    mf = await helpers.get_filter(request, db)
+    mf = await helpers.get_filter(request)
     musics = await db.musics(mf)
     if len(musics) == 0:
         return response.text('Empty playlist')
@@ -171,7 +158,6 @@ async def zip(request):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def player(request):
     '''Play a playlist in browser'''
-    db = app.config['DB']
-    mf = await helpers.get_filter(request, db)
+    mf = await helpers.get_filter(request)
     musics = await db.musics(mf)
     return await helpers.template('player.html', musics=musics, mf=mf)

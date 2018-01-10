@@ -9,7 +9,6 @@ from sanic_openapi import swagger_blueprint, openapi_blueprint
 from .lib import bytesToHuman, secondsToHuman
 from .helpers import crawl_musics, crawl_albums, watcher, fullscan
 from .config import config
-from .collection import Collection
 from .web.helpers import env, template, get_flashed_messages, download_title, server
 from .web.api import api_v1
 from .web.collection import collection
@@ -52,7 +51,6 @@ app.config.WATCHER = False
 app.config.CACHE = False
 app.config.BROWSER_CACHE = False
 app.config.WTF_CSRF_SECRET_KEY = 'top secret!'
-app.config.DB = Collection()
 app.config.SCHEDULER = None
 app.config.LISTENER = None
 app.config.CONCURRENCY = 1
