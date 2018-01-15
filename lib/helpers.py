@@ -166,7 +166,6 @@ def coro(f):
 def drier(f):
     @wraps(f)
     async def wrapper(*args, **kwargs):
-        debug('DRYNESS: {} {}'.format(id(config), config.dry))
         if config.dry:
             args = [str(a) for a in args] + ["%s=%s" % (k, v) for (k, v) in kwargs.items()]
             info('DRY RUN: {}({})'.format(f.__name__, ','.join(args)))
