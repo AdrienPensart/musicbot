@@ -49,7 +49,7 @@ async def list(ctx, **kwargs):
 async def scan(ctx, concurrency, crawl, folders, **kwargs):
     '''Load musics files in database'''
     debug('Concurrency: {}'.format(concurrency))
-    await fullscan(ctx.obj.db, folders=folders, quiet=config.quiet, concurrency=concurrency, crawl=crawl)
+    await fullscan(ctx.obj.db, folders=folders, concurrency=concurrency, crawl=crawl)
 
 
 @cli.command()
@@ -61,7 +61,7 @@ async def scan(ctx, concurrency, crawl, folders, **kwargs):
 async def rescan(ctx, concurrency, crawl, **kwargs):
     '''Rescan all folders registered in database'''
     debug('Concurrency: {}'.format(concurrency))
-    await fullscan(ctx.obj.db, quiet=config.quiet, concurrency=concurrency, crawl=crawl)
+    await fullscan(ctx.obj.db, concurrency=concurrency, crawl=crawl)
 
 
 @cli.command()

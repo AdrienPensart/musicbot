@@ -6,10 +6,10 @@ from aiocache.plugins import HitMissRatioPlugin, TimingPlugin
 from . import helpers, forms
 from .app import db
 from logging import debug
-collection = Blueprint('collection', url_prefix='/collection')
+collection = Blueprint('collection', strict_slashes=True, url_prefix='/collection')
 
 
-@collection.get("/stats", strict_slashes=True)
+@collection.get('/stats')
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='stats')
 async def stats(request):
@@ -19,7 +19,7 @@ async def stats(request):
     return await helpers.template('stats.html', stats=stats, mf=mf)
 
 
-@collection.route("/generate", strict_slashes=True)
+@collection.route('/generate')
 @helpers.basicauth
 async def generate(request):
     '''Generate a playlist step by step'''
@@ -40,7 +40,7 @@ async def generate(request):
     return await helpers.template('generate.html', form=form, mf=mf)
 
 
-@collection.route("/consistency", strict_slashes=True)
+@collection.route('/consistency')
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def consistency(request):
@@ -48,7 +48,7 @@ async def consistency(request):
     return response.text('not implemented')
 
 
-@collection.route("/folders", strict_slashes=True)
+@collection.route('/folders')
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='folders')
 async def folders(request):
@@ -57,7 +57,7 @@ async def folders(request):
     return await helpers.template('folders.html', folders=folders)
 
 
-@collection.route("/filters", strict_slashes=True)
+@collection.route('/filters')
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='filters')
 async def filters(request):
@@ -66,7 +66,7 @@ async def filters(request):
     return await helpers.template('filters.html', filters=filters)
 
 
-@collection.route("/keywords", strict_slashes=True)
+@collection.route('/keywords')
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='keywords')
 async def keywords(request):
@@ -76,7 +76,7 @@ async def keywords(request):
     return await helpers.template('keywords.html', keywords=keywords, mf=mf)
 
 
-@collection.route('/genres', strict_slashes=True)
+@collection.route('/genres')
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='genres')
 async def genres(request):
@@ -86,7 +86,7 @@ async def genres(request):
     return await helpers.template("genres.html", genres=genres, mf=mf)
 
 
-@collection.route('/artists', strict_slashes=True)
+@collection.route('/artists')
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='artists')
 async def artists(request):
@@ -96,7 +96,7 @@ async def artists(request):
     return await helpers.template("artists.html", artists=artists, mf=mf)
 
 
-@collection.route('/albums', strict_slashes=True)
+@collection.route('/albums')
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='albums')
 async def albums(request):
@@ -106,7 +106,7 @@ async def albums(request):
     return await helpers.template("albums.html", albums=albums, mf=mf)
 
 
-@collection.route('/musics', strict_slashes=True)
+@collection.route('/musics')
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='musics')
 async def musics(request):
@@ -116,7 +116,7 @@ async def musics(request):
     return await helpers.template("musics.html", musics=musics, mf=mf)
 
 
-@collection.route('/download', strict_slashes=True)
+@collection.route('/download')
 @helpers.basicauth
 async def download(request):
     '''Download a track'''
@@ -124,7 +124,7 @@ async def download(request):
     return helpers.send_file(music, name=helpers.download_title(music), attachment='attachment')
 
 
-@collection.route("/listen", strict_slashes=True)
+@collection.route('/listen')
 @helpers.basicauth
 async def listen(request):
     '''Listen a track'''
@@ -132,7 +132,7 @@ async def listen(request):
     return helpers.send_file(music=music, name=helpers.download_title(music), attachment='inline')
 
 
-@collection.route("/m3u", strict_slashes=True)
+@collection.route('/m3u')
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def m3u(request):
@@ -143,7 +143,7 @@ async def m3u(request):
     return await helpers.m3u(musics, name)
 
 
-@collection.route("/zip", strict_slashes=True)
+@collection.route('/zip')
 @helpers.basicauth
 async def zip(request):
     '''Generate a playlist'''
@@ -166,7 +166,7 @@ async def cached_call(f, request):
     return await f(request)
 
 
-@collection.route("/player", strict_slashes=True)
+@collection.route('/player')
 @helpers.basicauth
 async def player(request):
     '''Play a playlist in browser'''

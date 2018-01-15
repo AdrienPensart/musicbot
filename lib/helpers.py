@@ -23,11 +23,11 @@ concurrency = [
 ]
 
 
-async def crawl_musics(db, mf=None, quiet=True, concurrency=1):
+async def crawl_musics(db, mf=None, concurrency=1):
     if mf is None:
         mf = Filter()
     musics = await db.musics(mf)
-    with tqdm(desc='Youtube musics', total=len(musics), disable=quiet) as bar:
+    with tqdm(desc='Youtube musics', total=len(musics), disable=config.quiet) as bar:
         async def search(semaphore, m):
             async with semaphore:
                 result = await youtube.search(m['artist'], m['title'], m['duration'])
@@ -38,11 +38,11 @@ async def crawl_musics(db, mf=None, quiet=True, concurrency=1):
         await asyncio.gather(*requests)
 
 
-async def crawl_albums(db, mf=None, youtube_album='', quiet=True, concurrency=1):
+async def crawl_albums(db, mf=None, youtube_album='', concurrency=1):
     if mf is None:
         mf = Filter()
     albums = await db.albums(mf, youtube_album)
-    with tqdm(desc='Youtube albums', total=len(albums), disable=quiet) as bar:
+    with tqdm(desc='Youtube albums', total=len(albums), disable=config.quiet) as bar:
         async def search(semaphore, a):
             async with semaphore:
                 result = await youtube.search(a['artist'], a['name'] + ' full album', a['duration'])
@@ -53,7 +53,7 @@ async def crawl_albums(db, mf=None, youtube_album='', quiet=True, concurrency=1)
         await asyncio.gather(*requests)
 
 
-async def fullscan(db, folders=None, concurrency=1, crawl=False, quiet=True):
+async def fullscan(db, folders=None, concurrency=1, crawl=False):
     if folders is None:
         folders = await db.folders()
         folders = [f['name'] for f in folders]
@@ -61,7 +61,7 @@ async def fullscan(db, folders=None, concurrency=1, crawl=False, quiet=True):
     with click_spinner.spinner():
         files = [f for f in find_files(list(folders)) if f[1].endswith(tuple(default_formats))]
     size = len(files) * 2 if crawl else len(files)
-    with tqdm(total=size, file=sys.stdout, desc="Loading music", leave=True, position=0, disable=quiet) as bar:
+    with tqdm(total=size, file=sys.stdout, desc="Loading music", leave=True, position=0, disable=config.quiet) as bar:
         async def insert(semaphore, f):
             async with semaphore:
                 try:

@@ -5,12 +5,12 @@ from aiocache.serializers import PickleSerializer
 from . import helpers, filter
 from .app import db
 
-api_v1 = Blueprint('api_v1', url_prefix='/v1')
+api_v1 = Blueprint('api_v1', strict_slashes=True, url_prefix='/v1')
 # from .limiter import limiter
 # limiter.limit("2 per hour")(api_v1)
 
 
-@api_v1.route('/stats', strict_slashes=True)
+@api_v1.route('/stats')
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def stats(request):
@@ -20,7 +20,7 @@ async def stats(request):
     return response.HTTPResponse(stats, content_type="application/json")
 
 
-@api_v1.route("/folders", strict_slashes=True)
+@api_v1.route("/folders")
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def folders(request):
@@ -29,7 +29,7 @@ async def folders(request):
     return response.HTTPResponse(folders, content_type="application/json")
 
 
-@api_v1.route("/filters", strict_slashes=True)
+@api_v1.route("/filters")
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def filters(request):
@@ -38,7 +38,7 @@ async def filters(request):
     return response.HTTPResponse(filters, content_type="application/json")
 
 
-@api_v1.route('/musics', strict_slashes=True)
+@api_v1.route('/musics')
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def musics(request):
@@ -48,7 +48,7 @@ async def musics(request):
     return response.HTTPResponse(musics, content_type="application/json")
 
 
-@api_v1.route("/playlist", strict_slashes=True)
+@api_v1.route("/playlist")
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def playlist(request):
@@ -58,7 +58,7 @@ async def playlist(request):
     return response.HTTPResponse(musics, content_type="application/json")
 
 
-@api_v1.route('/artists', strict_slashes=True)
+@api_v1.route('/artists')
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def artists(request):
@@ -68,7 +68,7 @@ async def artists(request):
     return response.HTTPResponse(artists, content_type="application/json")
 
 
-@api_v1.route('/genres', strict_slashes=True)
+@api_v1.route('/genres')
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def genres(request):
@@ -78,7 +78,7 @@ async def genres(request):
     return response.HTTPResponse(genres, content_type="application/json")
 
 
-@api_v1.route('/albums', strict_slashes=True)
+@api_v1.route('/albums')
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def albums(request):
@@ -88,7 +88,7 @@ async def albums(request):
     return response.HTTPResponse(albums, content_type="application/json")
 
 
-@api_v1.route("/keywords", strict_slashes=True)
+@api_v1.route('/keywords')
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def keywords(request):

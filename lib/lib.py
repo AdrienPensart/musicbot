@@ -11,7 +11,6 @@ from timeit import default_timer as timer
 from logging import info, error, critical
 
 
-quiet = False
 output_types = ["list", "json"]
 default_output_type = 'json'
 

@@ -23,7 +23,7 @@ def cli(ctx, **kwargs):
     '''API Server'''
     server.app.config.DB.set(**kwargs)
     webconfig.webconfig.set(**kwargs)
-    if not webconfig.webconfig.watcher:
+    if not webconfig.webconfig.dev:
         return
     debug('Watching for python and html file changes')
     lib.raise_limits()

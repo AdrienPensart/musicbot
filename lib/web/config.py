@@ -4,7 +4,7 @@ import os
 
 options = [
     click.option('--dev', envvar='MB_DEV', help='Watch for source file modification', is_flag=True),
-    click.option('--watcher', envvar='MB_WATCHER', help='Watch for file modification', is_flag=True),
+    click.option('--watcher', envvar='MB_WATCHER', help='Watch for music file modification', is_flag=True),
     click.option('--autoscan', envvar='MB_AUTOSCAN', help='Enable auto scan background job', is_flag=True),
     click.option('--server-cache', envvar='MB_SERVER_CACHE', help='Activate server cache system', is_flag=True),
     click.option('--client-cache', envvar='MB_CLIENT_CACHE', help='Activate client cache system', is_flag=True),

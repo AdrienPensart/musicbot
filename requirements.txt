@@ -9,7 +9,7 @@ alabaster==0.7.10
 APScheduler==3.5.0
 argh==0.26.2
 async-timeout==2.0.0
-asyncpg==0.13.0
+asyncpg==0.14.0
 asynctest==0.11.1
 attrdict==2.0.0
 Babel==2.5.1
@@ -17,8 +17,9 @@ beautifulsoup4==4.6.0
 certifi==2017.11.5
 chardet==3.0.4
 click==6.7
-click-man==0.2.1
+click-man==0.2.2
 click-repl==0.1.2
+click-spinner==0.1.7
 docutils==0.14
 google==1.9.3
 google-api-python-client==1.6.4
@@ -71,4 +72,4 @@ watchdog==0.8.3
 wcwidth==0.1.7
 websockets==4.0.1
 WTForms==2.1
-yarl==0.16.0
+yarl==0.17.0

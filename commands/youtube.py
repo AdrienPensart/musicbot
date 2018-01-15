@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*- import click
 import click
 from lib import helpers, database, collection, filter
-from lib.config import config
 
 
 @click.group()
@@ -23,7 +22,7 @@ async def musics(ctx, **kwargs):
     '''Fetch youtube links for each music'''
     if ctx.obj.mf.youtube is None:
         ctx.obj.mf.youtube = ''
-    await helpers.crawl_musics(ctx.obj.db, ctx.obj.mf, quiet=config.quiet, concurrency=ctx.obj.concurrency)
+    await helpers.crawl_musics(ctx.obj.db, ctx.obj.mf, concurrency=ctx.obj.concurrency)
 
 
 @cli.command()
@@ -32,4 +31,4 @@ async def musics(ctx, **kwargs):
 @click.option('--youtube-album', envvar='MB_YOUTUBE_ALBUM', help='Select albums with a youtube link', default='')
 async def albums(ctx, youtube_album, **kwargs):
     '''Fetch youtube links for each album'''
-    await helpers.crawl_albums(ctx.obj.db, ctx.obj.mf, youtube_album=youtube_album, quiet=config.quiet, concurrency=ctx.obj.concurrency)
+    await helpers.crawl_albums(ctx.obj.db, ctx.obj.mf, youtube_album=youtube_album, concurrency=ctx.obj.concurrency)
