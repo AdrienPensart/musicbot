@@ -94,7 +94,6 @@ Commands
 --------
 .. code-block::
 
-CONFIG: id:139785369990928 quiet:False dry:False verbosity:error
 Usage: musicbot [OPTIONS] COMMAND [ARGS]...
 
   Music swiss knife, new gen.
@@ -123,7 +122,6 @@ musicbot config
 ***************
 .. code-block::
 
-  CONFIG: id:139969351346048 quiet:False dry:False verbosity:error
   Usage: musicbot config [OPTIONS] COMMAND [ARGS]...
   
     Config management
@@ -139,7 +137,6 @@ musicbot config save
 ********************
 .. code-block::
 
-  CONFIG: id:140434443847552 quiet:False dry:False verbosity:error
   Usage: musicbot config save [OPTIONS]
   
     Save config
@@ -165,7 +162,6 @@ musicbot consistency
 ********************
 .. code-block::
 
-  CONFIG: id:140601539843912 quiet:False dry:False verbosity:error
   Usage: musicbot consistency [OPTIONS] COMMAND [ARGS]...
   
     Inconsistencies management
@@ -181,7 +177,6 @@ musicbot consistency errors
 ***************************
 .. code-block::
 
-  CONFIG: id:140191404558208 quiet:False dry:False verbosity:error
   Usage: musicbot consistency errors [OPTIONS]
   
     Detect errors
@@ -216,7 +211,6 @@ musicbot db
 ***********
 .. code-block::
 
-  CONFIG: id:140174966794392 quiet:False dry:False verbosity:error
   Usage: musicbot db [OPTIONS] COMMAND [ARGS]...
   
     Database management
@@ -240,7 +234,6 @@ musicbot db clean
 *****************
 .. code-block::
 
-  CONFIG: id:140452676908928 quiet:False dry:False verbosity:error
   Usage: musicbot db clean [OPTIONS]
   
     Clean deleted musics from database
@@ -253,7 +246,6 @@ musicbot db clear
 *****************
 .. code-block::
 
-  CONFIG: id:140281093298048 quiet:False dry:False verbosity:error
   Usage: musicbot db clear [OPTIONS]
   
     Drop and recreate database and schema
@@ -267,7 +259,6 @@ musicbot db create
 ******************
 .. code-block::
 
-  CONFIG: id:140232674707384 quiet:False dry:False verbosity:error
   Usage: musicbot db create [OPTIONS]
   
     Create database and load schema
@@ -280,7 +271,6 @@ musicbot db drop
 ****************
 .. code-block::
 
-  CONFIG: id:139954576926592 quiet:False dry:False verbosity:error
   Usage: musicbot db drop [OPTIONS]
   
     Drop database schema
@@ -294,7 +284,6 @@ musicbot folder
 ***************
 .. code-block::
 
-  CONFIG: id:140563409966920 quiet:False dry:False verbosity:error
   Usage: musicbot folder [OPTIONS] COMMAND [ARGS]...
   
     Folder scanning
@@ -321,7 +310,6 @@ musicbot folder find
 ********************
 .. code-block::
 
-  CONFIG: id:140408909122136 quiet:False dry:False verbosity:error
   Usage: musicbot folder find [OPTIONS] [FOLDERS]...
   
     Only list files in selected folders
@@ -334,7 +322,6 @@ musicbot folder list
 ********************
 .. code-block::
 
-  CONFIG: id:139718525003872 quiet:False dry:False verbosity:error
   Usage: musicbot folder list [OPTIONS]
   
     List existing folders
@@ -347,7 +334,6 @@ musicbot folder new
 *******************
 .. code-block::
 
-  CONFIG: id:140196270270616 quiet:False dry:False verbosity:error
   Usage: musicbot folder new [OPTIONS] [FOLDERS]...
   
     Add a new folder in database
@@ -360,7 +346,6 @@ musicbot folder rescan
 **********************
 .. code-block::
 
-  CONFIG: id:140684296542136 quiet:False dry:False verbosity:error
   Usage: musicbot folder rescan [OPTIONS]
   
     Rescan all folders registered in database
@@ -376,7 +361,6 @@ musicbot folder scan
 ********************
 .. code-block::
 
-  CONFIG: id:140244549699456 quiet:False dry:False verbosity:error
   Usage: musicbot folder scan [OPTIONS] [FOLDERS]...
   
     Load musics files in database
@@ -391,7 +375,6 @@ musicbot folder sync
 ********************
 .. code-block::
 
-  CONFIG: id:140353628546944 quiet:False dry:False verbosity:error
   Usage: musicbot folder sync [OPTIONS] DESTINATION
   
     Copy selected musics with filters to destination folder
@@ -426,7 +409,6 @@ musicbot folder watch
 *********************
 .. code-block::
 
-  CONFIG: id:139966589011784 quiet:False dry:False verbosity:error
   Usage: musicbot folder watch [OPTIONS]
   
     Watch files changes in folders
@@ -439,7 +421,6 @@ musicbot playlist
 *****************
 .. code-block::
 
-  CONFIG: id:140342790998056 quiet:False dry:False verbosity:error
   Usage: musicbot playlist [OPTIONS] COMMAND [ARGS]...
   
     Playlist management
@@ -461,7 +442,6 @@ musicbot playlist bests
 ***********************
 .. code-block::
 
-  CONFIG: id:139830208210816 quiet:False dry:False verbosity:error
   Usage: musicbot playlist bests [OPTIONS] PATH
   
     Generate bests playlists with some rules
@@ -498,7 +478,6 @@ musicbot playlist new
 *********************
 .. code-block::
 
-  CONFIG: id:140324148312608 quiet:False dry:False verbosity:error
   Usage: musicbot playlist new [OPTIONS] [PATH]
   
     Generate a new playlist
@@ -533,7 +512,6 @@ musicbot server
 ***************
 .. code-block::
 
-  CONFIG: id:140337520633672 quiet:False dry:False verbosity:error
   Usage: musicbot server [OPTIONS] COMMAND [ARGS]...
   
     API Server
@@ -559,7 +537,6 @@ musicbot server start
 *********************
 .. code-block::
 
-  CONFIG: id:140292310243200 quiet:False dry:False verbosity:error
   Usage: musicbot server start [OPTIONS]
   
     Start musicbot web API
@@ -577,7 +554,6 @@ musicbot stats
 **************
 .. code-block::
 
-  CONFIG: id:139749669648256 quiet:False dry:False verbosity:error
   Usage: musicbot stats [OPTIONS] COMMAND [ARGS]...
   
     Generate some stats for music collection with filters
@@ -617,7 +593,6 @@ musicbot tag
 ************
 .. code-block::
 
-  CONFIG: id:140259440138336 quiet:False dry:False verbosity:error
   Usage: musicbot tag [OPTIONS] COMMAND [ARGS]...
   
     Music tags management
@@ -662,7 +637,6 @@ musicbot tag add
 ****************
 .. code-block::
 
-  CONFIG: id:140587851585464 quiet:False dry:False verbosity:error
   Usage: musicbot tag add [OPTIONS]
   
     Add tags - Not Implemented
@@ -675,7 +649,6 @@ musicbot tag delete
 *******************
 .. code-block::
 
-  CONFIG: id:140207279441848 quiet:False dry:False verbosity:error
   Usage: musicbot tag delete [OPTIONS]
   
     Delete tags - Not implemented
@@ -688,7 +661,6 @@ musicbot tag show
 *****************
 .. code-block::
 
-  CONFIG: id:139812041701192 quiet:False dry:False verbosity:error
   Usage: musicbot tag show [OPTIONS]
   
     Show tags of musics with filters
@@ -702,7 +674,6 @@ musicbot youtube
 ****************
 .. code-block::
 
-  CONFIG: id:140127836092792 quiet:False dry:False verbosity:error
   Usage: musicbot youtube [OPTIONS] COMMAND [ARGS]...
   
     Youtube management
@@ -747,7 +718,6 @@ musicbot youtube albums
 ***********************
 .. code-block::
 
-  CONFIG: id:140615088211896 quiet:False dry:False verbosity:error
   Usage: musicbot youtube albums [OPTIONS]
   
     Fetch youtube links for each album
@@ -761,7 +731,6 @@ musicbot youtube musics
 ***********************
 .. code-block::
 
-  CONFIG: id:139628056484048 quiet:False dry:False verbosity:error
   Usage: musicbot youtube musics [OPTIONS]
   
     Fetch youtube links for each music
