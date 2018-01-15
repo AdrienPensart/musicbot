@@ -6,6 +6,7 @@ import sys
 from textwrap import indent
 from tqdm import tqdm
 from lib import helpers, database, collection, filter
+from lib.config import config
 from logging import info, debug
 
 
@@ -30,11 +31,13 @@ async def bests(ctx, path, prefix, suffix, **kwargs):
     if len(prefix):
         ctx.obj.mf.relative = True
     playlists = await ctx.obj.db.bests(ctx.obj.mf)
-    with tqdm(total=len(playlists), file=sys.stdout, desc="Bests playlists", disable=ctx.obj.config.quiet) as bar:
+
+    print('ID Config in bests: ', id(config))
+    with tqdm(total=len(playlists), file=sys.stdout, desc="Bests playlists", disable=config.quiet) as bar:
         for p in playlists:
             playlist_filepath = os.path.join(path, p['name'] + suffix + '.m3u')
             content = indent(p['content'], prefix, lambda line: line != '#EXTM3U')
-            if not ctx.obj.config.dry:
+            if not config.dry:
                 try:
                     with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:
                         debug('Writing playlist to {} with content:\n{}'.format(playlist_filepath, content))
@@ -55,7 +58,7 @@ async def new(ctx, path, **kwargs):
     '''Generate a new playlist'''
     ctx.obj.mf = filter.Filter(**kwargs)
     p = await ctx.obj.db.playlist(ctx.obj.mf)
-    if not ctx.obj.config.dry:
+    if not config.dry:
         print(p['content'], file=path)
     else:
         info('DRY RUN: Writing playlist to {} with content:\n{}'.format(path, p['content']))

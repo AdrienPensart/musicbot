@@ -12,21 +12,24 @@ DEFAULT_USER = 'postgres'
 DEFAULT_PASSWORD = 'musicbot'
 
 options = [
-    click.option('--host', envvar='MB_DB_HOST', help='DB host', default=DEFAULT_HOST),
-    click.option('--port', envvar='MB_DB_PORT', help='DB port', default=DEFAULT_PORT),
-    click.option('--database', envvar='MB_DATABASE', help='DB name', default=DEFAULT_DATABASE),
-    click.option('--user', envvar='MB_DB_USER', help='DB user', default=DEFAULT_USER),
-    click.option('--password', envvar='MB_DB_PASSWORD', help='DB password', default=DEFAULT_PASSWORD)
+    click.option('--db-host', envvar='MB_DB_HOST', help='DB host', default=DEFAULT_HOST),
+    click.option('--db-port', envvar='MB_DB_PORT', help='DB port', default=DEFAULT_PORT),
+    click.option('--db-database', envvar='MB_DATABASE', help='DB name', default=DEFAULT_DATABASE),
+    click.option('--db-user', envvar='MB_DB_USER', help='DB user', default=DEFAULT_USER),
+    click.option('--db-password', envvar='MB_DB_PASSWORD', help='DB password', default=DEFAULT_PASSWORD)
 ]
 
 
 class Database(object):
-    def __init__(self, host=None, port=None, database=None, user=None, password=None, **kwargs):
-        self.host = host if host is not None else os.getenv('MB_DB_HOST', DEFAULT_HOST)
-        self.port = port if port is not None else os.getenv('MB_DB_PORT', DEFAULT_PORT)
-        self.database = database if database is not None else os.getenv('MB_DATABASE', DEFAULT_DATABASE)
-        self.user = user if user is not None else os.getenv('MB_DB_USER', DEFAULT_USER)
-        self.password = password if password is not None else os.getenv('MB_DB_PASSWORD', DEFAULT_PASSWORD)
+    def __init__(self, **kwargs):
+        self.set(**kwargs)
+
+    def set(self, db_host=None, db_port=None, db_database=None, db_user=None, db_password=None, **kwargs):
+        self.host = db_host if db_host is not None else os.getenv('MB_DB_HOST', DEFAULT_HOST)
+        self.port = db_port if db_port is not None else os.getenv('MB_DB_PORT', DEFAULT_PORT)
+        self.database = db_database if db_database is not None else os.getenv('MB_DATABASE', DEFAULT_DATABASE)
+        self.user = db_user if db_user is not None else os.getenv('MB_DB_USER', DEFAULT_USER)
+        self.password = db_password if db_password is not None else os.getenv('MB_DB_PASSWORD', DEFAULT_PASSWORD)
         self._pool = None
         info('Database: {} / {}'.format(id(self), self.connection_string()))
 

@@ -3,7 +3,9 @@ import click
 import os
 import sys
 from logging import debug
-from lib import helpers, database, collection, lib, server
+from lib import helpers, database, lib, server
+from lib.config import config
+from lib.web import config as webconfig
 
 THIS_DIR = os.path.dirname(os.path.abspath(sys.argv[0]))
 
@@ -16,19 +18,12 @@ def self_restart():
 @click.group()
 @click.pass_context
 @helpers.add_options(database.options)
-@click.option('--watcher', envvar='MB_WATCH', help='Watch for file modification', is_flag=True)
-@click.option('--autoscan', envvar='MB_SCHEDULER', help='Enable auto scan background job', is_flag=True)
-@click.option('--cache', envvar='MB_BROWSER_CACHE', help='Activate browser cache system', is_flag=True)
-@click.option('--browser-cache', envvar='MB_BROWSER_CACHE', help='Activate browser cache system', is_flag=True)
-def cli(ctx, watcher, autoscan, cache, browser_cache, **kwargs):
+@helpers.add_options(webconfig.options)
+def cli(ctx, **kwargs):
     '''API Server'''
-    server.app.config['DB'] = collection.Collection(**kwargs)
-    server.app.config['CONFIG'] = ctx.obj.config
-    server.app.config['WATCHER'] = watcher
-    server.app.config['AUTOSCAN'] = autoscan
-    server.app.config['CACHE'] = cache
-    server.app.config['BROWSER_CACHE'] = browser_cache
-    if not watcher:
+    server.app.config.DB.set(**kwargs)
+    webconfig.webconfig.set(**kwargs)
+    if not webconfig.webconfig.watcher:
         return
     debug('Watching for python and html file changes')
     lib.raise_limits()
@@ -72,6 +67,8 @@ def cli(ctx, watcher, autoscan, cache, browser_cache, **kwargs):
 @cli.command()
 @click.pass_context
 @helpers.add_options(server.options)
-def start(ctx, host, port, workers, **kwargs):
+def start(ctx, http_host, http_port, http_workers, http_user, http_password, **kwargs):
     '''Start musicbot web API'''
-    server.app.run(host=host, port=port, debug=ctx.obj.config.isDebug(), workers=workers)
+    server.app.config.HTTP_USER = http_user
+    server.app.config.HTTP_PASSWORD = http_password
+    server.app.run(host=http_host, port=http_port, debug=config.isDebug(), workers=http_workers)

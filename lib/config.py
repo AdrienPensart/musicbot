@@ -21,7 +21,11 @@ options = [
 
 
 class Config(object):
-    def __init__(self, dry=None, quiet=None, verbosity=None):
+    def __init__(self, **kwargs):
+        self.set(**kwargs)
+        print('CONFIG: id:{} quiet:{} dry:{} verbosity:{}'.format(id(self), self.quiet, self.dry, self.verbosity))
+
+    def set(self, dry=None, quiet=None, verbosity=None, **kwargs):
         self.quiet = quiet if quiet is not None else os.getenv('MB_QUIET', DEFAULT_QUIET)
         self.dry = dry if dry is not None else os.getenv('MB_DRY', DEFAULT_DRY)
         self.verbosity = verbosity if verbosity is not None else os.getenv('MB_VERBOSITY', DEFAULT_VERBOSITY)

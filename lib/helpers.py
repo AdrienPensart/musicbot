@@ -4,8 +4,9 @@ import time
 import uvloop
 import click
 import sys
-from tqdm import tqdm
 import asyncpg
+import click_spinner
+from tqdm import tqdm
 from functools import wraps
 from logging import warning, debug, info
 from hachiko.hachiko import AIOEventHandler
@@ -57,7 +58,8 @@ async def fullscan(db, folders=None, concurrency=1, crawl=False, quiet=True):
         folders = await db.folders()
         folders = [f['name'] for f in folders]
 
-    files = [f for f in find_files(list(folders)) if f[1].endswith(tuple(default_formats))]
+    with click_spinner.spinner():
+        files = [f for f in find_files(list(folders)) if f[1].endswith(tuple(default_formats))]
     size = len(files) * 2 if crawl else len(files)
     with tqdm(total=size, file=sys.stdout, desc="Loading music", leave=True, position=0, disable=quiet) as bar:
         async def insert(semaphore, f):
@@ -164,6 +166,7 @@ def coro(f):
 def drier(f):
     @wraps(f)
     async def wrapper(*args, **kwargs):
+        debug('DRYNESS: {} {}'.format(id(config), config.dry))
         if config.dry:
             args = [str(a) for a in args] + ["%s=%s" % (k, v) for (k, v) in kwargs.items()]
             info('DRY RUN: {}({})'.format(f.__name__, ','.join(args)))

@@ -6,6 +6,7 @@ import asyncio
 from tqdm import tqdm
 from logging import debug, info
 from lib import helpers, lib, collection, database, filter
+from lib.config import config
 from lib.helpers import watcher, fullscan
 from lib.lib import empty_dirs
 
@@ -48,7 +49,7 @@ async def list(ctx, **kwargs):
 async def scan(ctx, concurrency, crawl, folders, **kwargs):
     '''Load musics files in database'''
     debug('Concurrency: {}'.format(concurrency))
-    await fullscan(ctx.obj.db, folders=folders, quiet=ctx.obj.config.quiet, concurrency=concurrency, crawl=crawl)
+    await fullscan(ctx.obj.db, folders=folders, quiet=config.quiet, concurrency=concurrency, crawl=crawl)
 
 
 @cli.command()
@@ -60,7 +61,7 @@ async def scan(ctx, concurrency, crawl, folders, **kwargs):
 async def rescan(ctx, concurrency, crawl, **kwargs):
     '''Rescan all folders registered in database'''
     debug('Concurrency: {}'.format(concurrency))
-    await fullscan(ctx.obj.db, quiet=ctx.obj.config.quiet, concurrency=concurrency, crawl=crawl)
+    await fullscan(ctx.obj.db, quiet=config.quiet, concurrency=concurrency, crawl=crawl)
 
 
 @cli.command()
@@ -97,19 +98,19 @@ async def sync(ctx, destination, **kwargs):
     sources = {m['path'][len(m['folder']) + 1:]: m['path'] for m in musics}
     to_delete = set(destinations.keys()) - set(sources.keys())
     to_copy = set(sources.keys()) - set(destinations.keys())
-    with tqdm(total=len(to_delete), file=sys.stdout, desc="Deleting music", leave=True, position=0, disable=ctx.obj.config.quiet) as bar:
+    with tqdm(total=len(to_delete), file=sys.stdout, desc="Deleting music", leave=True, position=0, disable=config.quiet) as bar:
         for d in to_delete:
-            if not ctx.obj.config.dry:
+            if not config.dry:
                 info("Deleting {}".format(destinations[d]))
                 os.remove(destinations[d])
             else:
                 info("[DRY-RUN] False Deleting {}".format(destinations[d]))
             bar.update(1)
-    with tqdm(total=len(to_copy), file=sys.stdout, desc="Copying music", leave=True, position=0, disable=ctx.obj.config.quiet) as bar:
+    with tqdm(total=len(to_copy), file=sys.stdout, desc="Copying music", leave=True, position=0, disable=config.quiet) as bar:
         from shutil import copyfile
         for c in sorted(to_copy):
             final_destination = os.path.join(destination, c)
-            if not ctx.obj.config.dry:
+            if not config.dry:
                 info("Copying {} to {}".format(sources[c], final_destination))
                 os.makedirs(os.path.dirname(final_destination), exist_ok=True)
                 copyfile(sources[c], final_destination)
@@ -119,6 +120,6 @@ async def sync(ctx, destination, **kwargs):
 
     import shutil
     for d in empty_dirs(destination):
-        if not ctx.obj.config.dry:
+        if not config.dry:
             shutil.rmtree(d)
         info("[DRY-RUN] Removing empty dir {}".format(d))

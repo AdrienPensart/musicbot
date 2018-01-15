@@ -13,6 +13,7 @@ from .web.helpers import env, template, get_flashed_messages, download_title, se
 from .web.api import api_v1
 from .web.collection import collection
 from .web.app import app
+from .web.config import webconfig
 from logging import debug, info
 # from .web.limiter import limiter
 # from logging_tree import printout
@@ -25,11 +26,11 @@ DEFAULT_HTTP_PORT = 8000
 DEFAULT_HTTP_WORKERS = 1
 
 options = [
-    click.option('--user', envvar='MB_HTTP_USER', help='HTTP Basic auth user', default=DEFAULT_HTTP_USER),
-    click.option('--password', envvar='MB_HTTP_PASSWORD', help='HTTP Basic auth password', default=DEFAULT_HTTP_PASSWORD),
-    click.option('--host', envvar='MB_HTTP_HOST', help='Host interface to listen on', default=DEFAULT_HTTP_HOST),
-    click.option('--port', envvar='MB_HTTP_PORT', help='HTTP port to listen on', default=DEFAULT_HTTP_PORT),
-    click.option('--workers', envvar='MB_HTTP_WORKERS', help='Number of HTTP workers (not tested)', default=DEFAULT_HTTP_WORKERS),
+    click.option('--http-host', envvar='MB_HTTP_HOST', help='Host interface to listen on', default=DEFAULT_HTTP_HOST),
+    click.option('--http-port', envvar='MB_HTTP_PORT', help='HTTP port to listen on', default=DEFAULT_HTTP_PORT),
+    click.option('--http-workers', envvar='MB_HTTP_WORKERS', help='Number of HTTP workers (not tested)', default=DEFAULT_HTTP_WORKERS),
+    click.option('--http-user', envvar='MB_HTTP_USER', help='HTTP Basic auth user', default=DEFAULT_HTTP_USER),
+    click.option('--http-password', envvar='MB_HTTP_PASSWORD', help='HTTP Basic auth password', default=DEFAULT_HTTP_PASSWORD),
 ]
 
 app.blueprint(collection)
@@ -46,10 +47,8 @@ env.globals['download_title'] = download_title
 env.globals['request_time'] = lambda: secondsToHuman(time.time() - env.globals['request_start_time'])
 session = {}
 
-app.config.AUTOSCAN = False
-app.config.WATCHER = False
-app.config.CACHE = False
-app.config.BROWSER_CACHE = False
+app.config.HTTP_USER = DEFAULT_HTTP_USER
+app.config.HTTP_PASSWORD = DEFAULT_HTTP_PASSWORD
 app.config.WTF_CSRF_SECRET_KEY = 'top secret!'
 app.config.SCHEDULER = None
 app.config.LISTENER = None
@@ -72,14 +71,14 @@ def invalidate_cache(connection, pid, channel, payload):
 
 @app.listener('before_server_start')
 async def init_authentication(app, loop):
-    user = os.getenv('MB_HTTP_USER', DEFAULT_HTTP_USER)
-    password = os.getenv('MB_HTTP_PASSWORD', DEFAULT_HTTP_PASSWORD)
+    user = os.getenv('MB_HTTP_USER', app.config.HTTP_USER)
+    password = os.getenv('MB_HTTP_PASSWORD', app.config.HTTP_PASSWORD)
     env.globals['auth'] = {'user': user, 'password': password}
 
 
 @app.listener('before_server_start')
 async def init_cache_invalidator(app, loop):
-    if app.config.CACHE:
+    if webconfig.server_cache:
         debug('Cache invalidator activated')
         app.config.LISTENER = await (await app.config.DB.pool).acquire()
         await app.config.LISTENER.add_listener('cache_invalidator', invalidate_cache)
@@ -89,7 +88,7 @@ async def init_cache_invalidator(app, loop):
 
 @app.listener('before_server_start')
 async def start_watcher(app, loop):
-    if app.config.WATCHER:
+    if webconfig.watcher:
         debug('File watcher enabled')
         app.config.watcher_task = loop.create_task(watcher(app.config.DB))
     else:
@@ -98,13 +97,13 @@ async def start_watcher(app, loop):
 
 @app.listener('before_server_stop')
 async def stop_watcher(app, loop):
-    if app.config.WATCHER:
+    if webconfig.watcher:
         app.config.watcher_task.cancel()
 
 
 @app.listener('before_server_start')
 async def start_scheduler(app, loop):
-    if app.config.AUTOSCAN:
+    if webconfig.autoscan:
         debug('Autoscan enabled')
         app.config.SCHEDULER = AsyncIOScheduler({'event_loop': loop})
         app.config.SCHEDULER.add_job(fullscan, 'cron', [app.config.DB], hour=3)
@@ -117,7 +116,7 @@ async def start_scheduler(app, loop):
 
 @app.listener('before_server_stop')
 async def stop_scheduler(app, loop):
-    if app.config.AUTOSCAN:
+    if webconfig.autoscan:
         app.config.SCHEDULER.shutdown(wait=False)
 
 
@@ -129,7 +128,7 @@ async def before(request):
 
 @app.middleware('response')
 async def after(request, response):
-    if app.config.BROWSER_CACHE:
+    if webconfig.client_cache:
         debug('Browser cache enabled')
     else:
         info('Browser cache disabled')

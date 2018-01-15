@@ -2,8 +2,10 @@
 from sanic import Blueprint, response
 from aiocache import cached, SimpleMemoryCache
 from aiocache.serializers import PickleSerializer
+from aiocache.plugins import HitMissRatioPlugin, TimingPlugin
 from . import helpers, forms
 from .app import db
+from logging import debug
 collection = Blueprint('collection', url_prefix='/collection')
 
 
@@ -153,11 +155,22 @@ async def zip(request):
     return helpers.zip(musics, name)
 
 
-@collection.route("/player", strict_slashes=True)
-@helpers.basicauth
-@cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
-async def player(request):
-    '''Play a playlist in browser'''
+async def gen_playlist(request):
     mf = await helpers.get_filter(request)
     musics = await db.musics(mf)
     return await helpers.template('player.html', musics=musics, mf=mf)
+
+
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), plugins=[HitMissRatioPlugin(), TimingPlugin()])
+async def cached_call(f, request):
+    return await f(request)
+
+
+@collection.route("/player", strict_slashes=True)
+@helpers.basicauth
+async def player(request):
+    '''Play a playlist in browser'''
+    if request.args.get('shuffle', False):
+        debug('Shuffled playlist, not using cache')
+        return await gen_playlist(request)
+    return await cached_call(gen_playlist, request)
