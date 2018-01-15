@@ -31,7 +31,7 @@ class Database(object):
         self.user = db_user if db_user is not None else os.getenv('MB_DB_USER', DEFAULT_USER)
         self.password = db_password if db_password is not None else os.getenv('MB_DB_PASSWORD', DEFAULT_PASSWORD)
         self._pool = None
-        info('Database: {} / {}'.format(id(self), self.connection_string()))
+        info('Database: {}'.format(self.connection_string()))
 
     def connection_string(self):
         return 'postgresql://{}:{}@{}:{}/{}'.format(self.user, self.password, self.host, self.port, self.database)

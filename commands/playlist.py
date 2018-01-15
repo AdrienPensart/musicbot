@@ -32,7 +32,6 @@ async def bests(ctx, path, prefix, suffix, **kwargs):
         ctx.obj.mf.relative = True
     playlists = await ctx.obj.db.bests(ctx.obj.mf)
 
-    print('ID Config in bests: ', id(config))
     with tqdm(total=len(playlists), file=sys.stdout, desc="Bests playlists", disable=config.quiet) as bar:
         for p in playlists:
             playlist_filepath = os.path.join(path, p['name'] + suffix + '.m3u')
