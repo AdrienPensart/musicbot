@@ -5,7 +5,7 @@
     {% for artist in artists: %}
     {{ artist }} -
     <a href="{{ url_for('collection.musics', keywords=mf.keywords, artists=artist) }}">musics</a> -
-    <a href="{{ url_for('collection.musics', filter="x5", artists=artist) }}">bests</a> -
+    <a href="{{ url_for('collection.player', filter="x5", artists=artist) }}">bests</a> -
     <a href="{{ url_for('collection.albums', keywords=mf.keywords, artists=artist) }}">albums</a> -
     <a href="{{ url_for('collection.stats', keywords=mf.keywords, artists=artist) }}">stats</a> -
     <a href="{{ url_for('collection.m3u', keywords=mf.keywords, artists=artist, name=artist) }}">m3u</a> -

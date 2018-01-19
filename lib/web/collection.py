@@ -9,6 +9,23 @@ from logging import debug
 collection = Blueprint('collection', strict_slashes=True, url_prefix='/collection')
 
 
+@collection.get('/rescan')
+@helpers.basicauth
+async def rescan(request):
+    return await helpers.template('rescan.html')
+
+
+@collection.websocket('/progression')
+@helpers.basicauth
+async def progression(request, ws):
+    while True:
+        data = 'hello!'
+        print('Sending: ' + data)
+        await ws.send(data)
+        data = await ws.recv()
+        print('Received: ' + data)
+
+
 @collection.get('/stats')
 @helpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='stats')

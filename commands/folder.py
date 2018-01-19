@@ -4,7 +4,7 @@ import sys
 import os
 import asyncio
 from tqdm import tqdm
-from logging import debug, info
+from logging import error, debug, info
 from lib import helpers, lib, collection, database, filter
 from lib.config import config
 from lib.helpers import watcher, fullscan
@@ -101,8 +101,11 @@ async def sync(ctx, destination, **kwargs):
     with tqdm(total=len(to_delete), file=sys.stdout, desc="Deleting music", leave=True, position=0, disable=config.quiet) as bar:
         for d in to_delete:
             if not config.dry:
-                info("Deleting {}".format(destinations[d]))
-                os.remove(destinations[d])
+                try:
+                    info("Deleting {}".format(destinations[d]))
+                    os.remove(destinations[d])
+                except Exception as e:
+                    error(e)
             else:
                 info("[DRY-RUN] False Deleting {}".format(destinations[d]))
             bar.update(1)

@@ -2,3 +2,12 @@
 .active a{color:#5DB0E6;text-decoration:none;}
 li a{color:#eeeedd;background:#333;padding:5px;display:block;}
 li a:hover{text-decoration:none;}
+#myProgress {
+    width: 100%;
+    background-color: grey;
+}
+#myBar {
+    width: 1%;
+    height: 30px;
+    background-color: green;
+}

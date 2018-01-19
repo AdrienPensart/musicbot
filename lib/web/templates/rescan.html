@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block body %}
+    <h2>Rescan</h2>
+    <div id="myProgress">
+       <div id="myBar"></div>
+    </div>
+    <script>
+        var ws = new WebSocket('wss://' + document.domain + ':' + location.port + '/collection/progression');
+        messages = document.createElement('ul');
+        ws.onmessage = function (event) {
+            var messages = document.getElementsByTagName('ul')[0];
+            var message = document.createElement('li');
+            var content = document.createTextNode('Received: ' + event.data);
+            message.appendChild(content);
+            messages.appendChild(message);
+        };
+        document.body.appendChild(messages);
+        window.setInterval(function() {
+            data = 'bye!'
+            ws.send(data);
+            var messages = document.getElementsByTagName('ul')[0];
+            var message = document.createElement('li');
+            var content = document.createTextNode('Sent: ' + data);
+            message.appendChild(content);
+            messages.appendChild(message);
+        }, 1000);
+    </script>
+{% endblock %}

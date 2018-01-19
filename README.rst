@@ -104,6 +104,8 @@ Options:
                                   Verbosity levels
   --dry                           Take no real action
   --quiet                         Silence any output (like progress bars)
+  --invocation TEXT               Invocation ID, resumable execution
+                                  (experimental)
   -h, --help                      Show this message and exit.
 
 Commands:
@@ -115,6 +117,7 @@ Commands:
   server       API Server
   stats        Generate some stats for music collection with...
   tag          Music tags management
+  task         Task management
   youtube      Youtube management
 
 
@@ -523,7 +526,7 @@ musicbot server
     --db-user TEXT      DB user
     --db-password TEXT  DB password
     --dev               Watch for source file modification
-    --watcher           Watch for file modification
+    --watcher           Watch for music file modification
     --autoscan          Enable auto scan background job
     --server-cache      Activate server cache system
     --client-cache      Activate client cache system
@@ -668,6 +671,51 @@ musicbot tag show
   Options:
     --fields TEXT  Show only those fields
     -h, --help     Show this message and exit.
+
+
+musicbot task
+*************
+.. code-block::
+
+  Usage: musicbot task [OPTIONS] COMMAND [ARGS]...
+  
+    Task management
+  
+  Options:
+    --db-host TEXT      DB host
+    --db-port INTEGER   DB port
+    --db-database TEXT  DB name
+    --db-user TEXT      DB user
+    --db-password TEXT  DB password
+    -h, --help          Show this message and exit.
+  
+  Commands:
+    list  List tasks in database
+    new   Add a new task in database
+
+
+musicbot task list
+******************
+.. code-block::
+
+  Usage: musicbot task list [OPTIONS]
+  
+    List tasks in database
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot task new
+*****************
+.. code-block::
+
+  Usage: musicbot task new [OPTIONS] NAME
+  
+    Add a new task in database
+  
+  Options:
+    -h, --help  Show this message and exit.
 
 
 musicbot youtube

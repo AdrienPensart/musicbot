@@ -24,6 +24,8 @@ ssl_certificate_key /etc/letsencrypt/live/dev.musicbot.ovh/privkey.pem; # manage
       proxy_set_header X-Forwarded-for $proxy_add_x_forwarded_for;
       proxy_set_header X-Forwarded-Proto https;
       proxy_set_header Host $http_host:1337;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "Upgrade";
       proxy_max_temp_file_size 0;
       proxy_pass http://127.0.0.1:1337;
       proxy_redirect http://$host:$proxy_port https://$host;
@@ -57,6 +59,8 @@ server {
       proxy_set_header X-Forwarded-for $proxy_add_x_forwarded_for;
       proxy_set_header X-Forwarded-Proto https;
       proxy_set_header Host $http_host:1338;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "Upgrade";
       proxy_max_temp_file_size 0;
       proxy_pass http://127.0.0.1:1338;
       proxy_redirect http://$host:$proxy_port https://$host;

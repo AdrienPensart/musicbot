@@ -9,7 +9,6 @@ ToDo
 Bugs/Flows
 --
 - live versions of song / album when searching on youtube
-- syntax / inotify limit resistant scripts
 - youtube caching
 - pagination
 - rename tags to keywords

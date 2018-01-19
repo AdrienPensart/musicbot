@@ -5,7 +5,7 @@
   {% else %}
   <title>MusicBot</title>
   {% endif %}
-  <link rel="stylesheet" type="text/css" href="/static/player.css">
+  <link rel="stylesheet" type="text/css" href="/static/musicbot.css">
   <link rel="icon" href="/static/favicon.ico">
   <script src="/static/jquery-3.2.1.min.js"></script>
 </head>
@@ -21,6 +21,7 @@
     {% endif %}
   {% endwith %}
   <strong>Rendered in {{ request_time() }}</strong><br>
+  <a href="{{ url_for('collection.rescan') }}">Rescan</a><br>
   <a href="{{ url_for('collection.stats') }}">Stats</a> (<a href="{{ url_for('api_v1.stats') }}">api</a>)<br>
   <a href="{{ url_for('collection.musics') }}">Musics</a> (<a href="{{ url_for('api_v1.musics') }}">api</a>)<br>
   <a href="{{ url_for('collection.artists') }}">Artists</a> (<a href="{{ url_for('api_v1.artists') }}">api</a>)<br>
