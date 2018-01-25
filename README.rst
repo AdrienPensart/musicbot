@@ -72,11 +72,13 @@ ToDo
   - cli
   - coverage
   - db
+- javascript
+- better CSS
+- bests playlist without live versions
 
 Bugs/Flows
 --
 - live versions of song / album when searching on youtube
-- syntax / inotify limit resistant scripts
 - youtube caching
 - pagination
 - rename tags to keywords

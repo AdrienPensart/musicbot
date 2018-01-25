@@ -4,6 +4,7 @@ import asyncio
 import os
 import uuid
 from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL, getLogger, debug
+from . import lib
 
 DEFAULT_VERBOSITY = 'error'
 DEFAULT_DRY = False
@@ -27,8 +28,8 @@ class Config(object):
         self.set(**kwargs)
 
     def set(self, invocation=None, dry=None, quiet=None, verbosity=None, **kwargs):
-        self.quiet = quiet if quiet is not None else os.getenv('MB_QUIET', DEFAULT_QUIET)
-        self.dry = dry if dry is not None else os.getenv('MB_DRY', DEFAULT_DRY)
+        self.quiet = quiet if quiet is not None else lib.str2bool(os.getenv('MB_QUIET', DEFAULT_QUIET))
+        self.dry = dry if dry is not None else lib.str2bool(os.getenv('MB_DRY', DEFAULT_DRY))
         self.verbosity = verbosity if verbosity is not None else os.getenv('MB_VERBOSITY', DEFAULT_VERBOSITY)
         self.invocation = invocation if invocation is not None else os.getenv('MB_INVOCATION', uuid.uuid4())
         debug(self)
@@ -54,7 +55,7 @@ class Config(object):
         debug('new verbosity: {}'.format(verbosity))
 
     def __repr__(self):
-        return 'invocation:{} quiet:{} dry:{} verbosity{}'.format(self.invocation, self.quiet, self.dry, self._verbosity)
+        return 'invocation:{} quiet:{} dry:{} verbosity:{}'.format(self.invocation, self.quiet, self.dry, self._verbosity)
 
 
 config = Config()

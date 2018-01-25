@@ -15,6 +15,10 @@ output_types = ["list", "json"]
 default_output_type = 'json'
 
 
+def str2bool(v):
+    return str(v).lower() in ("yes", "true", "t", "1")
+
+
 def bytesToHuman(b):
     return humanfriendly.format_size(b)
 

@@ -63,12 +63,7 @@ app.config.API_PRODUCES_CONTENT_TYPES = ['application/json']
 app.config.API_CONTACT_EMAIL = 'crunchengine@gmail.com'
 
 
-def invalidate_cache(connection, pid, channel, payload):
-    debug('Received notification: {} {} {}'.format(pid, channel, payload))
-    cache = caches.get('default')
-    app.loop.create_task(cache.delete(payload))
-
-
+# AUTHENTICATION
 @app.listener('before_server_start')
 async def init_authentication(app, loop):
     user = os.getenv('MB_HTTP_USER', app.config.HTTP_USER)
@@ -76,8 +71,16 @@ async def init_authentication(app, loop):
     env.globals['auth'] = {'user': user, 'password': password}
 
 
+# CACHE INVALIDATION
+def invalidate_cache(connection, pid, channel, payload):
+    debug('Received notification: {} {} {}'.format(pid, channel, payload))
+    cache = caches.get('default')
+    app.loop.create_task(cache.delete(payload))
+
+
 @app.listener('before_server_start')
 async def init_cache_invalidator(app, loop):
+    print(webconfig)
     if webconfig.server_cache:
         debug('Cache invalidator activated')
         app.config.LISTENER = await (await app.config.DB.pool).acquire()
@@ -86,6 +89,7 @@ async def init_cache_invalidator(app, loop):
         debug('Cache invalidator disabled')
 
 
+# FILE WATCHER
 @app.listener('before_server_start')
 async def start_watcher(app, loop):
     if webconfig.watcher:
@@ -101,6 +105,7 @@ async def stop_watcher(app, loop):
         app.config.watcher_task.cancel()
 
 
+# APS SCHEDULER
 @app.listener('before_server_start')
 async def start_scheduler(app, loop):
     if webconfig.autoscan:
@@ -120,12 +125,14 @@ async def stop_scheduler(app, loop):
         app.config.SCHEDULER.shutdown(wait=False)
 
 
+# REQUEST TIMER
 @app.middleware('request')
 async def before(request):
     env.globals['request_start_time'] = time.time()
     request['session'] = session
 
 
+# BROWSER CACHE
 @app.middleware('response')
 async def after(request, response):
     if webconfig.client_cache:

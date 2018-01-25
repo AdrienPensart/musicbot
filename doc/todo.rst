@@ -5,6 +5,9 @@ ToDo
   - cli
   - coverage
   - db
+- javascript
+- better CSS
+- bests playlist without live versions
 
 Bugs/Flows
 --

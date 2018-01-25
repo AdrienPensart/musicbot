@@ -25,7 +25,7 @@ concurrency = [
 
 async def crawl_musics(db, mf=None, concurrency=1):
     if mf is None:
-        mf = Filter()
+        mf = Filter(youtube='')
     musics = await db.musics(mf)
     with tqdm(desc='Youtube musics', total=len(musics), disable=config.quiet) as bar:
         async def search(semaphore, m):
