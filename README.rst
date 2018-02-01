@@ -1,8 +1,13 @@
 ========
 MusicBot
 ========
-Build Status: |build-health|
-Code Coverage: |code-coverage|
++---------------+-----------------+
+|     Tools     |      Result     |
++===============+=================+
+| Code Quality  | |build-health|  |
++---------------+-----------------+
+| Code Coverage | |code-coverage| |
++---------------+-----------------+
 
 .. |code-coverage| image:: https://api.codacy.com/project/badge/Grade/621acf3309b24c538c40824f9af467de
    :target: https://www.codacy.com/app/AdrienPensart/musicbot?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=AdrienPensart/musicbot&amp;utm_campaign=Badge_Grade
@@ -25,7 +30,6 @@ Installation
   python-3.6 -m venv env
   source env/bin/activate
   pip install -r requirements.txt
-
 ToDo
 ----
 - tests :
