@@ -1,7 +1,22 @@
-#playlist,audio{background:#666;width:400px;padding:20px;}
-.active a{color:#5DB0E6;text-decoration:none;}
-li a{color:#eeeedd;background:#333;padding:5px;display:block;}
-li a:hover{text-decoration:none;}
+.table-condensed>thead>tr>th, .table-condensed>tbody>tr>th, .table-condensed>tfoot>tr>th, .table-condensed>thead>tr>td, .table-condensed>tbody>tr>td, .table-condensed>tfoot>tr>td{
+  padding: 0.1rem;
+  font-size: 0.75rem;
+}
+
+#player {
+  width: 100%;
+}
+
+ul#playlist li:hover {
+  background:#333;
+}
+
+ul#playlist li.active a {
+  color:#000000;
+  text-decoration:none;
+}
+
+/*
 #myProgress {
     width: 100%;
     background-color: grey;
@@ -11,3 +26,4 @@ li a:hover{text-decoration:none;}
     height: 30px;
     background-color: green;
 }
+*/

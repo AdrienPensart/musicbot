@@ -1,14 +1,44 @@
 {% extends "layout.html" %}
 
+{% block title %}Musics{% endblock %}
 {% block body %}
-<h2>Musics</h2>
-    {% for m in musics: %}
-        {% for field in m: %}
-        {{ field }} -
+    <table class="table table-striped table-condensed">
+      <thead class="thead-inverse">
+        <tr>
+          <th>Artist</th>
+          <th>Genre</th>
+          <th>Album</th>
+          <th>Track</th>
+          <th>Title</th>
+          <th>Rating</th>
+          <th>Keywords</th>
+          <th>Folder</th>
+          <th>Duration</th>
+          <th>Size</th>
+          <th>YouTube</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in musics: %}
+        <tr>
+          <td>{{ m.artist }}</td>
+          <td>{{ m.genre }}</td>
+          <td>{{ m.album }}</td>
+          <td>{{ m.number }}</td>
+          <td>{{ m.title }}</td>
+          <td>{{ m.rating }}</td>
+          <td>{{ m.keywords}}</td>
+          <td>{{ m.folder }}</td>
+          <td>{{ secondsToHuman(m.duration) }}</td>
+          <td>{{ bytesToHuman(m.size) }}</td>
+          <td><a href="{{ m.youtube }}">{{ m.youtube }}</a></td>
+          <td>
+            <a href="{{ url_for('collection.player', artists=m.artist, albums=m.album, titles=m.title) }}">play</a> /
+            <a href="{{ url_for('collection.download', artists=m.artist, albums=m.album, titles=m.title, name=download_title(m)) }}">download</a>
+          </td>
+        </tr>
         {% endfor %}
-    <a href="{{ url_for('collection.download', artists=m.artist, albums=m.album, titles=m.title, name=download_title(m)) }}">download</a> -
-    <a href="{{ url_for('collection.listen', artists=m.artist, albums=m.album, titles=m.title) }}">listen</a> -
-    <a href="{{ url_for('collection.player', artists=m.artist, albums=m.album, titles=m.title) }}">play</a>
-    <br>
-    {% endfor %}
+      </tbody>
+    </table>
 {% endblock %}

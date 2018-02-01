@@ -105,9 +105,8 @@ Options:
   --verbosity [debug|info|warning|error|critical]
                                   Verbosity levels
   --dry                           Take no real action
-  --quiet                         Silence any output (like progress bars)
-  --invocation TEXT               Invocation ID, resumable execution
-                                  (experimental)
+  --quiet                         Disable progress bars
+  --invocation TEXT               Resumable execution ID (experimental)
   -h, --help                      Show this message and exit.
 
 Commands:

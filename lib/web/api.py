@@ -43,7 +43,7 @@ async def filters(request):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def musics(request):
     '''List musics'''
-    mf = await helpers.get_filter(request, db)
+    mf = await helpers.get_filter(request)
     musics = await db.musics(mf, json=True)
     return response.HTTPResponse(musics, content_type="application/json")
 
@@ -53,7 +53,7 @@ async def musics(request):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def playlist(request):
     '''Generate a playlist, APIv1'''
-    mf = await helpers.get_filter(request, db)
+    mf = await helpers.get_filter(request)
     musics = await db.musics(mf, json=True)
     return response.HTTPResponse(musics, content_type="application/json")
 
@@ -63,7 +63,7 @@ async def playlist(request):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def artists(request):
     '''List artists'''
-    mf = await helpers.get_filter(request, db)
+    mf = await helpers.get_filter(request)
     artists = await db.artists(mf, json=True)
     return response.HTTPResponse(artists, content_type="application/json")
 
@@ -73,7 +73,7 @@ async def artists(request):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def genres(request):
     '''List artists'''
-    mf = await helpers.get_filter(request, db)
+    mf = await helpers.get_filter(request)
     genres = await db.genres(mf, json=True)
     return response.HTTPResponse(genres, content_type="application/json")
 
@@ -83,7 +83,7 @@ async def genres(request):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def albums(request):
     '''List albums'''
-    mf = await helpers.get_filter(request, db)
+    mf = await helpers.get_filter(request)
     albums = await db.albums(mf, json=True)
     return response.HTTPResponse(albums, content_type="application/json")
 
@@ -93,6 +93,6 @@ async def albums(request):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def keywords(request):
     '''Get keywords, APIv1'''
-    mf = await helpers.get_filter(request, db)
+    mf = await helpers.get_filter(request)
     keywords = await db.keywords(mf, json=True)
     return response.HTTPResponse(keywords, content_type="application/json")

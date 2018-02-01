@@ -1,38 +1,98 @@
 <!doctype html>
-<head>
-  {% if title %}
-  <title>{{ title }}</title>
-  {% else %}
-  <title>MusicBot</title>
-  {% endif %}
-  <link rel="stylesheet" type="text/css" href="/static/musicbot.css">
-  <link rel="icon" href="/static/favicon.ico">
-  <script src="/static/jquery-3.2.1.min.js"></script>
-</head>
-<div class=page>
-  <h1><a href="/">MusicBot</a></h1>
-  {% with messages = get_flashed_messages() %}
-    {% if messages|count %}
-      <ul class=flashes>
-      {% for message in messages %}
-        <li>{{ message }}</li>
-      {% endfor %}
-      </ul>
-    {% endif %}
-  {% endwith %}
-  <strong>Rendered in {{ request_time() }}</strong><br>
-  <a href="{{ url_for('collection.rescan') }}">Rescan</a><br>
-  <a href="{{ url_for('collection.stats') }}">Stats</a> (<a href="{{ url_for('api_v1.stats') }}">api</a>)<br>
-  <a href="{{ url_for('collection.musics') }}">Musics</a> (<a href="{{ url_for('api_v1.musics') }}">api</a>)<br>
-  <a href="{{ url_for('collection.artists') }}">Artists</a> (<a href="{{ url_for('api_v1.artists') }}">api</a>)<br>
-  <a href="{{ url_for('collection.albums') }}">Albums</a> (<a href="{{ url_for('api_v1.albums') }}">api</a>)<br>
-  <a href="{{ url_for('collection.genres') }}">Genres</a> (<a href="{{ url_for('api_v1.genres') }}">api</a>)<br>
-  <a href="{{ url_for('collection.keywords') }}">Keywords</a> (<a href="{{ url_for('api_v1.keywords') }}">api</a>)<br>
-  <a href="{{ url_for('collection.generate') }}">Generate a playlist</a> (<a href="{{ url_for('api_v1.playlist') }}">api</a>)<br>
-  <a href="{{ url_for('collection.filters') }}">Filters</a> (<a href="{{ url_for('api_v1.filters') }}">api</a>)<br>
-  <a href="{{ url_for('collection.folders') }}">Folders</a> (<a href="{{ url_for('api_v1.folders') }}">api</a>)<br>
-  <a href="{{ url_for('collection.consistency') }}">Consistency</a><br>
-  <a href="/swagger">Swagger</a><br>
-  <br>
-  {% block body %}{% endblock %}
-</div>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!--<meta name="viewport" content="width=fluid-width, initial-scale=1, shrink-to-fit=no">-->
+    <title>{% block title %}MusicBot{% endblock %}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="/static/musicbot.css">
+    <link rel="icon" href="/static/favicon.ico">
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-primary">
+      <a href="https://github.com/AdrienPensart/musicbot"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/52760788cde945287fbb584134c4cbc2bc36f904/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f77686974655f6666666666662e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"></a>
+      <a class="navbar-brand" href="/">MusicBot</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Collection
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="{{ url_for('collection.musics') }}">Musics</a>
+              <a class="dropdown-item" href="{{ url_for('collection.artists') }}">Artists</a>
+              <a class="dropdown-item" href="{{ url_for('collection.albums') }}">Albums</a>
+              <a class="dropdown-item" href="{{ url_for('collection.genres') }}">Genres</a>
+              <a class="dropdown-item" href="{{ url_for('collection.keywords') }}">Keywords</a>
+              <a class="dropdown-item" href="{{ url_for('collection.generate') }}">Playlist</a>
+              <a class="dropdown-item" href="{{ url_for('collection.filters') }}">Filters</a>
+            </div>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Folders
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="{{ url_for('collection.folders') }}">List</a>
+              <a class="dropdown-item" href="{{ url_for('collection.rescan') }}">Rescan</a>
+            </div>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Utilities
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="{{ url_for('collection.stats') }}">Stats</a>
+              <a class="dropdown-item" href="{{ url_for('collection.consistency') }}">Consistency</a>
+            </div>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              API
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="{{ url_for('api_v1.stats') }}">Stats</a>
+              <a class="dropdown-item" href="{{ url_for('api_v1.musics') }}">Musics</a>
+              <a class="dropdown-item" href="{{ url_for('api_v1.artists') }}">Artists</a>
+              <a class="dropdown-item" href="{{ url_for('api_v1.albums') }}">Albums</a>
+              <a class="dropdown-item" href="{{ url_for('api_v1.genres') }}">Genres</a>
+              <a class="dropdown-item" href="{{ url_for('api_v1.keywords') }}">Keywords</a>
+              <a class="dropdown-item" href="{{ url_for('api_v1.playlist') }}">Playlist</a>
+              <a class="dropdown-item" href="{{ url_for('api_v1.filters') }}">Filters</a>
+              <a class="dropdown-item" href="{{ url_for('api_v1.folders') }}">Folders</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="/swagger">Swagger</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <div class="p-1">
+      {% with messages = get_flashed_messages() %}
+        {% if messages|count %}
+          <ul class="flashes">
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+      {% block body %}{% endblock %}
+    </div>
+    <div class="text-center bg-primary">Rendered in {{ request_time() }}</div>
+  </body>
+</html>
