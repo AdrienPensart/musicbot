@@ -208,7 +208,11 @@ $$
         inner join artists a on a.id = m.artist_id
         inner join genres g on g.id = m.genre_id
         inner join folders f on f.id = m.folder_id
-        order by artist, album, number
+        order by
+            case when(mf.shuffle = 'true') then random() end,
+            case when(mf.shuffle = 'false') then a.name end,
+            case when(mf.shuffle = 'false') then al.name end,
+            case when(mf.shuffle = 'false') then m.number end
     )
     select *
     from all_musics mv
@@ -229,7 +233,6 @@ $$
         mv.size between mf.min_size and mf.max_size and
         mv.rating between mf.min_rating and mf.max_rating and
         (mf.youtube is null or (mf.youtube = mv.youtube))
-   order by case when (mf.shuffle = 'true') then random() end
    limit mf.limit;
 $$ language sql;
 
