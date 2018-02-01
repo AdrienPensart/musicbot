@@ -788,3 +788,8 @@ musicbot youtube musics
     -h, --help  Show this message and exit.
 
 
+
+
+.. image:: https://api.codacy.com/project/badge/Grade/308ac2e334744098a5d1e79c0b2a5686
+   :alt: Codacy Badge
+   :target: https://www.codacy.com/app/AdrienPensart/musicbot?utm_source=github.com&utm_medium=referral&utm_content=AdrienPensart/musicbot&utm_campaign=badger
