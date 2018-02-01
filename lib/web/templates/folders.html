@@ -1,8 +1,26 @@
 {% extends "layout.html" %}
+{% block title %}Folders{% endblock %}
 {% block body %}
-    <h2>Folders</h2>
     {% for folder in folders: %}
     {{ folder }}
     <br>
     {% endfor %}
+    <table class="table table-striped table-condensed">
+      <thead class="thead-inverse">
+        <tr>
+          <th>Path</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in folders: %}
+        <tr>
+          <td>{{ f.name }}</td>
+          <td>
+            <a href="{{ url_for('collection.rescan', folders=f.name) }}">rescan</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
 {% endblock %}

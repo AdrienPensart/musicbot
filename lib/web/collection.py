@@ -9,7 +9,7 @@ from logging import debug
 collection = Blueprint('collection', strict_slashes=True, url_prefix='/collection')
 
 
-@collection.get('/rescan')
+@collection.route('/rescan')
 @helpers.basicauth
 async def rescan(request):
     return await helpers.template('rescan.html')
@@ -41,7 +41,7 @@ async def stats(request):
 async def generate(request):
     '''Generate a playlist step by step'''
     # precedent = request.form
-    mf = helpers.get_filter(request, db)
+    mf = await helpers.get_filter(request)
     if request.args.get('play', False):
         musics = await db.musics(mf)
         return await helpers.template('player.html', musics=musics, mf=mf)
@@ -70,7 +70,7 @@ async def consistency(request):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='folders')
 async def folders(request):
     '''Get filters'''
-    folders = await db.folders_name()
+    folders = await db.folders()
     return await helpers.template('folders.html', folders=folders)
 
 
@@ -89,7 +89,7 @@ async def filters(request):
 async def keywords(request):
     '''Get keywords'''
     mf = await helpers.get_filter(request)
-    keywords = await db.keywords_name(mf)
+    keywords = await db.keywords(mf)
     return await helpers.template('keywords.html', keywords=keywords, mf=mf)
 
 
@@ -99,7 +99,7 @@ async def keywords(request):
 async def genres(request):
     '''List artists'''
     mf = await helpers.get_filter(request)
-    genres = await db.genres_name(mf)
+    genres = await db.genres(mf)
     return await helpers.template("genres.html", genres=genres, mf=mf)
 
 
@@ -109,7 +109,7 @@ async def genres(request):
 async def artists(request):
     '''List artists'''
     mf = await helpers.get_filter(request)
-    artists = await db.artists_name(mf)
+    artists = await db.artists(mf)
     return await helpers.template("artists.html", artists=artists, mf=mf)
 
 
@@ -119,7 +119,7 @@ async def artists(request):
 async def albums(request):
     '''List albums'''
     mf = await helpers.get_filter(request)
-    albums = await db.albums_name(mf)
+    albums = await db.albums(mf)
     return await helpers.template("albums.html", albums=albums, mf=mf)
 
 

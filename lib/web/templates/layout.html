@@ -14,7 +14,9 @@
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-primary">
-      <a href="https://github.com/AdrienPensart/musicbot"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/52760788cde945287fbb584134c4cbc2bc36f904/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f77686974655f6666666666662e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"></a>
+      <a href="https://github.com/AdrienPensart/musicbot">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/52760788cde945287fbb584134c4cbc2bc36f904/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f77686974655f6666666666662e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png">
+     </a>
       <a class="navbar-brand" href="/">MusicBot</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -81,18 +83,24 @@
         </ul>
       </div>
     </nav>
-    <div class="p-1">
-      {% with messages = get_flashed_messages() %}
-        {% if messages|count %}
-          <ul class="flashes">
-          {% for message in messages %}
-            <li>{{ message }}</li>
-          {% endfor %}
-          </ul>
-        {% endif %}
-      {% endwith %}
-      {% block body %}{% endblock %}
+    <div class="container-fluid">
+      <div class="p-1">
+        {% with messages = get_flashed_messages() %}
+          {% if messages|count %}
+            <ul class="flashes">
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+        {% block body %}{% endblock %}
+      </div>
     </div>
-    <div class="text-center bg-primary">Rendered in {{ request_time() }}</div>
+    <footer class="footer">
+      <div class="container-fluid text-center bg-primary">
+        Rendered in {{ request_time() }}
+      </div>
+    </footer>
   </body>
 </html>

@@ -14,6 +14,6 @@ python3 $musicbot $@ playlist bests --suffix '_4'   --min-rating 4.0 $filter "$d
 python3 $musicbot $@ playlist bests --suffix '_4.5' --min-rating 4.5 $filter "$dst"
 python3 $musicbot $@ playlist bests --suffix '_5'   --min-rating 5.0 $filter "$dst"
 
-for k in `python3 $musicbot tag show --fields keywords --artists Buckethead --keywords pike --min-rating 4.5 | grep -o '[a-z]\+' | sort | uniq | grep -v pike`; do
+for k in $(python3 $musicbot tag show --fields keywords --artists Buckethead --keywords pike --min-rating 4.5 | grep -o '[a-z]\+' | sort | uniq | grep -v pike); do
     python3 $musicbot playlist new $filter --artists Buckethead --keywords pike --keywords $k "$dst/Buckethead/Pikes/$k.m3u"
 done

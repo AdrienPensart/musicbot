@@ -1,15 +1,40 @@
 {% extends "layout.html" %}
-
+{% block title %}Keywords{% endblock %}
 {% block body %}
-    <h2>Keywords</h2>
-    {% for keyword in keywords: %}
-    {{ keyword }} -
-    <a href="{{ url_for('collection.artists', keywords=keyword) }}">artists</a> -
-    <a href="{{ url_for('collection.albums', keywords=keyword) }}">albums</a> -
-    <a href="{{ url_for('collection.musics', keywords=keyword) }}">musics</a> -
-    <a href="{{ url_for('collection.m3u', keywords=keyword, name=keyword) }}">m3u</a> -
-    <a href="{{ url_for('collection.zip', keywords=keyword, name=keyword) }}">zip</a> -
-    <a href="{{ url_for('collection.player', keywords=keyword) }}">play</a>
-    <br />
-    {% endfor %}
+    <table class="table table-striped table-condensed">
+      <thead class="thead-inverse">
+        <tr>
+          <th>Keyword</th>
+          <th>Artists</th>
+          <th>Genres</th>
+          <th>Albums</th>
+          <th>Musics</th>
+          <th>Play</th>
+          <th>Download</th>
+          <th>Info</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for k in keywords: %}
+        <tr>
+          <td>{{ k.name }}</td>
+          <td><a href="{{ url_for('collection.artists', keywords=k.name) }}">artists</a></td>
+          <td><a href="{{ url_for('collection.genres', keywords=k.name) }}">genres</a></td>
+          <td><a href="{{ url_for('collection.albums', keywords=k.name) }}">albums</a></td>
+          <td><a href="{{ url_for('collection.musics', keywords=k.name) }}">musics</a></td>
+          <td>
+            <a href="{{ url_for('collection.m3u', keywords=k.name, name=k.name) }}">m3u</a> /
+            <a href="{{ url_for('collection.zip', keywords=k.name, name=k.name) }}">zip</a>
+          </td>
+          <td>
+            <a href="{{ url_for('collection.player', keywords=k.name) }}">all</a> /
+            <a href="{{ url_for('collection.player', keywords=k.name, min_rating=4.0) }}">4+</a> /
+            <a href="{{ url_for('collection.player', keywords=k.name, min_rating=4.5) }}">4.5+</a> /
+            <a href="{{ url_for('collection.player', keywords=k.name, min_rating=5.0) }}">5.0</a>
+          </td>
+          <td><a href="{{ url_for('collection.stats', keywords=k.name) }}">stats</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
 {% endblock %}

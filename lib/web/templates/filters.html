@@ -1,8 +1,26 @@
 {% extends "layout.html" %}
+{% block title %}Filters{% endblock %}
 {% block body %}
-    <h2>Filters</h2>
-    {% for filter in filters: %}
-    <a href="{{ url_for('collection.musics', filter=filter['name']) }}">{{ filter['name'] }}</a>
-    <br>
-    {% endfor %}
+    <table class="table table-striped table-condensed">
+      <thead class="thead-inverse">
+        <tr>
+          <th>Filter</th>
+          <th>Musics</th>
+          <th>Artists</th>
+          <th>Albums</th>
+          <th>Play</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in filters: %}
+        <tr>
+          <td>{{ f.name }}</td>
+          <td><a href="{{ url_for('collection.musics', filter=f.name) }}">musics</a></td>
+          <td><a href="{{ url_for('collection.artists', filter=f.name) }}">artists</a></td>
+          <td><a href="{{ url_for('collection.albums', filter=f.name) }}">albums</a></td>
+          <td><a href="{{ url_for('collection.player', filter=f.name) }}">Play</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
 {% endblock %}

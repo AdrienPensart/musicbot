@@ -16,7 +16,7 @@ python3 $musicbot $@ playlist bests --prefix $prefix --suffix '_4'   --relative 
 python3 $musicbot $@ playlist bests --prefix $prefix --suffix '_4.5' --relative --min-rating 4.5 $filter "$dst"
 python3 $musicbot $@ playlist bests --prefix $prefix --suffix '_5'   --relative --min-rating 5.0 $filter "$dst"
 
-for k in `python3 $musicbot tag --artists Buckethead --keywords pike --min-rating 4.5 show --fields keywords | grep -o '[a-z]\+' | sort | uniq | grep -v pike`; do
+for k in $(python3 $musicbot tag --artists Buckethead --keywords pike --min-rating 4.5 show --fields keywords | grep -o '[a-z]\+' | sort | uniq | grep -v pike); do
     python3 $musicbot playlist new $filter --artists Buckethead --keywords pike --keywords $k --min-rating 4.5 "$dst/Buckethead/Pikes/$k.m3u"
     sed -i "s|^$src/Buckethead/Pikes/||" "$dst/Buckethead/Pikes/$k.m3u"
 done

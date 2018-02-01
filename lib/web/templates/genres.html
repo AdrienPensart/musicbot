@@ -1,14 +1,37 @@
 {% extends "layout.html" %}
-
+{% block title %}Genres{% endblock %}
 {% block body %}
-    <h2>Genres</h2>
-    {% for genre in genres: %}
-    {{ genre }} -
-    <a href="{{ url_for('collection.artists', genres=genre) }}">artists</a> -
-    <a href="{{ url_for('collection.albums', genres=genre) }}">albums</a> -
-    <a href="{{ url_for('collection.m3u', genres=genre, name=genre) }}">m3u</a> -
-    <a href="{{ url_for('collection.zip', genres=genre, name=genre) }}">zip</a> -
-    <a href="{{ url_for('collection.player', genres=genre, name=genre) }}">play</a>
-    <br>
-    {% endfor %}
+    <table class="table table-striped table-condensed">
+      <thead class="thead-inverse">
+        <tr>
+          <th>Genre</th>
+          <th>Artists</th>
+          <th>Albums</th>
+          <th>Play</th>
+          <th>Download</th>
+          <th>Info</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for g in genres: %}
+        <tr>
+          <td>{{ g.name }}</td>
+          <td><a href="{{ url_for('collection.artists', genres=g.name) }}">artists</a></td>
+          <td><a href="{{ url_for('collection.albums', genres=g.name) }}">albums</a></td>
+          <td>
+            <a href="{{ url_for('collection.player', keywords=mf.keywords, genres=g.name) }}">all</a> /
+            <a href="{{ url_for('collection.player', min_rating=4.0, genres=g.name) }}">4+</a> /
+            <a href="{{ url_for('collection.player', min_rating=4.5, genres=g.name) }}">4.5+</a> /
+            <a href="{{ url_for('collection.player', min_rating=5.0, genres=g.name) }}">5.0</a> /
+            <a href="{{ url_for('collection.player', keywords="best", genres=g.name) }}">best</a>
+          </td>
+          <td>
+            <a href="{{ url_for('collection.m3u', genres=g.name, name=g.name) }}">m3u</a> /
+            <a href="{{ url_for('collection.zip', genres=g.name, name=g.name) }}">zip</a>
+          </td>
+          <td><a href="{{ url_for('collection.stats', keywords=mf.keywords, genres=g.name) }}">stats</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
 {% endblock %}
