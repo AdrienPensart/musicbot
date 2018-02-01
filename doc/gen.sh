@@ -12,7 +12,7 @@ repeat (){
 
 echo -e "Commands\n--------" >> $commands
 echo -e ".. code-block::\n" >> $commands
-python3 $musicbot --help >> $commands
+python3 $musicbot --help | sed -e 's/^/  /' >> $commands
 echo -e "\n" >> $commands
 
 for c in $(python3 $musicbot --help | awk '/Commands/{y=1;next}y' | awk '{print $1}');

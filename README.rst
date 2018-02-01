@@ -32,17 +32,16 @@ Installation
   pip install -r requirements.txt
 ToDo
 ----
-- tests :
-  - web
-  - cli
-  - coverage
-  - db
-- javascript
-- better CSS
+- tests
+
+ - web
+ - db
+
+- shuffle checkbox
 - bests playlist without live versions
 
 Bugs/Flows
---
+----------
 - live versions of song / album when searching on youtube
 - youtube caching
 - pagination
@@ -51,7 +50,7 @@ Bugs/Flows
 - cache must be disabled when shuffle = 1
 
 Ideas
---
+-----
 - in database consistency checks
 - tree views configuration (letter,artist,genre,keyword)
 - OVH with terraform plugin
@@ -61,30 +60,30 @@ Commands
 --------
 .. code-block::
 
-Usage: musicbot [OPTIONS] COMMAND [ARGS]...
-
-  Music swiss knife, new gen.
-
-Options:
-  --version                       Show the version and exit.
-  --verbosity [debug|info|warning|error|critical]
-                                  Verbosity levels
-  --dry                           Take no real action
-  --quiet                         Disable progress bars
-  --invocation TEXT               Resumable execution ID (experimental)
-  -h, --help                      Show this message and exit.
-
-Commands:
-  config       Config management
-  consistency  Inconsistencies management
-  db           Database management
-  folder       Folder scanning
-  playlist     Playlist management
-  server       API Server
-  stats        Generate some stats for music collection with...
-  tag          Music tags management
-  task         Task management
-  youtube      Youtube management
+  Usage: musicbot [OPTIONS] COMMAND [ARGS]...
+  
+    Music swiss knife, new gen.
+  
+  Options:
+    --version                       Show the version and exit.
+    --verbosity [debug|info|warning|error|critical]
+                                    Verbosity levels
+    --dry                           Take no real action
+    --quiet                         Disable progress bars
+    --invocation TEXT               Resumable execution ID (experimental)
+    -h, --help                      Show this message and exit.
+  
+  Commands:
+    config       Config management
+    consistency  Inconsistencies management
+    db           Database management
+    folder       Folder scanning
+    playlist     Playlist management
+    server       API Server
+    stats        Generate some stats for music collection with...
+    tag          Music tags management
+    task         Task management
+    youtube      Youtube management
 
 
 musicbot config

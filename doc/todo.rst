@@ -1,16 +1,15 @@
 ToDo
 ----
-- tests :
-  - web
-  - cli
-  - coverage
-  - db
-- javascript
-- better CSS
+- tests
+
+ - web
+ - db
+
+- shuffle checkbox
 - bests playlist without live versions
 
 Bugs/Flows
---
+----------
 - live versions of song / album when searching on youtube
 - youtube caching
 - pagination
@@ -19,7 +18,7 @@ Bugs/Flows
 - cache must be disabled when shuffle = 1
 
 Ideas
---
+-----
 - in database consistency checks
 - tree views configuration (letter,artist,genre,keyword)
 - OVH with terraform plugin
