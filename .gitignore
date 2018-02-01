@@ -3,6 +3,8 @@ env
 doc/html
 *.egg-info
 .eggs
+.coverage
 dist
 man
 build
+htmlcov
