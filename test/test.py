@@ -2,8 +2,9 @@
 
 import unittest
 import os
-from asynctest import TestCase
+import asynctest
 from lib import file, collection, lib, filter
+from lib.server import app
 from logging import DEBUG, getLogger
 
 getLogger().setLevel(DEBUG)
@@ -32,6 +33,16 @@ filtered_teststats = {
     'keywords': 3,
     'size': 120219
 }
+
+
+class ApiTest(unittest.TestCase):
+    def test_index(self):
+        request, response = app.test_client.get('/')
+        assert response.status == 200
+
+    def test_collection_filters(self):
+        request, response = app.test_client.get('/collection/filters')
+        assert response.status == 200
 
 
 class MusicTagsTest(unittest.TestCase):
@@ -75,7 +86,7 @@ class MusicTagsTest(unittest.TestCase):
         self.assertTrue(lib.raise_limits())
 
 
-class DatabaseTest(TestCase):
+class DatabaseTest(asynctest.TestCase):
 
     async def setUp(self):
         lib.verbose = False

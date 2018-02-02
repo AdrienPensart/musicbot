@@ -63,12 +63,22 @@ app.config.API_PRODUCES_CONTENT_TYPES = ['application/json']
 app.config.API_CONTACT_EMAIL = 'crunchengine@gmail.com'
 
 
+# CLOSE DB GRACEFULLY
+@app.listener('after_server_stop')
+async def close_db(app, loop):
+    await app.config.DB.close()
+
+
 # AUTHENTICATION
 @app.listener('before_server_start')
 async def init_authentication(app, loop):
-    user = os.getenv('MB_HTTP_USER', app.config.HTTP_USER)
-    password = os.getenv('MB_HTTP_PASSWORD', app.config.HTTP_PASSWORD)
-    env.globals['auth'] = {'user': user, 'password': password}
+    if webconfig.no_auth:
+        debug('Authentication disabled')
+    else:
+        debug('Authentication enabled')
+        user = os.getenv('MB_HTTP_USER', app.config.HTTP_USER)
+        password = os.getenv('MB_HTTP_PASSWORD', app.config.HTTP_PASSWORD)
+        env.globals['auth'] = {'user': user, 'password': password}
 
 
 # CACHE INVALIDATION
@@ -80,7 +90,6 @@ def invalidate_cache(connection, pid, channel, payload):
 
 @app.listener('before_server_start')
 async def init_cache_invalidator(app, loop):
-    print(webconfig)
     if webconfig.server_cache:
         debug('Cache invalidator activated')
         app.config.LISTENER = await (await app.config.DB.pool).acquire()

@@ -12,6 +12,7 @@ async-timeout==2.0.0
 asyncpg==0.14.0
 asynctest==0.11.1
 attrdict==2.0.0
+attrs==17.4.0
 Babel==2.5.3
 beautifulsoup4==4.6.0
 certifi==2018.1.18
@@ -43,12 +44,16 @@ motor==1.2.1
 multidict==4.1.0
 oauth2client==4.1.2
 pathtools==0.1.2
+pluggy==0.6.0
 prompt-toolkit==1.0.15
+py==1.5.2
 pyasn1==0.4.2
 pyasn1-modules==0.2.1
 Pygments==2.2.0
 pymongo==3.6.0
 pytaglib==1.4.1
+pytest==3.4.0
+pytest-sanic==0.1.6
 pytz==2017.3
 PyYAML==3.12
 requests==2.18.4

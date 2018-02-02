@@ -62,7 +62,6 @@ class Filter(object):
         self.albums = default_albums if albums is None else albums
         self.no_albums = default_no_albums if no_albums is None else albums
         debug('Filter: {}'.format(self))
-        print(self.min_rating, self.max_rating)
         assert self.min_rating in rating_choices
         assert self.max_rating in rating_choices
         assert self.min_duration <= self.max_duration

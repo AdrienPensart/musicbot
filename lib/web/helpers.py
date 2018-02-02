@@ -7,6 +7,7 @@ from sanic import response
 from jinja2 import Environment, FileSystemLoader
 from functools import wraps
 from . import filter
+from .config import webconfig
 from .app import db
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -70,6 +71,8 @@ def send_file(music, name, attachment):
 
 
 def server():
+    if webconfig.no_auth:
+        return env.globals['server_name']
     return env.globals['auth']['user'] + ':' + env.globals['auth']['password'] + '@' + env.globals['server_name']
 
 
@@ -103,6 +106,9 @@ async def template(tpl, headers=None, **kwargs):
 def basicauth(f):
     @wraps(f)
     async def wrapper(request, *args, **kwargs):
+        if webconfig.no_auth:
+            return await f(request, *args, **kwargs)
+
         headers = {}
         is_authorized = False
         if 'Authorization' not in request.headers:
