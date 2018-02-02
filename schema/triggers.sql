@@ -1,17 +1,16 @@
-CREATE OR REPLACE FUNCTION strip_all_triggers() RETURNS text AS $$ DECLARE
-    triggNameRecord RECORD;
-    triggTableRecord RECORD;
-BEGIN
-    FOR triggNameRecord IN select distinct(trigger_name) from information_schema.triggers where trigger_schema = 'public' LOOP
-        FOR triggTableRecord IN SELECT distinct(event_object_table) from information_schema.triggers where trigger_name = triggNameRecord.trigger_name LOOP
-            RAISE NOTICE 'Dropping trigger: % on table: %', triggNameRecord.trigger_name, triggTableRecord.event_object_table;
-            EXECUTE 'DROP TRIGGER ' || triggNameRecord.trigger_name || ' ON ' || triggTableRecord.event_object_table || ';';
-        END LOOP;
-    END LOOP;
-
-    RETURN 'done';
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+create or replace function strip_all_triggers() returns text as $$ declare
+    triggNameRecord record;
+    triggTableRecord record;
+begin
+    for triggNameRecord in select distinct(trigger_name) from information_schema.triggers where trigger_schema = 'public' loop
+        for triggTableRecord in select distinct(event_object_table) from information_schema.triggers where trigger_name = triggNameRecord.trigger_name loop
+            raise notice 'Dropping trigger: % on table: %', triggNameRecord.trigger_name, triggTableRecord.event_object_table;
+            execute 'drop trigger ' || triggNameRecord.trigger_name || ' on ' || triggTableRecord.event_object_table || ';';
+        end loop;
+    end loop;
+    return 'done';
+end;
+$$ language plpgsql;
 
 create or replace function notify_trigger() returns trigger as $$
 declare

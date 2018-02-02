@@ -5,9 +5,9 @@
       <thead class="thead-inverse">
         <tr>
           <th>Filter</th>
-          <th>Musics</th>
-          <th>Artists</th>
-          <th>Albums</th>
+          <th>Diff</th>
+          <th>Common</th>
+          <th>Links</th>
           <th>Play</th>
         </tr>
       </thead>
@@ -15,10 +15,14 @@
         {% for f in filters: %}
         <tr>
           <td>{{ f.name }}</td>
-          <td><a href="{{ url_for('collection.musics', filter=f.name) }}">musics</a></td>
-          <td><a href="{{ url_for('collection.artists', filter=f.name) }}">artists</a></td>
-          <td><a href="{{ url_for('collection.albums', filter=f.name) }}">albums</a></td>
-          <td><a href="{{ url_for('collection.player', filter=f.name) }}">Play</a></td>
+          <td>{{ f.diff() }}</td>
+          <td>{{ f.common() }}</td>
+          <td>
+            <a href="{{ url_for('collection.musics', filter=f.name) }}">musics</a> /
+            <a href="{{ url_for('collection.artists', filter=f.name) }}">artists</a> /
+            <a href="{{ url_for('collection.albums', filter=f.name) }}">albums</a>
+          </td>
+          <td><a href="{{ url_for('collection.player', filter=f.name) }}">play</a></td>
         </tr>
         {% endfor %}
       </tbody>

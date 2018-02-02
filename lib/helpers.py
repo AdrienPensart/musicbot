@@ -23,6 +23,10 @@ concurrency = [
 ]
 
 
+async def refresh_db(db):
+    await db.refresh()
+
+
 async def crawl_musics(db, mf=None, concurrency=1):
     if mf is None:
         mf = Filter(youtube='')

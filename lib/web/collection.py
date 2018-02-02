@@ -4,6 +4,7 @@ from aiocache import cached, SimpleMemoryCache
 from aiocache.serializers import PickleSerializer
 from aiocache.plugins import HitMissRatioPlugin, TimingPlugin
 from . import helpers, forms
+from .. import filter
 from .app import db
 from logging import debug
 collection = Blueprint('collection', strict_slashes=True, url_prefix='/collection')
@@ -80,7 +81,8 @@ async def folders(request):
 async def filters(request):
     '''Get filters'''
     filters = await db.filters()
-    return await helpers.template('filters.html', filters=filters)
+    webfilters = [filter.Filter(**dict(f)) for f in filters]
+    return await helpers.template('filters.html', filters=webfilters)
 
 
 @collection.route('/keywords')
@@ -130,6 +132,16 @@ async def musics(request):
     '''List musics'''
     mf = await helpers.get_filter(request)
     musics = await db.musics(mf)
+    return await helpers.template("musics.html", musics=musics, mf=mf)
+
+
+@collection.route('/old_musics')
+@helpers.basicauth
+@cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='musics')
+async def old_musics(request):
+    '''List musics'''
+    mf = await helpers.get_filter(request)
+    musics = await db.old_musics(mf)
     return await helpers.template("musics.html", musics=musics, mf=mf)
 
 

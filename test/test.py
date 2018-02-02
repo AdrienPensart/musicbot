@@ -85,6 +85,7 @@ class DatabaseTest(TestCase):
         for f in self.files:
             m = file.File(f[1], f[0])
             await self.collection.upsert(m)
+        await self.collection.refresh()
 
     async def tearDown(self):
         await self.collection.close()

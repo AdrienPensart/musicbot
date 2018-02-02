@@ -33,6 +33,10 @@ class Collection(Database):
         await self.dropdb()
 
     @timeit
+    async def refresh(self):
+        await self.execute('refresh materialized view mmusics')
+
+    @timeit
     async def folders(self, json=False):
         if json:
             sql = '''select array_to_json(array_agg(row_to_json(f))) as result from folders f'''
@@ -179,6 +183,17 @@ class Collection(Database):
             sql = '''select array_to_json(array_agg(row_to_json(m))) as playlist from do_filter($1::filters) m'''
             return (await self.fetchrow(sql, l))['playlist']
         sql = '''select * from do_filter($1::filters)'''
+        return await self.fetch(sql, l)
+
+    @timeit
+    async def old_musics(self, f=None, json=False):
+        if f is None:
+            f = Filter()
+        l = f.to_list()
+        if json:
+            sql = '''select array_to_json(array_agg(row_to_json(m))) as playlist from do_filter($1::filters) m'''
+            return (await self.fetchrow(sql, l))['playlist']
+        sql = '''select * from old_do_filter($1::filters)'''
         return await self.fetch(sql, l)
 
     @timeit

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from logging import debug
 import click
+import json
 
 rating_choices = [x * 0.5 for x in range(0, 11)]
 min_int = 0
@@ -11,7 +12,8 @@ default_filter = None
 default_relative = False
 default_shuffle = False
 default_youtube = None
-default_formats = ["mp3", "flac"]
+# default_formats = ["mp3", "flac"]
+default_formats = []
 default_no_formats = []
 default_genres = []
 default_no_genres = []
@@ -30,8 +32,6 @@ default_titles = []
 default_no_titles = []
 default_albums = []
 default_no_albums = []
-# checks = list()
-# no_checks = list()
 
 
 class Filter(object):
@@ -62,8 +62,7 @@ class Filter(object):
         self.albums = default_albums if albums is None else albums
         self.no_albums = default_no_albums if no_albums is None else albums
         debug('Filter: {}'.format(self))
-        # checks = list()
-        # no_checks = list()
+        print(self.min_rating, self.max_rating)
         assert self.min_rating in rating_choices
         assert self.max_rating in rating_choices
         assert self.min_duration <= self.max_duration
@@ -74,14 +73,23 @@ class Filter(object):
         assert len(set(self.albums).intersection(self.no_albums)) == 0
         assert len(set(self.titles).intersection(self.no_titles)) == 0
         assert len(set(self.keywords).intersection(self.no_keywords)) == 0
-        # assert len(set(self.checks).intersection(self.no_checks)) == 0
 
     def __repr__(self):
-        import json
         return json.dumps(self.to_list())
 
+    def diff(self):
+        '''Print only differences with default filter'''
+        myself = vars(self)
+        default = vars(Filter())
+        return {k: myself[k] for k in myself if default[k] != myself[k] and k != 'name'}
+
+    def common(self):
+        '''Print common values with default filter'''
+        myself = vars(self)
+        default = vars(Filter())
+        return {k: myself[k] for k in myself if default[k] == myself[k] and k != 'name'}
+
     def to_list(self):
-        # return [a for a in dir(self) if not a.startswith('__')]
         my_list = [self.id, self.name,
                    self.min_duration, self.max_duration,
                    self.min_size, self.max_size,

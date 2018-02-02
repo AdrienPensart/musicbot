@@ -2,7 +2,6 @@
 from logging import debug
 from ..filter import Filter
 from ..lib import num
-# from ..file import mysplit
 
 
 class WebFilter(Filter):

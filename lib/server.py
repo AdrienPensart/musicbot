@@ -7,7 +7,7 @@ from datetime import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from sanic_openapi import swagger_blueprint, openapi_blueprint
 from .lib import bytesToHuman, secondsToHuman
-from .helpers import crawl_musics, crawl_albums, watcher, fullscan
+from .helpers import refresh_db, crawl_musics, crawl_albums, watcher, fullscan
 from .config import config
 from .web.helpers import env, template, get_flashed_messages, download_title, server
 from .web.api import api_v1
@@ -21,7 +21,7 @@ from logging import debug, info
 
 DEFAULT_HTTP_USER = 'musicbot'
 DEFAULT_HTTP_PASSWORD = 'musicbot'
-DEFAULT_HTTP_HOST = '0.0.0.0'
+DEFAULT_HTTP_HOST = '127.0.0.1'
 DEFAULT_HTTP_PORT = 8000
 DEFAULT_HTTP_WORKERS = 1
 
@@ -111,6 +111,7 @@ async def start_scheduler(app, loop):
     if webconfig.autoscan:
         debug('Autoscan enabled')
         app.config.SCHEDULER = AsyncIOScheduler({'event_loop': loop})
+        app.config.SCHEDULER.add_job(refresh_db, 'interval', [app.config.DB], hours=1)
         app.config.SCHEDULER.add_job(fullscan, 'cron', [app.config.DB], hour=3)
         app.config.SCHEDULER.add_job(crawl_musics, 'cron', [app.config.DB], hour=4)
         app.config.SCHEDULER.add_job(crawl_albums, 'cron', [app.config.DB], hour=5)

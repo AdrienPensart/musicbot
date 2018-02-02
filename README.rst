@@ -605,6 +605,7 @@ musicbot tag add
 ****************
 .. code-block::
 
+  0.0 5.0
   Usage: musicbot tag add [OPTIONS]
   
     Add tags - Not Implemented
@@ -617,6 +618,7 @@ musicbot tag delete
 *******************
 .. code-block::
 
+  0.0 5.0
   Usage: musicbot tag delete [OPTIONS]
   
     Delete tags - Not implemented
@@ -629,6 +631,7 @@ musicbot tag show
 *****************
 .. code-block::
 
+  0.0 5.0
   Usage: musicbot tag show [OPTIONS]
   
     Show tags of musics with filters
@@ -731,6 +734,7 @@ musicbot youtube albums
 ***********************
 .. code-block::
 
+  0.0 5.0
   Usage: musicbot youtube albums [OPTIONS]
   
     Fetch youtube links for each album
@@ -744,6 +748,7 @@ musicbot youtube musics
 ***********************
 .. code-block::
 
+  0.0 5.0
   Usage: musicbot youtube musics [OPTIONS]
   
     Fetch youtube links for each music
