@@ -16,6 +16,12 @@ body {
   width: 100%;
 }
 
+ul#playlist li {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  font-size: 0.75rem;
+}
+
 ul#playlist li:hover {
   background:#333;
 }
