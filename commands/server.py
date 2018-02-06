@@ -67,8 +67,9 @@ def cli(ctx, **kwargs):
 @cli.command()
 @click.pass_context
 @helpers.add_options(server.options)
-def start(ctx, http_host, http_port, http_workers, http_user, http_password, **kwargs):
+def start(ctx, http_host, http_server, http_port, http_workers, http_user, http_password, **kwargs):
     '''Start musicbot web API'''
+    server.app.config.HTTP_SERVER = http_server
     server.app.config.HTTP_USER = http_user
     server.app.config.HTTP_PASSWORD = http_password
     server.app.run(host=http_host, port=http_port, debug=config.isDebug(), workers=http_workers)

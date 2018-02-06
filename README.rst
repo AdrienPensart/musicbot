@@ -30,32 +30,6 @@ Installation
   python-3.6 -m venv env
   source env/bin/activate
   pip install -r requirements.txt
-ToDo
-----
-- tests
-
- - web
- - db
-
-- shuffle checkbox
-- bests playlist without live versions
-
-Bugs/Flows
-----------
-- live versions of song / album when searching on youtube
-- youtube caching
-- pagination
-- rename tags to keywords
-- copy prod database
-- cache must be disabled when shuffle = 1
-
-Ideas
------
-- in database consistency checks
-- tree views configuration (letter,artist,genre,keyword)
-- OVH with terraform plugin
-- use prometheous for metrics
-- use OVH Data Logs
 Commands
 --------
 .. code-block::
@@ -119,6 +93,7 @@ musicbot config save
     --db-user TEXT          DB user
     --db-password TEXT      DB password
     --http-host TEXT        Host interface to listen on
+    --http-server TEXT      Server name to use in links
     --http-port INTEGER     HTTP port to listen on
     --http-workers INTEGER  Number of HTTP workers (not tested)
     --http-user TEXT        HTTP Basic auth user
@@ -512,6 +487,7 @@ musicbot server start
   
   Options:
     --http-host TEXT        Host interface to listen on
+    --http-server TEXT      Server name to use in links
     --http-port INTEGER     HTTP port to listen on
     --http-workers INTEGER  Number of HTTP workers (not tested)
     --http-user TEXT        HTTP Basic auth user

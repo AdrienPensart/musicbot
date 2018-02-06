@@ -70,12 +70,6 @@ def send_file(music, name, attachment):
     return response.HTTPResponse(headers=headers)
 
 
-def server():
-    if webconfig.no_auth:
-        return env.globals['server_name']
-    return env.globals['auth']['user'] + ':' + env.globals['auth']['password'] + '@' + env.globals['server_name']
-
-
 def basename(path):
     return os.path.basename(path)
 
