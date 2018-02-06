@@ -34,7 +34,7 @@ class Collection(Database):
 
     @timeit
     async def refresh(self):
-        await self.execute('refresh materialized view mmusics')
+        await self.execute('refresh materialized view concurrently mmusics')
 
     @timeit
     async def folders(self, json=False):

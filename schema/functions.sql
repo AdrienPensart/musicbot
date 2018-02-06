@@ -206,6 +206,7 @@ inner join artists a on a.id = m.artist_id
 inner join genres g on g.id = m.genre_id
 inner join folders f on f.id = m.folder_id
 order by a.name, al.name, m.number;
+create unique index on mmusics (id);
 
 create or replace function do_filter(mf filters default new_filter())
 returns setof music as

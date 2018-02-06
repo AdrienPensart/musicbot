@@ -40,6 +40,7 @@ async def crawl_musics(db, mf=None, concurrency=1):
         semaphore = asyncio.BoundedSemaphore(concurrency)
         requests = [asyncio.ensure_future(search(semaphore, m)) for m in musics]
         await asyncio.gather(*requests)
+    await db.refresh()
 
 
 async def crawl_albums(db, mf=None, youtube_album='', concurrency=1):
@@ -55,6 +56,7 @@ async def crawl_albums(db, mf=None, youtube_album='', concurrency=1):
         semaphore = asyncio.BoundedSemaphore(concurrency)
         requests = [asyncio.ensure_future(search(semaphore, a)) for a in albums]
         await asyncio.gather(*requests)
+    await db.refresh()
 
 
 async def fullscan(db, folders=None, concurrency=1, crawl=False):
@@ -81,6 +83,7 @@ async def fullscan(db, folders=None, concurrency=1, crawl=False):
         debug('Gathering futures')
         tasks = [asyncio.ensure_future(insert(semaphore, f)) for f in files]
         await asyncio.gather(*tasks)
+    db.refresh()
 
 
 async def watcher(db):
@@ -94,10 +97,11 @@ async def watcher(db):
 
         async def update(self, path):
             for folder in folders:
-                if path.startswith(folder['name']) and path.endswith(tuple(default_formats)):
+                if path.startswith(folder['name']) and (len(default_formats) == 0 or path.endswith(tuple(default_formats))):
                     f = File(path, folder['name'])
                     await db.upsert(f)
-                    break
+                    await db.refresh()
+                    return
 
         async def on_modified(self, event):
             debug('Modifying DB for: {} {}'.format(event.src_path, event.event_type))
@@ -110,6 +114,7 @@ async def watcher(db):
         async def on_deleted(self, event):
             debug('Deleting entry in DB for: {} {}'.format(event.src_path, event.event_type))
             await db.delete(event.src_path)
+            await db.refresh()
 
         async def on_moved(self, event):
             debug('Moving entry in DB for: {} {}'.format(event.src_path, event.event_type))

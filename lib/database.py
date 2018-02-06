@@ -7,7 +7,7 @@ from .helpers import drier, timeit
 
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 5432
-DEFAULT_DATABASE = 'musicbot_dev'  # Never modify this
+DEFAULT_DATABASE = 'musicbot_prod'
 DEFAULT_USER = 'postgres'
 DEFAULT_PASSWORD = 'musicbot'
 
