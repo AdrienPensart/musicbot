@@ -145,11 +145,11 @@ class DatabaseTest(asynctest.TestCase):
         mf = filter.Filter(relative=True)
         playlist = await self.collection.playlist(mf)
         final = """#EXTM3U
-Buckethead/1994 - Giant Robot/02 - Welcome To Bucketheadland.flac
-Buckethead/1994 - Giant Robot/02 - Welcome To Bucketheadland - Cut.flac
-Buckethead/1994 - Giant Robot/03 - I Come In Peace.flac
 1995/La Source/La Flemme.mp3
-Buckethead/1994 - Giant Robot/01 - Doomride.flac"""
+Buckethead/1994 - Giant Robot/01 - Doomride.flac
+Buckethead/1994 - Giant Robot/02 - Welcome To Bucketheadland - Cut.flac
+Buckethead/1994 - Giant Robot/02 - Welcome To Bucketheadland.flac
+Buckethead/1994 - Giant Robot/03 - I Come In Peace.flac"""
         self.maxDiff = None
         self.assertMultiLineEqual(playlist['content'], final)
         print('Output:', playlist['content'])

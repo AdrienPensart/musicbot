@@ -231,7 +231,10 @@ $$
         mv.rating between mf.min_rating and mf.max_rating and
         (mf.youtube is null or (mf.youtube = mv.youtube))
     order by
-        case when(mf.shuffle = 'true') then random() end
+        case when(mf.shuffle = 'true') then random() end,
+        case when(mf.shuffle = 'false') then artist end,
+        case when(mf.shuffle = 'false') then album end,
+        case when(mf.shuffle = 'false') then number end
     limit mf.limit;
 $$ language sql;
 
@@ -373,7 +376,7 @@ $$
             case when mf.relative is false then coalesce('#EXTM3U' || E'\n' || string_agg(f.path, E'\n'), '')
             else coalesce('#EXTM3U' || E'\n' || string_agg(substring(f.path from char_length(f.folder)+2), E'\n'), '')
             end
-        from (select path, folder from do_filter(mf) order by rating desc) f;
+        from (select path, folder from do_filter(mf)) f;
 $$ language sql;
 
 create or replace function generate_bests_artist_keyword(mf filters default new_filter(min_rating := 0.8))
@@ -434,7 +437,6 @@ $$
         from keywords k
         group by k;
 $$ language sql;
-
 
 create or replace function generate_bests(mf filters default new_filter(min_rating := 0.8))
 returns setof playlist as

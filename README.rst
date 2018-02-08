@@ -167,10 +167,11 @@ musicbot db
     -h, --help          Show this message and exit.
   
   Commands:
-    clean   Clean deleted musics from database
-    clear   Drop and recreate database and schema
-    create  Create database and load schema
-    drop    Drop database schema
+    clean    Clean deleted musics from database
+    clear    Drop and recreate database and schema
+    create   Create database and load schema
+    drop     Drop database schema
+    refresh  Refresh database materialized views
 
 
 musicbot db clean
@@ -220,6 +221,18 @@ musicbot db drop
   
   Options:
     --yes       Are you sure you want to drop the db?
+    -h, --help  Show this message and exit.
+
+
+musicbot db refresh
+*******************
+.. code-block::
+
+  Usage: musicbot db refresh [OPTIONS]
+  
+    Refresh database materialized views
+  
+  Options:
     -h, --help  Show this message and exit.
 
 
