@@ -9,16 +9,18 @@
       <thead class="thead-inverse">
         <tr>
           <th>Path</th>
-          <th>Actions</th>
+          <!--<th>Actions</th>-->
         </tr>
       </thead>
       <tbody>
         {% for f in folders: %}
         <tr>
           <td>{{ f.name }}</td>
+          <!--
           <td>
             <a href="{{ url_for('collection.rescan', folders=f.name) }}">rescan</a>
           </td>
+          -->
         </tr>
         {% endfor %}
       </tbody>

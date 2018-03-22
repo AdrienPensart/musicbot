@@ -14,7 +14,7 @@ from . import youtube
 from .config import config
 from .file import File
 from .lib import secondsToHuman, find_files
-from .filter import Filter, default_formats
+from .filter import Filter, supported_formats
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
@@ -65,7 +65,7 @@ async def fullscan(db, folders=None, concurrency=1, crawl=False):
         folders = [f['name'] for f in folders]
 
     with click_spinner.spinner():
-        files = [f for f in find_files(list(folders)) if f[1].endswith(tuple(default_formats))]
+        files = [f for f in find_files(list(folders)) if f[1].endswith(tuple(supported_formats))]
     size = len(files) * 2 if crawl else len(files)
     with tqdm(total=size, file=sys.stdout, desc="Loading music", leave=True, position=0, disable=config.quiet) as bar:
         async def insert(semaphore, f):
@@ -83,7 +83,7 @@ async def fullscan(db, folders=None, concurrency=1, crawl=False):
         debug('Gathering futures')
         tasks = [asyncio.ensure_future(insert(semaphore, f)) for f in files]
         await asyncio.gather(*tasks)
-    db.refresh()
+    await db.refresh()
 
 
 async def watcher(db):
@@ -97,10 +97,10 @@ async def watcher(db):
 
         async def update(self, path):
             for folder in folders:
-                if path.startswith(folder['name']) and (len(default_formats) == 0 or path.endswith(tuple(default_formats))):
+                if path.startswith(folder['name']) and path.endswith(tuple(supported_formats)):
                     f = File(path, folder['name'])
                     await db.upsert(f)
-                    await db.refresh()
+                    # await db.refresh()
                     return
 
         async def on_modified(self, event):

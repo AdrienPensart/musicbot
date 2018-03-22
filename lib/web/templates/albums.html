@@ -1,39 +1,39 @@
 {% extends "layout.html" %}
 {% block title %}Albums{% endblock %}
 {% block body %}
-    <table class="table table-striped table-condensed">
-      <thead class="thead-inverse">
-        <tr>
-          <th>Album</th>
-          <th>Artist</th>
-          <th>Musics</th>
-          <th>Play</th>
-          <th>YouTube</th>
-          <th>Download</th>
-          <th>Info</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for a in albums: %}
-        <tr>
-          <td>{{ a.name }}</td>
-          <td>{{ a.artist }}</td>
-          <td><a href="{{ url_for('collection.musics', artists=mf.artists, albums=a.name) }}">musics</a></td>
-          <td>
-            <a href="{{ url_for('collection.player', artists=mf.artists, albums=a.name) }}">play</a>
-          </td>
-          <td>
-            <a href="{{ a.youtube }}">{{ a.youtube }}</a>
-          </td>
-          <td>
-            <a href="{{ url_for('collection.m3u', artists=mf.artists, albums=a.name, name=a.name) }}">m3u</a> /
-            <a href="{{ url_for('collection.zip', artists=mf.artists, albums=a.name, name=a.name) }}">zip</a>
-          </td>
-          <td>
-            <a href="{{ url_for('collection.stats', artists=mf.artists, albums=a.name) }}">stats</a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <table class="table table-striped table-condensed">
+    <thead class="thead-inverse">
+      <tr>
+        <th>Album</th>
+        <th>Artist</th>
+        <th>Musics</th>
+        <th>Play</th>
+        <th>YouTube</th>
+        <th>Download</th>
+        <th>Info</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in albums: %}
+      <tr>
+        <td>{{ a.name }}</td>
+        <td>{{ a.artist }}</td>
+        <td><a href="{{ url_for('collection.musics', artists=mf.artists, albums=a.name) }}">musics</a></td>
+        <td>
+          <a href="{{ url_for('collection.player', artists=mf.artists, albums=a.name) }}">play</a>
+        </td>
+        <td>
+          <a href="{{ a.youtube }}">{{ a.youtube }}</a>
+        </td>
+        <td>
+          <a href="{{ url_for('collection.m3u', artists=mf.artists, albums=a.name, name=a.name) }}">m3u</a> /
+          <a href="{{ url_for('collection.zip', artists=mf.artists, albums=a.name, name=a.name) }}">zip</a>
+        </td>
+        <td>
+          <a href="{{ url_for('collection.stats', artists=mf.artists, albums=a.name) }}">stats</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}

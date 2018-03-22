@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
+import sys
+import asyncpg
+from tqdm import tqdm
 from sanic import Blueprint, response
 from aiocache import cached, SimpleMemoryCache
 from aiocache.serializers import PickleSerializer
 from aiocache.plugins import HitMissRatioPlugin, TimingPlugin
 from . import helpers, forms
-from .. import filter
+from .. import filter, lib, file
 from .app import db
-from logging import debug
+from logging import debug, warning
 collection = Blueprint('collection', strict_slashes=True, url_prefix='/collection')
 
 
@@ -19,12 +22,30 @@ async def rescan(request):
 @collection.websocket('/progression')
 @helpers.basicauth
 async def progression(request, ws):
-    while True:
-        data = 'hello!'
-        print('Sending: ' + data)
-        await ws.send(data)
-        data = await ws.recv()
-        print('Received: ' + data)
+    debug('Getting folders')
+    folders = await db.folders_name()
+    debug('Scanning folders: {}'.format(folders))
+    files = [f for f in lib.find_files(folders) if f[1].endswith(tuple(filter.supported_formats))]
+
+    current = 0
+    percentage = 0
+    total = len(files)
+    debug('Number of files: {}'.format(total))
+    with tqdm(total=total, file=sys.stdout, desc="Loading music", leave=True, position=0) as bar:
+        debug('Reading files')
+        for f in files:
+            try:
+                m = file.File(f[1], f[0])
+                await db.upsert(m)
+                bar.update(1)
+                current += 1
+                current_percentage = int(current / total * 100)
+                if current_percentage > percentage:
+                    percentage = current_percentage
+                    await ws.send(str(percentage))
+            except asyncpg.exceptions.CheckViolationError as e:
+                warning("Violation: {}".format(e))
+    await db.refresh()
 
 
 @collection.get('/stats')

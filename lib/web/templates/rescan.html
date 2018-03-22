@@ -1,28 +1,16 @@
 {% extends "layout.html" %}
+{% block title %}Rescan{% endblock %}
 {% block body %}
-    <h2>Rescan</h2>
-    <div id="myProgress">
-       <div id="myBar"></div>
-    </div>
-    <script>
+  <div class="progress">
+    <div id="progression" class="progress-bar progress-bar-striped" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+  </div>
+  <script>
+    $(document).ready(function() {
         var ws = new WebSocket('wss://' + document.domain + ':' + location.port + '/collection/progression');
-        messages = document.createElement('ul');
         ws.onmessage = function (event) {
-            var messages = document.getElementsByTagName('ul')[0];
-            var message = document.createElement('li');
-            var content = document.createTextNode('Received: ' + event.data);
-            message.appendChild(content);
-            messages.appendChild(message);
+            console.log('Progression: ' + event.data);
+            $('div#progression').html(event.data+'%').css('width', event.data+'%').prop('aria-valuenow', event.data);
         };
-        document.body.appendChild(messages);
-        window.setInterval(function() {
-            data = 'bye!'
-            ws.send(data);
-            var messages = document.getElementsByTagName('ul')[0];
-            var message = document.createElement('li');
-            var content = document.createTextNode('Sent: ' + data);
-            message.appendChild(content);
-            messages.appendChild(message);
-        }, 1000);
-    </script>
+    });
+  </script>
 {% endblock %}

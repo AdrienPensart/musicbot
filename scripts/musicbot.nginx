@@ -9,6 +9,10 @@ ssl_certificate_key /etc/letsencrypt/live/dev.musicbot.ovh/privkey.pem; # manage
   # error_log  /var/log/nginx/error.log debug;
   # root /home/admin/music;
 
+  location /static {
+              alias /home/admin/musicbot/lib/web/templates/static/;
+  }
+
   location /sendfile {
       internal;
       alias /home/admin/music;
@@ -37,12 +41,16 @@ server {
   listen 443 ssl;
   # listen [::]:443 ssl;
   server_name musicbot.ovh;
-  ssl_certificate /etc/letsencrypt/live/musicbot.ovh/fullchain.pem; # managed by Certbot
-  ssl_certificate_key /etc/letsencrypt/live/musicbot.ovh/privkey.pem; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/musicbot.ovh-0001/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/musicbot.ovh-0001/privkey.pem; # managed by Certbot
   ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256';
   ssl_prefer_server_ciphers on;
   # error_log  /var/log/nginx/error.log debug;
   # root /home/admin/music;
+
+  location /static {
+              alias /home/admin/musicbot/lib/web/templates/static/;
+  }
 
   location /sendfile {
       internal;

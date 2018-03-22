@@ -128,7 +128,7 @@ async def start_scheduler(app, loop):
     if webconfig.autoscan:
         debug('Autoscan enabled')
         app.config.SCHEDULER = AsyncIOScheduler({'event_loop': loop})
-        app.config.SCHEDULER.add_job(refresh_db, 'interval', [app.config.DB], hours=1)
+        app.config.SCHEDULER.add_job(refresh_db, 'interval', [app.config.DB], minutes=15)
         app.config.SCHEDULER.add_job(fullscan, 'cron', [app.config.DB], hour=3)
         app.config.SCHEDULER.add_job(crawl_musics, 'cron', [app.config.DB], hour=4)
         app.config.SCHEDULER.add_job(crawl_albums, 'cron', [app.config.DB], hour=5)
@@ -157,10 +157,11 @@ async def after(request, response):
         debug('Browser cache enabled')
     else:
         info('Browser cache disabled')
-        response.headers['Last-Modified'] = datetime.now()
-        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
-        response.headers['Pragma'] = 'no-cache'
-        response.headers['Expires'] = '-1'
+        if response is not None:
+            response.headers['Last-Modified'] = datetime.now()
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '-1'
 
 
 @app.route("/")
