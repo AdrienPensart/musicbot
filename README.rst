@@ -51,6 +51,7 @@ Commands
     config       Config management
     consistency  Inconsistencies management
     db           Database management
+    file         Music tags management
     folder       Folder scanning
     playlist     Playlist management
     server       API Server
@@ -234,6 +235,78 @@ musicbot db refresh
   
   Options:
     -h, --help  Show this message and exit.
+
+
+musicbot file
+*************
+.. code-block::
+
+  Usage: musicbot file [OPTIONS] COMMAND [ARGS]...
+  
+    Music tags management
+  
+  Options:
+    --db-host TEXT          DB host
+    --db-port INTEGER       DB port
+    --db-database TEXT      DB name
+    --db-user TEXT          DB user
+    --db-password TEXT      DB password
+    --limit INTEGER         Fetch a maximum limit of music
+    --youtube TEXT          Select musics with a youtube link
+    --formats TEXT          Select musics with file format
+    --no-formats TEXT       Filter musics without format
+    --keywords TEXT         Select musics with keywords
+    --no-keywords TEXT      Filter musics without keywords
+    --artists TEXT          Select musics with artists
+    --no-artists TEXT       Filter musics without artists
+    --albums TEXT           Select musics with albums
+    --no-albums TEXT        Filter musics without albums
+    --titles TEXT           Select musics with titles
+    --no-titles TEXT        Filter musics without titless
+    --genres TEXT           Select musics with genres
+    --no-genres TEXT        Filter musics without genres
+    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
+    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
+    --min-size INTEGER      Minimum file size filter (in bytes)
+    --max-size INTEGER      Maximum file size filter (in bytes)
+    --min-rating FLOAT      Minimum rating
+    --max-rating FLOAT      Maximum rating
+    --relative              Generate relatives paths
+    --shuffle               Randomize selection
+    -h, --help              Show this message and exit.
+  
+  Commands:
+    show    Show tags of musics with filters
+    update
+
+
+musicbot file show
+******************
+.. code-block::
+
+  Usage: musicbot file show [OPTIONS]
+  
+    Show tags of musics with filters
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot file update
+********************
+.. code-block::
+
+  Usage: musicbot file update [OPTIONS]
+  
+  Options:
+    --keywords TEXT  Keywords
+    --artist TEXT    Artist
+    --album TEXT     Album
+    --title TEXT     Title
+    --genre TEXT     Genre
+    --number TEXT    Track number
+    --rating TEXT    Rating
+    -h, --help       Show this message and exit.
 
 
 musicbot folder
@@ -586,33 +659,7 @@ musicbot tag
     -h, --help              Show this message and exit.
   
   Commands:
-    add     Add tags - Not Implemented
-    delete  Delete tags - Not implemented
-    show    Show tags of musics with filters
-
-
-musicbot tag add
-****************
-.. code-block::
-
-  Usage: musicbot tag add [OPTIONS]
-  
-    Add tags - Not Implemented
-  
-  Options:
-    -h, --help  Show this message and exit.
-
-
-musicbot tag delete
-*******************
-.. code-block::
-
-  Usage: musicbot tag delete [OPTIONS]
-  
-    Delete tags - Not implemented
-  
-  Options:
-    -h, --help  Show this message and exit.
+    show  Show tags of musics with filters
 
 
 musicbot tag show
