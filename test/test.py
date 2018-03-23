@@ -60,7 +60,7 @@ class MusicTagsTest(unittest.TestCase):
         self.assertEqual(m.genre, "Avantgarde")
         self.assertEqual(m.number, 2)
         self.assertEqual(m.description, "rock cutoff")
-        self.assertEqual(m.keywords, ["rock", "cutoff"])
+        self.assertEqual(m.keywords, "rock cutoff")
         self.assertEqual(m.rating, 5.0)
         self.assertEqual(m.duration, 1)
 
@@ -73,7 +73,7 @@ class MusicTagsTest(unittest.TestCase):
         self.assertEqual(m.genre, "Rap")
         self.assertEqual(m.number, 2)
         self.assertEqual(m.comment, "rap french")
-        self.assertEqual(m.keywords, ["rap", "french"])
+        self.assertEqual(m.keywords, "rap french")
         self.assertEqual(m.rating, 4.5)
         self.assertEqual(m.duration, 258)
 

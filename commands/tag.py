@@ -31,17 +31,11 @@ async def show(ctx, fields, **kwargs):
         print([m[f] for f in fields])
 
 
-@cli.command()
-@helpers.coro
-@click.pass_context
-async def add(ctx, **kwargs):
-    '''Add tags - Not Implemented'''
-    print(ctx.obj.musics)
-
-
-@cli.command()
-@helpers.coro
-@click.pass_context
-async def delete(ctx, *kwargs):
-    '''Delete tags - Not implemented'''
-    print(ctx.obj.musics)
+# @cli.command()
+# @helpers.coro
+# @helpers.add_options(file.options)
+# @click.pass_context
+# async def update(ctx, **kwargs):
+#     ctx.obj.musics = await ctx.obj.db.musics(ctx.obj.mf)
+#     '''Add tags - Not Implemented'''
+#     print(ctx.obj.musics)

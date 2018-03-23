@@ -93,7 +93,7 @@ create or replace function upsert(arg music default new_music())
 returns void as
 $$
 begin
-    delete from music_tags mt where mt.music_id = (select old.id from musics old where old.path = arg.path);
+    delete from music_tags mt where mt.music_id = (select old.id from musics old where old.path = arg.path limit 1);
     with upsert_folder as (
         insert into folders as f (name, created_at)
         values (arg.folder, now())
@@ -112,7 +112,7 @@ begin
     ),
     upsert_album as (
         insert into albums as al (artist_id, name, created_at)
-        values ((select artist_id from upsert_artist), arg.album, now())
+        values ((select artist_id from upsert_artist limit 1), arg.album, now())
         on conflict (artist_id, name) do update set
             updated_at=coalesce(EXCLUDED.updated_at, now()),
             name=EXCLUDED.name
@@ -137,10 +137,10 @@ begin
     upsert_music as (
         insert into musics as m (artist_id, genre_id, folder_id, album_id, rating, duration, path, title, number, size, youtube, created_at)
         values (
-            (select artist_id from upsert_artist),
-            (select genre_id from upsert_genre),
-            (select folder_id from upsert_folder),
-            (select album_id from upsert_album),
+            (select artist_id from upsert_artist limit 1),
+            (select genre_id from upsert_genre limit 1),
+            (select folder_id from upsert_folder limit 1),
+            (select album_id from upsert_album limit 1),
             arg.rating, arg.duration, arg.path, arg.title, arg.number, arg.size, arg.youtube, now())
         on conflict (path) do update set
             updated_at=coalesce(EXCLUDED.updated_at, now()),
@@ -159,7 +159,7 @@ begin
     insert into music_tags (music_id, tag_id)
     select m.music_id, k.tag_id from upsert_music m, upsert_keywords k
     on conflict (music_id, tag_id) do nothing;
-    delete from tags t where t.id = (select t.id from tags t left join music_tags mt on t.id = mt.tag_id group by t.id having count(mt.music_id) = 0);
+    delete from tags t where t.id in (select t.id from tags t left join music_tags mt on t.id = mt.tag_id group by t.id having count(mt.music_id) = 0);
 end;
 $$ language plpgsql;
 

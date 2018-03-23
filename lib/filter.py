@@ -57,10 +57,10 @@ class Filter(object):
         self.no_keywords = default_no_keywords if no_keywords is None else no_keywords
         self.artists = default_artists if artists is None else artists
         self.no_artists = default_no_artists if no_artists is None else no_artists
-        self.titles = default_titles if default_titles is None else default_titles
+        self.titles = default_titles if titles is None else titles
         self.no_titles = default_no_titles if no_titles is None else no_titles
         self.albums = default_albums if albums is None else albums
-        self.no_albums = default_no_albums if no_albums is None else albums
+        self.no_albums = default_no_albums if no_albums is None else no_albums
         debug('Filter: {}'.format(self))
         assert self.min_rating in rating_choices
         assert self.max_rating in rating_choices

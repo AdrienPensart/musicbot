@@ -19,7 +19,7 @@ from .filter import Filter, supported_formats
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 concurrency = [
-    click.option('--concurrency', envvar='MB_CONCURRENCY', help='Number of coroutines', default=32),
+    click.option('--concurrency', envvar='MB_CONCURRENCY', help='Number of coroutines', default=16),
 ]
 
 
@@ -75,6 +75,7 @@ async def fullscan(db, folders=None, concurrency=1, crawl=False):
                     if crawl:
                         await m.find_youtube()
                         bar.update(1)
+                    debug(m.to_list())
                     await db.upsert(m)
                     bar.update(1)
                 except asyncpg.exceptions.CheckViolationError as e:
@@ -99,6 +100,7 @@ async def watcher(db):
             for folder in folders:
                 if path.startswith(folder['name']) and path.endswith(tuple(supported_formats)):
                     f = File(path, folder['name'])
+                    debug(f.to_list())
                     await db.upsert(f)
                     # await db.refresh()
                     return

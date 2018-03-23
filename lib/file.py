@@ -1,7 +1,19 @@
 import taglib
+import click
 import copy
 import os
 from . import youtube
+
+
+options = [
+    click.option('--keywords', envvar='MB_KEYWORDS', help='Keywords', default=None),
+    click.option('--artist', envvar='MB_ARTIST', help='Artist', default=None),
+    click.option('--album', envvar='MB_ALBUM', help='Album', default=None),
+    click.option('--title', envvar='MB_TITLE', help='Title', default=None),
+    click.option('--genre', envvar='MB_GENRE', help='Genre', default=None),
+    click.option('--number', envvar='MB_NUMBER', help='Track number', default=None),
+    click.option('--rating', envvar='MB_RATING', help='Rating', default=None),
+]
 
 
 def mysplit(s, delim=','):
@@ -35,7 +47,7 @@ class File(object):
                 self.rating,
                 self.duration,
                 self.size,
-                self.keywords,
+                mysplit(self.keywords, ' ')
                 ]
 
     @property
@@ -54,6 +66,8 @@ class File(object):
         return default
 
     def __set_first(self, tag, value, force=False):
+        if value is None:
+            return
         if tag not in self.handle.tags:
             if force:
                 self.handle.tags[tag] = [value]
@@ -65,13 +79,25 @@ class File(object):
     def title(self, default=''):
         return self.__get_first('TITLE', default)
 
+    @title.setter
+    def title(self, title):
+        self.__set_first('TITLE', title)
+
     @property
     def album(self, default=''):
         return self.__get_first('ALBUM', default)
 
+    @album.setter
+    def album(self, album):
+        self.__set_first('ALBUM', album)
+
     @property
     def artist(self, default=''):
         return self.__get_first('ARTIST', default)
+
+    @artist.setter
+    def artist(self, artist):
+        self.__set_first('ARTIST', artist)
 
     @property
     def rating(self, default=0.0):
@@ -83,6 +109,10 @@ class File(object):
             return n * 5.0
         except ValueError:
             return default
+
+    @rating.setter
+    def rating(self, rating):
+        self.__set_first('FMPS_RATING', rating)
 
     @property
     def comment(self, defaults=''):
@@ -110,6 +140,10 @@ class File(object):
     def genre(self, default=''):
         return self.__get_first('GENRE', default)
 
+    @genre.setter
+    def genre(self, genre):
+        self.__set_first('GENRE', genre)
+
     @property
     def number(self, default=-1):
         s = self.__get_first('TRACKNUMBER', default)
@@ -121,13 +155,23 @@ class File(object):
         except ValueError:
             return default
 
+    @number.setter
+    def number(self, number):
+        self.__set_first('TRACKNUMBER', number)
+
     @property
     def keywords(self):
         if self.handle.path.endswith('.mp3'):
-            return mysplit(self.comment, ' ')
+            return self.comment
         elif self.handle.path.endswith('.flac'):
-            return mysplit(self.description, ' ')
-        return mysplit(self.description, ' ') + mysplit(self.comment, ' ')
+            return self.description
+
+    @keywords.setter
+    def keywords(self, keywords):
+        if self.handle.path.endswith('.mp3'):
+            self.comment = keywords
+        elif self.handle.path.endswith('.flac'):
+            self.fix_description(keywords)
 
     def add_keywords(self, keywords):
         tags = copy.deepcopy(self.keywords)
@@ -150,13 +194,6 @@ class File(object):
             self.save()
             return True
         return False
-
-    @keywords.setter
-    def keywords(self, keywords):
-        if self.handle.path.endswith('.mp3'):
-            self.comment = ' '.join(keywords)
-        elif self.handle.path.endswith('.flac'):
-            self.description = ' '.join(keywords)
 
     @property
     def duration(self):
