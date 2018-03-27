@@ -381,7 +381,6 @@ musicbot folder rescan
   
   Options:
     --concurrency INTEGER  Number of coroutines
-    --concurrency INTEGER  Number of coroutines
     --crawl                Crawl youtube
     -h, --help             Show this message and exit.
 
@@ -556,7 +555,7 @@ musicbot server
     --autoscan          Enable auto scan background job
     --server-cache      Activate server cache system
     --client-cache      Activate client cache system
-    --no-auth           Disble authentication system
+    --no-auth           Disable authentication system
     -h, --help          Show this message and exit.
   
   Commands:
