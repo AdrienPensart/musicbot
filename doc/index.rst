@@ -11,7 +11,6 @@ Welcome to musicbot's documentation!
    :caption: Contents:
 
    help
-   todo
 
 
 

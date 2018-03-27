@@ -9,7 +9,7 @@
   </li>
   {% endfor %}
 </ul>
-<audio class="fixed-bottom" controls id="player" preload="auto" tabindex="0" autoplay volume="1.0">
+<audio class="fixed-bottom" controls id="player" preload="auto" tabindex="0" onvolumechange="volumechanged()">
   {% for m in musics: %}
   <source  src="{{ url_for('collection.download', artists=m.artist, albums=m.album, titles=m.title) }}"/>
   {%- if loop.index == 1 %}{% break %}{% endif %}
