@@ -1,6 +1,6 @@
 # DEV
 server {
-  listen 443 ssl;
+  listen 443 ssl http2;
   server_name dev.musicbot.ovh;
 ssl_certificate /etc/letsencrypt/live/dev.musicbot.ovh/fullchain.pem; # managed by Certbot
 ssl_certificate_key /etc/letsencrypt/live/dev.musicbot.ovh/privkey.pem; # managed by Certbot

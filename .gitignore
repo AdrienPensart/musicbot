@@ -1,4 +1,4 @@
-env
+env*
 *.pyc
 doc/html
 *.egg-info

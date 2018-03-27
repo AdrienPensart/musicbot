@@ -4,7 +4,6 @@ try:
 except ImportError:
     from scandir import scandir, walk
 import re
-import yaml
 import humanfriendly
 from . import file
 from timeit import default_timer as timer
@@ -79,16 +78,18 @@ class lazy_property(object):
         return value
 
 
-def dump_filter(data, path):
-    with open(path, 'w') as stream:
-        yaml.dump(data, stream, default_flow_style=False)
-
-
-def load_filter(path):
-    with open(path, 'r') as stream:
-        mf = filter.Filter()
-        mf = yaml.load(stream)
-        return mf
+# def dump_filter(data, path):
+#     import yaml
+#     with open(path, 'w') as stream:
+#         yaml.dump(data, stream, default_flow_style=False)
+#
+#
+# def load_filter(path):
+#     import yaml
+#     with open(path, 'r') as stream:
+#         mf = filter.Filter()
+#         mf = yaml.load(stream)
+#         return mf
 
 
 def raise_limits():
