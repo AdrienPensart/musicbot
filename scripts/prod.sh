@@ -2,7 +2,7 @@
 
 my_dir="$(dirname "$0")"
 export MB_DATABASE=musicbot_prod
-export MB_WATCHER=1
+export MB_WATCHER=0
 export MB_AUTOSCAN=1
 export MB_SERVER_CACHE=0
 export MB_CLIENT_CACHE=1

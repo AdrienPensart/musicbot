@@ -1,12 +1,5 @@
 {% extends "layout.html" %}
 {% block body %}
-<audio controls id="player" preload="auto" tabindex="0" autoplay volume="1.0">
-  {% for m in musics: %}
-  <source  src="{{ url_for('collection.download', artists=m.artist, albums=m.album, titles=m.title) }}"/>
-  {%- if loop.index == 1 %}{% break %}{% endif %}
-  {% endfor %}
-  Your browser does not support the audio element.
-</audio>
 <ul id="playlist" class="list-group">
   {% for m in musics: %}
   <li class="list-group-item{%- if loop.index == 1 %} active{% endif %}" >
@@ -16,5 +9,12 @@
   </li>
   {% endfor %}
 </ul>
+<audio class="fixed-bottom" controls id="player" preload="auto" tabindex="0" autoplay volume="1.0">
+  {% for m in musics: %}
+  <source  src="{{ url_for('collection.download', artists=m.artist, albums=m.album, titles=m.title) }}"/>
+  {%- if loop.index == 1 %}{% break %}{% endif %}
+  {% endfor %}
+  Your browser does not support the audio element.
+</audio>
 <script src="/static/player.js"></script>
 {% endblock %}

@@ -21,8 +21,9 @@ options = [
 
 
 class Database(object):
-    def __init__(self, **kwargs):
+    def __init__(self, max_conn=100, **kwargs):
         self.set(**kwargs)
+        self.max_conn = max_conn
 
     def set(self, db_host=None, db_port=None, db_database=None, db_user=None, db_password=None, **kwargs):
         self.host = db_host if db_host is not None else os.getenv('MB_DB_HOST', DEFAULT_HOST)
@@ -62,7 +63,7 @@ class Database(object):
     async def pool(self):
         if self._pool is None:
             import asyncpg
-            self._pool: asyncpg.pool.Pool = await asyncpg.create_pool(user=self.user, host=self.host, password=self.password, port=self.port, database=self.database)
+            self._pool: asyncpg.pool.Pool = await asyncpg.create_pool(max_size=self.max_conn, user=self.user, host=self.host, password=self.password, port=self.port, database=self.database)
         return self._pool
 
     @timeit

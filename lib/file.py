@@ -164,6 +164,8 @@ class File(object):
         if self.handle.path.endswith('.mp3'):
             return self.comment
         elif self.handle.path.endswith('.flac'):
+            if self.comment and not self.description:
+                self.fix_description(self.comment)
             return self.description
 
     @keywords.setter

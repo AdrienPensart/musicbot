@@ -23,14 +23,14 @@
           <td><a href="{{ url_for('collection.albums', keywords=k.name) }}">albums</a></td>
           <td><a href="{{ url_for('collection.musics', keywords=k.name) }}">musics</a></td>
           <td>
-            <a href="{{ url_for('collection.m3u', keywords=k.name, name=k.name) }}">m3u</a> /
-            <a href="{{ url_for('collection.zip', keywords=k.name, name=k.name) }}">zip</a>
-          </td>
-          <td>
             <a href="{{ url_for('collection.player', keywords=k.name) }}">all</a> /
             <a href="{{ url_for('collection.player', keywords=k.name, min_rating=4.0) }}">4+</a> /
             <a href="{{ url_for('collection.player', keywords=k.name, min_rating=4.5) }}">4.5+</a> /
             <a href="{{ url_for('collection.player', keywords=k.name, min_rating=5.0) }}">5.0</a>
+          </td>
+          <td>
+            <a href="{{ url_for('collection.m3u', keywords=k.name, name=k.name) }}">m3u</a> /
+            <a href="{{ url_for('collection.zip', keywords=k.name, name=k.name) }}">zip</a>
           </td>
           <td><a href="{{ url_for('collection.stats', keywords=k.name) }}">stats</a></td>
         </tr>

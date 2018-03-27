@@ -55,7 +55,6 @@ async def scan(ctx, concurrency, crawl, folders, **kwargs):
 @cli.command()
 @helpers.coro
 @helpers.add_options(helpers.concurrency)
-@helpers.add_options(helpers.concurrency)
 @click.option('--crawl', envvar='MB_CRAWL', help='Crawl youtube', is_flag=True)
 @click.pass_context
 async def rescan(ctx, concurrency, crawl, **kwargs):

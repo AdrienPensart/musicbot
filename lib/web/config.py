@@ -17,7 +17,7 @@ options = [
     click.option('--autoscan', envvar='MB_AUTOSCAN', help='Enable auto scan background job', default=DEFAULT_AUTOSCAN, is_flag=True),
     click.option('--server-cache', envvar='MB_SERVER_CACHE', help='Activate server cache system', default=DEFAULT_SERVER_CACHE, is_flag=True),
     click.option('--client-cache', envvar='MB_CLIENT_CACHE', help='Activate client cache system', default=DEFAULT_CLIENT_CACHE, is_flag=True),
-    click.option('--no-auth', envvar='MB_NO_AUTH', help='Disble authentication system', default=DEFAULT_NO_AUTH, is_flag=True),
+    click.option('--no-auth', envvar='MB_NO_AUTH', help='Disable authentication system', default=DEFAULT_NO_AUTH, is_flag=True),
 ]
 
 

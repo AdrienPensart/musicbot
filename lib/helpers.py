@@ -19,7 +19,7 @@ from .filter import Filter, supported_formats
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 concurrency = [
-    click.option('--concurrency', envvar='MB_CONCURRENCY', help='Number of coroutines', default=16),
+    click.option('--concurrency', envvar='MB_CONCURRENCY', help='Number of coroutines', default=32),
 ]
 
 
@@ -81,7 +81,6 @@ async def fullscan(db, folders=None, concurrency=1, crawl=False):
                 except asyncpg.exceptions.CheckViolationError as e:
                     warning("Violation: {}".format(e))
         semaphore = asyncio.BoundedSemaphore(concurrency)
-        debug('Gathering futures')
         tasks = [asyncio.ensure_future(insert(semaphore, f)) for f in files]
         await asyncio.gather(*tasks)
     await db.refresh()
