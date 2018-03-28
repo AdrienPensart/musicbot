@@ -58,7 +58,12 @@ def send_file(music, name, attachment):
     headers['Content-Description'] = 'File Transfer'
     # headers['Cache-Control'] = 'no-cache'
     headers['Cache-Control'] = 'public, must-revalidate'
-    headers['Content-Type'] = 'audio/mpeg'
+
+    if music['path'].endswith('.flac'):
+        headers['Content-Type'] = 'audio/flac'
+    else:
+        headers['Content-Type'] = 'audio/mpeg'
+
     headers['Content-Disposition'] = '{}; filename={}'.format(attachment, quote(name))
     headers['Accept-Ranges'] = 'bytes'
     headers['Content-Length'] = music['size']

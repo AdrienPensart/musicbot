@@ -98,6 +98,7 @@ async def watcher(db):
         async def update(self, path):
             for folder in folders:
                 if path.startswith(folder['name']) and path.endswith(tuple(supported_formats)):
+                    debug('Creatin/modifying DB for: {} {}'.format(path))
                     f = File(path, folder['name'])
                     debug(f.to_list())
                     await db.upsert(f)
@@ -105,11 +106,9 @@ async def watcher(db):
                     return
 
         async def on_modified(self, event):
-            debug('Modifying DB for: {} {}'.format(event.src_path, event.event_type))
             await self.update(event.src_path)
 
         async def on_created(self, event):
-            debug('Creating entry DB for: {} {}'.format(event.src_path, event.event_type))
             await self.update(event.src_path)
 
         async def on_deleted(self, event):
