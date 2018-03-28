@@ -98,7 +98,7 @@ async def watcher(db):
         async def update(self, path):
             for folder in folders:
                 if path.startswith(folder['name']) and path.endswith(tuple(supported_formats)):
-                    debug('Creatin/modifying DB for: {} {}'.format(path))
+                    debug('Creatin/modifying DB for: {}'.format(path))
                     f = File(path, folder['name'])
                     debug(f.to_list())
                     await db.upsert(f)

@@ -10,7 +10,12 @@ ssl_certificate_key /etc/letsencrypt/live/dev.musicbot.ovh/privkey.pem; # manage
   # root /home/admin/music;
 
   location /static {
-              alias /home/admin/musicbot/lib/web/templates/static/;
+      alias /home/admin/musicbot/lib/web/templates/static/;
+  }
+
+  location /files {
+      alias /home/admin/music/;
+      autoindex on;
   }
 
   location /sendfile {
@@ -49,7 +54,7 @@ server {
   # root /home/admin/music;
 
   location /static {
-              alias /home/admin/musicbot/lib/web/templates/static/;
+      alias /home/admin/musicbot/lib/web/templates/static/;
   }
 
   location /sendfile {
