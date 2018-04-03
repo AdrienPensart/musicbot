@@ -85,6 +85,7 @@
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="dropdown-item" href="https://github.com/AdrienPensart/musicbot">GitHub</a>
+              <a class="dropdown-item" href="https://github.com/AdrienPensart/musicbot/issues">Feedback / bugs</a>
               <div class="dropdown-divider"></div>
               <a class="nav-link disabled" href="#">Rendered in {{ request_time() }}</a>
             </div>
@@ -96,6 +97,8 @@
             <input id="volume" class="form-control form-check-input" type="number" min="0" max="100" step="1" placeholder="Volume">
             <input id="shuffle" class="form-control form-check-input" type="checkbox">
             <label class="form-check-label">Shuffle&nbsp;</label>
+            <input id="lives" class="form-control form-check-input" type="checkbox">
+            <label class="form-check-label">Exclude lives&nbsp;</label>
             <input id="autoplay" class="form-control form-check-input" type="checkbox">
             <label class="form-check-label">Autoplay</label>
           </div>
