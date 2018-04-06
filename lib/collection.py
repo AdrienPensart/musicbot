@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 from . import filter
 from .database import Database
 from .helpers import drier, timeit
@@ -9,27 +10,19 @@ class Collection(Database):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    @drier
     @timeit
-    async def create(self):
-        debug('db create')
+    async def create(self, schema_dir):
         await self.createdb()
-        await self.executefile('schema/tables.sql')
-        await self.executefile('schema/functions.sql')
-        await self.executefile('schema/data.sql')
-        await self.executefile('schema/triggers.sql')
+        for sqlfile in ['tables.sql', 'functions.sql', 'data.sql', 'triggers.sql']:
+            await self.executefile(os.path.join(schema_dir, sqlfile))
 
-    @drier
     @timeit
-    async def clear(self):
-        debug('clear')
+    async def clear(self, schema_dir):
         await self.dropdb()
-        await self.create()
+        await self.create(schema_dir)
 
-    @drier
     @timeit
     async def drop(self):
-        debug('clear')
         await self.dropdb()
 
     @timeit

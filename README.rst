@@ -41,7 +41,7 @@ Commands
   Options:
     --version                       Show the version and exit.
     --verbosity [debug|info|warning|error|critical]
-                                    Verbosity levels
+                                    Verbosity levels  [default: error]
     --dry                           Take no real action
     --quiet                         Disable progress bars
     --invocation TEXT               Resumable execution ID (experimental)
@@ -85,14 +85,14 @@ musicbot config save
     Save config
   
   Options:
-    --redis-address TEXT    Redis URI
-    --redis-db INTEGER      Redis index DB
+    --redis-address TEXT    Redis URI  [default: redis://localhost]
+    --redis-db INTEGER      Redis index DB  [default: 0]
     --redis-password TEXT   Redis password
-    --db-host TEXT          DB host
-    --db-port INTEGER       DB port
-    --db-database TEXT      DB name
-    --db-user TEXT          DB user
-    --db-password TEXT      DB password
+    --db-host TEXT          DB host  [default: localhost]
+    --db-port INTEGER       DB port  [default: 5432]
+    --db-database TEXT      DB name  [default: musicbot_prod]
+    --db-user TEXT          DB user  [default: postgres]
+    --db-password TEXT      DB password  [default: musicbot]
     --http-host TEXT        Host interface to listen on
     --http-server TEXT      Server name to use in links
     --http-port INTEGER     HTTP port to listen on
@@ -144,8 +144,8 @@ musicbot consistency errors
     --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
     --min-size INTEGER      Minimum file size filter (in bytes)
     --max-size INTEGER      Maximum file size filter (in bytes)
-    --min-rating FLOAT      Minimum rating
-    --max-rating FLOAT      Maximum rating
+    --min-rating FLOAT      Minimum rating  [default: 0.0]
+    --max-rating FLOAT      Maximum rating  [default: 5.0]
     --relative              Generate relatives paths
     --shuffle               Randomize selection
     -h, --help              Show this message and exit.
@@ -160,11 +160,11 @@ musicbot db
     Database management
   
   Options:
-    --db-host TEXT      DB host
-    --db-port INTEGER   DB port
-    --db-database TEXT  DB name
-    --db-user TEXT      DB user
-    --db-password TEXT  DB password
+    --db-host TEXT      DB host  [default: localhost]
+    --db-port INTEGER   DB port  [default: 5432]
+    --db-database TEXT  DB name  [default: musicbot_prod]
+    --db-user TEXT      DB user  [default: postgres]
+    --db-password TEXT  DB password  [default: musicbot]
     -h, --help          Show this message and exit.
   
   Commands:
@@ -246,11 +246,11 @@ musicbot file
     Music tags management
   
   Options:
-    --db-host TEXT          DB host
-    --db-port INTEGER       DB port
-    --db-database TEXT      DB name
-    --db-user TEXT          DB user
-    --db-password TEXT      DB password
+    --db-host TEXT          DB host  [default: localhost]
+    --db-port INTEGER       DB port  [default: 5432]
+    --db-database TEXT      DB name  [default: musicbot_prod]
+    --db-user TEXT          DB user  [default: postgres]
+    --db-password TEXT      DB password  [default: musicbot]
     --limit INTEGER         Fetch a maximum limit of music
     --youtube TEXT          Select musics with a youtube link
     --formats TEXT          Select musics with file format
@@ -269,8 +269,8 @@ musicbot file
     --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
     --min-size INTEGER      Minimum file size filter (in bytes)
     --max-size INTEGER      Maximum file size filter (in bytes)
-    --min-rating FLOAT      Minimum rating
-    --max-rating FLOAT      Maximum rating
+    --min-rating FLOAT      Minimum rating  [default: 0.0]
+    --max-rating FLOAT      Maximum rating  [default: 5.0]
     --relative              Generate relatives paths
     --shuffle               Randomize selection
     -h, --help              Show this message and exit.
@@ -318,11 +318,11 @@ musicbot folder
     Folder scanning
   
   Options:
-    --db-host TEXT      DB host
-    --db-port INTEGER   DB port
-    --db-database TEXT  DB name
-    --db-user TEXT      DB user
-    --db-password TEXT  DB password
+    --db-host TEXT      DB host  [default: localhost]
+    --db-port INTEGER   DB port  [default: 5432]
+    --db-database TEXT  DB name  [default: musicbot_prod]
+    --db-user TEXT      DB user  [default: postgres]
+    --db-password TEXT  DB password  [default: musicbot]
     -h, --help          Show this message and exit.
   
   Commands:
@@ -380,7 +380,7 @@ musicbot folder rescan
     Rescan all folders registered in database
   
   Options:
-    --concurrency INTEGER  Number of coroutines
+    --concurrency INTEGER  Number of coroutines  [default: 2]
     --crawl                Crawl youtube
     -h, --help             Show this message and exit.
 
@@ -394,7 +394,7 @@ musicbot folder scan
     Load musics files in database
   
   Options:
-    --concurrency INTEGER  Number of coroutines
+    --concurrency INTEGER  Number of coroutines  [default: 2]
     --crawl                Crawl youtube
     -h, --help             Show this message and exit.
 
@@ -426,8 +426,8 @@ musicbot folder sync
     --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
     --min-size INTEGER      Minimum file size filter (in bytes)
     --max-size INTEGER      Maximum file size filter (in bytes)
-    --min-rating FLOAT      Minimum rating
-    --max-rating FLOAT      Maximum rating
+    --min-rating FLOAT      Minimum rating  [default: 0.0]
+    --max-rating FLOAT      Maximum rating  [default: 5.0]
     --relative              Generate relatives paths
     --shuffle               Randomize selection
     -h, --help              Show this message and exit.
@@ -454,11 +454,11 @@ musicbot playlist
     Playlist management
   
   Options:
-    --db-host TEXT      DB host
-    --db-port INTEGER   DB port
-    --db-database TEXT  DB name
-    --db-user TEXT      DB user
-    --db-password TEXT  DB password
+    --db-host TEXT      DB host  [default: localhost]
+    --db-port INTEGER   DB port  [default: 5432]
+    --db-database TEXT  DB name  [default: musicbot_prod]
+    --db-user TEXT      DB user  [default: postgres]
+    --db-password TEXT  DB password  [default: musicbot]
     -h, --help          Show this message and exit.
   
   Commands:
@@ -493,8 +493,8 @@ musicbot playlist bests
     --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
     --min-size INTEGER      Minimum file size filter (in bytes)
     --max-size INTEGER      Maximum file size filter (in bytes)
-    --min-rating FLOAT      Minimum rating
-    --max-rating FLOAT      Maximum rating
+    --min-rating FLOAT      Minimum rating  [default: 0.0]
+    --max-rating FLOAT      Maximum rating  [default: 5.0]
     --relative              Generate relatives paths
     --shuffle               Randomize selection
     --prefix TEXT           Append prefix before each path (implies relative)
@@ -529,8 +529,8 @@ musicbot playlist new
     --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
     --min-size INTEGER      Minimum file size filter (in bytes)
     --max-size INTEGER      Maximum file size filter (in bytes)
-    --min-rating FLOAT      Minimum rating
-    --max-rating FLOAT      Maximum rating
+    --min-rating FLOAT      Minimum rating  [default: 0.0]
+    --max-rating FLOAT      Maximum rating  [default: 5.0]
     --relative              Generate relatives paths
     --shuffle               Randomize selection
     -h, --help              Show this message and exit.
@@ -545,11 +545,11 @@ musicbot server
     API Server
   
   Options:
-    --db-host TEXT      DB host
-    --db-port INTEGER   DB port
-    --db-database TEXT  DB name
-    --db-user TEXT      DB user
-    --db-password TEXT  DB password
+    --db-host TEXT      DB host  [default: localhost]
+    --db-port INTEGER   DB port  [default: 5432]
+    --db-database TEXT  DB name  [default: musicbot_prod]
+    --db-user TEXT      DB user  [default: postgres]
+    --db-password TEXT  DB password  [default: musicbot]
     --dev               Watch for source file modification
     --watcher           Watch for music file modification
     --autoscan          Enable auto scan background job
@@ -589,11 +589,11 @@ musicbot stats
     Generate some stats for music collection with filters
   
   Options:
-    --db-host TEXT          DB host
-    --db-port INTEGER       DB port
-    --db-database TEXT      DB name
-    --db-user TEXT          DB user
-    --db-password TEXT      DB password
+    --db-host TEXT          DB host  [default: localhost]
+    --db-port INTEGER       DB port  [default: 5432]
+    --db-database TEXT      DB name  [default: musicbot_prod]
+    --db-user TEXT          DB user  [default: postgres]
+    --db-password TEXT      DB password  [default: musicbot]
     --limit INTEGER         Fetch a maximum limit of music
     --youtube TEXT          Select musics with a youtube link
     --formats TEXT          Select musics with file format
@@ -612,8 +612,8 @@ musicbot stats
     --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
     --min-size INTEGER      Minimum file size filter (in bytes)
     --max-size INTEGER      Maximum file size filter (in bytes)
-    --min-rating FLOAT      Minimum rating
-    --max-rating FLOAT      Maximum rating
+    --min-rating FLOAT      Minimum rating  [default: 0.0]
+    --max-rating FLOAT      Maximum rating  [default: 5.0]
     --relative              Generate relatives paths
     --shuffle               Randomize selection
     -h, --help              Show this message and exit.
@@ -628,11 +628,11 @@ musicbot tag
     Music tags management
   
   Options:
-    --db-host TEXT          DB host
-    --db-port INTEGER       DB port
-    --db-database TEXT      DB name
-    --db-user TEXT          DB user
-    --db-password TEXT      DB password
+    --db-host TEXT          DB host  [default: localhost]
+    --db-port INTEGER       DB port  [default: 5432]
+    --db-database TEXT      DB name  [default: musicbot_prod]
+    --db-user TEXT          DB user  [default: postgres]
+    --db-password TEXT      DB password  [default: musicbot]
     --limit INTEGER         Fetch a maximum limit of music
     --youtube TEXT          Select musics with a youtube link
     --formats TEXT          Select musics with file format
@@ -651,8 +651,8 @@ musicbot tag
     --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
     --min-size INTEGER      Minimum file size filter (in bytes)
     --max-size INTEGER      Maximum file size filter (in bytes)
-    --min-rating FLOAT      Minimum rating
-    --max-rating FLOAT      Maximum rating
+    --min-rating FLOAT      Minimum rating  [default: 0.0]
+    --max-rating FLOAT      Maximum rating  [default: 5.0]
     --relative              Generate relatives paths
     --shuffle               Randomize selection
     -h, --help              Show this message and exit.
@@ -683,11 +683,11 @@ musicbot task
     Task management
   
   Options:
-    --db-host TEXT      DB host
-    --db-port INTEGER   DB port
-    --db-database TEXT  DB name
-    --db-user TEXT      DB user
-    --db-password TEXT  DB password
+    --db-host TEXT      DB host  [default: localhost]
+    --db-port INTEGER   DB port  [default: 5432]
+    --db-database TEXT  DB name  [default: musicbot_prod]
+    --db-user TEXT      DB user  [default: postgres]
+    --db-password TEXT  DB password  [default: musicbot]
     -h, --help          Show this message and exit.
   
   Commands:
@@ -728,11 +728,11 @@ musicbot youtube
     Youtube management
   
   Options:
-    --db-host TEXT          DB host
-    --db-port INTEGER       DB port
-    --db-database TEXT      DB name
-    --db-user TEXT          DB user
-    --db-password TEXT      DB password
+    --db-host TEXT          DB host  [default: localhost]
+    --db-port INTEGER       DB port  [default: 5432]
+    --db-database TEXT      DB name  [default: musicbot_prod]
+    --db-user TEXT          DB user  [default: postgres]
+    --db-password TEXT      DB password  [default: musicbot]
     --limit INTEGER         Fetch a maximum limit of music
     --youtube TEXT          Select musics with a youtube link
     --formats TEXT          Select musics with file format
@@ -751,11 +751,11 @@ musicbot youtube
     --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
     --min-size INTEGER      Minimum file size filter (in bytes)
     --max-size INTEGER      Maximum file size filter (in bytes)
-    --min-rating FLOAT      Minimum rating
-    --max-rating FLOAT      Maximum rating
+    --min-rating FLOAT      Minimum rating  [default: 0.0]
+    --max-rating FLOAT      Maximum rating  [default: 5.0]
     --relative              Generate relatives paths
     --shuffle               Randomize selection
-    --concurrency INTEGER   Number of coroutines
+    --concurrency INTEGER   Number of coroutines  [default: 2]
     -h, --help              Show this message and exit.
   
   Commands:

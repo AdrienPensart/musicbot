@@ -1,15 +1,15 @@
 [Unit]
-Description=Musicbot Server
-Requires=network.target
-After=network.target
+Description=The NGINX HTTP and reverse proxy server
+After=syslog.target network.target remote-fs.target nss-lookup.target
 
 [Service]
-User=admin
-Type=simple
-ExecStart=/home/admin/musicbot/scripts/prod.sh
-StandardOutput=null
+Type=forking
+PIDFile=/run/nginx.pid
+ExecStartPre=/usr/local/nginx/sbin/nginx -t
+ExecStart=/usr/local/nginx/sbin/nginx
+ExecReload=/usr/local/nginx/sbin/nginx -s reload
+ExecStop=/usr/local/nginx/sbin/nginx -s stop
 PrivateTmp=true
-Restart=always
 
 [Install]
 WantedBy=multi-user.target

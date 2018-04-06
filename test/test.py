@@ -91,7 +91,7 @@ class DatabaseTest(asynctest.TestCase):
     async def setUp(self):
         lib.verbose = False
         self.collection = collection.Collection()
-        await self.collection.clear()
+        await self.collection.clear(os.path.join(my_dir, '../schema'))
         self.files = list(lib.find_files([folder1, folder2]))
         for f in self.files:
             m = file.File(f[1], f[0])

@@ -18,8 +18,9 @@ from .filter import Filter, supported_formats
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
+DEFAULT_MB_CONCURRENCY = 2
 concurrency = [
-    click.option('--concurrency', envvar='MB_CONCURRENCY', help='Number of coroutines', default=32),
+    click.option('--concurrency', envvar='MB_CONCURRENCY', help='Number of coroutines', default=DEFAULT_MB_CONCURRENCY, show_default=True),
 ]
 
 

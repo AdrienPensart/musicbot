@@ -1,4 +1,5 @@
 env*
+*.swp
 *.pyc
 doc/html
 *.egg-info

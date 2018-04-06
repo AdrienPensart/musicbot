@@ -16,7 +16,7 @@ verbosities = {'debug': DEBUG,
                'critical': CRITICAL}
 
 options = [
-    click.option('--verbosity', help='Verbosity levels', envvar='MB_VERBOSITY', default=DEFAULT_VERBOSITY, type=click.Choice(verbosities.keys())),
+    click.option('--verbosity', help='Verbosity levels', envvar='MB_VERBOSITY', default=DEFAULT_VERBOSITY, type=click.Choice(verbosities.keys()), show_default=True),
     click.option('--dry', help='Take no real action', envvar='MB_DRY', default=DEFAULT_DRY, is_flag=True),
     click.option('--quiet', help='Disable progress bars', envvar='MB_QUIET', default=DEFAULT_QUIET, is_flag=True),
     click.option('--invocation', help='Resumable execution ID (experimental)', default=uuid.uuid4()),

@@ -123,8 +123,8 @@ options = [
     click.option('--max-duration', envvar='MB_MAX_DURATION', help='Maximum duration filter (hours:minutes:seconds))', default=default_max_duration),
     click.option('--min-size', envvar='MB_MIN_SIZE', help='Minimum file size filter (in bytes)', default=default_min_size),
     click.option('--max-size', envvar='MB_MAX_SIZE', help='Maximum file size filter (in bytes)', default=default_max_size),
-    click.option('--min-rating', envvar='MB_MIN_RATING', help='Minimum rating', default=default_min_rating),
-    click.option('--max-rating', envvar='MB_MAX_RATING', help='Maximum rating', default=default_max_rating),
+    click.option('--min-rating', envvar='MB_MIN_RATING', help='Minimum rating', default=default_min_rating, show_default=True),
+    click.option('--max-rating', envvar='MB_MAX_RATING', help='Maximum rating', default=default_max_rating, show_default=True),
     click.option('--relative', envvar='MB_RELATIVE', help='Generate relatives paths', default=default_relative, is_flag=True),
     click.option('--shuffle', envvar='MB_SHUFFLE', help='Randomize selection', default=default_shuffle, is_flag=True),
 ]

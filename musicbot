@@ -6,7 +6,12 @@ import os
 from attrdict import AttrDict
 from lib import helpers, config
 
-plugin_folder = os.path.join(os.path.dirname(__file__), 'commands')
+if os.path.islink(__file__):
+    myself = os.readlink(__file__)
+else:
+    myself = __file__
+bin_folder = os.path.dirname(myself)
+plugin_folder = os.path.join(bin_folder, 'commands')
 CONTEXT_SETTINGS = {'auto_envvar_prefix': 'MUSICBOT', 'help_option_names': ['-h', '--help']}
 
 
@@ -39,6 +44,7 @@ class SubCommandLineInterface(click.MultiCommand):
 def cli(ctx, **kwargs):
     """Music swiss knife, new gen."""
     ctx.obj = AttrDict
+    ctx.obj.folder = bin_folder
     config.config.set(**kwargs)
 
 

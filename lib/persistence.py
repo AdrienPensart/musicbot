@@ -9,8 +9,8 @@ DEFAULT_REDIS_DB = 0
 DEFAULT_REDIS_PASSWORD = None
 
 options = [
-    click.option('--redis-address', envvar='MB_REDIS_ADDRESS', help='Redis URI', default=DEFAULT_REDIS_ADDRESS),
-    click.option('--redis-db', envvar='MB_REDIS_DB', help='Redis index DB', default=DEFAULT_REDIS_DB),
+    click.option('--redis-address', envvar='MB_REDIS_ADDRESS', help='Redis URI', default=DEFAULT_REDIS_ADDRESS, show_default=True),
+    click.option('--redis-db', envvar='MB_REDIS_DB', help='Redis index DB', default=DEFAULT_REDIS_DB, show_default=True),
     click.option('--redis-password', envvar='MB_REDIS_PASSWORD', help='Redis password', default=DEFAULT_REDIS_PASSWORD),
 ]
 

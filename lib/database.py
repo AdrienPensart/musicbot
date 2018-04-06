@@ -12,11 +12,11 @@ DEFAULT_USER = 'postgres'
 DEFAULT_PASSWORD = 'musicbot'
 
 options = [
-    click.option('--db-host', envvar='MB_DB_HOST', help='DB host', default=DEFAULT_HOST),
-    click.option('--db-port', envvar='MB_DB_PORT', help='DB port', default=DEFAULT_PORT),
-    click.option('--db-database', envvar='MB_DATABASE', help='DB name', default=DEFAULT_DATABASE),
-    click.option('--db-user', envvar='MB_DB_USER', help='DB user', default=DEFAULT_USER),
-    click.option('--db-password', envvar='MB_DB_PASSWORD', help='DB password', default=DEFAULT_PASSWORD)
+    click.option('--db-host', envvar='MB_DB_HOST', help='DB host', default=DEFAULT_HOST, show_default=True),
+    click.option('--db-port', envvar='MB_DB_PORT', help='DB port', default=DEFAULT_PORT, show_default=True),
+    click.option('--db-database', envvar='MB_DATABASE', help='DB name', default=DEFAULT_DATABASE, show_default=True),
+    click.option('--db-user', envvar='MB_DB_USER', help='DB user', default=DEFAULT_USER, show_default=True),
+    click.option('--db-password', envvar='MB_DB_PASSWORD', help='DB password', default=DEFAULT_PASSWORD, show_default=True)
 ]
 
 

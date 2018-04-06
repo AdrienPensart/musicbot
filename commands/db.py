@@ -19,7 +19,7 @@ def cli(ctx, **kwargs):
 @click.pass_context
 async def create(ctx):
     '''Create database and load schema'''
-    await ctx.obj.db.create()
+    await ctx.obj.db.create(os.path.join(ctx.obj.folder, 'schema'))
 
 
 @cli.command()
@@ -37,7 +37,7 @@ async def drop(ctx):
 @click.pass_context
 async def clear(ctx):
     '''Drop and recreate database and schema'''
-    await ctx.obj.db.clear()
+    await ctx.obj.db.clear(os.path.join(ctx.obj.folder, 'schema'))
 
 
 @cli.command()
