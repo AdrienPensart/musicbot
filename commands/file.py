@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 import click
-from lib import file, helpers, collection, database, filter
+from lib import file, helpers, collection, database, mfilter
 from logging import debug
 
 
 @click.group()
 @helpers.add_options(database.options)
-@helpers.add_options(filter.options)
+@helpers.add_options(mfilter.options)
 @click.pass_context
 def cli(ctx, **kwargs):
     '''Music tags management'''
     ctx.obj.db = collection.Collection(**kwargs)
-    ctx.obj.mf = filter.Filter(**kwargs)
+    ctx.obj.mf = mfilter.Filter(**kwargs)
 
 
 @cli.command()

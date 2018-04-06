@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*- import click
 import click
-from lib import helpers, database, collection, filter
+from lib import helpers, database, collection, mfilter
 
 
 @click.group()
 @helpers.add_options(database.options)
-@helpers.add_options(filter.options)
+@helpers.add_options(mfilter.options)
 @helpers.add_options(helpers.concurrency)
 @click.pass_context
 def cli(ctx, concurrency, **kwargs):
     '''Youtube management'''
     ctx.obj.db = collection.Collection(**kwargs)
-    ctx.obj.mf = filter.Filter(**kwargs)
+    ctx.obj.mf = mfilter.Filter(**kwargs)
     ctx.obj.concurrency = concurrency
 
 

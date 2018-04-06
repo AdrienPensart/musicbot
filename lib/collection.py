@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
-from . import filter
+from .mfilter import Filter, default_limit
 from .database import Database
 from .helpers import drier, timeit
-from logging import debug
 
 
 class Collection(Database):
@@ -49,7 +48,7 @@ class Collection(Database):
     @timeit
     async def keywords(self, mf=None, json=False):
         if mf is None:
-            mf = filter.Filter()
+            mf = Filter()
         l = mf.to_list()
         if json:
             sql = '''select array_to_json(array_agg(row_to_json(k))) as json from (select distinct keyword as name from (select unnest(array_cat_agg(keywords)) as keyword from do_filter($1::filters)) k order by name) k'''
@@ -64,9 +63,9 @@ class Collection(Database):
     @timeit
     async def artists(self, mf=None, json=False):
         if mf is None:
-            mf = filter.Filter()
+            mf = Filter()
         # ignore limit
-        mf.limit = filter.default_limit
+        mf.limit = default_limit
         l = mf.to_list()
         if json:
             sql = '''select array_to_json(array_agg(row_to_json(a))) as json from (select distinct artist as name from do_filter($1::filters) m order by name) a'''
@@ -81,7 +80,7 @@ class Collection(Database):
     @timeit
     async def titles(self, mf=None, json=False):
         if mf is None:
-            mf = filter.Filter()
+            mf = Filter()
         sql = """select distinct title as name from do_filter($1::filters) order by name"""
         return await self.fetch(sql, mf.to_list())
 
@@ -92,7 +91,7 @@ class Collection(Database):
     @timeit
     async def albums(self, mf=None, youtube=None, json=False):
         if mf is None:
-            mf = filter.Filter()
+            mf = Filter()
         l = mf.to_list()
         if json:
             sql = '''select array_to_json(array_agg(row_to_json(a))) as json from (select album as name, artist, a.youtube as youtube, sum(duration) as duration from do_filter($1::filters) m inner join albums a on a.name=album where $2::text is null or $2::text = a.youtube group by album, artist, a.youtube order by album) a'''
@@ -107,7 +106,7 @@ class Collection(Database):
     @timeit
     async def genres(self, mf=None, json=False):
         if mf is None:
-            mf = filter.Filter()
+            mf = Filter()
         l = mf.to_list()
         if json:
             sql = '''select array_to_json(array_agg(row_to_json(g))) as json from (select distinct genre as name from do_filter($1::filters) m order by name) g'''
@@ -122,14 +121,14 @@ class Collection(Database):
     @timeit
     async def form(self, mf=None):
         if mf is None:
-            mf = filter.Filter()
+            mf = Filter()
         sql = '''select * from generate_form($1::filters)'''
         return await self.fetchrow(sql, mf.to_list())
 
     @timeit
     async def stats(self, mf=None, json=False):
         if mf is None:
-            mf = filter.Filter()
+            mf = Filter()
         l = mf.to_list()
         if json:
             sql = '''select row_to_json(s) as json from do_stats($1::filters) s'''
@@ -172,7 +171,7 @@ class Collection(Database):
     @timeit
     async def musics(self, f=None, json=False):
         if f is None:
-            f = filter.Filter()
+            f = Filter()
         l = f.to_list()
         if json:
             sql = '''select array_to_json(array_agg(row_to_json(m))) as playlist from do_filter($1::filters) m'''
@@ -183,7 +182,7 @@ class Collection(Database):
     @timeit
     async def old_musics(self, f=None, json=False):
         if f is None:
-            f = filter.Filter()
+            f = Filter()
         l = f.to_list()
         if json:
             sql = '''select array_to_json(array_agg(row_to_json(m))) as playlist from do_filter($1::filters) m'''
@@ -194,7 +193,7 @@ class Collection(Database):
     @timeit
     async def playlist(self, f=None):
         if f is None:
-            f = filter.Filter()
+            f = Filter()
         sql = '''select * from generate_playlist($1::filters)'''
         l = f.to_list()
         return await self.fetchrow(sql, l)
@@ -202,7 +201,7 @@ class Collection(Database):
     @timeit
     async def bests(self, f=None):
         if f is None:
-            f = filter.Filter()
+            f = Filter()
         sql = '''select * from generate_bests($1::filters)'''
         l = f.to_list()
         return await self.fetch(sql, l)

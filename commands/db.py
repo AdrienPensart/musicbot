@@ -50,6 +50,7 @@ async def clean(ctx):
         if not os.path.isfile(m['path']):
             info('{} does not exist'.format(m['path']))
             await ctx.obj.db.delete(m['path'])
+    await ctx.obj.db.refresh()
 
 
 @cli.command()

@@ -78,20 +78,6 @@ class lazy_property(object):
         return value
 
 
-# def dump_filter(data, path):
-#     import yaml
-#     with open(path, 'w') as stream:
-#         yaml.dump(data, stream, default_flow_style=False)
-#
-#
-# def load_filter(path):
-#     import yaml
-#     with open(path, 'r') as stream:
-#         mf = filter.Filter()
-#         mf = yaml.load(stream)
-#         return mf
-
-
 def raise_limits():
     import resource
     try:

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from logging import debug
-from ..filter import Filter
+from ..mfilter import Filter
 from ..lib import num
 
 

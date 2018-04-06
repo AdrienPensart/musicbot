@@ -7,7 +7,7 @@ from aiocache import cached, SimpleMemoryCache
 from aiocache.serializers import PickleSerializer
 from aiocache.plugins import HitMissRatioPlugin, TimingPlugin
 from . import helpers, forms
-from .. import filter, lib, file
+from .. import mfilter, lib, file
 from .app import db
 from logging import debug, warning
 collection = Blueprint('collection', strict_slashes=True, url_prefix='/collection')
@@ -25,7 +25,7 @@ async def progression(request, ws):
     debug('Getting folders')
     folders = await db.folders_name()
     debug('Scanning folders: {}'.format(folders))
-    files = [f for f in lib.find_files(folders) if f[1].endswith(tuple(filter.supported_formats))]
+    files = [f for f in lib.find_files(folders) if f[1].endswith(tuple(mfilter.supported_formats))]
 
     current = 0
     percentage = 0
@@ -102,7 +102,7 @@ async def folders(request):
 async def filters(request):
     '''Get filters'''
     filters = await db.filters()
-    webfilters = [filter.Filter(**dict(f)) for f in filters]
+    webfilters = [mfilter.Filter(**dict(f)) for f in filters]
     return await helpers.template('filters.html', filters=webfilters)
 
 

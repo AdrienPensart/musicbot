@@ -5,7 +5,7 @@ import os
 import asyncio
 from tqdm import tqdm
 from logging import error, debug, info
-from lib import helpers, lib, collection, database, filter
+from lib import helpers, lib, collection, database, mfilter
 from lib.config import config
 from lib.helpers import watcher, fullscan
 from lib.lib import empty_dirs
@@ -83,13 +83,13 @@ def find(ctx, folders, **kwargs):
 
 @cli.command()
 @helpers.coro
-@helpers.add_options(filter.options)
+@helpers.add_options(mfilter.options)
 @click.argument('destination')
 @click.pass_context
 async def sync(ctx, destination, **kwargs):
     '''Copy selected musics with filters to destination folder'''
     info('Destination: {}'.format(destination))
-    ctx.obj.mf = filter.Filter(**kwargs)
+    ctx.obj.mf = mfilter.Filter(**kwargs)
     musics = await ctx.obj.db.musics(ctx.obj.mf)
 
     files = lib.all_files(destination)

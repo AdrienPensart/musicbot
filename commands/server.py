@@ -7,14 +7,6 @@ from lib import helpers, database, lib, server
 from lib.config import config
 from lib.web import config as webconfig
 
-THIS_DIR = os.path.dirname(os.path.abspath(sys.argv[0]))
-
-
-def self_restart():
-    python = sys.executable
-    os.execl(python, python, * sys.argv)
-
-
 @click.group()
 @click.pass_context
 @helpers.add_options(database.options)
@@ -39,28 +31,32 @@ def cli(ctx, **kwargs):
 
         def on_modified(self, event):
             debug('Modified: {} {}'.format(event.src_path, event.event_type))
-            self_restart()
+            self.restart()
 
         def on_created(self, event):
             debug('Created: {} {}'.format(event.src_path, event.event_type))
-            self_restart()
+            self.restart()
 
         def on_deleted(self, event):
             debug('Deleted: {} {}'.format(event.src_path, event.event_type))
-            self_restart()
+            self.restart()
 
         def on_moved(self, event):
             debug('Moved: {} {}'.format(event.src_path, event.event_type))
-            self_restart()
+            self.restart()
+
+        def restart(self):
+            python = sys.executable
+            os.execl(python, python, * sys.argv)
+
 
     event_handler = PyWatcherHandler()
     observer = Observer()
-    lib_folder = THIS_DIR + '/lib'
-    debug('Watching lib folder: {}'.format(lib_folder))
-    observer.schedule(event_handler, lib_folder, recursive=True)
-    commands_folder = THIS_DIR + '/commands'
-    debug('Watching commands folder: {}'.format(commands_folder))
-    observer.schedule(event_handler, commands_folder, recursive=True)
+
+    for f in ['lib', 'commands']:
+        fpath = os.path.join(ctx.obj.folder, f)
+        debug('Watching internal folder: {}'.format(fpath))
+        observer.schedule(event_handler, fpath, recursive=True)
     observer.start()
 
 

@@ -14,7 +14,7 @@ from . import youtube
 from .config import config
 from .file import File
 from .lib import secondsToHuman, find_files
-from .filter import Filter, supported_formats
+from .mfilter import Filter, supported_formats
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 

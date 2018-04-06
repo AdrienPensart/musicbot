@@ -17,11 +17,11 @@ options = [
 
 
 def mysplit(s, delim=','):
-    if type(s) is list:
+    if isinstance(s, list):
         return s
     if s is None:
         return []
-    if type(s) is str:
+    if isinstance(s, str):
         return [x for x in s.split(delim) if x]
     raise ValueError(s)
 

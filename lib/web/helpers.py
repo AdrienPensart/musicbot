@@ -6,7 +6,7 @@ from logging import debug
 from sanic import response
 from jinja2 import Environment, FileSystemLoader
 from functools import wraps
-from . import filter
+from .mfilter import WebFilter
 from .config import webconfig
 from .app import db
 
@@ -20,7 +20,7 @@ async def get_filter(request, **kwargs):
     d = kwargs
     if filter_name is not None:
         d = dict(await db.get_filter(filter_name))
-    return filter.WebFilter(request, **d)
+    return WebFilter(request, **d)
 
 
 async def get_music(request):

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import click
 import os
+import sys
 from asyncpg import utils, connect
 from logging import debug, info
 from .helpers import drier, timeit
@@ -81,8 +82,6 @@ class Database(object):
     @drier
     @timeit
     async def executefile(self, filepath):
-        import sys
-        import os
         schema_path = os.path.join(os.path.dirname(sys.argv[0]), filepath)
         info('loading schema: {}'.format(schema_path))
         with open(schema_path, "r") as s:

@@ -3,7 +3,7 @@
 import unittest
 import os
 import asynctest
-from lib import file, collection, lib, filter
+from lib import file, collection, lib, mfilter
 from lib.server import app
 from logging import DEBUG, getLogger
 
@@ -37,11 +37,11 @@ filtered_teststats = {
 
 class ApiTest(unittest.TestCase):
     def test_index(self):
-        request, response = app.test_client.get('/')
+        _, response = app.test_client.get('/')
         assert response.status == 200
 
     def test_collection_filters(self):
-        request, response = app.test_client.get('/collection/filters')
+        _, response = app.test_client.get('/collection/filters')
         assert response.status == 200
 
 
@@ -126,23 +126,23 @@ class DatabaseTest(asynctest.TestCase):
         self.assertEqual(titles, ['Doomride', 'I Come In Peace', 'La Flemme', 'Welcome To Bucketheadland', 'Welcome To Bucketheadland - Cut'])
 
     async def test_tag_filter(self):
-        musics = await self.collection.musics(filter.Filter(genres=['Avantgarde']))
+        musics = await self.collection.musics(mfilter.Filter(genres=['Avantgarde']))
         self.assertEqual(len(musics), 4)
-        musics = await self.collection.musics(filter.Filter(artists=['Buckethead']))
+        musics = await self.collection.musics(mfilter.Filter(artists=['Buckethead']))
         self.assertEqual(len(musics), 4)
-        musics = await self.collection.musics(filter.Filter(artists=['Buckethead'], min_rating=5.0))
+        musics = await self.collection.musics(mfilter.Filter(artists=['Buckethead'], min_rating=5.0))
         self.assertEqual(len(musics), 3)
-        musics = await self.collection.musics(filter.Filter(artists=['Buckethead'], min_duration=2))
+        musics = await self.collection.musics(mfilter.Filter(artists=['Buckethead'], min_duration=2))
         self.assertEqual(len(musics), 0)
-        musics = await self.collection.musics(filter.Filter(artists=['Buckethead'], keywords=['experimental']))
+        musics = await self.collection.musics(mfilter.Filter(artists=['Buckethead'], keywords=['experimental']))
         self.assertEqual(len(musics), 2)
-        musics = await self.collection.musics(filter.Filter(artists=['Buckethead'], no_keywords=['heavy']))
+        musics = await self.collection.musics(mfilter.Filter(artists=['Buckethead'], no_keywords=['heavy']))
         self.assertEqual(len(musics), 3)
-        musics = await self.collection.musics(filter.Filter(artists=['1995']))
+        musics = await self.collection.musics(mfilter.Filter(artists=['1995']))
         self.assertEqual(len(musics), 1)
 
     async def test_new_playlist(self):
-        mf = filter.Filter(relative=True)
+        mf = mfilter.Filter(relative=True)
         playlist = await self.collection.playlist(mf)
         final = """#EXTM3U
 1995/La Source/La Flemme.mp3
@@ -160,7 +160,7 @@ Buckethead/1994 - Giant Robot/03 - I Come In Peace.flac"""
         self.assertEqual(dict(stats), teststats)
 
     async def test_filtered_stats(self):
-        mf = filter.Filter(keywords=['rock'])
+        mf = mfilter.Filter(keywords=['rock'])
         stats = await self.collection.stats(mf)
         self.assertEqual(dict(stats), filtered_teststats)
 

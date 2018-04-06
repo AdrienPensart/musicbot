@@ -2,7 +2,8 @@
 from sanic import response, Blueprint
 from aiocache import cached, SimpleMemoryCache
 from aiocache.serializers import PickleSerializer
-from . import helpers, filter
+from . import helpers
+from .mfilter import WebFilter
 from .app import db
 
 api_v1 = Blueprint('api_v1', strict_slashes=True, url_prefix='/v1')
@@ -15,7 +16,7 @@ api_v1 = Blueprint('api_v1', strict_slashes=True, url_prefix='/v1')
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def stats(request):
     '''Music library statistics, APIv1'''
-    mf = filter.WebFilter(request)
+    mf = WebFilter(request)
     stats = await db.stats(mf, json=True)
     return response.HTTPResponse(stats, content_type="application/json")
 
