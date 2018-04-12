@@ -39,23 +39,6 @@ begin
 end;
 $$ language plpgsql;
 
-create table if not exists music
-(
-    id serial primary key,
-    title text default '',
-    album text default '',
-    genre text default '',
-    artist text default '',
-    folder text default '',
-    youtube text default '',
-    number integer default 0,
-    path text default '' unique not null,
-    rating float default 0.0,
-    duration integer default 0,
-    size integer default 0,
-    keywords text[] default '{}'
-);
-
 create or replace function new_music
 (
     title text default '',
@@ -163,6 +146,26 @@ begin
 end;
 $$ language plpgsql;
 
+create or replace function upsert_one(
+    title text default '',
+    album text default '',
+    genre text default '',
+    artist text default '',
+    folder text default '',
+    youtube text default '',
+    number integer default 0,
+    path text default '',
+    rating float default 0.0,
+    duration integer default 0,
+    size integer default 0,
+    keywords text[] default '{}')
+returns void as
+$$
+begin
+    perform upsert(new_music(title, album, genre, artist, folder, youtube, number, path, rating, duration, size, keywords));
+end
+$$ language plpgsql;
+
 create or replace function upsert_all(ms music[])
 returns void as
 $$
@@ -213,6 +216,49 @@ returns setof music as
 $$
     select *
     from mmusics mv
+    where
+        (array_length(mf.artists, 1) is null or mv.artist = any(mf.artists)) and
+        (array_length(mf.no_artists, 1) is null or not (mv.artist = any(mf.no_artists))) and
+        (array_length(mf.albums, 1) is null or mv.album = any(mf.albums)) and
+        (array_length(mf.no_albums, 1) is null or not (mv.album = any(mf.no_albums))) and
+        (array_length(mf.titles, 1) is null or mv.title = any(mf.titles)) and
+        (array_length(mf.no_titles, 1) is null or not (mv.title = any(mf.no_titles))) and
+        (array_length(mf.genres, 1) is null or mv.genre = any(mf.genres)) and
+        (array_length(mf.no_genres, 1) is null or not (mv.genre = any(mf.no_genres))) and
+        (array_length(mf.keywords, 1) is null or mf.keywords <@ mv.keywords) and
+        (array_length(mf.no_keywords, 1) is null or not (mf.no_keywords && mv.keywords)) and
+        (array_length(mf.formats, 1) is null or mv.path similar to '%.(' || array_to_string(mf.formats, '|') || ')') and
+        (array_length(mf.no_formats, 1) is null or mv.path not similar to '%.(' || array_to_string(mf.no_formats, '|') || ')') and
+        mv.duration between mf.min_duration and mf.max_duration and
+        mv.size between mf.min_size and mf.max_size and
+        mv.rating between mf.min_rating and mf.max_rating and
+        (mf.youtube is null or (mf.youtube = mv.youtube))
+    order by
+        case when(mf.shuffle = 'true') then random() end,
+        case when(mf.shuffle = 'false') then artist end,
+        case when(mf.shuffle = 'false') then album end,
+        case when(mf.shuffle = 'false') then number end
+    limit mf.limit;
+$$ language sql;
+
+create or replace function do_filter2(mf filters default new_filter())
+returns setof music as
+$$
+    select 
+        id,
+        title,
+        album,
+        genre,
+        artist,
+        folder,
+        youtube,
+        number,
+        path,
+        rating,
+        duration,
+        size,
+        keywords
+    from music mv
     where
         (array_length(mf.artists, 1) is null or mv.artist = any(mf.artists)) and
         (array_length(mf.no_artists, 1) is null or not (mv.artist = any(mf.no_artists))) and

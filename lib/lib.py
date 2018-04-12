@@ -98,6 +98,8 @@ def find_files(directories):
     directories = [os.path.abspath(d) for d in directories]
     for directory in directories:
         for root, _, files in walk(directory):
+            if '.zfs' in root:
+                continue
             for basename in files:
                 filename = os.path.join(root, basename)
                 yield (directory, filename)

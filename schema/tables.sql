@@ -32,6 +32,32 @@ create table if not exists albums (
     updated_at timestamp default null,
     unique(artist_id,name)
 );
+create table if not exists music
+(
+    id serial primary key,
+    title text default '',
+    album text default '',
+    genre text default '',
+    artist text default '',
+    folder text default '',
+    youtube text default '',
+    number integer default 0,
+    path text default '' unique not null,
+    rating float default 0.0,
+    duration integer default 0,
+    size integer default 0,
+    keywords text[] default '{}'
+);
+create index if not exists title_idx on music (title);
+create index if not exists album_idx on music (album);
+create index if not exists genre_idx on music (genre);
+create index if not exists artist_idx on music (artist);
+create index if not exists folder_idx on music (folder);
+create index if not exists youtube_idx on music (youtube);
+create index if not exists rating_idx on music (rating);
+create index if not exists keywords_idx on music (keywords);
+
+
 create table if not exists musics (
     id serial primary key,
     artist_id integer,

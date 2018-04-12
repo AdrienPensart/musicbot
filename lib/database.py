@@ -33,8 +33,9 @@ class Database(object):
         self.user = db_user if db_user is not None else os.getenv('MB_DB_USER', DEFAULT_USER)
         self.password = db_password if db_password is not None else os.getenv('MB_DB_PASSWORD', DEFAULT_PASSWORD)
         self._pool = None
-        info('Database: {}'.format(self.connection_string()))
+        info('Database: {}'.format(self.connection_string))
 
+    @property
     def connection_string(self):
         return 'postgresql://{}:{}@{}:{}/{}'.format(self.user, self.password, self.host, self.port, self.database)
 
@@ -59,6 +60,9 @@ class Database(object):
         con = await connect(user=self.user, host=self.host, password=self.password, port=self.port)
         await con.execute('create database {}'.format(self.database))
         await con.close()
+
+    async def connect(self):
+        return await connect(user=self.user, host=self.host, password=self.password, port=self.port, database=self.database)
 
     @property
     async def pool(self):

@@ -28,6 +28,16 @@
 
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Favorite
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="{{ url_for('collection.player', keywords="best", shuffle=1) }}">Play Best Of</a>
+              <a class="dropdown-item" href="{{ url_for('collection.player', artists="Buckethead", min_rating="5.0", shuffle=1) }}">Play Buckethead</a>
+            </div>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Collection
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">

@@ -34,6 +34,9 @@ class File(object):
         self.handle = taglib.File(filename)
         self.youtube_link = ''
 
+    def close(self):
+        self.handle.close()
+
     def to_list(self):
         return [self.id,
                 self.title,
@@ -49,6 +52,21 @@ class File(object):
                 self.size,
                 mysplit(self.keywords, ' ')
                 ]
+
+    def to_tuple(self):
+        return (self.title,
+                self.album,
+                self.genre,
+                self.artist,
+                self._folder,
+                self.youtube,
+                self.number,
+                self.path,
+                self.rating,
+                self.duration,
+                self.size,
+                mysplit(self.keywords, ' '),
+                )
 
     @property
     def path(self):

@@ -68,22 +68,34 @@ async def fullscan(db, folders=None, concurrency=1, crawl=False):
     with click_spinner.spinner():
         files = [f for f in find_files(list(folders)) if f[1].endswith(tuple(supported_formats))]
     size = len(files) * 2 if crawl else len(files)
+    sql = '''select * from upsert($1::music)'''
     with tqdm(total=size, file=sys.stdout, desc="Loading music", leave=True, position=0, disable=config.quiet) as bar:
-        async def insert(semaphore, f):
-            async with semaphore:
-                try:
+        async with (await db.pool).acquire() as connection:
+            async with connection.transaction():
+                for f in files:
                     m = File(f[1], f[0])
-                    if crawl:
-                        await m.find_youtube()
-                        bar.update(1)
-                    debug(m.to_list())
-                    await db.upsert(m)
+                    try:
+                        l = m.to_list()
+                        await connection.execute(sql, l)
+                    except asyncpg.exceptions.CheckViolationError as e:
+                        warning("Violation: {}".format(e))
                     bar.update(1)
-                except asyncpg.exceptions.CheckViolationError as e:
-                    warning("Violation: {}".format(e))
-        semaphore = asyncio.BoundedSemaphore(concurrency)
-        tasks = [asyncio.ensure_future(insert(semaphore, f)) for f in files]
-        await asyncio.gather(*tasks)
+    #with tqdm(total=size, file=sys.stdout, desc="Loading music", leave=True, position=0, disable=config.quiet) as bar:
+    #    async def insert(semaphore, f):
+    #        async with semaphore:
+    #            try:
+    #                m = File(f[1], f[0])
+    #                if crawl:
+    #                    await m.find_youtube()
+    #                    bar.update(1)
+    #                debug(m.to_list())
+    #                await db.upsert(m)
+    #                bar.update(1)
+    #            except asyncpg.exceptions.CheckViolationError as e:
+    #                warning("Violation: {}".format(e))
+    #    semaphore = asyncio.BoundedSemaphore(concurrency)
+    #    tasks = [asyncio.ensure_future(insert(semaphore, f)) for f in files]
+    #    await asyncio.gather(*tasks)
     await db.refresh()
 
 

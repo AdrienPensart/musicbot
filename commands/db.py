@@ -11,7 +11,7 @@ from lib import helpers, database, collection
 def cli(ctx, **kwargs):
     '''Database management'''
     ctx.obj.db = collection.Collection(**kwargs)
-    info(ctx.obj.db.connection_string())
+    info(ctx.obj.db.connection_string)
 
 
 @cli.command()
