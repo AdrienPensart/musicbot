@@ -65,8 +65,21 @@ class File(object):
                 self.rating,
                 self.duration,
                 self.size,
-                mysplit(self.keywords, ' '),
-                )
+                mysplit(self.keywords, ' '))
+
+    def to_dict(self):
+        return {'title': self.title,
+                'album': self.album,
+                'genre': self.genre,
+                'artist': self.artist,
+                'folder': self._folder,
+                'youtube': self.youtube,
+                'number': self.number,
+                'path': self.path,
+                'rating': self.rating,
+                'duration': self.duration,
+                'size': self.size,
+                'keywords': mysplit(self.keywords, ' ')}
 
     @property
     def path(self):

@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+
+{% block title %}Music{% endblock %}
+{% block body %}
+<form method="GET" action="{{ url_for('collection.generate') }}">
+    {{ form.csrf_token }}
+    {{ form.id }}
+    {{ form.artist.label }}<br> {{ form.artist }}<br>
+    {{ form.genre.label }}<br> {{ form.genre }}<br>
+    {{ form.album.label }}<br> {{ form.album }}<br>
+    {{ form.number.label }}<br> {{ form.number }}<br>
+    {{ form.title.label }}<br> {{ form.title }}<br>
+    {{ form.rating.label }}<br> {{ form.rating }}<br>
+    {{ form.keywords.label }}<br> {{ form.keywords }}<br>
+    {{ form.youtube.label }}<br> {{ form.youtube }}<br>
+    {{ form.submit }}
+</form>
+{% endblock %}

@@ -31,8 +31,12 @@
               Favorite
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="{{ url_for('collection.player', keywords="best", shuffle=1) }}">Play Best Of</a>
-              <a class="dropdown-item" href="{{ url_for('collection.player', artists="Buckethead", min_rating="5.0", shuffle=1) }}">Play Buckethead</a>
+              <a class="dropdown-item" href="{{ url_for('collection.player', keywords="best", shuffle=1, autoplay=1) }}">Best</a>
+              <a class="dropdown-item" href="{{ url_for('collection.player', shuffle=1, min_rating="5.0", autoplay=1) }}">Bests (5.0+)</a>
+              <a class="dropdown-item" href="{{ url_for('collection.player', shuffle=1, min_rating="4.5", autoplay=1) }}">Bests (4.5+)</a>
+              <a class="dropdown-item" href="{{ url_for('collection.player', shuffle=1, min_rating="4.0", autoplay=1) }}">Bests (4.0+)</a>
+              <a class="dropdown-item" href="{{ url_for('collection.player', artists="Buckethead", min_rating="5.0", shuffle=1, autoplay=1) }}">Buckethead (5.0+)</a>
+              <a class="dropdown-item" href="{{ url_for('collection.player', artists="Buckethead", keywords="best", shuffle=1, autoplay=1) }}">Buckethead (best)</a>
             </div>
           </li>
 
@@ -68,6 +72,7 @@
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="dropdown-item" href="{{ url_for('collection.stats') }}">Stats</a>
               <a class="dropdown-item" href="{{ url_for('collection.consistency') }}">Consistency</a>
+              <a class="dropdown-item" href="{{ url_for('collection.refresh') }}">Refresh DB</a>
             </div>
           </li>
 

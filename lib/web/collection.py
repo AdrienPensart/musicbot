@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import asyncpg
+import asyncio
 from tqdm import tqdm
 from sanic import Blueprint, response
 from aiocache import cached, SimpleMemoryCache
@@ -17,6 +18,13 @@ collection = Blueprint('collection', strict_slashes=True, url_prefix='/collectio
 @helpers.basicauth
 async def rescan(request):
     return await helpers.template('rescan.html')
+
+
+@collection.route('/refresh')
+@helpers.basicauth
+async def refresh(request):
+    asyncio.ensure_future(db.refresh())
+    return await helpers.template('refresh.html')
 
 
 @collection.websocket('/progression')
@@ -156,14 +164,17 @@ async def musics(request):
     return await helpers.template("musics.html", musics=musics, mf=mf)
 
 
-@collection.route('/old_musics')
+@collection.route('/music', methods=['GET', 'POST'])
 @helpers.basicauth
-@cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='musics')
-async def old_musics(request):
-    '''List musics'''
-    mf = await helpers.get_filter(request)
-    musics = await db.old_musics(mf)
-    return await helpers.template("musics.html", musics=musics, mf=mf)
+async def music(request):
+    '''Show music'''
+    music_id = request.args.get('id', None)
+    form = forms.MusicForm(request)
+    if request.method == 'GET':
+        music = await db.music(int(music_id))
+    if request.method == 'POST' and form.validate():
+        await db.update_music(request.args)
+    return await helpers.template("music.html", form=form)
 
 
 @collection.route('/download')

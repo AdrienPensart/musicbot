@@ -60,7 +60,7 @@ async def crawl_albums(db, mf=None, youtube_album='', concurrency=1):
     await db.refresh()
 
 
-async def fullscan(db, folders=None, concurrency=1, crawl=False):
+async def fullscan(db, folders=None, concurrency=1, crawl=False, sync=False):
     if folders is None:
         folders = await db.folders()
         folders = [f['name'] for f in folders]
@@ -68,15 +68,92 @@ async def fullscan(db, folders=None, concurrency=1, crawl=False):
     with click_spinner.spinner():
         files = [f for f in find_files(list(folders)) if f[1].endswith(tuple(supported_formats))]
     size = len(files) * 2 if crawl else len(files)
-    sql = '''select * from upsert($1::music)'''
     with tqdm(total=size, file=sys.stdout, desc="Loading music", leave=True, position=0, disable=config.quiet) as bar:
+#        if sync:    
+#            sql = '''
+#    delete from music_tags mt where mt.music_id = (select old.id from musics old where old.path = %(path)s limit 1);
+#    with upsert_folder as (
+#        insert into folders as f (name, created_at)
+#        values (%(folder)s, now())
+#        on conflict (name) do update set
+#            updated_at=coalesce(EXCLUDED.updated_at, now()),
+#            name=EXCLUDED.name
+#        returning f.id as folder_id
+#    ),
+#    upsert_artist as (
+#        insert into artists as a (name, created_at)
+#        values (%(artist)s, now())
+#        on conflict (name) do update set
+#            updated_at=coalesce(EXCLUDED.updated_at, now()),
+#            name=EXCLUDED.name
+#        returning a.id as artist_iD
+#    ),
+#    upsert_album as (
+#        insert into albums as al (artist_id, name, created_at)
+#        values ((select artist_id from upsert_artist limit 1), %(album)s, now())
+#        on conflict (artist_id, name) do update set
+#            updated_at=coalesce(EXCLUDED.updated_at, now()),
+#            name=EXCLUDED.name
+#        returning al.id as album_id
+#    ),
+#    upsert_genre as (
+#        insert into genres as g (name)
+#        values (%(genre)s)
+#        on conflict (name) do update set
+#            updated_at=coalesce(EXCLUDED.updated_at, now()),
+#            name=EXCLUDED.name
+#        returning g.id as genre_id
+#    ),
+#    upsert_keywords as (
+#        insert into tags as t (name)
+#        select distinct k from unnest(%(keywords)s::text[]) k
+#        on conflict (name) do update set
+#            updated_at=coalesce(EXCLUDED.updated_at, now()),
+#            name=EXCLUDED.name
+#        returning t.id as tag_id
+#    ),
+#    upsert_music as (
+#        insert into musics as m (artist_id, genre_id, folder_id, album_id, rating, duration, path, title, number, size, youtube, created_at)
+#        values (
+#            (select artist_id from upsert_artist limit 1),
+#            (select genre_id from upsert_genre limit 1),
+#            (select folder_id from upsert_folder limit 1),
+#            (select album_id from upsert_album limit 1),
+#            %(rating)s, %(duration)s, %(path)s, %(title)s, %(number)s, %(size)s, %(youtube)s, now())
+#        on conflict (path) do update set
+#            updated_at=coalesce(EXCLUDED.updated_at, now()),
+#            artist_id=EXCLUDED.artist_id,
+#            genre_id=EXCLUDED.genre_id,
+#            folder_id=EXCLUDED.folder_id,
+#            album_id=EXCLUDED.album_id,
+#            rating=EXCLUDED.rating,
+#            duration=EXCLUDED.duration,
+#            title=EXCLUDED.title,
+#            number=EXCLUDED.number,
+#            size=EXCLUDED.size,
+#            youtube=coalesce(EXCLUDED.youtube, m.youtube)
+#        returning m.id as music_id
+#    )
+#    insert into music_tags (music_id, tag_id)
+#    select m.music_id, k.tag_id from upsert_music m, upsert_keywords k
+#    on conflict (music_id, tag_id) do nothing;
+#    delete from tags t where t.id in (select t.id from tags t left join music_tags mt on t.id = mt.tag_id group by t.id having count(mt.music_id) = 0);
+#'''
+#            import psycopg2
+#            with psycopg2.connect(db.connection_string) as conn:
+#                with conn.cursor() as cur:
+#                    for f in files:
+#                        m = File(f[1], f[0])
+#                        cur.execute(sql, m.to_dict())
+#                        bar.update(1)
+#                conn.commit()
+#        else:
         async with (await db.pool).acquire() as connection:
             async with connection.transaction():
                 for f in files:
                     m = File(f[1], f[0])
                     try:
-                        l = m.to_list()
-                        await connection.execute(sql, l)
+                        await db.upsert(m)
                     except asyncpg.exceptions.CheckViolationError as e:
                         warning("Violation: {}".format(e))
                     bar.update(1)

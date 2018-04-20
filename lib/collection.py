@@ -26,7 +26,8 @@ class Collection(Database):
 
     @timeit
     async def refresh(self):
-        await self.execute('refresh materialized view concurrently mmusics')
+        sql = 'refresh materialized view concurrently mmusics'
+        await self.execute(sql)
 
     @timeit
     async def folders(self, json=False):
@@ -180,15 +181,18 @@ class Collection(Database):
         return await self.fetch(sql, l)
 
     @timeit
-    async def old_musics(self, f=None, json=False):
-        if f is None:
-            f = Filter()
-        l = f.to_list()
+    async def music(self, music_id, json=False):
         if json:
-            sql = '''select array_to_json(array_agg(row_to_json(m))) as playlist from do_filter($1::filters) m'''
-            return (await self.fetchrow(sql, l))['playlist']
-        sql = '''select * from old_do_filter($1::filters)'''
-        return await self.fetch(sql, l)
+            sql = '''select array_to_json(array_agg(row_to_json(m))) as music from mmusics m where m.id=$1 limit 1'''
+            return (await self.fetchrow(sql, music_id))['music']
+        sql = '''select * from mmusics m where m.id=$1 limit 1'''
+        return await self.fetchrow(sql, music_id)
+
+    @drier
+    @timeit
+    async def update_music(self, id, title, artist, album, genre, youtube, track, keywords, rating):
+        sql = '''update mmusics set title = $2, artist= $3, album = $4, genre = $5, youtube = $6, track = $7, keywords = $8, rating = $9 where m.id=$1 limit 1'''
+        return await self.execute(sql, m.id, m.title, m.artist, m.album, m.genre, m.youtube, m.track, m.keywords, m.rating)
 
     @timeit
     async def playlist(self, f=None):

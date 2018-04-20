@@ -35,7 +35,8 @@
           <td>{%if m.youtube != "not found" %}<a href="{{ m.youtube }}">{{ m.youtube }}</a>{%else%}Not found{% endif %}</td>
           <td>
             <a href="{{ url_for('collection.player', artists=m.artist, albums=m.album, titles=m.title) }}">play</a> /
-            <a href="{{ url_for('collection.download', artists=m.artist, albums=m.album, titles=m.title, name=download_title(m)) }}">download</a>
+            <a href="{{ url_for('collection.download', artists=m.artist, albums=m.album, titles=m.title, name=download_title(m)) }}">download</a> /
+            <a href="{{ url_for('collection.music', id=m.id) }}">show</a>
           </td>
         </tr>
         {% endfor %}

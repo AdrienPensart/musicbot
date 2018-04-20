@@ -44,12 +44,12 @@ async def list(ctx, **kwargs):
 @helpers.coro
 @helpers.add_options(helpers.concurrency)
 @click.option('--crawl', envvar='MB_CRAWL', help='Crawl youtube', is_flag=True)
+#@click.option('--sync', envvar='MB_SYNC', help='Call DB synchronously', is_flag=True)
 @click.argument('folders', nargs=-1)
 @click.pass_context
 async def scan(ctx, concurrency, crawl, folders, **kwargs):
     '''Load musics files in database'''
     debug('Concurrency: {}'.format(concurrency))
-    # Should insert
     await fullscan(ctx.obj.db, folders=folders, concurrency=concurrency, crawl=crawl)
 
 
