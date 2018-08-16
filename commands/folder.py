@@ -3,6 +3,7 @@ import click
 import sys
 import os
 import asyncio
+from click_didyoumean import DYMGroup
 from tqdm import tqdm
 from logging import error, debug, info
 from lib import helpers, lib, collection, database, mfilter
@@ -11,7 +12,7 @@ from lib.helpers import watcher, fullscan
 from lib.lib import empty_dirs
 
 
-@click.group(invoke_without_command=False)
+@click.group(invoke_without_command=False, cls=DYMGroup)
 @helpers.add_options(database.options)
 @click.pass_context
 def cli(ctx, **kwargs):

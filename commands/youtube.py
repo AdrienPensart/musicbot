@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*- import click
 import click
 from lib import helpers, database, collection, mfilter
+from click_didyoumean import DYMGroup
 
 
-@click.group()
+@click.group(cls=DYMGroup)
 @helpers.add_options(database.options)
 @helpers.add_options(mfilter.options)
 @helpers.add_options(helpers.concurrency)

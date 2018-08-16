@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import click
+from click_didyoumean import DYMGroup
 from datetime import timedelta
 from lib import helpers, collection, database, mfilter
 from lib.lib import bytesToHuman
 
 
-@click.group(invoke_without_command=True)
+@click.group(invoke_without_command=True, cls=DYMGroup)
 @helpers.coro
 @helpers.add_options(database.options)
 @helpers.add_options(mfilter.options)

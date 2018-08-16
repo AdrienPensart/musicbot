@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import click
+import click_completion
 import os
 from attrdict import AttrDict
 from lib import helpers, config
@@ -14,6 +15,14 @@ bin_folder = os.path.dirname(myself)
 plugin_folder = os.path.join(bin_folder, 'commands')
 CONTEXT_SETTINGS = {'auto_envvar_prefix': 'MUSICBOT', 'help_option_names': ['-h', '--help']}
 
+def custom_startswith(string, incomplete): 
+    """A custom completion matching that supports case insensitive matching"""
+    if os.environ.get('_RUN_CLI_V3_CASE_INSENSITIVE_COMPLETE'):
+        string = string.lower()
+        incomplete = incomplete.lower()
+    return string.startswith(incomplete)
+click_completion.startswith = custom_startswith
+click_completion.init()
 
 class SubCommandLineInterface(click.MultiCommand):
     def list_commands(self, ctx):

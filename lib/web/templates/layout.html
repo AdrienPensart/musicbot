@@ -31,10 +31,11 @@
               Favorite
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="{{ url_for('collection.player', keywords="best", shuffle=1, autoplay=1) }}">Best</a>
-              <a class="dropdown-item" href="{{ url_for('collection.player', shuffle=1, min_rating="5.0", autoplay=1) }}">Bests (5.0+)</a>
-              <a class="dropdown-item" href="{{ url_for('collection.player', shuffle=1, min_rating="4.5", autoplay=1) }}">Bests (4.5+)</a>
-              <a class="dropdown-item" href="{{ url_for('collection.player', shuffle=1, min_rating="4.0", autoplay=1) }}">Bests (4.0+)</a>
+              <a class="dropdown-item" href="{{ url_for('collection.player', shuffle=1, filter="no rating", autoplay=1) }}">No Rating</a>
+              <a class="dropdown-item" href="{{ url_for('collection.player', no_artists="Buckethead", keywords="best", shuffle=1, autoplay=1) }}">Best</a>
+              <a class="dropdown-item" href="{{ url_for('collection.player', shuffle=1, filter="best (5.0+)", autoplay=1) }}">Bests (5.0+)</a>
+              <a class="dropdown-item" href="{{ url_for('collection.player', shuffle=1, filter="best (4.5+)", autoplay=1) }}">Bests (4.5+)</a>
+              <a class="dropdown-item" href="{{ url_for('collection.player', shuffle=1, filter="best (4.0+)", autoplay=1) }}">Bests (4.0+)</a>
               <a class="dropdown-item" href="{{ url_for('collection.player', artists="Buckethead", min_rating="5.0", shuffle=1, autoplay=1) }}">Buckethead (5.0+)</a>
               <a class="dropdown-item" href="{{ url_for('collection.player', artists="Buckethead", keywords="best", shuffle=1, autoplay=1) }}">Buckethead (best)</a>
             </div>
@@ -110,10 +111,16 @@
           <div class="form-check mb-2 mr-sm-2 mb-sm-0">
             <input id="limit" class="form-control form-check-input" type="number" min="0" step="1" placeholder="Playlist length">
             <input id="volume" class="form-control form-check-input" type="number" min="0" max="100" step="1" placeholder="Volume">
+
             <input id="shuffle" class="form-control form-check-input" type="checkbox">
             <label class="form-check-label">Shuffle&nbsp;</label>
+
+            <input id="loop" class="form-control form-check-input" type="checkbox">
+            <label class="form-check-label">Loop&nbsp;</label>
+
             <input id="lives" class="form-control form-check-input" type="checkbox">
             <label class="form-check-label">Exclude lives&nbsp;</label>
+
             <input id="autoplay" class="form-control form-check-input" type="checkbox">
             <label class="form-check-label">Autoplay</label>
           </div>

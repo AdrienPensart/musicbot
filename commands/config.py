@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import click
 from lib import helpers, database, server, persistence
+from click_didyoumean import DYMGroup
 
 
-@click.group()
+@click.group(cls=DYMGroup)
 @click.pass_context
 def cli(ctx, **kwargs):
     '''Config management'''

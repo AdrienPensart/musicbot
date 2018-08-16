@@ -6,11 +6,11 @@ from logging import debug
 from lib import helpers, database, lib, server
 from lib.config import config
 from lib.web import config as webconfig
+from click_didyoumean import DYMGroup
 
-@click.group()
+@click.group(cls=DYMGroup)
 @click.pass_context
-@helpers.add_options(database.options)
-@helpers.add_options(webconfig.options)
+@helpers.add_options(database.options + webconfig.options)
 def cli(ctx, **kwargs):
     '''API Server'''
     server.app.config.DB.set(**kwargs)

@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import click
 from lib import mfilter, helpers, collection
+from click_didyoumean import DYMGroup
 
 
-@click.group(invoke_without_command=True)
+@click.group(invoke_without_command=True, cls=DYMGroup)
 @click.pass_context
 def cli(ctx, **kwargs):
     '''Inconsistencies management'''

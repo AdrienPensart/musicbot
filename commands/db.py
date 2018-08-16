@@ -3,9 +3,10 @@ import click
 import os
 from logging import info
 from lib import helpers, database, collection
+from click_didyoumean import DYMGroup
 
 
-@click.group()
+@click.group(cls=DYMGroup)
 @helpers.add_options(database.options)
 @click.pass_context
 def cli(ctx, **kwargs):

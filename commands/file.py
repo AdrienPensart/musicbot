@@ -2,9 +2,10 @@
 import click
 from lib import file, helpers, collection, database, mfilter
 from logging import debug
+from click_didyoumean import DYMGroup
 
 
-@click.group()
+@click.group(cls=DYMGroup)
 @helpers.add_options(database.options)
 @helpers.add_options(mfilter.options)
 @click.pass_context

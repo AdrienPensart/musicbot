@@ -3,6 +3,7 @@ import click
 import codecs
 import os
 import sys
+from click_didyoumean import DYMGroup
 from textwrap import indent
 from tqdm import tqdm
 from lib import helpers, database, collection, mfilter
@@ -10,7 +11,7 @@ from lib.config import config
 from logging import info, debug
 
 
-@click.group()
+@click.group(cls=DYMGroup)
 @helpers.add_options(database.options)
 @click.pass_context
 def cli(ctx, **kwargs):

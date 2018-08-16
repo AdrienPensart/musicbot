@@ -18,8 +18,15 @@ body {
 
 #player {
   width: 100%;
-  display: block;
-  height: 32px;
+}
+
+audio {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
 }
 
 ul#playlist li {
