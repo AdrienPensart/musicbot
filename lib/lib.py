@@ -87,10 +87,10 @@ def raise_limits():
     except OSError as e:
         critical('You may need to check ulimit parameter: {}'.format(e))
         raise e
-    except ValueError:
-        error("Exceeds limit {}, infinity is {}".format(hard, resource.RLIM_INFINITY))
     except resource.error:
         return False
+    except ValueError:
+        error("Exceeds limit {}, infinity is {}".format(hard, resource.RLIM_INFINITY))
     return True
 
 
