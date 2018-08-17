@@ -68,9 +68,9 @@ class Filter(object):
         debug('Filter: {}'.format(self))
         # rating checks
         if self.min_rating not in rating_choices:
-            raise BadFilter("Invalid minimum rating".format(self.min_rating))
+            raise BadFilter("Invalid minimum rating {}".format(self.min_rating))
         if self.max_rating not in rating_choices:
-            raise BadFilter("Invalid maximum rating".format(self.max_rating))
+            raise BadFilter("Invalid maximum rating {}".format(self.max_rating))
         if self.min_rating > self.max_rating:
             raise BadFilter("Invalid minimum ({}) or maximum ({}) rating".format(self.min_rating, self.max_rating))
 

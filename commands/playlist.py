@@ -43,7 +43,7 @@ async def bests(ctx, path, prefix, suffix, **kwargs):
                         debug('Writing playlist to {} with content:\n{}'.format(playlist_filepath, content))
                         playlist_file.write(content)
                 except Exception as e:
-                    info('Unable to write playlist to: {}'.format(playlist_filepath))
+                    info('Unable to write playlist to {} because of {}'.format(playlist_filepath, e))
             else:
                 info('DRY RUN: Writing playlist to {} with content:\n{}'.format(playlist_filepath, content))
             bar.update(1)
