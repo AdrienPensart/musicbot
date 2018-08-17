@@ -58,7 +58,13 @@ class Database(object):
     @drier
     async def createdb(self):
         con = await connect(user=self.user, host=self.host, password=self.password, port=self.port)
-        await con.execute('create database {}'.format(self.database))
+        # as postgresql does not support "create database if not exists", need to check in catalog
+        result = await con.fetchrow("select count(*) = 0 as not_exists from pg_catalog.pg_database where datname = '{}'".format(self.database))
+        if result['not_exists']:
+            debug('Database does not exists, create it')
+            await con.execute('create database {}'.format(self.database))
+        else:
+            debug('Database already exists.')
         await con.close()
 
     async def connect(self):
