@@ -1,3 +1,5 @@
+create extension pg_trgm;
+
 create table if not exists folders (
     id serial primary key,
     name text unique not null,
@@ -10,18 +12,24 @@ create table if not exists tags (
     created_at timestamp default null,
     updated_at timestamp default null
 );
+create index if not exists tags_trigram_idx on tags using gist(name gist_trgm_ops);
+
 create table if not exists artists (
     id serial primary key,
     name text unique not null,
     created_at timestamp default null,
     updated_at timestamp default null
 );
+create index if not exists artists_trigram_idx on artists using gist(name gist_trgm_ops);
+
 create table if not exists genres (
     id serial primary key,
     name text unique not null,
     created_at timestamp default null,
     updated_at timestamp default null
 );
+create index if not exists genres_trigram_idx on genres using gist(name gist_trgm_ops);
+
 create table if not exists albums (
     id serial primary key,
     artist_id integer not null,
@@ -32,6 +40,8 @@ create table if not exists albums (
     updated_at timestamp default null,
     unique(artist_id,name)
 );
+create index if not exists albums_trigram_idx on albums using gist(name gist_trgm_ops);
+
 create table if not exists music
 (
     id serial primary key,
@@ -79,6 +89,8 @@ create table if not exists musics (
     foreign key(folder_id) references folders (id),
     constraint rating_range check (rating between 0.0 and 5.0)
 );
+create index if not exists musics_trigram_idx on musics using gist(title gist_trgm_ops);
+
 create table if not exists music_tags (
     music_id integer not null,
     tag_id integer not null,

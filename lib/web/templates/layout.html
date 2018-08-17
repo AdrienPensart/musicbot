@@ -6,6 +6,7 @@
     <!--<meta name="viewport" content="width=fluid-width, initial-scale=1, shrink-to-fit=no">-->
     <title>{% block title %}MusicBot{% endblock %}</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.19.0/URI.min.js" crossorigin="anonymous"></script>
@@ -107,7 +108,7 @@
             </div>
           </li>
         </ul>
-        <form class="form-inline">
+        <form class="form-inline" action="/action_page.php" method="get" role="search">
           <div class="form-check mb-2 mr-sm-2 mb-sm-0">
             <input id="limit" class="form-control form-check-input" type="number" min="0" step="1" placeholder="Playlist length">
             <input id="volume" class="form-control form-check-input" type="number" min="0" max="100" step="1" placeholder="Volume">
@@ -119,7 +120,7 @@
             <label class="form-check-label">Loop&nbsp;</label>
 
             <input id="lives" class="form-control form-check-input" type="checkbox">
-            <label class="form-check-label">Exclude lives&nbsp;</label>
+            <label class="form-check-label">No lives&nbsp;</label>
 
             <input id="autoplay" class="form-control form-check-input" type="checkbox">
             <label class="form-check-label">Autoplay</label>

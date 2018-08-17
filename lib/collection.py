@@ -12,7 +12,7 @@ class Collection(Database):
     @timeit
     async def create(self, schema_dir):
         await self.createdb()
-        for sqlfile in ['tables.sql', 'functions.sql', 'data.sql', 'triggers.sql']:
+        for sqlfile in ['tables.sql', 'views.sql', 'functions.sql', 'data.sql', 'triggers.sql']:
             await self.executefile(os.path.join(schema_dir, sqlfile))
 
     @timeit
@@ -26,7 +26,7 @@ class Collection(Database):
 
     @timeit
     async def refresh(self):
-        sql = 'refresh materialized view concurrently mmusics'
+        sql = 'select refresh_views()'
         await self.execute(sql)
 
     @timeit

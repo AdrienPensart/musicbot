@@ -1,3 +1,12 @@
+create or replace function refresh_views()
+returns void as $$
+begin
+    refresh materialized view concurrently mmusics;
+    refresh materialized view concurrently smusics;
+    refresh materialized view unique_lexeme;
+end;
+$$ language plpgsql;
+
 create or replace function new_filter
 (
     min_duration integer default 0,
@@ -178,38 +187,6 @@ begin
     end loop;
 end
 $$ language plpgsql;
-
-create materialized view if not exists mmusics as
-select
-    m.id        as id,
-    m.title     as title,
-    al.name     as album,
-    g.name      as genre,
-    a.name      as artist,
-    f.name      as folder,
-    m.youtube   as youtube,
-    m.number    as number,
-    m.path      as path,
-    m.rating    as rating,
-    m.duration  as duration,
-    m.size      as size,
-    (
-        select coalesce(array_agg(name), '{}')
-        from
-        (
-            select distinct name
-            from music_tags mt
-            inner join tags t on mt.tag_id = t.id
-            where mt.music_id = m.id
-        ) as separated_keywords
-    ) as keywords
-from musics m
-inner join albums al on al.id = m.album_id
-inner join artists a on a.id = m.artist_id
-inner join genres g on g.id = m.genre_id
-inner join folders f on f.id = m.folder_id
-order by a.name, al.name, m.number;
-create unique index on mmusics (id);
 
 create or replace function do_filter(mf filters default new_filter())
 returns setof music as

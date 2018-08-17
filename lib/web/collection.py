@@ -66,6 +66,21 @@ async def stats(request):
     return await helpers.template('stats.html', stats=stats, mf=mf)
 
 
+@collection.get('/search')
+@helpers.basicauth
+async def stats(request):
+    '''Search through library'''
+    return await helpers.template('search.html')
+
+
+@collection.get('/results')
+@helpers.basicauth
+async def stats(request):
+    '''Results of search'''
+    q = request.args.get('q')
+    return await helpers.template('results.html', q=q)
+
+
 @collection.route('/generate')
 @helpers.basicauth
 async def generate(request):

@@ -14,6 +14,7 @@ musicbot folder scan --crawl $my_dir/fixtures/*
 musicbot folder find $my_dir/fixtures/*
 musicbot folder rescan --crawl
 musicbot db clean
+musicbot db refresh
 musicbot youtube musics
 musicbot youtube albums
 musicbot folder sync tests2
