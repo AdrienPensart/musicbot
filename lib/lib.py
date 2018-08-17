@@ -84,13 +84,13 @@ def raise_limits():
         _, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
         info("Current limits, soft and hard : {} {}".format(_, hard))
         resource.setrlimit(resource.RLIMIT_NOFILE, (hard, hard))
+    except OSError as e:
+        critical('You may need to check ulimit parameter: {}'.format(e))
+        raise e
     except ValueError:
         error("Exceeds limit {}, infinity is {}".format(hard, resource.RLIM_INFINITY))
     except resource.error:
         return False
-    except OSError as e:
-        critical('You may need to check ulimit parameter: {}'.format(e))
-        raise e
     return True
 
 

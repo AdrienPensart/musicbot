@@ -33,3 +33,12 @@ async def musics(ctx, **kwargs):
 async def albums(ctx, youtube_album, **kwargs):
     '''Fetch youtube links for each album'''
     await helpers.crawl_albums(ctx.obj.db, ctx.obj.mf, youtube_album=youtube_album, concurrency=ctx.obj.concurrency)
+
+@cli.command()
+@click.pass_context
+@helpers.coro
+async def only(ctx, **kwargs):
+    '''Fetch youtube links for each album'''
+    results = await ctx.obj.db.fetch("""select * from do_filter($1::filters) where youtube like 'https://www.youtube.com/watch?v=%'""", ctx.obj.mf.to_list())
+    for r in results:
+        print(r)

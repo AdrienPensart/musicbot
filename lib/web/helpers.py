@@ -12,7 +12,8 @@ from .app import db
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
-env = Environment(extensions=['jinja2.ext.loopcontrols'], loader=FileSystemLoader(os.path.join(THIS_DIR, 'templates')), enable_async=True)
+# env = Environment(extensions=['jinja2.ext.loopcontrols'], loader=FileSystemLoader(os.path.join(THIS_DIR, 'templates')), enable_async=True)
+env = Environment(extensions=['jinja2.ext.loopcontrols'], loader=FileSystemLoader(os.path.join(THIS_DIR, 'templates')), enable_async=True, autoescape=True)
 
 
 async def get_filter(request, **kwargs):

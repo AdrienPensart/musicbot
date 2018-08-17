@@ -58,5 +58,6 @@ async def search(artist, title, duration):
         debug("Most relevant: {} {} {}".format(key, mapping[key], url))
         return url
     except Exception as e:
+        debug(e)
         debug('Cannot find video for artist: {} title: {} duration: {}'.format(artist, title, duration))
         return 'error'

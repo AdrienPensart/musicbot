@@ -42,7 +42,7 @@ async def bests(ctx, path, prefix, suffix, **kwargs):
                     with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:
                         debug('Writing playlist to {} with content:\n{}'.format(playlist_filepath, content))
                         playlist_file.write(content)
-                except:
+                except Exception as e:
                     info('Unable to write playlist to: {}'.format(playlist_filepath))
             else:
                 info('DRY RUN: Writing playlist to {} with content:\n{}'.format(playlist_filepath, content))

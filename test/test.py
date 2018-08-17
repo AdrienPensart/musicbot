@@ -38,11 +38,11 @@ filtered_teststats = {
 class ApiTest(unittest.TestCase):
     def test_index(self):
         _, response = app.test_client.get('/')
-        assert response.status == 200
+        self.assertEqual(response.status, 200)
 
     def test_collection_filters(self):
         _, response = app.test_client.get('/collection/filters')
-        assert response.status == 200
+        self.assertEqual(response.status, 200)
 
 
 class MusicTagsTest(unittest.TestCase):

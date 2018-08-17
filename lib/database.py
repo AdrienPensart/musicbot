@@ -43,7 +43,7 @@ class Database(object):
         await (await self.pool).close()
 
     def __str__(self):
-        return self.connection_string()
+        return self.connection_string
 
     async def mogrify(self, connection, sql, *args):
         mogrified = await utils._mogrify(connection, sql, args)

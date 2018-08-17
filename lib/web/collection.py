@@ -68,14 +68,14 @@ async def stats(request):
 
 @collection.get('/search')
 @helpers.basicauth
-async def stats(request):
+async def search(request):
     '''Search through library'''
     return await helpers.template('search.html')
 
 
 @collection.get('/results')
 @helpers.basicauth
-async def stats(request):
+async def results(request):
     '''Results of search'''
     q = request.args.get('q')
     return await helpers.template('results.html', q=q)
@@ -187,6 +187,7 @@ async def music(request):
     form = forms.MusicForm(request)
     if request.method == 'GET':
         music = await db.music(int(music_id))
+        return await helpers.template("music.html", form=music)
     if request.method == 'POST' and form.validate():
         await db.update_music(request.args)
     return await helpers.template("music.html", form=form)
