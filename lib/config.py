@@ -52,7 +52,8 @@ class Config(object):
             coloredlogs.install(level=self._verbosity, fmt="%(asctime)s %(name)s[%(process)d] %(levelname)s %(message)s")
         print_debug(self)
 
-    def isDebug(self):
+    @property
+    def debug(self):
         return self._verbosity is DEBUG
 
     @property

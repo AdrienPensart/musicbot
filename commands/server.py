@@ -68,4 +68,4 @@ def start(ctx, http_host, http_server, http_port, http_workers, http_user, http_
     server.app.config.HTTP_SERVER = http_server
     server.app.config.HTTP_USER = http_user
     server.app.config.HTTP_PASSWORD = http_password
-    server.app.run(host=http_host, port=http_port, debug=config.isDebug(), workers=http_workers)
+    server.app.run(host=http_host, port=http_port, debug=config.debug, workers=http_workers)

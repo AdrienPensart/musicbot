@@ -5,6 +5,7 @@ import sys
 from asyncpg import utils, connect
 from logging import debug, info
 from .helpers import drier, timeit
+from .config import config
 
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 5432
@@ -79,15 +80,19 @@ class Database(object):
 
     @timeit
     async def fetch(self, sql, *args):
-        async with (await self.pool).acquire() as connection:
-            await self.mogrify(connection, sql, *args)
-            return await connection.fetch(sql, *args)
+        if config.debug:
+            async with (await self.pool).acquire() as connection:
+                await self.mogrify(connection, sql, *args)
+                return await connection.fetch(sql, *args)
+        return await (await self.pool).fetch(sql, *args)
 
     @timeit
     async def fetchrow(self, sql, *args):
-        async with (await self.pool).acquire() as connection:
-            await self.mogrify(connection, sql, *args)
-            return await connection.fetchrow(sql, *args)
+        if config.debug:
+            async with (await self.pool).acquire() as connection:
+                await self.mogrify(connection, sql, *args)
+                return await connection.fetchrow(sql, *args)
+        return await (await self.pool).fetchrow(sql, *args)
 
     @drier
     @timeit
@@ -96,22 +101,27 @@ class Database(object):
         info('loading schema: {}'.format(schema_path))
         with open(schema_path, "r") as s:
             sql = s.read()
-            async with (await self.pool).acquire() as connection:
-                async with connection.transaction():
-                    await connection.execute(sql)
+            if config.debug:
+                async with (await self.pool).acquire() as connection:
+                    async with connection.transaction():
+                        return await connection.execute(sql)
+            await (await self.pool).execute(sql)
 
     @drier
     @timeit
     async def execute(self, sql, *args, **kwargs):
-        async with (await self.pool).acquire() as connection:
-            async with connection.transaction():
-                await self.mogrify(connection, sql, *args)
-                await connection.execute(sql, *args)
+        if config.debug:
+            async with (await self.pool).acquire() as connection:
+                async with connection.transaction():
+                    await self.mogrify(connection, sql, *args)
+                    return await connection.execute(sql, *args)
+        return await (await self.pool).execute(sql, *args)
 
     @drier
     @timeit
     async def executemany(self, sql, *args, **kwargs):
-        debug(sql)
-        async with (await self.pool).acquire() as connection:
-            async with connection.transaction():
-                await connection.executemany(sql, *args, **kwargs)
+        if config.debug:
+            async with (await self.pool).acquire() as connection:
+                async with connection.transaction():
+                    return await connection.executemany(sql, *args, **kwargs)
+        return await (await self.pool).executemany(sql, *args, **kwargs)
