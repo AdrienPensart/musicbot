@@ -3,11 +3,13 @@
 import unittest
 import os
 import asynctest
+import logging
+import coloredlogs
 from lib import file, collection, lib, mfilter
 from lib.server import app
-from logging import DEBUG, getLogger
 
-getLogger().setLevel(DEBUG)
+logger = logging.getLogger(__name__)
+coloredlogs.install(level=logging.DEBUG)
 
 my_dir = os.path.dirname(os.path.abspath(__file__))
 

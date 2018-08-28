@@ -16,8 +16,6 @@ from .web.collection import collection
 from .web.app import app
 from .web.config import webconfig
 # from .web.limiter import limiter
-# from logging_tree import printout
-# printout()
 
 logger = logging.getLogger(__name__)
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 import click
 import click_completion
 import os
+import logging
 from attrdict import AttrDict
 from lib import helpers, config
 
@@ -15,6 +15,7 @@ bin_folder = os.path.dirname(myself)
 commands_folder = 'commands'
 plugin_folder = os.path.join(bin_folder, commands_folder)
 CONTEXT_SETTINGS = {'auto_envvar_prefix': 'MUSICBOT', 'help_option_names': ['-h', '--help']}
+logger = logging.getLogger('musicbot')
 
 
 def custom_startswith(string, incomplete):
@@ -47,7 +48,7 @@ class SubCommandLineInterface(click.MultiCommand):
                 ns['__name__'] = '{}.{}'.format(commands_folder, name)
                 eval(code, ns, ns)
         except FileNotFoundError:
-            print(ctx.get_help())
+            logger.error(ctx.get_help())
             return
         return ns['cli']
 

@@ -47,10 +47,10 @@ Commands
     --timings                       Set verbosity to info and show execution
                                     timings
     --verbosity [debug|info|warning|error|critical]
-                                    Verbosity levels  [default: error]
+                                    Verbosity levels  [default: warning]
     --dry                           Take no real action
     --quiet                         Disable progress bars
-    --no-color                      Disable colorized output
+    --no-colors                     Disable colorized output
     -h, --help                      Show this message and exit.
   
   Commands:
@@ -125,7 +125,19 @@ musicbot config
     -h, --help  Show this message and exit.
   
   Commands:
-    save  Save config
+    logging
+    save     Save config
+    show
+
+
+musicbot config logging
+***********************
+.. code-block::
+
+  Usage: musicbot config logging [OPTIONS]
+  
+  Options:
+    -h, --help  Show this message and exit.
 
 
 musicbot config save
@@ -152,6 +164,16 @@ musicbot config save
     --http-user TEXT        HTTP Basic auth user
     --http-password TEXT    HTTP Basic auth password
     -h, --help              Show this message and exit.
+
+
+musicbot config show
+********************
+.. code-block::
+
+  Usage: musicbot config show [OPTIONS]
+  
+  Options:
+    -h, --help  Show this message and exit.
 
 
 musicbot consistency
