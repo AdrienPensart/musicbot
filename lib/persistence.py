@@ -2,7 +2,9 @@
 import click
 import aioredis
 import os
-from logging import debug
+import logging
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_REDIS_ADDRESS = 'redis://localhost'
 DEFAULT_REDIS_DB = 0
@@ -20,7 +22,7 @@ class Persistence(object):
         self.address = redis_address if redis_address is not None else os.getenv('MB_REDIS_ADDRESS', DEFAULT_REDIS_ADDRESS)
         self.database = redis_database if redis_database is not None else os.getenv('MB_REDIS_DB', DEFAULT_REDIS_DB)
         self.password = redis_password if redis_password is not None else os.getenv('MB_REDIS_PASSWORD', DEFAULT_REDIS_PASSWORD)
-        debug('REDIS: {} {} {}'.format(self.address, self.database, self.password))
+        logger.debug('REDIS: {} {} {}'.format(self.address, self.database, self.password))
 
     async def connect(self):
         self.conn = await aioredis.create_connection(self.address, db=self.database, password=self.password)

@@ -40,14 +40,21 @@ Commands
   
   Options:
     --version                       Show the version and exit.
+    --log PATH                      Log file path  [default:
+                                    /var/log/musicbot.log]
+    --debug                         Be very verbose, same as --verbosity debug +
+                                    hide progress bars
+    --timings                       Set verbosity to info and show execution
+                                    timings
     --verbosity [debug|info|warning|error|critical]
                                     Verbosity levels  [default: error]
     --dry                           Take no real action
     --quiet                         Disable progress bars
-    --invocation TEXT               Resumable execution ID (experimental)
+    --no-color                      Disable colorized output
     -h, --help                      Show this message and exit.
   
   Commands:
+    completion   Completion tool
     config       Config management
     consistency  Inconsistencies management
     db           Database management
@@ -59,6 +66,51 @@ Commands
     tag          Music tags management
     task         Task management
     youtube      Youtube management
+
+
+musicbot completion
+*******************
+.. code-block::
+
+  Usage: musicbot completion [OPTIONS] COMMAND [ARGS]...
+  
+    Completion tool
+  
+  Options:
+    -h, --help  Show this message and exit.
+  
+  Commands:
+    install  Install the click-completion-command...
+    show     Show the click-completion-command completion...
+
+
+musicbot completion install
+***************************
+.. code-block::
+
+  Usage: musicbot completion install [OPTIONS] [SHELL] [PATH]
+  
+    Install the click-completion-command completion
+  
+  Options:
+    --append / --overwrite          Append the completion code to the file
+    -i, --case-insensitive / --no-case-insensitive
+                                    Case insensitive completion
+    -h, --help                      Show this message and exit.
+
+
+musicbot completion show
+************************
+.. code-block::
+
+  Usage: musicbot completion show [OPTIONS] [SHELL]
+  
+    Show the click-completion-command completion code
+  
+  Options:
+    -i, --case-insensitive / --no-case-insensitive
+                                    Case insensitive completion
+    -h, --help                      Show this message and exit.
 
 
 musicbot config
@@ -380,7 +432,7 @@ musicbot folder rescan
     Rescan all folders registered in database
   
   Options:
-    --concurrency INTEGER  Number of coroutines  [default: 2]
+    --concurrency INTEGER  Number of coroutines  [default: 8]
     --crawl                Crawl youtube
     -h, --help             Show this message and exit.
 
@@ -394,7 +446,7 @@ musicbot folder scan
     Load musics files in database
   
   Options:
-    --concurrency INTEGER  Number of coroutines  [default: 2]
+    --concurrency INTEGER  Number of coroutines  [default: 8]
     --crawl                Crawl youtube
     -h, --help             Show this message and exit.
 
@@ -755,12 +807,13 @@ musicbot youtube
     --max-rating FLOAT      Maximum rating  [default: 5.0]
     --relative              Generate relatives paths
     --shuffle               Randomize selection
-    --concurrency INTEGER   Number of coroutines  [default: 2]
+    --concurrency INTEGER   Number of coroutines  [default: 8]
     -h, --help              Show this message and exit.
   
   Commands:
     albums  Fetch youtube links for each album
     musics  Fetch youtube links for each music
+    only    Fetch youtube links for each album
 
 
 musicbot youtube albums
@@ -783,6 +836,18 @@ musicbot youtube musics
   Usage: musicbot youtube musics [OPTIONS]
   
     Fetch youtube links for each music
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot youtube only
+*********************
+.. code-block::
+
+  Usage: musicbot youtube only [OPTIONS]
+  
+    Fetch youtube links for each album
   
   Options:
     -h, --help  Show this message and exit.

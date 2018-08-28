@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import click
@@ -12,17 +12,22 @@ if os.path.islink(__file__):
 else:
     myself = __file__
 bin_folder = os.path.dirname(myself)
-plugin_folder = os.path.join(bin_folder, 'commands')
+commands_folder = 'commands'
+plugin_folder = os.path.join(bin_folder, commands_folder)
 CONTEXT_SETTINGS = {'auto_envvar_prefix': 'MUSICBOT', 'help_option_names': ['-h', '--help']}
 
-def custom_startswith(string, incomplete): 
+
+def custom_startswith(string, incomplete):
     """A custom completion matching that supports case insensitive matching"""
-    if os.environ.get('_RUN_CLI_V3_CASE_INSENSITIVE_COMPLETE'):
+    if os.environ.get('_MUSICBOT_CASE_INSENSITIVE_COMPLETE'):
         string = string.lower()
         incomplete = incomplete.lower()
     return string.startswith(incomplete)
+
+
 click_completion.startswith = custom_startswith
 click_completion.init()
+
 
 class SubCommandLineInterface(click.MultiCommand):
     def list_commands(self, ctx):
@@ -39,6 +44,7 @@ class SubCommandLineInterface(click.MultiCommand):
         try:
             with open(fn) as f:
                 code = compile(f.read(), fn, 'exec')
+                ns['__name__'] = '{}.{}'.format(commands_folder, name)
                 eval(code, ns, ns)
         except FileNotFoundError:
             print(ctx.get_help())
@@ -55,6 +61,7 @@ def cli(ctx, **kwargs):
     ctx.obj = AttrDict
     ctx.obj.folder = bin_folder
     config.config.set(**kwargs)
+    ctx.obj.config = config.config
 
 
 if __name__ == '__main__':

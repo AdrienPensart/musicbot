@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import unittest
 import os
@@ -10,6 +10,7 @@ from logging import DEBUG, getLogger
 getLogger().setLevel(DEBUG)
 
 my_dir = os.path.dirname(os.path.abspath(__file__))
+
 folder1 = my_dir + "/fixtures/folder1"
 folder2 = my_dir + "/fixtures/folder2"
 flac = "/Buckethead/1994 - Giant Robot/02 - Welcome To Bucketheadland.flac"

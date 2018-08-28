@@ -1,11 +1,10 @@
-#!/usr/bin/env python
-
+# -*- coding: utf-8 -*-
 import logging
 import isodate
 import ujson
 import aiohttp
-from logging import debug
 
+logger = logging.getLogger(__name__)
 logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
 logging.getLogger('googleapiclient.discovery').setLevel(logging.CRITICAL)
 
@@ -52,12 +51,12 @@ async def search(artist, title, duration):
             return 'not found'
 
         mapping = {r["id"]: isodate.parse_duration(r["contentDetails"]["duration"]).total_seconds() for r in results}
-        debug("duration: {}, mapping: {}".format(duration, mapping))
+        logger.debug("duration: {}, mapping: {}".format(duration, mapping))
         key = min(mapping, key=lambda k: abs(mapping[k] - duration))
         url = "https://www.youtube.com/watch?v={}".format(key)
-        debug("Most relevant: {} {} {}".format(key, mapping[key], url))
+        logger.debug("Most relevant: {} {} {}".format(key, mapping[key], url))
         return url
     except Exception as e:
-        debug(e)
-        debug('Cannot find video for artist: {} title: {} duration: {}'.format(artist, title, duration))
+        logger.debug(e)
+        logger.debug('Cannot find video for artist: {} title: {} duration: {}'.format(artist, title, duration))
         return 'error'

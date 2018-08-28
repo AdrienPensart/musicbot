@@ -2,13 +2,14 @@
 import click
 import codecs
 import os
-import sys
+import logging
 from click_didyoumean import DYMGroup
 from textwrap import indent
 from tqdm import tqdm
 from lib import helpers, database, collection, mfilter
 from lib.config import config
-from logging import info, debug
+
+logger = logging.getLogger(__name__)
 
 
 @click.group(cls=DYMGroup)
@@ -33,19 +34,19 @@ async def bests(ctx, path, prefix, suffix, **kwargs):
         ctx.obj.mf.relative = True
     playlists = await ctx.obj.db.bests(ctx.obj.mf)
 
-    with tqdm(total=len(playlists), file=sys.stdout, desc="Bests playlists", disable=config.quiet) as bar:
+    with tqdm(total=len(playlists), desc="Bests playlists", disable=config.quiet) as bar:
         for p in playlists:
             playlist_filepath = os.path.join(path, p['name'] + suffix + '.m3u')
             content = indent(p['content'], prefix, lambda line: line != '#EXTM3U')
             if not config.dry:
                 try:
                     with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:
-                        debug('Writing playlist to {} with content:\n{}'.format(playlist_filepath, content))
+                        logger.debug('Writing playlist to {} with content:\n{}'.format(playlist_filepath, content))
                         playlist_file.write(content)
                 except Exception as e:
-                    info('Unable to write playlist to {} because of {}'.format(playlist_filepath, e))
+                    logger.info('Unable to write playlist to {} because of {}'.format(playlist_filepath, e))
             else:
-                info('DRY RUN: Writing playlist to {} with content:\n{}'.format(playlist_filepath, content))
+                logger.info('DRY RUN: Writing playlist to {} with content:\n{}'.format(playlist_filepath, content))
             bar.update(1)
 
 
@@ -61,4 +62,4 @@ async def new(ctx, path, **kwargs):
     if not config.dry:
         print(p['content'], file=path)
     else:
-        info('DRY RUN: Writing playlist to {} with content:\n{}'.format(path, p['content']))
+        logger.info('DRY RUN: Writing playlist to {} with content:\n{}'.format(path, p['content']))

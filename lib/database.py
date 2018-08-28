@@ -2,10 +2,12 @@
 import click
 import os
 import sys
+import logging
 from asyncpg import utils, connect
-from logging import debug, info
-from .helpers import drier, timeit
+from .helpers import drier
 from .config import config
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 5432
@@ -34,7 +36,7 @@ class Database(object):
         self.user = db_user if db_user is not None else os.getenv('MB_DB_USER', DEFAULT_USER)
         self.password = db_password if db_password is not None else os.getenv('MB_DB_PASSWORD', DEFAULT_PASSWORD)
         self._pool = None
-        info('Database: {}'.format(self.connection_string))
+        logger.info('Database: {}'.format(self.connection_string))
 
     @property
     def connection_string(self):
@@ -48,7 +50,7 @@ class Database(object):
 
     async def mogrify(self, connection, sql, *args):
         mogrified = await utils._mogrify(connection, sql, args)
-        info('mogrified: {}'.format(mogrified))
+        logger.debug('mogrified: {}'.format(mogrified))
 
     @drier
     async def dropdb(self):
@@ -62,10 +64,10 @@ class Database(object):
         # as postgresql does not support "create database if not exists", need to check in catalog
         result = await con.fetchrow("select count(*) = 0 as not_exists from pg_catalog.pg_database where datname = '{}'".format(self.database))
         if result['not_exists']:
-            debug('Database does not exists, create it')
+            logger.debug('Database does not exists, create it')
             await con.execute('create database {}'.format(self.database))
         else:
-            debug('Database already exists.')
+            logger.debug('Database already exists.')
         await con.close()
 
     async def connect(self):
@@ -78,7 +80,6 @@ class Database(object):
             self._pool: asyncpg.pool.Pool = await asyncpg.create_pool(max_size=self.max_conn, user=self.user, host=self.host, password=self.password, port=self.port, database=self.database)
         return self._pool
 
-    @timeit
     async def fetch(self, sql, *args):
         if config.debug:
             async with (await self.pool).acquire() as connection:
@@ -86,7 +87,6 @@ class Database(object):
                 return await connection.fetch(sql, *args)
         return await (await self.pool).fetch(sql, *args)
 
-    @timeit
     async def fetchrow(self, sql, *args):
         if config.debug:
             async with (await self.pool).acquire() as connection:
@@ -95,10 +95,9 @@ class Database(object):
         return await (await self.pool).fetchrow(sql, *args)
 
     @drier
-    @timeit
     async def executefile(self, filepath):
         schema_path = os.path.join(os.path.dirname(sys.argv[0]), filepath)
-        info('loading schema: {}'.format(schema_path))
+        logger.info('loading schema: {}'.format(schema_path))
         with open(schema_path, "r") as s:
             sql = s.read()
             if config.debug:
@@ -108,7 +107,6 @@ class Database(object):
             await (await self.pool).execute(sql)
 
     @drier
-    @timeit
     async def execute(self, sql, *args, **kwargs):
         if config.debug:
             async with (await self.pool).acquire() as connection:
@@ -118,7 +116,6 @@ class Database(object):
         return await (await self.pool).execute(sql, *args)
 
     @drier
-    @timeit
     async def executemany(self, sql, *args, **kwargs):
         if config.debug:
             async with (await self.pool).acquire() as connection:

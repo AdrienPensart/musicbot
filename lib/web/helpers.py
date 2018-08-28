@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
 import base64
+import logging
+import asyncio
 from urllib.parse import quote
-from logging import debug
 from sanic import response
 from jinja2 import Environment, FileSystemLoader
 from functools import wraps
@@ -10,9 +11,10 @@ from .mfilter import WebFilter
 from .config import webconfig
 from .app import db
 
+logger = logging.getLogger(__name__)
+
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# env = Environment(extensions=['jinja2.ext.loopcontrols'], loader=FileSystemLoader(os.path.join(THIS_DIR, 'templates')), enable_async=True)
 env = Environment(extensions=['jinja2.ext.loopcontrols'], loader=FileSystemLoader(os.path.join(THIS_DIR, 'templates')), enable_async=True, autoescape=True)
 
 
@@ -49,12 +51,12 @@ def zip(musics, name='archive'):
                        os.path.join(m['artist'], m['album'], os.path.basename(m['path']))])
              for m in musics]
     body = '\n'.join(lines)
-    debug(body)
+    logger.debug(body)
     return response.HTTPResponse(headers=headers, body=body)
 
 
 def send_file(music, name, attachment):
-    debug("sending file: {}".format(music['path']))
+    logger.debug("sending file: {}".format(music['path']))
     headers = {}
     headers['Content-Description'] = 'File Transfer'
     # headers['Cache-Control'] = 'no-cache'
@@ -71,7 +73,7 @@ def send_file(music, name, attachment):
     headers['Content-Transfer-Encoding'] = 'binary'
     headers['X-Accel-Buffering'] = 'no'
     server_path = "/sendfile" + music['path'][len(music['folder']):]
-    debug('server_path: {}'.format(server_path))
+    logger.debug('server_path: {}'.format(server_path))
     headers['X-Accel-Redirect'] = server_path
     return response.HTTPResponse(headers=headers)
 
@@ -107,7 +109,9 @@ def basicauth(f):
     @wraps(f)
     async def wrapper(request, *args, **kwargs):
         if webconfig.no_auth:
-            return await f(request, *args, **kwargs)
+            if asyncio.iscoroutinefunction(f):
+                return await f(request, *args, **kwargs)
+            return f(request, *args, **kwargs)
 
         headers = {}
         is_authorized = False
@@ -118,9 +122,11 @@ def basicauth(f):
             is_authorized = check_auth(auth)
 
         if is_authorized:
-            debug('Authorization granted')
-            return await f(request, *args, **kwargs)
+            logger.debug('Authorization granted')
+            if asyncio.iscoroutinefunction(f):
+                return await f(request, *args, **kwargs)
+            return f(request, *args, **kwargs)
         else:
-            debug('Authorization denied')
+            logger.debug('Authorization denied')
             return response.json({'status': 'not_authorized'}, headers=headers, status=401)
     return wrapper

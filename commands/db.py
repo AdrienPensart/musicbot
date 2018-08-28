@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 import click
 import os
-from logging import info
+import logging
 from lib import helpers, database, collection
 from click_didyoumean import DYMGroup
+
+logger = logging.getLogger(__name__)
 
 
 @click.group(cls=DYMGroup)
@@ -12,7 +14,7 @@ from click_didyoumean import DYMGroup
 def cli(ctx, **kwargs):
     '''Database management'''
     ctx.obj.db = collection.Collection(**kwargs)
-    info(ctx.obj.db.connection_string)
+    logger.info(ctx.obj.db.connection_string)
 
 
 @cli.command()
@@ -49,7 +51,7 @@ async def clean(ctx):
     musics = await ctx.obj.db.musics()
     for m in musics:
         if not os.path.isfile(m['path']):
-            info('{} does not exist'.format(m['path']))
+            logger.info('{} does not exist'.format(m['path']))
             await ctx.obj.db.delete(m['path'])
     await ctx.obj.db.refresh()
 

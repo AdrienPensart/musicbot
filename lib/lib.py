@@ -4,11 +4,12 @@ try:
 except ImportError:
     from scandir import scandir, walk
 import re
+import logging
 import humanfriendly
 from . import file
 from timeit import default_timer as timer
-from logging import info, error, critical
 
+logger = logging.getLogger(__name__)
 
 output_types = ["list", "json"]
 default_output_type = 'json'
@@ -60,7 +61,7 @@ class benchmark(object):
 
     def __exit__(self, *args):
         t = timer() - self.start
-        info(("%s : " + self.fmt + " seconds") % (self.msg, t))
+        logger.info(("%s : " + self.fmt + " seconds") % (self.msg, t))
         self.time = t
 
 
@@ -82,15 +83,15 @@ def raise_limits():
     import resource
     try:
         _, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
-        info("Current limits, soft and hard : {} {}".format(_, hard))
+        logger.info("Current limits, soft and hard : {} {}".format(_, hard))
         resource.setrlimit(resource.RLIMIT_NOFILE, (hard, hard))
     except OSError as e:
-        critical('You may need to check ulimit parameter: {}'.format(e))
+        logger.critical('You may need to check ulimit parameter: {}'.format(e))
         raise e
     except resource.error:
         return False
     except ValueError:
-        error("Exceeds limit {}, infinity is {}".format(hard, resource.RLIM_INFINITY))
+        logger.error("Exceeds limit {}, infinity is {}".format(hard, resource.RLIM_INFINITY))
     return True
 
 

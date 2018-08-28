@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-from logging import debug
 import click
+import logging
 import json
+
+logger = logging.getLogger(__name__)
 
 rating_choices = [x * 0.5 for x in range(0, 11)]
 min_int = 0
@@ -65,7 +67,7 @@ class Filter(object):
         self.no_titles = default_no_titles if no_titles is None else no_titles
         self.albums = default_albums if albums is None else albums
         self.no_albums = default_no_albums if no_albums is None else no_albums
-        debug('Filter: {}'.format(self))
+        logger.debug('Filter: {}'.format(self))
         # rating checks
         if self.min_rating not in rating_choices:
             raise BadFilter("Invalid minimum rating {}".format(self.min_rating))
@@ -84,7 +86,6 @@ class Filter(object):
            len(set(self.titles).intersection(self.no_titles)) != 0 or
            len(set(self.keywords).intersection(self.no_keywords)) != 0):
             raise BadFilter("You can't have duplicates value in filters {}".format(self))
-
 
     def __repr__(self):
         return json.dumps(self.to_list())

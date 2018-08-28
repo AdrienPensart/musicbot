@@ -2,6 +2,7 @@
 import time
 import os
 import click
+import logging
 from aiocache import caches
 from datetime import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -14,10 +15,11 @@ from .web.api import api_v1
 from .web.collection import collection
 from .web.app import app
 from .web.config import webconfig
-from logging import debug, info
 # from .web.limiter import limiter
 # from logging_tree import printout
 # printout()
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_HTTP_USER = 'musicbot'
 DEFAULT_HTTP_SERVER = 'musicbot.ovh'
@@ -81,9 +83,9 @@ async def close_db(app, loop):
 @app.listener('before_server_start')
 async def init_authentication(app, loop):
     if webconfig.no_auth:
-        debug('Authentication disabled')
+        logger.debug('Authentication disabled')
     else:
-        debug('Authentication enabled')
+        logger.debug('Authentication enabled')
         user = os.getenv('MB_HTTP_USER', app.config.HTTP_USER)
         password = os.getenv('MB_HTTP_PASSWORD', app.config.HTTP_PASSWORD)
         env.globals['auth'] = {'user': user, 'password': password}
@@ -91,7 +93,7 @@ async def init_authentication(app, loop):
 
 # CACHE INVALIDATION
 def invalidate_cache(connection, pid, channel, payload):
-    debug('Received notification: {} {} {}'.format(pid, channel, payload))
+    logger.debug('Received notification: {} {} {}'.format(pid, channel, payload))
     cache = caches.get('default')
     app.loop.create_task(cache.delete(payload))
 
@@ -99,21 +101,21 @@ def invalidate_cache(connection, pid, channel, payload):
 @app.listener('before_server_start')
 async def init_cache_invalidator(app, loop):
     if webconfig.server_cache:
-        debug('Cache invalidator activated')
+        logger.debug('Cache invalidator activated')
         app.config.LISTENER = await (await app.config.DB.pool).acquire()
         await app.config.LISTENER.add_listener('cache_invalidator', invalidate_cache)
     else:
-        debug('Cache invalidator disabled')
+        logger.debug('Cache invalidator disabled')
 
 
 # FILE WATCHER
 @app.listener('before_server_start')
 async def start_watcher(app, loop):
     if webconfig.watcher:
-        debug('File watcher enabled')
+        logger.debug('File watcher enabled')
         app.config.watcher_task = loop.create_task(watcher(app.config.DB))
     else:
-        debug('File watcher disabled')
+        logger.debug('File watcher disabled')
 
 
 @app.listener('before_server_stop')
@@ -126,7 +128,7 @@ async def stop_watcher(app, loop):
 @app.listener('before_server_start')
 async def start_scheduler(app, loop):
     if webconfig.autoscan:
-        debug('Autoscan enabled')
+        logger.debug('Autoscan enabled')
         app.config.SCHEDULER = AsyncIOScheduler({'event_loop': loop})
         app.config.SCHEDULER.add_job(refresh_db, 'interval', [app.config.DB], minutes=15)
         app.config.SCHEDULER.add_job(fullscan, 'cron', [app.config.DB], hour=3)
@@ -134,7 +136,7 @@ async def start_scheduler(app, loop):
         app.config.SCHEDULER.add_job(crawl_albums, 'cron', [app.config.DB], hour=5)
         app.config.SCHEDULER.start()
     else:
-        debug('Autoscan disabled')
+        logger.debug('Autoscan disabled')
 
 
 @app.listener('before_server_stop')
@@ -154,9 +156,9 @@ async def before(request):
 @app.middleware('response')
 async def after(request, response):
     if webconfig.client_cache:
-        debug('Browser cache enabled')
+        logger.debug('Browser cache enabled')
     else:
-        info('Browser cache disabled')
+        logger.info('Browser cache disabled')
         if response is not None:
             response.headers['Last-Modified'] = datetime.now()
             response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'

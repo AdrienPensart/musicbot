@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 import click
+import logging
 from lib import file, helpers, collection, database, mfilter
-from logging import debug
 from click_didyoumean import DYMGroup
+
+logger = logging.getLogger(__name__)
 
 
 @click.group(cls=DYMGroup)
@@ -32,7 +34,7 @@ async def show(ctx, **kwargs):
 @click.pass_context
 async def update(ctx, **kwargs):
     ctx.obj.musics = await ctx.obj.db.musics(ctx.obj.mf)
-    debug(kwargs)
+    logger.debug(kwargs)
     for m in ctx.obj.musics:
         f = file.File(m['path'])
         f.keywords = kwargs['keywords']

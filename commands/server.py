@@ -2,11 +2,14 @@
 import click
 import os
 import sys
-from logging import debug
+import logging
 from lib import helpers, database, lib, server
 from lib.config import config
 from lib.web import config as webconfig
 from click_didyoumean import DYMGroup
+
+logger = logging.getLogger(__name__)
+
 
 @click.group(cls=DYMGroup)
 @click.pass_context
@@ -17,7 +20,7 @@ def cli(ctx, **kwargs):
     webconfig.webconfig.set(**kwargs)
     if not webconfig.webconfig.dev:
         return
-    debug('Watching for python and html file changes')
+    logger.debug('Watching for python and html file changes')
     lib.raise_limits()
     from watchdog.observers import Observer
     from watchdog.events import PatternMatchingEventHandler
@@ -30,32 +33,31 @@ def cli(ctx, **kwargs):
             super().__init__()
 
         def on_modified(self, event):
-            debug('Modified: {} {}'.format(event.src_path, event.event_type))
+            logger.debug('Modified: {} {}'.format(event.src_path, event.event_type))
             self.restart()
 
         def on_created(self, event):
-            debug('Created: {} {}'.format(event.src_path, event.event_type))
+            logger.debug('Created: {} {}'.format(event.src_path, event.event_type))
             self.restart()
 
         def on_deleted(self, event):
-            debug('Deleted: {} {}'.format(event.src_path, event.event_type))
+            logger.debug('Deleted: {} {}'.format(event.src_path, event.event_type))
             self.restart()
 
         def on_moved(self, event):
-            debug('Moved: {} {}'.format(event.src_path, event.event_type))
+            logger.debug('Moved: {} {}'.format(event.src_path, event.event_type))
             self.restart()
 
         def restart(self):
             python = sys.executable
             os.execl(python, python, * sys.argv)
 
-
     event_handler = PyWatcherHandler()
     observer = Observer()
 
     for f in ['lib', 'commands']:
         fpath = os.path.join(ctx.obj.folder, f)
-        debug('Watching internal folder: {}'.format(fpath))
+        logger.debug('Watching internal folder: {}'.format(fpath))
         observer.schedule(event_handler, fpath, recursive=True)
     observer.start()
 

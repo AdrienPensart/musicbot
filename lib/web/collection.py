@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-import sys
 import asyncpg
 import asyncio
+import logging
 from tqdm import tqdm
 from sanic import Blueprint, response
 from aiocache import cached, SimpleMemoryCache
@@ -9,8 +9,12 @@ from aiocache.serializers import PickleSerializer
 from aiocache.plugins import HitMissRatioPlugin, TimingPlugin
 from . import helpers, forms
 from .. import mfilter, lib, file
+from ..config import config
+from ..helpers import crawl_musics
 from .app import db
-from logging import debug, warning
+
+logger = logging.getLogger(__name__)
+
 collection = Blueprint('collection', strict_slashes=True, url_prefix='/collection')
 
 
@@ -27,20 +31,32 @@ async def refresh(request):
     return await helpers.template('refresh.html')
 
 
+@collection.route('/youtube')
+@helpers.basicauth
+def youtube(request):
+    # mf = await helpers.get_filter(request)
+    mf = mfilter.Filter()
+    if mf.youtube is None:
+        mf.youtube = ''
+    future = crawl_musics(db, mf, 10)
+    asyncio.ensure_future(future)
+    return response.redirect('/')
+
+
 @collection.websocket('/progression')
 @helpers.basicauth
 async def progression(request, ws):
-    debug('Getting folders')
+    logger.debug('Getting folders')
     folders = await db.folders_name()
-    debug('Scanning folders: {}'.format(folders))
+    logger.debug('Scanning folders: {}'.format(folders))
     files = [f for f in lib.find_files(folders) if f[1].endswith(tuple(mfilter.supported_formats))]
 
     current = 0
     percentage = 0
     total = len(files)
-    debug('Number of files: {}'.format(total))
-    with tqdm(total=total, file=sys.stdout, desc="Loading music", leave=True, position=0) as bar:
-        debug('Reading files')
+    logger.debug('Number of files: {}'.format(total))
+    with tqdm(total=total, desc="Loading music", disable=config.quiet) as bar:
+        logger.debug('Reading files')
         for f in files:
             try:
                 m = file.File(f[1], f[0])
@@ -52,7 +68,7 @@ async def progression(request, ws):
                     percentage = current_percentage
                     await ws.send(str(percentage))
             except asyncpg.exceptions.CheckViolationError as e:
-                warning("Violation: {}".format(e))
+                logger.warning("Violation: {}".format(e))
     await db.refresh()
 
 
@@ -248,6 +264,6 @@ async def cached_call(f, request):
 async def player(request):
     '''Play a playlist in browser'''
     if request.args.get('shuffle', False):
-        debug('Shuffled playlist, not using cache')
+        logger.debug('Shuffled playlist, not using cache')
         return await gen_playlist(request)
     return await cached_call(gen_playlist, request)
