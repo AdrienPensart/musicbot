@@ -17,13 +17,13 @@ def cli(ctx, **kwargs):
 @helpers.coro
 @click.argument('name')
 @click.pass_context
-async def new(ctx, name, **kwargs):
+async def new(name):
     '''Add a new task in database'''
     print('task name:', name)
 
 
-@cli.command()
+@cli.command('list')
 @helpers.coro
 @click.pass_context
-async def list(ctx, **kwargs):
+async def ls():
     '''List tasks in database'''

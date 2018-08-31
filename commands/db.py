@@ -8,7 +8,7 @@ from click_didyoumean import DYMGroup
 logger = logging.getLogger(__name__)
 
 
-@click.group(cls=DYMGroup)
+@click.group(invoke_without_command=False, cls=DYMGroup)
 @helpers.add_options(database.options)
 @click.pass_context
 def cli(ctx, **kwargs):
@@ -51,7 +51,7 @@ async def clean(ctx):
     musics = await ctx.obj.db.musics()
     for m in musics:
         if not os.path.isfile(m['path']):
-            logger.info('{} does not exist'.format(m['path']))
+            logger.info('%s does not exist', m['path'])
             await ctx.obj.db.delete(m['path'])
     await ctx.obj.db.refresh()
 

@@ -12,61 +12,61 @@ logger = logging.getLogger(__name__)
 
 
 @click.group(cls=DYMGroup)
-@click.pass_context
-@helpers.add_options(database.options + webconfig.options)
-def cli(ctx, **kwargs):
+@helpers.add_options(database.options)
+def cli(**kwargs):
     '''API Server'''
     server.app.config.DB.set(**kwargs)
-    webconfig.webconfig.set(**kwargs)
-    if not webconfig.webconfig.dev:
-        return
-    logger.debug('Watching for python and html file changes')
-    lib.raise_limits()
-    from watchdog.observers import Observer
-    from watchdog.events import PatternMatchingEventHandler
-
-    class PyWatcherHandler(PatternMatchingEventHandler):
-        patterns = []
-
-        def __init__(self):
-            self.patterns = ['*.py', '*.html']
-            super().__init__()
-
-        def on_modified(self, event):
-            logger.debug('Modified: {} {}'.format(event.src_path, event.event_type))
-            self.restart()
-
-        def on_created(self, event):
-            logger.debug('Created: {} {}'.format(event.src_path, event.event_type))
-            self.restart()
-
-        def on_deleted(self, event):
-            logger.debug('Deleted: {} {}'.format(event.src_path, event.event_type))
-            self.restart()
-
-        def on_moved(self, event):
-            logger.debug('Moved: {} {}'.format(event.src_path, event.event_type))
-            self.restart()
-
-        def restart(self):
-            python = sys.executable
-            os.execl(python, python, * sys.argv)
-
-    event_handler = PyWatcherHandler()
-    observer = Observer()
-
-    for f in ['lib', 'commands']:
-        fpath = os.path.join(ctx.obj.folder, f)
-        logger.debug('Watching internal folder: {}'.format(fpath))
-        observer.schedule(event_handler, fpath, recursive=True)
-    observer.start()
 
 
 @cli.command()
 @click.pass_context
 @helpers.add_options(server.options)
+@helpers.add_options(webconfig.options)
 def start(ctx, http_host, http_server, http_port, http_workers, http_user, http_password, **kwargs):
     '''Start musicbot web API'''
+    webconfig.webconfig.set(**kwargs)
+    if webconfig.webconfig.dev:
+        logger.debug('Watching for python and html file changes')
+        lib.raise_limits()
+        from watchdog.observers import Observer
+        from watchdog.events import PatternMatchingEventHandler
+
+        class PyWatcherHandler(PatternMatchingEventHandler):
+            patterns = []
+
+            def __init__(self):
+                self.patterns = ['*.py', '*.html']
+                super().__init__()
+
+            def on_modified(self, event):
+                logger.debug('Modified: %s %s', event.src_path, event.event_type)
+                self.restart()
+
+            def on_created(self, event):
+                logger.debug('Created: %s %s', event.src_path, event.event_type)
+                self.restart()
+
+            def on_deleted(self, event):
+                logger.debug('Deleted: %s %s', event.src_path, event.event_type)
+                self.restart()
+
+            def on_moved(self, event):
+                logger.debug('Moved: %s %s', event.src_path, event.event_type)
+                self.restart()
+
+            def restart(self):
+                python = sys.executable
+                os.execl(python, python, * sys.argv)
+
+        event_handler = PyWatcherHandler()
+        observer = Observer()
+
+        for f in ['lib', 'commands']:
+            fpath = os.path.join(ctx.obj.folder, f)
+            logger.debug('Watching internal folder: %s', fpath)
+            observer.schedule(event_handler, fpath, recursive=True)
+        observer.start()
+
     server.app.config.HTTP_SERVER = http_server
     server.app.config.HTTP_USER = http_user
     server.app.config.HTTP_PASSWORD = http_password

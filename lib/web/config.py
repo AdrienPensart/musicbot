@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 import click
 import os
-from logging import debug
+import logging
 from .. import lib
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_DEV = False
 DEFAULT_WATCHER = False
@@ -21,18 +23,18 @@ options = [
 ]
 
 
-class WebConfig(object):
+class WebConfig:
     def __init__(self, **kwargs):
         self.set(**kwargs)
 
-    def set(self, dev=None, autoscan=None, watcher=None, client_cache=None, server_cache=None, no_auth=None, **kwargs):
-        self.dev = dev if dev is not None else lib.str2bool(os.getenv('MB_DEV', DEFAULT_DEV))
-        self.watcher = watcher if watcher is not None else lib.str2bool(os.getenv('MB_WATCHER', DEFAULT_WATCHER))
-        self.autoscan = autoscan if autoscan is not None else lib.str2bool(os.getenv('MB_AUTOSCAN', DEFAULT_AUTOSCAN))
-        self.server_cache = server_cache if server_cache is not None else lib.str2bool(os.getenv('MB_SERVER_CACHE', DEFAULT_SERVER_CACHE))
-        self.client_cache = client_cache if client_cache is not None else lib.str2bool(os.getenv('MB_CLIENT_CACHE', DEFAULT_CLIENT_CACHE))
-        self.no_auth = no_auth if no_auth is not None else lib.str2bool(os.getenv('MB_NO_AUTH', DEFAULT_NO_AUTH))
-        debug('Webconfig: {}'.format(self))
+    def set(self, dev=None, autoscan=None, watcher=None, client_cache=None, server_cache=None, no_auth=None):
+        self.dev = dev if dev is not None else lib.str2bool(os.getenv('MB_DEV', str(DEFAULT_DEV)))
+        self.watcher = watcher if watcher is not None else lib.str2bool(os.getenv('MB_WATCHER', str(DEFAULT_WATCHER)))
+        self.autoscan = autoscan if autoscan is not None else lib.str2bool(os.getenv('MB_AUTOSCAN', str(DEFAULT_AUTOSCAN)))
+        self.server_cache = server_cache if server_cache is not None else lib.str2bool(os.getenv('MB_SERVER_CACHE', str(DEFAULT_SERVER_CACHE)))
+        self.client_cache = client_cache if client_cache is not None else lib.str2bool(os.getenv('MB_CLIENT_CACHE', str(DEFAULT_CLIENT_CACHE)))
+        self.no_auth = no_auth if no_auth is not None else lib.str2bool(os.getenv('MB_NO_AUTH', str(DEFAULT_NO_AUTH)))
+        logger.debug('Webconfig: %s', self)
 
     def __repr__(self):
         return 'dev:{} watcher:{} autoscan:{} server_cache:{} client_cache:{} no_auth:{}'.format(self.dev, self.watcher, self.autoscan, self.server_cache, self.client_cache, self.no_auth)

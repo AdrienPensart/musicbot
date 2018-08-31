@@ -29,7 +29,7 @@ async def get_filter(request, **kwargs):
 async def get_music(request):
     mf = await get_filter(request, limit=1)
     musics = await db.musics(mf)
-    if not len(musics):
+    if not musics:
         return ('music not found', 404)
     return musics[0]
 
@@ -40,7 +40,7 @@ async def m3u(musics, name='playlist'):
     return await template("m3u.html", headers=headers, musics=musics)
 
 
-def zip(musics, name='archive'):
+def zip_musics(musics, name='archive'):
     headers = {}
     headers['X-Archive-Files'] = 'zip'
     headers['Content-Disposition'] = 'attachment; filename={}'.format(name + '.zip')
@@ -56,7 +56,7 @@ def zip(musics, name='archive'):
 
 
 def send_file(music, name, attachment):
-    logger.debug("sending file: {}".format(music['path']))
+    logger.debug("sending file: %s", music['path'])
     headers = {}
     headers['Content-Description'] = 'File Transfer'
     # headers['Cache-Control'] = 'no-cache'
@@ -73,7 +73,7 @@ def send_file(music, name, attachment):
     headers['Content-Transfer-Encoding'] = 'binary'
     headers['X-Accel-Buffering'] = 'no'
     server_path = "/sendfile" + music['path'][len(music['folder']):]
-    logger.debug('server_path: {}'.format(server_path))
+    logger.debug('server_path: %s', server_path)
     headers['X-Accel-Redirect'] = server_path
     return response.HTTPResponse(headers=headers)
 
@@ -94,8 +94,8 @@ def download_title(m):
 def check_auth(h):
     auth = env.globals['auth']
     s = auth['user'].encode() + b':' + auth['password'].encode()
-    hash = base64.b64encode(s)
-    basic = b'Basic ' + hash
+    basic_hash = base64.b64encode(s)
+    basic = b'Basic ' + basic_hash
     return basic == h.encode()
 
 
@@ -121,12 +121,11 @@ def basicauth(f):
             auth = request.headers['Authorization']
             is_authorized = check_auth(auth)
 
-        if is_authorized:
-            logger.debug('Authorization granted')
-            if asyncio.iscoroutinefunction(f):
-                return await f(request, *args, **kwargs)
-            return f(request, *args, **kwargs)
-        else:
+        if not is_authorized:
             logger.debug('Authorization denied')
             return response.json({'status': 'not_authorized'}, headers=headers, status=401)
+        logger.debug('Authorization granted')
+        if asyncio.iscoroutinefunction(f):
+            return await f(request, *args, **kwargs)
+        return f(request, *args, **kwargs)
     return wrapper

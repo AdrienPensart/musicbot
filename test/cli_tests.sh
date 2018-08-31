@@ -23,7 +23,7 @@ rm -rf tests2
 # sleep 1
 # kill %%
 
-musicbot stats
+musicbot stats show
 musicbot tag show
 musicbot playlist new
 musicbot --dry playlist bests $my_dir/fixtures

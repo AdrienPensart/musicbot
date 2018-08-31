@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-
 import unittest
 import os
 import asynctest
 import logging
-import coloredlogs
+
 from lib import file, collection, lib, mfilter
+from lib.config import config
 from lib.server import app
 
+config.set()
 logger = logging.getLogger(__name__)
-coloredlogs.install(level=logging.DEBUG)
 
 my_dir = os.path.dirname(os.path.abspath(__file__))
 

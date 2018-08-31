@@ -13,30 +13,32 @@ tag = [
 
 @click.group(cls=DYMGroup)
 @helpers.add_options(database.options)
-@helpers.add_options(mfilter.options)
 @click.pass_context
 def cli(ctx, **kwargs):
     '''Music tags management'''
     ctx.obj.db = collection.Collection(**kwargs)
-    ctx.obj.mf = mfilter.Filter(**kwargs)
 
 
 @cli.command()
 @helpers.coro
 @helpers.add_options(tag)
+@helpers.add_options(mfilter.options)
 @click.pass_context
 async def show(ctx, fields, **kwargs):
     '''Show tags of musics with filters'''
-    ctx.obj.musics = await ctx.obj.db.musics(ctx.obj.mf)
-    for m in ctx.obj.musics:
+    mf = mfilter.Filter(**kwargs)
+    musics = await ctx.obj.db.musics(mf)
+    for m in musics:
         print([m[f] for f in fields])
 
 
 # @cli.command()
 # @helpers.coro
 # @helpers.add_options(file.options)
+# @helpers.add_options(mfilter.options)
 # @click.pass_context
 # async def update(ctx, **kwargs):
-#     ctx.obj.musics = await ctx.obj.db.musics(ctx.obj.mf)
 #     '''Add tags - Not Implemented'''
-#     print(ctx.obj.musics)
+#     mf = mfilter.Filter(**kwargs)
+#     musics = await ctx.obj.db.musics(mf)
+#     print(musics)

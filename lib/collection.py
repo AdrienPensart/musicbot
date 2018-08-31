@@ -12,6 +12,9 @@ class Collection(Database):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+    async def errors(self, mf=None):
+        return ['not implemented for {}'.format(mf)]
+
     async def create(self, schema_dir):
         await self.createdb()
         for sqlfile in ['tables.sql', 'views.sql', 'functions.sql', 'data.sql', 'triggers.sql']:
@@ -73,6 +76,8 @@ class Collection(Database):
     async def titles(self, mf=None, json=False):
         if mf is None:
             mf = Filter()
+        if json:
+            sql = '''select array_to_json(array_agg(row_to_json(a))) as json from (select distinct title as name from do_filter($1::filters) order by name) a'''
         sql = """select distinct title as name from do_filter($1::filters) order by name"""
         return await self.fetch(sql, mf.to_list())
 
@@ -167,9 +172,11 @@ class Collection(Database):
         return await self.fetchrow(sql, music_id)
 
     @drier
-    async def update_music(self, id, title, artist, album, genre, youtube, track, keywords, rating):
+    # async def update_music(self, id, title, artist, album, genre, youtube, track, keywords, rating):
+    async def update_music(self, *args):
         sql = '''update mmusics set title = $2, artist= $3, album = $4, genre = $5, youtube = $6, track = $7, keywords = $8, rating = $9 where m.id=$1 limit 1'''
-        return await self.execute(sql, id, title, artist, album, genre, youtube, track, keywords, rating)
+        # return await self.execute(sql, id, title, artist, album, genre, youtube, track, keywords, rating)
+        return await self.execute(sql, *args)
 
     async def playlist(self, f=None):
         if f is None:

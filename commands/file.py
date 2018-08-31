@@ -7,7 +7,7 @@ from click_didyoumean import DYMGroup
 logger = logging.getLogger(__name__)
 
 
-@click.group(cls=DYMGroup)
+@click.group(invoke_without_command=False, cls=DYMGroup)
 @helpers.add_options(database.options)
 @helpers.add_options(mfilter.options)
 @click.pass_context
@@ -20,7 +20,7 @@ def cli(ctx, **kwargs):
 @cli.command()
 @helpers.coro
 @click.pass_context
-async def show(ctx, **kwargs):
+async def show(ctx):
     '''Show tags of musics with filters'''
     ctx.obj.musics = await ctx.obj.db.musics(ctx.obj.mf)
     for m in ctx.obj.musics:

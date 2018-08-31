@@ -26,4 +26,4 @@ class WebFilter(Filter):
         for param in ['limit', 'min_size', 'max_size', 'min_duration', 'min_duration']:
             data = num(request.args.get(param, getattr(self, param)))
             setattr(self, param, int(data))
-        logger.debug('WebFilter: {}'.format(self))
+        logger.debug('WebFilter: %s', self)

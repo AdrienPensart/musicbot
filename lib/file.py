@@ -26,7 +26,7 @@ def mysplit(s, delim=','):
     raise ValueError(s)
 
 
-class File(object):
+class File:
     id = 0
 
     def __init__(self, filename, _folder=''):
@@ -194,10 +194,11 @@ class File(object):
     def keywords(self):
         if self.handle.path.endswith('.mp3'):
             return self.comment
-        elif self.handle.path.endswith('.flac'):
+        if self.handle.path.endswith('.flac'):
             if self.comment and not self.description:
                 self.fix_description(self.comment)
             return self.description
+        return ''
 
     @keywords.setter
     def keywords(self, keywords):

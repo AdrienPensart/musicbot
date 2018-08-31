@@ -37,7 +37,7 @@ def timeit(f):
         result = await process(f, *args, **params)
         for_human = secondsToHuman(time.time() - start)
         if config.timings:
-            logger.info('{}: {}'.format(f.__name__, for_human))
+            logger.info('%s: %s', f.__name__, for_human)
         return result
 
     return helper
@@ -52,11 +52,11 @@ async def crawl_musics(db, mf=None, concurrency=1):
     if mf is None:
         mf = Filter(youtube='')
     musics = await db.musics(mf)
-    with tqdm(desc='Youtube musics', total=len(musics), disable=config.quiet) as bar:
+    with tqdm(desc='Youtube musics', total=len(musics), disable=config.quiet) as pbar:
         async def search(semaphore, m):
             async with semaphore:
                 result = await youtube.search(m['artist'], m['title'], m['duration'])
-                bar.update(1)
+                pbar.update(1)
                 await db.set_music_youtube(m['path'], result)
         semaphore = asyncio.BoundedSemaphore(concurrency)
         requests = [asyncio.ensure_future(search(semaphore, m)) for m in musics]
@@ -69,12 +69,12 @@ async def crawl_albums(db, mf=None, youtube_album='', concurrency=1):
     if mf is None:
         mf = Filter()
     albums = await db.albums(mf, youtube_album)
-    with tqdm(desc='Youtube albums', total=len(albums), disable=config.quiet) as bar:
+    with tqdm(desc='Youtube albums', total=len(albums), disable=config.quiet) as pbar:
         async def search(semaphore, a):
             async with semaphore:
                 result = await youtube.search(a['artist'], a['name'] + ' full album', a['duration'])
                 await db.set_album_youtube(a['name'], result)
-                bar.update(1)
+                pbar.update(1)
         semaphore = asyncio.BoundedSemaphore(concurrency)
         requests = [asyncio.ensure_future(search(semaphore, a)) for a in albums]
         await asyncio.gather(*requests)
@@ -82,7 +82,7 @@ async def crawl_albums(db, mf=None, youtube_album='', concurrency=1):
 
 
 @timeit
-async def fullscan(db, folders=None, concurrency=1, crawl=False, sync=False):
+async def fullscan(db, folders=None, crawl=False):
     if folders is None:
         folders = await db.folders()
         folders = [f['name'] for f in folders]
@@ -90,7 +90,7 @@ async def fullscan(db, folders=None, concurrency=1, crawl=False, sync=False):
     with click_spinner.spinner(disable=config.quiet):
         files = [f for f in find_files(list(folders)) if f[1].endswith(tuple(supported_formats))]
     size = len(files) if crawl else len(files)
-    with tqdm(total=size, desc="Loading music", disable=config.quiet) as bar:
+    with tqdm(total=size, desc="Loading music", disable=config.quiet) as pbar:
         async with (await db.pool).acquire() as connection:
             async with connection.transaction():
                 for f in files:
@@ -98,8 +98,8 @@ async def fullscan(db, folders=None, concurrency=1, crawl=False, sync=False):
                     try:
                         await db.upsert(m)
                     except asyncpg.exceptions.CheckViolationError as e:
-                        logger.warning("Violation: {}".format(e))
-                    bar.update(1)
+                        logger.warning("Violation: %s", e)
+                    pbar.update(1)
     await db.refresh()
 
 
@@ -108,14 +108,10 @@ async def watcher(db):
     folders = await db.folders()
 
     class MusicWatcherHandler(AIOEventHandler):
-
-        def __init__(self, loop=None):
-            super().__init__(loop)
-
         async def update(self, path):
             for folder in folders:
                 if path.startswith(folder['name']) and path.endswith(tuple(supported_formats)):
-                    logger.debug('Creatin/modifying DB for: {}'.format(path))
+                    logger.debug('Creatin/modifying DB for: %s', path)
                     f = File(path, folder['name'])
                     logger.debug(f.to_list())
                     await db.upsert(f)
@@ -129,12 +125,12 @@ async def watcher(db):
             await self.update(event.src_path)
 
         async def on_deleted(self, event):
-            logger.debug('Deleting entry in DB for: {} {}'.format(event.src_path, event.event_type))
+            logger.debug('Deleting entry in DB for: %s %s', event.src_path, event.event_type)
             await db.delete(event.src_path)
             await db.refresh()
 
         async def on_moved(self, event):
-            logger.debug('Moving entry in DB for: {} {}'.format(event.src_path, event.event_type))
+            logger.debug('Moving entry in DB for: %s %s', event.src_path, event.event_type)
             await db.delete(event.src_path)
             await self.update(event.dest_path)
 
@@ -142,7 +138,7 @@ async def watcher(db):
     from watchdog.observers import Observer
     observer = Observer()
     for f in folders:
-        logger.info('Watching: {}'.format(f['name']))
+        logger.info('Watching: %s', f['name'])
         observer.schedule(evh, f['name'], recursive=True)
     observer.start()
     try:
@@ -176,7 +172,7 @@ def drier(f):
     async def wrapper(*args, **kwargs):
         if config.dry:
             args = [str(a) for a in args] + ["%s=%s" % (k, v) for (k, v) in kwargs.items()]
-            logger.info('DRY RUN: {}({})'.format(f.__name__, ','.join(args)))
+            logger.info('DRY RUN: %s(%s)', f.__name__, ','.join(args))
             await asyncio.sleep(0)
         else:
             return await f(*args, **kwargs)

@@ -24,19 +24,19 @@ options = [
 ]
 
 
-class Database(object):
+class Database:
     def __init__(self, max_conn=100, **kwargs):
         self.set(**kwargs)
         self.max_conn = max_conn
 
-    def set(self, db_host=None, db_port=None, db_database=None, db_user=None, db_password=None, **kwargs):
+    def set(self, db_host=None, db_port=None, db_database=None, db_user=None, db_password=None):
         self.host = db_host if db_host is not None else os.getenv('MB_DB_HOST', DEFAULT_HOST)
-        self.port = db_port if db_port is not None else os.getenv('MB_DB_PORT', DEFAULT_PORT)
+        self.port = db_port if db_port is not None else os.getenv('MB_DB_PORT', str(DEFAULT_PORT))
         self.database = db_database if db_database is not None else os.getenv('MB_DATABASE', DEFAULT_DATABASE)
         self.user = db_user if db_user is not None else os.getenv('MB_DB_USER', DEFAULT_USER)
         self.password = db_password if db_password is not None else os.getenv('MB_DB_PASSWORD', DEFAULT_PASSWORD)
         self._pool = None
-        logger.info('Database: {}'.format(self.connection_string))
+        logger.info('Database: %s', self.connection_string)
 
     @property
     def connection_string(self):
@@ -50,7 +50,7 @@ class Database(object):
 
     async def mogrify(self, connection, sql, *args):
         mogrified = await utils._mogrify(connection, sql, args)
-        logger.debug('mogrified: {}'.format(mogrified))
+        logger.debug('mogrified: %s', mogrified)
 
     @drier
     async def dropdb(self):
@@ -97,7 +97,7 @@ class Database(object):
     @drier
     async def executefile(self, filepath):
         schema_path = os.path.join(os.path.dirname(sys.argv[0]), filepath)
-        logger.info('loading schema: {}'.format(schema_path))
+        logger.info('loading schema: %s', schema_path)
         with open(schema_path, "r") as s:
             sql = s.read()
             if config.debug:
@@ -107,7 +107,7 @@ class Database(object):
             await (await self.pool).execute(sql)
 
     @drier
-    async def execute(self, sql, *args, **kwargs):
+    async def execute(self, sql, *args):
         if config.debug:
             async with (await self.pool).acquire() as connection:
                 async with connection.transaction():

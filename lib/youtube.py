@@ -35,7 +35,7 @@ async def search(artist, title, duration):
             async with session.get(parsingChannelUrl, headers=parsingChannelHeader, params=parsingChannelQueryString) as resp:
                 parsingChannel = await resp.read()
         parsingChannelItems = ujson.loads(parsingChannel).get("items")
-        if parsingChannelItems is None or not len(parsingChannelItems):
+        if parsingChannelItems is None or not parsingChannelItems:
             return 'not found'
         VideoIds = ",".join(str(x.get("id").get("videoId")) for x in parsingChannelItems)
 
@@ -51,12 +51,12 @@ async def search(artist, title, duration):
             return 'not found'
 
         mapping = {r["id"]: isodate.parse_duration(r["contentDetails"]["duration"]).total_seconds() for r in results}
-        logger.debug("duration: {}, mapping: {}".format(duration, mapping))
+        logger.debug("duration: %s, mapping: %s", duration, mapping)
         key = min(mapping, key=lambda k: abs(mapping[k] - duration))
         url = "https://www.youtube.com/watch?v={}".format(key)
-        logger.debug("Most relevant: {} {} {}".format(key, mapping[key], url))
+        logger.debug("Most relevant: %s %s %s", key, mapping[key], url)
         return url
     except Exception as e:
         logger.debug(e)
-        logger.debug('Cannot find video for artist: {} title: {} duration: {}'.format(artist, title, duration))
+        logger.debug('Cannot find video for artist: %s title: %s duration: %s', artist, title, duration)
         return 'error'

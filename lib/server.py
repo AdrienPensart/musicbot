@@ -21,18 +21,22 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_HTTP_USER = 'musicbot'
 DEFAULT_HTTP_SERVER = 'musicbot.ovh'
+# import string
+# alphabet = string.ascii_letters + string.digits
+# password = ''.join(choice(alphabet) for i in range(8))
+
 DEFAULT_HTTP_PASSWORD = 'musicbot'
 DEFAULT_HTTP_HOST = '127.0.0.1'
 DEFAULT_HTTP_PORT = 8000
 DEFAULT_HTTP_WORKERS = 1
 
 options = [
-    click.option('--http-host', envvar='MB_HTTP_HOST', help='Host interface to listen on', default=DEFAULT_HTTP_HOST),
-    click.option('--http-server', envvar='MB_HTTP_SERVER', help='Server name to use in links', default=DEFAULT_HTTP_SERVER),
-    click.option('--http-port', envvar='MB_HTTP_PORT', help='HTTP port to listen on', default=DEFAULT_HTTP_PORT),
-    click.option('--http-workers', envvar='MB_HTTP_WORKERS', help='Number of HTTP workers (not tested)', default=DEFAULT_HTTP_WORKERS),
-    click.option('--http-user', envvar='MB_HTTP_USER', help='HTTP Basic auth user', default=DEFAULT_HTTP_USER),
-    click.option('--http-password', envvar='MB_HTTP_PASSWORD', help='HTTP Basic auth password', default=DEFAULT_HTTP_PASSWORD),
+    click.option('--http-host', envvar='MB_HTTP_HOST', help='Host interface to listen on', default=DEFAULT_HTTP_HOST, show_default=True),
+    click.option('--http-server', envvar='MB_HTTP_SERVER', help='Server name to use in links', default=DEFAULT_HTTP_SERVER, show_default=True),
+    click.option('--http-port', envvar='MB_HTTP_PORT', help='HTTP port to listen on', default=DEFAULT_HTTP_PORT, show_default=True),
+    click.option('--http-workers', envvar='MB_HTTP_WORKERS', help='Number of HTTP workers (not tested)', default=DEFAULT_HTTP_WORKERS, show_default=True),
+    click.option('--http-user', envvar='MB_HTTP_USER', help='HTTP Basic auth user', default=DEFAULT_HTTP_USER, show_default=True),
+    click.option('--http-password', envvar='MB_HTTP_PASSWORD', help='HTTP Basic auth password', default=DEFAULT_HTTP_PASSWORD, show_default=True),
 ]
 
 
@@ -91,7 +95,7 @@ async def init_authentication(app, loop):
 
 # CACHE INVALIDATION
 def invalidate_cache(connection, pid, channel, payload):
-    logger.debug('Received notification: {} {} {}'.format(pid, channel, payload))
+    logger.debug('Received notification: %s %s %s', pid, channel, payload)
     cache = caches.get('default')
     app.loop.create_task(cache.delete(payload))
 

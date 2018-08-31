@@ -5,8 +5,7 @@ from click_didyoumean import DYMGroup
 
 
 @click.group(cls=DYMGroup)
-@click.pass_context
-def cli(ctx):
+def cli():
     '''Completion tool'''
 
 

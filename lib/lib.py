@@ -1,8 +1,4 @@
 import os
-try:
-    from os import scandir, walk
-except ImportError:
-    from scandir import scandir, walk
 import re
 import logging
 import humanfriendly
@@ -39,7 +35,7 @@ def empty_dirs(root_dir, recursive=True):
                     all_subs_empty = False
                     break
         else:
-            all_subs_empty = (len(dirs) == 0)
+            all_subs_empty = (not dirs)
         if all_subs_empty and is_empty(files):
             empty_dirs.append(root)
             yield root
@@ -49,11 +45,9 @@ def is_empty(files):
     return len(files) == 0
 
 
-class benchmark(object):
-
-    def __init__(self, msg, fmt="%0.3g"):
+class benchmark:
+    def __init__(self, msg):
         self.msg = msg
-        self.fmt = fmt
 
     def __enter__(self):
         self.start = timer()
@@ -61,12 +55,11 @@ class benchmark(object):
 
     def __exit__(self, *args):
         t = timer() - self.start
-        logger.info(("%s : " + self.fmt + " seconds") % (self.msg, t))
+        logger.info("%s : %0.3g seconds", self.msg, t)
         self.time = t
 
 
-class lazy_property(object):
-
+class lazy_property:
     def __init__(self, fget):
         self.fget = fget
         self.func_name = fget.__name__
@@ -83,22 +76,18 @@ def raise_limits():
     import resource
     try:
         _, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
-        logger.info("Current limits, soft and hard : {} {}".format(_, hard))
+        logger.info("Current limits, soft and hard : %s %s", _, hard)
         resource.setrlimit(resource.RLIMIT_NOFILE, (hard, hard))
-    except OSError as e:
-        logger.critical('You may need to check ulimit parameter: {}'.format(e))
-        raise e
-    except resource.error:
+        return True
+    except Exception as e:
+        logger.critical('You may need to check ulimit parameter: %s', e)
         return False
-    except ValueError:
-        logger.error("Exceeds limit {}, infinity is {}".format(hard, resource.RLIM_INFINITY))
-    return True
 
 
 def find_files(directories):
     directories = [os.path.abspath(d) for d in directories]
     for directory in directories:
-        for root, _, files in walk(directory):
+        for root, _, files in os.walk(directory):
             if '.zfs' in root:
                 continue
             for basename in files:
@@ -107,7 +96,7 @@ def find_files(directories):
 
 
 def scantree(path):
-    for entry in scandir(path):
+    for entry in os.scandir(path):
         if entry.is_dir(follow_symlinks=False):
             yield from scantree(entry.path)
         else:
@@ -119,14 +108,14 @@ def filecount(path):
 
 
 def all_files(directory):
-    for root, _, files in walk(directory):
+    for root, _, files in os.walk(directory):
         for basename in files:
             yield os.path.join(root, basename)
 
 
 def first(iterable, default=None):
     if iterable:
-        if type(iterable) is str:
+        if isinstance(iterable, str):
             return iterable
         for item in iterable:
             return item
@@ -176,7 +165,7 @@ def check_consistency(musics, checks, no_checks):
                             f.description +
                             ') used in mp3 : ' +
                             m.path)
-            if 'title' in checks and 'title' not in no_checks and not len(m.title):
+            if 'title' in checks and 'title' not in no_checks and not m.title:
                 report.append("No title  : '" + m.title + "' on " + m.path)
             if 'strict_title' in checks and 'strict_title' not in no_checks:
                 filename = os.path.basename(m.path)

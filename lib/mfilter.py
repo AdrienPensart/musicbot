@@ -40,10 +40,10 @@ class BadFilter(Exception):
     pass
 
 
-class Filter(object):
+class Filter:
 
-    def __init__(self, name=None, relative=None, shuffle=None, youtube=None, formats=None, no_formats=None, genres=None, no_genres=None, limit=None, min_duration=None, max_duration=None, min_size=None, max_size=None, min_rating=None, max_rating=None, keywords=None, no_keywords=None, artists=None, no_artists=None, titles=None, no_titles=None, albums=None, no_albums=None, **kwargs):
-        self.id = 0
+    def __init__(self, id=None, name=None, relative=None, shuffle=None, youtube=None, formats=None, no_formats=None, genres=None, no_genres=None, limit=None, min_duration=None, max_duration=None, min_size=None, max_size=None, min_rating=None, max_rating=None, keywords=None, no_keywords=None, artists=None, no_artists=None, titles=None, no_titles=None, albums=None, no_albums=None):
+        self.id = 0 if id is None else id
         self.name = default_name if name is None else name
         self.relative = default_relative if relative is None else relative
         self.shuffle = default_shuffle if shuffle is None else shuffle
@@ -67,7 +67,7 @@ class Filter(object):
         self.no_titles = default_no_titles if no_titles is None else no_titles
         self.albums = default_albums if albums is None else albums
         self.no_albums = default_no_albums if no_albums is None else no_albums
-        logger.debug('Filter: {}'.format(self))
+        logger.debug('Filter: %s', self)
         # rating checks
         if self.min_rating not in rating_choices:
             raise BadFilter("Invalid minimum rating {}".format(self.min_rating))
@@ -79,12 +79,8 @@ class Filter(object):
         if self.min_duration > self.max_duration:
             raise BadFilter("Invalid minimum ({}) or maximum ({}) duration".format(self.min_duration, self.max_duration))
 
-        if (len(set(self.formats).intersection(self.no_formats)) != 0 or
-           len(set(self.artists).intersection(self.no_artists)) != 0 or
-           len(set(self.genres).intersection(self.no_genres)) != 0 or
-           len(set(self.albums).intersection(self.no_albums)) != 0 or
-           len(set(self.titles).intersection(self.no_titles)) != 0 or
-           len(set(self.keywords).intersection(self.no_keywords)) != 0):
+        not_empty_set = (set(self.formats).intersection(self.no_formats) or set(self.artists).intersection(self.no_artists) or set(self.genres).intersection(self.no_genres) or set(self.albums).intersection(self.no_albums) or set(self.titles).intersection(self.no_titles) or set(self.keywords).intersection(self.no_keywords))
+        if not_empty_set:
             raise BadFilter("You can't have duplicates value in filters {}".format(self))
 
     def __repr__(self):

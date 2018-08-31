@@ -48,27 +48,27 @@ def youtube(request):
 async def progression(request, ws):
     logger.debug('Getting folders')
     folders = await db.folders_name()
-    logger.debug('Scanning folders: {}'.format(folders))
+    logger.debug('Scanning folders: %s', folders)
     files = [f for f in lib.find_files(folders) if f[1].endswith(tuple(mfilter.supported_formats))]
 
     current = 0
     percentage = 0
     total = len(files)
-    logger.debug('Number of files: {}'.format(total))
-    with tqdm(total=total, desc="Loading music", disable=config.quiet) as bar:
+    logger.debug('Number of files: %s', total)
+    with tqdm(total=total, desc="Loading music", disable=config.quiet) as pbar:
         logger.debug('Reading files')
         for f in files:
             try:
                 m = file.File(f[1], f[0])
                 await db.upsert(m)
-                bar.update(1)
+                pbar.update(1)
                 current += 1
                 current_percentage = int(current / total * 100)
                 if current_percentage > percentage:
                     percentage = current_percentage
                     await ws.send(str(percentage))
             except asyncpg.exceptions.CheckViolationError as e:
-                logger.warning("Violation: {}".format(e))
+                logger.warning("Violation: %s", e)
     await db.refresh()
 
 
@@ -238,14 +238,14 @@ async def m3u(request):
 
 @collection.route('/zip')
 @helpers.basicauth
-async def zip(request):
+async def zip_musics(request):
     '''Generate a playlist'''
     mf = await helpers.get_filter(request)
     musics = await db.musics(mf)
-    if len(musics) == 0:
+    if not musics == 0:
         return response.text('Empty playlist')
     name = request.args.get('name', 'archive')
-    return helpers.zip(musics, name)
+    return helpers.zip_musics(musics, name)
 
 
 async def gen_playlist(request):

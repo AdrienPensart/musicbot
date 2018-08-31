@@ -5,40 +5,46 @@ from click_didyoumean import DYMGroup
 
 
 @click.group(cls=DYMGroup)
-@helpers.add_options(database.options)
-@helpers.add_options(mfilter.options)
-@helpers.add_options(helpers.concurrency)
 @click.pass_context
-def cli(ctx, concurrency, **kwargs):
+@helpers.add_options(database.options)
+def cli(ctx, **kwargs):
     '''Youtube management'''
     ctx.obj.db = collection.Collection(**kwargs)
-    ctx.obj.mf = mfilter.Filter(**kwargs)
-    ctx.obj.concurrency = concurrency
 
 
 @cli.command()
 @click.pass_context
+@helpers.add_options(mfilter.options)
+@helpers.add_options(helpers.concurrency)
 @helpers.coro
-async def musics(ctx, **kwargs):
+async def musics(ctx, concurrency, **kwargs):
     '''Fetch youtube links for each music'''
-    if ctx.obj.mf.youtube is None:
-        ctx.obj.mf.youtube = ''
-    await helpers.crawl_musics(ctx.obj.db, ctx.obj.mf, concurrency=ctx.obj.concurrency)
+    mf = mfilter.Filter(**kwargs)
+    concurrency = concurrency
+    if mf.youtube is None:
+        mf.youtube = ''
+    await helpers.crawl_musics(ctx.obj.db, mf=mf, concurrency=concurrency)
 
 
 @cli.command()
 @click.pass_context
+@helpers.add_options(mfilter.options)
+@helpers.add_options(helpers.concurrency)
 @helpers.coro
 @click.option('--youtube-album', envvar='MB_YOUTUBE_ALBUM', help='Select albums with a youtube link', default='')
-async def albums(ctx, youtube_album, **kwargs):
+async def albums(ctx, concurrency, youtube_album, **kwargs):
     '''Fetch youtube links for each album'''
-    await helpers.crawl_albums(ctx.obj.db, ctx.obj.mf, youtube_album=youtube_album, concurrency=ctx.obj.concurrency)
+    mf = mfilter.Filter(**kwargs)
+    concurrency = concurrency
+    await helpers.crawl_albums(ctx.obj.db, mf=mf, youtube_album=youtube_album, concurrency=concurrency)
+
 
 @cli.command()
 @click.pass_context
 @helpers.coro
 async def only(ctx, **kwargs):
     '''Fetch youtube links for each album'''
-    results = await ctx.obj.db.fetch("""select * from do_filter($1::filters) where youtube like 'https://www.youtube.com/watch?v=%'""", ctx.obj.mf.to_list())
+    mf = mfilter.Filter(**kwargs)
+    results = await ctx.obj.db.fetch("""select * from do_filter($1::filters) where youtube like 'https://www.youtube.com/watch?v=%'""", mf.to_list())
     for r in results:
         print(r)

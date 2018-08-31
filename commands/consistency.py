@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 import click
-from lib import mfilter, helpers, collection
+from lib import database, mfilter, helpers, collection
 from click_didyoumean import DYMGroup
 
 
-@click.group(invoke_without_command=True, cls=DYMGroup)
+@click.group(cls=DYMGroup)
 @click.pass_context
+@helpers.add_options(database.options)
 def cli(ctx, **kwargs):
     '''Inconsistencies management'''
+    ctx.obj.db = collection.Collection(**kwargs)
 
 
 @cli.command()
@@ -16,7 +18,6 @@ def cli(ctx, **kwargs):
 @helpers.add_options(mfilter.options)
 async def errors(ctx, **kwargs):
     '''Detect errors'''
-    ctx.obj.db = collection.collection(**kwargs)
     mf = mfilter.Filter(**kwargs)
     errors = await ctx.obj.db.errors(mf)
     for e in errors:
