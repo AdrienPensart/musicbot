@@ -27,7 +27,7 @@
         </td>
         <td>
           <a href="{{ url_for('collection.m3u', artists=mf.artists, albums=a.name, name=a.name) }}">m3u</a> /
-          <a href="{{ url_for('collection.zip', artists=mf.artists, albums=a.name, name=a.name) }}">zip</a>
+          <a href="{{ url_for('collection.zip_musics', artists=mf.artists, albums=a.name, name=a.name) }}">zip</a>
         </td>
         <td>
           <a href="{{ url_for('collection.stats', artists=mf.artists, albums=a.name) }}">stats</a>

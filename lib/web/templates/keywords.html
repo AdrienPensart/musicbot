@@ -30,7 +30,7 @@
           </td>
           <td>
             <a href="{{ url_for('collection.m3u', keywords=k.name, name=k.name) }}">m3u</a> /
-            <a href="{{ url_for('collection.zip', keywords=k.name, name=k.name) }}">zip</a>
+            <a href="{{ url_for('collection.zip_musics', keywords=k.name, name=k.name) }}">zip</a>
           </td>
           <td><a href="{{ url_for('collection.stats', keywords=k.name) }}">stats</a></td>
         </tr>
