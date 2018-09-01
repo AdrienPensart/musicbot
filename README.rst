@@ -60,9 +60,11 @@ Commands
     db           Database management
     file         Music tags management
     folder       Folder scanning
+    help         Print help
     playlist     Playlist management
+    repl         Start an interactive shell.
     server       API Server
-    stats        Generate some stats for music collection with...
+    stats        Youtube management
     tag          Music tags management
     task         Task management
     youtube      Youtube management
@@ -157,12 +159,12 @@ musicbot config save
     --db-database TEXT      DB name  [default: musicbot_prod]
     --db-user TEXT          DB user  [default: postgres]
     --db-password TEXT      DB password  [default: musicbot]
-    --http-host TEXT        Host interface to listen on
-    --http-server TEXT      Server name to use in links
-    --http-port INTEGER     HTTP port to listen on
-    --http-workers INTEGER  Number of HTTP workers (not tested)
-    --http-user TEXT        HTTP Basic auth user
-    --http-password TEXT    HTTP Basic auth password
+    --http-host TEXT        Host interface to listen on  [default: 127.0.0.1]
+    --http-server TEXT      Server name to use in links  [default: musicbot.ovh]
+    --http-port INTEGER     HTTP port to listen on  [default: 8000]
+    --http-workers INTEGER  Number of HTTP workers (not tested)  [default: 1]
+    --http-user TEXT        HTTP Basic auth user  [default: musicbot]
+    --http-password TEXT    HTTP Basic auth password  [default: musicbot]
     -h, --help              Show this message and exit.
 
 
@@ -185,7 +187,12 @@ musicbot consistency
     Inconsistencies management
   
   Options:
-    -h, --help  Show this message and exit.
+    --db-host TEXT      DB host  [default: localhost]
+    --db-port INTEGER   DB port  [default: 5432]
+    --db-database TEXT  DB name  [default: musicbot_prod]
+    --db-user TEXT      DB user  [default: postgres]
+    --db-password TEXT  DB password  [default: musicbot]
+    -h, --help          Show this message and exit.
   
   Commands:
     errors  Detect errors
@@ -358,29 +365,60 @@ musicbot file show
 ******************
 .. code-block::
 
-  Usage: musicbot file show [OPTIONS]
-  
-    Show tags of musics with filters
-  
-  Options:
-    -h, --help  Show this message and exit.
+  Traceback (most recent call last):
+    File "doc/../musicbot", line 78, in <module>
+      cli()
+    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 722, in __call__
+      return self.main(*args, **kwargs)
+    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 697, in main
+      rv = self.invoke(ctx)
+    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 1066, in invoke
+      return _process_result(sub_ctx.command.invoke(sub_ctx))
+    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 1063, in invoke
+      Command.invoke(self, ctx)
+    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 895, in invoke
+      return ctx.invoke(self.callback, **ctx.params)
+    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 535, in invoke
+      return callback(*args, **kwargs)
+    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/decorators.py", line 17, in new_func
+      return f(get_current_context(), *args, **kwargs)
+    File "doc/../commands/file.py", line 16, in cli
+      ctx.obj.db = collection.Collection(**kwargs)
+    File "/home/ubuntu/musicbot/lib/collection.py", line 13, in __init__
+      super().__init__(**kwargs)
+    File "/home/ubuntu/musicbot/lib/database.py", line 29, in __init__
+      self.set(**kwargs)
+  TypeError: set() got an unexpected keyword argument 'limit'
 
 
 musicbot file update
 ********************
 .. code-block::
 
-  Usage: musicbot file update [OPTIONS]
-  
-  Options:
-    --keywords TEXT  Keywords
-    --artist TEXT    Artist
-    --album TEXT     Album
-    --title TEXT     Title
-    --genre TEXT     Genre
-    --number TEXT    Track number
-    --rating TEXT    Rating
-    -h, --help       Show this message and exit.
+  Traceback (most recent call last):
+    File "doc/../musicbot", line 78, in <module>
+      cli()
+    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 722, in __call__
+      return self.main(*args, **kwargs)
+    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 697, in main
+      rv = self.invoke(ctx)
+    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 1066, in invoke
+      return _process_result(sub_ctx.command.invoke(sub_ctx))
+    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 1063, in invoke
+      Command.invoke(self, ctx)
+    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 895, in invoke
+      return ctx.invoke(self.callback, **ctx.params)
+    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 535, in invoke
+      return callback(*args, **kwargs)
+    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/decorators.py", line 17, in new_func
+      return f(get_current_context(), *args, **kwargs)
+    File "doc/../commands/file.py", line 16, in cli
+      ctx.obj.db = collection.Collection(**kwargs)
+    File "/home/ubuntu/musicbot/lib/collection.py", line 13, in __init__
+      super().__init__(**kwargs)
+    File "/home/ubuntu/musicbot/lib/database.py", line 29, in __init__
+      self.set(**kwargs)
+  TypeError: set() got an unexpected keyword argument 'limit'
 
 
 musicbot folder
@@ -400,13 +438,14 @@ musicbot folder
     -h, --help          Show this message and exit.
   
   Commands:
-    find    Only list files in selected folders
-    list    List existing folders
-    new     Add a new folder in database
-    rescan  Rescan all folders registered in database
-    scan    Load musics files in database
-    sync    Copy selected musics with filters to...
-    watch   Watch files changes in folders
+    find      Only list files in selected folders
+    flac2mp3  Convert all files in folders to mp3
+    list      List existing folders
+    new       Add a new folder in database
+    rescan    Rescan all folders registered in database
+    scan      Load musics files in database
+    sync      Copy selected musics with filters to...
+    watch     Watch files changes in folders
 
 
 musicbot folder find
@@ -419,6 +458,19 @@ musicbot folder find
   
   Options:
     -h, --help  Show this message and exit.
+
+
+musicbot folder flac2mp3
+************************
+.. code-block::
+
+  Usage: musicbot folder flac2mp3 [OPTIONS] [FOLDERS]...
+  
+    Convert all files in folders to mp3
+  
+  Options:
+    --concurrency INTEGER  Number of coroutines  [default: 8]
+    -h, --help             Show this message and exit.
 
 
 musicbot folder list
@@ -454,9 +506,8 @@ musicbot folder rescan
     Rescan all folders registered in database
   
   Options:
-    --concurrency INTEGER  Number of coroutines  [default: 8]
-    --crawl                Crawl youtube
-    -h, --help             Show this message and exit.
+    --crawl     Crawl youtube
+    -h, --help  Show this message and exit.
 
 
 musicbot folder scan
@@ -468,9 +519,8 @@ musicbot folder scan
     Load musics files in database
   
   Options:
-    --concurrency INTEGER  Number of coroutines  [default: 8]
-    --crawl                Crawl youtube
-    -h, --help             Show this message and exit.
+    --crawl     Crawl youtube
+    -h, --help  Show this message and exit.
 
 
 musicbot folder sync
@@ -514,6 +564,18 @@ musicbot folder watch
   Usage: musicbot folder watch [OPTIONS]
   
     Watch files changes in folders
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot help
+*************
+.. code-block::
+
+  Usage: musicbot help [OPTIONS]
+  
+    Print help
   
   Options:
     -h, --help  Show this message and exit.
@@ -610,6 +672,24 @@ musicbot playlist new
     -h, --help              Show this message and exit.
 
 
+musicbot repl
+*************
+.. code-block::
+
+  Usage: musicbot repl [OPTIONS]
+  
+    Start an interactive shell. All subcommands are available in it.
+  
+    :param old_ctx: The current Click context. :param prompt_kwargs:
+    Parameters passed to     :py:func:`prompt_toolkit.shortcuts.prompt`.
+  
+    If stdin is not a TTY, no prompt will be printed, but only commands read
+    from stdin.
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
 musicbot server
 ***************
 .. code-block::
@@ -624,12 +704,6 @@ musicbot server
     --db-database TEXT  DB name  [default: musicbot_prod]
     --db-user TEXT      DB user  [default: postgres]
     --db-password TEXT  DB password  [default: musicbot]
-    --dev               Watch for source file modification
-    --watcher           Watch for music file modification
-    --autoscan          Enable auto scan background job
-    --server-cache      Activate server cache system
-    --client-cache      Activate client cache system
-    --no-auth           Disable authentication system
     -h, --help          Show this message and exit.
   
   Commands:
@@ -645,12 +719,18 @@ musicbot server start
     Start musicbot web API
   
   Options:
-    --http-host TEXT        Host interface to listen on
-    --http-server TEXT      Server name to use in links
-    --http-port INTEGER     HTTP port to listen on
-    --http-workers INTEGER  Number of HTTP workers (not tested)
-    --http-user TEXT        HTTP Basic auth user
-    --http-password TEXT    HTTP Basic auth password
+    --http-host TEXT        Host interface to listen on  [default: 127.0.0.1]
+    --http-server TEXT      Server name to use in links  [default: musicbot.ovh]
+    --http-port INTEGER     HTTP port to listen on  [default: 8000]
+    --http-workers INTEGER  Number of HTTP workers (not tested)  [default: 1]
+    --http-user TEXT        HTTP Basic auth user  [default: musicbot]
+    --http-password TEXT    HTTP Basic auth password  [default: musicbot]
+    --dev                   Watch for source file modification
+    --watcher               Watch for music file modification
+    --autoscan              Enable auto scan background job
+    --server-cache          Activate server cache system
+    --client-cache          Activate client cache system
+    --no-auth               Disable authentication system
     -h, --help              Show this message and exit.
 
 
@@ -660,14 +740,29 @@ musicbot stats
 
   Usage: musicbot stats [OPTIONS] COMMAND [ARGS]...
   
+    Youtube management
+  
+  Options:
+    --db-host TEXT      DB host  [default: localhost]
+    --db-port INTEGER   DB port  [default: 5432]
+    --db-database TEXT  DB name  [default: musicbot_prod]
+    --db-user TEXT      DB user  [default: postgres]
+    --db-password TEXT  DB password  [default: musicbot]
+    -h, --help          Show this message and exit.
+  
+  Commands:
+    show  Generate some stats for music collection with...
+
+
+musicbot stats show
+*******************
+.. code-block::
+
+  Usage: musicbot stats show [OPTIONS]
+  
     Generate some stats for music collection with filters
   
   Options:
-    --db-host TEXT          DB host  [default: localhost]
-    --db-port INTEGER       DB port  [default: 5432]
-    --db-database TEXT      DB name  [default: musicbot_prod]
-    --db-user TEXT          DB user  [default: postgres]
-    --db-password TEXT      DB password  [default: musicbot]
     --limit INTEGER         Fetch a maximum limit of music
     --youtube TEXT          Select musics with a youtube link
     --formats TEXT          Select musics with file format
@@ -702,11 +797,27 @@ musicbot tag
     Music tags management
   
   Options:
-    --db-host TEXT          DB host  [default: localhost]
-    --db-port INTEGER       DB port  [default: 5432]
-    --db-database TEXT      DB name  [default: musicbot_prod]
-    --db-user TEXT          DB user  [default: postgres]
-    --db-password TEXT      DB password  [default: musicbot]
+    --db-host TEXT      DB host  [default: localhost]
+    --db-port INTEGER   DB port  [default: 5432]
+    --db-database TEXT  DB name  [default: musicbot_prod]
+    --db-user TEXT      DB user  [default: postgres]
+    --db-password TEXT  DB password  [default: musicbot]
+    -h, --help          Show this message and exit.
+  
+  Commands:
+    show  Show tags of musics with filters
+
+
+musicbot tag show
+*****************
+.. code-block::
+
+  Usage: musicbot tag show [OPTIONS]
+  
+    Show tags of musics with filters
+  
+  Options:
+    --fields TEXT           Show only those fields
     --limit INTEGER         Fetch a maximum limit of music
     --youtube TEXT          Select musics with a youtube link
     --formats TEXT          Select musics with file format
@@ -730,22 +841,6 @@ musicbot tag
     --relative              Generate relatives paths
     --shuffle               Randomize selection
     -h, --help              Show this message and exit.
-  
-  Commands:
-    show  Show tags of musics with filters
-
-
-musicbot tag show
-*****************
-.. code-block::
-
-  Usage: musicbot tag show [OPTIONS]
-  
-    Show tags of musics with filters
-  
-  Options:
-    --fields TEXT  Show only those fields
-    -h, --help     Show this message and exit.
 
 
 musicbot task
@@ -802,11 +897,64 @@ musicbot youtube
     Youtube management
   
   Options:
-    --db-host TEXT          DB host  [default: localhost]
-    --db-port INTEGER       DB port  [default: 5432]
-    --db-database TEXT      DB name  [default: musicbot_prod]
-    --db-user TEXT          DB user  [default: postgres]
-    --db-password TEXT      DB password  [default: musicbot]
+    --db-host TEXT      DB host  [default: localhost]
+    --db-port INTEGER   DB port  [default: 5432]
+    --db-database TEXT  DB name  [default: musicbot_prod]
+    --db-user TEXT      DB user  [default: postgres]
+    --db-password TEXT  DB password  [default: musicbot]
+    -h, --help          Show this message and exit.
+  
+  Commands:
+    albums  Fetch youtube links for each album
+    musics  Fetch youtube links for each music
+    only    Fetch youtube links for each album
+
+
+musicbot youtube albums
+***********************
+.. code-block::
+
+  Usage: musicbot youtube albums [OPTIONS]
+  
+    Fetch youtube links for each album
+  
+  Options:
+    --limit INTEGER         Fetch a maximum limit of music
+    --youtube TEXT          Select musics with a youtube link
+    --formats TEXT          Select musics with file format
+    --no-formats TEXT       Filter musics without format
+    --keywords TEXT         Select musics with keywords
+    --no-keywords TEXT      Filter musics without keywords
+    --artists TEXT          Select musics with artists
+    --no-artists TEXT       Filter musics without artists
+    --albums TEXT           Select musics with albums
+    --no-albums TEXT        Filter musics without albums
+    --titles TEXT           Select musics with titles
+    --no-titles TEXT        Filter musics without titless
+    --genres TEXT           Select musics with genres
+    --no-genres TEXT        Filter musics without genres
+    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
+    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
+    --min-size INTEGER      Minimum file size filter (in bytes)
+    --max-size INTEGER      Maximum file size filter (in bytes)
+    --min-rating FLOAT      Minimum rating  [default: 0.0]
+    --max-rating FLOAT      Maximum rating  [default: 5.0]
+    --relative              Generate relatives paths
+    --shuffle               Randomize selection
+    --concurrency INTEGER   Number of coroutines  [default: 8]
+    --youtube-album TEXT    Select albums with a youtube link
+    -h, --help              Show this message and exit.
+
+
+musicbot youtube musics
+***********************
+.. code-block::
+
+  Usage: musicbot youtube musics [OPTIONS]
+  
+    Fetch youtube links for each music
+  
+  Options:
     --limit INTEGER         Fetch a maximum limit of music
     --youtube TEXT          Select musics with a youtube link
     --formats TEXT          Select musics with file format
@@ -831,36 +979,6 @@ musicbot youtube
     --shuffle               Randomize selection
     --concurrency INTEGER   Number of coroutines  [default: 8]
     -h, --help              Show this message and exit.
-  
-  Commands:
-    albums  Fetch youtube links for each album
-    musics  Fetch youtube links for each music
-    only    Fetch youtube links for each album
-
-
-musicbot youtube albums
-***********************
-.. code-block::
-
-  Usage: musicbot youtube albums [OPTIONS]
-  
-    Fetch youtube links for each album
-  
-  Options:
-    --youtube-album TEXT  Select albums with a youtube link
-    -h, --help            Show this message and exit.
-
-
-musicbot youtube musics
-***********************
-.. code-block::
-
-  Usage: musicbot youtube musics [OPTIONS]
-  
-    Fetch youtube links for each music
-  
-  Options:
-    -h, --help  Show this message and exit.
 
 
 musicbot youtube only
