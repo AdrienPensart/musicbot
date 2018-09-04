@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import logging
 from ..mfilter import Filter
 from ..lib import num
@@ -9,9 +8,8 @@ logger = logging.getLogger(__name__)
 class WebFilter(Filter):
     def __init__(self, request, **kwargs):
         super().__init__(**kwargs)
-        self.youtube = request.args.get('youtube', self.youtube)
-        self.name = request.args.get('name', self.youtube)
-        for param in ['formats', 'no_formats', 'artists', 'no_artists', 'genres', 'no_genres', 'albums', 'no_albums', 'titles', 'no_titles', 'keywords', 'no_keywords']:
+        self.name = request.args.get('name', self.name)
+        for param in ['youtubes', 'no_youtubes', 'formats', 'no_formats', 'artists', 'no_artists', 'genres', 'no_genres', 'albums', 'no_albums', 'titles', 'no_titles', 'keywords', 'no_keywords']:
             data = request.args.getlist(param, getattr(self, param))
             setattr(self, param, data)
 

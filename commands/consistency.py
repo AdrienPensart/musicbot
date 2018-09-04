@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import click
 from lib import database, mfilter, helpers, collection
 from click_didyoumean import DYMGroup

@@ -7,16 +7,16 @@ formats_choices = [(x, x) for x in mfilter.default_formats]
 
 
 class MusicForm(SanicForm):
-    id       = HiddenField('Id')
-    title    = StringField('Title')
-    artist   = StringField('Artist')
-    album    = StringField('Album')
-    genre    = StringField('Genre')
-    youtube  = StringField('YouTube')
-    number   = IntegerField('Number')
+    id = HiddenField('Id')
+    title = StringField('Title')
+    artist = StringField('Artist')
+    album = StringField('Album')
+    genre = StringField('Genre')
+    youtube = StringField('YouTube')
+    number = IntegerField('Number')
     keywords = StringField('Keywords')
-    rating   = SelectField('Rating', default=0.0, choices=rating_choices, coerce=float)
-    submit   = SubmitField(label='Save')
+    rating = SelectField('Rating', default=0.0, choices=rating_choices, coerce=float)
+    submit = SubmitField(label='Save')
 
 
 class FilterForm(SanicForm):

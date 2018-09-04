@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from sanic_limiter import Limiter, get_remote_address
 from .app import app
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from sanic import response, Blueprint
 from aiocache import cached, SimpleMemoryCache
 from aiocache.serializers import PickleSerializer

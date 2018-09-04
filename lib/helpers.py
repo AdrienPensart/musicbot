@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import asyncio
 import time
 import uvloop
@@ -25,22 +24,23 @@ concurrency = [
 ]
 
 
-def timeit(f):
-    async def process(f, *args, **params):
-        if asyncio.iscoroutinefunction(f):
-            return await f(*args, **params)
-        return f(*args, **params)
+async def process(f, *args, **params):
+    if asyncio.iscoroutinefunction(f):
+        return await f(*args, **params)
+    return f(*args, **params)
 
+
+def timeit(f):
     @wraps(f)
-    async def helper(*args, **params):
+    async def wrapper(*args, **params):
         start = time.time()
         result = await process(f, *args, **params)
         for_human = secondsToHuman(time.time() - start)
         if config.timings:
-            logger.info('%s: %s', f.__name__, for_human)
+            logger.info('TIMINGS %s: %s', f.__name__, for_human)
         return result
 
-    return helper
+    return wrapper
 
 
 async def refresh_db(db):
@@ -50,7 +50,7 @@ async def refresh_db(db):
 @timeit
 async def crawl_musics(db, mf=None, concurrency=1):
     if mf is None:
-        mf = Filter(youtube='')
+        mf = Filter(youtubes='')
     musics = await db.musics(mf)
     with tqdm(desc='Youtube musics', total=len(musics), disable=config.quiet) as pbar:
         async def search(semaphore, m):
@@ -175,5 +175,5 @@ def drier(f):
             logger.info('DRY RUN: %s(%s)', f.__name__, ','.join(args))
             await asyncio.sleep(0)
         else:
-            return await f(*args, **kwargs)
+            return await process(f, *args, **kwargs)
     return wrapper

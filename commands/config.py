@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import click
 from lib import helpers, database, server, persistence
 from lib.config import config
@@ -13,6 +12,7 @@ def cli():
 
 @cli.command()
 def show():
+    '''Print default config'''
     print(config)
 
 
@@ -33,4 +33,5 @@ async def save(**kwargs):
 
 @cli.command()
 def logging():
+    '''Show loggers tree'''
     printout()

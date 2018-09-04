@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 import click
 import os
-import sys
 import logging
-from lib import helpers, database, lib, server
+from lib import helpers, database, server
 from lib.config import config
+from lib.lib import raise_limits, restart
 from lib.web import config as webconfig
 from click_didyoumean import DYMGroup
 
@@ -27,7 +26,7 @@ def start(ctx, http_host, http_server, http_port, http_workers, http_user, http_
     webconfig.webconfig.set(**kwargs)
     if webconfig.webconfig.dev:
         logger.debug('Watching for python and html file changes')
-        lib.raise_limits()
+        raise_limits()
         from watchdog.observers import Observer
         from watchdog.events import PatternMatchingEventHandler
 
@@ -40,23 +39,19 @@ def start(ctx, http_host, http_server, http_port, http_workers, http_user, http_
 
             def on_modified(self, event):
                 logger.debug('Modified: %s %s', event.src_path, event.event_type)
-                self.restart()
+                restart()
 
             def on_created(self, event):
                 logger.debug('Created: %s %s', event.src_path, event.event_type)
-                self.restart()
+                restart()
 
             def on_deleted(self, event):
                 logger.debug('Deleted: %s %s', event.src_path, event.event_type)
-                self.restart()
+                restart()
 
             def on_moved(self, event):
                 logger.debug('Moved: %s %s', event.src_path, event.event_type)
-                self.restart()
-
-            def restart(self):
-                python = sys.executable
-                os.execl(python, python, * sys.argv)
+                restart()
 
         event_handler = PyWatcherHandler()
         observer = Observer()

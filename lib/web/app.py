@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from sanic import Sanic
 from sanic.log import LOGGING_CONFIG_DEFAULTS
 from ..collection import Collection

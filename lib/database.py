@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import click
 import os
 import sys
@@ -77,7 +76,13 @@ class Database:
     async def pool(self):
         if self._pool is None:
             import asyncpg
-            self._pool: asyncpg.pool.Pool = await asyncpg.create_pool(max_size=self.max_conn, user=self.user, host=self.host, password=self.password, port=self.port, database=self.database)
+
+            async def add_log_listener(conn):
+                def log_it(conn, message):
+                    logger.debug(message)
+                if config.debug:
+                    conn.add_log_listener(log_it)
+            self._pool: asyncpg.pool.Pool = await asyncpg.create_pool(max_size=self.max_conn, user=self.user, host=self.host, password=self.password, port=self.port, database=self.database, setup=add_log_listener)
         return self._pool
 
     async def fetch(self, sql, *args):

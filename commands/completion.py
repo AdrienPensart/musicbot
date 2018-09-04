@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import click
 import click_completion
 from click_didyoumean import DYMGroup

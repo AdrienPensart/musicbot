@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import click
 from click_didyoumean import DYMGroup
 from datetime import timedelta

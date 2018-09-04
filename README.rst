@@ -4,17 +4,12 @@ MusicBot
 +---------------+-----------------+
 |     Tools     |      Result     |
 +===============+=================+
-| Code Quality  | |build-health|  |
-+---------------+-----------------+
-| Code Coverage | |code-coverage| |
+|     Codacy    | |code-coverage| |
 +---------------+-----------------+
 
 .. |code-coverage| image:: https://api.codacy.com/project/badge/Grade/621acf3309b24c538c40824f9af467de
    :target: https://www.codacy.com/app/AdrienPensart/musicbot?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=AdrienPensart/musicbot&amp;utm_campaign=Badge_Grade
    :alt: Code coverage
-.. |build-health|  image:: https://landscape.io/github/AdrienPensart/musicbot/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/AdrienPensart/musicbot/master
-   :alt: Code Health
 
 Description
 -----------
@@ -127,9 +122,9 @@ musicbot config
     -h, --help  Show this message and exit.
   
   Commands:
-    logging
+    logging  Show loggers tree
     save     Save config
-    show
+    show     Print default config
 
 
 musicbot config logging
@@ -137,6 +132,8 @@ musicbot config logging
 .. code-block::
 
   Usage: musicbot config logging [OPTIONS]
+  
+    Show loggers tree
   
   Options:
     -h, --help  Show this message and exit.
@@ -174,6 +171,8 @@ musicbot config show
 
   Usage: musicbot config show [OPTIONS]
   
+    Print default config
+  
   Options:
     -h, --help  Show this message and exit.
 
@@ -208,7 +207,8 @@ musicbot consistency errors
   
   Options:
     --limit INTEGER         Fetch a maximum limit of music
-    --youtube TEXT          Select musics with a youtube link
+    --youtubes TEXT         Select musics with a youtube link
+    --no-youtubes TEXT      Select musics without youtube link
     --formats TEXT          Select musics with file format
     --no-formats TEXT       Filter musics without format
     --keywords TEXT         Select musics with keywords
@@ -333,7 +333,8 @@ musicbot file
     --db-user TEXT          DB user  [default: postgres]
     --db-password TEXT      DB password  [default: musicbot]
     --limit INTEGER         Fetch a maximum limit of music
-    --youtube TEXT          Select musics with a youtube link
+    --youtubes TEXT         Select musics with a youtube link
+    --no-youtubes TEXT      Select musics without youtube link
     --formats TEXT          Select musics with file format
     --no-formats TEXT       Filter musics without format
     --keywords TEXT         Select musics with keywords
@@ -366,7 +367,7 @@ musicbot file show
 .. code-block::
 
   Traceback (most recent call last):
-    File "doc/../musicbot", line 78, in <module>
+    File "doc/../musicbot", line 84, in <module>
       cli()
     File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 722, in __call__
       return self.main(*args, **kwargs)
@@ -382,11 +383,11 @@ musicbot file show
       return callback(*args, **kwargs)
     File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/decorators.py", line 17, in new_func
       return f(get_current_context(), *args, **kwargs)
-    File "doc/../commands/file.py", line 16, in cli
+    File "doc/../commands/file.py", line 15, in cli
       ctx.obj.db = collection.Collection(**kwargs)
-    File "/home/ubuntu/musicbot/lib/collection.py", line 13, in __init__
+    File "/home/ubuntu/musicbot/lib/collection.py", line 12, in __init__
       super().__init__(**kwargs)
-    File "/home/ubuntu/musicbot/lib/database.py", line 29, in __init__
+    File "/home/ubuntu/musicbot/lib/database.py", line 28, in __init__
       self.set(**kwargs)
   TypeError: set() got an unexpected keyword argument 'limit'
 
@@ -396,7 +397,7 @@ musicbot file update
 .. code-block::
 
   Traceback (most recent call last):
-    File "doc/../musicbot", line 78, in <module>
+    File "doc/../musicbot", line 84, in <module>
       cli()
     File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 722, in __call__
       return self.main(*args, **kwargs)
@@ -412,11 +413,11 @@ musicbot file update
       return callback(*args, **kwargs)
     File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/decorators.py", line 17, in new_func
       return f(get_current_context(), *args, **kwargs)
-    File "doc/../commands/file.py", line 16, in cli
+    File "doc/../commands/file.py", line 15, in cli
       ctx.obj.db = collection.Collection(**kwargs)
-    File "/home/ubuntu/musicbot/lib/collection.py", line 13, in __init__
+    File "/home/ubuntu/musicbot/lib/collection.py", line 12, in __init__
       super().__init__(**kwargs)
-    File "/home/ubuntu/musicbot/lib/database.py", line 29, in __init__
+    File "/home/ubuntu/musicbot/lib/database.py", line 28, in __init__
       self.set(**kwargs)
   TypeError: set() got an unexpected keyword argument 'limit'
 
@@ -533,7 +534,8 @@ musicbot folder sync
   
   Options:
     --limit INTEGER         Fetch a maximum limit of music
-    --youtube TEXT          Select musics with a youtube link
+    --youtubes TEXT         Select musics with a youtube link
+    --no-youtubes TEXT      Select musics without youtube link
     --formats TEXT          Select musics with file format
     --no-formats TEXT       Filter musics without format
     --keywords TEXT         Select musics with keywords
@@ -573,7 +575,7 @@ musicbot help
 *************
 .. code-block::
 
-  Usage: musicbot help [OPTIONS]
+  Usage: musicbot help [OPTIONS] [COMMAND]...
   
     Print help
   
@@ -612,7 +614,8 @@ musicbot playlist bests
   
   Options:
     --limit INTEGER         Fetch a maximum limit of music
-    --youtube TEXT          Select musics with a youtube link
+    --youtubes TEXT         Select musics with a youtube link
+    --no-youtubes TEXT      Select musics without youtube link
     --formats TEXT          Select musics with file format
     --no-formats TEXT       Filter musics without format
     --keywords TEXT         Select musics with keywords
@@ -648,7 +651,8 @@ musicbot playlist new
   
   Options:
     --limit INTEGER         Fetch a maximum limit of music
-    --youtube TEXT          Select musics with a youtube link
+    --youtubes TEXT         Select musics with a youtube link
+    --no-youtubes TEXT      Select musics without youtube link
     --formats TEXT          Select musics with file format
     --no-formats TEXT       Filter musics without format
     --keywords TEXT         Select musics with keywords
@@ -764,7 +768,8 @@ musicbot stats show
   
   Options:
     --limit INTEGER         Fetch a maximum limit of music
-    --youtube TEXT          Select musics with a youtube link
+    --youtubes TEXT         Select musics with a youtube link
+    --no-youtubes TEXT      Select musics without youtube link
     --formats TEXT          Select musics with file format
     --no-formats TEXT       Filter musics without format
     --keywords TEXT         Select musics with keywords
@@ -819,7 +824,8 @@ musicbot tag show
   Options:
     --fields TEXT           Show only those fields
     --limit INTEGER         Fetch a maximum limit of music
-    --youtube TEXT          Select musics with a youtube link
+    --youtubes TEXT         Select musics with a youtube link
+    --no-youtubes TEXT      Select musics without youtube link
     --formats TEXT          Select musics with file format
     --no-formats TEXT       Filter musics without format
     --keywords TEXT         Select musics with keywords
@@ -920,7 +926,8 @@ musicbot youtube albums
   
   Options:
     --limit INTEGER         Fetch a maximum limit of music
-    --youtube TEXT          Select musics with a youtube link
+    --youtubes TEXT         Select musics with a youtube link
+    --no-youtubes TEXT      Select musics without youtube link
     --formats TEXT          Select musics with file format
     --no-formats TEXT       Filter musics without format
     --keywords TEXT         Select musics with keywords
@@ -956,7 +963,8 @@ musicbot youtube musics
   
   Options:
     --limit INTEGER         Fetch a maximum limit of music
-    --youtube TEXT          Select musics with a youtube link
+    --youtubes TEXT         Select musics with a youtube link
+    --no-youtubes TEXT      Select musics without youtube link
     --formats TEXT          Select musics with file format
     --no-formats TEXT       Filter musics without format
     --keywords TEXT         Select musics with keywords

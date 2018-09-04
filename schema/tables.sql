@@ -143,7 +143,8 @@ create table if not exists filters
     shuffle boolean default 'false',
     relative boolean default 'false',
     "limit" integer default +2147483647,
-    youtube text default null,
+    youtubes text[] default '{}',
+    no_youtubes text[] default '{}',
     constraint min_rating_range check (min_rating between 0.0 and 5.0),
     constraint max_rating_range check (max_rating between 0.0 and 5.0)
 );

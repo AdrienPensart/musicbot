@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import asyncpg
 import asyncio
 import logging
@@ -33,11 +32,8 @@ async def refresh(request):
 
 @collection.route('/youtube')
 @helpers.basicauth
-def youtube(request):
-    # mf = await helpers.get_filter(request)
-    mf = mfilter.Filter()
-    if mf.youtube is None:
-        mf.youtube = ''
+async def youtube(request):
+    mf = await helpers.get_filter(request)
     future = crawl_musics(db, mf, 10)
     asyncio.ensure_future(future)
     return response.redirect('/')

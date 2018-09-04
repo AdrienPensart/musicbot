@@ -30,7 +30,8 @@ create or replace function new_filter
     shuffle boolean default 'false',
     relative boolean default 'false',
     "limit" integer default +2147483647,
-    youtube text default null
+    youtubes text[] default '{}',
+    no_youtubes text[] default '{}'
 ) returns filters as
 $$
 begin
@@ -44,7 +45,7 @@ begin
             genres, no_genres,
             formats, no_formats,
             keywords, no_keywords,
-            shuffle, relative, "limit", youtube);
+            shuffle, relative, "limit", youtubes, no_youtubes);
 end;
 $$ language plpgsql;
 
@@ -145,7 +146,7 @@ begin
             title=EXCLUDED.title,
             number=EXCLUDED.number,
             size=EXCLUDED.size,
-            youtube=coalesce(EXCLUDED.youtube, m.youtube)
+            youtube=EXCLUDED.youtube
         returning m.id as music_id
     )
     insert into music_tags (music_id, tag_id)
@@ -202,122 +203,20 @@ $$
         (array_length(mf.no_titles, 1) is null or not (mv.title = any(mf.no_titles))) and
         (array_length(mf.genres, 1) is null or mv.genre = any(mf.genres)) and
         (array_length(mf.no_genres, 1) is null or not (mv.genre = any(mf.no_genres))) and
+        (array_length(mf.youtubes, 1) is null or mv.youtube = any(mf.youtubes)) and
+        (array_length(mf.no_youtubes, 1) is null or not (mv.youtube = any(mf.no_youtubes))) and
         (array_length(mf.keywords, 1) is null or mf.keywords <@ mv.keywords) and
         (array_length(mf.no_keywords, 1) is null or not (mf.no_keywords && mv.keywords)) and
         (array_length(mf.formats, 1) is null or mv.path similar to '%.(' || array_to_string(mf.formats, '|') || ')') and
         (array_length(mf.no_formats, 1) is null or mv.path not similar to '%.(' || array_to_string(mf.no_formats, '|') || ')') and
         mv.duration between mf.min_duration and mf.max_duration and
         mv.size between mf.min_size and mf.max_size and
-        mv.rating between mf.min_rating and mf.max_rating and
-        (mf.youtube is null or (mf.youtube = mv.youtube))
+        mv.rating between mf.min_rating and mf.max_rating
     order by
         case when(mf.shuffle = 'true') then random() end,
         case when(mf.shuffle = 'false') then artist end,
         case when(mf.shuffle = 'false') then album end,
         case when(mf.shuffle = 'false') then number end
-    limit mf.limit;
-$$ language sql;
-
-create or replace function do_filter2(mf filters default new_filter())
-returns setof music as
-$$
-    select 
-        id,
-        title,
-        album,
-        genre,
-        artist,
-        folder,
-        youtube,
-        number,
-        path,
-        rating,
-        duration,
-        size,
-        keywords
-    from music mv
-    where
-        (array_length(mf.artists, 1) is null or mv.artist = any(mf.artists)) and
-        (array_length(mf.no_artists, 1) is null or not (mv.artist = any(mf.no_artists))) and
-        (array_length(mf.albums, 1) is null or mv.album = any(mf.albums)) and
-        (array_length(mf.no_albums, 1) is null or not (mv.album = any(mf.no_albums))) and
-        (array_length(mf.titles, 1) is null or mv.title = any(mf.titles)) and
-        (array_length(mf.no_titles, 1) is null or not (mv.title = any(mf.no_titles))) and
-        (array_length(mf.genres, 1) is null or mv.genre = any(mf.genres)) and
-        (array_length(mf.no_genres, 1) is null or not (mv.genre = any(mf.no_genres))) and
-        (array_length(mf.keywords, 1) is null or mf.keywords <@ mv.keywords) and
-        (array_length(mf.no_keywords, 1) is null or not (mf.no_keywords && mv.keywords)) and
-        (array_length(mf.formats, 1) is null or mv.path similar to '%.(' || array_to_string(mf.formats, '|') || ')') and
-        (array_length(mf.no_formats, 1) is null or mv.path not similar to '%.(' || array_to_string(mf.no_formats, '|') || ')') and
-        mv.duration between mf.min_duration and mf.max_duration and
-        mv.size between mf.min_size and mf.max_size and
-        mv.rating between mf.min_rating and mf.max_rating and
-        (mf.youtube is null or (mf.youtube = mv.youtube))
-    order by
-        case when(mf.shuffle = 'true') then random() end,
-        case when(mf.shuffle = 'false') then artist end,
-        case when(mf.shuffle = 'false') then album end,
-        case when(mf.shuffle = 'false') then number end
-    limit mf.limit;
-$$ language sql;
-
-create or replace function old_do_filter(mf filters default new_filter())
-returns setof music as
-$$
-    with all_musics as (
-        select
-            m.id        as id,
-            m.title     as title,
-            al.name     as album,
-            g.name      as genre,
-            a.name      as artist,
-            f.name      as folder,
-            m.youtube   as youtube,
-            m.number    as number,
-            m.path      as path,
-            m.rating    as rating,
-            m.duration  as duration,
-            m.size      as size,
-            (
-                select coalesce(array_agg(name), '{}')
-                from
-                (
-                    select distinct name
-                    from music_tags mt
-                    inner join tags t on mt.tag_id = t.id
-                    where mt.music_id = m.id
-                ) as separated_keywords
-            ) as keywords
-        from musics m
-        inner join albums al on al.id = m.album_id
-        inner join artists a on a.id = m.artist_id
-        inner join genres g on g.id = m.genre_id
-        inner join folders f on f.id = m.folder_id
-        order by
-            case when(mf.shuffle = 'true') then random() end,
-            case when(mf.shuffle = 'false') then a.name end,
-            case when(mf.shuffle = 'false') then al.name end,
-            case when(mf.shuffle = 'false') then m.number end
-    )
-    select *
-    from all_musics mv
-    where
-        (array_length(mf.artists, 1) is null or mv.artist = any(mf.artists)) and
-        (array_length(mf.no_artists, 1) is null or not (mv.artist = any(mf.no_artists))) and
-        (array_length(mf.albums, 1) is null or mv.album = any(mf.albums)) and
-        (array_length(mf.no_albums, 1) is null or not (mv.album = any(mf.no_albums))) and
-        (array_length(mf.titles, 1) is null or mv.title = any(mf.titles)) and
-        (array_length(mf.no_titles, 1) is null or not (mv.title = any(mf.no_titles))) and
-        (array_length(mf.genres, 1) is null or mv.genre = any(mf.genres)) and
-        (array_length(mf.no_genres, 1) is null or not (mv.genre = any(mf.no_genres))) and
-        (array_length(mf.keywords, 1) is null or mf.keywords <@ mv.keywords) and
-        (array_length(mf.no_keywords, 1) is null or not (mf.no_keywords && mv.keywords)) and
-        (array_length(mf.formats, 1) is null or mv.path similar to '%.(' || array_to_string(mf.formats, '|') || ')') and
-        (array_length(mf.no_formats, 1) is null or mv.path not similar to '%.(' || array_to_string(mf.no_formats, '|') || ')') and
-        mv.duration between mf.min_duration and mf.max_duration and
-        mv.size between mf.min_size and mf.max_size and
-        mv.rating between mf.min_rating and mf.max_rating and
-        (mf.youtube is null or (mf.youtube = mv.youtube))
     limit mf.limit;
 $$ language sql;
 
@@ -367,7 +266,8 @@ $$
         False,
         False,
         0,
-        '';
+        ARRAY[]::text[],
+        ARRAY[]::text[];
 $$ language sql;
 
 create or replace function do_stats(mf filters default new_filter())

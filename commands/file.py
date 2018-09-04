@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import click
 import logging
 from lib import file, helpers, collection, database, mfilter

@@ -7,6 +7,7 @@ import logging
 from lib import file, collection, lib, mfilter
 from lib.config import config
 from lib.server import app
+# from lib.helpers import crawl_musics
 
 config.set()
 logger = logging.getLogger(__name__)
@@ -143,6 +144,8 @@ class DatabaseTest(asynctest.TestCase):
         self.assertEqual(len(musics), 3)
         musics = await self.collection.musics(mfilter.Filter(artists=['1995']))
         self.assertEqual(len(musics), 1)
+        musics = await self.collection.musics(mfilter.Filter(youtubes=['']))
+        self.assertEqual(len(musics), 5)
 
     async def test_new_playlist(self):
         mf = mfilter.Filter(relative=True)

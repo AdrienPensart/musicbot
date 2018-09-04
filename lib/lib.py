@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import logging
 import humanfriendly
 from . import file
@@ -82,6 +83,11 @@ def raise_limits():
     except Exception as e:
         logger.critical('You may need to check ulimit parameter: %s', e)
         return False
+
+
+def restart():
+    python = sys.executable
+    os.execl(python, python, * sys.argv)
 
 
 def find_files(directories):
