@@ -4,12 +4,16 @@ MusicBot
 +---------------+-----------------+
 |     Tools     |      Result     |
 +===============+=================+
-|     Codacy    | |code-coverage| |
+|     Codacy    |    |codacy|     |
++---------------+-----------------+
+|     Coverage  |   |coverage|    |
 +---------------+-----------------+
 
-.. |code-coverage| image:: https://api.codacy.com/project/badge/Grade/621acf3309b24c538c40824f9af467de
+.. |codacy| image:: https://api.codacy.com/project/badge/Grade/621acf3309b24c538c40824f9af467de
    :target: https://www.codacy.com/app/AdrienPensart/musicbot?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=AdrienPensart/musicbot&amp;utm_campaign=Badge_Grade
-   :alt: Code coverage
+   :alt: Codacy badge
+.. |coverage| image:: https://github.com/AdrienPensart/musicbot/doc/coverage.svg
+   :alt: Coverage badge
 
 Description
 -----------

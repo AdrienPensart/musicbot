@@ -7,8 +7,9 @@ import logging
 from lib import file, collection, lib, mfilter
 from lib.config import config
 from lib.server import app
-# from lib.helpers import crawl_musics
+from lib.web.config import webconfig
 
+webconfig.no_auth = True
 config.set()
 logger = logging.getLogger(__name__)
 
@@ -93,8 +94,7 @@ class MusicTagsTest(unittest.TestCase):
 class DatabaseTest(asynctest.TestCase):
 
     async def setUp(self):
-        lib.verbose = False
-        self.collection = collection.Collection()
+        self.collection = collection.Collection(db_database='musicbot_test')
         await self.collection.clear(os.path.join(my_dir, '../schema'))
         self.files = list(lib.find_files([folder1, folder2]))
         for f in self.files:
