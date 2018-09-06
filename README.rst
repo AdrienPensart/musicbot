@@ -12,7 +12,7 @@ MusicBot
 .. |codacy| image:: https://api.codacy.com/project/badge/Grade/621acf3309b24c538c40824f9af467de
    :target: https://www.codacy.com/app/AdrienPensart/musicbot?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=AdrienPensart/musicbot&amp;utm_campaign=Badge_Grade
    :alt: Codacy badge
-.. |coverage| image:: https://github.com/AdrienPensart/musicbot/doc/coverage.svg
+.. |coverage| image:: https://github.com/AdrienPensart/musicbot/blob/master/doc/coverage.svg
    :alt: Coverage badge
 
 Description
