@@ -27,12 +27,12 @@ class WebConfig:
         self.set(**kwargs)
 
     def set(self, dev=None, autoscan=None, watcher=None, client_cache=None, server_cache=None, no_auth=None):
-        self.dev = dev if dev is not None else lib.str2bool(os.getenv('MB_DEV', str(DEFAULT_DEV)))
-        self.watcher = watcher if watcher is not None else lib.str2bool(os.getenv('MB_WATCHER', str(DEFAULT_WATCHER)))
-        self.autoscan = autoscan if autoscan is not None else lib.str2bool(os.getenv('MB_AUTOSCAN', str(DEFAULT_AUTOSCAN)))
-        self.server_cache = server_cache if server_cache is not None else lib.str2bool(os.getenv('MB_SERVER_CACHE', str(DEFAULT_SERVER_CACHE)))
-        self.client_cache = client_cache if client_cache is not None else lib.str2bool(os.getenv('MB_CLIENT_CACHE', str(DEFAULT_CLIENT_CACHE)))
-        self.no_auth = no_auth if no_auth is not None else lib.str2bool(os.getenv('MB_NO_AUTH', str(DEFAULT_NO_AUTH)))
+        self.dev = dev or lib.str2bool(os.getenv('MB_DEV', str(DEFAULT_DEV)))
+        self.watcher = watcher or lib.str2bool(os.getenv('MB_WATCHER', str(DEFAULT_WATCHER)))
+        self.autoscan = autoscan or lib.str2bool(os.getenv('MB_AUTOSCAN', str(DEFAULT_AUTOSCAN)))
+        self.server_cache = server_cache or lib.str2bool(os.getenv('MB_SERVER_CACHE', str(DEFAULT_SERVER_CACHE)))
+        self.client_cache = client_cache or lib.str2bool(os.getenv('MB_CLIENT_CACHE', str(DEFAULT_CLIENT_CACHE)))
+        self.no_auth = no_auth or lib.str2bool(os.getenv('MB_NO_AUTH', str(DEFAULT_NO_AUTH)))
         logger.debug('Webconfig: %s', self)
 
     def __repr__(self):

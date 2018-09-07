@@ -18,9 +18,9 @@ options = [
 
 class Persistence:
     def __init__(self, redis_address=None, redis_database=None, redis_password=None):
-        self.address = redis_address if redis_address is not None else os.getenv('MB_REDIS_ADDRESS', DEFAULT_REDIS_ADDRESS)
-        self.database = redis_database if redis_database is not None else os.getenv('MB_REDIS_DB', str(DEFAULT_REDIS_DB))
-        self.password = redis_password if redis_password is not None else os.getenv('MB_REDIS_PASSWORD', DEFAULT_REDIS_PASSWORD)
+        self.address = redis_address or os.getenv('MB_REDIS_ADDRESS', DEFAULT_REDIS_ADDRESS)
+        self.database = redis_database or os.getenv('MB_REDIS_DB', str(DEFAULT_REDIS_DB))
+        self.password = redis_password or os.getenv('MB_REDIS_PASSWORD', DEFAULT_REDIS_PASSWORD)
         logger.debug('REDIS: %s %s %s', self.address, self.database, self.password)
 
     async def connect(self):

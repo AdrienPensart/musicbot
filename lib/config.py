@@ -44,13 +44,13 @@ class Config:
         self.fmt = "%(asctime)s %(name)s[%(process)d] %(levelname)s %(message)s"
 
     def set(self, debug=None, timings=None, dry=None, quiet=None, verbosity=None, no_colors=None, log=None):
-        self.log = log if log is not None else os.getenv('MB_LOG', str(DEFAULT_LOG))
-        self.quiet = quiet if quiet is not None else lib.str2bool(os.getenv('MB_QUIET', str(DEFAULT_QUIET)))
-        self.debug = debug if debug is not None else lib.str2bool(os.getenv('MB_DEBUG', str(DEFAULT_DEBUG)))
-        self.timings = timings if timings is not None else lib.str2bool(os.getenv('MB_TIMINGS', str(DEFAULT_TIMINGS)))
-        self.dry = dry if dry is not None else lib.str2bool(os.getenv('MB_DRY', str(DEFAULT_DRY)))
-        self.no_colors = no_colors if no_colors is not None else lib.str2bool(os.getenv('MB_NO_COLORS', str(DEFAULT_NO_COLORS)))
-        self.verbosity = verbosity if verbosity is not None else os.getenv('MB_VERBOSITY', DEFAULT_VERBOSITY)
+        self.log = log or os.getenv('MB_LOG', str(DEFAULT_LOG))
+        self.quiet = quiet or lib.str2bool(os.getenv('MB_QUIET', str(DEFAULT_QUIET)))
+        self.debug = debug or lib.str2bool(os.getenv('MB_DEBUG', str(DEFAULT_DEBUG)))
+        self.timings = timings or lib.str2bool(os.getenv('MB_TIMINGS', str(DEFAULT_TIMINGS)))
+        self.dry = dry or lib.str2bool(os.getenv('MB_DRY', str(DEFAULT_DRY)))
+        self.no_colors = no_colors or lib.str2bool(os.getenv('MB_NO_COLORS', str(DEFAULT_NO_COLORS)))
+        self.verbosity = verbosity or os.getenv('MB_VERBOSITY', DEFAULT_VERBOSITY)
 
         if self.timings:
             self.verbosity = 'info'
