@@ -10,6 +10,8 @@ logger = logging.getLogger(__name__)
 class WebFilter(Filter):
     def __init__(self, request, **kwargs):
         for kw in request.args:
+            if kw not in attr.fields_dict(Filter):
+                continue
             default_value = attr.fields_dict(Filter)[kw].default
             if kw in ['name']:
                 kwargs[kw] = request.args.get(kw, default_value)

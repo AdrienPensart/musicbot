@@ -18,6 +18,8 @@ from .web.config import webconfig
 
 logger = logging.getLogger(__name__)
 
+config.set()
+
 DEFAULT_HTTP_USER = 'musicbot'
 DEFAULT_HTTP_SERVER = 'musicbot.ovh'
 # import string
