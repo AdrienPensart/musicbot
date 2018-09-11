@@ -94,7 +94,7 @@ def flac2mp3(folders, concurrency):
             flac_audio.export(mp3_path, format="mp3")
             pbar.update(1)
         # Permit CTRL+C to work as intended
-        atexit.unregister(cf.thread._python_exit)
+        atexit.unregister(cf.thread._python_exit) # pylint: disable=protected-access
         with cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
             executor.shutdown = lambda wait: None
             futures = [executor.submit(convert, flac_path) for flac_path in flac_files]
@@ -106,6 +106,7 @@ def flac2mp3(folders, concurrency):
 # seg.export('out.mp3', format='mp3', tags=mediainfo('original.mp3').get('TAG', {}))
 
 
+# pylint: disable-msg=too-many-locals
 @cli.command()
 @helpers.coro
 @helpers.add_options(mfilter.options)

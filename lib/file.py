@@ -26,6 +26,9 @@ def mysplit(s, delim=','):
     raise ValueError(s)
 
 
+# pylint: disable-msg=unsupported-membership-test
+# pylint: disable-msg=unsubscriptable-object
+# pylint: disable-msg=unsupported-assignment-operation
 class File:
     id = 0
 

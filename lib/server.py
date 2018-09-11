@@ -7,7 +7,7 @@ from datetime import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from sanic_openapi import swagger_blueprint, openapi_blueprint
 from .lib import bytes_to_human, seconds_to_human
-from .helpers import refresh_db, crawl_musics, crawl_albums, watcher, fullscan
+from .helpers import refresh_db, crawl_musics, crawl_albums, watcher, fullscan, random_password
 from .config import config
 from .web.helpers import env, template, get_flashed_messages, download_title
 from .web.api import api_v1
@@ -22,11 +22,7 @@ config.set()
 
 DEFAULT_HTTP_USER = 'musicbot'
 DEFAULT_HTTP_SERVER = 'musicbot.ovh'
-# import string
-# alphabet = string.ascii_letters + string.digits
-# password = ''.join(choice(alphabet) for i in range(8))
-
-DEFAULT_HTTP_PASSWORD = 'musicbot'
+DEFAULT_HTTP_PASSWORD = random_password(size=10)
 DEFAULT_HTTP_HOST = '127.0.0.1'
 DEFAULT_HTTP_PORT = 8000
 DEFAULT_HTTP_WORKERS = 1
@@ -37,7 +33,7 @@ options = [
     click.option('--http-port', envvar='MB_HTTP_PORT', help='HTTP port to listen on', default=DEFAULT_HTTP_PORT, show_default=True),
     click.option('--http-workers', envvar='MB_HTTP_WORKERS', help='Number of HTTP workers (not tested)', default=DEFAULT_HTTP_WORKERS, show_default=True),
     click.option('--http-user', envvar='MB_HTTP_USER', help='HTTP Basic auth user', default=DEFAULT_HTTP_USER, show_default=True),
-    click.option('--http-password', envvar='MB_HTTP_PASSWORD', help='HTTP Basic auth password', default=DEFAULT_HTTP_PASSWORD, show_default=True),
+    click.option('--http-password', envvar='MB_HTTP_PASSWORD', help='HTTP Basic auth password', default=DEFAULT_HTTP_PASSWORD, show_default=False),
 ]
 
 
@@ -62,7 +58,7 @@ session = {}
 app.config.HTTP_SERVER = DEFAULT_HTTP_SERVER
 app.config.HTTP_USER = DEFAULT_HTTP_USER
 app.config.HTTP_PASSWORD = DEFAULT_HTTP_PASSWORD
-app.config.WTF_CSRF_SECRET_KEY = 'top secret!'
+app.config.WTF_CSRF_SECRET_KEY = random_password(size=12)
 app.config.SCHEDULER = None
 app.config.LISTENER = None
 app.config.CONCURRENCY = 1

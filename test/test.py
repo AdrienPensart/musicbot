@@ -40,7 +40,7 @@ filtered_teststats = {
 }
 
 
-class ApiTest(unittest.TestCase):
+class ApiTest(asynctest.TestCase):
     def test_index(self):
         _, response = app.test_client.get('/')
         self.assertEqual(response.status, 200)
@@ -94,7 +94,7 @@ class MusicTagsTest(unittest.TestCase):
 class DatabaseTest(asynctest.TestCase):
 
     async def setUp(self):
-        self.collection = collection.Collection(db_database='musicbot_test')
+        self.collection = collection.Collection()
         await self.collection.clear(os.path.join(my_dir, '../schema'))
         self.files = list(lib.find_files([folder1, folder2]))
         for f in self.files:

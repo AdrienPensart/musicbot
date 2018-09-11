@@ -13,15 +13,15 @@ YOUTUBE_API_VERSION = "v3"
 
 
 def youtube_duration(dur):
-    if dur >= 0 and dur <= 4 * 60:
+    if 0 <= dur <= 4 * 60:
         return "short"
-    if dur > 4 * 60 and dur <= 20 * 60:
+    if 4 * 60 < dur <= 20 * 60:
         return "medium"
     if dur > 20 * 60:
         return "long"
     return "any"
 
-
+# pylint: disable-msg=too-many-locals
 async def search(artist, title, duration):
     try:
         string = ' '.join([artist, title])

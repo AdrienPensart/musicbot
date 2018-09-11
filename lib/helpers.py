@@ -5,6 +5,8 @@ import click
 import asyncpg
 import click_spinner
 import logging
+import string
+import random
 from click_didyoumean import DYMGroup
 from tqdm import tqdm
 from functools import wraps
@@ -23,6 +25,10 @@ DEFAULT_MB_CONCURRENCY = 8
 concurrency = [
     click.option('--concurrency', envvar='MB_CONCURRENCY', help='Number of coroutines', default=DEFAULT_MB_CONCURRENCY, show_default=True),
 ]
+
+def random_password(size=8):
+    alphabet = string.ascii_letters + string.digits
+    return ''.join(random.choice(alphabet) for i in range(size))
 
 
 class GroupWithHelp(DYMGroup):

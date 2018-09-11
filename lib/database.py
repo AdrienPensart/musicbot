@@ -3,7 +3,7 @@ import os
 import sys
 import logging
 import asyncpg
-from .helpers import drier
+from .helpers import drier, random_password
 from .config import config
 
 logger = logging.getLogger(__name__)
@@ -12,14 +12,14 @@ DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 5432
 DEFAULT_DATABASE = 'musicbot_prod'
 DEFAULT_USER = 'postgres'
-DEFAULT_PASSWORD = 'musicbot'
+DEFAULT_PASSWORD = random_password(size=10)
 
 options = [
     click.option('--db-host', envvar='MB_DB_HOST', help='DB host', default=DEFAULT_HOST, show_default=True),
     click.option('--db-port', envvar='MB_DB_PORT', help='DB port', default=DEFAULT_PORT, show_default=True),
     click.option('--db-database', envvar='MB_DATABASE', help='DB name', default=DEFAULT_DATABASE, show_default=True),
     click.option('--db-user', envvar='MB_DB_USER', help='DB user', default=DEFAULT_USER, show_default=True),
-    click.option('--db-password', envvar='MB_DB_PASSWORD', help='DB password', default=DEFAULT_PASSWORD, show_default=True)
+    click.option('--db-password', envvar='MB_DB_PASSWORD', help='DB password', default=DEFAULT_PASSWORD, show_default=False)
 ]
 
 
@@ -48,7 +48,7 @@ class Database:
         return self.connection_string
 
     async def mogrify(self, connection, sql, *args):
-        mogrified = await asyncpg.utils._mogrify(connection, sql, args)
+        mogrified = await asyncpg.utils._mogrify(connection, sql, args) # pylint: disable=protected-access
         logger.debug('mogrified: %s', mogrified)
 
     @drier

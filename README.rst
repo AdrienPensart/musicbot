@@ -185,13 +185,13 @@ musicbot config save
     --db-port INTEGER       DB port  [default: 5432]
     --db-database TEXT      DB name  [default: musicbot_prod]
     --db-user TEXT          DB user  [default: postgres]
-    --db-password TEXT      DB password  [default: musicbot]
+    --db-password TEXT      DB password
     --http-host TEXT        Host interface to listen on  [default: 127.0.0.1]
     --http-server TEXT      Server name to use in links  [default: musicbot.ovh]
     --http-port INTEGER     HTTP port to listen on  [default: 8000]
     --http-workers INTEGER  Number of HTTP workers (not tested)  [default: 1]
     --http-user TEXT        HTTP Basic auth user  [default: musicbot]
-    --http-password TEXT    HTTP Basic auth password  [default: musicbot]
+    --http-password TEXT    HTTP Basic auth password
     -h, --help              Show this message and exit.
 
 
@@ -220,7 +220,7 @@ musicbot consistency
     --db-port INTEGER   DB port  [default: 5432]
     --db-database TEXT  DB name  [default: musicbot_prod]
     --db-user TEXT      DB user  [default: postgres]
-    --db-password TEXT  DB password  [default: musicbot]
+    --db-password TEXT  DB password
     -h, --help          Show this message and exit.
   
   Commands:
@@ -288,7 +288,7 @@ musicbot db
     --db-port INTEGER   DB port  [default: 5432]
     --db-database TEXT  DB name  [default: musicbot_prod]
     --db-user TEXT      DB user  [default: postgres]
-    --db-password TEXT  DB password  [default: musicbot]
+    --db-password TEXT  DB password
     -h, --help          Show this message and exit.
   
   Commands:
@@ -374,7 +374,7 @@ musicbot file
     --db-port INTEGER   DB port  [default: 5432]
     --db-database TEXT  DB name  [default: musicbot_prod]
     --db-user TEXT      DB user  [default: postgres]
-    --db-password TEXT  DB password  [default: musicbot]
+    --db-password TEXT  DB password
     -h, --help          Show this message and exit.
   
   Commands:
@@ -483,7 +483,7 @@ musicbot folder
     --db-port INTEGER   DB port  [default: 5432]
     --db-database TEXT  DB name  [default: musicbot_prod]
     --db-user TEXT      DB user  [default: postgres]
-    --db-password TEXT  DB password  [default: musicbot]
+    --db-password TEXT  DB password
     -h, --help          Show this message and exit.
   
   Commands:
@@ -657,7 +657,7 @@ musicbot playlist
     --db-port INTEGER   DB port  [default: 5432]
     --db-database TEXT  DB name  [default: musicbot_prod]
     --db-user TEXT      DB user  [default: postgres]
-    --db-password TEXT  DB password  [default: musicbot]
+    --db-password TEXT  DB password
     -h, --help          Show this message and exit.
   
   Commands:
@@ -781,7 +781,7 @@ musicbot server
     --db-port INTEGER   DB port  [default: 5432]
     --db-database TEXT  DB name  [default: musicbot_prod]
     --db-user TEXT      DB user  [default: postgres]
-    --db-password TEXT  DB password  [default: musicbot]
+    --db-password TEXT  DB password
     -h, --help          Show this message and exit.
   
   Commands:
@@ -815,7 +815,7 @@ musicbot server start
     --http-port INTEGER     HTTP port to listen on  [default: 8000]
     --http-workers INTEGER  Number of HTTP workers (not tested)  [default: 1]
     --http-user TEXT        HTTP Basic auth user  [default: musicbot]
-    --http-password TEXT    HTTP Basic auth password  [default: musicbot]
+    --http-password TEXT    HTTP Basic auth password
     --dev                   Watch for source file modification
     --watcher               Watch for music file modification
     --autoscan              Enable auto scan background job
@@ -838,7 +838,7 @@ musicbot stats
     --db-port INTEGER   DB port  [default: 5432]
     --db-database TEXT  DB name  [default: musicbot_prod]
     --db-user TEXT      DB user  [default: postgres]
-    --db-password TEXT  DB password  [default: musicbot]
+    --db-password TEXT  DB password
     -h, --help          Show this message and exit.
   
   Commands:
@@ -893,7 +893,7 @@ musicbot tag
     --db-port INTEGER   DB port  [default: 5432]
     --db-database TEXT  DB name  [default: musicbot_prod]
     --db-user TEXT      DB user  [default: postgres]
-    --db-password TEXT  DB password  [default: musicbot]
+    --db-password TEXT  DB password
     -h, --help          Show this message and exit.
   
   Commands:
@@ -949,7 +949,7 @@ musicbot task
     --db-port INTEGER   DB port  [default: 5432]
     --db-database TEXT  DB name  [default: musicbot_prod]
     --db-user TEXT      DB user  [default: postgres]
-    --db-password TEXT  DB password  [default: musicbot]
+    --db-password TEXT  DB password
     -h, --help          Show this message and exit.
   
   Commands:
@@ -994,7 +994,7 @@ musicbot youtube
     --db-port INTEGER   DB port  [default: 5432]
     --db-database TEXT  DB name  [default: musicbot_prod]
     --db-user TEXT      DB user  [default: postgres]
-    --db-password TEXT  DB password  [default: musicbot]
+    --db-password TEXT  DB password
     -h, --help          Show this message and exit.
   
   Commands:
