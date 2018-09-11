@@ -6,7 +6,7 @@ my_dir="$(dirname "$0")"
 export MB_DATABASE=musicbot_test
 export MB_DB_PASSWORD=musicbot
 #export MB_DRY=1
-export MB_VERBOSITY=debug
+#export MB_VERBOSITY=debug
 
 musicbot db drop --yes
 musicbot db create

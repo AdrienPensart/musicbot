@@ -7,9 +7,9 @@ from datetime import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from sanic_openapi import swagger_blueprint, openapi_blueprint
 from .lib import bytes_to_human, seconds_to_human
-from .helpers import refresh_db, crawl_musics, crawl_albums, watcher, fullscan, random_password
+from . import helpers
 from .config import config
-from .web.helpers import env, template, get_flashed_messages, download_title
+from .web.helpers import env, template, get_flashed_messages, download_title, basicauth
 from .web.api import api_v1
 from .web.collection import collection
 from .web.app import app
@@ -20,20 +20,27 @@ logger = logging.getLogger(__name__)
 
 config.set()
 
+MB_HTTP_USER = 'MB_HTTP_USER'
+MB_HTTP_SERVER = 'MB_HTTP_SERVER'
+MB_HTTP_PASSWORD = 'MB_HTTP_PASSWORD'
+MB_HTTP_HOST = 'MB_HTTP_HOST'
+MB_HTTP_PORT = 'MB_HTTP_PORT'
+MB_HTTP_WORKERS = 'MB_HTTP_WORKERS'
+
 DEFAULT_HTTP_USER = 'musicbot'
 DEFAULT_HTTP_SERVER = 'musicbot.ovh'
-DEFAULT_HTTP_PASSWORD = random_password(size=10)
+DEFAULT_HTTP_PASSWORD = helpers.random_password(size=10)
 DEFAULT_HTTP_HOST = '127.0.0.1'
 DEFAULT_HTTP_PORT = 8000
 DEFAULT_HTTP_WORKERS = 1
 
 options = [
-    click.option('--http-host', envvar='MB_HTTP_HOST', help='Host interface to listen on', default=DEFAULT_HTTP_HOST, show_default=True),
-    click.option('--http-server', envvar='MB_HTTP_SERVER', help='Server name to use in links', default=DEFAULT_HTTP_SERVER, show_default=True),
-    click.option('--http-port', envvar='MB_HTTP_PORT', help='HTTP port to listen on', default=DEFAULT_HTTP_PORT, show_default=True),
-    click.option('--http-workers', envvar='MB_HTTP_WORKERS', help='Number of HTTP workers (not tested)', default=DEFAULT_HTTP_WORKERS, show_default=True),
-    click.option('--http-user', envvar='MB_HTTP_USER', help='HTTP Basic auth user', default=DEFAULT_HTTP_USER, show_default=True),
-    click.option('--http-password', envvar='MB_HTTP_PASSWORD', help='HTTP Basic auth password', default=DEFAULT_HTTP_PASSWORD, show_default=False),
+    click.option('--http-host', envvar=MB_HTTP_HOST, help='Host interface to listen on', default=DEFAULT_HTTP_HOST, show_default=True),
+    click.option('--http-server', envvar=MB_HTTP_SERVER, help='Server name to use in links', default=DEFAULT_HTTP_SERVER, show_default=True),
+    click.option('--http-port', envvar=MB_HTTP_PORT, help='HTTP port to listen on', default=DEFAULT_HTTP_PORT, show_default=True),
+    click.option('--http-workers', envvar=MB_HTTP_WORKERS, help='Number of HTTP workers (not tested)', default=DEFAULT_HTTP_WORKERS, show_default=True),
+    click.option('--http-user', envvar=MB_HTTP_USER, help='HTTP Basic auth user', default=DEFAULT_HTTP_USER, show_default=True),
+    click.option('--http-password', envvar=MB_HTTP_PASSWORD, help='HTTP Basic auth password', default=DEFAULT_HTTP_PASSWORD, show_default=False),
 ]
 
 
@@ -58,7 +65,7 @@ session = {}
 app.config.HTTP_SERVER = DEFAULT_HTTP_SERVER
 app.config.HTTP_USER = DEFAULT_HTTP_USER
 app.config.HTTP_PASSWORD = DEFAULT_HTTP_PASSWORD
-app.config.WTF_CSRF_SECRET_KEY = random_password(size=12)
+app.config.WTF_CSRF_SECRET_KEY = helpers.random_password(size=12)
 app.config.SCHEDULER = None
 app.config.LISTENER = None
 app.config.CONCURRENCY = 1
@@ -129,10 +136,10 @@ async def start_scheduler(app, loop):
     if webconfig.autoscan:
         logger.debug('Autoscan enabled')
         app.config.SCHEDULER = AsyncIOScheduler({'event_loop': loop})
-        app.config.SCHEDULER.add_job(refresh_db, 'interval', [app.config.DB], minutes=15)
-        app.config.SCHEDULER.add_job(fullscan, 'cron', [app.config.DB], hour=3)
-        app.config.SCHEDULER.add_job(crawl_musics, 'cron', [app.config.DB], hour=4)
-        app.config.SCHEDULER.add_job(crawl_albums, 'cron', [app.config.DB], hour=5)
+        app.config.SCHEDULER.add_job(helpers.refresh_db, 'interval', [app.config.DB], minutes=15)
+        app.config.SCHEDULER.add_job(helpers.fullscan, 'cron', [app.config.DB], hour=3)
+        app.config.SCHEDULER.add_job(helpers.crawl_musics, 'cron', [app.config.DB], hour=4)
+        app.config.SCHEDULER.add_job(helpers.crawl_albums, 'cron', [app.config.DB], hour=5)
         app.config.SCHEDULER.start()
     else:
         logger.debug('Autoscan disabled')
@@ -166,6 +173,7 @@ async def after(request, response):
 
 
 @app.route("/")
+@basicauth
 async def get_root(request):
     return await template('index.html')
 
