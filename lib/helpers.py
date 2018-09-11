@@ -12,7 +12,7 @@ from hachiko.hachiko import AIOEventHandler
 from . import youtube
 from .config import config
 from .file import File
-from .lib import secondsToHuman, find_files
+from .lib import seconds_to_human, find_files
 from .mfilter import Filter, supported_formats
 
 logger = logging.getLogger(__name__)
@@ -27,12 +27,12 @@ concurrency = [
 
 class GroupWithHelp(DYMGroup):
     def __init__(self, *args, **kwargs):
-        super(DYMGroup, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
-        @click.command()
+        @click.command('help')
         @click.argument('command', nargs=-1)
         @click.pass_context
-        def help(ctx, command):
+        def _help(ctx, command):
             '''Print help'''
             if command:
                 argument = command[0]
@@ -41,7 +41,7 @@ class GroupWithHelp(DYMGroup):
             else:
                 print(ctx.parent.get_help())
 
-        self.add_command(help)
+        self.add_command(_help)
 
 
 async def process(f, *args, **params):
@@ -55,7 +55,7 @@ def timeit(f):
     async def wrapper(*args, **params):
         start = time.time()
         result = await process(f, *args, **params)
-        for_human = secondsToHuman(time.time() - start)
+        for_human = seconds_to_human(time.time() - start)
         if config.timings:
             logger.info('TIMINGS %s: %s', f.__name__, for_human)
         return result

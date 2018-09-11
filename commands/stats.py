@@ -2,7 +2,7 @@ import click
 from click_didyoumean import DYMGroup
 from datetime import timedelta
 from lib import helpers, collection, database, mfilter
-from lib.lib import bytesToHuman
+from lib.lib import bytes_to_human
 
 
 @click.group(cls=DYMGroup)
@@ -26,5 +26,5 @@ async def show(ctx, **kwargs):
     print("Album    :", stats['albums'])
     print("Genre    :", stats['genres'])
     print("Keywords :", stats['keywords'])
-    print("Size     :", bytesToHuman(stats['size']))
+    print("Size     :", bytes_to_human(stats['size']))
     print("Total duration :", str(timedelta(seconds=stats['duration'])))

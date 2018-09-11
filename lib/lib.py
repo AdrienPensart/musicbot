@@ -3,7 +3,6 @@ import re
 import sys
 import logging
 import humanfriendly
-from . import file
 from timeit import default_timer as timer
 
 logger = logging.getLogger(__name__)
@@ -16,11 +15,11 @@ def str2bool(v):
     return str(v).lower() in ("yes", "true", "t", "1")
 
 
-def bytesToHuman(b):
+def bytes_to_human(b):
     return humanfriendly.format_size(b)
 
 
-def secondsToHuman(s):
+def seconds_to_human(s):
     import datetime
     return str(datetime.timedelta(seconds=s))
 
@@ -46,7 +45,7 @@ def is_empty(files):
     return len(files) == 0
 
 
-class benchmark:
+class Benchmark:
     def __init__(self, msg):
         self.msg = msg
 
@@ -60,7 +59,7 @@ class benchmark:
         self.time = t
 
 
-class lazy_property:
+class LazyProperty:
     def __init__(self, fget):
         self.fget = fget
         self.func_name = fget.__name__
@@ -136,11 +135,11 @@ def num(s):
 
 
 def duration_to_seconds(duration):
-    if re.match("\d+s", duration):
+    if re.match(r'\d+s', duration):
         return int(duration[:-1])
-    if re.match("\d+m", duration):
+    if re.match(r'\d+m', duration):
         return int(duration[:-1]) * 60
-    if re.match("\d+h", duration):
+    if re.match(r'\d+h', duration):
         return int(duration[:-1]) * 3600
     raise ValueError(duration)
 
@@ -152,48 +151,3 @@ def seconds_to_str(duration):
 
 default_checks = ['keywords', 'strict_title', 'title', 'path',
                   'genre', 'album', 'artist', 'rating', 'number']
-
-
-def check_consistency(musics, checks, no_checks):
-    report = []
-    for m in musics:
-        try:
-            if 'keywords' in checks and 'keywords' not in no_checks:
-                f = file.MusicFile(m.path)
-                if m.path.endswith('.flac'):
-                    if f.comment and not f.description:
-                        report.append('Comment (' + f.comment +
-                                      ') used in flac: ' + m.path)
-                if m.path.endswith('.mp3'):
-                    if f.description and not f.comment:
-                        report.append(
-                            'Description (' +
-                            f.description +
-                            ') used in mp3 : ' +
-                            m.path)
-            if 'title' in checks and 'title' not in no_checks and not m.title:
-                report.append("No title  : '" + m.title + "' on " + m.path)
-            if 'strict_title' in checks and 'strict_title' not in no_checks:
-                filename = os.path.basename(m.path)
-                if filename == "{} - {}.mp3".format(str(m.number).zfill(2), m.title):
-                    continue
-                if filename == "{} - {}.flac".format(str(m.number).zfill(2), m.title):
-                    continue
-                report.append("Invalid title format, '{}' should start by '{}'".
-                              format(filename, '{} - {}'.format(str(m.number).zfill(2), m.title)))
-            if 'path' in checks and 'path' not in no_checks and m.artist not in m.path:
-                report.append("Artist invalid : " +
-                              m.artist + " is not in " + m.path)
-            if 'genre' in checks and 'genre' not in no_checks and m.genre == '':
-                report.append("No genre : " + m.path)
-            if 'album' in checks and 'album' not in no_checks and m.album == '':
-                report.append("No album :i " + m.path)
-            if 'artist' in checks and 'artist' not in no_checks and m.artist == '':
-                report.append("No artist : " + m.path)
-            if 'rating' in checks and 'rating' not in no_checks and m.rating == 0.0:
-                report.append("No rating : " + m.path)
-            if 'number' in checks and m.number == -1:
-                report.append("Invalid track number : " + m.path)
-        except OSError:
-            report.append("Could not open file : " + m.path)
-    return report

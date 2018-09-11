@@ -6,7 +6,7 @@ from aiocache import caches
 from datetime import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from sanic_openapi import swagger_blueprint, openapi_blueprint
-from .lib import bytesToHuman, secondsToHuman
+from .lib import bytes_to_human, seconds_to_human
 from .helpers import refresh_db, crawl_musics, crawl_albums, watcher, fullscan
 from .config import config
 from .web.helpers import env, template, get_flashed_messages, download_title
@@ -54,10 +54,10 @@ app.blueprint(swagger_blueprint)
 env.globals['get_flashed_messages'] = get_flashed_messages
 env.globals['url_for'] = app.url_for
 env.globals['server'] = server
-env.globals['bytesToHuman'] = bytesToHuman
-env.globals['secondsToHuman'] = secondsToHuman
+env.globals['bytes_to_human'] = bytes_to_human
+env.globals['seconds_to_human'] = seconds_to_human
 env.globals['download_title'] = download_title
-env.globals['request_time'] = lambda: secondsToHuman(time.time() - env.globals['request_start_time'])
+env.globals['request_time'] = lambda: seconds_to_human(time.time() - env.globals['request_start_time'])
 session = {}
 app.config.HTTP_SERVER = DEFAULT_HTTP_SERVER
 app.config.HTTP_USER = DEFAULT_HTTP_USER

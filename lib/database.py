@@ -2,7 +2,7 @@ import click
 import os
 import sys
 import logging
-from asyncpg import utils, connect
+import asyncpg
 from .helpers import drier
 from .config import config
 
@@ -48,18 +48,18 @@ class Database:
         return self.connection_string
 
     async def mogrify(self, connection, sql, *args):
-        mogrified = await utils._mogrify(connection, sql, args)
+        mogrified = await asyncpg.utils._mogrify(connection, sql, args)
         logger.debug('mogrified: %s', mogrified)
 
     @drier
     async def dropdb(self):
-        con = await connect(user=self.user, host=self.host, password=self.password, port=self.port)
+        con = await asyncpg.connect(user=self.user, host=self.host, password=self.password, port=self.port)
         await con.execute('drop database if exists {}'.format(self.database))
         await con.close()
 
     @drier
     async def createdb(self):
-        con = await connect(user=self.user, host=self.host, password=self.password, port=self.port)
+        con = await asyncpg.connect(user=self.user, host=self.host, password=self.password, port=self.port)
         # as postgresql does not support "create database if not exists", need to check in catalog
         result = await con.fetchrow("select count(*) = 0 as not_exists from pg_catalog.pg_database where datname = '{}'".format(self.database))
         if result['not_exists']:
@@ -70,12 +70,11 @@ class Database:
         await con.close()
 
     async def connect(self):
-        return await connect(user=self.user, host=self.host, password=self.password, port=self.port, database=self.database)
+        return await asyncpg.connect(user=self.user, host=self.host, password=self.password, port=self.port, database=self.database)
 
     @property
     async def pool(self):
         if self._pool is None:
-            import asyncpg
 
             async def add_log_listener(conn):
                 def log_it(conn, message):

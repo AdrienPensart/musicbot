@@ -30,8 +30,8 @@
           <td>{{ m.rating }}</td>
           <td>{{ m.keywords}}</td>
           <td>{{ m.folder }}</td>
-          <td>{{ secondsToHuman(m.duration) }}</td>
-          <td>{{ bytesToHuman(m.size) }}</td>
+          <td>{{ seconds_to_human(m.duration) }}</td>
+          <td>{{ bytes_to_human(m.size) }}</td>
           <td>{%if m.youtube != "not found" %}<a href="{{ m.youtube }}">{{ m.youtube }}</a>{%else%}Not found{% endif %}</td>
           <td>
             <a href="{{ url_for('collection.player', artists=m.artist, albums=m.album, titles=m.title, autoplay=1) }}">play</a> /

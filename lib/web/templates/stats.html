@@ -7,6 +7,6 @@ Artists: {{ stats.artists }}<br />
 Albums: {{ stats.albums }}<br />
 Genres: {{ stats.genres }}<br />
 Keywords: {{ stats.keywords }}<br />
-Size: {{ bytesToHuman(stats.size) }}<br />
-Duration: {{ secondsToHuman(stats.duration) }}<br />
+Size: {{ bytes_to_human(stats.size) }}<br />
+Duration: {{ seconds_to_human(stats.duration) }}<br />
 {% endblock %}

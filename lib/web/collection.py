@@ -34,8 +34,7 @@ async def refresh(request):
 @helpers.basicauth
 async def youtube(request):
     mf = await helpers.get_filter(request)
-    future = crawl_musics(db, mf, 10)
-    asyncio.ensure_future(future)
+    asyncio.ensure_future(crawl_musics(db, mf, 10))
     return response.redirect('/')
 
 

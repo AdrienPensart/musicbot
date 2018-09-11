@@ -287,3 +287,48 @@ with tqdm(total=size, file=sys.stdout, desc="Loading music", leave=True, positio
     semaphore = asyncio.BoundedSemaphore(concurrency)
     tasks = [asyncio.ensure_future(insert(semaphore, f)) for f in files]
     await asyncio.gather(*tasks)
+
+
+def check_consistency(musics, checks, no_checks):
+    report = []
+    for m in musics:
+        try:
+            if 'keywords' in checks and 'keywords' not in no_checks:
+                f = file.MusicFile(m.path)
+                if m.path.endswith('.flac'):
+                    if f.comment and not f.description:
+                        report.append('Comment (' + f.comment +
+                                      ') used in flac: ' + m.path)
+                if m.path.endswith('.mp3'):
+                    if f.description and not f.comment:
+                        report.append(
+                            'Description (' +
+                            f.description +
+                            ') used in mp3 : ' +
+                            m.path)
+            if 'title' in checks and 'title' not in no_checks and not m.title:
+                report.append("No title  : '" + m.title + "' on " + m.path)
+            if 'strict_title' in checks and 'strict_title' not in no_checks:
+                filename = os.path.basename(m.path)
+                if filename == "{} - {}.mp3".format(str(m.number).zfill(2), m.title):
+                    continue
+                if filename == "{} - {}.flac".format(str(m.number).zfill(2), m.title):
+                    continue
+                report.append("Invalid title format, '{}' should start by '{}'".
+                              format(filename, '{} - {}'.format(str(m.number).zfill(2), m.title)))
+            if 'path' in checks and 'path' not in no_checks and m.artist not in m.path:
+                report.append("Artist invalid : " +
+                              m.artist + " is not in " + m.path)
+            if 'genre' in checks and 'genre' not in no_checks and m.genre == '':
+                report.append("No genre : " + m.path)
+            if 'album' in checks and 'album' not in no_checks and m.album == '':
+                report.append("No album :i " + m.path)
+            if 'artist' in checks and 'artist' not in no_checks and m.artist == '':
+                report.append("No artist : " + m.path)
+            if 'rating' in checks and 'rating' not in no_checks and m.rating == 0.0:
+                report.append("No rating : " + m.path)
+            if 'number' in checks and m.number == -1:
+                report.append("Invalid track number : " + m.path)
+        except OSError:
+            report.append("Could not open file : " + m.path)
+    return report
