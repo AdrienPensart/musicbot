@@ -119,7 +119,7 @@ async def init_cache_invalidator(app, loop):
 async def start_watcher(app, loop):
     if webconfig.watcher:
         logger.debug('File watcher enabled')
-        app.config.watcher_task = loop.create_task(watcher(app.config.DB))
+        app.config.watcher_task = loop.create_task(helpers.watcher(app.config.DB))
     else:
         logger.debug('File watcher disabled')
 
