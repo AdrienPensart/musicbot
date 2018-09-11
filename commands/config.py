@@ -1,11 +1,10 @@
 import click
 from lib import helpers, database, server, persistence
 from lib.config import config
-from click_didyoumean import DYMGroup
 from logging_tree import printout
 
 
-@click.group(cls=DYMGroup)
+@click.group(cls=helpers.GroupWithHelp)
 def cli():
     '''Config management'''
 

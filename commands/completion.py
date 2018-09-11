@@ -1,9 +1,9 @@
 import click
 import click_completion
-from click_didyoumean import DYMGroup
+from lib import helpers
 
 
-@click.group(cls=DYMGroup)
+@click.group(cls=helpers.GroupWithHelp)
 def cli():
     '''Completion tool'''
 

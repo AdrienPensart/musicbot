@@ -5,6 +5,7 @@ import click
 import asyncpg
 import click_spinner
 import logging
+from click_didyoumean import DYMGroup
 from tqdm import tqdm
 from functools import wraps
 from hachiko.hachiko import AIOEventHandler
@@ -22,6 +23,25 @@ DEFAULT_MB_CONCURRENCY = 8
 concurrency = [
     click.option('--concurrency', envvar='MB_CONCURRENCY', help='Number of coroutines', default=DEFAULT_MB_CONCURRENCY, show_default=True),
 ]
+
+
+class GroupWithHelp(DYMGroup):
+    def __init__(self, *args, **kwargs):
+        super(DYMGroup, self).__init__(*args, **kwargs)
+
+        @click.command()
+        @click.argument('command', nargs=-1)
+        @click.pass_context
+        def help(ctx, command):
+            '''Print help'''
+            if command:
+                argument = command[0]
+                c = self.get_command(ctx, argument)
+                print(c.get_help(ctx))
+            else:
+                print(ctx.parent.get_help())
+
+        self.add_command(help)
 
 
 async def process(f, *args, **params):

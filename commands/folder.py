@@ -5,7 +5,6 @@ import logging
 import atexit
 import concurrent.futures as cf
 from pydub import AudioSegment
-from click_didyoumean import DYMGroup
 from tqdm import tqdm
 from lib import helpers, lib, collection, database, mfilter
 from lib.config import config
@@ -15,7 +14,7 @@ from lib.lib import empty_dirs
 logger = logging.getLogger(__name__)
 
 
-@click.group(invoke_without_command=False, cls=DYMGroup)
+@click.group(cls=helpers.GroupWithHelp)
 @helpers.add_options(database.options)
 @click.pass_context
 def cli(ctx, **kwargs):

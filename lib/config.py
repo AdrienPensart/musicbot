@@ -74,7 +74,7 @@ class Config:
             fh.setLevel(logging.DEBUG)
             logging.getLogger().addHandler(fh)
         logger.debug(self)
-        slogger.msg("config", config=self)
+        # slogger.msg("config", config=self)
 
     def __repr__(self):
         fmt = 'log:{} timings:{} debug:{} quiet:{} dry:{} verbosity:{} no_colors:{}'

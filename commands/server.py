@@ -5,12 +5,11 @@ from lib import helpers, database, server
 from lib.config import config
 from lib.lib import raise_limits, restart
 from lib.web import config as webconfig
-from click_didyoumean import DYMGroup
 
 logger = logging.getLogger(__name__)
 
 
-@click.group(cls=DYMGroup)
+@click.group(cls=helpers.GroupWithHelp)
 @helpers.add_options(database.options)
 def cli(**kwargs):
     '''API Server'''

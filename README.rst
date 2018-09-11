@@ -81,8 +81,21 @@ musicbot completion
     -h, --help  Show this message and exit.
   
   Commands:
+    help     Print help
     install  Install the click-completion-command...
     show     Show the click-completion-command completion...
+
+
+musicbot completion help
+************************
+.. code-block::
+
+  Usage: musicbot completion help [OPTIONS] [COMMAND]...
+  
+    Print help
+  
+  Options:
+    -h, --help  Show this message and exit.
 
 
 musicbot completion install
@@ -126,9 +139,22 @@ musicbot config
     -h, --help  Show this message and exit.
   
   Commands:
+    help     Print help
     logging  Show loggers tree
     save     Save config
     show     Print default config
+
+
+musicbot config help
+********************
+.. code-block::
+
+  Usage: musicbot config help [OPTIONS] [COMMAND]...
+  
+    Print help
+  
+  Options:
+    -h, --help  Show this message and exit.
 
 
 musicbot config logging
@@ -199,6 +225,7 @@ musicbot consistency
   
   Commands:
     errors  Detect errors
+    help    Print help
 
 
 musicbot consistency errors
@@ -234,6 +261,18 @@ musicbot consistency errors
     --relative              Generate relatives paths
     --shuffle               Randomize selection
     -h, --help              Show this message and exit.
+
+
+musicbot consistency help
+*************************
+.. code-block::
+
+  Usage: musicbot consistency help [OPTIONS] [COMMAND]...
+  
+    Print help
+  
+  Options:
+    -h, --help  Show this message and exit.
 
 
 musicbot db
@@ -331,11 +370,40 @@ musicbot file
     Music tags management
   
   Options:
-    --db-host TEXT          DB host  [default: localhost]
-    --db-port INTEGER       DB port  [default: 5432]
-    --db-database TEXT      DB name  [default: musicbot_prod]
-    --db-user TEXT          DB user  [default: postgres]
-    --db-password TEXT      DB password  [default: musicbot]
+    --db-host TEXT      DB host  [default: localhost]
+    --db-port INTEGER   DB port  [default: 5432]
+    --db-database TEXT  DB name  [default: musicbot_prod]
+    --db-user TEXT      DB user  [default: postgres]
+    --db-password TEXT  DB password  [default: musicbot]
+    -h, --help          Show this message and exit.
+  
+  Commands:
+    help    Print help
+    show    Show tags of musics with filters
+    update
+
+
+musicbot file help
+******************
+.. code-block::
+
+  Usage: musicbot file help [OPTIONS] [COMMAND]...
+  
+    Print help
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot file show
+******************
+.. code-block::
+
+  Usage: musicbot file show [OPTIONS]
+  
+    Show tags of musics with filters
+  
+  Options:
     --limit INTEGER         Fetch a maximum limit of music
     --youtubes TEXT         Select musics with a youtube link
     --no-youtubes TEXT      Select musics without youtube link
@@ -360,70 +428,46 @@ musicbot file
     --relative              Generate relatives paths
     --shuffle               Randomize selection
     -h, --help              Show this message and exit.
-  
-  Commands:
-    show    Show tags of musics with filters
-    update
-
-
-musicbot file show
-******************
-.. code-block::
-
-  Traceback (most recent call last):
-    File "doc/../musicbot", line 84, in <module>
-      cli()
-    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 722, in __call__
-      return self.main(*args, **kwargs)
-    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 697, in main
-      rv = self.invoke(ctx)
-    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 1066, in invoke
-      return _process_result(sub_ctx.command.invoke(sub_ctx))
-    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 1063, in invoke
-      Command.invoke(self, ctx)
-    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 895, in invoke
-      return ctx.invoke(self.callback, **ctx.params)
-    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 535, in invoke
-      return callback(*args, **kwargs)
-    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/decorators.py", line 17, in new_func
-      return f(get_current_context(), *args, **kwargs)
-    File "doc/../commands/file.py", line 15, in cli
-      ctx.obj.db = collection.Collection(**kwargs)
-    File "/home/ubuntu/musicbot/lib/collection.py", line 12, in __init__
-      super().__init__(**kwargs)
-    File "/home/ubuntu/musicbot/lib/database.py", line 28, in __init__
-      self.set(**kwargs)
-  TypeError: set() got an unexpected keyword argument 'limit'
 
 
 musicbot file update
 ********************
 .. code-block::
 
-  Traceback (most recent call last):
-    File "doc/../musicbot", line 84, in <module>
-      cli()
-    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 722, in __call__
-      return self.main(*args, **kwargs)
-    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 697, in main
-      rv = self.invoke(ctx)
-    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 1066, in invoke
-      return _process_result(sub_ctx.command.invoke(sub_ctx))
-    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 1063, in invoke
-      Command.invoke(self, ctx)
-    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 895, in invoke
-      return ctx.invoke(self.callback, **ctx.params)
-    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/core.py", line 535, in invoke
-      return callback(*args, **kwargs)
-    File "/home/ubuntu/.pyenv/versions/general/lib/python3.6/site-packages/click/decorators.py", line 17, in new_func
-      return f(get_current_context(), *args, **kwargs)
-    File "doc/../commands/file.py", line 15, in cli
-      ctx.obj.db = collection.Collection(**kwargs)
-    File "/home/ubuntu/musicbot/lib/collection.py", line 12, in __init__
-      super().__init__(**kwargs)
-    File "/home/ubuntu/musicbot/lib/database.py", line 28, in __init__
-      self.set(**kwargs)
-  TypeError: set() got an unexpected keyword argument 'limit'
+  Usage: musicbot file update [OPTIONS]
+  
+  Options:
+    --keywords TEXT         Keywords
+    --artist TEXT           Artist
+    --album TEXT            Album
+    --title TEXT            Title
+    --genre TEXT            Genre
+    --number TEXT           Track number
+    --rating TEXT           Rating
+    --limit INTEGER         Fetch a maximum limit of music
+    --youtubes TEXT         Select musics with a youtube link
+    --no-youtubes TEXT      Select musics without youtube link
+    --formats TEXT          Select musics with file format
+    --no-formats TEXT       Filter musics without format
+    --keywords TEXT         Select musics with keywords
+    --no-keywords TEXT      Filter musics without keywords
+    --artists TEXT          Select musics with artists
+    --no-artists TEXT       Filter musics without artists
+    --albums TEXT           Select musics with albums
+    --no-albums TEXT        Filter musics without albums
+    --titles TEXT           Select musics with titles
+    --no-titles TEXT        Filter musics without titless
+    --genres TEXT           Select musics with genres
+    --no-genres TEXT        Filter musics without genres
+    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
+    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
+    --min-size INTEGER      Minimum file size filter (in bytes)
+    --max-size INTEGER      Maximum file size filter (in bytes)
+    --min-rating FLOAT      Minimum rating  [default: 0.0]
+    --max-rating FLOAT      Maximum rating  [default: 5.0]
+    --relative              Generate relatives paths
+    --shuffle               Randomize selection
+    -h, --help              Show this message and exit.
 
 
 musicbot folder
@@ -445,6 +489,7 @@ musicbot folder
   Commands:
     find      Only list files in selected folders
     flac2mp3  Convert all files in folders to mp3
+    help      Print help
     list      List existing folders
     new       Add a new folder in database
     rescan    Rescan all folders registered in database
@@ -476,6 +521,18 @@ musicbot folder flac2mp3
   Options:
     --concurrency INTEGER  Number of coroutines  [default: 8]
     -h, --help             Show this message and exit.
+
+
+musicbot folder help
+********************
+.. code-block::
+
+  Usage: musicbot folder help [OPTIONS] [COMMAND]...
+  
+    Print help
+  
+  Options:
+    -h, --help  Show this message and exit.
 
 
 musicbot folder list
@@ -605,6 +662,7 @@ musicbot playlist
   
   Commands:
     bests  Generate bests playlists with some rules
+    help   Print help
     new    Generate a new playlist
 
 
@@ -643,6 +701,18 @@ musicbot playlist bests
     --prefix TEXT           Append prefix before each path (implies relative)
     --suffix TEXT           Append this suffix to playlist name
     -h, --help              Show this message and exit.
+
+
+musicbot playlist help
+**********************
+.. code-block::
+
+  Usage: musicbot playlist help [OPTIONS] [COMMAND]...
+  
+    Print help
+  
+  Options:
+    -h, --help  Show this message and exit.
 
 
 musicbot playlist new
@@ -715,7 +785,20 @@ musicbot server
     -h, --help          Show this message and exit.
   
   Commands:
+    help   Print help
     start  Start musicbot web API
+
+
+musicbot server help
+********************
+.. code-block::
+
+  Usage: musicbot server help [OPTIONS] [COMMAND]...
+  
+    Print help
+  
+  Options:
+    -h, --help  Show this message and exit.
 
 
 musicbot server start
