@@ -1,6 +1,5 @@
 import click
 from lib import helpers, collection, database, mfilter
-from click_didyoumean import DYMGroup
 
 
 default_fields = ['title', 'album', 'artist', 'genre', 'path', 'keywords', 'folder', 'rating', 'number', 'folder', 'youtube', 'duration', 'size']
@@ -10,7 +9,7 @@ tag = [
 ]
 
 
-@click.group(cls=DYMGroup)
+@click.group(cls=helpers.GroupWithHelp)
 @helpers.add_options(database.options)
 @click.pass_context
 def cli(ctx, **kwargs):

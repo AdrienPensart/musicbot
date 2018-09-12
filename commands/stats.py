@@ -1,11 +1,10 @@
 import click
-from click_didyoumean import DYMGroup
 from datetime import timedelta
 from lib import helpers, collection, database, mfilter
 from lib.lib import bytes_to_human
 
 
-@click.group(cls=DYMGroup)
+@click.group(cls=helpers.GroupWithHelp)
 @click.pass_context
 @helpers.add_options(database.options)
 def cli(ctx, **kwargs):

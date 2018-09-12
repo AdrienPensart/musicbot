@@ -36,19 +36,23 @@ def start(ctx, http_host, http_server, http_port, http_workers, http_user, http_
                 self.patterns = ['*.py', '*.html']
                 super().__init__()
 
-            def on_modified(self, event):
+            @staticmethod
+            def on_modified(event):
                 logger.debug('Modified: %s %s', event.src_path, event.event_type)
                 restart()
 
-            def on_created(self, event):
+            @staticmethod
+            def on_created(event):
                 logger.debug('Created: %s %s', event.src_path, event.event_type)
                 restart()
 
-            def on_deleted(self, event):
+            @staticmethod
+            def on_deleted(event):
                 logger.debug('Deleted: %s %s', event.src_path, event.event_type)
                 restart()
 
-            def on_moved(self, event):
+            @staticmethod
+            def on_moved(event):
                 logger.debug('Moved: %s %s', event.src_path, event.event_type)
                 restart()
 

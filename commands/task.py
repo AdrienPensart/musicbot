@@ -1,9 +1,8 @@
 import click
 from lib import helpers, lib, collection, database
-from click_didyoumean import DYMGroup
 
 
-@click.group(invoke_without_command=False, cls=DYMGroup)
+@click.group(cls=helpers.GroupWithHelp)
 @helpers.add_options(database.options)
 @click.pass_context
 def cli(ctx, **kwargs):

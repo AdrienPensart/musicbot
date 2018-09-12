@@ -2,12 +2,11 @@ import click
 import os
 import logging
 from lib import helpers, database, collection
-from click_didyoumean import DYMGroup
 
 logger = logging.getLogger(__name__)
 
 
-@click.group(invoke_without_command=False, cls=DYMGroup)
+@click.group(cls=helpers.GroupWithHelp)
 @helpers.add_options(database.options)
 @click.pass_context
 def cli(ctx, **kwargs):

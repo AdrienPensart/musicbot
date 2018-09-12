@@ -1,45 +1,57 @@
 import asyncpg
 import asyncio
 import logging
+from datetime import datetime
 from tqdm import tqdm
 from sanic import Blueprint, response
 from aiocache import cached, SimpleMemoryCache
 from aiocache.serializers import PickleSerializer
 from aiocache.plugins import HitMissRatioPlugin, TimingPlugin
-from . import helpers, forms
-from .. import mfilter, lib, file
+from . import forms
+from . import helpers as webhelpers
+from .. import mfilter, lib, file, helpers
 from ..config import config
-from ..helpers import crawl_musics
-from .app import db
+from .app import db, app
 
 logger = logging.getLogger(__name__)
 
 collection = Blueprint('collection', strict_slashes=True, url_prefix='/collection')
 
 
+@collection.route('/schedule')
+@webhelpers.basicauth
+async def schedule(request):
+    async def do():
+        await helpers.fullscan(db)
+        await helpers.crawl_musics(db)
+        await helpers.crawl_albums(db)
+        await helpers.refresh_db(db)
+    asyncio.ensure_future(do())
+    return await webhelpers.template('schedule.html')
+
 @collection.route('/rescan')
-@helpers.basicauth
+@webhelpers.basicauth
 async def rescan(request):
-    return await helpers.template('rescan.html')
+    return await webhelpers.template('rescan.html')
 
 
 @collection.route('/refresh')
-@helpers.basicauth
+@webhelpers.basicauth
 async def refresh(request):
-    asyncio.ensure_future(db.refresh())
-    return await helpers.template('refresh.html')
+    await db.refresh()
+    return await webhelpers.template('refresh.html')
 
 
 @collection.route('/youtube')
-@helpers.basicauth
+@webhelpers.basicauth
 async def youtube(request):
-    mf = await helpers.get_filter(request)
-    asyncio.ensure_future(crawl_musics(db, mf, 10))
+    mf = await webhelpers.get_filter(request)
+    asyncio.ensure_future(helpers.crawl_musics(db, mf, 10))
     return response.redirect('/')
 
 
 @collection.websocket('/progression')
-@helpers.basicauth
+@webhelpers.basicauth
 async def progression(request, ws):
     logger.debug('Getting folders')
     folders = await db.folders_name()
@@ -68,53 +80,53 @@ async def progression(request, ws):
 
 
 @collection.get('/stats')
-@helpers.basicauth
+@webhelpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='stats')
 async def stats(request):
     '''Music library statistics'''
-    mf = await helpers.get_filter(request)
+    mf = await webhelpers.get_filter(request)
     stats = await db.stats(mf)
-    return await helpers.template('stats.html', stats=stats, mf=mf)
+    return await webhelpers.template('stats.html', stats=stats, mf=mf)
 
 
 @collection.get('/search')
-@helpers.basicauth
+@webhelpers.basicauth
 async def search(request):
     '''Search through library'''
-    return await helpers.template('search.html')
+    return await webhelpers.template('search.html')
 
 
 @collection.get('/results')
-@helpers.basicauth
+@webhelpers.basicauth
 async def results(request):
     '''Results of search'''
     q = request.args.get('q')
-    return await helpers.template('results.html', q=q)
+    return await webhelpers.template('results.html', q=q)
 
 
 @collection.route('/generate')
-@helpers.basicauth
+@webhelpers.basicauth
 async def generate(request):
     '''Generate a playlist step by step'''
     # precedent = request.form
-    mf = await helpers.get_filter(request)
+    mf = await webhelpers.get_filter(request)
     if request.args.get('play', False):
         musics = await db.musics(mf)
-        return await helpers.template('player.html', musics=musics, mf=mf)
+        return await webhelpers.template('player.html', musics=musics, mf=mf)
     if request.args.get('zip', False):
         musics = await db.musics(mf)
-        return helpers.zip(musics)
+        return webhelpers.zip(musics)
     if request.args.get('m3u', False):
         musics = await db.musics(mf)
-        return await helpers.m3u(musics)
+        return await webhelpers.m3u(musics)
     records = await db.form(mf)
     form = forms.FilterForm(obj=records)
     form.initialize(records)
-    return await helpers.template('generate.html', form=form, mf=mf)
+    return await webhelpers.template('generate.html', form=form, mf=mf)
 
 
 @collection.route('/consistency')
-@helpers.basicauth
+@webhelpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def consistency(request):
     '''Consistency'''
@@ -122,131 +134,131 @@ async def consistency(request):
 
 
 @collection.route('/folders')
-@helpers.basicauth
+@webhelpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='folders')
 async def folders(request):
     '''Get filters'''
     folders = await db.folders()
-    return await helpers.template('folders.html', folders=folders)
+    return await webhelpers.template('folders.html', folders=folders)
 
 
 @collection.route('/filters')
-@helpers.basicauth
+@webhelpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='filters')
 async def filters(request):
     '''Get filters'''
     filters = await db.filters()
     webfilters = [mfilter.Filter(**dict(f)) for f in filters]
-    return await helpers.template('filters.html', filters=webfilters)
+    return await webhelpers.template('filters.html', filters=webfilters)
 
 
 @collection.route('/keywords')
-@helpers.basicauth
+@webhelpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='keywords')
 async def keywords(request):
     '''Get keywords'''
-    mf = await helpers.get_filter(request)
+    mf = await webhelpers.get_filter(request)
     keywords = await db.keywords(mf)
-    return await helpers.template('keywords.html', keywords=keywords, mf=mf)
+    return await webhelpers.template('keywords.html', keywords=keywords, mf=mf)
 
 
 @collection.route('/genres')
-@helpers.basicauth
+@webhelpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='genres')
 async def genres(request):
     '''List artists'''
-    mf = await helpers.get_filter(request)
+    mf = await webhelpers.get_filter(request)
     genres = await db.genres(mf)
-    return await helpers.template("genres.html", genres=genres, mf=mf)
+    return await webhelpers.template("genres.html", genres=genres, mf=mf)
 
 
 @collection.route('/artists')
-@helpers.basicauth
+@webhelpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='artists')
 async def artists(request):
     '''List artists'''
-    mf = await helpers.get_filter(request)
+    mf = await webhelpers.get_filter(request)
     artists = await db.artists(mf)
-    return await helpers.template("artists.html", artists=artists, mf=mf)
+    return await webhelpers.template("artists.html", artists=artists, mf=mf)
 
 
 @collection.route('/albums')
-@helpers.basicauth
+@webhelpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='albums')
 async def albums(request):
     '''List albums'''
-    mf = await helpers.get_filter(request)
+    mf = await webhelpers.get_filter(request)
     albums = await db.albums(mf)
-    return await helpers.template("albums.html", albums=albums, mf=mf)
+    return await webhelpers.template("albums.html", albums=albums, mf=mf)
 
 
 @collection.route('/musics')
-@helpers.basicauth
+@webhelpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='musics')
 async def musics(request):
     '''List musics'''
-    mf = await helpers.get_filter(request)
+    mf = await webhelpers.get_filter(request)
     musics = await db.musics(mf)
-    return await helpers.template("musics.html", musics=musics, mf=mf)
+    return await webhelpers.template("musics.html", musics=musics, mf=mf)
 
 
 @collection.route('/music', methods=['GET', 'POST'])
-@helpers.basicauth
+@webhelpers.basicauth
 async def music(request):
     '''Show music'''
     music_id = request.args.get('id', None)
     form = forms.MusicForm(request)
     if request.method == 'GET':
         music = await db.music(int(music_id))
-        return await helpers.template("music.html", form=music)
+        return await webhelpers.template("music.html", form=music)
     if request.method == 'POST' and form.validate():
         await db.update_music(request.args)
-    return await helpers.template("music.html", form=form)
+    return await webhelpers.template("music.html", form=form)
 
 
 @collection.route('/download')
-@helpers.basicauth
+@webhelpers.basicauth
 async def download(request):
     '''Download a track'''
-    music = await helpers.get_music(request)
-    return helpers.send_file(music, name=helpers.download_title(music), attachment='attachment')
+    music = await webhelpers.get_music(request)
+    return webhelpers.send_file(music, name=webhelpers.download_title(music), attachment='attachment')
 
 
 @collection.route('/listen')
-@helpers.basicauth
+@webhelpers.basicauth
 async def listen(request):
     '''Listen a track'''
-    music = await helpers.get_music(request)
-    return helpers.send_file(music=music, name=helpers.download_title(music), attachment='inline')
+    music = await webhelpers.get_music(request)
+    return webhelpers.send_file(music=music, name=webhelpers.download_title(music), attachment='inline')
 
 
 @collection.route('/m3u')
-@helpers.basicauth
+@webhelpers.basicauth
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def m3u(request):
     '''Download m3u'''
-    mf = await helpers.get_filter(request)
+    mf = await webhelpers.get_filter(request)
     musics = await db.musics(mf)
     name = request.args.get('name', 'playlist')
-    return await helpers.m3u(musics, name)
+    return await webhelpers.m3u(musics, name)
 
 
 @collection.route('/zip')
-@helpers.basicauth
+@webhelpers.basicauth
 async def zip_musics(request):
     '''Generate a playlist'''
-    mf = await helpers.get_filter(request)
+    mf = await webhelpers.get_filter(request)
     musics = await db.musics(mf)
     if not musics == 0:
         return response.text('Empty playlist')
     name = request.args.get('name', 'archive')
-    return helpers.zip_musics(musics, name)
+    return webhelpers.zip_musics(musics, name)
 
 
 async def gen_playlist(request):
-    mf = await helpers.get_filter(request)
+    mf = await webhelpers.get_filter(request)
     musics = await db.musics(mf)
-    return await helpers.template('player.html', musics=musics, mf=mf)
+    return await webhelpers.template('player.html', musics=musics, mf=mf)
 
 
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), plugins=[HitMissRatioPlugin(), TimingPlugin()])
@@ -255,7 +267,7 @@ async def cached_call(f, request):
 
 
 @collection.route('/player')
-@helpers.basicauth
+@webhelpers.basicauth
 async def player(request):
     '''Play a playlist in browser'''
     if request.args.get('shuffle', False):

@@ -76,7 +76,7 @@ async def refresh_db(db):
 @timeit
 async def crawl_musics(db, mf=None, concurrency=1):
     if mf is None:
-        mf = Filter(youtubes='')
+        mf = Filter(youtubes=[''])
     musics = await db.musics(mf)
     with tqdm(desc='Youtube musics', total=len(musics), disable=config.quiet) as pbar:
         async def search(semaphore, m):
