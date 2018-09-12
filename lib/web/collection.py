@@ -1,7 +1,6 @@
 import asyncpg
 import asyncio
 import logging
-from datetime import datetime
 from tqdm import tqdm
 from sanic import Blueprint, response
 from aiocache import cached, SimpleMemoryCache
@@ -11,7 +10,7 @@ from . import forms
 from . import helpers as webhelpers
 from .. import mfilter, lib, file, helpers
 from ..config import config
-from .app import db, app
+from .app import db
 
 logger = logging.getLogger(__name__)
 
