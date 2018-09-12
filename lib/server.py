@@ -2,14 +2,15 @@ import time
 import os
 import click
 import logging
+from .web import helpers as webhelpers
+from . import lib
+
 from aiocache import caches
 from datetime import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from sanic_openapi import swagger_blueprint, openapi_blueprint
-from .lib import bytes_to_human, seconds_to_human
 from . import helpers
 from .config import config
-from .web.helpers import env, template, get_flashed_messages, download_title, basicauth
 from .web.api import api_v1
 from .web.collection import collection
 from .web.app import app
@@ -22,7 +23,7 @@ config.set()
 
 MB_HTTP_USER = 'MB_HTTP_USER'
 MB_HTTP_SERVER = 'MB_HTTP_SERVER'
-MB_HTTP_PASSWORD = 'MB_HTTP_PASSWORD'
+MB_HTTP_PW = 'MB_HTTP_PASSWORD'
 MB_HTTP_HOST = 'MB_HTTP_HOST'
 MB_HTTP_PORT = 'MB_HTTP_PORT'
 MB_HTTP_WORKERS = 'MB_HTTP_WORKERS'
@@ -40,7 +41,7 @@ options = [
     click.option('--http-port', envvar=MB_HTTP_PORT, help='HTTP port to listen on', default=DEFAULT_HTTP_PORT, show_default=True),
     click.option('--http-workers', envvar=MB_HTTP_WORKERS, help='Number of HTTP workers (not tested)', default=DEFAULT_HTTP_WORKERS, show_default=True),
     click.option('--http-user', envvar=MB_HTTP_USER, help='HTTP Basic auth user', default=DEFAULT_HTTP_USER, show_default=True),
-    click.option('--http-password', envvar=MB_HTTP_PASSWORD, help='HTTP Basic auth password', default=DEFAULT_HTTP_PASSWORD, show_default=False),
+    click.option('--http-password', envvar=MB_HTTP_PW, help='HTTP Basic auth password', default=DEFAULT_HTTP_PASSWORD, show_default=False),
 ]
 
 
@@ -54,13 +55,13 @@ app.blueprint(collection)
 app.blueprint(api_v1)
 app.blueprint(openapi_blueprint)
 app.blueprint(swagger_blueprint)
-env.globals['get_flashed_messages'] = get_flashed_messages
-env.globals['url_for'] = app.url_for
-env.globals['server'] = server
-env.globals['bytes_to_human'] = bytes_to_human
-env.globals['seconds_to_human'] = seconds_to_human
-env.globals['download_title'] = download_title
-env.globals['request_time'] = lambda: seconds_to_human(time.time() - env.globals['request_start_time'])
+webhelpers.env.globals['get_flashed_messages'] = webhelpers.get_flashed_messages
+webhelpers.env.globals['url_for'] = app.url_for
+webhelpers.env.globals['server'] = server
+webhelpers.env.globals['bytes_to_human'] = lib.bytes_to_human
+webhelpers.env.globals['seconds_to_human'] = lib.seconds_to_human
+webhelpers.env.globals['download_title'] = webhelpers.download_title
+webhelpers.env.globals['request_time'] = lambda: lib.seconds_to_human(time.time() - webhelpers.env.globals['request_start_time'])
 session = {}
 app.config.HTTP_SERVER = DEFAULT_HTTP_SERVER
 app.config.HTTP_USER = DEFAULT_HTTP_USER
@@ -94,7 +95,7 @@ async def init_authentication(app, loop):
         logger.debug('Authentication enabled')
         user = os.getenv('MB_HTTP_USER', app.config.HTTP_USER)
         password = os.getenv('MB_HTTP_PASSWORD', app.config.HTTP_PASSWORD)
-        env.globals['auth'] = {'user': user, 'password': password}
+        webhelpers.env.globals['auth'] = {'user': user, 'password': password}
 
 
 # CACHE INVALIDATION
@@ -154,7 +155,7 @@ async def stop_scheduler(app, loop):
 # REQUEST TIMER
 @app.middleware('request')
 async def before(request):
-    env.globals['request_start_time'] = time.time()
+    webhelpers.env.globals['request_start_time'] = time.time()
     request['session'] = session
 
 
@@ -173,8 +174,8 @@ async def after(request, response):
 
 
 @app.route("/")
-@basicauth
+@webhelpers.basicauth
 async def get_root(request):
-    return await template('index.html')
+    return await webhelpers.template('index.html')
 
 app.static('/static', './lib/web/templates/static')

@@ -50,7 +50,7 @@ async def progression(request, ws):
     percentage = 0
     total = len(files)
     logger.debug('Number of files: %s', total)
-    with tqdm(total=total, desc="Loading music", disable=config.quiet) as pbar:
+    with tqdm(total=total, desc="Loading musics", disable=config.quiet) as pbar:
         logger.debug('Reading files')
         for f in files:
             try:

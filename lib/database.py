@@ -18,14 +18,14 @@ MB_DB_HOST = 'MB_HOST'
 MB_DB_PORT = 'MB_PORT'
 MB_DATABASE = 'MB_DATABASE'
 MB_DB_USER = 'MB_DB_USER'
-MB_DB_PASSWORD = 'MB_DB_PASSWORD'
+MB_DB_PW = 'MB_DB_PASSWORD'
 
 options = [
     click.option('--db-host', envvar=MB_DB_HOST, help='DB host', default=DEFAULT_HOST, show_default=True),
     click.option('--db-port', envvar=MB_DB_PORT, help='DB port', default=DEFAULT_PORT, show_default=True),
     click.option('--db-database', envvar=MB_DATABASE, help='DB name', default=DEFAULT_DATABASE, show_default=True),
     click.option('--db-user', envvar=MB_DB_USER, help='DB user', default=DEFAULT_USER, show_default=True),
-    click.option('--db-password', envvar=MB_DB_PASSWORD, help='DB password', default=DEFAULT_PASSWORD, show_default=False)
+    click.option('--db-password', envvar=MB_DB_PW, help='DB password', default=DEFAULT_PASSWORD, show_default=False)
 ]
 
 
@@ -39,7 +39,7 @@ class Database:
         self.port = db_port or os.getenv(MB_DB_PORT, str(DEFAULT_PORT))
         self.database = db_database or os.getenv(MB_DATABASE, DEFAULT_DATABASE)
         self.user = db_user or os.getenv(MB_DB_USER, DEFAULT_USER)
-        self.password = db_password or os.getenv(MB_DB_PASSWORD, DEFAULT_PASSWORD)
+        self.password = db_password or os.getenv(MB_DB_PW, DEFAULT_PASSWORD)
         self._pool = None
         logger.info('Database: %s', self.connection_string)
 

@@ -116,7 +116,7 @@ async def fullscan(db, folders=None, crawl=False):
     with click_spinner.spinner(disable=config.quiet):
         files = [f for f in find_files(list(folders)) if f[1].endswith(tuple(supported_formats))]
     size = len(files) if crawl else len(files)
-    with tqdm(total=size, desc="Loading music", disable=config.quiet) as pbar:
+    with tqdm(total=size, desc="Loading musics", disable=config.quiet) as pbar:
         async with (await db.pool).acquire() as connection:
             async with connection.transaction():
                 for f in files:
