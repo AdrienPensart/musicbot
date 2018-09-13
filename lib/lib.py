@@ -11,8 +11,14 @@ output_types = ["list", "json"]
 default_output_type = 'json'
 
 
-def str2bool(v):
-    return str(v).lower() in ("yes", "true", "t", "1")
+# taken from distutilS
+def str2bool(val):
+    val = val.lower()
+    if val in ('y', 'yes', 't', 'true', 'on', '1'):
+        return 1
+    elif val in ('n', 'no', 'f', 'false', 'off', '0'):
+        return 0
+    raise ValueError("invalid truth value %r" % (val,))
 
 
 def bytes_to_human(b):
