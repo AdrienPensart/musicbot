@@ -1,4 +1,4 @@
-create extension pg_trgm;
+create extension if not exists pg_trgm;
 
 create table if not exists folders (
     id serial primary key,

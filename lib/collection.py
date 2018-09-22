@@ -107,11 +107,11 @@ class Collection(Database):
     async def genres_name(self, mf=None):
         return [f['name'] for f in (await self.genres(mf))]
 
-    async def form(self, mf=None):
-        if mf is None:
-            mf = Filter()
-        sql = '''select * from generate_form($1::filters)'''
-        return await self.fetchrow(sql, mf.to_list())
+    # async def form(self, mf=None):
+    #     if mf is None:
+    #         mf = Filter()
+    #     sql = '''select * from generate_form($1::filters)'''
+    #     return await self.fetchrow(sql, mf.to_list())
 
     async def stats(self, mf=None, json=False):
         if mf is None:

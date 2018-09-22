@@ -21,6 +21,7 @@ def youtube_duration(dur):
         return "long"
     return "any"
 
+
 # pylint: disable-msg=too-many-locals
 async def search(artist, title, duration):
     try:

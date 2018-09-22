@@ -181,11 +181,10 @@ musicbot config save
     --redis-address TEXT    Redis URI  [default: redis://localhost]
     --redis-db INTEGER      Redis index DB  [default: 0]
     --redis-password TEXT   Redis password
-    --db-host TEXT          DB host  [default: localhost]
-    --db-port INTEGER       DB port  [default: 5432]
-    --db-database TEXT      DB name  [default: musicbot_prod]
-    --db-user TEXT          DB user  [default: postgres]
-    --db-password TEXT      DB password
+    --db TEXT               DB dsn string  [default: postgresql://postgres:music
+                            bot@localhost:5432/musicbot_prod]
+    --db-max INTEGER        DB maximum number of connections  [default: 32]
+    --db-single TEXT        DB will use only one connection  [default: False]
     --http-host TEXT        Host interface to listen on  [default: 127.0.0.1]
     --http-server TEXT      Server name to use in links  [default: musicbot.ovh]
     --http-port INTEGER     HTTP port to listen on  [default: 8000]
@@ -216,12 +215,11 @@ musicbot consistency
     Inconsistencies management
   
   Options:
-    --db-host TEXT      DB host  [default: localhost]
-    --db-port INTEGER   DB port  [default: 5432]
-    --db-database TEXT  DB name  [default: musicbot_prod]
-    --db-user TEXT      DB user  [default: postgres]
-    --db-password TEXT  DB password
-    -h, --help          Show this message and exit.
+    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
+                      calhost:5432/musicbot_prod]
+    --db-max INTEGER  DB maximum number of connections  [default: 32]
+    --db-single TEXT  DB will use only one connection  [default: False]
+    -h, --help        Show this message and exit.
   
   Commands:
     errors  Detect errors
@@ -284,19 +282,18 @@ musicbot db
     Database management
   
   Options:
-    --db-host TEXT      DB host  [default: localhost]
-    --db-port INTEGER   DB port  [default: 5432]
-    --db-database TEXT  DB name  [default: musicbot_prod]
-    --db-user TEXT      DB user  [default: postgres]
-    --db-password TEXT  DB password
-    -h, --help          Show this message and exit.
+    -h, --help  Show this message and exit.
   
   Commands:
     clean    Clean deleted musics from database
     clear    Drop and recreate database and schema
+    cli      Start PgCLI util
     create   Create database and load schema
     drop     Drop database schema
+    empty
+    help     Print help
     refresh  Refresh database materialized views
+    stats    Get stats about database
 
 
 musicbot db clean
@@ -308,7 +305,11 @@ musicbot db clean
     Clean deleted musics from database
   
   Options:
-    -h, --help  Show this message and exit.
+    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
+                      calhost:5432/musicbot_prod]
+    --db-max INTEGER  DB maximum number of connections  [default: 32]
+    --db-single TEXT  DB will use only one connection  [default: False]
+    -h, --help        Show this message and exit.
 
 
 musicbot db clear
@@ -320,8 +321,28 @@ musicbot db clear
     Drop and recreate database and schema
   
   Options:
-    --yes       Are you sure you want to drop the db?
-    -h, --help  Show this message and exit.
+    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
+                      calhost:5432/musicbot_prod]
+    --db-max INTEGER  DB maximum number of connections  [default: 32]
+    --db-single TEXT  DB will use only one connection  [default: False]
+    --yes             Are you sure you want to drop the db?
+    -h, --help        Show this message and exit.
+
+
+musicbot db cli
+***************
+.. code-block::
+
+  Usage: musicbot db cli [OPTIONS]
+  
+    Start PgCLI util
+  
+  Options:
+    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
+                      calhost:5432/musicbot_prod]
+    --db-max INTEGER  DB maximum number of connections  [default: 32]
+    --db-single TEXT  DB will use only one connection  [default: False]
+    -h, --help        Show this message and exit.
 
 
 musicbot db create
@@ -333,7 +354,11 @@ musicbot db create
     Create database and load schema
   
   Options:
-    -h, --help  Show this message and exit.
+    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
+                      calhost:5432/musicbot_prod]
+    --db-max INTEGER  DB maximum number of connections  [default: 32]
+    --db-single TEXT  DB will use only one connection  [default: False]
+    -h, --help        Show this message and exit.
 
 
 musicbot db drop
@@ -345,7 +370,38 @@ musicbot db drop
     Drop database schema
   
   Options:
-    --yes       Are you sure you want to drop the db?
+    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
+                      calhost:5432/musicbot_prod]
+    --db-max INTEGER  DB maximum number of connections  [default: 32]
+    --db-single TEXT  DB will use only one connection  [default: False]
+    --yes             Are you sure you want to drop the DB ?
+    -h, --help        Show this message and exit.
+
+
+musicbot db empty
+*****************
+.. code-block::
+
+  Usage: musicbot db empty [OPTIONS]
+  
+  Options:
+    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
+                      calhost:5432/musicbot_prod]
+    --db-max INTEGER  DB maximum number of connections  [default: 32]
+    --db-single TEXT  DB will use only one connection  [default: False]
+    --yes             Are you sure you want to drop all objects in DB ?
+    -h, --help        Show this message and exit.
+
+
+musicbot db help
+****************
+.. code-block::
+
+  Usage: musicbot db help [OPTIONS] [COMMAND]...
+  
+    Print help
+  
+  Options:
     -h, --help  Show this message and exit.
 
 
@@ -358,7 +414,27 @@ musicbot db refresh
     Refresh database materialized views
   
   Options:
-    -h, --help  Show this message and exit.
+    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
+                      calhost:5432/musicbot_prod]
+    --db-max INTEGER  DB maximum number of connections  [default: 32]
+    --db-single TEXT  DB will use only one connection  [default: False]
+    -h, --help        Show this message and exit.
+
+
+musicbot db stats
+*****************
+.. code-block::
+
+  Usage: musicbot db stats [OPTIONS]
+  
+    Get stats about database
+  
+  Options:
+    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
+                      calhost:5432/musicbot_prod]
+    --db-max INTEGER  DB maximum number of connections  [default: 32]
+    --db-single TEXT  DB will use only one connection  [default: False]
+    -h, --help        Show this message and exit.
 
 
 musicbot file
@@ -370,12 +446,11 @@ musicbot file
     Music tags management
   
   Options:
-    --db-host TEXT      DB host  [default: localhost]
-    --db-port INTEGER   DB port  [default: 5432]
-    --db-database TEXT  DB name  [default: musicbot_prod]
-    --db-user TEXT      DB user  [default: postgres]
-    --db-password TEXT  DB password
-    -h, --help          Show this message and exit.
+    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
+                      calhost:5432/musicbot_prod]
+    --db-max INTEGER  DB maximum number of connections  [default: 32]
+    --db-single TEXT  DB will use only one connection  [default: False]
+    -h, --help        Show this message and exit.
   
   Commands:
     help    Print help
@@ -479,12 +554,11 @@ musicbot folder
     Folder scanning
   
   Options:
-    --db-host TEXT      DB host  [default: localhost]
-    --db-port INTEGER   DB port  [default: 5432]
-    --db-database TEXT  DB name  [default: musicbot_prod]
-    --db-user TEXT      DB user  [default: postgres]
-    --db-password TEXT  DB password
-    -h, --help          Show this message and exit.
+    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
+                      calhost:5432/musicbot_prod]
+    --db-max INTEGER  DB maximum number of connections  [default: 32]
+    --db-single TEXT  DB will use only one connection  [default: False]
+    -h, --help        Show this message and exit.
   
   Commands:
     find      Only list files in selected folders
@@ -653,12 +727,11 @@ musicbot playlist
     Playlist management
   
   Options:
-    --db-host TEXT      DB host  [default: localhost]
-    --db-port INTEGER   DB port  [default: 5432]
-    --db-database TEXT  DB name  [default: musicbot_prod]
-    --db-user TEXT      DB user  [default: postgres]
-    --db-password TEXT  DB password
-    -h, --help          Show this message and exit.
+    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
+                      calhost:5432/musicbot_prod]
+    --db-max INTEGER  DB maximum number of connections  [default: 32]
+    --db-single TEXT  DB will use only one connection  [default: False]
+    -h, --help        Show this message and exit.
   
   Commands:
     bests  Generate bests playlists with some rules
@@ -777,12 +850,11 @@ musicbot server
     API Server
   
   Options:
-    --db-host TEXT      DB host  [default: localhost]
-    --db-port INTEGER   DB port  [default: 5432]
-    --db-database TEXT  DB name  [default: musicbot_prod]
-    --db-user TEXT      DB user  [default: postgres]
-    --db-password TEXT  DB password
-    -h, --help          Show this message and exit.
+    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
+                      calhost:5432/musicbot_prod]
+    --db-max INTEGER  DB maximum number of connections  [default: 32]
+    --db-single TEXT  DB will use only one connection  [default: False]
+    -h, --help        Show this message and exit.
   
   Commands:
     help   Print help
@@ -834,15 +906,27 @@ musicbot stats
     Youtube management
   
   Options:
-    --db-host TEXT      DB host  [default: localhost]
-    --db-port INTEGER   DB port  [default: 5432]
-    --db-database TEXT  DB name  [default: musicbot_prod]
-    --db-user TEXT      DB user  [default: postgres]
-    --db-password TEXT  DB password
-    -h, --help          Show this message and exit.
+    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
+                      calhost:5432/musicbot_prod]
+    --db-max INTEGER  DB maximum number of connections  [default: 32]
+    --db-single TEXT  DB will use only one connection  [default: False]
+    -h, --help        Show this message and exit.
   
   Commands:
+    help  Print help
     show  Generate some stats for music collection with...
+
+
+musicbot stats help
+*******************
+.. code-block::
+
+  Usage: musicbot stats help [OPTIONS] [COMMAND]...
+  
+    Print help
+  
+  Options:
+    -h, --help  Show this message and exit.
 
 
 musicbot stats show
@@ -889,15 +973,27 @@ musicbot tag
     Music tags management
   
   Options:
-    --db-host TEXT      DB host  [default: localhost]
-    --db-port INTEGER   DB port  [default: 5432]
-    --db-database TEXT  DB name  [default: musicbot_prod]
-    --db-user TEXT      DB user  [default: postgres]
-    --db-password TEXT  DB password
-    -h, --help          Show this message and exit.
+    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
+                      calhost:5432/musicbot_prod]
+    --db-max INTEGER  DB maximum number of connections  [default: 32]
+    --db-single TEXT  DB will use only one connection  [default: False]
+    -h, --help        Show this message and exit.
   
   Commands:
+    help  Print help
     show  Show tags of musics with filters
+
+
+musicbot tag help
+*****************
+.. code-block::
+
+  Usage: musicbot tag help [OPTIONS] [COMMAND]...
+  
+    Print help
+  
+  Options:
+    -h, --help  Show this message and exit.
 
 
 musicbot tag show
@@ -945,16 +1041,28 @@ musicbot task
     Task management
   
   Options:
-    --db-host TEXT      DB host  [default: localhost]
-    --db-port INTEGER   DB port  [default: 5432]
-    --db-database TEXT  DB name  [default: musicbot_prod]
-    --db-user TEXT      DB user  [default: postgres]
-    --db-password TEXT  DB password
-    -h, --help          Show this message and exit.
+    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
+                      calhost:5432/musicbot_prod]
+    --db-max INTEGER  DB maximum number of connections  [default: 32]
+    --db-single TEXT  DB will use only one connection  [default: False]
+    -h, --help        Show this message and exit.
   
   Commands:
+    help  Print help
     list  List tasks in database
     new   Add a new task in database
+
+
+musicbot task help
+******************
+.. code-block::
+
+  Usage: musicbot task help [OPTIONS] [COMMAND]...
+  
+    Print help
+  
+  Options:
+    -h, --help  Show this message and exit.
 
 
 musicbot task list
@@ -990,15 +1098,15 @@ musicbot youtube
     Youtube management
   
   Options:
-    --db-host TEXT      DB host  [default: localhost]
-    --db-port INTEGER   DB port  [default: 5432]
-    --db-database TEXT  DB name  [default: musicbot_prod]
-    --db-user TEXT      DB user  [default: postgres]
-    --db-password TEXT  DB password
-    -h, --help          Show this message and exit.
+    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
+                      calhost:5432/musicbot_prod]
+    --db-max INTEGER  DB maximum number of connections  [default: 32]
+    --db-single TEXT  DB will use only one connection  [default: False]
+    -h, --help        Show this message and exit.
   
   Commands:
     albums  Fetch youtube links for each album
+    help    Print help
     musics  Fetch youtube links for each music
     only    Fetch youtube links for each album
 
@@ -1038,6 +1146,18 @@ musicbot youtube albums
     --concurrency INTEGER   Number of coroutines  [default: 8]
     --youtube-album TEXT    Select albums with a youtube link
     -h, --help              Show this message and exit.
+
+
+musicbot youtube help
+*********************
+.. code-block::
+
+  Usage: musicbot youtube help [OPTIONS] [COMMAND]...
+  
+    Print help
+  
+  Options:
+    -h, --help  Show this message and exit.
 
 
 musicbot youtube musics

@@ -69,6 +69,9 @@ class Filter:
     no_albums = attr.ib(default=default_no_albums)
 
     def __attrs_post_init__(self):
+        if self.min_size  > self.max_size:
+            raise ValueError("Invalid minimum ({}) or maximum ({}) size".format(self.min_rating, self.max_rating))
+
         if self.min_rating > self.max_rating:
             raise ValueError("Invalid minimum ({}) or maximum ({}) rating".format(self.min_rating, self.max_rating))
 

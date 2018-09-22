@@ -22,9 +22,10 @@ logger = logging.getLogger(__name__)
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 DEFAULT_MB_CONCURRENCY = 8
-concurrency = [
+concurrency_options = [
     click.option('--concurrency', envvar='MB_CONCURRENCY', help='Number of coroutines', default=DEFAULT_MB_CONCURRENCY, show_default=True),
 ]
+
 
 def random_password(size=8):
     alphabet = string.ascii_letters + string.digits
@@ -108,24 +109,47 @@ async def crawl_albums(db, mf=None, youtube_album='', concurrency=1):
 
 
 @timeit
-async def fullscan(db, folders=None, crawl=False):
+async def fullscan(db, folders=None, crawl=False, concurrency=1):
     if folders is None:
         folders = await db.folders()
         folders = [f['name'] for f in folders]
+    logger.debug(folders)
 
     with click_spinner.spinner(disable=config.quiet):
         files = [f for f in find_files(list(folders)) if f[1].endswith(tuple(supported_formats))]
+    logger.debug(files)
     size = len(files) if crawl else len(files)
     with tqdm(total=size, desc="Loading musics", disable=config.quiet) as pbar:
-        async with (await db.pool).acquire() as connection:
-            async with connection.transaction():
-                for f in files:
+        # async with (await db.pool).acquire() as connection:
+        #     logger.info('Before transaction')
+        #     async with connection.transaction():
+        #         logger.info('for f in files')
+        #         for f in files:
+        #             m = File(f[1], f[0])
+        #             try:
+        #                 logger.debug(m)
+        #                 logger.info('before upsert')
+        #                 await db.upsert(m)
+        #                 logger.info('after upsert')
+        #             except asyncpg.exceptions.CheckViolationError as e:
+        #                 logger.warning("Violation: %s", e)
+        #             pbar.update(1)
+        #     db._remove_log_listener(connection)
+        async def insert(semaphore, f):
+            async with semaphore:
+                try:
                     m = File(f[1], f[0])
-                    try:
-                        await db.upsert(m)
-                    except asyncpg.exceptions.CheckViolationError as e:
-                        logger.warning("Violation: %s", e)
+                    if crawl:
+                        await m.find_youtube()
+                        pbar.update(1)
+                    logger.debug(m.to_list())
+                    await db.upsert(m)
                     pbar.update(1)
+                except asyncpg.exceptions.CheckViolationError as e:
+                    logger.warning("Violation: {}".format(e))
+        semaphore = asyncio.BoundedSemaphore(concurrency)
+        tasks = [asyncio.ensure_future(insert(semaphore, f)) for f in files]
+        await asyncio.gather(*tasks)
     await db.refresh()
 
 

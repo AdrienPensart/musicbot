@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export AIOCACHE_DISABLE=1
-export MB_DATABASE=musicbot_prod
+export MB_DB=musicbot_prod
 export MB_NO_AUTH=1
 
 while true; do

@@ -1,8 +1,7 @@
 #!/bin/bash
 
 export AIOCACHE_DISABLE=1
-export MB_DATABASE=musicbot_prod
-export MB_DB_PASSWORD=musicbot
+export MB_DB = 'postgresql://postgres:musicbot@localhost:5432/musicbot_prod'
 export MB_NO_AUTH=1
 export MB_VERBOSITY=debug
 

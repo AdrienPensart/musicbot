@@ -3,106 +3,179 @@ import os
 import sys
 import logging
 import asyncpg
-from .helpers import drier, random_password
+import ssl
+from . import lib
+from .helpers import drier
 from .config import config
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_HOST = 'localhost'
-DEFAULT_PORT = 5432
-DEFAULT_DATABASE = 'musicbot_prod'
-DEFAULT_USER = 'postgres'
-DEFAULT_PASSWORD = random_password(size=10)
+DEFAULT_DB = 'postgresql://postgres:musicbot@localhost:5432/musicbot_prod'
+DEFAULT_DB_MAX = 32
+DEFAULT_DB_SINGLE = False
 
-MB_DB_HOST = 'MB_HOST'
-MB_DB_PORT = 'MB_PORT'
-MB_DATABASE = 'MB_DATABASE'
-MB_DB_USER = 'MB_DB_USER'
-MB_DB_PW = 'MB_DB_PASSWORD'
+MB_DB = 'MB_DB'
+MB_DB_MAX = 'MB_DB_MAX'
+MB_DB_SINGLE = 'MB_DB_SINGLE'
 
 options = [
-    click.option('--db-host', envvar=MB_DB_HOST, help='DB host', default=DEFAULT_HOST, show_default=True),
-    click.option('--db-port', envvar=MB_DB_PORT, help='DB port', default=DEFAULT_PORT, show_default=True),
-    click.option('--db-database', envvar=MB_DATABASE, help='DB name', default=DEFAULT_DATABASE, show_default=True),
-    click.option('--db-user', envvar=MB_DB_USER, help='DB user', default=DEFAULT_USER, show_default=True),
-    click.option('--db-password', envvar=MB_DB_PW, help='DB password', default=DEFAULT_PASSWORD, show_default=False)
+    click.option('--db', envvar=MB_DB, help='DB dsn string', default=DEFAULT_DB, show_default=True),
+    click.option('--db-max', envvar=MB_DB_MAX, help='DB maximum number of connections', default=DEFAULT_DB_MAX, show_default=True),
+    click.option('--db-single', envvar=MB_DB_SINGLE, help='DB will use only one connection', default=DEFAULT_DB_SINGLE, show_default=True)
 ]
 
 
 class Database:
-    def __init__(self, max_conn=100, **kwargs):
-        self.set(**kwargs)
-        self.max_conn = max_conn
-
-    def set(self, db_host=None, db_port=None, db_database=None, db_user=None, db_password=None):
-        self.host = db_host or os.getenv(MB_DB_HOST, DEFAULT_HOST)
-        self.port = db_port or os.getenv(MB_DB_PORT, str(DEFAULT_PORT))
-        self.database = db_database or os.getenv(MB_DATABASE, DEFAULT_DATABASE)
-        self.user = db_user or os.getenv(MB_DB_USER, DEFAULT_USER)
-        self.password = db_password or os.getenv(MB_DB_PW, DEFAULT_PASSWORD)
+    def __init__(self, **kwargs):
         self._pool = None
-        logger.info('Database: %s', self.connection_string)
+        self._conn = None
+        self.sslctx = ssl.create_default_context(cafile='/home/ubuntu/.postgresql/root.crt')
+        self.set(**kwargs)
 
-    @property
-    def connection_string(self):
-        return 'postgresql://{}:{}@{}:{}/{}'.format(self.user, self.password, self.host, self.port, self.database)
+    def set(self, db=None, db_max=None, db_single=None):
+        self.connection_string = db if db is not None else os.getenv(MB_DB, DEFAULT_DB)
+        self.max = db_max if db_max is not None else int(os.getenv(MB_DB_MAX, str(DEFAULT_DB_MAX)))
+        self.single = db_single if db_single is not None else lib.str2bool(os.getenv(MB_DB_SINGLE, str(DEFAULT_DB_SINGLE)))
+        logger.info('Database: %s (single: %s | connections: %s)', self.connection_string, self.single, self.max)
 
     async def close(self):
-        await (await self.pool).close()
+        if self._pool is not None:
+            await self._pool.close()
+            self._pool = None
+        if self._conn is not None:
+            Database._remove_log_listener(self._conn)
+            await self._conn.close()
+            self._conn = None
 
     def __str__(self):
         return self.connection_string
 
     async def mogrify(self, connection, sql, *args):
-        mogrified = await asyncpg.utils._mogrify(connection, sql, args) # pylint: disable=protected-access
+        mogrified = await asyncpg.utils._mogrify(connection, sql, args)  # pylint: disable=protected-access
         logger.debug('mogrified: %s', mogrified)
+
+    @staticmethod
+    def log_it(conn, message):
+        logger.debug(message)
+
+    @staticmethod
+    async def _add_log_listener(conn):
+        if config.debug:
+            logger.debug('Adding Database.log_it log listener')
+            conn.add_log_listener(Database.log_it)
+
+    @staticmethod
+    def _remove_log_listener(conn):
+        if config.debug:
+            logger.debug('Removing Database.log_it log listener')
+            conn.remove_log_listener(Database.log_it)
+
+    @drier
+    async def empty(self):
+        await self.close()
+        con = await self.connect()
+        await con.execute('drop owned by current_user cascade')
+        await con.close()
 
     @drier
     async def dropdb(self):
-        con = await asyncpg.connect(user=self.user, host=self.host, password=self.password, port=self.port)
-        await con.execute('drop database if exists {}'.format(self.database))
-        await con.close()
+        try:
+            await self.close()
+            con = await asyncpg.connect(dsn=self.connection_string)
+            db_to_drop = con._params.database
+            await con.close()
+
+            con = await asyncpg.connect(dsn=self.connection_string, database='')
+            await con.execute('drop database if exists {}'.format(db_to_drop))
+            await con.close()
+        except asyncpg.exceptions.InvalidCatalogNameError:
+            print('Database already dropped')
 
     @drier
     async def createdb(self):
-        con = await asyncpg.connect(user=self.user, host=self.host, password=self.password, port=self.port)
+        addrs, params = asyncpg.connect_utils._parse_connect_dsn_and_args(dsn=self.connection_string, host=None, port=None, user=None, password=None, passfile=None, database=None, ssl=None, connect_timeout=None, server_settings=None)
+        role_to_create = params.user
+        db_to_create = params.database
+        con = await asyncpg.connect(user=params.user, host=addrs[0][0], port=addrs[0][1], password=params.password)
+        # result = await con.fetchrow("select count(*) = 0 as not_exists from pg_roles where rolname='{}'".format(role_to_create))
+        # if result['not_exists']:
+        #     logger.debug('User does %s not exists, create it', role_to_create)
+        #     await con.execute("create role musicbot with login password '{}' createdb".format(role_to_create))
+        # else:
+        #     logger.debug('User %s already exists', role_to_create)
+
         # as postgresql does not support "create database if not exists", need to check in catalog
-        result = await con.fetchrow("select count(*) = 0 as not_exists from pg_catalog.pg_database where datname = '{}'".format(self.database))
+        result = await con.fetchrow("select count(*) = 0 as not_exists from pg_catalog.pg_database where datname = '{}'".format(db_to_create))
         if result['not_exists']:
-            logger.debug('Database does not exists, create it')
-            await con.execute('create database {}'.format(self.database))
+            logger.debug('Database %s does not exists, create it', db_to_create)
+            await con.execute('create database {}'.format(db_to_create))
         else:
-            logger.debug('Database already exists.')
+            logger.debug('Database %s already exists', db_to_create)
         await con.close()
 
     async def connect(self):
-        return await asyncpg.connect(user=self.user, host=self.host, password=self.password, port=self.port, database=self.database)
+        conn = await asyncpg.connect(dsn=self.connection_string)
+        # conn = await asyncpg.connect(dsn=self.connection_string, ssl=self.sslctx)
+        await Database._add_log_listener(conn)
+        return conn
+
+    @property
+    async def conn(self):
+        if self._conn is None:
+            self._conn: asyncpg.Connection = await self.connect()
+        return self._conn
 
     @property
     async def pool(self):
         if self._pool is None:
-
-            async def add_log_listener(conn):
-                def log_it(conn, message):
-                    logger.debug(message)
-                if config.debug:
-                    conn.add_log_listener(log_it)
-            self._pool: asyncpg.pool.Pool = await asyncpg.create_pool(max_size=self.max_conn, user=self.user, host=self.host, password=self.password, port=self.port, database=self.database, setup=add_log_listener)
+            self._pool: asyncpg.pool.Pool = await asyncpg.create_pool(dsn=self.connection_string, min_size=1, max_size=self.max, setup=Database._add_log_listener)
+            # self._pool: asyncpg.pool.Pool = await asyncpg.create_pool(dsn=self.connection_string, min_size=1, max_size=self.max, setup=Database._add_log_listener, ssl=self.sslctx)
         return self._pool
 
     async def fetch(self, sql, *args):
         if config.debug:
+            if self.single:
+                await self.mogrify((await self.conn), sql, *args)
+                return await (await self.conn).fetch(sql, *args)
+
             async with (await self.pool).acquire() as connection:
                 await self.mogrify(connection, sql, *args)
-                return await connection.fetch(sql, *args)
+                results = await connection.fetch(sql, *args)
+                Database._remove_log_listener(connection)
+                return results
+        if self.single:
+            return await (await self.conn).fetch(sql, *args)
         return await (await self.pool).fetch(sql, *args)
 
     async def fetchrow(self, sql, *args):
         if config.debug:
+            if self.single:
+                await self.mogrify((await self.conn), sql, *args)
+                return await (await self.conn).fetchrow(sql, *args)
+
             async with (await self.pool).acquire() as connection:
                 await self.mogrify(connection, sql, *args)
-                return await connection.fetchrow(sql, *args)
+                row = await connection.fetchrow(sql, *args)
+                Database._remove_log_listener(connection)
+                return row
+        if self.single:
+            return await (await self.conn).fetchrow(sql, *args)
         return await (await self.pool).fetchrow(sql, *args)
+
+    async def fetchval(self, sql, *args):
+        if config.debug:
+            if self.single:
+                await self.mogrify((await self.conn), sql, *args)
+                return await (await self.conn).fetchval(sql, *args)
+
+            async with (await self.pool).acquire() as connection:
+                await self.mogrify(connection, sql, *args)
+                val = await connection.fetchval(sql, *args)
+                Database._remove_log_listener(connection)
+                return val
+        if self.single:
+            return await (await self.conn).fetchval(sql, *args)
+        return await (await self.pool).fetchval(sql, *args)
 
     @drier
     async def executefile(self, filepath):
@@ -111,24 +184,46 @@ class Database:
         with open(schema_path, "r") as s:
             sql = s.read()
             if config.debug:
+                if self.single:
+                    return await (await self.conn).execute(sql)
+
                 async with (await self.pool).acquire() as connection:
                     async with connection.transaction():
-                        return await connection.execute(sql)
+                        result = await connection.execute(sql)
+                    Database._remove_log_listener(connection)
+                    return result
+            if self.single:
+                return await (await self.conn).execute(sql)
             await (await self.pool).execute(sql)
 
     @drier
     async def execute(self, sql, *args):
         if config.debug:
+            if self.single:
+                await self.mogrify((await self.conn), sql, *args)
+                return await (await self.conn).execute(sql, *args)
+
             async with (await self.pool).acquire() as connection:
                 async with connection.transaction():
                     await self.mogrify(connection, sql, *args)
-                    return await connection.execute(sql, *args)
+                    result = await connection.execute(sql, *args)
+                Database._remove_log_listener(connection)
+                return result
+        if self.single:
+            return await (await self.conn).execute(sql, *args)
         return await (await self.pool).execute(sql, *args)
 
     @drier
     async def executemany(self, sql, *args, **kwargs):
         if config.debug:
+            if self.single:
+                return await (await self.conn).executemany(sql, *args, **kwargs)
+
             async with (await self.pool).acquire() as connection:
                 async with connection.transaction():
-                    return await connection.executemany(sql, *args, **kwargs)
+                    result = await connection.executemany(sql, *args, **kwargs)
+                Database._remove_log_listener(connection)
+                return result
+        if self.single:
+            return await (await self.conn).executemany(sql, *args, **kwargs)
         return await (await self.pool).executemany(sql, *args, **kwargs)

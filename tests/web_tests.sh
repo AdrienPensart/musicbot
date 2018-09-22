@@ -3,7 +3,7 @@
 set -e
 
 my_dir="$(dirname "$0")"
-export MB_DATABASE=musicbot_test
+export MB_DB='postgresql://postgres:musicbot@localhost:5432/musicbot_test'
 export MB_VERBOSITY=debug
 
 musicbot db drop --yes

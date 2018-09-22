@@ -13,7 +13,7 @@ def cli(ctx, **kwargs):
 @cli.command()
 @click.pass_context
 @helpers.add_options(mfilter.options)
-@helpers.add_options(helpers.concurrency)
+@helpers.add_options(helpers.concurrency_options)
 @helpers.coro
 async def musics(ctx, concurrency, **kwargs):
     '''Fetch youtube links for each music'''
@@ -25,7 +25,7 @@ async def musics(ctx, concurrency, **kwargs):
 @cli.command()
 @click.pass_context
 @helpers.add_options(mfilter.options)
-@helpers.add_options(helpers.concurrency)
+@helpers.add_options(helpers.concurrency_options)
 @helpers.coro
 @click.option('--youtube-album', envvar='MB_YOUTUBE_ALBUM', help='Select albums with a youtube link', default='')
 async def albums(ctx, concurrency, youtube_album, **kwargs):

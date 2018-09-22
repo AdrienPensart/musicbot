@@ -83,6 +83,8 @@ app.config.API_CONTACT_EMAIL = 'crunchengine@gmail.com'
 # CLOSE DB GRACEFULLY
 @app.listener('after_server_stop')
 async def close_db(app, loop):
+    if webconfig.server_cache:
+        db._remove_log_listener(app.config.LISTENER)
     await db.close()
 
 

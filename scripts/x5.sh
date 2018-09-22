@@ -8,7 +8,7 @@ dst="/home/$user/x5"
 prefix="/mnt/external_sd1/"
 filter="--no-keywords cutoff --no-keywords bad --no-keywords demo --no-keywords intro"
 
-export MB_DATABASE=musicbot_prod
+export MB_DB=musicbot_prod
 musicbot $@ folder sync $filter --min-rating 4.0 "$dst"
 musicbot $@ playlist bests --prefix $prefix --suffix '_4'   --relative --min-rating 4.0 $filter "$dst"
 musicbot $@ playlist bests --prefix $prefix --suffix '_4.5' --relative --min-rating 4.5 $filter "$dst"

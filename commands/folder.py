@@ -81,7 +81,7 @@ def find(folders):
 
 @cli.command()
 @click.argument('folders', nargs=-1)
-@helpers.add_options(helpers.concurrency)
+@helpers.add_options(helpers.concurrency_options)
 def flac2mp3(folders, concurrency):
     '''Convert all files in folders to mp3'''
     files = lib.find_files(folders)
@@ -94,7 +94,7 @@ def flac2mp3(folders, concurrency):
             flac_audio.export(mp3_path, format="mp3")
             pbar.update(1)
         # Permit CTRL+C to work as intended
-        atexit.unregister(cf.thread._python_exit) # pylint: disable=protected-access
+        atexit.unregister(cf.thread._python_exit)  # pylint: disable=protected-access
         with cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
             executor.shutdown = lambda wait: None
             futures = [executor.submit(convert, flac_path) for flac_path in flac_files]

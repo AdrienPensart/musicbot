@@ -4,10 +4,10 @@ Requires=network.target
 After=network.target
 
 [Service]
-User=admin
+User=ubuntu
 Type=simple
-ExecStart=/home/admin/musicbot/scripts/prod.sh
-StandardOutput=null
+ExecStart=/home/ubuntu/musicbot/scripts/prod.sh
+StandardOutput=journal
 PrivateTmp=true
 Restart=always
 
