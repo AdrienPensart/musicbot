@@ -7,8 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 @click.group(cls=helpers.GroupWithHelp)
-@click.pass_context
-def cli(ctx):
+def cli():
     '''Database management'''
 
 
@@ -22,9 +21,8 @@ def pgcli(**kwargs):
 
 @cli.command()
 @helpers.coro
-@click.pass_context
 @helpers.add_options(database.options)
-async def create(ctx, **kwargs):
+async def create(**kwargs):
     '''Create database and load schema'''
     db = collection.Collection(**kwargs)
     await db.create()
@@ -53,11 +51,10 @@ async def empty(**kwargs):
 @helpers.coro
 @helpers.add_options(database.options)
 @click.confirmation_option(help='Are you sure you want to drop the db?')
-@click.pass_context
-async def clear(ctx, **kwargs):
+async def clear(**kwargs):
     '''Drop and recreate database and schema'''
     db = collection.Collection(**kwargs)
-    await db.clear(os.path.join(ctx.obj.folder, 'schema'))
+    await db.clear()
 
 
 @cli.command()

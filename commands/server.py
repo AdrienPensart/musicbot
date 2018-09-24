@@ -2,6 +2,7 @@ import click
 import os
 import logging
 from lib import helpers, database, server
+from lib.collection import Collection
 from lib.config import config
 from lib.lib import raise_limits, restart
 from lib.web import config as webconfig
@@ -10,10 +11,11 @@ logger = logging.getLogger(__name__)
 
 
 @click.group(cls=helpers.GroupWithHelp)
+@helpers.coro
 @helpers.add_options(database.options)
-def cli(**kwargs):
+async def cli(**kwargs):
     '''API Server'''
-    server.app.config.DB.set(**kwargs)
+    server.app.config.DB = await Collection.make(**kwargs)
 
 
 @cli.command()
