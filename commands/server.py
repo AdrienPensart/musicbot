@@ -2,6 +2,7 @@ import click
 import os
 import logging
 from lib import helpers, database, server
+from lib.server import app
 from lib.collection import Collection
 from lib.config import config
 from lib.lib import raise_limits, restart
@@ -15,7 +16,7 @@ logger = logging.getLogger(__name__)
 @helpers.add_options(database.options)
 async def cli(**kwargs):
     '''API Server'''
-    server.app.config.DB = await Collection.make(**kwargs)
+    app.config.DB = await Collection.make(**kwargs)
 
 
 @cli.command()
@@ -67,7 +68,7 @@ def start(ctx, http_host, http_server, http_port, http_workers, http_user, http_
             observer.schedule(event_handler, fpath, recursive=True)
         observer.start()
 
-    server.app.config.HTTP_SERVER = http_server
-    server.app.config.HTTP_USER = http_user
-    server.app.config.HTTP_PASSWORD = http_password
-    server.app.run(host=http_host, port=http_port, debug=config.debug, workers=http_workers)
+    app.config.HTTP_SERVER = http_server
+    app.config.HTTP_USER = http_user
+    app.config.HTTP_PASSWORD = http_password
+    app.run(host=http_host, port=http_port, debug=config.debug, workers=http_workers)

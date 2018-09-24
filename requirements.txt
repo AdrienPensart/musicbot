@@ -94,7 +94,7 @@ pylint-plugin-utils==0.4
 pyparsing==2.2.1
 pyrsistent==0.14.4
 pytaglib==1.4.3
-pytest==3.8.0
+pytest==3.8.1
 pytz==2018.5
 pywatchman==1.4.1
 PyYAML==3.13

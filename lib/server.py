@@ -91,7 +91,8 @@ async def open_db(app, loop):
 async def close_db(app, loop):
     if webconfig.server_cache:
         app.config.DB._remove_log_listener(app.config.LISTENER)
-    await app.config.DB.close()
+    # if 'DB' in app.config:
+    #     app.loop.create_task(app.config.DB.close())
 
 
 # AUTHENTICATION
