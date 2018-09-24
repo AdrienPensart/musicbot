@@ -153,8 +153,8 @@ class DatabaseTest(asynctest.TestCase):
         final = """#EXTM3U
 1995/La Source/La Flemme.mp3
 Buckethead/1994 - Giant Robot/01 - Doomride.flac
-Buckethead/1994 - Giant Robot/02 - Welcome To Bucketheadland - Cut.flac
 Buckethead/1994 - Giant Robot/02 - Welcome To Bucketheadland.flac
+Buckethead/1994 - Giant Robot/02 - Welcome To Bucketheadland - Cut.flac
 Buckethead/1994 - Giant Robot/03 - I Come In Peace.flac"""
         self.maxDiff = None
         self.assertMultiLineEqual(playlist['content'], final)
