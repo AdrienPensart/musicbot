@@ -8,7 +8,6 @@ from jinja2 import Environment, FileSystemLoader
 from functools import wraps
 from .mfilter import WebFilter
 from .config import webconfig
-from .app import app
 
 logger = logging.getLogger(__name__)
 
@@ -21,13 +20,13 @@ async def get_filter(request, **kwargs):
     filter_name = request.args.get('filter', None)
     d = kwargs
     if filter_name is not None:
-        d = dict(await app.config.DB.get_filter(filter_name))
+        d = dict(await request.app.config.DB.get_filter(filter_name))
     return WebFilter(request, **d)
 
 
 async def get_music(request):
     mf = await get_filter(request, limit=1)
-    musics = await app.config.DB.musics(mf)
+    musics = await request.app.config.DB.musics(mf)
     if not musics:
         return ('music not found', 404)
     return musics[0]
