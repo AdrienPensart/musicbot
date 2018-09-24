@@ -83,7 +83,7 @@ app.config.API_CONTACT_EMAIL = 'crunchengine@gmail.com'
 # DB
 @app.listener('before_server_start')
 async def open_db(app, loop):
-    if app.config.DB is None:
+    if 'DB' not in app.config:
         app.config.DB = await Collection.make()
 
 
