@@ -27,7 +27,7 @@ def pgcli(**kwargs):
 async def create(ctx, **kwargs):
     '''Create database and load schema'''
     db = collection.Collection(**kwargs)
-    await db.create(os.path.join(ctx.obj.folder, 'schema'))
+    await db.create()
 
 
 @cli.command()

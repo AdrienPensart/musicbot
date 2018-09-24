@@ -13,15 +13,18 @@ logger = logging.getLogger(__name__)
 DEFAULT_DB = 'postgresql://postgres:musicbot@localhost:5432/musicbot_prod'
 DEFAULT_DB_MAX = 32
 DEFAULT_DB_SINGLE = False
+DEFAULT_DB_CERT = '~/.postgresql/root.crt'
 
 MB_DB = 'MB_DB'
 MB_DB_MAX = 'MB_DB_MAX'
 MB_DB_SINGLE = 'MB_DB_SINGLE'
+MB_DB_CERT = 'MB_DB_CERT'
 
 options = [
     click.option('--db', envvar=MB_DB, help='DB dsn string', default=DEFAULT_DB, show_default=True),
     click.option('--db-max', envvar=MB_DB_MAX, help='DB maximum number of connections', default=DEFAULT_DB_MAX, show_default=True),
-    click.option('--db-single', envvar=MB_DB_SINGLE, help='DB will use only one connection', default=DEFAULT_DB_SINGLE, show_default=True)
+    click.option('--db-single', envvar=MB_DB_SINGLE, help='DB will use only one connection', default=DEFAULT_DB_SINGLE, show_default=True),
+    click.option('--db-cert', envvar=MB_DB_CERT, help='DB SSL certificate', default=DEFAULT_DB_CERT, show_default=True)
 ]
 
 
@@ -29,14 +32,18 @@ class Database:
     def __init__(self, **kwargs):
         self._pool = None
         self._conn = None
-        self.sslctx = ssl.create_default_context(cafile='/home/ubuntu/.postgresql/root.crt')
+        self._ssl = None
         self.set(**kwargs)
 
-    def set(self, db=None, db_max=None, db_single=None):
+    def set(self, db=None, db_max=None, db_single=None, db_cert=None):
         self.connection_string = db if db is not None else os.getenv(MB_DB, DEFAULT_DB)
         self.max = db_max if db_max is not None else int(os.getenv(MB_DB_MAX, str(DEFAULT_DB_MAX)))
         self.single = db_single if db_single is not None else lib.str2bool(os.getenv(MB_DB_SINGLE, str(DEFAULT_DB_SINGLE)))
-        logger.info('Database: %s (single: %s | connections: %s)', self.connection_string, self.single, self.max)
+        self.cert = db_cert if db_cert is not None else os.getenv(MB_DB_CERT, DEFAULT_DB_CERT)
+
+        if os.path.isfile(self.cert):
+            self._ssl = ssl.create_default_context(cafile=self.cert)
+        logger.info('Database: %s (single: %s | connections: %s | cert: %s)', self.connection_string, self.single, self.max, self.cert)
 
     async def close(self):
         if self._pool is not None:
@@ -90,6 +97,8 @@ class Database:
             await con.close()
         except asyncpg.exceptions.InvalidCatalogNameError:
             print('Database already dropped')
+        except asyncpg.exceptions.ObjectInUseError:
+            print("Can't drop the database because it is in use")
 
     @drier
     async def createdb(self):
@@ -114,8 +123,7 @@ class Database:
         await con.close()
 
     async def connect(self):
-        conn = await asyncpg.connect(dsn=self.connection_string)
-        # conn = await asyncpg.connect(dsn=self.connection_string, ssl=self.sslctx)
+        conn = await asyncpg.connect(dsn=self.connection_string, ssl=self._ssl)
         await Database._add_log_listener(conn)
         return conn
 
@@ -128,8 +136,7 @@ class Database:
     @property
     async def pool(self):
         if self._pool is None:
-            self._pool: asyncpg.pool.Pool = await asyncpg.create_pool(dsn=self.connection_string, min_size=1, max_size=self.max, setup=Database._add_log_listener)
-            # self._pool: asyncpg.pool.Pool = await asyncpg.create_pool(dsn=self.connection_string, min_size=1, max_size=self.max, setup=Database._add_log_listener, ssl=self.sslctx)
+            self._pool: asyncpg.pool.Pool = await asyncpg.create_pool(dsn=self.connection_string, min_size=1, max_size=self.max, setup=Database._add_log_listener, ssl=self._ssl)
         return self._pool
 
     async def fetch(self, sql, *args):

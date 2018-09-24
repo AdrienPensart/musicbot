@@ -10,10 +10,11 @@ from datetime import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from sanic_openapi import swagger_blueprint, openapi_blueprint
 from . import helpers
+from .collection import Collection
 from .config import config
 from .web.api import api_v1
 from .web.collection import collection
-from .web.app import app, db
+from .web.app import app
 from .web.config import webconfig
 # from .web.limiter import limiter
 
@@ -79,13 +80,17 @@ app.config.API_TERMS_OF_SERVICE = 'Use with caution!'
 app.config.API_PRODUCES_CONTENT_TYPES = ['application/json']
 app.config.API_CONTACT_EMAIL = 'crunchengine@gmail.com'
 
+# DB
+@app.listener('before_server_start')
+async def open_db(app, loop):
+    app.config.DB = await Collection.make()
 
-# CLOSE DB GRACEFULLY
+
 @app.listener('after_server_stop')
 async def close_db(app, loop):
     if webconfig.server_cache:
-        db._remove_log_listener(app.config.LISTENER)
-    await db.close()
+        app.config.DB._remove_log_listener(app.config.LISTENER)
+    await app.config.DB.close()
 
 
 # AUTHENTICATION
@@ -111,7 +116,7 @@ def invalidate_cache(connection, pid, channel, payload):
 async def init_cache_invalidator(app, loop):
     if webconfig.server_cache:
         logger.debug('Cache invalidator activated')
-        app.config.LISTENER = await (await db.pool).acquire()
+        app.config.LISTENER = await (await app.config.DB.pool).acquire()
         await app.config.LISTENER.add_listener('cache_invalidator', invalidate_cache)
     else:
         logger.debug('Cache invalidator disabled')
@@ -122,7 +127,7 @@ async def init_cache_invalidator(app, loop):
 def start_watcher(app, loop):
     if webconfig.watcher:
         logger.debug('File watcher enabled')
-        app.config.watcher_task = loop.create_task(helpers.watcher(db))
+        app.config.watcher_task = loop.create_task(helpers.watcher(app.config.DB))
     else:
         logger.debug('File watcher disabled')
 
@@ -139,10 +144,10 @@ def start_scheduler(app, loop):
     if webconfig.autoscan:
         logger.debug('Autoscan enabled')
         app.config.SCHEDULER = AsyncIOScheduler({'event_loop': loop})
-        app.config.SCHEDULER.add_job(helpers.refresh_db, 'interval', [db], minutes=15)
-        app.config.SCHEDULER.add_job(helpers.fullscan, 'cron', [db], hour=3)
-        app.config.SCHEDULER.add_job(helpers.crawl_musics, 'cron', [db], hour=4)
-        app.config.SCHEDULER.add_job(helpers.crawl_albums, 'cron', [db], hour=5)
+        app.config.SCHEDULER.add_job(helpers.refresh_db, 'interval', [app.config.DB], minutes=15)
+        app.config.SCHEDULER.add_job(helpers.fullscan, 'cron', [app.config.DB], hour=3)
+        app.config.SCHEDULER.add_job(helpers.crawl_musics, 'cron', [app.config.DB], hour=4)
+        app.config.SCHEDULER.add_job(helpers.crawl_albums, 'cron', [app.config.DB], hour=5)
         app.config.SCHEDULER.start()
     else:
         logger.debug('Autoscan disabled')

@@ -24,6 +24,7 @@ Installation
 
 .. code-block:: bash
 
+  sudo apt install libtag1-dev ffmpeg
   git clone https://github.com/AdrienPensart/musicbot.git
   cd musicbot
   python-3.6 -m venv env

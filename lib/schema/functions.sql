@@ -216,7 +216,8 @@ $$
         case when(mf.shuffle = 'true') then random() end,
         case when(mf.shuffle = 'false') then artist end,
         case when(mf.shuffle = 'false') then album end,
-        case when(mf.shuffle = 'false') then number end
+        case when(mf.shuffle = 'false') then number end,
+	title
     limit mf.limit;
 $$ language sql;
 

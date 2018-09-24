@@ -78,9 +78,12 @@ class Config:
             coloredlogs.install(level=self.level, fmt=self.fmt)
 
         if self.log is not None:
-            fh = logging.FileHandler(self.log)
-            fh.setLevel(logging.DEBUG)
-            logging.getLogger().addHandler(fh)
+            if os.access('my_file', os.W_OK):
+                fh = logging.FileHandler(self.log)
+                fh.setLevel(logging.DEBUG)
+                logging.getLogger().addHandler(fh)
+            else:
+                logger.warning('No permission to write to %s', self.log)
         logger.debug(self)
         # slogger.msg("config", config=self)
 

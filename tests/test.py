@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 import unittest
 import os
-import asynctest
 import logging
+import asynctest
 
-from lib import file, collection, lib, mfilter
+from lib import file, lib, mfilter
+from lib.collection import Collection
 from lib.config import config
 from lib.server import app
 from lib.web.config import webconfig
@@ -51,7 +52,6 @@ class ApiTest(asynctest.TestCase):
 
 
 class MusicTagsTest(unittest.TestCase):
-
     def test_finding_files(self):
         files = list(lib.find_files([folder1, folder2]))
         self.assertEqual(len(files), 5)
@@ -94,8 +94,8 @@ class MusicTagsTest(unittest.TestCase):
 class DatabaseTest(asynctest.TestCase):
 
     async def setUp(self):
-        self.collection = collection.Collection()
-        await self.collection.clear(os.path.join(my_dir, '../schema'))
+        self.collection = await Collection.make()
+        await self.collection.clear()
         self.files = list(lib.find_files([folder1, folder2]))
         for f in self.files:
             m = file.File(f[1], f[0])

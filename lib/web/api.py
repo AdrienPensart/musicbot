@@ -3,7 +3,7 @@ from aiocache import cached, SimpleMemoryCache
 from aiocache.serializers import PickleSerializer
 from . import helpers
 from .mfilter import WebFilter
-from .app import db
+from .app import app
 
 api_v1 = Blueprint('api_v1', strict_slashes=True, url_prefix='/v1')
 # from .limiter import limiter
@@ -16,7 +16,7 @@ api_v1 = Blueprint('api_v1', strict_slashes=True, url_prefix='/v1')
 async def stats(request):
     '''Music library statistics, APIv1'''
     mf = WebFilter(request)
-    stats = await db.stats(mf, json=True)
+    stats = await app.config.DB.stats(mf, json=True)
     return response.HTTPResponse(stats, content_type="application/json")
 
 
@@ -25,7 +25,7 @@ async def stats(request):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def folders(request):
     '''Get filters'''
-    folders = await db.folders(json=True)
+    folders = await app.config.DB.folders(json=True)
     return response.HTTPResponse(folders, content_type="application/json")
 
 
@@ -34,7 +34,7 @@ async def folders(request):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer())
 async def filters(request):
     '''Get filters'''
-    filters = await db.filters(json=True)
+    filters = await app.config.DB.filters(json=True)
     return response.HTTPResponse(filters, content_type="application/json")
 
 
@@ -44,7 +44,7 @@ async def filters(request):
 async def musics(request):
     '''List musics'''
     mf = await helpers.get_filter(request)
-    musics = await db.musics(mf, json=True)
+    musics = await app.config.DB.musics(mf, json=True)
     return response.HTTPResponse(musics, content_type="application/json")
 
 
@@ -54,7 +54,7 @@ async def musics(request):
 async def playlist(request):
     '''Generate a playlist, APIv1'''
     mf = await helpers.get_filter(request)
-    musics = await db.musics(mf, json=True)
+    musics = await app.config.DB.musics(mf, json=True)
     return response.HTTPResponse(musics, content_type="application/json")
 
 
@@ -64,7 +64,7 @@ async def playlist(request):
 async def artists(request):
     '''List artists'''
     mf = await helpers.get_filter(request)
-    artists = await db.artists(mf, json=True)
+    artists = await app.config.DB.artists(mf, json=True)
     return response.HTTPResponse(artists, content_type="application/json")
 
 
@@ -74,7 +74,7 @@ async def artists(request):
 async def genres(request):
     '''List artists'''
     mf = await helpers.get_filter(request)
-    genres = await db.genres(mf, json=True)
+    genres = await app.config.DB.genres(mf, json=True)
     return response.HTTPResponse(genres, content_type="application/json")
 
 
@@ -84,7 +84,7 @@ async def genres(request):
 async def albums(request):
     '''List albums'''
     mf = await helpers.get_filter(request)
-    albums = await db.albums(mf, json=True)
+    albums = await app.config.DB.albums(mf, json=True)
     return response.HTTPResponse(albums, content_type="application/json")
 
 
@@ -94,5 +94,5 @@ async def albums(request):
 async def keywords(request):
     '''Get keywords, APIv1'''
     mf = await helpers.get_filter(request)
-    keywords = await db.keywords(mf, json=True)
+    keywords = await app.config.DB.keywords(mf, json=True)
     return response.HTTPResponse(keywords, content_type="application/json")

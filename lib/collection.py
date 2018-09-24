@@ -11,17 +11,24 @@ class Collection(Database):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+    @classmethod
+    async def make(cls, **kwargs):
+        self = Collection(**kwargs)
+        await self.create()
+        return self
+
     async def errors(self, mf=None):
         return ['not implemented for {}'.format(mf)]
 
-    async def create(self, schema_dir):
+    async def create(self):
         await self.createdb()
+        schema_dir = os.path.join(os.path.dirname(__file__), 'schema')
         for sqlfile in ['tables.sql', 'views.sql', 'functions.sql', 'data.sql', 'triggers.sql']:
             await self.executefile(os.path.join(schema_dir, sqlfile))
 
-    async def clear(self, schema_dir):
+    async def clear(self):
         await self.dropdb()
-        await self.create(schema_dir)
+        await self.create()
 
     async def drop(self):
         await self.dropdb()
