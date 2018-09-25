@@ -1,9 +1,11 @@
-import click
 import os
 import sys
 import logging
-import asyncpg
 import ssl
+
+import click
+import asyncpg
+
 from . import lib
 from .helpers import drier
 from .config import config
@@ -103,9 +105,9 @@ class Database:
     @drier
     async def createdb(self):
         addrs, params = asyncpg.connect_utils._parse_connect_dsn_and_args(dsn=self.connection_string, host=None, port=None, user=None, password=None, passfile=None, database=None, ssl=None, connect_timeout=None, server_settings=None)
-        role_to_create = params.user
         db_to_create = params.database
         con = await asyncpg.connect(user=params.user, host=addrs[0][0], port=addrs[0][1], password=params.password)
+        # role_to_create = params.user
         # result = await con.fetchrow("select count(*) = 0 as not_exists from pg_roles where rolname='{}'".format(role_to_create))
         # if result['not_exists']:
         #     logger.debug('User does %s not exists, create it', role_to_create)

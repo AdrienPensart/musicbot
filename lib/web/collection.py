@@ -27,6 +27,7 @@ async def schedule(request):
     asyncio.ensure_future(do())
     return await webhelpers.template('schedule.html')
 
+
 @collection.route('/rescan')
 @webhelpers.basicauth
 async def rescan(request):
@@ -255,7 +256,7 @@ async def zip_musics(request):
 
 async def gen_playlist(request):
     mf = await webhelpers.get_filter(request)
-    musics = await app.config.DB.musics(mf)
+    musics = await request.app.config.DB.musics(mf)
     return await webhelpers.template('player.html', musics=musics, mf=mf)
 
 

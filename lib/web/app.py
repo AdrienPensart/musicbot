@@ -47,9 +47,6 @@ options = [
     click.option('--http-password', envvar=MB_HTTP_PW, help='HTTP Basic auth password', default=DEFAULT_HTTP_PASSWORD, show_default=False),
 ]
 
-logger = logging.getLogger(__name__)
-
-# config.set()
 
 def create_app():
     logger.info('Creating a new app')
@@ -92,14 +89,12 @@ def create_app():
         if 'DB' not in app.config:
             app.config.DB = await Collection.make()
 
-
     @app.listener('after_server_stop')
     async def close_db(app, loop):
         if webconfig.server_cache:
             app.config.DB._remove_log_listener(app.config.LISTENER)
         # if 'DB' in app.config:
         #     app.loop.create_task(app.config.DB.close())
-
 
     # AUTHENTICATION
     @app.listener('before_server_start')
@@ -112,13 +107,11 @@ def create_app():
             password = os.getenv('MB_HTTP_PASSWORD', app.config.HTTP_PASSWORD)
             webhelpers.env.globals['auth'] = {'user': user, 'password': password}
 
-
     # CACHE INVALIDATION
     def invalidate_cache(connection, pid, channel, payload):
         logger.debug('Received notification: %s %s %s', pid, channel, payload)
         cache = caches.get('default')
         app.loop.create_task(cache.delete(payload))
-
 
     @app.listener('before_server_start')
     async def init_cache_invalidator(app, loop):
@@ -129,7 +122,6 @@ def create_app():
         else:
             logger.debug('Cache invalidator disabled')
 
-
     # FILE WATCHER
     @app.listener('before_server_start')
     def start_watcher(app, loop):
@@ -139,12 +131,10 @@ def create_app():
         else:
             logger.debug('File watcher disabled')
 
-
     @app.listener('before_server_stop')
     def stop_watcher(app, loop):
         if webconfig.watcher:
             app.config.watcher_task.cancel()
-
 
     # APS SCHEDULER
     @app.listener('before_server_start')
@@ -160,19 +150,16 @@ def create_app():
         else:
             logger.debug('Autoscan disabled')
 
-
     @app.listener('before_server_stop')
     def stop_scheduler(app, loop):
         if webconfig.autoscan:
             app.config.SCHEDULER.shutdown(wait=False)
-
 
     # REQUEST TIMER
     @app.middleware('request')
     def before(request):
         webhelpers.env.globals['request_start_time'] = time.time()
         request['session'] = session
-
 
     # BROWSER CACHE
     @app.middleware('response')
@@ -186,7 +173,6 @@ def create_app():
                 response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
                 response.headers['Pragma'] = 'no-cache'
                 response.headers['Expires'] = '-1'
-
 
     @app.route("/")
     @webhelpers.basicauth
