@@ -20,13 +20,13 @@ async def get_filter(request, **kwargs):
     filter_name = request.args.get('filter', None)
     d = kwargs
     if filter_name is not None:
-        d = dict(await request.app.config.DB.get_filter(filter_name))
+        d = dict(await request.app.db.get_filter(filter_name))
     return WebFilter(request, **d)
 
 
 async def get_music(request):
     mf = await get_filter(request, limit=1)
-    musics = await request.app.config.DB.musics(mf)
+    musics = await request.app.db.musics(mf)
     if not musics:
         return ('music not found', 404)
     return musics[0]

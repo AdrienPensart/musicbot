@@ -49,10 +49,10 @@ options = [
 ]
 
 
-def create_app():
-    logger.info('Creating a new app')
-    session = {}
+def create_app(**db_settings):
     app = Sanic(name='musicbot', strict_slashes=True)
+    app.db = None
+    session = {}
 
     def server():
         if webconfig.no_auth:
@@ -87,15 +87,17 @@ def create_app():
     # DB
     @app.listener('before_server_start')
     async def open_db(app, loop):
-        if 'DB' not in app.config:
-            app.config.DB = await Collection.make()
+        if app.db is None:
+            logger.info('Initialize DB in web app')
+            app.db = await Collection.make(**db_settings)
 
     @app.listener('after_server_stop')
     async def close_db(app, loop):
         if webconfig.server_cache:
-            app.config.DB._remove_log_listener(app.config.LISTENER)
-        # if 'DB' in app.config:
-        #     app.loop.create_task(app.config.DB.close())
+            app.db._remove_log_listener(app.config.LISTENER)
+        if app.db is not None:
+            logger.info('Removing DB in web app')
+            await app.db.close()
 
     # AUTHENTICATION
     @app.listener('before_server_start')
@@ -118,7 +120,7 @@ def create_app():
     async def init_cache_invalidator(app, loop):
         if webconfig.server_cache:
             logger.debug('Cache invalidator activated')
-            app.config.LISTENER = await (await app.config.DB.pool).acquire()
+            app.config.LISTENER = await (await app.db.pool).acquire()
             await app.config.LISTENER.add_listener('cache_invalidator', invalidate_cache)
         else:
             logger.debug('Cache invalidator disabled')
@@ -128,7 +130,7 @@ def create_app():
     def start_watcher(app, loop):
         if webconfig.watcher:
             logger.debug('File watcher enabled')
-            app.config.watcher_task = loop.create_task(helpers.watcher(app.config.DB))
+            app.config.watcher_task = loop.create_task(helpers.watcher(app.db))
         else:
             logger.debug('File watcher disabled')
 
@@ -143,10 +145,10 @@ def create_app():
         if webconfig.autoscan:
             logger.debug('Autoscan enabled')
             app.config.SCHEDULER = AsyncIOScheduler({'event_loop': loop}, timezone=utc)
-            app.config.SCHEDULER.add_job(helpers.refresh_db, 'interval', [app.config.DB], minutes=15)
-            app.config.SCHEDULER.add_job(helpers.fullscan, 'cron', [app.config.DB], hour=3)
-            app.config.SCHEDULER.add_job(helpers.crawl_musics, 'cron', [app.config.DB], hour=4)
-            app.config.SCHEDULER.add_job(helpers.crawl_albums, 'cron', [app.config.DB], hour=5)
+            app.config.SCHEDULER.add_job(helpers.refresh_db, 'interval', [app.db], minutes=15)
+            app.config.SCHEDULER.add_job(helpers.fullscan, 'cron', [app.db], hour=3)
+            app.config.SCHEDULER.add_job(helpers.crawl_musics, 'cron', [app.db], hour=4)
+            app.config.SCHEDULER.add_job(helpers.crawl_albums, 'cron', [app.db], hour=5)
             app.config.SCHEDULER.start()
         else:
             logger.debug('Autoscan disabled')

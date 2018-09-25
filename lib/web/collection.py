@@ -20,10 +20,10 @@ collection = Blueprint('collection', strict_slashes=True, url_prefix='/collectio
 @webhelpers.basicauth
 async def schedule(request):
     async def do():
-        await helpers.fullscan(request.app.config.DB)
-        await helpers.crawl_musics(request.app.config.DB)
+        await helpers.fullscan(request.app.db)
+        await helpers.crawl_musics(request.app.db)
         await helpers.crawl_albums()
-        await helpers.refresh_db(request.app.config.DB)
+        await helpers.refresh_db(request.app.db)
     asyncio.ensure_future(do())
     return await webhelpers.template('schedule.html')
 
@@ -37,7 +37,7 @@ async def rescan(request):
 @collection.route('/refresh')
 @webhelpers.basicauth
 async def refresh(request):
-    await request.app.config.DB.refresh()
+    await request.app.db.refresh()
     return await webhelpers.template('refresh.html')
 
 
@@ -45,7 +45,7 @@ async def refresh(request):
 @webhelpers.basicauth
 async def youtube(request):
     mf = await webhelpers.get_filter(request)
-    asyncio.ensure_future(helpers.crawl_musics(request.app.config.DB, mf, 10))
+    asyncio.ensure_future(helpers.crawl_musics(request.app.db, mf, 10))
     return response.redirect('/')
 
 
@@ -53,7 +53,7 @@ async def youtube(request):
 @webhelpers.basicauth
 async def progression(request, ws):
     logger.debug('Getting folders')
-    folders = await request.app.config.DB.folders_name()
+    folders = await request.app.db.folders_name()
     logger.debug('Scanning folders: %s', folders)
     files = [f for f in lib.find_files(folders) if f[1].endswith(tuple(mfilter.supported_formats))]
 
@@ -66,7 +66,7 @@ async def progression(request, ws):
         for f in files:
             try:
                 m = file.File(f[1], f[0])
-                await request.app.config.DB.upsert(m)
+                await request.app.db.upsert(m)
                 pbar.update(1)
                 current += 1
                 current_percentage = int(current / total * 100)
@@ -75,7 +75,7 @@ async def progression(request, ws):
                     await ws.send(str(percentage))
             except asyncpg.exceptions.CheckViolationError as e:
                 logger.warning("Violation: %s", e)
-    await request.app.config.DB.refresh()
+    await request.app.db.refresh()
 
 
 @collection.get('/stats')
@@ -84,7 +84,7 @@ async def progression(request, ws):
 async def stats(request):
     '''Music library statistics'''
     mf = await webhelpers.get_filter(request)
-    stats = await request.app.config.DB.stats(mf)
+    stats = await request.app.db.stats(mf)
     return await webhelpers.template('stats.html', stats=stats, mf=mf)
 
 
@@ -110,15 +110,15 @@ async def generate(request):
     # precedent = request.form
     mf = await webhelpers.get_filter(request)
     if request.args.get('play', False):
-        musics = await request.app.config.DB.musics(mf)
+        musics = await request.app.db.musics(mf)
         return await webhelpers.template('player.html', musics=musics, mf=mf)
     if request.args.get('zip', False):
-        musics = await request.app.config.DB.musics(mf)
+        musics = await request.app.db.musics(mf)
         return webhelpers.zip(musics)
     if request.args.get('m3u', False):
-        musics = await request.app.config.DB.musics(mf)
+        musics = await request.app.db.musics(mf)
         return await webhelpers.m3u(musics)
-    records = await request.app.config.DB.form(mf)
+    records = await request.app.db.form(mf)
     form = forms.FilterForm(obj=records)
     form.initialize(records)
     return await webhelpers.template('generate.html', form=form, mf=mf)
@@ -137,7 +137,7 @@ async def consistency(request):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='folders')
 async def folders(request):
     '''Get filters'''
-    folders = await request.app.config.DB.folders()
+    folders = await request.app.db.folders()
     return await webhelpers.template('folders.html', folders=folders)
 
 
@@ -146,7 +146,7 @@ async def folders(request):
 @cached(cache=SimpleMemoryCache, serializer=PickleSerializer(), key='filters')
 async def filters(request):
     '''Get filters'''
-    filters = await request.app.config.DB.filters()
+    filters = await request.app.db.filters()
     webfilters = [mfilter.Filter(**dict(f)) for f in filters]
     return await webhelpers.template('filters.html', filters=webfilters)
 
@@ -157,7 +157,7 @@ async def filters(request):
 async def keywords(request):
     '''Get keywords'''
     mf = await webhelpers.get_filter(request)
-    keywords = await request.app.config.DB.keywords(mf)
+    keywords = await request.app.db.keywords(mf)
     return await webhelpers.template('keywords.html', keywords=keywords, mf=mf)
 
 
@@ -167,7 +167,7 @@ async def keywords(request):
 async def genres(request):
     '''List artists'''
     mf = await webhelpers.get_filter(request)
-    genres = await request.app.config.DB.genres(mf)
+    genres = await request.app.db.genres(mf)
     return await webhelpers.template("genres.html", genres=genres, mf=mf)
 
 
@@ -177,7 +177,7 @@ async def genres(request):
 async def artists(request):
     '''List artists'''
     mf = await webhelpers.get_filter(request)
-    artists = await request.app.config.DB.artists(mf)
+    artists = await request.app.db.artists(mf)
     return await webhelpers.template("artists.html", artists=artists, mf=mf)
 
 
@@ -187,7 +187,7 @@ async def artists(request):
 async def albums(request):
     '''List albums'''
     mf = await webhelpers.get_filter(request)
-    albums = await request.app.config.DB.albums(mf)
+    albums = await request.app.db.albums(mf)
     return await webhelpers.template("albums.html", albums=albums, mf=mf)
 
 
@@ -197,7 +197,7 @@ async def albums(request):
 async def musics(request):
     '''List musics'''
     mf = await webhelpers.get_filter(request)
-    musics = await request.app.config.DB.musics(mf)
+    musics = await request.app.db.musics(mf)
     return await webhelpers.template("musics.html", musics=musics, mf=mf)
 
 
@@ -208,10 +208,10 @@ async def music(request):
     music_id = request.args.get('id', None)
     form = forms.MusicForm(request)
     if request.method == 'GET':
-        music = await request.app.config.DB.music(int(music_id))
+        music = await request.app.db.music(int(music_id))
         return await webhelpers.template("music.html", form=music)
     if request.method == 'POST' and form.validate():
-        await request.app.config.DB.update_music(request.args)
+        await request.app.db.update_music(request.args)
     return await webhelpers.template("music.html", form=form)
 
 
@@ -237,7 +237,7 @@ async def listen(request):
 async def m3u(request):
     '''Download m3u'''
     mf = await webhelpers.get_filter(request)
-    musics = await request.app.config.DB.musics(mf)
+    musics = await request.app.db.musics(mf)
     name = request.args.get('name', 'playlist')
     return await webhelpers.m3u(musics, name)
 
@@ -247,7 +247,7 @@ async def m3u(request):
 async def zip_musics(request):
     '''Generate a playlist'''
     mf = await webhelpers.get_filter(request)
-    musics = await request.app.config.DB.musics(mf)
+    musics = await request.app.db.musics(mf)
     if not musics == 0:
         return response.text('Empty playlist')
     name = request.args.get('name', 'archive')
@@ -256,7 +256,7 @@ async def zip_musics(request):
 
 async def gen_playlist(request):
     mf = await webhelpers.get_filter(request)
-    musics = await request.app.config.DB.musics(mf)
+    musics = await request.app.db.musics(mf)
     return await webhelpers.template('player.html', musics=musics, mf=mf)
 
 

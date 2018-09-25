@@ -2,7 +2,6 @@ import click
 import os
 import logging
 from lib import helpers, database
-from lib.collection import Collection
 from lib.config import config
 from lib.lib import raise_limits, restart
 from lib.web import app
@@ -11,14 +10,13 @@ from lib.web import config as webconfig
 logger = logging.getLogger(__name__)
 
 
-@click.group(invoke_without_command=True, cls=helpers.GroupWithHelp)
+@click.group(cls=helpers.GroupWithHelp)
 @click.pass_context
 @helpers.coro
 @helpers.add_options(database.options)
-async def cli(ctx, **kwargs):
+async def cli(ctx, **db_settings):
     '''API Server'''
-    ctx.obj.app = app.create_app()
-    ctx.obj.app.config.DB = await Collection.make(**kwargs)
+    ctx.obj.app = app.create_app(**db_settings)
 
 
 @cli.command()
@@ -73,4 +71,4 @@ def start(ctx, http_host, http_server, http_port, http_workers, http_user, http_
     ctx.obj.app.config.HTTP_SERVER = http_server
     ctx.obj.app.config.HTTP_USER = http_user
     ctx.obj.app.config.HTTP_PASSWORD = http_password
-    ctx.obj.app.run(host=http_host, port=http_port, debug=config.debug, workers=http_workers)
+    ctx.obj.app.run(host=http_host, port=http_port, debug=config.debug, workers=http_workers, auto_reload=False)

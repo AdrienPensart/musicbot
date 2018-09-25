@@ -72,12 +72,16 @@ class Database:
         if config.debug:
             logger.debug('Adding Database.log_it log listener')
             conn.add_log_listener(Database.log_it)
+        else:
+            logger.debug('No need to add Database.log_it')
 
     @staticmethod
     def _remove_log_listener(conn):
         if config.debug:
             logger.debug('Removing Database.log_it log listener')
             conn.remove_log_listener(Database.log_it)
+        else:
+            logger.debug('No need to remove Database.log_it')
 
     @drier
     async def empty(self):
