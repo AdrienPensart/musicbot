@@ -49,7 +49,8 @@ options = [
 ]
 
 
-def create_app(**db_settings):
+# pylint: disable-msg=too-many-locals,too-many-statements
+def create_app(**db_settings): # noqa: MC0001
     app = Sanic(name='musicbot', strict_slashes=True)
     app.db = None
     session = {}

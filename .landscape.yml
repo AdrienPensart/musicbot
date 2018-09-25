@@ -10,3 +10,5 @@ pylint:
     - line-too-long
     - too-many-arguments
     - unused-argument
+    - unused-variable
+    - protected-access

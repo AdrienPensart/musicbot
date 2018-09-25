@@ -146,7 +146,7 @@ async def fullscan(db, folders=None, crawl=False, concurrency=1):
                     await db.upsert(m)
                     pbar.update(1)
                 except asyncpg.exceptions.CheckViolationError as e:
-                    logger.warning("Violation: {}".format(e))
+                    logger.warning("Violation: %s", e)
         semaphore = asyncio.BoundedSemaphore(concurrency)
         tasks = [asyncio.ensure_future(insert(semaphore, f)) for f in files]
         await asyncio.gather(*tasks)

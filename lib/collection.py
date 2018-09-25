@@ -8,9 +8,6 @@ logger = logging.getLogger(__name__)
 
 
 class Collection(Database):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
     @classmethod
     async def make(cls, **kwargs):
         self = Collection(**kwargs)
