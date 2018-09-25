@@ -2,28 +2,28 @@ import click
 import os
 import logging
 from lib import helpers, database
-from lib.web.app import create_app, options
 from lib.collection import Collection
 from lib.config import config
 from lib.lib import raise_limits, restart
+from lib.web import app
 from lib.web import config as webconfig
 
 logger = logging.getLogger(__name__)
 
 
-@click.group(cls=helpers.GroupWithHelp)
+@click.group(invoke_without_command=True, cls=helpers.GroupWithHelp)
 @click.pass_context
 @helpers.coro
 @helpers.add_options(database.options)
 async def cli(ctx, **kwargs):
     '''API Server'''
-    ctx.obj.app = create_app()
+    ctx.obj.app = app.create_app()
     ctx.obj.app.config.DB = await Collection.make(**kwargs)
 
 
 @cli.command()
 @click.pass_context
-@helpers.add_options(options)
+@helpers.add_options(app.options)
 @helpers.add_options(webconfig.options)
 def start(ctx, http_host, http_server, http_port, http_workers, http_user, http_password, **kwargs):
     '''Start musicbot web API'''

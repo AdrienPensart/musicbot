@@ -71,7 +71,9 @@ class Config:
         if self.verbosity == 'debug':
             loop = asyncio.get_event_loop()
             loop.set_debug(True)
-            loop.slow_callback_duration = 0.001
+            # triggers : "'NoneType' object has no attribute 'co_filename'
+            # loop.slow_callback_duration = 0.001
+            loop.slow_callback_duration = 0.005
 
         self.level = verbosities[self.verbosity]
         logging.basicConfig(level=self.level, format=self.fmt)

@@ -3,6 +3,7 @@ import os
 import click
 import logging
 
+from pytz import utc
 from aiocache import caches
 from datetime import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -141,7 +142,7 @@ def create_app():
     def start_scheduler(app, loop):
         if webconfig.autoscan:
             logger.debug('Autoscan enabled')
-            app.config.SCHEDULER = AsyncIOScheduler({'event_loop': loop})
+            app.config.SCHEDULER = AsyncIOScheduler({'event_loop': loop}, timezone=utc)
             app.config.SCHEDULER.add_job(helpers.refresh_db, 'interval', [app.config.DB], minutes=15)
             app.config.SCHEDULER.add_job(helpers.fullscan, 'cron', [app.config.DB], hour=3)
             app.config.SCHEDULER.add_job(helpers.crawl_musics, 'cron', [app.config.DB], hour=4)

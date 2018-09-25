@@ -92,7 +92,11 @@ def raise_limits():
 
 def restart():
     python = sys.executable
-    os.execl(python, python, * sys.argv)
+    print('Restarting myself: {} {}'.format(python, sys.argv))
+    # only works on linux, not windows with WSL
+    # os.execl(python, python, * sys.argv)
+    # permit to exit from a thread
+    os._exit(0)
 
 
 def find_files(directories):
