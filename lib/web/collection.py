@@ -22,7 +22,7 @@ async def schedule(request):
     async def do():
         await helpers.fullscan(request.app.db)
         await helpers.crawl_musics(request.app.db)
-        await helpers.crawl_albums()
+        await helpers.crawl_albums(request.app.db)
         await helpers.refresh_db(request.app.db)
     asyncio.ensure_future(do())
     return await webhelpers.template('schedule.html')
