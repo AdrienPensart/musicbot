@@ -1,13 +1,15 @@
 import click
-from lib import helpers, database, collection, mfilter
+from lib import helpers, database, mfilter
+from lib.collection import Collection
 
 
 @click.group(cls=helpers.GroupWithHelp)
 @click.pass_context
+@helpers.coro
 @helpers.add_options(database.options)
-def cli(ctx, **kwargs):
+async def cli(ctx, **kwargs):
     '''Youtube management'''
-    ctx.obj.db = collection.Collection(**kwargs)
+    ctx.obj.db = await Collection.make(**kwargs)
 
 
 @cli.command()

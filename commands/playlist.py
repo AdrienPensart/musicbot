@@ -4,7 +4,8 @@ import os
 import logging
 from textwrap import indent
 from tqdm import tqdm
-from lib import helpers, database, collection, mfilter
+from lib import helpers, database, mfilter
+from lib.collection import Collection
 from lib.config import config
 
 logger = logging.getLogger(__name__)
@@ -12,10 +13,11 @@ logger = logging.getLogger(__name__)
 
 @click.group(cls=helpers.GroupWithHelp)
 @helpers.add_options(database.options)
+@helpers.coro
 @click.pass_context
-def cli(ctx, **kwargs):
+async def cli(ctx, **kwargs):
     '''Playlist management'''
-    ctx.obj.db = collection.Collection(**kwargs)
+    ctx.obj.db = await Collection.make(**kwargs)
 
 
 @cli.command()

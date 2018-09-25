@@ -6,7 +6,8 @@ import atexit
 import concurrent.futures as cf
 from pydub import AudioSegment
 from tqdm import tqdm
-from lib import helpers, lib, collection, database, mfilter
+from lib import helpers, lib, database, mfilter
+from lib.collection import Collection
 from lib.config import config
 from lib.helpers import watcher, fullscan
 from lib.lib import empty_dirs
@@ -15,12 +16,13 @@ logger = logging.getLogger(__name__)
 
 
 @click.group(cls=helpers.GroupWithHelp)
+@helpers.coro
 @helpers.add_options(database.options)
 @click.pass_context
-def cli(ctx, **kwargs):
+async def cli(ctx, **kwargs):
     '''Folder scanning'''
     lib.raise_limits()
-    ctx.obj.db = collection.Collection(**kwargs)
+    ctx.obj.db = await Collection.make(**kwargs)
 
 
 @cli.command()

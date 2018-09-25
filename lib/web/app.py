@@ -20,6 +20,7 @@ from .api import api_v1
 from .collection import collection
 
 del LOGGING_CONFIG_DEFAULTS['loggers']['root']
+STATIC_FOLDER = './lib/web/templates/static'
 
 
 logger = logging.getLogger(__name__)
@@ -183,7 +184,8 @@ def create_app(**db_settings): # noqa: MC0001
     async def get_root(request):
         return await webhelpers.template('index.html')
 
-    app.static('/static', './lib/web/templates/static')
+    app.static('/static', STATIC_FOLDER)
+    app.static('/favicon.ico', os.path.join(STATIC_FOLDER, 'favicon.ico'))
     app.blueprint(collection)
     app.blueprint(api_v1)
     app.blueprint(openapi_blueprint)

@@ -1,5 +1,6 @@
 import click
-from lib import helpers, collection, database, mfilter
+from lib import helpers, database, mfilter
+from lib.collection import Collection
 
 
 default_fields = ['title', 'album', 'artist', 'genre', 'path', 'keywords', 'folder', 'rating', 'number', 'folder', 'youtube', 'duration', 'size']
@@ -11,10 +12,11 @@ tag = [
 
 @click.group(cls=helpers.GroupWithHelp)
 @helpers.add_options(database.options)
+@helpers.coro
 @click.pass_context
-def cli(ctx, **kwargs):
+async def cli(ctx, **kwargs):
     '''Music tags management'''
-    ctx.obj.db = collection.Collection(**kwargs)
+    ctx.obj.db = await Collection.make(**kwargs)
 
 
 @cli.command()

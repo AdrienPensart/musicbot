@@ -1,14 +1,16 @@
 import click
-from lib import helpers, lib, collection, database
+from lib import helpers, lib, database
+from lib.collection import Collection
 
 
 @click.group(cls=helpers.GroupWithHelp)
 @helpers.add_options(database.options)
+@helpers.coro
 @click.pass_context
-def cli(ctx, **kwargs):
+async def cli(ctx, **kwargs):
     '''Task management'''
     lib.raise_limits()
-    ctx.obj.db = collection.Collection(**kwargs)
+    ctx.obj.db = await Collection.make(**kwargs)
 
 
 @cli.command()

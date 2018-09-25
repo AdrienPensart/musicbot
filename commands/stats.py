@@ -1,15 +1,17 @@
 import click
 from datetime import timedelta
-from lib import helpers, collection, database, mfilter
+from lib import helpers, database, mfilter
+from lib.collection import Collection
 from lib.lib import bytes_to_human
 
 
 @click.group(cls=helpers.GroupWithHelp)
+@helpers.coro
 @click.pass_context
 @helpers.add_options(database.options)
-def cli(ctx, **kwargs):
+async def cli(ctx, **kwargs):
     '''Youtube management'''
-    ctx.obj.db = collection.Collection(**kwargs)
+    ctx.obj.db = await Collection.make(**kwargs)
 
 
 @cli.command()

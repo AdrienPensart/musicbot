@@ -1,16 +1,18 @@
 import click
 import logging
-from lib import file, helpers, collection, database, mfilter
+from lib import file, helpers, database, mfilter
+from lib.collection import Collection
 
 logger = logging.getLogger(__name__)
 
 
 @click.group(cls=helpers.GroupWithHelp)
+@helpers.coro
 @helpers.add_options(database.options)
 @click.pass_context
-def cli(ctx, **kwargs):
+async def cli(ctx, **kwargs):
     '''Music tags management'''
-    ctx.obj.db = collection.Collection(**kwargs)
+    ctx.obj.db = await Collection.make(**kwargs)
 
 
 @cli.command()

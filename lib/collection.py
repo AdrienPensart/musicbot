@@ -28,6 +28,7 @@ class Collection(Database):
         await self.create()
 
     async def drop(self):
+        logger.info("Dropping DB")
         await self.dropdb()
 
     async def refresh(self):
