@@ -1,5 +1,6 @@
 import click
-from lib import helpers, database, server, persistence
+from lib import helpers, database, persistence
+from lib.web import app
 from lib.config import config
 from logging_tree import printout
 
@@ -19,7 +20,7 @@ def show():
 @helpers.coro
 @helpers.add_options(persistence.options)
 @helpers.add_options(database.options)
-@helpers.add_options(server.options)
+@helpers.add_options(app.options)
 async def save(**kwargs):
     '''Save config'''
     redis = persistence.Persistence(**kwargs)
