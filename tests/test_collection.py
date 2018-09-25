@@ -1,5 +1,7 @@
-import pytest
+import os
 import logging
+import pytest
+from lib.database import MB_DB, DEFAULT_DB
 from lib.collection import Collection
 from lib import lib, file, mfilter
 from . import fixtures
@@ -13,16 +15,19 @@ def files():
 
 
 @pytest.yield_fixture
-async def collection(files):
-    logger.debug('new collection')
-    collection = await Collection.make()
+async def collection(files, worker_id):
+    # if running pytest with xdist
+    # append worker ID to test database name
+    db = os.getenv(MB_DB, DEFAULT_DB)
+    db += ("_" + worker_id)
+    collection = await Collection.make(db=db)
     await collection.clear()
     for f in files:
         m = file.File(f[1], f[0])
         await collection.upsert(m)
     await collection.refresh()
     yield collection
-    await collection.close()
+    await collection.drop()
 
 
 async def test_folders(collection):

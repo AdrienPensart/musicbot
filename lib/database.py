@@ -61,7 +61,7 @@ class Database:
 
     async def mogrify(self, connection, sql, *args):
         mogrified = await asyncpg.utils._mogrify(connection, sql, args)  # pylint: disable=protected-access
-        logger.debug('mogrified: %s', mogrified)
+        logger.debug('Mogrified: %s', mogrified)
 
     @staticmethod
     def log_it(conn, message):

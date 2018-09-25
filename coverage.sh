@@ -2,8 +2,7 @@
 
 set -e
 
-export MB_DB=musicbot_test
-export MB_DB_PASSWORD=musicbot
-coverage run --source lib -m test.test
+export MB_DB=${MB_DB:-'postgresql://postgres:musicbot@localhost:5432/musicbot_test'}
+pytest --cov lib
 coverage-badge -f -o doc/coverage.svg
 coverage report -m
