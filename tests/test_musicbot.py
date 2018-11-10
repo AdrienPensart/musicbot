@@ -1,12 +1,14 @@
 import logging
-from lib import lib, file, mfilter
+from musicbot.lib import lib, file
 from . import fixtures
 
 logger = logging.getLogger(__name__)
 
+
 def test_finding_files():
     files = list(lib.find_files([fixtures.folder1, fixtures.folder2]))
     assert len(files) == 5
+
 
 def test_flac_tags():
     m = file.File(fixtures.folder1 + fixtures.flac, fixtures.folder1)
@@ -21,6 +23,7 @@ def test_flac_tags():
     assert m.rating == 5.0
     assert m.duration == 1
 
+
 def test_mp3_tags():
     m = file.File(fixtures.folder2 + "/1995/La Source/La Flemme.mp3", fixtures.folder2)
 
@@ -34,10 +37,12 @@ def test_mp3_tags():
     assert m.rating == 4.5
     assert m.duration == 258
 
+
 def test_duration():
     assert 12 == lib.duration_to_seconds("12s")
     assert 60 * 12 == lib.duration_to_seconds("12m")
     assert 60 * 60 * 12 == lib.duration_to_seconds("12h")
+
 
 def test_raise_limits():
     assert lib.raise_limits() is True

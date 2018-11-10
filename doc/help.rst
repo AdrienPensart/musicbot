@@ -19,14 +19,38 @@ Description
 -----------
 CLI / API / Website to manipulate music and create smart playlists, and play it !
 
+It uses poetry tool to manage project life.
+
 Installation
 ------------
 
 .. code-block:: bash
 
-  sudo apt install libtag1-dev ffmpeg
+  sudo apt install libtag1-dev ffmpeg postgresql-11 pgcli libpcre3-dev
   git clone https://github.com/AdrienPensart/musicbot.git
   cd musicbot
-  python-3.6 -m venv env
-  source env/bin/activate
-  pip install -r requirements.txt
+
+  curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
+  pyenv install --verbose $(cat .python-version) -ks
+  pyenv global $(cat .python-version)
+  eval "$(pyenv init -)"
+
+  curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python3
+  poetry install
+
+  systemctl status postgresql
+  sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'musicbot';" && history -c
+  poetry run pgcli postgresql://postgres:musicbot@localhost:5432
+
+  git clone https://github.com/nginx/nginx.git
+  git clone https://github.com/evanmiller/mod_zip.git
+  auto/configure --prefix=/opt/nginx --add-module="$HOME/mod_zip"
+  sudo make install
+  sudo ln -s /home/crunch/musicbot/scripts/musicbot.service /etc/systemd/system/musicbot.service
+  sudo ln -s /home/crunch/musicbot/scripts/nginx.service /etc/systemd/system/nginx.service
+  sudo ln -s /home/crunch/musicbot/scripts/nginx.conf /opt/nginx/conf/nginx.conf
+  sudo ln -s /opt/nginx/sbin/nginx /usr/sbin/nginx
+
+  sudo systemctl enable nginx
+  sudo systemctl enable musicbot
+  sudo systemctl daemon-reload

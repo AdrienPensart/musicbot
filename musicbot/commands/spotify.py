@@ -1,16 +1,18 @@
 import click
 import logging
 import spotipy
-from lib.spotify import options
-from lib import helpers
 from spotipy.oauth2 import SpotifyClientCredentials
+from musicbot.lib.spotify import options
+from musicbot.lib import helpers
 
 logger = logging.getLogger(__name__)
+
 
 @click.group(cls=helpers.GroupWithHelp)
 def cli():
     '''Spotify'''
     pass
+
 
 @cli.command()
 @helpers.add_options(options)

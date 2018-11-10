@@ -4,9 +4,12 @@ Requires=network.target
 After=network.target
 
 [Service]
-User=ubuntu
+User=crunch
 Type=simple
-ExecStart=/home/ubuntu/musicbot/scripts/prod.sh
+PIDFile=/var/run/gunicorn.pid
+Environment=PATH=/home/crunch/.pyenv/versions/3.7.0/bin:$PATH
+ExecStart=/home/crunch/musicbot/scripts/prod.sh
+ExecStop=/bin/kill -s SIGHUP $MAINPID
 StandardOutput=journal
 PrivateTmp=true
 Restart=always

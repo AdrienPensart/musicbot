@@ -1,6 +1,6 @@
 import click
-from lib import database, mfilter, helpers
-from lib.collection import Collection
+from musicbot.lib import database, mfilter, helpers
+from musicbot.lib.collection import Collection
 
 
 @click.group(cls=helpers.GroupWithHelp)

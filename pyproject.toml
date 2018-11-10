@@ -1,0 +1,52 @@
+[tool.poetry]
+name = "musicbot"
+version = "0.1.0"
+description = "Music swiss army knife"
+authors = ["Adrien Pensart <crunchengine@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.scripts]
+musicbot = 'musicbot.cli:main'
+
+[tool.poetry.dependencies]
+python = "^3.7"
+click = "^7.0"
+click-completion = "^0.5.0"
+click-didyoumean = "^0.0.3"
+asyncpg = "^0.18.1"
+attrdict = "^2.0"
+attrs = "^18.2"
+APScheduler = "^3.5"
+click-repl = "^0.1.6"
+click-man = "^0.2.2"
+pytaglib = "^1.4"
+sanic = "^0.8.3"
+watchdog = "^0.9.0"
+gunicorn = "^19.9"
+humanfriendly = "^4.17"
+sanic-openapi = "^0.4.0"
+pytest = "^3.10"
+click-spinner = "^0.1.8"
+tqdm = "^4.28"
+isodate = "^0.6.0"
+aiohttp = "^3.4"
+coloredlogs = "^10.0"
+logging-tree = "^1.8"
+pydub = "^0.23.0"
+aiocache = "^0.10.0"
+sanic-wtf = "^0.5.0"
+spotipy = "^2.4"
+pgcli = "^2.0"
+msgpack = "^0.5.6"
+
+[tool.poetry.dev-dependencies]
+pytest = "^3.10"
+pytest-sanic = "^0.1.13"
+pytest-xdist = "^1.24"
+coverage = "^4.5"
+coverage-badge = "^0.2.0"
+pytest-cov = "^2.6"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

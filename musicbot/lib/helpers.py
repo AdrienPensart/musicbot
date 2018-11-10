@@ -10,7 +10,7 @@ import random
 from click_didyoumean import DYMGroup
 from tqdm import tqdm
 from functools import wraps
-from hachiko.hachiko import AIOEventHandler
+from ..hachiko.hachiko import AIOEventHandler
 from . import youtube
 from .config import config
 from .file import File

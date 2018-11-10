@@ -5,10 +5,10 @@ After=syslog.target network.target remote-fs.target nss-lookup.target
 [Service]
 Type=forking
 PIDFile=/run/nginx.pid
-ExecStartPre=/usr/local/nginx/sbin/nginx -t
-ExecStart=/usr/local/nginx/sbin/nginx
-ExecReload=/usr/local/nginx/sbin/nginx -s reload
-ExecStop=/usr/local/nginx/sbin/nginx -s stop
+ExecStartPre=/opt/nginx/sbin/nginx -t
+ExecStart=/opt/nginx/sbin/nginx
+ExecReload=/opt/nginx/sbin/nginx -s reload
+ExecStop=/opt/nginx/sbin/nginx -s stop
 PrivateTmp=true
 
 [Install]

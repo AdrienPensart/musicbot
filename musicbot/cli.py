@@ -5,7 +5,7 @@ import os
 import logging
 from click_repl import register_repl
 from attrdict import AttrDict
-from lib import helpers, config
+from musicbot.lib import helpers, config
 
 if os.path.islink(__file__):
     myself = os.readlink(__file__)
@@ -65,6 +65,10 @@ def cli(ctx, **kwargs):
     ctx.obj.config = config.config
 
 
-if __name__ == '__main__':
+def main():
     register_repl(cli)
     cli()
+
+
+if __name__ == '__main__':
+    main()

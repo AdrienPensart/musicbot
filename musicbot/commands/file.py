@@ -1,7 +1,7 @@
 import click
 import logging
-from lib import file, helpers, database, mfilter
-from lib.collection import Collection
+from musicbot.lib import file, helpers, database, mfilter
+from musicbot.lib.collection import Collection
 
 logger = logging.getLogger(__name__)
 

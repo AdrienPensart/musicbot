@@ -2,13 +2,13 @@ import click
 import asyncio
 import os
 import coloredlogs
-import structlog
 import logging
 import attr
+import pwd
 from . import lib
 
 logger = logging.getLogger(__name__)
-slogger = structlog.get_logger()
+current_user = pwd.getpwuid(os.getuid()).pw_name
 
 DEFAULT_LOG = '/var/log/musicbot.log'
 MB_LOG = 'MB_LOG'
@@ -40,6 +40,19 @@ options = [
     click.option('--quiet', help='Disable progress bars', envvar=MB_QUIET, default=DEFAULT_QUIET, is_flag=True),
     click.option('--no-colors', help='Disable colorized output', envvar=MB_NO_COLORS, default=DEFAULT_NO_COLORS, is_flag=True),
 ]
+
+
+def check_file_writable(fnm):
+    if os.path.exists(fnm):
+        # path exists
+        if os.path.isfile(fnm):
+            return os.access(fnm, os.W_OK)
+        else:
+            return False
+    pdir = os.path.dirname(fnm)
+    if not pdir:
+        pdir = '.'
+    return os.access(pdir, os.W_OK)
 
 
 @attr.s
@@ -81,14 +94,13 @@ class Config:
             coloredlogs.install(level=self.level, fmt=self.fmt)
 
         if self.log is not None:
-            if os.access('my_file', os.W_OK):
+            if check_file_writable(self.log):
                 fh = logging.FileHandler(self.log)
                 fh.setLevel(logging.DEBUG)
                 logging.getLogger().addHandler(fh)
             else:
-                logger.warning('No permission to write to %s', self.log)
+                logger.warning('No permission to write to %s for current user %s', self.log, current_user)
         logger.debug(self)
-        # slogger.msg("config", config=self)
 
     def __repr__(self):
         fmt = 'log:{} timings:{} debug:{} quiet:{} dry:{} verbosity:{} no_colors:{}'

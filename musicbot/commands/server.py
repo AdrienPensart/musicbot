@@ -1,11 +1,11 @@
 import click
 import os
 import logging
-from lib import helpers, database
-from lib.config import config
-from lib.lib import raise_limits, restart
-from lib.web import app
-from lib.web import config as webconfig
+from musicbot.lib import helpers, database
+from musicbot.lib.config import config
+from musicbot.lib.lib import raise_limits, restart
+from musicbot.lib.web import app
+from musicbot.lib.web import config as webconfig
 
 logger = logging.getLogger(__name__)
 

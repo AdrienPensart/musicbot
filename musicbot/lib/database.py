@@ -108,25 +108,29 @@ class Database:
 
     @drier
     async def createdb(self):
-        addrs, params = asyncpg.connect_utils._parse_connect_dsn_and_args(dsn=self.connection_string, host=None, port=None, user=None, password=None, passfile=None, database=None, ssl=None, connect_timeout=None, server_settings=None)
-        db_to_create = params.database
-        con = await asyncpg.connect(user=params.user, host=addrs[0][0], port=addrs[0][1], password=params.password)
-        # role_to_create = params.user
-        # result = await con.fetchrow("select count(*) = 0 as not_exists from pg_roles where rolname='{}'".format(role_to_create))
-        # if result['not_exists']:
-        #     logger.debug('User does %s not exists, create it', role_to_create)
-        #     await con.execute("create role musicbot with login password '{}' createdb".format(role_to_create))
-        # else:
-        #     logger.debug('User %s already exists', role_to_create)
+        try:
+            addrs, params = asyncpg.connect_utils._parse_connect_dsn_and_args(dsn=self.connection_string, host=None, port=None, user=None, password=None, passfile=None, database=None, ssl=None, connect_timeout=None, server_settings=None)
+            db_to_create = params.database
+            con = await asyncpg.connect(user=params.user, host=addrs[0][0], port=addrs[0][1], password=params.password)
+            # role_to_create = params.user
+            # result = await con.fetchrow("select count(*) = 0 as not_exists from pg_roles where rolname='{}'".format(role_to_create))
+            # if result['not_exists']:
+            #     logger.debug('User does %s not exists, create it', role_to_create)
+            #     await con.execute("create role musicbot with login password '{}' createdb".format(role_to_create))
+            # else:
+            #     logger.debug('User %s already exists', role_to_create)
 
-        # as postgresql does not support "create database if not exists", need to check in catalog
-        result = await con.fetchrow("select count(*) = 0 as not_exists from pg_catalog.pg_database where datname = '{}'".format(db_to_create))
-        if result['not_exists']:
-            logger.debug('Database %s does not exists, create it', db_to_create)
-            await con.execute('create database {}'.format(db_to_create))
-        else:
-            logger.debug('Database %s already exists', db_to_create)
-        await con.close()
+            # as postgresql does not support "create database if not exists", need to check in catalog
+            result = await con.fetchrow("select count(*) = 0 as not_exists from pg_catalog.pg_database where datname = '{}'".format(db_to_create))
+            if result['not_exists']:
+                logger.debug('Database %s does not exists, create it', db_to_create)
+                await con.execute('create database {}'.format(db_to_create))
+            else:
+                logger.debug('Database %s already exists', db_to_create)
+            await con.close()
+        except ConnectionRefusedError:
+            logger.critical('Connection to DB refused, you should check it')
+            sys.exit(-1)
 
     async def connect(self):
         conn = await asyncpg.connect(dsn=self.connection_string, ssl=self._ssl)

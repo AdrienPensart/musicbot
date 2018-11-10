@@ -4,9 +4,9 @@ import os
 import logging
 from textwrap import indent
 from tqdm import tqdm
-from lib import helpers, database, mfilter
-from lib.collection import Collection
-from lib.config import config
+from musicbot.lib import helpers, database, mfilter
+from musicbot.lib.collection import Collection
+from musicbot.lib.config import config
 
 logger = logging.getLogger(__name__)
 

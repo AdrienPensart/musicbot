@@ -1,8 +1,8 @@
 import click
 from datetime import timedelta
-from lib import helpers, database, mfilter
-from lib.collection import Collection
-from lib.lib import bytes_to_human
+from musicbot.lib import helpers, database, mfilter
+from musicbot.lib.collection import Collection
+from musicbot.lib.lib import bytes_to_human
 
 
 @click.group(cls=helpers.GroupWithHelp)

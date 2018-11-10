@@ -1,6 +1,6 @@
 import click
-from lib import helpers, database, mfilter
-from lib.collection import Collection
+from musicbot.lib import helpers, database, mfilter
+from musicbot.lib.collection import Collection
 
 
 default_fields = ['title', 'album', 'artist', 'genre', 'path', 'keywords', 'folder', 'rating', 'number', 'folder', 'youtube', 'duration', 'size']

@@ -1,9 +1,9 @@
 import os
 import logging
 import pytest
-from lib.database import MB_DB, DEFAULT_DB
-from lib.collection import Collection
-from lib import lib, file, mfilter
+from musicbot.lib.database import MB_DB, DEFAULT_DB
+from musicbot.lib.collection import Collection
+from musicbot.lib import lib, file, mfilter
 from . import fixtures
 
 logger = logging.getLogger(__name__)

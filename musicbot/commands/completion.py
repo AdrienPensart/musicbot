@@ -1,6 +1,6 @@
 import click
 import click_completion
-from lib import helpers
+from musicbot.lib import helpers
 
 
 @click.group(cls=helpers.GroupWithHelp)

@@ -6,11 +6,11 @@ import atexit
 import concurrent.futures as cf
 from pydub import AudioSegment
 from tqdm import tqdm
-from lib import helpers, lib, database, mfilter
-from lib.collection import Collection
-from lib.config import config
-from lib.helpers import watcher, fullscan
-from lib.lib import empty_dirs
+from musicbot.lib import helpers, lib, database, mfilter
+from musicbot.lib.collection import Collection
+from musicbot.lib.config import config
+from musicbot.lib.helpers import watcher, fullscan
+from musicbot.lib.lib import empty_dirs
 
 logger = logging.getLogger(__name__)
 
