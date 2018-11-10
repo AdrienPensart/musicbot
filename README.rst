@@ -19,17 +19,41 @@ Description
 -----------
 CLI / API / Website to manipulate music and create smart playlists, and play it !
 
+It uses poetry tool to manage project life.
+
 Installation
 ------------
 
 .. code-block:: bash
 
-  sudo apt install libtag1-dev ffmpeg
+  sudo apt install libtag1-dev ffmpeg postgresql-11 pgcli libpcre3-dev
   git clone https://github.com/AdrienPensart/musicbot.git
   cd musicbot
-  python-3.6 -m venv env
-  source env/bin/activate
-  pip install -r requirements.txt
+
+  curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
+  pyenv install --verbose $(cat .python-version) -ks
+  pyenv global $(cat .python-version)
+  eval "$(pyenv init -)"
+
+  curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python3
+  poetry install
+
+  systemctl status postgresql
+  sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'musicbot';" && history -c
+  poetry run pgcli postgresql://postgres:musicbot@localhost:5432
+
+  git clone https://github.com/nginx/nginx.git
+  git clone https://github.com/evanmiller/mod_zip.git
+  auto/configure --prefix=/opt/nginx --add-module="$HOME/mod_zip"
+  sudo make install
+  sudo ln -s /home/crunch/musicbot/scripts/musicbot.service /etc/systemd/system/musicbot.service
+  sudo ln -s /home/crunch/musicbot/scripts/nginx.service /etc/systemd/system/nginx.service
+  sudo ln -s /home/crunch/musicbot/scripts/nginx.conf /opt/nginx/conf/nginx.conf
+  sudo ln -s /opt/nginx/sbin/nginx /usr/sbin/nginx
+
+  sudo systemctl enable nginx
+  sudo systemctl enable musicbot
+  sudo systemctl daemon-reload
 Commands
 --------
 .. code-block::
@@ -64,6 +88,7 @@ Commands
     playlist     Playlist management
     repl         Start an interactive shell.
     server       API Server
+    spotify      Spotify
     stats        Youtube management
     tag          Music tags management
     task         Task management
@@ -83,8 +108,8 @@ musicbot completion
   
   Commands:
     help     Print help
-    install  Install the click-completion-command...
-    show     Show the click-completion-command completion...
+    install  Install the click-completion-command completion
+    show     Show the click-completion-command completion code
 
 
 musicbot completion help
@@ -103,7 +128,8 @@ musicbot completion install
 ***************************
 .. code-block::
 
-  Usage: musicbot completion install [OPTIONS] [SHELL] [PATH]
+  Usage: musicbot completion install [OPTIONS] [[bash|fish|zsh|powershell]]
+                                     [PATH]
   
     Install the click-completion-command completion
   
@@ -118,7 +144,7 @@ musicbot completion show
 ************************
 .. code-block::
 
-  Usage: musicbot completion show [OPTIONS] [SHELL]
+  Usage: musicbot completion show [OPTIONS] [[bash|fish|zsh|powershell]]
   
     Show the click-completion-command completion code
   
@@ -142,7 +168,6 @@ musicbot config
   Commands:
     help     Print help
     logging  Show loggers tree
-    save     Save config
     show     Print default config
 
 
@@ -168,33 +193,6 @@ musicbot config logging
   
   Options:
     -h, --help  Show this message and exit.
-
-
-musicbot config save
-********************
-.. code-block::
-
-  Usage: musicbot config save [OPTIONS]
-  
-    Save config
-  
-  Options:
-    --redis-address TEXT    Redis URI  [default: redis://localhost]
-    --redis-db INTEGER      Redis index DB  [default: 0]
-    --redis-password TEXT   Redis password
-    --db TEXT               DB dsn string  [default: postgresql://postgres:music
-                            bot@localhost:5432/musicbot_prod]
-    --db-max INTEGER        DB maximum number of connections  [default: 32]
-    --db-single TEXT        DB will use only one connection  [default: False]
-    --db-cert TEXT          DB SSL certificate  [default:
-                            ~/.postgresql/root.crt]
-    --http-host TEXT        Host interface to listen on  [default: 127.0.0.1]
-    --http-server TEXT      Server name to use in links  [default: musicbot.ovh]
-    --http-port INTEGER     HTTP port to listen on  [default: 8000]
-    --http-workers INTEGER  Number of HTTP workers (not tested)  [default: 1]
-    --http-user TEXT        HTTP Basic auth user  [default: musicbot]
-    --http-password TEXT    HTTP Basic auth password
-    -h, --help              Show this message and exit.
 
 
 musicbot config show
@@ -582,7 +580,7 @@ musicbot folder
     new       Add a new folder in database
     rescan    Rescan all folders registered in database
     scan      Load musics files in database
-    sync      Copy selected musics with filters to...
+    sync      Copy selected musics with filters to destination folder
     watch     Watch files changes in folders
 
 
@@ -913,6 +911,49 @@ musicbot server start
     -h, --help              Show this message and exit.
 
 
+musicbot spotify
+****************
+.. code-block::
+
+  Usage: musicbot spotify [OPTIONS] COMMAND [ARGS]...
+  
+    Spotify
+  
+  Options:
+    -h, --help  Show this message and exit.
+  
+  Commands:
+    artist  Spotify test
+    help    Print help
+
+
+musicbot spotify artist
+***********************
+.. code-block::
+
+  Usage: musicbot spotify artist [OPTIONS] NAME
+  
+    Spotify test
+  
+  Options:
+    --client-id TEXT      Spotify client ID
+    --client-secret TEXT  Spotify client secret
+    --token TEXT          Spotify token
+    -h, --help            Show this message and exit.
+
+
+musicbot spotify help
+*********************
+.. code-block::
+
+  Usage: musicbot spotify help [OPTIONS] [COMMAND]...
+  
+    Print help
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
 musicbot stats
 **************
 .. code-block::
@@ -931,7 +972,7 @@ musicbot stats
   
   Commands:
     help  Print help
-    show  Generate some stats for music collection with...
+    show  Generate some stats for music collection with filters
 
 
 musicbot stats help

@@ -3,7 +3,6 @@
 set -e
 
 my_dir="$(dirname "$0")"
-musicbot=$my_dir/../musicbot
 commands=$my_dir/COMMANDS.rst
 >$commands
 repeat (){
@@ -12,26 +11,26 @@ repeat (){
 
 echo -e "Commands\n--------" >> $commands
 echo -e ".. code-block::\n" >> $commands
-python3 $musicbot --help | sed -e 's/^/  /' >> $commands
+musicbot --help | sed -e 's/^/  /' >> $commands
 echo -e "\n" >> $commands
 
-for c in $(python3 $musicbot --help | awk '/Commands/{y=1;next}y' | awk '{print $1}');
+for c in $(musicbot --help | awk '/Commands/{y=1;next}y' | awk '{print $1}');
 do
     command="musicbot $c"
     echo "musicbot $c"
     echo -e "$command" >> $commands
     perl -e "print '*' x ${#command}; print \"\n\";" >> $commands
     echo -e ".. code-block::\n" >> $commands
-    python3 $musicbot $c --help | sed 's/^/  /' >> $commands
+    musicbot $c --help | sed 's/^/  /' >> $commands
     echo -e "\n" >> $commands
-    for s in $(python3 $musicbot $c --help | awk '/Commands/{y=1;next}y' | awk '{print $1}');
+    for s in $(musicbot $c --help | awk '/Commands/{y=1;next}y' | awk '{print $1}');
     do
         command="musicbot $c $s"
         echo "    musicbot $c $s"
         echo -e "$command" >> $commands
         perl -e "print '*' x ${#command}; print \"\n\";" >> $commands
         echo -e ".. code-block::\n" >> $commands
-        python3 $musicbot $c $s --help | sed 's/^/  /' >> $commands
+        musicbot $c $s --help | sed 's/^/  /' >> $commands
         echo -e "\n" >> $commands
     done
 done
