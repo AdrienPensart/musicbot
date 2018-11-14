@@ -1,0 +1,31 @@
+mutation
+{
+  registerUser(input: {firstName: "Foo", lastName: "Bar", email: "test@new.com", password: "123456"})
+  {
+    user
+    {
+      id,
+      firstName,
+      lastName,
+      about,
+      createdAt,
+      updatedAt
+    }
+  }
+}
+
+mutation
+{
+  authenticate(input: {email: "test@new.com", password: "123456"})
+  {
+    jwtToken
+  }
+}
+
+{
+  currentMusicbot
+  {
+    id,
+    firstName
+  }
+}

@@ -99,6 +99,8 @@ class Database:
             await con.close()
 
             con = await asyncpg.connect(dsn=self.connection_string, database='')
+            await con.execute('drop schema if exists private cascade')
+            await con.execute('drop schema if exists public cascade')
             await con.execute('drop database if exists {}'.format(db_to_drop))
             await con.close()
         except asyncpg.exceptions.InvalidCatalogNameError:

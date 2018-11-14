@@ -35,7 +35,7 @@ async def create(**kwargs):
 @click.confirmation_option(help='Are you sure you want to drop the DB ?')
 async def drop(**kwargs):
     '''Drop database schema'''
-    db = await Collection.make(**kwargs)
+    db = await Collection.make(skip_creation=True, **kwargs)
     await db.drop()
 
 
@@ -44,6 +44,7 @@ async def drop(**kwargs):
 @helpers.add_options(database.options)
 @click.confirmation_option(help='Are you sure you want to drop all objects in DB ?')
 async def empty(**kwargs):
+    '''Empty databases'''
     db = await Collection.make(**kwargs)
     await db.empty()
 

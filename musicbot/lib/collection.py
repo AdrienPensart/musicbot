@@ -9,9 +9,10 @@ logger = logging.getLogger(__name__)
 
 class Collection(Database):
     @classmethod
-    async def make(cls, **kwargs):
+    async def make(cls, skip_creation=False, **kwargs):
         self = Collection(**kwargs)
-        await self.create()
+        if not skip_creation:
+            await self.create()
         return self
 
     async def errors(self, mf=None):
@@ -20,7 +21,7 @@ class Collection(Database):
     async def create(self):
         await self.createdb()
         schema_dir = os.path.join(os.path.dirname(__file__), 'schema')
-        for sqlfile in ['tables.sql', 'views.sql', 'functions.sql', 'data.sql', 'triggers.sql']:
+        for sqlfile in ['schemas.sql', 'extensions.sql', 'users.sql', 'tables.sql', 'views.sql', 'functions.sql', 'data.sql', 'triggers.sql']:
             await self.executefile(os.path.join(schema_dir, sqlfile))
 
     async def clear(self):
