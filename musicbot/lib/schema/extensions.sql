@@ -1,5 +1,3 @@
-begin;
-
 create extension if not exists "pg_trgm";
 create extension if not exists "uuid-ossp";
 --ex :
@@ -8,5 +6,4 @@ create extension if not exists "uuid-ossp";
 --  ...
 --);
 create extension if not exists "pgcrypto";
-
-end;
+create extension if not exists "pgjwt";

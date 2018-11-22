@@ -1,4 +1,3 @@
-begin;
 --create or replace function public.refresh_views()
 --returns void as $$
 --begin
@@ -33,7 +32,7 @@ begin;
 --    "limit" integer default +2147483647,
 --    youtubes text[] default '{}',
 --    no_youtubes text[] default '{}'
---) returns public.filters as
+--) returns public.filter as
 --$$
 --begin
 --    return (0, ''::text,
@@ -50,46 +49,27 @@ begin;
 --end;
 --$$ language plpgsql stable;
 --
---create or replace function public.new_music
---(
---    title text default '',
---    album text default '',
---    genre text default '',
---    artist text default '',
---    folder text default '',
---    youtube text default '',
---    number integer default 0,
---    path text default '',
---    rating float default 0.0,
---    duration integer default 0,
---    size integer default 0,
---    keywords text[] default '{}'
---) returns public.music as
---$$
---begin
---    return (0, title, album, genre, artist, folder, youtube, number, path, rating, duration, size, keywords);
---end;
---$$ language plpgsql stable;
 --
 --create or replace function public.delete(p text)
 --returns void as
 --$$
 --    with delete_music as (
---        select id from public.musics m where m.path = p limit 1
+--        select id from public.music m where m.path = p limit 1
 --    ),
 --    delete_tags as (
---        delete from public.music_tags mt using delete_music dm where mt.music_id = dm.id
+--        delete from public.music_tag mt using delete_music dm where mt.music_id = dm.id
 --    )
---    delete from public.musics m using delete_music dm where m.id = dm.id;
+--    delete from public.music m using delete_music dm where m.id = dm.id;
 --$$ language sql;
+--grant execute on function public.delete to musicbot_user;
 --
---create or replace function public.upsert(arg public.music default public.new_music())
+--create or replace function public.upsert(arg public.raw_music default public.new_music())
 --returns void as
 --$$
 --begin
---    delete from music_tags mt where mt.music_id = (select old.id from musics old where old.path = arg.path limit 1);
+--    delete from music_tag mt where mt.music_id = (select old.id from music old where old.path = arg.path limit 1);
 --    with upsert_folder as (
---        insert into public.folders as f (name, created_at)
+--        insert into public.folder as f (name, created_at)
 --        values (arg.folder, now())
 --        on conflict (name) do update set
 --            updated_at=coalesce(EXCLUDED.updated_at, now()),
@@ -97,15 +77,15 @@ begin;
 --        returning f.id as folder_id
 --    ),
 --    upsert_artist as (
---        insert into public.artists as a (name, created_at)
+--        insert into public.artist as a (name, created_at)
 --        values (arg.artist, now())
 --        on conflict (name) do update set
 --            updated_at=coalesce(EXCLUDED.updated_at, now()),
 --            name=EXCLUDED.name
---        returning a.id as artist_iD
+--        returning a.id as artist_id
 --    ),
 --    upsert_album as (
---        insert into public.albums as al (artist_id, name, created_at)
+--        insert into public.album as al (artist_id, name, created_at)
 --        values ((select artist_id from upsert_artist limit 1), arg.album, now())
 --        on conflict (artist_id, name) do update set
 --            updated_at=coalesce(EXCLUDED.updated_at, now()),
@@ -113,15 +93,15 @@ begin;
 --        returning al.id as album_id
 --    ),
 --    upsert_genre as (
---        insert into public.genres as g (name)
+--        insert into public.genre as g (name)
 --        values (arg.genre)
 --        on conflict (name) do update set
 --            updated_at=coalesce(EXCLUDED.updated_at, now()),
 --            name=EXCLUDED.name
 --        returning g.id as genre_id
 --    ),
---    upsert_keywords as (
---        insert into public.tags as t (name)
+--    upsert_tag as (
+--        insert into public.tag as t (name)
 --        select distinct k from unnest(arg.keywords) k
 --        on conflict (name) do update set
 --            updated_at=coalesce(EXCLUDED.updated_at, now()),
@@ -129,7 +109,7 @@ begin;
 --        returning t.id as tag_id
 --    ),
 --    upsert_music as (
---        insert into public.musics as m (artist_id, genre_id, folder_id, album_id, rating, duration, path, title, number, size, youtube, created_at)
+--        insert into public.music as m (artist_id, genre_id, folder_id, album_id, rating, duration, path, title, number, size, youtube, created_at)
 --        values (
 --            (select artist_id from upsert_artist limit 1),
 --            (select genre_id from upsert_genre limit 1),
@@ -151,22 +131,24 @@ begin;
 --        returning m.id as music_id
 --    )
 --
---    insert into public.music_tags (music_id, tag_id)
---    select m.music_id, k.tag_id
---	from upsert_music m, upsert_keywords k
+--    insert into public.music_tag (music_id, tag_id)
+--    select m.music_id, t.tag_id
+--	from upsert_music m, upsert_tag t
 --    on conflict (music_id, tag_id) do nothing;
 --
---    delete from public.tags t
+--    delete from public.tag t
 --	where t.id in (
 --		select t.id
---		from public.tags t
---		left join public.music_tags mt on t.id = mt.tag_id
+--		from public.tag t
+--		left join public.music_tag mt on t.id = mt.tag_id
 --		group by t.id
 --		having count(mt.music_id) = 0
 --	);
 --end;
---$$ language plpgsql;
---
+--$$ language plpgsql strict security definer;
+----$$ language plpgsql;
+--grant execute on function public.upsert to musicbot_user;
+
 --create or replace function public.upsert_one(
 --    title text default '',
 --    album text default '',
@@ -390,4 +372,61 @@ begin;
 --    select * from public.generate_bests_artist_keyword(mf) union
 --    select * from public.generate_bests_keyword(mf);
 --$$ language sql stable;
-end;
+--create or replace function musicbot_public.new_music
+--(
+--    title text default '',
+--    album text default '',
+--    genre text default '',
+--    artist text default '',
+--    folder text default '',
+--    youtube text default '',
+--    spotify text default '',
+--    number integer default 0,
+--    path text default '',
+--    rating float default 0.0,
+--    duration integer default 0,
+--    size integer default 0,
+--    keywords text[] default '{}'
+--) returns musicbot_public.raw_music as
+--$$
+--begin
+--    return (musicbot_public.current_musicbot_id(), title, album, genre, artist, folder, youtube, spotify, number, path, rating, duration, size, keywords, now(), now());
+--end;
+--$$ language plpgsql stable;
+--grant execute on function musicbot_public.new_music to musicbot_user;
+
+create or replace function musicbot_public.upsert(
+    title text default '',
+    album text default '',
+    genre text default '',
+    artist text default '',
+    folder text default '',
+    youtube text default '',
+    spotify text default '',
+    number integer default 0,
+    path text default '',
+    rating float default 0.0,
+    duration integer default 0,
+    size integer default 0,
+    keywords text[] default '{}'
+) returns musicbot_public.raw_music as
+$$
+    insert into musicbot_public.raw_music as m (artist, genre, folder, album, rating, duration, path, title, number, size, youtube, spotify, keywords)
+    values (artist, genre, folder, album, rating, duration, path, title, number, size, youtube, spotify, keywords)
+    on conflict (path) do update set
+        artist=EXCLUDED.artist,
+        genre=EXCLUDED.genre,
+        folder=EXCLUDED.folder,
+        album=EXCLUDED.album,
+        rating=EXCLUDED.rating,
+        duration=EXCLUDED.duration,
+        title=EXCLUDED.title,
+        number=EXCLUDED.number,
+        size=EXCLUDED.size,
+        youtube=EXCLUDED.youtube,
+		spotify=EXCLUDED.spotify,
+        updated_at=coalesce(EXCLUDED.updated_at, now())
+	returning *;
+$$ language sql;
+--$$ language plpgsql;
+grant execute on function musicbot_public.upsert to musicbot_user;

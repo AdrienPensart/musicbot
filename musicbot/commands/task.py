@@ -1,6 +1,5 @@
 import click
 from musicbot.lib import helpers, lib, database
-from musicbot.lib.collection import Collection
 
 
 @click.group(cls=helpers.GroupWithHelp)
@@ -10,7 +9,7 @@ from musicbot.lib.collection import Collection
 async def cli(ctx, **kwargs):
     '''Task management'''
     lib.raise_limits()
-    ctx.obj.db = await Collection.make(**kwargs)
+    ctx.obj.db = await database.Database.make(**kwargs)
 
 
 @cli.command()

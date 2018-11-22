@@ -26,7 +26,7 @@ Installation
 
 .. code-block:: bash
 
-  sudo apt install libtag1-dev ffmpeg postgresql-11 pgcli libpcre3-dev
+  sudo apt install build-essential libssl-dev libtag1-dev ffmpeg postgresql-11 libpcre3-dev postgresql-server-dev-all
   git clone https://github.com/AdrienPensart/musicbot.git
   cd musicbot
 
@@ -51,6 +51,14 @@ Installation
   sudo ln -s /home/crunch/musicbot/scripts/nginx.conf /opt/nginx/conf/nginx.conf
   sudo ln -s /opt/nginx/sbin/nginx /usr/sbin/nginx
 
+  git clone https://github.com/michelp/pgjwt.git
+  cd pgjwt
+  sudo make install
+
   sudo systemctl enable nginx
   sudo systemctl enable musicbot
   sudo systemctl daemon-reload
+
+  curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
+  nvm install node
+  npm install -g postgraphile

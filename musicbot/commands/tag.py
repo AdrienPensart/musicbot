@@ -1,6 +1,5 @@
 import click
 from musicbot.lib import helpers, database, mfilter
-from musicbot.lib.collection import Collection
 
 
 default_fields = ['title', 'album', 'artist', 'genre', 'path', 'keywords', 'folder', 'rating', 'number', 'folder', 'youtube', 'duration', 'size']
@@ -16,7 +15,7 @@ tag = [
 @click.pass_context
 async def cli(ctx, **kwargs):
     '''Music tags management'''
-    ctx.obj.db = await Collection.make(**kwargs)
+    ctx.obj.db = await database.Database.make(**kwargs)
 
 
 @cli.command()

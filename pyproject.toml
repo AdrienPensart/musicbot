@@ -36,8 +36,8 @@ pydub = "^0.23.0"
 aiocache = "^0.10.0"
 sanic-wtf = "^0.5.0"
 spotipy = "^2.4"
-pgcli = "^2.0"
 msgpack = "^0.5.6"
+trio-asyncio = "^0.9.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.10"
@@ -46,6 +46,8 @@ pytest-xdist = "^1.24"
 coverage = "^4.5"
 coverage-badge = "^0.2.0"
 pytest-cov = "^2.6"
+pgcli = "^2.0"
+psycopg2-binary = "^2.7"
 
 [build-system]
 requires = ["poetry>=0.12"]

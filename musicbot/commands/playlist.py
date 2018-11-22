@@ -5,7 +5,6 @@ import logging
 from textwrap import indent
 from tqdm import tqdm
 from musicbot.lib import helpers, database, mfilter
-from musicbot.lib.collection import Collection
 from musicbot.lib.config import config
 
 logger = logging.getLogger(__name__)
@@ -17,7 +16,7 @@ logger = logging.getLogger(__name__)
 @click.pass_context
 async def cli(ctx, **kwargs):
     '''Playlist management'''
-    ctx.obj.db = await Collection.make(**kwargs)
+    ctx.obj.db = await database.Database.make(**kwargs)
 
 
 @cli.command()

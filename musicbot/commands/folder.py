@@ -7,7 +7,6 @@ import concurrent.futures as cf
 from pydub import AudioSegment
 from tqdm import tqdm
 from musicbot.lib import helpers, lib, database, mfilter
-from musicbot.lib.collection import Collection
 from musicbot.lib.config import config
 from musicbot.lib.helpers import watcher, fullscan
 from musicbot.lib.lib import empty_dirs
@@ -22,7 +21,7 @@ logger = logging.getLogger(__name__)
 async def cli(ctx, **kwargs):
     '''Folder scanning'''
     lib.raise_limits()
-    ctx.obj.db = await Collection.make(**kwargs)
+    ctx.obj.db = await database.Database.make(**kwargs)
 
 
 @cli.command()

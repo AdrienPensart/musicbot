@@ -30,24 +30,24 @@ def mysplit(s, delim=','):
 # pylint: disable-msg=unsubscriptable-object
 # pylint: disable-msg=unsupported-assignment-operation
 class File:
-    id = 0
 
     def __init__(self, filename, _folder=''):
         self._folder = _folder
         self.handle = taglib.File(filename)
         self.youtube_link = ''
+        self.spotify_link = ''
 
     def close(self):
         self.handle.close()
 
     def to_list(self):
-        return [self.id,
-                self.title,
+        return [self.title,
                 self.album,
                 self.genre,
                 self.artist,
                 self._folder,
                 self.youtube,
+                self.spotify,
                 self.number,
                 self.path,
                 self.rating,
@@ -63,6 +63,7 @@ class File:
                 self.artist,
                 self._folder,
                 self.youtube,
+                self.spotify,
                 self.number,
                 self.path,
                 self.rating,
@@ -77,6 +78,7 @@ class File:
                 'artist': self.artist,
                 'folder': self._folder,
                 'youtube': self.youtube,
+                'spotify': self.spotify,
                 'number': self.number,
                 'path': self.path,
                 'rating': self.rating,
@@ -243,6 +245,10 @@ class File:
     @property
     def youtube(self):
         return self.youtube_link
+
+    @property
+    def spotify(self):
+        return self.spotify_link
 
     async def find_youtube(self):
         self.youtube_link = await youtube.search(self.artist, self.title, self.duration)

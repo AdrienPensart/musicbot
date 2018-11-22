@@ -2,7 +2,6 @@ import click
 import os
 import logging
 from musicbot.lib import helpers, database
-from musicbot.lib.collection import Collection
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +16,7 @@ def cli():
 @helpers.add_options(database.options)
 async def pgcli(**kwargs):
     '''Start PgCLI util'''
-    db = await Collection.make(**kwargs)
+    db = await database.Database.make(**kwargs)
     os.system(r"pgcli {}".format(db.connection_string))
 
 
@@ -26,7 +25,7 @@ async def pgcli(**kwargs):
 @helpers.add_options(database.options)
 async def create(**kwargs):
     '''Create database and load schema'''
-    await Collection.make(**kwargs)
+    await database.Database.make(**kwargs)
 
 
 @cli.command()
@@ -35,7 +34,7 @@ async def create(**kwargs):
 @click.confirmation_option(help='Are you sure you want to drop the DB ?')
 async def drop(**kwargs):
     '''Drop database schema'''
-    db = await Collection.make(skip_creation=True, **kwargs)
+    db = await database.Database.make(skip_creation=True, **kwargs)
     await db.drop()
 
 
@@ -45,7 +44,7 @@ async def drop(**kwargs):
 @click.confirmation_option(help='Are you sure you want to drop all objects in DB ?')
 async def empty(**kwargs):
     '''Empty databases'''
-    db = await Collection.make(**kwargs)
+    db = await database.Database.make(**kwargs)
     await db.empty()
 
 
@@ -55,7 +54,7 @@ async def empty(**kwargs):
 @click.confirmation_option(help='Are you sure you want to drop the db?')
 async def clear(**kwargs):
     '''Drop and recreate database and schema'''
-    db = await Collection.make(**kwargs)
+    db = await database.Database.make(**kwargs)
     await db.clear()
 
 
@@ -64,22 +63,12 @@ async def clear(**kwargs):
 @helpers.add_options(database.options)
 async def clean(**kwargs):
     '''Clean deleted musics from database'''
-    db = await Collection.make(**kwargs)
+    db = await database.Database.make(**kwargs)
     musics = await db.musics()
     for m in musics:
         if not os.path.isfile(m['path']):
             logger.info('%s does not exist', m['path'])
             await db.delete(m['path'])
-    await db.refresh()
-
-
-@cli.command()
-@helpers.coro
-@helpers.add_options(database.options)
-async def refresh(**kwargs):
-    '''Refresh database materialized views'''
-    db = await Collection.make(**kwargs)
-    await db.refresh()
 
 
 @cli.command()
@@ -87,7 +76,7 @@ async def refresh(**kwargs):
 @helpers.add_options(database.options)
 async def stats(**kwargs):
     '''Get stats about database'''
-    db = await Collection.make(**kwargs)
+    db = await database.Database.make(**kwargs)
     sql = '''SELECT relname,
                     100 * idx_scan / nullif((seq_scan + idx_scan), 0) as percent_of_times_index_used,
                     n_live_tup as rows_in_table

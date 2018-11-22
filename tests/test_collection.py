@@ -1,8 +1,7 @@
 import os
 import logging
 import pytest
-from musicbot.lib.database import MB_DB, DEFAULT_DB
-from musicbot.lib.collection import Collection
+from musicbot.lib.database import MB_DB, DEFAULT_DB, Database
 from musicbot.lib import lib, file, mfilter
 from . import fixtures
 
@@ -20,7 +19,7 @@ async def collection(files, worker_id):
     # append worker ID to test database name
     db = os.getenv(MB_DB, DEFAULT_DB)
     db += ("_" + worker_id)
-    collection = await Collection.make(db=db)
+    collection = await Database.make(db=db)
     await collection.clear()
     for f in files:
         m = file.File(f[1], f[0])

@@ -3,8 +3,9 @@
 set -e
 
 my_dir="$(dirname "$0")"
-commands=$my_dir/COMMANDS.rst
->$commands
+
+commands=$(mktemp $my_dir/commands_$$.XXXXXX)
+trap "rm -rf $my_dir/commands_$$.*" EXIT
 repeat (){
     seq  -f $1 -s '' $2; echo
 }
@@ -36,5 +37,3 @@ do
 done
 
 cat $my_dir/help.rst $commands > $my_dir/../README.rst
-
-rm $commands

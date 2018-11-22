@@ -70,10 +70,6 @@ def timeit(f):
     return wrapper
 
 
-async def refresh_db(db):
-    await db.refresh()
-
-
 @timeit
 async def crawl_musics(db, mf=None, concurrency=1):
     if mf is None:
@@ -88,7 +84,6 @@ async def crawl_musics(db, mf=None, concurrency=1):
         semaphore = asyncio.BoundedSemaphore(concurrency)
         requests = [asyncio.ensure_future(search(semaphore, m)) for m in musics]
         await asyncio.gather(*requests)
-    await db.refresh()
 
 
 @timeit
@@ -105,7 +100,6 @@ async def crawl_albums(db, mf=None, youtube_album='', concurrency=1):
         semaphore = asyncio.BoundedSemaphore(concurrency)
         requests = [asyncio.ensure_future(search(semaphore, a)) for a in albums]
         await asyncio.gather(*requests)
-    await db.refresh()
 
 
 @timeit
@@ -115,6 +109,7 @@ async def fullscan(db, folders=None, crawl=False, concurrency=1):
         folders = [f['name'] for f in folders]
     logger.debug(folders)
 
+    await db.authenticate_user(email="crunchengine@gmail.com", password="test_test")
     with click_spinner.spinner(disable=config.quiet):
         files = [f for f in find_files(list(folders)) if f[1].endswith(tuple(supported_formats))]
     logger.debug(files)
@@ -139,10 +134,10 @@ async def fullscan(db, folders=None, crawl=False, concurrency=1):
             async with semaphore:
                 try:
                     m = File(f[1], f[0])
-                    if crawl:
-                        await m.find_youtube()
-                        pbar.update(1)
-                    logger.debug(m.to_list())
+                    # if crawl:
+                    #     await m.find_youtube()
+                    #     pbar.update(1)
+                    # logger.debug(m.to_list())
                     await db.upsert(m)
                     pbar.update(1)
                 except asyncpg.exceptions.CheckViolationError as e:
@@ -150,7 +145,6 @@ async def fullscan(db, folders=None, crawl=False, concurrency=1):
         semaphore = asyncio.BoundedSemaphore(concurrency)
         tasks = [asyncio.ensure_future(insert(semaphore, f)) for f in files]
         await asyncio.gather(*tasks)
-    await db.refresh()
 
 
 async def watcher(db):
@@ -165,7 +159,6 @@ async def watcher(db):
                     f = File(path, folder['name'])
                     logger.debug(f.to_list())
                     await db.upsert(f)
-                    # await db.refresh()
                     return
 
         async def on_modified(self, event):
@@ -177,7 +170,6 @@ async def watcher(db):
         async def on_deleted(self, event):
             logger.debug('Deleting entry in DB for: %s %s', event.src_path, event.event_type)
             await db.delete(event.src_path)
-            await db.refresh()
 
         async def on_moved(self, event):
             logger.debug('Moving entry in DB for: %s %s', event.src_path, event.event_type)

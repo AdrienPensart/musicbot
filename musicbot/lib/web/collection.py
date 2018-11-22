@@ -23,7 +23,6 @@ async def schedule(request):
         await helpers.fullscan(request.app.db)
         await helpers.crawl_musics(request.app.db)
         await helpers.crawl_albums(request.app.db)
-        await helpers.refresh_db(request.app.db)
     asyncio.ensure_future(do())
     return await webhelpers.template('schedule.html')
 
@@ -32,13 +31,6 @@ async def schedule(request):
 @webhelpers.basicauth
 async def rescan(request):
     return await webhelpers.template('rescan.html')
-
-
-@collection.route('/refresh')
-@webhelpers.basicauth
-async def refresh(request):
-    await request.app.db.refresh()
-    return await webhelpers.template('refresh.html')
 
 
 @collection.route('/youtube')
@@ -75,7 +67,6 @@ async def progression(request, ws):
                     await ws.send(str(percentage))
             except asyncpg.exceptions.CheckViolationError as e:
                 logger.warning("Violation: %s", e)
-    await request.app.db.refresh()
 
 
 @collection.get('/stats')

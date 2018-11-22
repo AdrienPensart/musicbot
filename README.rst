@@ -26,7 +26,7 @@ Installation
 
 .. code-block:: bash
 
-  sudo apt install libtag1-dev ffmpeg postgresql-11 pgcli libpcre3-dev
+  sudo apt install build-essential libssl-dev libtag1-dev ffmpeg postgresql-11 libpcre3-dev postgresql-server-dev-all
   git clone https://github.com/AdrienPensart/musicbot.git
   cd musicbot
 
@@ -51,9 +51,17 @@ Installation
   sudo ln -s /home/crunch/musicbot/scripts/nginx.conf /opt/nginx/conf/nginx.conf
   sudo ln -s /opt/nginx/sbin/nginx /usr/sbin/nginx
 
+  git clone https://github.com/michelp/pgjwt.git
+  cd pgjwt
+  sudo make install
+
   sudo systemctl enable nginx
   sudo systemctl enable musicbot
   sudo systemctl daemon-reload
+
+  curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
+  nvm install node
+  npm install -g postgraphile
 Commands
 --------
 .. code-block::
@@ -92,6 +100,7 @@ Commands
     stats        Youtube management
     tag          Music tags management
     task         Task management
+    user         User management
     youtube      Youtube management
 
 
@@ -219,7 +228,7 @@ musicbot consistency
     --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
                       calhost:5432/musicbot_prod]
     --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single TEXT  DB will use only one connection  [default: False]
+    --db-single       DB will use only one connection  [default: False]
     --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
     -h, --help        Show this message and exit.
   
@@ -287,15 +296,14 @@ musicbot db
     -h, --help  Show this message and exit.
   
   Commands:
-    clean    Clean deleted musics from database
-    clear    Drop and recreate database and schema
-    cli      Start PgCLI util
-    create   Create database and load schema
-    drop     Drop database schema
-    empty
-    help     Print help
-    refresh  Refresh database materialized views
-    stats    Get stats about database
+    clean   Clean deleted musics from database
+    clear   Drop and recreate database and schema
+    cli     Start PgCLI util
+    create  Create database and load schema
+    drop    Drop database schema
+    empty   Empty databases
+    help    Print help
+    stats   Get stats about database
 
 
 musicbot db clean
@@ -310,7 +318,7 @@ musicbot db clean
     --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
                       calhost:5432/musicbot_prod]
     --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single TEXT  DB will use only one connection  [default: False]
+    --db-single       DB will use only one connection  [default: False]
     --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
     -h, --help        Show this message and exit.
 
@@ -327,7 +335,7 @@ musicbot db clear
     --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
                       calhost:5432/musicbot_prod]
     --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single TEXT  DB will use only one connection  [default: False]
+    --db-single       DB will use only one connection  [default: False]
     --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
     --yes             Are you sure you want to drop the db?
     -h, --help        Show this message and exit.
@@ -345,7 +353,7 @@ musicbot db cli
     --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
                       calhost:5432/musicbot_prod]
     --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single TEXT  DB will use only one connection  [default: False]
+    --db-single       DB will use only one connection  [default: False]
     --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
     -h, --help        Show this message and exit.
 
@@ -362,7 +370,7 @@ musicbot db create
     --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
                       calhost:5432/musicbot_prod]
     --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single TEXT  DB will use only one connection  [default: False]
+    --db-single       DB will use only one connection  [default: False]
     --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
     -h, --help        Show this message and exit.
 
@@ -379,7 +387,7 @@ musicbot db drop
     --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
                       calhost:5432/musicbot_prod]
     --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single TEXT  DB will use only one connection  [default: False]
+    --db-single       DB will use only one connection  [default: False]
     --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
     --yes             Are you sure you want to drop the DB ?
     -h, --help        Show this message and exit.
@@ -391,11 +399,13 @@ musicbot db empty
 
   Usage: musicbot db empty [OPTIONS]
   
+    Empty databases
+  
   Options:
     --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
                       calhost:5432/musicbot_prod]
     --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single TEXT  DB will use only one connection  [default: False]
+    --db-single       DB will use only one connection  [default: False]
     --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
     --yes             Are you sure you want to drop all objects in DB ?
     -h, --help        Show this message and exit.
@@ -413,23 +423,6 @@ musicbot db help
     -h, --help  Show this message and exit.
 
 
-musicbot db refresh
-*******************
-.. code-block::
-
-  Usage: musicbot db refresh [OPTIONS]
-  
-    Refresh database materialized views
-  
-  Options:
-    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
-                      calhost:5432/musicbot_prod]
-    --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single TEXT  DB will use only one connection  [default: False]
-    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
-    -h, --help        Show this message and exit.
-
-
 musicbot db stats
 *****************
 .. code-block::
@@ -442,7 +435,7 @@ musicbot db stats
     --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
                       calhost:5432/musicbot_prod]
     --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single TEXT  DB will use only one connection  [default: False]
+    --db-single       DB will use only one connection  [default: False]
     --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
     -h, --help        Show this message and exit.
 
@@ -459,7 +452,7 @@ musicbot file
     --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
                       calhost:5432/musicbot_prod]
     --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single TEXT  DB will use only one connection  [default: False]
+    --db-single       DB will use only one connection  [default: False]
     --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
     -h, --help        Show this message and exit.
   
@@ -568,7 +561,7 @@ musicbot folder
     --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
                       calhost:5432/musicbot_prod]
     --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single TEXT  DB will use only one connection  [default: False]
+    --db-single       DB will use only one connection  [default: False]
     --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
     -h, --help        Show this message and exit.
   
@@ -742,7 +735,7 @@ musicbot playlist
     --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
                       calhost:5432/musicbot_prod]
     --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single TEXT  DB will use only one connection  [default: False]
+    --db-single       DB will use only one connection  [default: False]
     --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
     -h, --help        Show this message and exit.
   
@@ -866,7 +859,7 @@ musicbot server
     --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
                       calhost:5432/musicbot_prod]
     --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single TEXT  DB will use only one connection  [default: False]
+    --db-single       DB will use only one connection  [default: False]
     --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
     -h, --help        Show this message and exit.
   
@@ -966,7 +959,7 @@ musicbot stats
     --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
                       calhost:5432/musicbot_prod]
     --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single TEXT  DB will use only one connection  [default: False]
+    --db-single       DB will use only one connection  [default: False]
     --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
     -h, --help        Show this message and exit.
   
@@ -1034,7 +1027,7 @@ musicbot tag
     --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
                       calhost:5432/musicbot_prod]
     --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single TEXT  DB will use only one connection  [default: False]
+    --db-single       DB will use only one connection  [default: False]
     --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
     -h, --help        Show this message and exit.
   
@@ -1103,7 +1096,7 @@ musicbot task
     --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
                       calhost:5432/musicbot_prod]
     --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single TEXT  DB will use only one connection  [default: False]
+    --db-single       DB will use only one connection  [default: False]
     --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
     -h, --help        Show this message and exit.
   
@@ -1149,6 +1142,130 @@ musicbot task new
     -h, --help  Show this message and exit.
 
 
+musicbot user
+*************
+.. code-block::
+
+  Usage: musicbot user [OPTIONS] COMMAND [ARGS]...
+  
+    User management
+  
+  Options:
+    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
+                      calhost:5432/musicbot_prod]
+    --db-max INTEGER  DB maximum number of connections  [default: 32]
+    --db-single       DB will use only one connection  [default: False]
+    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
+    -h, --help        Show this message and exit.
+  
+  Commands:
+    help    Print help
+    list    List users
+    login   Authenticate user
+    new     Register a new user
+    remove
+    token   Emit a new token
+
+
+musicbot user help
+******************
+.. code-block::
+
+  Usage: musicbot user help [OPTIONS] [COMMAND]...
+  
+    Print help
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot user list
+******************
+.. code-block::
+
+  Usage: musicbot user list [OPTIONS]
+  
+    List users
+  
+  Options:
+    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
+                      calhost:5432/musicbot_prod]
+    --db-max INTEGER  DB maximum number of connections  [default: 32]
+    --db-single       DB will use only one connection  [default: False]
+    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
+    -h, --help        Show this message and exit.
+
+
+musicbot user login
+*******************
+.. code-block::
+
+  Usage: musicbot user login [OPTIONS] EMAIL PASSWORD
+  
+    Authenticate user
+  
+  Options:
+    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
+                      calhost:5432/musicbot_prod]
+    --db-max INTEGER  DB maximum number of connections  [default: 32]
+    --db-single       DB will use only one connection  [default: False]
+    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
+    -h, --help        Show this message and exit.
+
+
+musicbot user new
+*****************
+.. code-block::
+
+  Usage: musicbot user new [OPTIONS]
+  
+    Register a new user
+  
+  Options:
+    --db TEXT          DB dsn string  [default: postgresql://postgres:musicbot@l
+                       ocalhost:5432/musicbot_prod]
+    --db-max INTEGER   DB maximum number of connections  [default: 32]
+    --db-single        DB will use only one connection  [default: False]
+    --db-cert TEXT     DB SSL certificate  [default: ~/.postgresql/root.crt]
+    --email TEXT       User email  [default: admin@musicbot.ovh]
+    --password TEXT    User password
+    --first-name TEXT  User first name  [default: admin]
+    --last-name TEXT   User last name  [default: admin]
+    -h, --help         Show this message and exit.
+
+
+musicbot user remove
+********************
+.. code-block::
+
+  Usage: musicbot user remove [OPTIONS] EMAIL
+  
+  Options:
+    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
+                      calhost:5432/musicbot_prod]
+    --db-max INTEGER  DB maximum number of connections  [default: 32]
+    --db-single       DB will use only one connection  [default: False]
+    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
+    -h, --help        Show this message and exit.
+
+
+musicbot user token
+*******************
+.. code-block::
+
+  Usage: musicbot user token [OPTIONS] EMAIL PASSWORD SECRET
+  
+    Emit a new token
+  
+  Options:
+    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
+                      calhost:5432/musicbot_prod]
+    --db-max INTEGER  DB maximum number of connections  [default: 32]
+    --db-single       DB will use only one connection  [default: False]
+    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
+    -h, --help        Show this message and exit.
+
+
 musicbot youtube
 ****************
 .. code-block::
@@ -1161,7 +1278,7 @@ musicbot youtube
     --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
                       calhost:5432/musicbot_prod]
     --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single TEXT  DB will use only one connection  [default: False]
+    --db-single       DB will use only one connection  [default: False]
     --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
     -h, --help        Show this message and exit.
   

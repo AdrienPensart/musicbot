@@ -1,6 +1,5 @@
 import click
 from musicbot.lib import helpers, database, mfilter
-from musicbot.lib.collection import Collection
 
 
 @click.group(cls=helpers.GroupWithHelp)
@@ -9,7 +8,7 @@ from musicbot.lib.collection import Collection
 @helpers.add_options(database.options)
 async def cli(ctx, **kwargs):
     '''Youtube management'''
-    ctx.obj.db = await Collection.make(**kwargs)
+    ctx.obj.db = await database.Database.make(**kwargs)
 
 
 @cli.command()

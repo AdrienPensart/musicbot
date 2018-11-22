@@ -1,7 +1,6 @@
 import click
 import logging
 from musicbot.lib import file, helpers, database, mfilter
-from musicbot.lib.collection import Collection
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +11,7 @@ logger = logging.getLogger(__name__)
 @click.pass_context
 async def cli(ctx, **kwargs):
     '''Music tags management'''
-    ctx.obj.db = await Collection.make(**kwargs)
+    ctx.obj.db = await database.Database.make(**kwargs)
 
 
 @cli.command()

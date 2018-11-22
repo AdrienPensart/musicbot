@@ -1,3 +1,13 @@
+dev (support watch schema) :
+
+DEBUG="graphile-build-pg,postgraphile:postgres,postgraphile:postgres:error" postgraphile -j -N --no-ignore-rbac -c postgresql://postgres:musicbot@localhost:5432/musicbot_prod -n 0.0.0.0 -p 5000 --schema musicbot_public --default-role musicbot_anonymous --jwt-token-identifier musicbot_public.jwt_token --jwt-secret buckethead_bot --show-error-stack --watch
+
+prod (static schema) :
+
+postgraphile -j -N --no-ignore-rbac -c postgresql://musicbot_postgraphile:musicbot_postgraphile_password@localhost:5432/musicbot_prod -n 0.0.0.0 -p 5001 --schema musicbot_public --default-role musicbot_anonymous --jwt-token-identifier musicbot_public.jwt_token --jwt-secret buckethead_bot
+
+examples :
+
 mutation
 {
   registerUser(input: {firstName: "Foo", lastName: "Bar", email: "test@new.com", password: "123456"})
@@ -7,7 +17,6 @@ mutation
       id,
       firstName,
       lastName,
-      about,
       createdAt,
       updatedAt
     }
@@ -27,5 +36,15 @@ mutation
   {
     id,
     firstName
+  }
+}
+
+{
+  allRawMusics {
+    edges {
+      node {
+        id
+      }
+    }
   }
 }

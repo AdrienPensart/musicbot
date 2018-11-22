@@ -14,7 +14,7 @@ else:
 bin_folder = os.path.dirname(myself)
 commands_folder = 'commands'
 plugin_folder = os.path.join(bin_folder, commands_folder)
-CONTEXT_SETTINGS = {'auto_envvar_prefix': 'MUSICBOT', 'help_option_names': ['-h', '--help']}
+CONTEXT_SETTINGS = {'auto_envvar_prefix': 'MB', 'help_option_names': ['-h', '--help']}
 logger = logging.getLogger('musicbot')
 
 
@@ -67,7 +67,7 @@ def cli(ctx, **kwargs):
 
 def main():
     register_repl(cli)
-    cli()
+    return cli()
 
 
 if __name__ == '__main__':

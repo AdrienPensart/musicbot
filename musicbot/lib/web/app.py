@@ -11,8 +11,7 @@ from sanic import Sanic
 from sanic.log import LOGGING_CONFIG_DEFAULTS
 from sanic_openapi import swagger_blueprint, openapi_blueprint
 
-from .. import helpers, lib
-from ..collection import Collection
+from .. import helpers, lib, database
 from ..config import config
 from . import helpers as webhelpers
 from .config import webconfig
@@ -21,8 +20,6 @@ from .collection import collection
 
 del LOGGING_CONFIG_DEFAULTS['loggers']['root']
 STATIC_FOLDER = './lib/web/templates/static'
-
-
 logger = logging.getLogger(__name__)
 
 
@@ -91,7 +88,7 @@ def create_app(**db_settings): # noqa: MC0001
     async def open_db(app, loop):
         if app.db is None:
             logger.info('Initialize DB in web app')
-            app.db = await Collection.make(**db_settings)
+            app.db = await database.Database.make(**db_settings)
 
     @app.listener('after_server_stop')
     async def close_db(app, loop):
