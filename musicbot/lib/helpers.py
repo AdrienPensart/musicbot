@@ -7,10 +7,10 @@ import click_spinner
 import logging
 import string
 import random
+import functools
 from click_didyoumean import DYMGroup
 from tqdm import tqdm
-from functools import wraps
-from ..hachiko.hachiko import AIOEventHandler
+from hachiko.hachiko import AIOEventHandler
 from . import youtube
 from .config import config
 from .file import File
@@ -58,7 +58,7 @@ async def process(f, *args, **params):
 
 
 def timeit(f):
-    @wraps(f)
+    @functools.wraps(f)
     async def wrapper(*args, **params):
         start = time.time()
         result = await process(f, *args, **params)
@@ -202,7 +202,7 @@ def add_options(options):
 def coro(f):
     f = asyncio.coroutine(f)
 
-    @wraps(f)
+    @functools.wraps(f)
     def wrapper(*args, **kwargs):
         loop = asyncio.get_event_loop()
         return loop.run_until_complete(f(*args, **kwargs))
@@ -210,7 +210,7 @@ def coro(f):
 
 
 def drier(f):
-    @wraps(f)
+    @functools.wraps(f)
     async def wrapper(*args, **kwargs):
         if config.dry:
             args = [str(a) for a in args] + ["%s=%s" % (k, v) for (k, v) in kwargs.items()]
