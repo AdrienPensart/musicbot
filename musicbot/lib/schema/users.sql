@@ -75,18 +75,13 @@ $$
 	select insert_user.* from insert_user;
 $$ language sql strict security definer;
 
-create or replace function musicbot_public.remove_user(
-    _email text
-)
-returns boolean as
+create or replace function musicbot_public.remove_user()
+returns musicbot_public.user as
 $$
-    with d as (
-		delete from musicbot_public.user u
-		using musicbot_private.account a
-		where u.id = a.user_id and a.email = _email
-		returning *
-	) select (coalesce(count(*), 0) > 0) as c from d;
-$$ language sql strict security definer;
+	delete from musicbot_public.user u
+	where u.id = musicbot_public.current_musicbot_id()
+	returning *
+$$ language sql;
 
 create or replace function musicbot_public.authenticate(
   email text,
@@ -103,19 +98,19 @@ begin
     where a.email = $1;
 
     if account.password_hash = crypt(password, account.password_hash) then
-		set role musicbot_user;
+		--set role musicbot_user;
 		--set local jwt.claims.role to 'musicbot_user';
-		set session authorization musicbot_user;
-		perform set_config('jwt.claims.role', 'musicbot_user', false);
-		perform set_config('jwt.claims.user_id', account.user_id::text, false);
+		--set local jwt.claims.user_id to
+		--set session authorization musicbot_user;
+		--perform set_config('jwt.claims.role', 'musicbot_user', false);
+		--perform set_config('jwt.claims.user_id', account.user_id::text, false);
         return ('musicbot_user', account.user_id)::musicbot_public.jwt_token;
     else
         raise notice 'Authentication failed for user %', email;
         return null;
     end if;
 end;
-$$ language plpgsql;
---$$ language plpgsql strict security definer;
+$$ language plpgsql strict security definer;
 
 create or replace function musicbot_public.new_token(
   email text,

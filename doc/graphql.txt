@@ -48,3 +48,9 @@ mutation
     }
   }
 }
+
+mutation {
+  deleteUserById(input: {id: 10}){
+    clientMutationId
+  }
+}
