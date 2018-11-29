@@ -2,7 +2,6 @@ import asyncio
 import time
 import uvloop
 import click
-import asyncpg
 import click_spinner
 import logging
 import string
@@ -110,41 +109,20 @@ async def fullscan(db, folders=None, crawl=False, concurrency=1):
     logger.debug(folders)
 
     await db.authenticate_user(email="crunchengine@gmail.com", password="test_test")
+    print('Scanning folder')
     with click_spinner.spinner(disable=config.quiet):
-        files = [f for f in find_files(list(folders)) if f[1].endswith(tuple(supported_formats))]
-    logger.debug(files)
-    size = len(files) if crawl else len(files)
-    with tqdm(total=size, desc="Loading musics", disable=config.quiet) as pbar:
-        # async with (await db.pool).acquire() as connection:
-        #     logger.info('Before transaction')
-        #     async with connection.transaction():
-        #         logger.info('for f in files')
-        #         for f in files:
-        #             m = File(f[1], f[0])
-        #             try:
-        #                 logger.debug(m)
-        #                 logger.info('before upsert')
-        #                 await db.upsert(m)
-        #                 logger.info('after upsert')
-        #             except asyncpg.exceptions.CheckViolationError as e:
-        #                 logger.warning("Violation: %s", e)
-        #             pbar.update(1)
-        #     db._remove_log_listener(connection)
-        async def insert(semaphore, f):
-            async with semaphore:
-                try:
-                    m = File(f[1], f[0])
-                    # if crawl:
-                    #     await m.find_youtube()
-                    #     pbar.update(1)
-                    # logger.debug(m.to_list())
-                    await db.upsert(m)
-                    pbar.update(1)
-                except asyncpg.exceptions.CheckViolationError as e:
-                    logger.warning("Violation: %s", e)
-        semaphore = asyncio.BoundedSemaphore(concurrency)
-        tasks = [asyncio.ensure_future(insert(semaphore, f)) for f in files]
-        await asyncio.gather(*tasks)
+        musics = [File(f[1], f[0]).to_tuple() for f in find_files(list(folders)) if f[1].endswith(tuple(supported_formats))]
+    # size = len(files) if crawl else len(files)
+    async with (await db.pool).acquire() as con:
+        print('Inserting musics')
+        result = await con.copy_records_to_table(
+            'raw_music',
+            schema_name='musicbot_public',
+            columns=File.keys(),
+            records=musics)
+        print('Removing duplicates')
+        await con.execute('delete from musicbot_public.raw_music where id not in (select distinct on (path) id from musicbot_public.raw_music order by path, updated_at desc)')
+        logger.info(result)
 
 
 async def watcher(db):

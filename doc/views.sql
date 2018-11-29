@@ -1,4 +1,3 @@
-begin;
 --create materialized view if not exists mmusics as
 --select
 --    m.id        as id,
@@ -96,5 +95,3 @@ begin;
 --create index if not exists words_idx on unique_lexeme using gin(word gin_trgm_ops);
 
 --with fuzzy as (select word from unique_lexeme where similarity(word, 'buck') > 0.3 order by word <-> 'buck' limit 1) select * from smusics where document @@ to_tsquery('simple', (select word from fuzzy)) order by ts_rank(document, to_tsquery('simple', (select word from fuzzy))) desc;
-
-end;

@@ -71,20 +71,25 @@ class File:
                 self.size,
                 mysplit(self.keywords, ' '))
 
-    def to_dict(self):
-        return {'title': self.title,
-                'album': self.album,
-                'genre': self.genre,
-                'artist': self.artist,
-                'folder': self._folder,
-                'youtube': self.youtube,
-                'spotify': self.spotify,
-                'number': self.number,
-                'path': self.path,
-                'rating': self.rating,
-                'duration': self.duration,
-                'size': self.size,
-                'keywords': mysplit(self.keywords, ' ')}
+    @staticmethod
+    def keys():
+        return ['title', 'album', 'genre', 'artist', 'folder', 'youtube', 'spotify', 'number', 'path', 'rating', 'duration', 'size', 'keywords']
+
+    # def to_dict(self):
+    #     from collections import OrderedDict
+    #     return OrderedDict([('title', self.title),
+    #                         ('album', self.genre),
+    #                         ('genre', self.genre),
+    #                         ('artist', self.artist),
+    #                         ('folder', self._folder),
+    #                         ('youtube', self.youtube),
+    #                         ('spotify', self.spotify),
+    #                         ('number', self.number),
+    #                         ('path', self.path),
+    #                         ('rating', self.rating),
+    #                         ('duration', self.duration),
+    #                         ('size', self.size),
+    #                         ('keywords', mysplit(self.keywords, ' '))])
 
     @property
     def path(self):

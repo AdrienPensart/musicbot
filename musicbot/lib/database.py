@@ -62,8 +62,7 @@ class Database:
     async def create(self):
         await self.createdb()
         schema_dir = os.path.join(os.path.dirname(__file__), 'schema')
-        # for sqlfile in ['schemas.sql', 'extensions.sql', 'users.sql', 'tables.sql', 'views.sql', 'functions.sql', 'data.sql', 'triggers.sql']:
-        for sqlfile in ['schemas.sql', 'extensions.sql', 'users.sql', 'tables.sql', 'functions.sql']:
+        for sqlfile in ['schemas.sql', 'extensions.sql', 'users.sql', 'raw_music.sql', 'filter.sql', 'stat.sql']:
             await self.executefile(os.path.join(schema_dir, sqlfile))
 
     async def clear(self):
@@ -110,9 +109,9 @@ class Database:
             mf = Filter()
         tl = mf.to_list()
         if json:
-            sql = '''select array_to_json(array_agg(row_to_json(k))) as json from (select distinct keyword as name from (select unnest(array_cat_agg(keywords)) as keyword from do_filter($1::filters)) k order by name) k'''
+            sql = '''select array_to_json(array_agg(row_to_json(k))) as json from (select distinct keyword as name from (select unnest(array_cat_agg(keywords)) as keyword from do_filter($1::musicbot_public.filter)) k order by name) k'''
             return (await self.fetchrow(sql, tl))['json']
-        sql = """select distinct keyword as name from (select unnest(array_cat_agg(keywords)) as keyword from do_filter($1::filters)) k order by name"""
+        sql = """select distinct keyword as name from (select unnest(array_cat_agg(keywords)) as keyword from do_filter($1::musicbot_public.filter)) k order by name"""
         return await self.fetch(sql, tl)
 
     async def keywords_name(self, mf=None):
@@ -123,9 +122,9 @@ class Database:
             mf = Filter()
         tl = mf.to_list()
         if json:
-            sql = '''select array_to_json(array_agg(row_to_json(a))) as json from (select distinct artist as name from do_filter($1::filters) m order by name) a'''
+            sql = '''select array_to_json(array_agg(row_to_json(a))) as json from (select distinct artist as name from do_filter($1::musicbot_public.filter) m order by name) a'''
             return (await self.fetchrow(sql, tl))['json']
-        sql = """select distinct artist as name from do_filter($1::filters) order by name"""
+        sql = """select distinct artist as name from do_filter($1::musicbot_public.filter) order by name"""
         return await self.fetch(sql, tl)
 
     async def artists_name(self, mf=None):
@@ -135,8 +134,8 @@ class Database:
         if mf is None:
             mf = Filter()
         if json:
-            sql = '''select array_to_json(array_agg(row_to_json(a))) as json from (select distinct title as name from do_filter($1::filters) order by name) a'''
-        sql = """select distinct title as name from do_filter($1::filters) order by name"""
+            sql = '''select array_to_json(array_agg(row_to_json(a))) as json from (select distinct title as name from do_filter($1::musicbot_public.filter) order by name) a'''
+        sql = """select distinct title as name from do_filter($1::musicbot_public.filter) order by name"""
         return await self.fetch(sql, mf.to_list())
 
     async def titles_name(self, mf=None):
@@ -147,9 +146,9 @@ class Database:
             mf = Filter()
         tl = mf.to_list()
         if json:
-            sql = '''select array_to_json(array_agg(row_to_json(a))) as json from (select album as name, artist, a.youtube as youtube, sum(duration) as duration from do_filter($1::filters) m inner join albums a on a.name=album where $2::text is null or $2::text = a.youtube group by album, artist, a.youtube order by album) a'''
+            sql = '''select array_to_json(array_agg(row_to_json(a))) as json from (select album as name, artist, a.youtube as youtube, sum(duration) as duration from do_filter($1::musicbot_public.filter) m inner join albums a on a.name=album where $2::text is null or $2::text = a.youtube group by album, artist, a.youtube order by album) a'''
             return (await self.fetchrow(sql, tl, youtube))['json']
-        sql = """select album as name, artist, a.youtube as youtube, sum(duration) as duration from do_filter($1::filters) m inner join albums a on a.name=album where $2::text is null or $2::text = a.youtube group by album, artist, a.youtube order by album"""
+        sql = """select album as name, artist, a.youtube as youtube, sum(duration) as duration from do_filter($1::musicbot_public.filter) m inner join albums a on a.name=album where $2::text is null or $2::text = a.youtube group by album, artist, a.youtube order by album"""
         return await self.fetch(sql, tl, youtube)
 
     async def albums_name(self, mf=None):
@@ -160,9 +159,9 @@ class Database:
             mf = Filter()
         tl = mf.to_list()
         if json:
-            sql = '''select array_to_json(array_agg(row_to_json(g))) as json from (select distinct genre as name from do_filter($1::filters) m order by name) g'''
+            sql = '''select array_to_json(array_agg(row_to_json(g))) as json from (select distinct genre as name from do_filter($1::musicbot_public.filter) m order by name) g'''
             return (await self.fetchrow(sql, tl))['json']
-        sql = """select distinct genre as name from do_filter($1::filters) order by name"""
+        sql = """select distinct genre as name from do_filter($1::musicbot_public.filter) order by name"""
         return await self.fetch(sql, tl)
 
     async def genres_name(self, mf=None):
@@ -171,7 +170,7 @@ class Database:
     # async def form(self, mf=None):
     #     if mf is None:
     #         mf = Filter()
-    #     sql = '''select * from generate_form($1::filters)'''
+    #     sql = '''select * from generate_form($1::musicbot_public.filter)'''
     #     return await self.fetchrow(sql, mf.to_list())
 
     async def stats(self, mf=None, json=False):
@@ -179,20 +178,20 @@ class Database:
             mf = Filter()
         tl = mf.to_list()
         if json:
-            sql = '''select row_to_json(s) as json from do_stats($1::filters) s'''
+            sql = '''select row_to_json(s) as json from do_stats($1::musicbot_public.filter) s'''
             return (await self.fetchrow(sql, tl))['json']
-        sql = '''select * from do_stats($1::filters) s'''
+        sql = '''select * from do_stats($1::musicbot_public.filter) s'''
         return await self.fetchrow(sql, tl)
 
     async def filters(self, json=False):
         if json:
-            sql = '''select array_to_json(array_agg(row_to_json(f))) as json from filters f'''
+            sql = '''select array_to_json(array_agg(row_to_json(f))) as json from musicbot_public.filter f'''
             return (await self.fetchrow(sql))['json']
-        sql = '''select * from filters'''
+        sql = '''select * from musicbot_public.filter'''
         return await self.fetch(sql)
 
     async def get_filter(self, name):
-        sql = '''select * from filters where name=$1'''
+        sql = '''select * from musicbot_public.filter where name=$1'''
         return await self.fetchrow(sql, name)
 
     @drier
@@ -217,9 +216,9 @@ class Database:
             f = Filter()
         tl = f.to_list()
         if json:
-            sql = '''select array_to_json(array_agg(row_to_json(m))) as playlist from do_filter($1::filters) m'''
+            sql = '''select array_to_json(array_agg(row_to_json(m))) as playlist from do_filter($1::musicbot_public.filter) m'''
             return (await self.fetchrow(sql, tl))['playlist']
-        sql = '''select * from do_filter($1::filters)'''
+        sql = '''select * from do_filter($1::musicbot_public.filter)'''
         return await self.fetch(sql, tl)
 
     async def music(self, music_id, json=False):
@@ -239,14 +238,14 @@ class Database:
     async def playlist(self, f=None):
         if f is None:
             f = Filter()
-        sql = '''select * from generate_playlist($1::filters)'''
+        sql = '''select * from generate_playlist($1::musicbot_public.filter)'''
         tl = f.to_list()
         return await self.fetchrow(sql, tl)
 
     async def bests(self, f=None):
         if f is None:
             f = Filter()
-        sql = '''select * from generate_bests($1::filters)'''
+        sql = '''select * from generate_bests($1::musicbot_public.filter)'''
         tl = f.to_list()
         return await self.fetch(sql, tl)
 
@@ -350,7 +349,6 @@ class Database:
             await con.close()
 
             con = await asyncpg.connect(dsn=self.connection_string, database='')
-            # TODO: put in a SQL function maybe ?
             await con.execute('''
                 select pg_terminate_backend(pg_stat_activity.pid)
                 from pg_stat_activity
@@ -389,7 +387,8 @@ class Database:
         if config.debug:
             if self.single:
                 await self.mogrify((await self.conn), sql, *args)
-                return await (await self.conn).fetch(sql, *args)
+                c = await self.conn
+                return await c.fetch(sql, *args)
 
             async with (await self.pool).acquire() as connection:
                 await self.mogrify(connection, sql, *args)
@@ -397,14 +396,17 @@ class Database:
                 Database._remove_log_listener(connection)
                 return results
         if self.single:
-            return await (await self.conn).fetch(sql, *args)
-        return await (await self.pool).fetch(sql, *args)
+            c = await self.conn
+            return await c.fetch(sql, *args)
+        p = await self.pool
+        return await p.fetch(sql, *args)
 
     async def fetchrow(self, sql, *args):
         if config.debug:
             if self.single:
-                await self.mogrify((await self.conn), sql, *args)
-                return await (await self.conn).fetchrow(sql, *args)
+                c = await self.conn
+                await self.mogrify(c, sql, *args)
+                return await c.fetchrow(sql, *args)
 
             async with (await self.pool).acquire() as connection:
                 await self.mogrify(connection, sql, *args)
@@ -412,14 +414,17 @@ class Database:
                 Database._remove_log_listener(connection)
                 return row
         if self.single:
-            return await (await self.conn).fetchrow(sql, *args)
-        return await (await self.pool).fetchrow(sql, *args)
+            c = await self.conn
+            return await c.fetchrow(sql, *args)
+        p = await self.pool
+        return await p.fetchrow(sql, *args)
 
     async def fetchval(self, sql, *args):
         if config.debug:
             if self.single:
-                await self.mogrify((await self.conn), sql, *args)
-                return await (await self.conn).fetchval(sql, *args)
+                c = await self.conn
+                await self.mogrify(c, sql, *args)
+                return await c.fetchval(sql, *args)
 
             async with (await self.pool).acquire() as connection:
                 await self.mogrify(connection, sql, *args)
@@ -427,8 +432,10 @@ class Database:
                 Database._remove_log_listener(connection)
                 return val
         if self.single:
-            return await (await self.conn).fetchval(sql, *args)
-        return await (await self.pool).fetchval(sql, *args)
+            c = await self.conn
+            return await c.fetchval(sql, *args)
+        p = await self.pool
+        return await p.fetchval(sql, *args)
 
     @drier
     async def executefile(self, filepath):
@@ -438,7 +445,8 @@ class Database:
             sql = s.read()
             if config.debug:
                 if self.single:
-                    return await (await self.conn).execute(sql)
+                    c = await self.conn
+                    return await c.execute(sql)
 
                 async with (await self.pool).acquire() as connection:
                     async with connection.transaction():
@@ -446,15 +454,18 @@ class Database:
                     Database._remove_log_listener(connection)
                     return result
             if self.single:
-                return await (await self.conn).execute(sql)
-            await (await self.pool).execute(sql)
+                c = await self.conn
+                return await c.execute(sql)
+            p = await self.pool
+            await p.execute(sql)
 
     @drier
     async def execute(self, sql, *args):
         if config.debug:
             if self.single:
-                await self.mogrify((await self.conn), sql, *args)
-                return await (await self.conn).execute(sql, *args)
+                c = await self.conn
+                await self.mogrify(c, sql, *args)
+                return await c.execute(sql, *args)
 
             async with (await self.pool).acquire() as connection:
                 async with connection.transaction():
@@ -463,14 +474,17 @@ class Database:
                 Database._remove_log_listener(connection)
                 return result
         if self.single:
-            return await (await self.conn).execute(sql, *args)
-        return await (await self.pool).execute(sql, *args)
+            c = await self.conn
+            return await c.execute(sql, *args)
+        p = await self.pool
+        return await p.execute(sql, *args)
 
     @drier
     async def executemany(self, sql, *args, **kwargs):
         if config.debug:
             if self.single:
-                return await (await self.conn).executemany(sql, *args, **kwargs)
+                c = await self.conn
+                return await c.executemany(sql, *args, **kwargs)
 
             async with (await self.pool).acquire() as connection:
                 async with connection.transaction():
@@ -478,5 +492,7 @@ class Database:
                 Database._remove_log_listener(connection)
                 return result
         if self.single:
-            return await (await self.conn).executemany(sql, *args, **kwargs)
-        return await (await self.pool).executemany(sql, *args, **kwargs)
+            c = await self.conn
+            return await c.executemany(sql, *args, **kwargs)
+        p = await self.pool
+        return await p.executemany(sql, *args, **kwargs)
