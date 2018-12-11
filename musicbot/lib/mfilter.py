@@ -9,14 +9,14 @@ rating_choices = [x * 0.5 for x in range(0, 11)]
 min_int = 0
 max_int = 2147483647
 
-default_id = 0
 default_name = ''
 default_filter = None
 default_relative = False
 default_shuffle = False
 default_youtubes = []
 default_no_youtubes = []
-supported_formats = ["mp3", "flac"]
+default_spotifys = []
+default_no_spotifys = []
 default_formats = []
 default_no_formats = []
 default_genres = []
@@ -40,12 +40,13 @@ default_no_albums = []
 
 @attr.s(frozen=True)
 class Filter:
-    id = attr.ib(default=default_id)
     name = attr.ib(default=default_name)
     relative = attr.ib(default=default_relative)
     shuffle = attr.ib(default=default_shuffle)
     youtubes = attr.ib(default=default_youtubes)
     no_youtubes = attr.ib(default=default_no_youtubes)
+    spotifys = attr.ib(default=default_spotifys)
+    no_spotifys = attr.ib(default=default_no_spotifys)
     formats = attr.ib(default=default_formats)
     no_formats = attr.ib(default=default_no_formats)
     limit = attr.ib(default=default_limit)
@@ -69,7 +70,7 @@ class Filter:
     no_albums = attr.ib(default=default_no_albums)
 
     def __attrs_post_init__(self):
-        if self.min_size  > self.max_size:
+        if self.min_size > self.max_size:
             raise ValueError("Invalid minimum ({}) or maximum ({}) size".format(self.min_rating, self.max_rating))
 
         if self.min_rating > self.max_rating:
@@ -105,7 +106,7 @@ class Filter:
         return {k: myself[k] for k in myself if default[k] == myself[k] and k != 'name'}
 
     def to_list(self):
-        my_list = [self.id, self.name,
+        my_list = [self.name,
                    self.min_duration, self.max_duration,
                    self.min_size, self.max_size,
                    self.min_rating, self.max_rating,
@@ -116,14 +117,49 @@ class Filter:
                    self.formats, self.no_formats,
                    self.keywords, self.no_keywords,
                    self.shuffle, self.relative,
-                   self.limit, self.youtubes, self.no_youtubes]
+                   self.limit,
+                   self.youtubes, self.no_youtubes,
+                   self.spotifys, self.no_spotifys]
         return my_list
+
+    def ordered_dict(self):
+        from collections import OrderedDict
+        return OrderedDict([('minDuration', self.min_duration),
+                            ('maxDuration', self.max_duration),
+                            ('minSize', self.min_size),
+                            ('maxSize', self.max_size),
+                            ('minRating', self.min_rating),
+                            ('maxRating', self.max_rating),
+                            ('artists', self.artists),
+                            ('noArtists', self.no_artists),
+                            ('albums', self.albums),
+                            ('noAlbums', self.no_albums),
+                            ('titles', self.titles),
+                            ('noTitles', self.no_titles),
+                            ('genres', self.genres),
+                            ('noGenres', self.no_genres),
+                            ('formats', self.formats),
+                            ('noFormats', self.no_formats),
+                            ('keywords', self.keywords),
+                            ('noKeywords', self.no_keywords),
+                            ('shuffle', self.shuffle),
+                            ('relative', self.relative),
+                            ('limit', self.limit),
+                            ('youtubes', self.youtubes),
+                            ('noYoutubes', self.no_youtubes),
+                            ('spotifys', self.spotifys),
+                            ('noSpotifys', self.no_spotifys)])
+
+    def to_graphql(self):
+        return ", ".join(['{}: {}'.format(k, json.dumps(v)) for k, v in self.ordered_dict().items()])
 
 
 options = [
     click.option('--limit', envvar='MB_LIMIT', help='Fetch a maximum limit of music', default=default_limit),
-    click.option('--youtubes', envvar='MB_YOUTUBES', help='Select musics with a youtube link', default=default_youtubes),
-    click.option('--no-youtubes', envvar='MB_NO_YOUTUBES', help='Select musics without youtube link', default=default_no_youtubes),
+    click.option('--youtubes', envvar='MB_YOUTUBES', help='Select musics with a youtube link', multiple=True, default=default_youtubes),
+    click.option('--no-youtubes', envvar='MB_NO_YOUTUBES', help='Select musics without youtube link', multiple=True, default=default_no_youtubes),
+    click.option('--spotifys', envvar='MB_SPOTIFYS', help='Select musics with a spotifys link', multiple=True, default=default_youtubes),
+    click.option('--no-spotifys', envvar='MB_NO_SPOTIFYS', help='Select musics without spotifys link', multiple=True, default=default_no_youtubes),
     click.option('--formats', envvar='MB_FORMATS', help='Select musics with file format', multiple=True, default=default_formats),
     click.option('--no-formats', envvar='MB_NO_FORMATS', help='Filter musics without format', multiple=True, default=default_no_formats),
     click.option('--keywords', envvar='MB_KEYWORDS', help='Select musics with keywords', multiple=True, default=default_keywords),

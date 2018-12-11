@@ -2,19 +2,13 @@ import asyncio
 import time
 import uvloop
 import click
-import click_spinner
 import logging
 import string
 import random
 import functools
 from click_didyoumean import DYMGroup
-from tqdm import tqdm
-from hachiko.hachiko import AIOEventHandler
-from . import youtube
 from .config import config
-from .file import File
-from .lib import seconds_to_human, find_files
-from .mfilter import Filter, supported_formats
+from .lib import seconds_to_human
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +52,16 @@ async def process(f, *args, **params):
 
 def timeit(f):
     @functools.wraps(f)
-    async def wrapper(*args, **params):
+    def wrapper(*args, **params):
+        start = time.time()
+        result = f(*args, **params)
+        for_human = seconds_to_human(time.time() - start)
+        if config.timings:
+            logger.info('TIMINGS %s: %s', f.__name__, for_human)
+        return result
+
+    @functools.wraps(f)
+    async def awrapper(*args, **params):
         start = time.time()
         result = await process(f, *args, **params)
         for_human = seconds_to_human(time.time() - start)
@@ -66,107 +69,9 @@ def timeit(f):
             logger.info('TIMINGS %s: %s', f.__name__, for_human)
         return result
 
+    if asyncio.iscoroutinefunction(f):
+        return awrapper
     return wrapper
-
-
-@timeit
-async def crawl_musics(db, mf=None, concurrency=1):
-    if mf is None:
-        mf = Filter(youtubes=[''])
-    musics = await db.musics(mf)
-    with tqdm(desc='Youtube musics', total=len(musics), disable=config.quiet) as pbar:
-        async def search(semaphore, m):
-            async with semaphore:
-                result = await youtube.search(m['artist'], m['title'], m['duration'])
-                pbar.update(1)
-                await db.set_music_youtube(m['path'], result)
-        semaphore = asyncio.BoundedSemaphore(concurrency)
-        requests = [asyncio.ensure_future(search(semaphore, m)) for m in musics]
-        await asyncio.gather(*requests)
-
-
-@timeit
-async def crawl_albums(db, mf=None, youtube_album='', concurrency=1):
-    if mf is None:
-        mf = Filter()
-    albums = await db.albums(mf, youtube_album)
-    with tqdm(desc='Youtube albums', total=len(albums), disable=config.quiet) as pbar:
-        async def search(semaphore, a):
-            async with semaphore:
-                result = await youtube.search(a['artist'], a['name'] + ' full album', a['duration'])
-                await db.set_album_youtube(a['name'], result)
-                pbar.update(1)
-        semaphore = asyncio.BoundedSemaphore(concurrency)
-        requests = [asyncio.ensure_future(search(semaphore, a)) for a in albums]
-        await asyncio.gather(*requests)
-
-
-@timeit
-async def fullscan(db, folders=None, crawl=False, concurrency=1):
-    if folders is None:
-        folders = await db.folders()
-        folders = [f['name'] for f in folders]
-    logger.debug(folders)
-
-    await db.authenticate_user(email="crunchengine@gmail.com", password="test_test")
-    print('Scanning folder')
-    with click_spinner.spinner(disable=config.quiet):
-        musics = [File(f[1], f[0]).to_tuple() for f in find_files(list(folders)) if f[1].endswith(tuple(supported_formats))]
-    # size = len(files) if crawl else len(files)
-    async with (await db.pool).acquire() as con:
-        print('Inserting musics')
-        result = await con.copy_records_to_table(
-            'raw_music',
-            schema_name='musicbot_public',
-            columns=File.keys(),
-            records=musics)
-        print('Removing duplicates')
-        await con.execute('delete from musicbot_public.raw_music where id not in (select distinct on (path) id from musicbot_public.raw_music order by path, updated_at desc)')
-        logger.info(result)
-
-
-async def watcher(db):
-    logger.info('Starting to watch folders')
-    folders = await db.folders()
-
-    class MusicWatcherHandler(AIOEventHandler):
-        async def update(self, path):
-            for folder in folders:
-                if path.startswith(folder['name']) and path.endswith(tuple(supported_formats)):
-                    logger.debug('Creatin/modifying DB for: %s', path)
-                    f = File(path, folder['name'])
-                    logger.debug(f.to_list())
-                    await db.upsert(f)
-                    return
-
-        async def on_modified(self, event):
-            await self.update(event.src_path)
-
-        async def on_created(self, event):
-            await self.update(event.src_path)
-
-        async def on_deleted(self, event):
-            logger.debug('Deleting entry in DB for: %s %s', event.src_path, event.event_type)
-            await db.delete(event.src_path)
-
-        async def on_moved(self, event):
-            logger.debug('Moving entry in DB for: %s %s', event.src_path, event.event_type)
-            await db.delete(event.src_path)
-            await self.update(event.dest_path)
-
-    evh = MusicWatcherHandler()
-    from watchdog.observers import Observer
-    observer = Observer()
-    for f in folders:
-        logger.info('Watching: %s', f['name'])
-        observer.schedule(evh, f['name'], recursive=True)
-    observer.start()
-    try:
-        while True:
-            await asyncio.sleep(0.5)
-    except KeyboardInterrupt:
-        observer.stop()
-    observer.join()
 
 
 def add_options(options):

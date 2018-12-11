@@ -19,18 +19,18 @@ create aggregate musicbot_public.array_cat_agg(anyarray) (
     STYPE=anyarray
 );
 
-create or replace function musicbot_public.do_stat(mf musicbot_public.filter)
-returns musicbot_public.stat as
-$$
-    select
-        row_number() over () as id,
-        count(distinct f.path) as musics,
-        count(distinct f.album) as albums,
-        count(distinct f.artist) as artists,
-        count(distinct f.genre) as genres,
-        (select count(distinct k.keywords) from (select unnest(musicbot_public.array_cat_agg(f.keywords)) as keywords) as k) as keywords,
-        coalesce(sum(f.duration),0) as duration,
-        coalesce(sum(f.size),0) as size
-    from musicbot_public.do_filter(mf) f;
-$$ language sql stable;
-grant execute on function musicbot_public.do_stat to musicbot_user;
+--create or replace function musicbot_public.do_stat(mf musicbot_public.filter)
+--returns musicbot_public.stat as
+--$$
+--    select
+--        row_number() over () as id,
+--        count(distinct f.path) as musics,
+--        count(distinct f.album) as albums,
+--        count(distinct f.artist) as artists,
+--        count(distinct f.genre) as genres,
+--        (select count(distinct k.keywords) from (select unnest(musicbot_public.array_cat_agg(f.keywords)) as keywords) as k) as keywords,
+--        coalesce(sum(f.duration),0) as duration,
+--        coalesce(sum(f.size),0) as size
+--    from musicbot_public.do_filter(mf) f;
+--$$ language sql stable;
+--grant execute on function musicbot_public.do_stat to musicbot_user;

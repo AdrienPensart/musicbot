@@ -1,8 +1,9 @@
 import taglib
+import json
 import click
 import copy
 import os
-from . import youtube
+from . import youtube, spotify
 
 
 options = [
@@ -14,6 +15,7 @@ options = [
     click.option('--number', envvar='MB_NUMBER', help='Track number', default=None),
     click.option('--rating', envvar='MB_RATING', help='Rating', default=None),
 ]
+supported_formats = ["mp3", "flac"]
 
 
 def mysplit(s, delim=','):
@@ -75,21 +77,33 @@ class File:
     def keys():
         return ['title', 'album', 'genre', 'artist', 'folder', 'youtube', 'spotify', 'number', 'path', 'rating', 'duration', 'size', 'keywords']
 
-    # def to_dict(self):
-    #     from collections import OrderedDict
-    #     return OrderedDict([('title', self.title),
-    #                         ('album', self.genre),
-    #                         ('genre', self.genre),
-    #                         ('artist', self.artist),
-    #                         ('folder', self._folder),
-    #                         ('youtube', self.youtube),
-    #                         ('spotify', self.spotify),
-    #                         ('number', self.number),
-    #                         ('path', self.path),
-    #                         ('rating', self.rating),
-    #                         ('duration', self.duration),
-    #                         ('size', self.size),
-    #                         ('keywords', mysplit(self.keywords, ' '))])
+    def ordered_dict(self):
+        from collections import OrderedDict
+        return OrderedDict([('title', self.title),
+                            ('album', self.genre),
+                            ('genre', self.genre),
+                            ('artist', self.artist),
+                            ('folder', self._folder),
+                            ('youtube', self.youtube),
+                            ('spotify', self.spotify),
+                            ('number', self.number),
+                            ('path', self.path),
+                            ('rating', self.rating),
+                            ('duration', self.duration),
+                            ('size', self.size),
+                            ('keywords', mysplit(self.keywords, ' '))])
+
+    def __iter__(self):
+        yield from self.ordered_dict().items()
+
+    def to_dict(self):
+        return dict(self.ordered_dict())
+
+    def to_graphql(self):
+        return ", ".join(['{}: {}'.format(k, json.dumps(v)) for k, v in self.ordered_dict().items()])
+
+    def to_json(self):
+        return json.dumps(self.ordered_dict())
 
     @property
     def path(self):
@@ -251,12 +265,15 @@ class File:
     def youtube(self):
         return self.youtube_link
 
+    async def find_youtube(self):
+        self.youtube_link = await youtube.search(self.artist, self.title, self.duration)
+
     @property
     def spotify(self):
         return self.spotify_link
 
-    async def find_youtube(self):
-        self.youtube_link = await youtube.search(self.artist, self.title, self.duration)
+    def find_spotify(self):
+        self.spotify_link = spotify.search(self.artist, self.title)
 
     def save(self):
         self.handle.save()

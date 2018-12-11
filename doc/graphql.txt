@@ -4,7 +4,7 @@ DEBUG="graphile-build-pg,postgraphile:postgres,postgraphile:postgres:error" post
 
 prod (static schema) :
 
-postgraphile -j -N --no-ignore-rbac -c postgresql://musicbot_postgraphile:musicbot_postgraphile_password@localhost:5432/musicbot_prod -n 0.0.0.0 -p 5001 --schema musicbot_public --default-role musicbot_anonymous --jwt-token-identifier musicbot_public.jwt_token --jwt-secret buckethead_bot
+postgraphile -j -N --no-ignore-rbac -c postgresql://musicbot_postgraphile:musicbot_postgraphile_password@localhost:5432/musicbot_prod -n 0.0.0.0 -p 5001 --schema musicbot_public --default-role musicbot_anonymous --jwt-token-identifier musicbot_public.jwt_token --jwt-secret buckethead_bot --disable-query-log
 
 examples :
 

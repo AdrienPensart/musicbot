@@ -67,6 +67,7 @@ class Config:
     fmt = attr.ib(default="%(asctime)s %(name)s[%(process)d] %(levelname)s %(message)s")
 
     def set(self, debug=None, timings=None, dry=None, quiet=None, verbosity=None, no_colors=None, log=None):
+        self.spotify = None
         self.log = log if log is not None else os.getenv(MB_LOG, str(DEFAULT_LOG))
         self.quiet = quiet if quiet is not None else lib.str2bool(os.getenv(MB_QUIET, str(DEFAULT_QUIET)))
         self.debug = debug if debug is not None else lib.str2bool(os.getenv(MB_DEBUG, str(DEFAULT_DEBUG)))

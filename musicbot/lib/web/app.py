@@ -119,7 +119,8 @@ def create_app(**db_settings): # noqa: MC0001
     async def init_cache_invalidator(app, loop):
         if webconfig.server_cache:
             logger.debug('Cache invalidator activated')
-            app.config.LISTENER = await (await app.db.pool).acquire()
+            p = await app.db.pool
+            app.config.LISTENER = await p.acquire()
             await app.config.LISTENER.add_listener('cache_invalidator', invalidate_cache)
         else:
             logger.debug('Cache invalidator disabled')
@@ -144,10 +145,10 @@ def create_app(**db_settings): # noqa: MC0001
         if webconfig.autoscan:
             logger.debug('Autoscan enabled')
             app.config.SCHEDULER = AsyncIOScheduler({'event_loop': loop}, timezone=utc)
-            app.config.SCHEDULER.add_job(helpers.refresh_db, 'interval', [app.db], minutes=15)
+            # app.config.SCHEDULER.add_job(helpers.refresh_db, 'interval', [app.db], minutes=15)
             app.config.SCHEDULER.add_job(helpers.fullscan, 'cron', [app.db], hour=3)
             app.config.SCHEDULER.add_job(helpers.crawl_musics, 'cron', [app.db], hour=4)
-            app.config.SCHEDULER.add_job(helpers.crawl_albums, 'cron', [app.db], hour=5)
+            # app.config.SCHEDULER.add_job(helpers.crawl_albums, 'cron', [app.db], hour=5)
             app.config.SCHEDULER.start()
         else:
             logger.debug('Autoscan disabled')

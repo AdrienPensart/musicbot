@@ -22,7 +22,7 @@ async def schedule(request):
     async def do():
         await helpers.fullscan(request.app.db)
         await helpers.crawl_musics(request.app.db)
-        await helpers.crawl_albums(request.app.db)
+        # await helpers.crawl_albums(request.app.db)
     asyncio.ensure_future(do())
     return await webhelpers.template('schedule.html')
 
@@ -47,7 +47,7 @@ async def progression(request, ws):
     logger.debug('Getting folders')
     folders = await request.app.db.folders_name()
     logger.debug('Scanning folders: %s', folders)
-    files = [f for f in lib.find_files(folders) if f[1].endswith(tuple(mfilter.supported_formats))]
+    files = [f for f in lib.find_files(folders) if f[1].endswith(tuple(file.supported_formats))]
 
     current = 0
     percentage = 0

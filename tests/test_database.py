@@ -30,11 +30,10 @@ async def db(files, worker_id):
     await db.drop()
 
 
-async def test_filters(db):
-    await db.execute('select * from musicbot_public.default_filters()')
-    filters = await db.filters()
-    assert len(filters) == 9
-
+# async def test_filters(db):
+#     filters = await db.fetch('select * from musicbot_public.filter')
+#     assert len(filters) == 9
+#
 # async def test_folders(db):
 #     folders = await db.folders_name()
 #     assert folders == fixtures.folders
