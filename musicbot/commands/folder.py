@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 @helpers.add_options(user.auth_options)
 def cli(ctx, **kwargs):
     '''Folder management'''
-    ctx.obj.u = lambda: user.User(**kwargs)
+    ctx.obj.u = lambda: user.User.new(**kwargs)
     lib.raise_limits()
 
 
@@ -37,7 +37,7 @@ def scan(ctx, folders):
 
     print('Inserting musics')
     with click_spinner.spinner(disable=config.quiet):
-        ctx.obj.u.bulk_insert(musics)
+        ctx.obj.u().bulk_insert(musics)
 
 
 @cli.command()

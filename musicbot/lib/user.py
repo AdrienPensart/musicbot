@@ -3,9 +3,8 @@ import base64
 import json
 import logging
 import requests
-from .helpers import timeit
-# from . import helpers, lib, file
-from . import lib, file, mfilter
+import functools
+from . import helpers, file, mfilter
 
 MB_TOKEN = 'MB_TOKEN'
 DEFAULT_TOKEN = ''
@@ -84,7 +83,7 @@ class User:
             raise FailedAuthentication("No credentials or token provided")
         self.authenticated = True
 
-    @timeit
+    @helpers.timeit
     def load_default_filters(self):
         query = """
         mutation
@@ -100,7 +99,7 @@ class User:
             raise FailedRequest("Query failed: {}".format(response.json()))
         return response.status_code == 200
 
-    @timeit
+    @helpers.timeit
     def do_filter(self, mf):
         query = """
         {{
@@ -130,7 +129,7 @@ class User:
             raise FailedRequest("Query failed: {}".format(response.json()))
         return response.json()['data']['doFilter']['nodes']
 
-    @timeit
+    @helpers.timeit
     def upsert_music(self, music):
         query = """
         mutation
@@ -146,7 +145,7 @@ class User:
             raise FailedRequest("Query failed: {}".format(response.json()))
         return response.status_code == 200
 
-    @timeit
+    @helpers.timeit
     def bulk_insert(self, musics):
         j = json.dumps(musics)
         data = base64.b64encode(j.encode('utf-8'))
@@ -164,8 +163,16 @@ class User:
             raise FailedRequest("Query failed: {}".format(response.json()))
         return response.status_code == 200
 
-    @lib.LazyProperty
-    @timeit
+    @classmethod
+    @functools.lru_cache()
+    @helpers.timeit
+    def new(cls, **kwargs):
+        self = User(**kwargs)
+        return self
+
+    @property
+    @functools.lru_cache()
+    @helpers.timeit
     def folders(self):
         query = """
         {
@@ -180,8 +187,9 @@ class User:
             raise FailedRequest("Query failed: {}".format(response.json()))
         return response.json()['data']['folders']['nodes']
 
-    @lib.LazyProperty
-    @timeit
+    @property
+    @functools.lru_cache()
+    @helpers.timeit
     def filters(self):
         default_filter = mfilter.Filter()
         query = """
@@ -250,7 +258,7 @@ class User:
         observer.join()
 
     @classmethod
-    @timeit
+    @helpers.timeit
     def register(cls, graphql, first_name, last_name, email, password):
         query = """
         mutation
@@ -267,7 +275,7 @@ class User:
         self = User(graphql, email, password)
         return self
 
-    @timeit
+    @helpers.timeit
     def unregister(self):
         query = """
         mutation
@@ -283,7 +291,7 @@ class User:
             raise FailedAuthentication("Cannot delete user {}".format(self.email))
         return response.status_code == 200
 
-    @timeit
+    @helpers.timeit
     def delete_music(self, path):
         query = """
         mutation

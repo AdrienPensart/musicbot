@@ -3,7 +3,6 @@ import re
 import sys
 import logging
 import humanfriendly
-from timeit import default_timer as timer
 
 logger = logging.getLogger(__name__)
 
@@ -49,33 +48,6 @@ def empty_dirs(root_dir, recursive=True):
 
 def is_empty(files):
     return len(files) == 0
-
-
-class Benchmark:
-    def __init__(self, msg):
-        self.msg = msg
-
-    def __enter__(self):
-        self.start = timer()
-        return self
-
-    def __exit__(self, *args):
-        t = timer() - self.start
-        logger.info("%s : %0.3g seconds", self.msg, t)
-        self.time = t
-
-
-class LazyProperty:
-    def __init__(self, fget):
-        self.fget = fget
-        self.func_name = fget.__name__
-
-    def __get__(self, obj, cls):
-        if obj is None:
-            return None
-        value = self.fget(obj)
-        setattr(obj, self.func_name, value)
-        return value
 
 
 def raise_limits():
