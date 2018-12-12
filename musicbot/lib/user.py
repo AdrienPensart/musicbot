@@ -29,11 +29,13 @@ password_argument = [click.argument('password')]
 password_option = [click.option('--password', envvar=MB_PASSWORD, help='User password', default=DEFAULT_PASSWORD, show_default=False)]
 
 MB_FIRST_NAME = 'MB_FIRST_NAME'
-DEFAULT_FIRST_NAME = 'admin'
+# DEFAULT_FIRST_NAME = 'admin'
+DEFAULT_FIRST_NAME = None
 first_name_option = [click.option('--first-name', envvar=MB_FIRST_NAME, help='User first name', default=DEFAULT_FIRST_NAME, show_default=True)]
 
 MB_LAST_NAME = 'MB_LAST_NAME'
-DEFAULT_LAST_NAME = 'admin'
+# DEFAULT_LAST_NAME = 'admin'
+DEFAULT_LAST_NAME = None
 last_name_option = [click.option('--last-name', envvar=MB_LAST_NAME, help='User last name', default=DEFAULT_FIRST_NAME, show_default=True)]
 
 MB_GRAPHQL = 'MB_GRAPHQL'

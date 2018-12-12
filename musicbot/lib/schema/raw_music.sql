@@ -50,12 +50,18 @@ returns void as
 $$
 begin
     set constraints musicbot_public.raw_music_path_user_id_key deferred;
-
-    insert into musicbot_public.raw_music (title, album, genre, artist, folder, youtube, spotify, number, path, rating, duration, size, keywords)
-    select title, album, genre, artist, folder, youtube, spotify, number, path, rating, duration, size, keywords
-    from json_populate_recordset(null::musicbot_public.raw_music, convert_from(decode(data, 'BASE64'), 'UTF-8')::json);
-
-	delete from musicbot_public.raw_music where id not in (select distinct on (path) id from musicbot_public.raw_music order by path, updated_at desc);
+	--raise notice 'started';
+	with records as (
+        select title, album, genre, artist, folder, youtube, spotify, number, path, rating, duration, size, keywords
+        from json_populate_recordset(null::musicbot_public.raw_music, convert_from(decode(data, 'BASE64'), 'UTF-8')::json)
+    ), recent_music as (
+        insert into musicbot_public.raw_music (title, album, genre, artist, folder, youtube, spotify, number, path, rating, duration, size, keywords)
+        select * from records
+	), duplicates as (
+		select distinct on (path) id from musicbot_public.raw_music order by path, id desc
+	)
+	delete from musicbot_public.raw_music where id in (select id from duplicates);
+	--raise notice '  ended';
 end
 $$ language plpgsql;
 grant execute on function musicbot_public.bulk_insert to musicbot_user;
