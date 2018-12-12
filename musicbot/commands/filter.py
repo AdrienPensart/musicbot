@@ -15,10 +15,15 @@ def cli(ctx, **kwargs):
 
 
 @cli.command()
-@helpers.add_options(mfilter.options)
 @click.pass_context
-def default(ctx):
-    ctx.obj.u.default_filters()
+def load_default(ctx):
+    ctx.obj.u.load_default_filters()
+
+
+@cli.command()
+@click.pass_context
+def list(ctx):
+    print(json.dumps(ctx.obj.u.filters))
 
 
 @cli.command()

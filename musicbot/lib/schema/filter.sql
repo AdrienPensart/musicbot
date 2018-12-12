@@ -49,7 +49,7 @@ create policy update_filter on musicbot_public.filter for update using (user_id 
 drop policy if exists delete_filter on musicbot_public.filter cascade;
 create policy delete_filter on musicbot_public.filter for delete using (user_id = musicbot_public.current_musicbot_id());
 
-create or replace function musicbot_public.default_filters()
+create or replace function musicbot_public.load_default_filters()
 returns void as
 $$
 begin
@@ -66,7 +66,7 @@ begin
     insert into musicbot_public.filter as f (name, keywords) values ('only live', '{live}') on conflict do nothing;
 end;
 $$ language plpgsql;
-grant execute on function musicbot_public.default_filters to musicbot_user;
+grant execute on function musicbot_public.load_default_filters to musicbot_user;
 
 create or replace function musicbot_public.do_filter(
     min_duration integer default 0,
@@ -130,3 +130,8 @@ $$
     limit do_filter.limit;
 $$ language sql stable;
 grant execute on function musicbot_public.do_filter to musicbot_user;
+
+--create or replace function musicbot_public.filters() returns setof musicbot_public.filter as $$
+--    select * from musicbot_public.filter;
+--$$ language sql stable;
+--grant execute on function musicbot_public.filters to musicbot_user;

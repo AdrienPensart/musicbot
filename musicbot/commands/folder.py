@@ -8,27 +8,28 @@ logger = logging.getLogger(__name__)
 
 
 @click.group(cls=helpers.GroupWithHelp)
-def cli():
+@click.pass_context
+@helpers.add_options(user.auth_options)
+def cli(ctx, **kwargs):
     '''Folder management'''
+    ctx.obj.u = lambda: user.User(**kwargs)
     lib.raise_limits()
 
 
 @cli.command()
-@helpers.add_options(user.auth_options)
-def list(**kwargs):
+@click.pass_context
+def list(ctx):
     '''List folders'''
-    u = user.User(**kwargs)
-    print(u.folders())
+    print(ctx.obj.u().folders)
 
 
 @cli.command()
 @click.argument('folders', nargs=-1)
-@helpers.add_options(user.auth_options)
-def scan(folders, **kwargs):
+@click.pass_context
+def scan(ctx, folders):
     '''(re)Load musics'''
-    u = user.User(**kwargs)
     if not len(folders):
-        folders = u.folders
+        folders = ctx.obj.u().folders
 
     print('Scanning folder')
     with click_spinner.spinner(disable=config.quiet):
@@ -36,21 +37,24 @@ def scan(folders, **kwargs):
 
     print('Inserting musics')
     with click_spinner.spinner(disable=config.quiet):
-        u.bulk_insert(musics)
+        ctx.obj.u.bulk_insert(musics)
 
 
 @cli.command()
-@helpers.add_options(user.auth_options)
-def watch(**kwargs):
+@click.pass_context
+def watch(ctx):
     '''Watch files changes in folders'''
-    u = user.User(**kwargs)
-    u.watch()
+    ctx.obj.u().watch()
 
 
 @cli.command()
+@click.pass_context
 @click.argument('folders', nargs=-1)
-def find(folders):
+def find(ctx, folders):
     '''Only list files in selected folders'''
+    if not len(folders):
+        folders = ctx.obj.u().folders
+
     files = lib.find_files(folders)
     for f in files:
         print(f[1])

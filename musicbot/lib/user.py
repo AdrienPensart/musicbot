@@ -5,7 +5,7 @@ import logging
 import requests
 from .helpers import timeit
 # from . import helpers, lib, file
-from . import lib, file
+from . import lib, file, mfilter
 
 MB_TOKEN = 'MB_TOKEN'
 DEFAULT_TOKEN = ''
@@ -85,11 +85,11 @@ class User:
         self.authenticated = True
 
     @timeit
-    def default_filters(self):
+    def load_default_filters(self):
         query = """
         mutation
         {
-            defaultFilters(input: {})
+            loadDefaultFilters(input: {})
             {
                 clientMutationId
             }
@@ -179,6 +179,27 @@ class User:
         if response.status_code != 200:
             raise FailedRequest("Query failed: {}".format(response.json()))
         return response.json()['data']['folders']['nodes']
+
+    @lib.LazyProperty
+    @timeit
+    def filters(self):
+        default_filter = mfilter.Filter()
+        query = """
+        {{
+            allFilters
+            {{
+                nodes
+                {{
+                    name,
+                    {}
+                }}
+            }}
+        }}""".format(','.join(default_filter.ordered_dict().keys()))
+        response = requests.post(self.graphql, json={'query': query}, headers=self.headers)
+        logger.debug(response)
+        if response.status_code != 200:
+            raise FailedRequest("Query failed: {}".format(response.json()))
+        return response.json()['data']['allFilters']['nodes']
 
     def watch(user):
         from watchdog.observers import Observer
