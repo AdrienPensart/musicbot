@@ -1,18 +1,18 @@
-import logging
-import os
-import asyncio
-import pytest
-
-from musicbot.lib.database import MB_DB, DEFAULT_DB
-from musicbot.lib.web.config import webconfig
-from musicbot.lib.config import config
-from musicbot.lib.web.app import create_app
-
-logger = logging.getLogger(__name__)
-webconfig.no_auth = True
-config.set()
-
-
+# import logging
+# import os
+# import asyncio
+# import pytest
+#
+# from musicbot.lib.database import MB_DB, DEFAULT_DB
+# from musicbot.lib.web.config import webconfig
+# from musicbot.lib.config import config
+# from musicbot.lib.web.app import create_app
+#
+# logger = logging.getLogger(__name__)
+# webconfig.no_auth = True
+# config.set()
+#
+#
 # @pytest.yield_fixture
 # def loop():
 #     loop = asyncio.new_event_loop()

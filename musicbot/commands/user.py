@@ -24,7 +24,7 @@ async def list(**kwargs):
 
 @cli.command()
 @helpers.add_options(user.options)
-def new(**kwargs):
+def register(**kwargs):
     '''Register a new user'''
     user.User.register(**kwargs)
 

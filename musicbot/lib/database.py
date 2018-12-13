@@ -58,7 +58,7 @@ class Database:
     async def create(self):
         await self.createdb()
         schema_dir = os.path.join(os.path.dirname(__file__), 'schema')
-        for sqlfile in ['schemas.sql', 'extensions.sql', 'user.sql', 'raw_music.sql', 'filter.sql', 'stat.sql']:
+        for sqlfile in ['schemas.sql', 'extensions.sql', 'user.sql', 'raw_music.sql', 'filter.sql', 'playlist.sql', 'stat.sql']:
             await self.executefile(os.path.join(schema_dir, sqlfile))
 
     async def clear(self):
@@ -68,39 +68,6 @@ class Database:
     async def drop(self):
         logger.info("Dropping DB")
         await self.dropdb()
-
-    async def register_user(self, first_name, last_name, email, password):
-        sql = '''select * from musicbot_public.register_user($1, $2, $3, $4)'''
-        return await self.fetchrow(sql, first_name, last_name, email, password)
-
-    async def remove_user(self, email):
-        sql = '''select * from musicbot_public.remove_user($1)'''
-        return await self.fetchrow(sql, email)
-
-    async def authenticate_user(self, email, password):
-        sql = '''select * from musicbot_public.authenticate($1, $2)'''
-        Database.auth = await self.fetchrow(sql, email, password)
-        return Database.auth
-
-    async def new_token(self, email, password, secret):
-        sql = '''select * from musicbot_public.new_token($1, $2, $3)'''
-        return await self.fetchrow(sql, email, password, secret)
-
-    @drier
-    async def set_music_youtube(self, path, youtube):
-        sql = '''update musics set youtube=$2 where path=$1'''
-        await self.execute(sql, path, youtube)
-
-    @drier
-    async def set_album_youtube(self, name, youtube):
-        sql = '''update albums set youtube=$2 where name=$1'''
-        await self.execute(sql, name, youtube)
-
-    @drier
-    async def upsert(self, m):
-        sql = '''select * from musicbot_public.upsert($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)'''
-        tl = m.to_list()
-        await self.execute(sql, *tl)
 
     async def close(self):
         if self._pool is not None:

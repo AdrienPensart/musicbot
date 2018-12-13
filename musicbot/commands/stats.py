@@ -1,30 +1,28 @@
 import click
 from datetime import timedelta
-from musicbot.lib import helpers, database, mfilter
+from musicbot.lib import helpers, user, mfilter
 from musicbot.lib.lib import bytes_to_human
 
 
 @click.group(cls=helpers.GroupWithHelp)
-@helpers.coro
 @click.pass_context
-@helpers.add_options(database.options)
-async def cli(ctx, **kwargs):
+@helpers.add_options(user.auth_options)
+def cli(ctx, **kwargs):
     '''Youtube management'''
-    ctx.obj.db = await database.Database.make(**kwargs)
+    ctx.obj.u = lambda: user.User.new(**kwargs)
 
 
 @cli.command()
 @click.pass_context
 @helpers.add_options(mfilter.options)
-@helpers.coro
-async def show(ctx, **kwargs):
+def show(ctx, **kwargs):
     '''Generate some stats for music collection with filters'''
-    ctx.obj.mf = mfilter.Filter(**kwargs)
-    stats = await ctx.obj.db.stats(ctx.obj.mf)
+    mf = mfilter.Filter(**kwargs)
+    stats = ctx.obj.u().do_stat(mf)
     print("Music    :", stats['musics'])
     print("Artist   :", stats['artists'])
     print("Album    :", stats['albums'])
     print("Genre    :", stats['genres'])
     print("Keywords :", stats['keywords'])
-    print("Size     :", bytes_to_human(stats['size']))
-    print("Total duration :", str(timedelta(seconds=stats['duration'])))
+    print("Size     :", bytes_to_human(int(stats['size'])))
+    print("Total duration :", timedelta(seconds=int(stats['duration'])))

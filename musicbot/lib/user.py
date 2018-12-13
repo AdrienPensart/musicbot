@@ -7,14 +7,14 @@ import functools
 from . import helpers, file, mfilter
 
 MB_TOKEN = 'MB_TOKEN'
-DEFAULT_TOKEN = ''
+DEFAULT_TOKEN = None
 token_argument = [click.argument('token')]
 token_option = [click.option('--token', envvar=MB_TOKEN, help='User token', default=DEFAULT_TOKEN, show_default=False)]
 
-MB_SECRET = 'MB_SECRET'
-DEFAULT_SECRET = 'my_little_secret'
-secret_argument = [click.argument('secret')]
-secret_option = [click.option('--secret', envvar=MB_SECRET, help='Secret to sign tokens', default=DEFAULT_SECRET, show_default=False)]
+# MB_SECRET = 'MB_SECRET'
+# DEFAULT_SECRET = 'my_little_secret'
+# secret_argument = [click.argument('secret')]
+# secret_option = [click.option('--secret', envvar=MB_SECRET, help='Secret to sign tokens', default=DEFAULT_SECRET, show_default=False)]
 
 MB_EMAIL = 'MB_EMAIL'
 # DEFAULT_EMAIL = 'admin@musicbot.ovh'
@@ -64,7 +64,6 @@ class User:
         self.password = password
         self.token = token
         self.authenticated = False
-        self.headers = {"Authorization": "Bearer {}".format(self.token)}
 
         if self.email and self.password:
             query = """
@@ -79,12 +78,21 @@ class User:
             logger.debug(response)
             if response.status_code == 200:
                 self.token = response.json()['data']['authenticate']['jwtToken']
-                self.headers = {"Authorization": "Bearer {}".format(self.token)}
             else:
                 raise FailedAuthentication("Register failed")
         elif self.token is None:
             raise FailedAuthentication("No credentials or token provided")
+
+        self.headers = {"Authorization": "Bearer {}".format(self.token)}
         self.authenticated = True
+
+    def _post(self, query, failure=None):
+        response = requests.post(self.graphql, json={'query': query}, headers=self.headers)
+        logger.debug(response)
+        if response.status_code != 200:
+            failure = failure if failure is not None else FailedRequest("Query failed: {}".format(response.json()))
+            raise failure
+        return response.json()
 
     @helpers.timeit
     def load_default_filters(self):
@@ -96,14 +104,20 @@ class User:
                 clientMutationId
             }
         }"""
-        response = requests.post(self.graphql, json={'query': query}, headers=self.headers)
-        logger.debug(response)
-        if response.status_code != 200:
-            raise FailedRequest("Query failed: {}".format(response.json()))
-        return response.status_code == 200
+        return self._post(query)
 
     @helpers.timeit
-    def do_filter(self, mf):
+    def playlist(self, mf=None):
+        mf = mf if mf is not None else mfilter.Filter()
+        query = """
+        {{
+            playlist({})
+        }}""".format(mf.to_graphql())
+        return self._post(query)['data']['playlist']
+
+    @helpers.timeit
+    def do_filter(self, mf=None):
+        mf = mf if mf is not None else mfilter.Filter()
         query = """
         {{
             doFilter({})
@@ -126,11 +140,25 @@ class User:
                 }}
             }}
         }}""".format(mf.to_graphql())
-        response = requests.post(self.graphql, json={'query': query}, headers=self.headers)
-        logger.debug(response)
-        if response.status_code != 200:
-            raise FailedRequest("Query failed: {}".format(response.json()))
-        return response.json()['data']['doFilter']['nodes']
+        return self._post(query)['data']['doFilter']['nodes']
+
+    @helpers.timeit
+    def do_stat(self, mf=None):
+        mf = mf if mf is not None else mfilter.Filter()
+        query = """
+        {{
+            doStat({})
+            {{
+              musics,
+              artists,
+              albums,
+              genres,
+              keywords,
+              size,
+              duration
+            }}
+        }}""".format(mf.to_graphql())
+        return self._post(query)['data']['doStat']
 
     @helpers.timeit
     def upsert_music(self, music):
@@ -142,29 +170,21 @@ class User:
                 clientMutationId
             }}
         }}""".format(music.to_graphql())
-        response = requests.post(self.graphql, json={'query': query}, headers=self.headers)
-        logger.debug(response)
-        if response.status_code != 200:
-            raise FailedRequest("Query failed: {}".format(response.json()))
-        return response.status_code == 200
+        return self._post(query)
 
     @helpers.timeit
     def bulk_insert(self, musics):
-        j = json.dumps(musics)
+        j = json.dumps([m.to_dict() for m in musics])
         data = base64.b64encode(j.encode('utf-8'))
         query = '''
         mutation
-        {
-            bulkInsert(input: {data: "''' + data.decode() + '''"})
-            {
+        {{
+            bulkInsert(input: {{data: "{}"}})
+            {{
                 clientMutationId
-            }
-        }'''
-        response = requests.post(self.graphql, json={'query': query}, headers=self.headers)
-        logger.debug(response)
-        if response.status_code != 200:
-            raise FailedRequest("Query failed: {}".format(response.json()))
-        return response.status_code == 200
+            }}
+        }}'''.format(data.decode())
+        return self._post(query)
 
     @classmethod
     @functools.lru_cache(maxsize=None)
@@ -184,11 +204,7 @@ class User:
                 nodes
             }
         }"""
-        response = requests.post(self.graphql, json={'query': query}, headers=self.headers)
-        logger.debug(response)
-        if response.status_code != 200:
-            raise FailedRequest("Query failed: {}".format(response.json()))
-        return response.json()['data']['folders']['nodes']
+        return self._post(query)['data']['folders']['nodes']
 
     @property
     @functools.lru_cache(maxsize=None)
@@ -206,11 +222,7 @@ class User:
                 }}
             }}
         }}""".format(','.join(default_filter.ordered_dict().keys()))
-        response = requests.post(self.graphql, json={'query': query}, headers=self.headers)
-        logger.debug(response)
-        if response.status_code != 200:
-            raise FailedRequest("Query failed: {}".format(response.json()))
-        return response.json()['data']['allFilters']['nodes']
+        return self._post(query)['data']['allFilters']['nodes']
 
     def watch(user):
         from watchdog.observers import Observer
@@ -288,24 +300,18 @@ class User:
                 clientMutationId
             }
         }"""
-        response = requests.post(self.graphql, json={'query': query}, headers=self.headers)
-        logger.debug(response.status_code)
-        if response.status_code != 200:
-            raise FailedAuthentication("Cannot delete user {}".format(self.email))
-        return response.status_code == 200
+        result = self._post(query, failure=FailedAuthentication("Cannot delete user {}".format(self.email)))
+        self.authenticated = False
+        return result
 
     @helpers.timeit
     def delete_music(self, path):
         query = """
         mutation
         {{
-            deleteMusic(input: {{{}}})
+            deleteMusic(input: {{path: "{}"}})
             {{
                 clientMutationId
             }}
         }}""".format(path)
-        response = requests.post(self.graphql, json={'query': query}, headers=self.headers)
-        logger.debug(response.status_code)
-        if response.status_code != 200:
-            raise FailedRequest("Query failed: {}".format(response.json()))
-        return response.status_code == 200
+        return self._post(query)

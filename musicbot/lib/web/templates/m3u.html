@@ -1,4 +1,0 @@
-#EXTM3U
-{% for m in musics: %}#EXTINF:{{ m.duration }},{{ m.artist }} - {{ m.title }}
-{{ url_for('collection.download', _scheme='https', _external=True, _server=server(), artists=m.artist, albums=m.album, titles=m.title) | safe }}
-{% endfor %}

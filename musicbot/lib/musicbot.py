@@ -7,8 +7,8 @@ logger = logging.getLogger(__name__)
 
 
 @timeit
-def genmusics(folders):
-    return [File(f[1], f[0]).to_dict() for f in find_files(list(folders)) if f[1].endswith(tuple(supported_formats))]
+def genfiles(folders):
+    return [File(f[1], f[0]) for f in find_files(list(folders)) if f[1].endswith(tuple(supported_formats))]
 
 
 # from .config import config

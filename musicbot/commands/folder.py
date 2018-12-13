@@ -33,11 +33,11 @@ def scan(ctx, folders):
 
     print('Scanning folder')
     with click_spinner.spinner(disable=config.quiet):
-        musics = musicbot.genmusics(folders)
+        files = musicbot.genfiles(folders)
 
     print('Inserting musics')
     with click_spinner.spinner(disable=config.quiet):
-        ctx.obj.u().bulk_insert(musics)
+        ctx.obj.u().bulk_insert(files)
 
 
 @cli.command()
