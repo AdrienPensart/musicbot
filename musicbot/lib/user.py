@@ -57,6 +57,7 @@ class FailedRequest(Exception):
 
 
 class User:
+    @helpers.timeit
     def __init__(self, graphql=None, email=None, password=None, token=None):
         self.graphql = graphql if graphql is not None else DEFAULT_GRAPHQL
         self.email = email
@@ -166,14 +167,14 @@ class User:
         return response.status_code == 200
 
     @classmethod
-    @functools.lru_cache()
+    @functools.lru_cache(maxsize=None)
     @helpers.timeit
     def new(cls, **kwargs):
         self = User(**kwargs)
         return self
 
     @property
-    @functools.lru_cache()
+    @functools.lru_cache(maxsize=None)
     @helpers.timeit
     def folders(self):
         query = """
@@ -190,7 +191,7 @@ class User:
         return response.json()['data']['folders']['nodes']
 
     @property
-    @functools.lru_cache()
+    @functools.lru_cache(maxsize=None)
     @helpers.timeit
     def filters(self):
         default_filter = mfilter.Filter()

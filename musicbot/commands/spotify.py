@@ -1,30 +1,16 @@
 import click
 import logging
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
-from musicbot.lib.spotify import options, search
-from musicbot.lib.config import config
-from musicbot.lib import helpers
+from musicbot.lib import helpers, spotify
 
 logger = logging.getLogger(__name__)
 
 
 @click.group(cls=helpers.GroupWithHelp)
-@helpers.add_options(options)
+@helpers.add_options(spotify.options)
 @click.pass_context
-def cli(ctx, client_id, client_secret, token):
+def cli(ctx, **kwargs):
     '''Spotify'''
-    logger.info("client-id: {} | client-secret: {} | token: {}".format(client_id, client_secret, token))
-    if token:
-        ctx.obj.sp = spotipy.Spotify(auth=token)
-        config.spotify = ctx.obj.sp
-        return
-    if client_id and client_secret:
-        client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
-        ctx.obj.sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
-        config.spotify = ctx.obj.sp
-        return
-    logger.error('You need to provide either token or client-id/client-secrret')
+    ctx.obj.sp = lambda: spotify.Spotify.new(**kwargs)
 
 
 @cli.command()
@@ -33,4 +19,4 @@ def cli(ctx, client_id, client_secret, token):
 @click.pass_context
 def track(ctx, artist, title):
     '''Search track'''
-    print(search(artist, title))
+    print(ctx.obj.sp.search(artist, title))

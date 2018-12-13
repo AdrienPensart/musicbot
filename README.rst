@@ -91,7 +91,8 @@ Commands
     consistency  Inconsistencies management
     db           Database management
     file         Music tags management
-    folder       Folder scanning
+    filter       Filter management
+    folder       Folder management
     help         Print help
     playlist     Playlist management
     repl         Start an interactive shell.
@@ -99,7 +100,6 @@ Commands
     spotify      Spotify
     stats        Youtube management
     tag          Music tags management
-    task         Task management
     user         User management
     youtube      Youtube management
 
@@ -249,6 +249,8 @@ musicbot consistency errors
     --limit INTEGER         Fetch a maximum limit of music
     --youtubes TEXT         Select musics with a youtube link
     --no-youtubes TEXT      Select musics without youtube link
+    --spotifys TEXT         Select musics with a spotifys link
+    --no-spotifys TEXT      Select musics without spotifys link
     --formats TEXT          Select musics with file format
     --no-formats TEXT       Filter musics without format
     --keywords TEXT         Select musics with keywords
@@ -486,6 +488,8 @@ musicbot file show
     --limit INTEGER         Fetch a maximum limit of music
     --youtubes TEXT         Select musics with a youtube link
     --no-youtubes TEXT      Select musics without youtube link
+    --spotifys TEXT         Select musics with a spotifys link
+    --no-spotifys TEXT      Select musics without spotifys link
     --formats TEXT          Select musics with file format
     --no-formats TEXT       Filter musics without format
     --keywords TEXT         Select musics with keywords
@@ -526,6 +530,8 @@ musicbot file update
     --limit INTEGER         Fetch a maximum limit of music
     --youtubes TEXT         Select musics with a youtube link
     --no-youtubes TEXT      Select musics without youtube link
+    --spotifys TEXT         Select musics with a spotifys link
+    --no-spotifys TEXT      Select musics without spotifys link
     --formats TEXT          Select musics with file format
     --no-formats TEXT       Filter musics without format
     --keywords TEXT         Select musics with keywords
@@ -549,31 +555,116 @@ musicbot file update
     -h, --help              Show this message and exit.
 
 
+musicbot filter
+***************
+.. code-block::
+
+  Usage: musicbot filter [OPTIONS] COMMAND [ARGS]...
+  
+    Filter management
+  
+  Options:
+    --email TEXT     User email
+    --password TEXT  User password
+    --token TEXT     User token
+    --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -h, --help       Show this message and exit.
+  
+  Commands:
+    do
+    help          Print help
+    list
+    load-default
+
+
+musicbot filter do
+******************
+.. code-block::
+
+  Usage: musicbot filter do [OPTIONS]
+  
+  Options:
+    --limit INTEGER         Fetch a maximum limit of music
+    --youtubes TEXT         Select musics with a youtube link
+    --no-youtubes TEXT      Select musics without youtube link
+    --spotifys TEXT         Select musics with a spotifys link
+    --no-spotifys TEXT      Select musics without spotifys link
+    --formats TEXT          Select musics with file format
+    --no-formats TEXT       Filter musics without format
+    --keywords TEXT         Select musics with keywords
+    --no-keywords TEXT      Filter musics without keywords
+    --artists TEXT          Select musics with artists
+    --no-artists TEXT       Filter musics without artists
+    --albums TEXT           Select musics with albums
+    --no-albums TEXT        Filter musics without albums
+    --titles TEXT           Select musics with titles
+    --no-titles TEXT        Filter musics without titless
+    --genres TEXT           Select musics with genres
+    --no-genres TEXT        Filter musics without genres
+    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
+    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
+    --min-size INTEGER      Minimum file size filter (in bytes)
+    --max-size INTEGER      Maximum file size filter (in bytes)
+    --min-rating FLOAT      Minimum rating  [default: 0.0]
+    --max-rating FLOAT      Maximum rating  [default: 5.0]
+    --relative              Generate relatives paths
+    --shuffle               Randomize selection
+    -h, --help              Show this message and exit.
+
+
+musicbot filter help
+********************
+.. code-block::
+
+  Usage: musicbot filter help [OPTIONS] [COMMAND]...
+  
+    Print help
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot filter list
+********************
+.. code-block::
+
+  Usage: musicbot filter list [OPTIONS]
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot filter load-default
+****************************
+.. code-block::
+
+  Usage: musicbot filter load-default [OPTIONS]
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
 musicbot folder
 ***************
 .. code-block::
 
   Usage: musicbot folder [OPTIONS] COMMAND [ARGS]...
   
-    Folder scanning
+    Folder management
   
   Options:
-    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
-                      calhost:5432/musicbot_prod]
-    --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single       DB will use only one connection  [default: False]
-    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
-    -h, --help        Show this message and exit.
+    --email TEXT     User email
+    --password TEXT  User password
+    --token TEXT     User token
+    --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -h, --help       Show this message and exit.
   
   Commands:
     find      Only list files in selected folders
     flac2mp3  Convert all files in folders to mp3
     help      Print help
-    list      List existing folders
-    new       Add a new folder in database
-    rescan    Rescan all folders registered in database
-    scan      Load musics files in database
-    sync      Copy selected musics with filters to destination folder
+    list      List folders
+    scan      (re)Load musics
     watch     Watch files changes in folders
 
 
@@ -620,34 +711,9 @@ musicbot folder list
 
   Usage: musicbot folder list [OPTIONS]
   
-    List existing folders
+    List folders
   
   Options:
-    -h, --help  Show this message and exit.
-
-
-musicbot folder new
-*******************
-.. code-block::
-
-  Usage: musicbot folder new [OPTIONS] [FOLDERS]...
-  
-    Add a new folder in database
-  
-  Options:
-    -h, --help  Show this message and exit.
-
-
-musicbot folder rescan
-**********************
-.. code-block::
-
-  Usage: musicbot folder rescan [OPTIONS]
-  
-    Rescan all folders registered in database
-  
-  Options:
-    --crawl     Crawl youtube
     -h, --help  Show this message and exit.
 
 
@@ -657,46 +723,10 @@ musicbot folder scan
 
   Usage: musicbot folder scan [OPTIONS] [FOLDERS]...
   
-    Load musics files in database
+    (re)Load musics
   
   Options:
-    --crawl     Crawl youtube
     -h, --help  Show this message and exit.
-
-
-musicbot folder sync
-********************
-.. code-block::
-
-  Usage: musicbot folder sync [OPTIONS] DESTINATION
-  
-    Copy selected musics with filters to destination folder
-  
-  Options:
-    --limit INTEGER         Fetch a maximum limit of music
-    --youtubes TEXT         Select musics with a youtube link
-    --no-youtubes TEXT      Select musics without youtube link
-    --formats TEXT          Select musics with file format
-    --no-formats TEXT       Filter musics without format
-    --keywords TEXT         Select musics with keywords
-    --no-keywords TEXT      Filter musics without keywords
-    --artists TEXT          Select musics with artists
-    --no-artists TEXT       Filter musics without artists
-    --albums TEXT           Select musics with albums
-    --no-albums TEXT        Filter musics without albums
-    --titles TEXT           Select musics with titles
-    --no-titles TEXT        Filter musics without titless
-    --genres TEXT           Select musics with genres
-    --no-genres TEXT        Filter musics without genres
-    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER      Minimum file size filter (in bytes)
-    --max-size INTEGER      Maximum file size filter (in bytes)
-    --min-rating FLOAT      Minimum rating  [default: 0.0]
-    --max-rating FLOAT      Maximum rating  [default: 5.0]
-    --relative              Generate relatives paths
-    --shuffle               Randomize selection
-    -h, --help              Show this message and exit.
 
 
 musicbot folder watch
@@ -757,6 +787,8 @@ musicbot playlist bests
     --limit INTEGER         Fetch a maximum limit of music
     --youtubes TEXT         Select musics with a youtube link
     --no-youtubes TEXT      Select musics without youtube link
+    --spotifys TEXT         Select musics with a spotifys link
+    --no-spotifys TEXT      Select musics without spotifys link
     --formats TEXT          Select musics with file format
     --no-formats TEXT       Filter musics without format
     --keywords TEXT         Select musics with keywords
@@ -806,6 +838,8 @@ musicbot playlist new
     --limit INTEGER         Fetch a maximum limit of music
     --youtubes TEXT         Select musics with a youtube link
     --no-youtubes TEXT      Select musics without youtube link
+    --spotifys TEXT         Select musics with a spotifys link
+    --no-spotifys TEXT      Select musics without spotifys link
     --formats TEXT          Select musics with file format
     --no-formats TEXT       Filter musics without format
     --keywords TEXT         Select musics with keywords
@@ -913,26 +947,14 @@ musicbot spotify
     Spotify
   
   Options:
-    -h, --help  Show this message and exit.
-  
-  Commands:
-    artist  Spotify test
-    help    Print help
-
-
-musicbot spotify artist
-***********************
-.. code-block::
-
-  Usage: musicbot spotify artist [OPTIONS] NAME
-  
-    Spotify test
-  
-  Options:
     --client-id TEXT      Spotify client ID
     --client-secret TEXT  Spotify client secret
     --token TEXT          Spotify token
     -h, --help            Show this message and exit.
+  
+  Commands:
+    help   Print help
+    track  Search track
 
 
 musicbot spotify help
@@ -942,6 +964,18 @@ musicbot spotify help
   Usage: musicbot spotify help [OPTIONS] [COMMAND]...
   
     Print help
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot spotify track
+**********************
+.. code-block::
+
+  Usage: musicbot spotify track [OPTIONS] ARTIST TITLE
+  
+    Search track
   
   Options:
     -h, --help  Show this message and exit.
@@ -992,6 +1026,8 @@ musicbot stats show
     --limit INTEGER         Fetch a maximum limit of music
     --youtubes TEXT         Select musics with a youtube link
     --no-youtubes TEXT      Select musics without youtube link
+    --spotifys TEXT         Select musics with a spotifys link
+    --no-spotifys TEXT      Select musics without spotifys link
     --formats TEXT          Select musics with file format
     --no-formats TEXT       Filter musics without format
     --keywords TEXT         Select musics with keywords
@@ -1061,6 +1097,8 @@ musicbot tag show
     --limit INTEGER         Fetch a maximum limit of music
     --youtubes TEXT         Select musics with a youtube link
     --no-youtubes TEXT      Select musics without youtube link
+    --spotifys TEXT         Select musics with a spotifys link
+    --no-spotifys TEXT      Select musics without spotifys link
     --formats TEXT          Select musics with file format
     --no-formats TEXT       Filter musics without format
     --keywords TEXT         Select musics with keywords
@@ -1084,64 +1122,6 @@ musicbot tag show
     -h, --help              Show this message and exit.
 
 
-musicbot task
-*************
-.. code-block::
-
-  Usage: musicbot task [OPTIONS] COMMAND [ARGS]...
-  
-    Task management
-  
-  Options:
-    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
-                      calhost:5432/musicbot_prod]
-    --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single       DB will use only one connection  [default: False]
-    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
-    -h, --help        Show this message and exit.
-  
-  Commands:
-    help  Print help
-    list  List tasks in database
-    new   Add a new task in database
-
-
-musicbot task help
-******************
-.. code-block::
-
-  Usage: musicbot task help [OPTIONS] [COMMAND]...
-  
-    Print help
-  
-  Options:
-    -h, --help  Show this message and exit.
-
-
-musicbot task list
-******************
-.. code-block::
-
-  Usage: musicbot task list [OPTIONS]
-  
-    List tasks in database
-  
-  Options:
-    -h, --help  Show this message and exit.
-
-
-musicbot task new
-*****************
-.. code-block::
-
-  Usage: musicbot task new [OPTIONS] NAME
-  
-    Add a new task in database
-  
-  Options:
-    -h, --help  Show this message and exit.
-
-
 musicbot user
 *************
 .. code-block::
@@ -1151,20 +1131,14 @@ musicbot user
     User management
   
   Options:
-    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
-                      calhost:5432/musicbot_prod]
-    --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single       DB will use only one connection  [default: False]
-    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
-    -h, --help        Show this message and exit.
+    -h, --help  Show this message and exit.
   
   Commands:
-    help    Print help
-    list    List users
-    login   Authenticate user
-    new     Register a new user
-    remove
-    token   Emit a new token
+    help        Print help
+    list        List users (admin)
+    login       Authenticate user
+    new         Register a new user
+    unregister  Remove a user
 
 
 musicbot user help
@@ -1185,7 +1159,7 @@ musicbot user list
 
   Usage: musicbot user list [OPTIONS]
   
-    List users
+    List users (admin)
   
   Options:
     --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
@@ -1200,17 +1174,16 @@ musicbot user login
 *******************
 .. code-block::
 
-  Usage: musicbot user login [OPTIONS] EMAIL PASSWORD
+  Usage: musicbot user login [OPTIONS]
   
     Authenticate user
   
   Options:
-    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
-                      calhost:5432/musicbot_prod]
-    --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single       DB will use only one connection  [default: False]
-    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
-    -h, --help        Show this message and exit.
+    --email TEXT     User email
+    --password TEXT  User password
+    --token TEXT     User token
+    --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -h, --help       Show this message and exit.
 
 
 musicbot user new
@@ -1222,48 +1195,29 @@ musicbot user new
     Register a new user
   
   Options:
-    --db TEXT          DB dsn string  [default: postgresql://postgres:musicbot@l
-                       ocalhost:5432/musicbot_prod]
-    --db-max INTEGER   DB maximum number of connections  [default: 32]
-    --db-single        DB will use only one connection  [default: False]
-    --db-cert TEXT     DB SSL certificate  [default: ~/.postgresql/root.crt]
-    --email TEXT       User email  [default: admin@musicbot.ovh]
+    --email TEXT       User email
     --password TEXT    User password
-    --first-name TEXT  User first name  [default: admin]
-    --last-name TEXT   User last name  [default: admin]
+    --first-name TEXT  User first name
+    --last-name TEXT   User last name
+    --graphql TEXT     GraphQL endpoint  [default:
+                       http://127.0.0.1:5000/graphql]
     -h, --help         Show this message and exit.
 
 
-musicbot user remove
-********************
+musicbot user unregister
+************************
 .. code-block::
 
-  Usage: musicbot user remove [OPTIONS] EMAIL
+  Usage: musicbot user unregister [OPTIONS]
+  
+    Remove a user
   
   Options:
-    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
-                      calhost:5432/musicbot_prod]
-    --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single       DB will use only one connection  [default: False]
-    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
-    -h, --help        Show this message and exit.
-
-
-musicbot user token
-*******************
-.. code-block::
-
-  Usage: musicbot user token [OPTIONS] EMAIL PASSWORD SECRET
-  
-    Emit a new token
-  
-  Options:
-    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
-                      calhost:5432/musicbot_prod]
-    --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single       DB will use only one connection  [default: False]
-    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
-    -h, --help        Show this message and exit.
+    --email TEXT     User email
+    --password TEXT  User password
+    --token TEXT     User token
+    --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -h, --help       Show this message and exit.
 
 
 musicbot youtube
@@ -1283,47 +1237,8 @@ musicbot youtube
     -h, --help        Show this message and exit.
   
   Commands:
-    albums  Fetch youtube links for each album
     help    Print help
     musics  Fetch youtube links for each music
-    only    Fetch youtube links for each album
-
-
-musicbot youtube albums
-***********************
-.. code-block::
-
-  Usage: musicbot youtube albums [OPTIONS]
-  
-    Fetch youtube links for each album
-  
-  Options:
-    --limit INTEGER         Fetch a maximum limit of music
-    --youtubes TEXT         Select musics with a youtube link
-    --no-youtubes TEXT      Select musics without youtube link
-    --formats TEXT          Select musics with file format
-    --no-formats TEXT       Filter musics without format
-    --keywords TEXT         Select musics with keywords
-    --no-keywords TEXT      Filter musics without keywords
-    --artists TEXT          Select musics with artists
-    --no-artists TEXT       Filter musics without artists
-    --albums TEXT           Select musics with albums
-    --no-albums TEXT        Filter musics without albums
-    --titles TEXT           Select musics with titles
-    --no-titles TEXT        Filter musics without titless
-    --genres TEXT           Select musics with genres
-    --no-genres TEXT        Filter musics without genres
-    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER      Minimum file size filter (in bytes)
-    --max-size INTEGER      Maximum file size filter (in bytes)
-    --min-rating FLOAT      Minimum rating  [default: 0.0]
-    --max-rating FLOAT      Maximum rating  [default: 5.0]
-    --relative              Generate relatives paths
-    --shuffle               Randomize selection
-    --concurrency INTEGER   Number of coroutines  [default: 8]
-    --youtube-album TEXT    Select albums with a youtube link
-    -h, --help              Show this message and exit.
 
 
 musicbot youtube help
@@ -1350,6 +1265,8 @@ musicbot youtube musics
     --limit INTEGER         Fetch a maximum limit of music
     --youtubes TEXT         Select musics with a youtube link
     --no-youtubes TEXT      Select musics without youtube link
+    --spotifys TEXT         Select musics with a spotifys link
+    --no-spotifys TEXT      Select musics without spotifys link
     --formats TEXT          Select musics with file format
     --no-formats TEXT       Filter musics without format
     --keywords TEXT         Select musics with keywords
@@ -1372,17 +1289,5 @@ musicbot youtube musics
     --shuffle               Randomize selection
     --concurrency INTEGER   Number of coroutines  [default: 8]
     -h, --help              Show this message and exit.
-
-
-musicbot youtube only
-*********************
-.. code-block::
-
-  Usage: musicbot youtube only [OPTIONS]
-  
-    Fetch youtube links for each album
-  
-  Options:
-    -h, --help  Show this message and exit.
 
 
