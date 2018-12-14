@@ -3,7 +3,6 @@ import json
 import click
 import copy
 import os
-from . import youtube, spotify
 
 
 options = [
@@ -265,15 +264,9 @@ class File:
     def youtube(self):
         return self.youtube_link
 
-    async def find_youtube(self):
-        self.youtube_link = await youtube.search(self.artist, self.title, self.duration)
-
     @property
     def spotify(self):
         return self.spotify_link
-
-    def find_spotify(self):
-        self.spotify_link = spotify.search(self.artist, self.title)
 
     def save(self):
         self.handle.save()

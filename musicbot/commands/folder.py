@@ -1,7 +1,7 @@
 import click
 import logging
 import click_spinner
-from musicbot.lib import helpers, lib, user, musicbot
+from musicbot.lib import helpers, lib, user
 from musicbot.lib.config import config
 
 logger = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ def scan(ctx, folders):
 
     print('Scanning folder')
     with click_spinner.spinner(disable=config.quiet):
-        files = musicbot.genfiles(folders)
+        files = helpers.genfiles(folders)
 
     print('Inserting musics')
     with click_spinner.spinner(disable=config.quiet):
@@ -107,7 +107,7 @@ def flac2mp3(folders, concurrency):
 #     from musicbot.lib import mfilter
 #     logger.info('Destination: %s', destination)
 #     ctx.obj.mf = mfilter.Filter(**kwargs)
-#     musics = await ctx.obj.db.musics(ctx.obj.mf)
+#     musics = ctx.obj.db.musics(ctx.obj.mf)
 #
 #     files = lib.all_files(destination)
 #     destinations = {f[len(destination) + 1:]: f for f in files}

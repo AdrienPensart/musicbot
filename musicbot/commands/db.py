@@ -2,7 +2,6 @@ import click
 import os
 import logging
 from musicbot.lib import helpers, database
-from musicbot.lib.config import config
 
 logger = logging.getLogger(__name__)
 
@@ -19,20 +18,6 @@ async def pgcli(**kwargs):
     '''Start PgCLI util'''
     db = await database.Database.make(**kwargs)
     os.system(r"pgcli {}".format(db.connection_string))
-
-
-@cli.command()
-@helpers.coro
-@click.argument('secret')
-@helpers.add_options(database.options)
-async def postgraphile(secret, **kwargs):
-    db = await database.Database.make(**kwargs)
-    base_cmd = """npx postgraphile -j -N --no-ignore-rbac -c {} -n 0.0.0.0 -p 5000 --schema musicbot_public --default-role musicbot_anonymous --jwt-token-identifier musicbot_public.jwt_token --jwt-secret secret -l 10MB --watch --append-plugins postgraphile-plugin-connection-filter""".format(db.connection_string, secret)
-    if config.debug:
-        cmd = """DEBUG="postgraphile:graphql,graphile-build-pg,postgraphile:postgres:notice,postgraphile:postgres:error" {} --show-error-stack --watch""".format(base_cmd)
-    else:
-        cmd = """{} --disable-query-log""".format(base_cmd)
-    print(cmd)
 
 
 @cli.command()

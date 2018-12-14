@@ -8,7 +8,8 @@ import random
 import functools
 from click_didyoumean import DYMGroup
 from .config import config
-from .lib import seconds_to_human
+from .lib import seconds_to_human, find_files
+from .file import File, supported_formats
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,9 @@ DEFAULT_MB_CONCURRENCY = 8
 concurrency_options = [
     click.option('--concurrency', envvar='MB_CONCURRENCY', help='Number of coroutines', default=DEFAULT_MB_CONCURRENCY, show_default=True),
 ]
+
+
+logger = logging.getLogger(__name__)
 
 
 def random_password(size=8):
@@ -102,3 +106,8 @@ def drier(f):
         else:
             return await process(f, *args, **kwargs)
     return wrapper
+
+
+@timeit
+def genfiles(folders):
+    return [File(f[1], f[0]) for f in find_files(list(folders)) if f[1].endswith(tuple(supported_formats))]

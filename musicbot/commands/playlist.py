@@ -23,7 +23,6 @@ async def cli(ctx, **kwargs):
 async def new(ctx, path, **kwargs):
     '''Generate a new playlist'''
     mf = mfilter.Filter(**kwargs)
-    # print(json.dumps(ctx.obj.u.do_filter(mf)))
     p = ctx.obj.u().playlist(mf)
     if not config.dry:
         print(p, file=path)
@@ -47,7 +46,7 @@ async def new(ctx, path, **kwargs):
 #     ctx.obj.mf = mfilter.Filter(**kwargs)
 #     if prefix:
 #         ctx.obj.mf.relative = True
-#     playlists = await ctx.obj.db.bests(ctx.obj.mf)
+#     playlists = ctx.obj.db.bests(ctx.obj.mf)
 #     if not playlists:
 #         return
 #     with tqdm(total=len(playlists), desc="Bests playlists", disable=config.quiet) as pbar:
