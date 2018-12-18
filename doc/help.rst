@@ -38,7 +38,9 @@ Installation
   curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python3
   poetry install
 
-  systemctl status postgresql
+  echo "shared_preload_libraries = 'pg_stat_statements'" >> /etc/postgresql/11/main/postgresql.conf
+  echo "pg_stat_statements.track = all" >> /etc/postgresql/11/main/postgresql.conf
+  systemctl restart postgresql
   sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'musicbot';" && history -c
   poetry run pgcli postgresql://postgres:musicbot@localhost:5432
 

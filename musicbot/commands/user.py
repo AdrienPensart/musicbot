@@ -1,24 +1,21 @@
 import click
 import logging
-from musicbot.lib import helpers, database, user
+from musicbot.lib import helpers, user
 
 logger = logging.getLogger(__name__)
 
 
 @click.group(cls=helpers.GroupWithHelp)
-@helpers.coro
 def cli():
     '''User management'''
 
 
 @cli.command()
-@helpers.coro
-@helpers.add_options(database.options)
-async def list(**kwargs):
+@helpers.add_options(user.graphql_admin_option)
+def list(**kwargs):
     '''List users (admin)'''
-    db = await database.Database.make(**kwargs)
-    users = await db.fetch('''select * from musicbot_public.user u inner join musicbot_private.account a on u.id=a.user_id''')
-    for u in users:
+    a = user.Admin(**kwargs)
+    for u in a.users():
         print(u)
 
 

@@ -109,24 +109,6 @@ begin
         into output;
     end if;
     return output;
-    --insert into musicbot_public.raw_music as m (artist, genre, folder, album, rating, duration, path, title, number, size, youtube, spotify, keywords)
-    --values (artist, genre, folder, album, rating, duration, path, title, number, size, youtube, spotify, keywords)
-    --on conflict on constraint raw_music_path_user_id_key do update set
-    --on conflict (user_id, path) do update set
-    --    path=EXCLUDED.path,
-    --    artist=EXCLUDED.artist,
-    --    genre=EXCLUDED.genre,
-    --    folder=EXCLUDED.folder,
-    --    album=EXCLUDED.album,
-    --    rating=EXCLUDED.rating,
-    --    duration=EXCLUDED.duration,
-    --    title=EXCLUDED.title,
-    --    number=EXCLUDED.number,
-    --    size=EXCLUDED.size,
-    --    youtube=EXCLUDED.youtube,
-    --    spotify=EXCLUDED.spotify,
-    --    updated_at=coalesce(EXCLUDED.updated_at, now())
-    --returning *;
 end
 $$ language plpgsql;
 grant execute on function musicbot_public.upsert_music to musicbot_user;

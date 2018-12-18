@@ -28,8 +28,9 @@ def list(ctx):
 @click.pass_context
 def scan(ctx, folders):
     '''(re)Load musics'''
+    u = ctx.obj.u()
     if not len(folders):
-        folders = ctx.obj.u().folders
+        folders = u.folders
 
     print('Scanning folder')
     with click_spinner.spinner(disable=config.quiet):
@@ -37,7 +38,7 @@ def scan(ctx, folders):
 
     print('Inserting musics')
     with click_spinner.spinner(disable=config.quiet):
-        ctx.obj.u().bulk_insert(files)
+        u.bulk_insert(files)
 
 
 @cli.command()
@@ -88,59 +89,3 @@ def flac2mp3(folders, concurrency):
         executor.shutdown = lambda wait: None
         futures = [executor.submit(convert, flac_path) for flac_path in flac_files]
         cf.wait(futures)
-# from pydub import AudioSegment
-# from pydub.utils import mediainfo
-#
-# seg = AudioSegment.from_file('original.mp3')
-# seg.export('out.mp3', format='mp3', tags=mediainfo('original.mp3').get('TAG', {}))
-
-
-# pylint: disable-msg=too-many-locals
-# @cli.command()
-# @helpers.coro
-# @helpers.add_options(mfilter.options)
-# @click.argument('destination')
-# @click.pass_context
-# async def sync(ctx, destination, **kwargs):
-#     '''Copy selected musics with filters to destination folder'''
-#     import os
-#     from musicbot.lib import mfilter
-#     logger.info('Destination: %s', destination)
-#     ctx.obj.mf = mfilter.Filter(**kwargs)
-#     musics = ctx.obj.db.musics(ctx.obj.mf)
-#
-#     files = lib.all_files(destination)
-#     destinations = {f[len(destination) + 1:]: f for f in files}
-#     sources = {m['path'][len(m['folder']) + 1:]: m['path'] for m in musics}
-#     to_delete = set(destinations.keys()) - set(sources.keys())
-#     if to_delete:
-#         with tqdm(total=len(to_delete), desc="Deleting music", disable=config.quiet) as pbar:
-#             for d in to_delete:
-#                 if not config.dry:
-#                     try:
-#                         logger.info("Deleting %s", destinations[d])
-#                         os.remove(destinations[d])
-#                     except Exception as e:
-#                         logger.error(e)
-#                 else:
-#                     logger.info("[DRY-RUN] False Deleting %s", destinations[d])
-#                 pbar.update(1)
-#     to_copy = set(sources.keys()) - set(destinations.keys())
-#     if to_copy:
-#         with tqdm(total=len(to_copy), desc="Copying music", disable=config.quiet) as pbar:
-#             from shutil import copyfile
-#             for c in sorted(to_copy):
-#                 final_destination = os.path.join(destination, c)
-#                 if not config.dry:
-#                     logger.info("Copying %s to %s", sources[c], final_destination)
-#                     os.makedirs(os.path.dirname(final_destination), exist_ok=True)
-#                     copyfile(sources[c], final_destination)
-#                 else:
-#                     logger.info("[DRY-RUN] False Copying %s to %s", sources[c], final_destination)
-#                 pbar.update(1)
-#
-#     import shutil
-#     for d in lib.empty_dirs(destination):
-#         if not config.dry:
-#             shutil.rmtree(d)
-#         logger.info("[DRY-RUN] Removing empty dir %s", d)

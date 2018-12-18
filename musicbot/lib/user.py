@@ -29,6 +29,10 @@ MB_LAST_NAME = 'MB_LAST_NAME'
 DEFAULT_LAST_NAME = None
 last_name_option = [click.option('--last-name', envvar=MB_LAST_NAME, help='User last name', default=DEFAULT_FIRST_NAME, show_default=True)]
 
+MB_GRAPHQL_ADMIN = 'MB_GRAPHQL_ADMIN'
+DEFAULT_GRAPHQL_ADMIN = 'http://127.0.0.1:5001/graphql'
+graphql_admin_option = [click.option('--graphql', envvar=MB_GRAPHQL_ADMIN, help='GraphQL endpoint', default=DEFAULT_GRAPHQL_ADMIN, show_default=True)]
+
 MB_GRAPHQL = 'MB_GRAPHQL'
 DEFAULT_GRAPHQL = 'http://127.0.0.1:5000/graphql'
 graphql_option = [click.option('--graphql', envvar=MB_GRAPHQL, help='GraphQL endpoint', default=DEFAULT_GRAPHQL, show_default=True)]
@@ -47,7 +51,45 @@ class FailedRequest(Exception):
     pass
 
 
-class User:
+class GraphQL:
+    def __init__(self, graphql, headers=None):
+        self.graphql = graphql
+        self.headers = headers
+
+    def _post(self, query, failure=None):
+        response = requests.post(self.graphql, json={'query': query}, headers=self.headers)
+        logger.debug(response)
+        if response.status_code != 200:
+            failure = failure if failure is not None else FailedRequest("Query failed: {}".format(response.json()))
+            raise failure
+        return response.json()
+
+
+class Admin(GraphQL):
+    @helpers.timeit
+    def __init__(self, graphql):
+        GraphQL.__init__(self, graphql=graphql)
+
+    @helpers.timeit
+    def users(self):
+        query = """
+        {
+          allUsersList{
+              firstName,
+              lastName,
+              createdAt,
+              updatedAt,
+              accountByUserId{
+                userId,
+                email,
+                passwordHash
+              }
+          }
+        }"""
+        return self._post(query)['data']['allUsersList']
+
+
+class User(GraphQL):
     @helpers.timeit
     def __init__(self, graphql=None, email=None, password=None, token=None):
         self.graphql = graphql if graphql is not None else DEFAULT_GRAPHQL
@@ -69,21 +111,15 @@ class User:
             logger.debug(response)
             if response.status_code == 200:
                 self.token = response.json()['data']['authenticate']['jwtToken']
+                if self.token is None:
+                    raise FailedAuthentication("Register failed")
             else:
                 raise FailedAuthentication("Register failed")
         elif self.token is None:
             raise FailedAuthentication("No credentials or token provided")
 
-        self.headers = {"Authorization": "Bearer {}".format(self.token)}
         self.authenticated = True
-
-    def _post(self, query, failure=None):
-        response = requests.post(self.graphql, json={'query': query}, headers=self.headers)
-        logger.debug(response)
-        if response.status_code != 200:
-            failure = failure if failure is not None else FailedRequest("Query failed: {}".format(response.json()))
-            raise failure
-        return response.json()
+        GraphQL.__init__(self, graphql=graphql, headers={"Authorization": "Bearer {}".format(self.token)})
 
     @helpers.timeit
     def load_default_filters(self):
@@ -105,6 +141,22 @@ class User:
             playlist({})
         }}""".format(mf.to_graphql())
         return self._post(query)['data']['playlist']
+
+    @helpers.timeit
+    def bests(self, mf=None):
+        mf = mf if mf is not None else mfilter.Filter()
+        query = """
+        {{
+            bests({})
+            {{
+                nodes
+                {{
+                    name,
+                    content
+                }}
+            }}
+        }}""".format(mf.to_graphql())
+        return self._post(query)['data']['bests']['nodes']
 
     @helpers.timeit
     def do_filter(self, mf=None):

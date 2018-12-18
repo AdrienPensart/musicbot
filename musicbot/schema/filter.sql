@@ -67,4 +67,3 @@ begin
 end;
 $$ language plpgsql;
 grant execute on function musicbot_public.load_default_filters to musicbot_user;
-

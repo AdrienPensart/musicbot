@@ -5,7 +5,17 @@ import json
 
 logger = logging.getLogger(__name__)
 
+
 rating_choices = [x * 0.5 for x in range(0, 11)]
+
+
+def sane_rating(ctx, param, value):
+    if value is not None and value in rating_choices:
+        ctx.params[param.name] = value
+        return ctx.params[param.name]
+    return None
+
+
 min_int = 0
 max_int = 2147483647
 
@@ -26,8 +36,8 @@ default_min_duration = min_int
 default_max_duration = max_int
 default_min_size = min_int
 default_max_size = max_int
-default_min_rating = 0.0
-default_max_rating = 5.0
+default_min_rating = min(rating_choices)
+default_max_rating = max(rating_choices)
 default_keywords = []
 default_no_keywords = []
 default_artists = []
@@ -176,8 +186,8 @@ options = [
     click.option('--max-duration', envvar='MB_MAX_DURATION', help='Maximum duration filter (hours:minutes:seconds))', default=default_max_duration),
     click.option('--min-size', envvar='MB_MIN_SIZE', help='Minimum file size filter (in bytes)', default=default_min_size),
     click.option('--max-size', envvar='MB_MAX_SIZE', help='Maximum file size filter (in bytes)', default=default_max_size),
-    click.option('--min-rating', envvar='MB_MIN_RATING', help='Minimum rating', default=default_min_rating, show_default=True),
-    click.option('--max-rating', envvar='MB_MAX_RATING', help='Maximum rating', default=default_max_rating, show_default=True),
+    click.option('--min-rating', envvar='MB_MIN_RATING', help='Minimum rating', default=default_min_rating, show_default=True, callback=sane_rating),
+    click.option('--max-rating', envvar='MB_MAX_RATING', help='Maximum rating', default=default_max_rating, show_default=True, callback=sane_rating),
     click.option('--relative', envvar='MB_RELATIVE', help='Generate relatives paths', default=default_relative, is_flag=True),
     click.option('--shuffle', envvar='MB_SHUFFLE', help='Randomize selection', default=default_shuffle, is_flag=True),
 ]

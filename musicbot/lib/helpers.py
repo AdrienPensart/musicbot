@@ -1,6 +1,4 @@
-import asyncio
 import time
-import uvloop
 import click
 import logging
 import string
@@ -12,8 +10,6 @@ from .lib import seconds_to_human, find_files
 from .file import File, supported_formats
 
 logger = logging.getLogger(__name__)
-
-asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 DEFAULT_MB_CONCURRENCY = 8
 concurrency_options = [
@@ -48,12 +44,6 @@ class GroupWithHelp(DYMGroup):
         self.add_command(_help)
 
 
-async def process(f, *args, **params):
-    if asyncio.iscoroutinefunction(f):
-        return await f(*args, **params)
-    return f(*args, **params)
-
-
 def timeit(f):
     @functools.wraps(f)
     def wrapper(*args, **params):
@@ -63,18 +53,6 @@ def timeit(f):
         if config.timings:
             logger.info('TIMINGS %s: %s', f.__name__, for_human)
         return result
-
-    @functools.wraps(f)
-    async def awrapper(*args, **params):
-        start = time.time()
-        result = await process(f, *args, **params)
-        for_human = seconds_to_human(time.time() - start)
-        if config.timings:
-            logger.info('TIMINGS %s: %s', f.__name__, for_human)
-        return result
-
-    if asyncio.iscoroutinefunction(f):
-        return awrapper
     return wrapper
 
 
@@ -84,28 +62,6 @@ def add_options(options):
             func = option(func)
         return func
     return _add_options
-
-
-def coro(f):
-    f = asyncio.coroutine(f)
-
-    @functools.wraps(f)
-    def wrapper(*args, **kwargs):
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(f(*args, **kwargs))
-    return wrapper
-
-
-def drier(f):
-    @functools.wraps(f)
-    async def wrapper(*args, **kwargs):
-        if config.dry:
-            args = [str(a) for a in args] + ["%s=%s" % (k, v) for (k, v) in kwargs.items()]
-            logger.info('DRY RUN: %s(%s)', f.__name__, ','.join(args))
-            await asyncio.sleep(0)
-        else:
-            return await process(f, *args, **kwargs)
-    return wrapper
 
 
 @timeit

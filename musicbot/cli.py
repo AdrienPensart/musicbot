@@ -47,6 +47,7 @@ class SubCommandLineInterface(helpers.GroupWithHelp):
             with open(fn) as f:
                 code = compile(f.read(), fn, 'exec')
                 ns['__name__'] = '{}.{}'.format(commands_folder, name)
+                ns['__file__'] = fn
                 eval(code, ns, ns)
         except FileNotFoundError:
             return super().get_command(ctx, name)

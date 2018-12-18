@@ -1,7 +1,7 @@
 import pytest
 import os
 import logging
-from musicbot.lib import user, musicbot
+from musicbot.lib import user, helpers
 from . import fixtures
 
 logger = logging.getLogger(__name__)
@@ -13,7 +13,7 @@ password = "test_test"
 
 @pytest.fixture
 def files():
-    files = musicbot.genfiles(fixtures.folders)
+    files = helpers.genfiles(fixtures.folders)
     assert len(files) == 5
     return files
 

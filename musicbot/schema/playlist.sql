@@ -121,6 +121,112 @@ $$
             no_youtubes  => playlist.no_youtubes,
             spotifys     => playlist.spotifys,
             no_spotifys  => playlist.no_spotifys
-		)) f;
+        )) f;
 $$ language sql stable;
 grant execute on function musicbot_public.playlist to musicbot_user;
+
+create or replace function musicbot_public.bests(
+    min_duration integer default 0,
+    max_duration integer default +2147483647,
+    min_size     integer default 0,
+    max_size     integer default +2147483647,
+    min_rating   float default 0.0,
+    max_rating   float default 5.0,
+    artists      text[] default '{}',
+    no_artists   text[] default '{}',
+    albums       text[] default '{}',
+    no_albums    text[] default '{}',
+    titles       text[] default '{}',
+    no_titles    text[] default '{}',
+    genres       text[] default '{}',
+    no_genres    text[] default '{}',
+    formats      text[] default '{}',
+    no_formats   text[] default '{}',
+    keywords     text[] default '{}',
+    no_keywords  text[] default '{}',
+    shuffle      boolean default 'false',
+    relative     boolean default 'false',
+    "limit"      integer default +2147483647,
+    youtubes     text[] default '{}',
+    no_youtubes  text[] default '{}',
+    spotifys     text[] default '{}',
+    no_spotifys  text[] default '{}'
+)
+returns table (
+    name text,
+    content text
+) as
+$$
+    with recursive musics as (
+		select path, folder, artist, genre, keywords from musicbot_public.do_filter(
+            min_duration => bests.min_duration,
+            max_duration => bests.max_duration,
+            min_size     => bests.min_size,
+            max_size     => bests.max_size,
+            min_rating   => bests.min_rating,
+            max_rating   => bests.max_rating,
+            artists      => bests.artists,
+            no_artists   => bests.no_artists,
+            albums       => bests.albums,
+            no_albums    => bests.no_albums,
+            titles       => bests.titles,
+            no_titles    => bests.no_titles,
+            genres       => bests.genres,
+            no_genres    => bests.no_genres,
+            formats      => bests.formats,
+            no_formats   => bests.no_formats,
+            keywords     => bests.keywords,
+            no_keywords  => bests.no_keywords,
+            shuffle      => bests.shuffle,
+            relative     => bests.relative,
+            "limit"      => bests."limit",
+            youtubes     => bests.youtubes,
+            no_youtubes  => bests.no_youtubes,
+            spotifys     => bests.spotifys,
+            no_spotifys  => bests.no_spotifys
+	    )
+    ),
+	bests_artists as (
+        select
+            (m.artist || '/bests') as name,
+            case when bests.relative is false then coalesce('#EXTM3U' || E'\n' || string_agg(path, E'\n'), '')
+            else coalesce('#EXTM3U' || E'\n' || string_agg(substring(path from char_length(folder)+2), E'\n'), '')
+            end
+        from musics m
+        group by m.artist
+	),
+    bests_genres as (
+		select
+            (m.genre) as name,
+            case when bests.relative is false then coalesce('#EXTM3U' || E'\n' || string_agg(path, E'\n'), '')
+            else coalesce('#EXTM3U' || E'\n' || string_agg(substring(path from char_length(folder)+2), E'\n'), '')
+            end
+        from musics m
+        group by m.genre
+	),
+	bests_artist_keywords as (
+        with keywords as (select path, folder, artist, unnest(keywords) as k from musics group by path, folder, artist, keywords order by k)
+        select
+            (artist || '/' || k.k) as name,
+            case when bests.relative is false then coalesce('#EXTM3U' || E'\n' || string_agg(path, E'\n'), '')
+            else coalesce('#EXTM3U' || E'\n' || string_agg(substring(path from char_length(folder)+2), E'\n'), '')
+            end
+        from keywords k
+        group by artist, k
+	),
+	bests_keywords as (
+		with keywords as (select path, folder, unnest(keywords) as k from musics group by path, folder, keywords order by k)
+        select
+            (k.k) as name,
+            case when bests.relative is false then coalesce('#EXTM3U' || E'\n' || string_agg(path, E'\n'), '')
+            else coalesce('#EXTM3U' || E'\n' || string_agg(substring(path from char_length(folder)+2), E'\n'), '')
+            end
+        from keywords k
+        group by k
+	)
+	select * from bests_artists union
+	select * from bests_genres union
+	select * from bests_artist_keywords union
+	select * from bests_keywords;
+$$ language sql stable;
+grant execute on function musicbot_public.bests to musicbot_user;
