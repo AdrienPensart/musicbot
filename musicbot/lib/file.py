@@ -41,45 +41,10 @@ class File:
     def close(self):
         self.handle.close()
 
-    def to_list(self):
-        return [self.title,
-                self.album,
-                self.genre,
-                self.artist,
-                self._folder,
-                self.youtube,
-                self.spotify,
-                self.number,
-                self.path,
-                self.rating,
-                self.duration,
-                self.size,
-                mysplit(self.keywords, ' ')
-                ]
-
-    def to_tuple(self):
-        return (self.title,
-                self.album,
-                self.genre,
-                self.artist,
-                self._folder,
-                self.youtube,
-                self.spotify,
-                self.number,
-                self.path,
-                self.rating,
-                self.duration,
-                self.size,
-                mysplit(self.keywords, ' '))
-
-    @staticmethod
-    def keys():
-        return ['title', 'album', 'genre', 'artist', 'folder', 'youtube', 'spotify', 'number', 'path', 'rating', 'duration', 'size', 'keywords']
-
     def ordered_dict(self):
         from collections import OrderedDict
         return OrderedDict([('title', self.title),
-                            ('album', self.genre),
+                            ('album', self.album),
                             ('genre', self.genre),
                             ('artist', self.artist),
                             ('folder', self._folder),

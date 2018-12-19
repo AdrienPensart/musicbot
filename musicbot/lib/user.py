@@ -161,6 +161,11 @@ class User(GraphQL):
     @helpers.timeit
     def do_filter(self, mf=None):
         mf = mf if mf is not None else mfilter.Filter()
+        if mf.name:
+            kwargs = self.filter(mf.name)
+            print(kwargs)
+            mf = mfilter.Filter(**kwargs)
+
         query = """
         {{
             doFilter({})
@@ -249,6 +254,20 @@ class User(GraphQL):
         }"""
         return self._post(query)['data']['folders']['nodes']
 
+    @functools.lru_cache(maxsize=None)
+    @helpers.timeit
+    def filter(self, name):
+        default_filter = mfilter.Filter()
+        query = """
+        {{
+            allFiltersList(filter: {{name: {{equalTo: "{}"}}}})
+            {{
+                name,
+                {}
+            }}
+        }}""".format(name, ','.join(default_filter.ordered_dict().keys()))
+        return self._post(query)['data']['allFiltersList'][0]
+
     @property
     @functools.lru_cache(maxsize=None)
     @helpers.timeit
@@ -256,16 +275,13 @@ class User(GraphQL):
         default_filter = mfilter.Filter()
         query = """
         {{
-            allFilters
+            allFiltersList
             {{
-                nodes
-                {{
-                    name,
-                    {}
-                }}
+                name,
+                {}
             }}
         }}""".format(','.join(default_filter.ordered_dict().keys()))
-        return self._post(query)['data']['allFilters']['nodes']
+        return self._post(query)['data']['allFiltersList']
 
     def watch(user):
         from watchdog.observers import Observer

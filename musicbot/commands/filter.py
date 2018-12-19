@@ -11,19 +11,19 @@ logger = logging.getLogger(__name__)
 @click.pass_context
 def cli(ctx, **kwargs):
     '''Filter management'''
-    ctx.obj.u = user.User(**kwargs)
+    ctx.obj.u = lambda: user.User.new(**kwargs)
 
 
 @cli.command()
 @click.pass_context
 def load_default(ctx):
-    ctx.obj.u.load_default_filters()
+    ctx.obj.u().load_default_filters()
 
 
 @cli.command()
 @click.pass_context
 def list(ctx):
-    print(json.dumps(ctx.obj.u.filters))
+    print(json.dumps(ctx.obj.u().filters))
 
 
 @cli.command()
@@ -31,4 +31,11 @@ def list(ctx):
 @click.pass_context
 def do(ctx, **kwargs):
     mf = mfilter.Filter(**kwargs)
-    print(json.dumps(ctx.obj.u.do_filter(mf)))
+    print(json.dumps(ctx.obj.u().do_filter(mf)))
+
+
+@cli.command()
+@click.pass_context
+@click.argument('name')
+def get(ctx, name):
+    print(json.dumps(ctx.obj.u().filter(name)))

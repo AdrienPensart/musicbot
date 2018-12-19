@@ -19,7 +19,7 @@ def sane_rating(ctx, param, value):
 min_int = 0
 max_int = 2147483647
 
-default_name = ''
+default_name = None
 default_filter = None
 default_relative = False
 default_shuffle = False
@@ -101,7 +101,7 @@ class Filter:
         logger.debug('Filter: %s', self)
 
     def __repr__(self):
-        return json.dumps(self.to_list())
+        return self.ordered_dict()
 
     def diff(self):
         '''Print only differences with default filter'''
@@ -114,23 +114,6 @@ class Filter:
         myself = vars(self)
         default = vars(Filter())
         return {k: myself[k] for k in myself if default[k] == myself[k] and k != 'name'}
-
-    def to_list(self):
-        my_list = [self.name,
-                   self.min_duration, self.max_duration,
-                   self.min_size, self.max_size,
-                   self.min_rating, self.max_rating,
-                   self.artists, self.no_artists,
-                   self.albums, self.no_albums,
-                   self.titles, self.no_titles,
-                   self.genres, self.no_genres,
-                   self.formats, self.no_formats,
-                   self.keywords, self.no_keywords,
-                   self.shuffle, self.relative,
-                   self.limit,
-                   self.youtubes, self.no_youtubes,
-                   self.spotifys, self.no_spotifys]
-        return my_list
 
     def ordered_dict(self):
         from collections import OrderedDict
@@ -165,6 +148,7 @@ class Filter:
 
 
 options = [
+    click.option('--name', envvar='MB_NAME', help='Filter name', default=default_name),
     click.option('--limit', envvar='MB_LIMIT', help='Fetch a maximum limit of music', default=default_limit),
     click.option('--youtubes', envvar='MB_YOUTUBES', help='Select musics with a youtube link', multiple=True, default=default_youtubes),
     click.option('--no-youtubes', envvar='MB_NO_YOUTUBES', help='Select musics without youtube link', multiple=True, default=default_no_youtubes),
