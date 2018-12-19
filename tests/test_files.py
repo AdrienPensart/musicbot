@@ -1,5 +1,6 @@
 import logging
-from musicbot.lib import lib, file
+from musicbot import lib
+from musicbot.music import file
 from . import fixtures
 
 logger = logging.getLogger(__name__)

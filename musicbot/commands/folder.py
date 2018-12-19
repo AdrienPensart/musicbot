@@ -4,8 +4,9 @@ import csv
 import logging
 import click_spinner
 from tqdm import tqdm
-from musicbot.lib import helpers, mfilter, lib, user
-from musicbot.lib.config import config
+from musicbot import helpers, lib, user
+from musicbot.music import mfilter
+from musicbot.config import config
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +43,20 @@ def scan(ctx, folders):
     print('Inserting musics')
     with click_spinner.spinner(disable=config.quiet):
         u.bulk_insert(files)
+
+
+@cli.command()
+@click.argument('folders', nargs=-1)
+@click.pass_context
+def find(ctx, folders):
+    '''Just list music files'''
+    u = ctx.obj.u()
+    if not len(folders):
+        folders = u.folders
+
+    files = lib.find_files(folders)
+    for f in files:
+        print(f[1])
 
 
 @cli.command('csv')
@@ -185,4 +200,4 @@ def consistency(ctx, folders):
                 report.append("Invalid track number : " + m.path)
         except OSError:
             report.append("Could not open file : " + m.path)
-    return report
+    print(report)

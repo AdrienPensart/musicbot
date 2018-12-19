@@ -1,2 +1,5 @@
 [run]
-source=lib
+source = musicbot
+omit =
+    musicbot/commands/*
+	musicbot/cli.py

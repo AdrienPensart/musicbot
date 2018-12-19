@@ -1,7 +1,7 @@
 import click
 from logging_tree import printout
-from musicbot.lib import helpers
-from musicbot.lib.config import config
+from musicbot import helpers
+from musicbot.config import config
 
 
 @click.group(cls=helpers.GroupWithHelp)

@@ -1,7 +1,11 @@
 import pytest
 import os
 import logging
-from musicbot.lib import user, helpers
+import signal
+import subprocess
+import time
+from musicbot import user, helpers
+from musicbot.backend import postgraphile
 from . import fixtures
 
 logger = logging.getLogger(__name__)
@@ -9,6 +13,29 @@ logger = logging.getLogger(__name__)
 
 email = "test@test.com"
 password = "test_test"
+
+os.environ['MB_GRAPHQL_PUBLIC_PORT'] = str(10000)
+os.environ['MB_GRAPHQL_PRIVATE_PORT'] = str(10001)
+os.environ['MB_GRAPHQL'] = "http://127.0.0.1:10000/graphql"
+os.environ['MB_GRAPHQL_ADMIN'] = "http://127.0.0.1:10001/graphql"
+
+
+@pytest.fixture
+def postgraphile_public():
+    cmd = postgraphile.public(graphql_public_port=10000)
+    pro = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
+    time.sleep(1)
+    yield pro
+    os.killpg(os.getpgid(pro.pid), signal.SIGTERM)
+
+
+@pytest.fixture
+def postgraphile_private():
+    cmd = postgraphile.private(graphql_private_port=10001)
+    pro = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
+    yield pro
+    time.sleep(1)
+    os.killpg(os.getpgid(pro.pid), signal.SIGTERM)
 
 
 @pytest.fixture
@@ -26,8 +53,8 @@ def email_sample():
 
 
 @pytest.fixture()
-def user_sample(worker_id, email_sample, files):
-    u = user.User.register(graphql=user.DEFAULT_GRAPHQL, first_name="first_test", last_name="last_test", email=email_sample, password=password)
+def user_sample(worker_id, email_sample, files, postgraphile_public, postgraphile_private):
+    u = user.User.register(graphql=os.environ['MB_GRAPHQL'], first_name="first_test", last_name="last_test", email=email_sample, password=password)
     assert u.authenticated
 
     u.bulk_insert(files)

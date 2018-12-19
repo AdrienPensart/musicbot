@@ -1,10 +1,12 @@
 import click
+import os
 import base64
 import json
 import logging
 import requests
 import functools
-from . import helpers, file, mfilter
+from . import helpers
+from .music import file, mfilter
 
 MB_TOKEN = 'MB_TOKEN'
 DEFAULT_TOKEN = None
@@ -67,7 +69,8 @@ class GraphQL:
 
 class Admin(GraphQL):
     @helpers.timeit
-    def __init__(self, graphql):
+    def __init__(self, graphql=None):
+        graphql = graphql if graphql is not None else os.getenv(MB_GRAPHQL_ADMIN, DEFAULT_GRAPHQL_ADMIN)
         GraphQL.__init__(self, graphql=graphql)
 
     @helpers.timeit
@@ -92,7 +95,7 @@ class Admin(GraphQL):
 class User(GraphQL):
     @helpers.timeit
     def __init__(self, graphql=None, email=None, password=None, token=None):
-        self.graphql = graphql if graphql is not None else DEFAULT_GRAPHQL
+        self.graphql = graphql if graphql is not None else os.getenv(MB_GRAPHQL, DEFAULT_GRAPHQL)
         self.email = email
         self.password = password
         self.token = token
@@ -120,6 +123,13 @@ class User(GraphQL):
 
         self.authenticated = True
         GraphQL.__init__(self, graphql=graphql, headers={"Authorization": "Bearer {}".format(self.token)})
+
+    @classmethod
+    @functools.lru_cache(maxsize=None)
+    @helpers.timeit
+    def new(cls, **kwargs):
+        self = User(**kwargs)
+        return self
 
     @helpers.timeit
     def load_default_filters(self):
@@ -233,13 +243,6 @@ class User(GraphQL):
             }}
         }}'''.format(data.decode())
         return self._post(query)
-
-    @classmethod
-    @functools.lru_cache(maxsize=None)
-    @helpers.timeit
-    def new(cls, **kwargs):
-        self = User(**kwargs)
-        return self
 
     @property
     @functools.lru_cache(maxsize=None)

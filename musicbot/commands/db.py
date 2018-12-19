@@ -1,7 +1,8 @@
 import click
 import os
 import logging
-from musicbot.lib import helpers, database
+from musicbot import helpers
+from musicbot.backend import database
 
 logger = logging.getLogger(__name__)
 

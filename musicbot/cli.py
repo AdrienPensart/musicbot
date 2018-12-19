@@ -5,7 +5,7 @@ import os
 import logging
 from click_repl import register_repl
 from attrdict import AttrDict
-from musicbot.lib import helpers, config
+from musicbot import helpers, config
 
 if os.path.islink(__file__):
     myself = os.readlink(__file__)

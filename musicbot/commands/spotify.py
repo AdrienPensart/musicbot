@@ -1,6 +1,7 @@
 import click
 import logging
-from musicbot.lib import helpers, spotify
+from musicbot import helpers
+from musicbot.music import spotify
 
 logger = logging.getLogger(__name__)
 

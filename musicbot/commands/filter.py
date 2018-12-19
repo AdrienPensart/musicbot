@@ -1,7 +1,8 @@
 import click
 import logging
 import json
-from musicbot.lib import helpers, user, mfilter
+from musicbot import helpers, user
+from musicbot.music import mfilter
 
 logger = logging.getLogger(__name__)
 
@@ -17,12 +18,14 @@ def cli(ctx, **kwargs):
 @cli.command()
 @click.pass_context
 def load_default(ctx):
+    '''Load default filters'''
     ctx.obj.u().load_default_filters()
 
 
 @cli.command()
 @click.pass_context
 def list(ctx):
+    '''List filters'''
     print(json.dumps(ctx.obj.u().filters))
 
 
@@ -30,6 +33,7 @@ def list(ctx):
 @helpers.add_options(mfilter.options)
 @click.pass_context
 def do(ctx, **kwargs):
+    '''Filter music'''
     mf = mfilter.Filter(**kwargs)
     print(json.dumps(ctx.obj.u().do_filter(mf)))
 
@@ -38,4 +42,5 @@ def do(ctx, **kwargs):
 @click.pass_context
 @click.argument('name')
 def get(ctx, name):
+    '''Print a filter'''
     print(json.dumps(ctx.obj.u().filter(name)))

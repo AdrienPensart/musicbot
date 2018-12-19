@@ -1,7 +1,7 @@
+import datetime
 import click
-from datetime import timedelta
-from musicbot.lib import helpers, user, mfilter
-from musicbot.lib.lib import bytes_to_human
+from musicbot import lib, helpers, user
+from musicbot.music import mfilter
 
 
 @click.group(cls=helpers.GroupWithHelp)
@@ -24,5 +24,5 @@ def show(ctx, **kwargs):
     print("Album    :", stats['albums'])
     print("Genre    :", stats['genres'])
     print("Keywords :", stats['keywords'])
-    print("Size     :", bytes_to_human(int(stats['size'])))
-    print("Total duration :", timedelta(seconds=int(stats['duration'])))
+    print("Size     :", lib.bytes_to_human(int(stats['size'])))
+    print("Total duration :", datetime.timedelta(seconds=int(stats['duration'])))

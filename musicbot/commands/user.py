@@ -1,6 +1,6 @@
 import click
 import logging
-from musicbot.lib import helpers, user
+from musicbot import helpers, user
 
 logger = logging.getLogger(__name__)
 

@@ -7,7 +7,7 @@ export MB_DB=${MB_DB:-'postgresql://postgres:musicbot@localhost:5432/musicbot_te
 
 musicbot db drop --yes
 musicbot db create
-musicbot folder scan --crawl $my_dir/fixtures/*
+musicbot folder scan $my_dir/fixtures/*
 musicbot server start &
 pid=$!
 sleep 1

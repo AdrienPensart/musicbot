@@ -7,7 +7,7 @@ import functools
 from click_didyoumean import DYMGroup
 from .config import config
 from .lib import seconds_to_human, find_files
-from .file import File, supported_formats
+from .music.file import File, supported_formats
 
 logger = logging.getLogger(__name__)
 

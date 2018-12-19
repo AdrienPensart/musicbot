@@ -3,7 +3,7 @@ import logging
 import spotipy
 import functools
 from spotipy.oauth2 import SpotifyClientCredentials
-from . import helpers
+from musicbot import helpers
 
 logger = logging.getLogger(__name__)
 

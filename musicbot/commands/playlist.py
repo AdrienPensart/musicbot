@@ -4,8 +4,9 @@ import codecs
 import os
 from textwrap import indent
 from tqdm import tqdm
-from musicbot.lib import helpers, mfilter, user
-from musicbot.lib.config import config
+from musicbot import helpers, user
+from musicbot.music import mfilter
+from musicbot.config import config
 
 logger = logging.getLogger(__name__)
 

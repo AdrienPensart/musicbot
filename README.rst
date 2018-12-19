@@ -38,7 +38,9 @@ Installation
   curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python3
   poetry install
 
-  systemctl status postgresql
+  echo "shared_preload_libraries = 'pg_stat_statements'" >> /etc/postgresql/11/main/postgresql.conf
+  echo "pg_stat_statements.track = all" >> /etc/postgresql/11/main/postgresql.conf
+  systemctl restart postgresql
   sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'musicbot';" && history -c
   poetry run pgcli postgresql://postgres:musicbot@localhost:5432
 
@@ -61,7 +63,11 @@ Installation
 
   curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
   nvm install node
-  npm install -g postgraphile
+  curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+  echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+  sudo apt-get update && sudo apt-get install --no-install-recommends yarn
+  yarn add postgraphile
+  yarn add postgraphile-plugin-connection-filter
 Commands
 --------
 .. code-block::
@@ -86,22 +92,18 @@ Commands
     -h, --help                      Show this message and exit.
   
   Commands:
-    completion   Completion tool
-    config       Config management
-    consistency  Inconsistencies management
-    db           Database management
-    file         Music tags management
-    filter       Filter management
-    folder       Folder management
-    help         Print help
-    playlist     Playlist management
-    repl         Start an interactive shell.
-    server       API Server
-    spotify      Spotify
-    stats        Youtube management
-    tag          Music tags management
-    user         User management
-    youtube      Youtube management
+    completion    Completion tool
+    config        Config management
+    db            Database management (admin)
+    filter        Filter management
+    folder        Folder management
+    help          Print help
+    playlist      Playlist management
+    postgraphile  Postgraphile management
+    repl          Start an interactive shell.
+    spotify       Spotify
+    stats         Youtube management
+    user          User management
 
 
 musicbot completion
@@ -216,113 +218,23 @@ musicbot config show
     -h, --help  Show this message and exit.
 
 
-musicbot consistency
-********************
-.. code-block::
-
-  Usage: musicbot consistency [OPTIONS] COMMAND [ARGS]...
-  
-    Inconsistencies management
-  
-  Options:
-    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
-                      calhost:5432/musicbot_prod]
-    --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single       DB will use only one connection  [default: False]
-    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
-    -h, --help        Show this message and exit.
-  
-  Commands:
-    errors  Detect errors
-    help    Print help
-
-
-musicbot consistency errors
-***************************
-.. code-block::
-
-  Usage: musicbot consistency errors [OPTIONS]
-  
-    Detect errors
-  
-  Options:
-    --limit INTEGER         Fetch a maximum limit of music
-    --youtubes TEXT         Select musics with a youtube link
-    --no-youtubes TEXT      Select musics without youtube link
-    --spotifys TEXT         Select musics with a spotifys link
-    --no-spotifys TEXT      Select musics without spotifys link
-    --formats TEXT          Select musics with file format
-    --no-formats TEXT       Filter musics without format
-    --keywords TEXT         Select musics with keywords
-    --no-keywords TEXT      Filter musics without keywords
-    --artists TEXT          Select musics with artists
-    --no-artists TEXT       Filter musics without artists
-    --albums TEXT           Select musics with albums
-    --no-albums TEXT        Filter musics without albums
-    --titles TEXT           Select musics with titles
-    --no-titles TEXT        Filter musics without titless
-    --genres TEXT           Select musics with genres
-    --no-genres TEXT        Filter musics without genres
-    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER      Minimum file size filter (in bytes)
-    --max-size INTEGER      Maximum file size filter (in bytes)
-    --min-rating FLOAT      Minimum rating  [default: 0.0]
-    --max-rating FLOAT      Maximum rating  [default: 5.0]
-    --relative              Generate relatives paths
-    --shuffle               Randomize selection
-    -h, --help              Show this message and exit.
-
-
-musicbot consistency help
-*************************
-.. code-block::
-
-  Usage: musicbot consistency help [OPTIONS] [COMMAND]...
-  
-    Print help
-  
-  Options:
-    -h, --help  Show this message and exit.
-
-
 musicbot db
 ***********
 .. code-block::
 
   Usage: musicbot db [OPTIONS] COMMAND [ARGS]...
   
-    Database management
+    Database management (admin)
   
   Options:
     -h, --help  Show this message and exit.
   
   Commands:
-    clean   Clean deleted musics from database
     clear   Drop and recreate database and schema
     cli     Start PgCLI util
     create  Create database and load schema
-    drop    Drop database schema
-    empty   Empty databases
+    drop    Drop database
     help    Print help
-    stats   Get stats about database
-
-
-musicbot db clean
-*****************
-.. code-block::
-
-  Usage: musicbot db clean [OPTIONS]
-  
-    Clean deleted musics from database
-  
-  Options:
-    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
-                      calhost:5432/musicbot_prod]
-    --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single       DB will use only one connection  [default: False]
-    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
-    -h, --help        Show this message and exit.
 
 
 musicbot db clear
@@ -334,13 +246,10 @@ musicbot db clear
     Drop and recreate database and schema
   
   Options:
-    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
-                      calhost:5432/musicbot_prod]
-    --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single       DB will use only one connection  [default: False]
-    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
-    --yes             Are you sure you want to drop the db?
-    -h, --help        Show this message and exit.
+    --db TEXT   DB dsn string  [default:
+                postgresql://postgres:musicbot@localhost:5432/musicbot_prod]
+    --yes       Are you sure you want to drop and recreate db?
+    -h, --help  Show this message and exit.
 
 
 musicbot db cli
@@ -352,12 +261,9 @@ musicbot db cli
     Start PgCLI util
   
   Options:
-    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
-                      calhost:5432/musicbot_prod]
-    --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single       DB will use only one connection  [default: False]
-    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
-    -h, --help        Show this message and exit.
+    --db TEXT   DB dsn string  [default:
+                postgresql://postgres:musicbot@localhost:5432/musicbot_prod]
+    -h, --help  Show this message and exit.
 
 
 musicbot db create
@@ -369,12 +275,9 @@ musicbot db create
     Create database and load schema
   
   Options:
-    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
-                      calhost:5432/musicbot_prod]
-    --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single       DB will use only one connection  [default: False]
-    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
-    -h, --help        Show this message and exit.
+    --db TEXT   DB dsn string  [default:
+                postgresql://postgres:musicbot@localhost:5432/musicbot_prod]
+    -h, --help  Show this message and exit.
 
 
 musicbot db drop
@@ -383,34 +286,13 @@ musicbot db drop
 
   Usage: musicbot db drop [OPTIONS]
   
-    Drop database schema
+    Drop database
   
   Options:
-    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
-                      calhost:5432/musicbot_prod]
-    --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single       DB will use only one connection  [default: False]
-    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
-    --yes             Are you sure you want to drop the DB ?
-    -h, --help        Show this message and exit.
-
-
-musicbot db empty
-*****************
-.. code-block::
-
-  Usage: musicbot db empty [OPTIONS]
-  
-    Empty databases
-  
-  Options:
-    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
-                      calhost:5432/musicbot_prod]
-    --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single       DB will use only one connection  [default: False]
-    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
-    --yes             Are you sure you want to drop all objects in DB ?
-    -h, --help        Show this message and exit.
+    --db TEXT   DB dsn string  [default:
+                postgresql://postgres:musicbot@localhost:5432/musicbot_prod]
+    --yes       Are you sure you want to drop the DB ?
+    -h, --help  Show this message and exit.
 
 
 musicbot db help
@@ -423,136 +305,6 @@ musicbot db help
   
   Options:
     -h, --help  Show this message and exit.
-
-
-musicbot db stats
-*****************
-.. code-block::
-
-  Usage: musicbot db stats [OPTIONS]
-  
-    Get stats about database
-  
-  Options:
-    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
-                      calhost:5432/musicbot_prod]
-    --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single       DB will use only one connection  [default: False]
-    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
-    -h, --help        Show this message and exit.
-
-
-musicbot file
-*************
-.. code-block::
-
-  Usage: musicbot file [OPTIONS] COMMAND [ARGS]...
-  
-    Music tags management
-  
-  Options:
-    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
-                      calhost:5432/musicbot_prod]
-    --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single       DB will use only one connection  [default: False]
-    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
-    -h, --help        Show this message and exit.
-  
-  Commands:
-    help    Print help
-    show    Show tags of musics with filters
-    update
-
-
-musicbot file help
-******************
-.. code-block::
-
-  Usage: musicbot file help [OPTIONS] [COMMAND]...
-  
-    Print help
-  
-  Options:
-    -h, --help  Show this message and exit.
-
-
-musicbot file show
-******************
-.. code-block::
-
-  Usage: musicbot file show [OPTIONS]
-  
-    Show tags of musics with filters
-  
-  Options:
-    --limit INTEGER         Fetch a maximum limit of music
-    --youtubes TEXT         Select musics with a youtube link
-    --no-youtubes TEXT      Select musics without youtube link
-    --spotifys TEXT         Select musics with a spotifys link
-    --no-spotifys TEXT      Select musics without spotifys link
-    --formats TEXT          Select musics with file format
-    --no-formats TEXT       Filter musics without format
-    --keywords TEXT         Select musics with keywords
-    --no-keywords TEXT      Filter musics without keywords
-    --artists TEXT          Select musics with artists
-    --no-artists TEXT       Filter musics without artists
-    --albums TEXT           Select musics with albums
-    --no-albums TEXT        Filter musics without albums
-    --titles TEXT           Select musics with titles
-    --no-titles TEXT        Filter musics without titless
-    --genres TEXT           Select musics with genres
-    --no-genres TEXT        Filter musics without genres
-    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER      Minimum file size filter (in bytes)
-    --max-size INTEGER      Maximum file size filter (in bytes)
-    --min-rating FLOAT      Minimum rating  [default: 0.0]
-    --max-rating FLOAT      Maximum rating  [default: 5.0]
-    --relative              Generate relatives paths
-    --shuffle               Randomize selection
-    -h, --help              Show this message and exit.
-
-
-musicbot file update
-********************
-.. code-block::
-
-  Usage: musicbot file update [OPTIONS]
-  
-  Options:
-    --keywords TEXT         Keywords
-    --artist TEXT           Artist
-    --album TEXT            Album
-    --title TEXT            Title
-    --genre TEXT            Genre
-    --number TEXT           Track number
-    --rating TEXT           Rating
-    --limit INTEGER         Fetch a maximum limit of music
-    --youtubes TEXT         Select musics with a youtube link
-    --no-youtubes TEXT      Select musics without youtube link
-    --spotifys TEXT         Select musics with a spotifys link
-    --no-spotifys TEXT      Select musics without spotifys link
-    --formats TEXT          Select musics with file format
-    --no-formats TEXT       Filter musics without format
-    --keywords TEXT         Select musics with keywords
-    --no-keywords TEXT      Filter musics without keywords
-    --artists TEXT          Select musics with artists
-    --no-artists TEXT       Filter musics without artists
-    --albums TEXT           Select musics with albums
-    --no-albums TEXT        Filter musics without albums
-    --titles TEXT           Select musics with titles
-    --no-titles TEXT        Filter musics without titless
-    --genres TEXT           Select musics with genres
-    --no-genres TEXT        Filter musics without genres
-    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER      Minimum file size filter (in bytes)
-    --max-size INTEGER      Maximum file size filter (in bytes)
-    --min-rating FLOAT      Minimum rating  [default: 0.0]
-    --max-rating FLOAT      Maximum rating  [default: 5.0]
-    --relative              Generate relatives paths
-    --shuffle               Randomize selection
-    -h, --help              Show this message and exit.
 
 
 musicbot filter
@@ -571,10 +323,11 @@ musicbot filter
     -h, --help       Show this message and exit.
   
   Commands:
-    do
+    do            Filter music
+    get           Print a filter
     help          Print help
-    list
-    load-default
+    list          List filters
+    load-default  Load default filters
 
 
 musicbot filter do
@@ -583,7 +336,10 @@ musicbot filter do
 
   Usage: musicbot filter do [OPTIONS]
   
+    Filter music
+  
   Options:
+    --name TEXT             Filter name
     --limit INTEGER         Fetch a maximum limit of music
     --youtubes TEXT         Select musics with a youtube link
     --no-youtubes TEXT      Select musics without youtube link
@@ -610,6 +366,18 @@ musicbot filter do
     --relative              Generate relatives paths
     --shuffle               Randomize selection
     -h, --help              Show this message and exit.
+
+
+musicbot filter get
+*******************
+.. code-block::
+
+  Usage: musicbot filter get [OPTIONS] NAME
+  
+    Print a filter
+  
+  Options:
+    -h, --help  Show this message and exit.
 
 
 musicbot filter help
@@ -630,6 +398,8 @@ musicbot filter list
 
   Usage: musicbot filter list [OPTIONS]
   
+    List filters
+  
   Options:
     -h, --help  Show this message and exit.
 
@@ -639,6 +409,8 @@ musicbot filter load-default
 .. code-block::
 
   Usage: musicbot filter load-default [OPTIONS]
+  
+    Load default filters
   
   Options:
     -h, --help  Show this message and exit.
@@ -660,12 +432,39 @@ musicbot folder
     -h, --help       Show this message and exit.
   
   Commands:
-    find      Only list files in selected folders
-    flac2mp3  Convert all files in folders to mp3
-    help      Print help
-    list      List folders
-    scan      (re)Load musics
-    watch     Watch files changes in folders
+    consistency  Check music files consistency
+    csv          Export music files to csv file
+    find         Just list music files
+    flac2mp3     Convert all files in folders to mp3
+    help         Print help
+    list         List folders
+    scan         (re)Load musics
+    sync         Copy selected musics with filters to destination folder
+    watch        Watch files changes in folders
+
+
+musicbot folder consistency
+***************************
+.. code-block::
+
+  Usage: musicbot folder consistency [OPTIONS] [FOLDERS]...
+  
+    Check music files consistency
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot folder csv
+*******************
+.. code-block::
+
+  Usage: musicbot folder csv [OPTIONS] [PATH]
+  
+    Export music files to csv file
+  
+  Options:
+    -h, --help  Show this message and exit.
 
 
 musicbot folder find
@@ -674,7 +473,7 @@ musicbot folder find
 
   Usage: musicbot folder find [OPTIONS] [FOLDERS]...
   
-    Only list files in selected folders
+    Just list music files
   
   Options:
     -h, --help  Show this message and exit.
@@ -729,6 +528,44 @@ musicbot folder scan
     -h, --help  Show this message and exit.
 
 
+musicbot folder sync
+********************
+.. code-block::
+
+  Usage: musicbot folder sync [OPTIONS] DESTINATION
+  
+    Copy selected musics with filters to destination folder
+  
+  Options:
+    --name TEXT             Filter name
+    --limit INTEGER         Fetch a maximum limit of music
+    --youtubes TEXT         Select musics with a youtube link
+    --no-youtubes TEXT      Select musics without youtube link
+    --spotifys TEXT         Select musics with a spotifys link
+    --no-spotifys TEXT      Select musics without spotifys link
+    --formats TEXT          Select musics with file format
+    --no-formats TEXT       Filter musics without format
+    --keywords TEXT         Select musics with keywords
+    --no-keywords TEXT      Filter musics without keywords
+    --artists TEXT          Select musics with artists
+    --no-artists TEXT       Filter musics without artists
+    --albums TEXT           Select musics with albums
+    --no-albums TEXT        Filter musics without albums
+    --titles TEXT           Select musics with titles
+    --no-titles TEXT        Filter musics without titless
+    --genres TEXT           Select musics with genres
+    --no-genres TEXT        Filter musics without genres
+    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
+    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
+    --min-size INTEGER      Minimum file size filter (in bytes)
+    --max-size INTEGER      Maximum file size filter (in bytes)
+    --min-rating FLOAT      Minimum rating  [default: 0.0]
+    --max-rating FLOAT      Maximum rating  [default: 5.0]
+    --relative              Generate relatives paths
+    --shuffle               Randomize selection
+    -h, --help              Show this message and exit.
+
+
 musicbot folder watch
 *********************
 .. code-block::
@@ -762,12 +599,11 @@ musicbot playlist
     Playlist management
   
   Options:
-    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
-                      calhost:5432/musicbot_prod]
-    --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single       DB will use only one connection  [default: False]
-    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
-    -h, --help        Show this message and exit.
+    --email TEXT     User email
+    --password TEXT  User password
+    --token TEXT     User token
+    --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -h, --help       Show this message and exit.
   
   Commands:
     bests  Generate bests playlists with some rules
@@ -784,6 +620,7 @@ musicbot playlist bests
     Generate bests playlists with some rules
   
   Options:
+    --name TEXT             Filter name
     --limit INTEGER         Fetch a maximum limit of music
     --youtubes TEXT         Select musics with a youtube link
     --no-youtubes TEXT      Select musics without youtube link
@@ -835,6 +672,7 @@ musicbot playlist new
     Generate a new playlist
   
   Options:
+    --name TEXT             Filter name
     --limit INTEGER         Fetch a maximum limit of music
     --youtubes TEXT         Select musics with a youtube link
     --no-youtubes TEXT      Select musics without youtube link
@@ -863,6 +701,73 @@ musicbot playlist new
     -h, --help              Show this message and exit.
 
 
+musicbot postgraphile
+*********************
+.. code-block::
+
+  Usage: musicbot postgraphile [OPTIONS] COMMAND [ARGS]...
+  
+    Postgraphile management
+  
+  Options:
+    -h, --help  Show this message and exit.
+  
+  Commands:
+    help     Print help
+    private  Start private backend
+    public   Start public backend
+
+
+musicbot postgraphile help
+**************************
+.. code-block::
+
+  Usage: musicbot postgraphile help [OPTIONS] [COMMAND]...
+  
+    Print help
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot postgraphile private
+*****************************
+.. code-block::
+
+  Usage: musicbot postgraphile private [OPTIONS]
+  
+    Start private backend
+  
+  Options:
+    --db TEXT                       DB dsn string  [default: postgresql://postgr
+                                    es:musicbot@localhost:5432/musicbot_prod]
+    --graphql-private-port INTEGER  Postgraphile private API port  [default:
+                                    5001]
+    --graphql-private-interface TEXT
+                                    Postgraphile private API interface
+                                    [default: localhost]
+    -h, --help                      Show this message and exit.
+
+
+musicbot postgraphile public
+****************************
+.. code-block::
+
+  Usage: musicbot postgraphile public [OPTIONS] JWT_SECRET
+  
+    Start public backend
+  
+  Options:
+    --db TEXT                       DB dsn string  [default: postgresql://postgr
+                                    es:musicbot@localhost:5432/musicbot_prod]
+    --graphql-public-port INTEGER   Postgraphile public API port  [default:
+                                    5000]
+    --graphql-public-interface TEXT
+                                    Postgraphile public API interface  [default:
+                                    localhost]
+    -h, --help                      Show this message and exit.
+
+
 musicbot repl
 *************
 .. code-block::
@@ -879,63 +784,6 @@ musicbot repl
   
   Options:
     -h, --help  Show this message and exit.
-
-
-musicbot server
-***************
-.. code-block::
-
-  Usage: musicbot server [OPTIONS] COMMAND [ARGS]...
-  
-    API Server
-  
-  Options:
-    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
-                      calhost:5432/musicbot_prod]
-    --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single       DB will use only one connection  [default: False]
-    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
-    -h, --help        Show this message and exit.
-  
-  Commands:
-    help   Print help
-    start  Start musicbot web API
-
-
-musicbot server help
-********************
-.. code-block::
-
-  Usage: musicbot server help [OPTIONS] [COMMAND]...
-  
-    Print help
-  
-  Options:
-    -h, --help  Show this message and exit.
-
-
-musicbot server start
-*********************
-.. code-block::
-
-  Usage: musicbot server start [OPTIONS]
-  
-    Start musicbot web API
-  
-  Options:
-    --http-host TEXT        Host interface to listen on  [default: 127.0.0.1]
-    --http-server TEXT      Server name to use in links  [default: musicbot.ovh]
-    --http-port INTEGER     HTTP port to listen on  [default: 8000]
-    --http-workers INTEGER  Number of HTTP workers (not tested)  [default: 1]
-    --http-user TEXT        HTTP Basic auth user  [default: musicbot]
-    --http-password TEXT    HTTP Basic auth password
-    --dev                   Watch for source file modification
-    --watcher               Watch for music file modification
-    --autoscan              Enable auto scan background job
-    --server-cache          Activate server cache system
-    --client-cache          Activate client cache system
-    --no-auth               Disable authentication system
-    -h, --help              Show this message and exit.
 
 
 musicbot spotify
@@ -990,12 +838,11 @@ musicbot stats
     Youtube management
   
   Options:
-    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
-                      calhost:5432/musicbot_prod]
-    --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single       DB will use only one connection  [default: False]
-    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
-    -h, --help        Show this message and exit.
+    --email TEXT     User email
+    --password TEXT  User password
+    --token TEXT     User token
+    --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -h, --help       Show this message and exit.
   
   Commands:
     help  Print help
@@ -1023,77 +870,7 @@ musicbot stats show
     Generate some stats for music collection with filters
   
   Options:
-    --limit INTEGER         Fetch a maximum limit of music
-    --youtubes TEXT         Select musics with a youtube link
-    --no-youtubes TEXT      Select musics without youtube link
-    --spotifys TEXT         Select musics with a spotifys link
-    --no-spotifys TEXT      Select musics without spotifys link
-    --formats TEXT          Select musics with file format
-    --no-formats TEXT       Filter musics without format
-    --keywords TEXT         Select musics with keywords
-    --no-keywords TEXT      Filter musics without keywords
-    --artists TEXT          Select musics with artists
-    --no-artists TEXT       Filter musics without artists
-    --albums TEXT           Select musics with albums
-    --no-albums TEXT        Filter musics without albums
-    --titles TEXT           Select musics with titles
-    --no-titles TEXT        Filter musics without titless
-    --genres TEXT           Select musics with genres
-    --no-genres TEXT        Filter musics without genres
-    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER      Minimum file size filter (in bytes)
-    --max-size INTEGER      Maximum file size filter (in bytes)
-    --min-rating FLOAT      Minimum rating  [default: 0.0]
-    --max-rating FLOAT      Maximum rating  [default: 5.0]
-    --relative              Generate relatives paths
-    --shuffle               Randomize selection
-    -h, --help              Show this message and exit.
-
-
-musicbot tag
-************
-.. code-block::
-
-  Usage: musicbot tag [OPTIONS] COMMAND [ARGS]...
-  
-    Music tags management
-  
-  Options:
-    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
-                      calhost:5432/musicbot_prod]
-    --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single       DB will use only one connection  [default: False]
-    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
-    -h, --help        Show this message and exit.
-  
-  Commands:
-    help  Print help
-    show  Show tags of musics with filters
-
-
-musicbot tag help
-*****************
-.. code-block::
-
-  Usage: musicbot tag help [OPTIONS] [COMMAND]...
-  
-    Print help
-  
-  Options:
-    -h, --help  Show this message and exit.
-
-
-musicbot tag show
-*****************
-.. code-block::
-
-  Usage: musicbot tag show [OPTIONS]
-  
-    Show tags of musics with filters
-  
-  Options:
-    --fields TEXT           Show only those fields
+    --name TEXT             Filter name
     --limit INTEGER         Fetch a maximum limit of music
     --youtubes TEXT         Select musics with a youtube link
     --no-youtubes TEXT      Select musics without youtube link
@@ -1137,7 +914,7 @@ musicbot user
     help        Print help
     list        List users (admin)
     login       Authenticate user
-    new         Register a new user
+    register    Register a new user
     unregister  Remove a user
 
 
@@ -1162,12 +939,8 @@ musicbot user list
     List users (admin)
   
   Options:
-    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
-                      calhost:5432/musicbot_prod]
-    --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single       DB will use only one connection  [default: False]
-    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
-    -h, --help        Show this message and exit.
+    --graphql TEXT  GraphQL endpoint  [default: http://127.0.0.1:5001/graphql]
+    -h, --help      Show this message and exit.
 
 
 musicbot user login
@@ -1186,11 +959,11 @@ musicbot user login
     -h, --help       Show this message and exit.
 
 
-musicbot user new
-*****************
+musicbot user register
+**********************
 .. code-block::
 
-  Usage: musicbot user new [OPTIONS]
+  Usage: musicbot user register [OPTIONS]
   
     Register a new user
   
@@ -1218,76 +991,5 @@ musicbot user unregister
     --token TEXT     User token
     --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
     -h, --help       Show this message and exit.
-
-
-musicbot youtube
-****************
-.. code-block::
-
-  Usage: musicbot youtube [OPTIONS] COMMAND [ARGS]...
-  
-    Youtube management
-  
-  Options:
-    --db TEXT         DB dsn string  [default: postgresql://postgres:musicbot@lo
-                      calhost:5432/musicbot_prod]
-    --db-max INTEGER  DB maximum number of connections  [default: 32]
-    --db-single       DB will use only one connection  [default: False]
-    --db-cert TEXT    DB SSL certificate  [default: ~/.postgresql/root.crt]
-    -h, --help        Show this message and exit.
-  
-  Commands:
-    help    Print help
-    musics  Fetch youtube links for each music
-
-
-musicbot youtube help
-*********************
-.. code-block::
-
-  Usage: musicbot youtube help [OPTIONS] [COMMAND]...
-  
-    Print help
-  
-  Options:
-    -h, --help  Show this message and exit.
-
-
-musicbot youtube musics
-***********************
-.. code-block::
-
-  Usage: musicbot youtube musics [OPTIONS]
-  
-    Fetch youtube links for each music
-  
-  Options:
-    --limit INTEGER         Fetch a maximum limit of music
-    --youtubes TEXT         Select musics with a youtube link
-    --no-youtubes TEXT      Select musics without youtube link
-    --spotifys TEXT         Select musics with a spotifys link
-    --no-spotifys TEXT      Select musics without spotifys link
-    --formats TEXT          Select musics with file format
-    --no-formats TEXT       Filter musics without format
-    --keywords TEXT         Select musics with keywords
-    --no-keywords TEXT      Filter musics without keywords
-    --artists TEXT          Select musics with artists
-    --no-artists TEXT       Filter musics without artists
-    --albums TEXT           Select musics with albums
-    --no-albums TEXT        Filter musics without albums
-    --titles TEXT           Select musics with titles
-    --no-titles TEXT        Filter musics without titless
-    --genres TEXT           Select musics with genres
-    --no-genres TEXT        Filter musics without genres
-    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER      Minimum file size filter (in bytes)
-    --max-size INTEGER      Maximum file size filter (in bytes)
-    --min-rating FLOAT      Minimum rating  [default: 0.0]
-    --max-rating FLOAT      Maximum rating  [default: 5.0]
-    --relative              Generate relatives paths
-    --shuffle               Randomize selection
-    --concurrency INTEGER   Number of coroutines  [default: 8]
-    -h, --help              Show this message and exit.
 
 

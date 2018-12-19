@@ -1,7 +1,7 @@
 import logging
 import pytest
 import psycopg2
-from musicbot.lib import database
+from musicbot.backend import database
 
 logger = logging.getLogger(__name__)
 
