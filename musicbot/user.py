@@ -16,12 +16,12 @@ token_option = [click.option('--token', envvar=MB_TOKEN, help='User token', defa
 MB_EMAIL = 'MB_EMAIL'
 DEFAULT_EMAIL = None
 email_argument = [click.argument('email')]
-email_option = [click.option('--email', envvar=MB_EMAIL, help='User email', default=DEFAULT_EMAIL, show_default=True)]
+email_option = [click.option('--email', '-e', envvar=MB_EMAIL, help='User email', default=DEFAULT_EMAIL, show_default=True)]
 
 MB_PASSWORD = 'MB_PASSWORD'
 DEFAULT_PASSWORD = None
 password_argument = [click.argument('password')]
-password_option = [click.option('--password', envvar=MB_PASSWORD, help='User password', default=DEFAULT_PASSWORD, show_default=False)]
+password_option = [click.option('--password', '-p', envvar=MB_PASSWORD, help='User password', default=DEFAULT_PASSWORD, show_default=False)]
 
 MB_FIRST_NAME = 'MB_FIRST_NAME'
 DEFAULT_FIRST_NAME = None
@@ -33,7 +33,7 @@ last_name_option = [click.option('--last-name', envvar=MB_LAST_NAME, help='User 
 
 MB_GRAPHQL_ADMIN = 'MB_GRAPHQL_ADMIN'
 DEFAULT_GRAPHQL_ADMIN = 'http://127.0.0.1:5001/graphql'
-graphql_admin_option = [click.option('--graphql', envvar=MB_GRAPHQL_ADMIN, help='GraphQL endpoint', default=DEFAULT_GRAPHQL_ADMIN, show_default=True)]
+graphql_admin_option = [click.option('--graphql-admin', envvar=MB_GRAPHQL_ADMIN, help='GraphQL endpoint', default=DEFAULT_GRAPHQL_ADMIN, show_default=True)]
 
 MB_GRAPHQL = 'MB_GRAPHQL'
 DEFAULT_GRAPHQL = 'http://127.0.0.1:5000/graphql'
@@ -69,9 +69,9 @@ class GraphQL:
 
 class Admin(GraphQL):
     @helpers.timeit
-    def __init__(self, graphql=None):
-        graphql = graphql if graphql is not None else os.getenv(MB_GRAPHQL_ADMIN, DEFAULT_GRAPHQL_ADMIN)
-        GraphQL.__init__(self, graphql=graphql)
+    def __init__(self, graphql_admin=None):
+        self.graphql_admin = graphql_admin if graphql_admin is not None else os.getenv(MB_GRAPHQL_ADMIN, DEFAULT_GRAPHQL_ADMIN)
+        GraphQL.__init__(self, graphql=graphql_admin)
 
     @helpers.timeit
     def users(self):
@@ -291,26 +291,26 @@ class User(GraphQL):
         from watchdog.events import PatternMatchingEventHandler
         import time
 
+        def update_music(path):
+            for folder in user.folders:
+                if path.startswith(folder) and path.endswith(tuple(file.supported_formats)):
+                    logger.debug('Creating/modifying DB for: %s', path)
+                    f = file.File(path, folder)
+                    user.upsert_music(f)
+                    return
+
         class MusicWatcherHandler(PatternMatchingEventHandler):
             patterns = []
 
             def __init__(self):
                 super().__init__()
-                self.patterns = ['*.' + f for f in file.supported_formats]
-
-            def update(self, path):
-                for folder in user.folders:
-                    if path.startswith(folder) and path.endswith(tuple(file.supported_formats)):
-                        logger.debug('Creating/modifying DB for: %s', path)
-                        f = file.File(path, folder)
-                        user.upsert_music(f)
-                        return
+                MusicWatcherHandler.patterns = ['*.' + f for f in file.supported_formats]
 
             def on_modified(self, event):
-                self.update(event.src_path)
+                update_music(event.src_path)
 
             def on_created(self, event):
-                self.update(event.src_path)
+                update_music(event.src_path)
 
             def on_deleted(self, event):
                 logger.debug('Deleting entry in DB for: %s %s', event.src_path, event.event_type)
@@ -319,7 +319,7 @@ class User(GraphQL):
             def on_moved(self, event):
                 logger.debug('Moving entry in DB for: %s %s', event.src_path, event.event_type)
                 user.delete_music(event.src_path)
-                self.update(event.dest_path)
+                update_music(event.dest_path)
 
         logger.info('Watching: {}'.format(user.folders))
         event_handler = MusicWatcherHandler()

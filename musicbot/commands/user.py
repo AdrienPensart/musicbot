@@ -10,9 +10,9 @@ def cli():
     '''User management'''
 
 
-@cli.command()
+@cli.command('list')
 @helpers.add_options(user.graphql_admin_option)
-def list(**kwargs):
+def _list(**kwargs):
     '''List users (admin)'''
     a = user.Admin(**kwargs)
     for u in a.users():

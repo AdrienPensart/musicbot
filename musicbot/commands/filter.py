@@ -22,9 +22,9 @@ def load_default(ctx):
     ctx.obj.u().load_default_filters()
 
 
-@cli.command()
+@cli.command('list')
 @click.pass_context
-def list(ctx):
+def _list(ctx):
     '''List filters'''
     print(json.dumps(ctx.obj.u().filters))
 

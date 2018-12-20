@@ -17,13 +17,13 @@ MB_TIMINGS = 'MB_TIMINGS'
 MB_VERBOSITY = 'MB_VERBOSITY'
 MB_DRY = 'MB_DRY'
 MB_QUIET = 'MB_QUIET'
-MB_NO_COLORS = 'MB_NO_COLORS'
+MB_COLORS = 'MB_COLORS'
 
 DEFAULT_VERBOSITY = 'warning'
 DEFAULT_DRY = False
 DEFAULT_QUIET = False
 DEFAULT_DEBUG = False
-DEFAULT_NO_COLORS = False
+DEFAULT_COLORS = True
 DEFAULT_TIMINGS = False
 verbosities = {'debug': logging.DEBUG,
                'info': logging.INFO,
@@ -32,13 +32,13 @@ verbosities = {'debug': logging.DEBUG,
                'critical': logging.CRITICAL}
 
 options = [
-    click.option('--log', help='Log file path', type=click.Path(), envvar=MB_LOG, default=DEFAULT_LOG, show_default=True),
-    click.option('--debug', help='Be very verbose, same as --verbosity debug + hide progress bars', envvar=MB_DEBUG, default=DEFAULT_DEBUG, is_flag=True),
-    click.option('--timings', help='Set verbosity to info and show execution timings', envvar=MB_TIMINGS, default=DEFAULT_TIMINGS, is_flag=True),
-    click.option('--verbosity', help='Verbosity levels', envvar=MB_VERBOSITY, default=DEFAULT_VERBOSITY, type=click.Choice(verbosities.keys()), show_default=True),
-    click.option('--dry', help='Take no real action', envvar=MB_DRY, default=DEFAULT_DRY, is_flag=True),
-    click.option('--quiet', help='Disable progress bars', envvar=MB_QUIET, default=DEFAULT_QUIET, is_flag=True),
-    click.option('--no-colors', help='Disable colorized output', envvar=MB_NO_COLORS, default=DEFAULT_NO_COLORS, is_flag=True),
+    click.option('--log', '-l', help='Log file path', type=click.Path(), envvar=MB_LOG, default=DEFAULT_LOG, show_default=True),
+    click.option('--debug', '-d', help='Be very verbose, same as --verbosity debug + hide progress bars', envvar=MB_DEBUG, default=DEFAULT_DEBUG, is_flag=True, show_default=True),
+    click.option('--timings', '-t', help='Set verbosity to info and show execution timings', envvar=MB_TIMINGS, default=DEFAULT_TIMINGS, is_flag=True, show_default=True),
+    click.option('--verbosity', '-v', help='Verbosity levels', envvar=MB_VERBOSITY, default=DEFAULT_VERBOSITY, type=click.Choice(verbosities.keys()), show_default=True),
+    click.option('--dry', help='Take no real action', envvar=MB_DRY, default=DEFAULT_DRY, is_flag=True, show_default=True),
+    click.option('--quiet', '-q', help='Disable progress bars', envvar=MB_QUIET, default=DEFAULT_QUIET, is_flag=True, show_default=True),
+    click.option('--colors/--no-colors', help='Disable colorized output', envvar=MB_COLORS, default=DEFAULT_COLORS, show_default=True),
 ]
 
 
@@ -62,18 +62,18 @@ class Config:
     debug = attr.ib(default=DEFAULT_DEBUG)
     timings = attr.ib(default=DEFAULT_TIMINGS)
     dry = attr.ib(default=DEFAULT_DRY)
-    no_colors = attr.ib(default=DEFAULT_NO_COLORS)
+    colors = attr.ib(default=DEFAULT_COLORS)
     verbosity = attr.ib(default=DEFAULT_VERBOSITY)
     fmt = attr.ib(default="%(asctime)s %(name)s[%(process)d] %(levelname)s %(message)s")
 
-    def set(self, debug=None, timings=None, dry=None, quiet=None, verbosity=None, no_colors=None, log=None):
+    def set(self, debug=None, timings=None, dry=None, quiet=None, verbosity=None, colors=None, log=None):
         self.spotify = None
         self.log = log if log is not None else os.getenv(MB_LOG, str(DEFAULT_LOG))
         self.quiet = quiet if quiet is not None else lib.str2bool(os.getenv(MB_QUIET, str(DEFAULT_QUIET)))
         self.debug = debug if debug is not None else lib.str2bool(os.getenv(MB_DEBUG, str(DEFAULT_DEBUG)))
         self.timings = timings if timings is not None else lib.str2bool(os.getenv(MB_TIMINGS, str(DEFAULT_TIMINGS)))
         self.dry = dry if dry is not None else lib.str2bool(os.getenv(MB_DRY, str(DEFAULT_DRY)))
-        self.no_colors = no_colors if no_colors is not None else lib.str2bool(os.getenv(MB_NO_COLORS, str(DEFAULT_NO_COLORS)))
+        self.colors = colors if colors is not None else lib.str2bool(os.getenv(MB_COLORS, str(DEFAULT_COLORS)))
         self.verbosity = verbosity if verbosity is not None else os.getenv(MB_VERBOSITY, DEFAULT_VERBOSITY)
 
         if self.timings:
@@ -85,13 +85,11 @@ class Config:
         if self.verbosity == 'debug':
             loop = asyncio.get_event_loop()
             loop.set_debug(True)
-            # triggers : "'NoneType' object has no attribute 'co_filename'
-            # loop.slow_callback_duration = 0.001
             loop.slow_callback_duration = 0.005
 
         self.level = verbosities[self.verbosity]
         logging.basicConfig(level=self.level, format=self.fmt)
-        if not self.no_colors:
+        if self.colors:
             coloredlogs.install(level=self.level, fmt=self.fmt)
 
         if self.log is not None:
@@ -104,8 +102,8 @@ class Config:
         logger.debug(self)
 
     def __repr__(self):
-        fmt = 'log:{} timings:{} debug:{} quiet:{} dry:{} verbosity:{} no_colors:{}'
-        return fmt.format(self.log, self.timings, self.debug, self.quiet, self.dry, self.verbosity, self.no_colors)
+        fmt = 'log:{} timings:{} debug:{} quiet:{} dry:{} verbosity:{} colors:{}'
+        return fmt.format(self.log, self.timings, self.debug, self.quiet, self.dry, self.verbosity, self.colors)
 
 
 config = Config()

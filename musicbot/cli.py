@@ -55,7 +55,7 @@ class SubCommandLineInterface(helpers.GroupWithHelp):
 
 
 @click.group(cls=SubCommandLineInterface, context_settings=CONTEXT_SETTINGS)
-@click.version_option("1.0")
+@click.version_option("1.0", "--version", "-V")
 @helpers.add_options(config.options)
 @click.pass_context
 def cli(ctx, **kwargs):
@@ -68,7 +68,7 @@ def cli(ctx, **kwargs):
 
 def main():
     register_repl(cli)
-    return cli()
+    return cli.main()
 
 
 if __name__ == '__main__':

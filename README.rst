@@ -77,18 +77,18 @@ Commands
     Music swiss knife, new gen.
   
   Options:
-    --version                       Show the version and exit.
-    --log PATH                      Log file path  [default:
+    -V, --version                   Show the version and exit.
+    -l, --log PATH                  Log file path  [default:
                                     /var/log/musicbot.log]
-    --debug                         Be very verbose, same as --verbosity debug +
-                                    hide progress bars
-    --timings                       Set verbosity to info and show execution
-                                    timings
-    --verbosity [debug|info|warning|error|critical]
+    -d, --debug                     Be very verbose, same as --verbosity debug +
+                                    hide progress bars  [default: False]
+    -t, --timings                   Set verbosity to info and show execution
+                                    timings  [default: False]
+    -v, --verbosity [debug|info|warning|error|critical]
                                     Verbosity levels  [default: warning]
-    --dry                           Take no real action
-    --quiet                         Disable progress bars
-    --no-colors                     Disable colorized output
+    --dry                           Take no real action  [default: False]
+    -q, --quiet                     Disable progress bars  [default: False]
+    --colors / --no-colors          Disable colorized output  [default: True]
     -h, --help                      Show this message and exit.
   
   Commands:
@@ -316,11 +316,12 @@ musicbot filter
     Filter management
   
   Options:
-    --email TEXT     User email
-    --password TEXT  User password
-    --token TEXT     User token
-    --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -h, --help       Show this message and exit.
+    -e, --email TEXT     User email
+    -p, --password TEXT  User password
+    --token TEXT         User token
+    --graphql TEXT       GraphQL endpoint  [default:
+                         http://127.0.0.1:5000/graphql]
+    -h, --help           Show this message and exit.
   
   Commands:
     do            Filter music
@@ -425,11 +426,12 @@ musicbot folder
     Folder management
   
   Options:
-    --email TEXT     User email
-    --password TEXT  User password
-    --token TEXT     User token
-    --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -h, --help       Show this message and exit.
+    -e, --email TEXT     User email
+    -p, --password TEXT  User password
+    --token TEXT         User token
+    --graphql TEXT       GraphQL endpoint  [default:
+                         http://127.0.0.1:5000/graphql]
+    -h, --help           Show this message and exit.
   
   Commands:
     consistency  Check music files consistency
@@ -599,11 +601,12 @@ musicbot playlist
     Playlist management
   
   Options:
-    --email TEXT     User email
-    --password TEXT  User password
-    --token TEXT     User token
-    --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -h, --help       Show this message and exit.
+    -e, --email TEXT     User email
+    -p, --password TEXT  User password
+    --token TEXT         User token
+    --graphql TEXT       GraphQL endpoint  [default:
+                         http://127.0.0.1:5000/graphql]
+    -h, --help           Show this message and exit.
   
   Commands:
     bests  Generate bests playlists with some rules
@@ -838,11 +841,12 @@ musicbot stats
     Youtube management
   
   Options:
-    --email TEXT     User email
-    --password TEXT  User password
-    --token TEXT     User token
-    --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -h, --help       Show this message and exit.
+    -e, --email TEXT     User email
+    -p, --password TEXT  User password
+    --token TEXT         User token
+    --graphql TEXT       GraphQL endpoint  [default:
+                         http://127.0.0.1:5000/graphql]
+    -h, --help           Show this message and exit.
   
   Commands:
     help  Print help
@@ -939,8 +943,9 @@ musicbot user list
     List users (admin)
   
   Options:
-    --graphql TEXT  GraphQL endpoint  [default: http://127.0.0.1:5001/graphql]
-    -h, --help      Show this message and exit.
+    --graphql-admin TEXT  GraphQL endpoint  [default:
+                          http://127.0.0.1:5001/graphql]
+    -h, --help            Show this message and exit.
 
 
 musicbot user login
@@ -952,11 +957,12 @@ musicbot user login
     Authenticate user
   
   Options:
-    --email TEXT     User email
-    --password TEXT  User password
-    --token TEXT     User token
-    --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -h, --help       Show this message and exit.
+    -e, --email TEXT     User email
+    -p, --password TEXT  User password
+    --token TEXT         User token
+    --graphql TEXT       GraphQL endpoint  [default:
+                         http://127.0.0.1:5000/graphql]
+    -h, --help           Show this message and exit.
 
 
 musicbot user register
@@ -968,13 +974,13 @@ musicbot user register
     Register a new user
   
   Options:
-    --email TEXT       User email
-    --password TEXT    User password
-    --first-name TEXT  User first name
-    --last-name TEXT   User last name
-    --graphql TEXT     GraphQL endpoint  [default:
-                       http://127.0.0.1:5000/graphql]
-    -h, --help         Show this message and exit.
+    -e, --email TEXT     User email
+    -p, --password TEXT  User password
+    --first-name TEXT    User first name
+    --last-name TEXT     User last name
+    --graphql TEXT       GraphQL endpoint  [default:
+                         http://127.0.0.1:5000/graphql]
+    -h, --help           Show this message and exit.
 
 
 musicbot user unregister
@@ -986,10 +992,11 @@ musicbot user unregister
     Remove a user
   
   Options:
-    --email TEXT     User email
-    --password TEXT  User password
-    --token TEXT     User token
-    --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -h, --help       Show this message and exit.
+    -e, --email TEXT     User email
+    -p, --password TEXT  User password
+    --token TEXT         User token
+    --graphql TEXT       GraphQL endpoint  [default:
+                         http://127.0.0.1:5000/graphql]
+    -h, --help           Show this message and exit.
 
 

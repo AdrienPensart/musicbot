@@ -10,5 +10,5 @@ logger = logging.getLogger(__name__)
 def db(files, worker_id):
     db = database.DEFAULT_DB + "_test_" + worker_id
     database.create(db)
-    return psycopg2.connect(db)
+    yield psycopg2.connect(db)
     database.drop(db)

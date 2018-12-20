@@ -20,9 +20,9 @@ def cli(ctx, **kwargs):
     lib.raise_limits()
 
 
-@cli.command()
+@cli.command('list')
 @click.pass_context
-def list(ctx):
+def _list(ctx):
     '''List folders'''
     print(ctx.obj.u().folders)
 
@@ -67,7 +67,7 @@ def _csv(ctx, path):
     u = ctx.obj.u()
     folders = u.folders
 
-    logger.info('Scanning folders', folders)
+    logger.info('Scanning folders: %s', folders)
     files = helpers.genfiles(folders)
 
     musicwriter = csv.writer(path, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
