@@ -1,8 +1,8 @@
-import taglib
 import json
-import click
 import copy
 import os
+import click
+import taglib
 
 
 options = [
@@ -180,9 +180,9 @@ class File:
 
     @property
     def keywords(self):
-        if self.handle.path.endswith('.mp3'):
+        if str(self.handle.path).endswith('.mp3'):
             return self.comment
-        if self.handle.path.endswith('.flac'):
+        if str(self.handle.path).endswith('.flac'):
             if self.comment and not self.description:
                 self.fix_description(self.comment)
             return self.description
@@ -190,9 +190,9 @@ class File:
 
     @keywords.setter
     def keywords(self, keywords):
-        if self.handle.path.endswith('.mp3'):
+        if str(self.handle.path).endswith('.mp3'):
             self.comment = keywords
-        elif self.handle.path.endswith('.flac'):
+        elif str(self.handle.path).endswith('.flac'):
             self.fix_description(keywords)
 
     def add_keywords(self, keywords):

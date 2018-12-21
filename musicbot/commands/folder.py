@@ -1,7 +1,7 @@
-import click
 import os
 import csv
 import logging
+import click
 import click_spinner
 from tqdm import tqdm
 from musicbot import helpers, lib, user
@@ -33,7 +33,7 @@ def _list(ctx):
 def scan(ctx, folders):
     '''(re)Load musics'''
     u = ctx.obj.u()
-    if not len(folders):
+    if not folders:
         folders = u.folders
 
     print('Scanning folder')
@@ -51,7 +51,7 @@ def scan(ctx, folders):
 def find(ctx, folders):
     '''Just list music files'''
     u = ctx.obj.u()
-    if not len(folders):
+    if not folders:
         folders = u.folders
 
     files = lib.find_files(folders)
@@ -137,7 +137,7 @@ def sync(ctx, destination, **kwargs):
                     try:
                         logger.info("Deleting %s", destinations[d])
                         os.remove(destinations[d])
-                    except Exception as e:
+                    except OSError as e:
                         logger.error(e)
                 else:
                     logger.info("[DRY-RUN] False Deleting %s", destinations[d])
@@ -168,7 +168,7 @@ def sync(ctx, destination, **kwargs):
 @click.argument('folders', nargs=-1)
 def consistency(ctx, folders):
     '''Check music files consistency'''
-    if not len(folders):
+    if not folders:
         folders = ctx.obj.u().folders
 
     musics = helpers.genfiles(folders)

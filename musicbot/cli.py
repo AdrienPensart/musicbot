@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-import click
-import click_completion
 import os
 import logging
-from click_repl import register_repl
+import click
+import click_completion
+import click_repl
 from attrdict import AttrDict
 from musicbot import helpers, config
 
@@ -16,7 +16,7 @@ logger = logging.getLogger('musicbot')
 
 def custom_startswith(string, incomplete):
     """A custom completion matching that supports case insensitive matching"""
-    if os.getenv('_MUSICBOT_CASE_INSENSITIVE_COMPLETE', False):
+    if os.getenv('_MUSICBOT_CASE_INSENSITIVE_COMPLETE'):
         string = string.lower()
         incomplete = incomplete.lower()
     return string.startswith(incomplete)
@@ -26,7 +26,7 @@ click_completion.startswith = custom_startswith
 click_completion.init()
 
 
-class SubCommandLineInterface(helpers.GroupWithHelp):
+class SubCommandLineInterface(helpers.GroupWithHelp):  # pylint: disable=too-many-ancestors
     def list_commands(self, ctx):
         rv = []
         for filename in os.listdir(plugin_folder):
@@ -36,17 +36,17 @@ class SubCommandLineInterface(helpers.GroupWithHelp):
         all_commands.sort()
         return all_commands
 
-    def get_command(self, ctx, name):
+    def get_command(self, ctx, cmd_name):
         ns = {}
-        fn = os.path.join(plugin_folder, name + '.py')
+        fn = os.path.join(plugin_folder, cmd_name + '.py')
         try:
             with open(fn) as f:
                 code = compile(f.read(), fn, 'exec')
-                ns['__name__'] = '{}.{}'.format(commands_folder, name)
+                ns['__name__'] = '{}.{}'.format(commands_folder, cmd_name)
                 ns['__file__'] = fn
-                eval(code, ns, ns)
+                eval(code, ns, ns)  # pylint: disable=eval-used
         except FileNotFoundError:
-            return super().get_command(ctx, name)
+            return super().get_command(ctx, cmd_name)
         return ns['cli']
 
 
@@ -63,7 +63,7 @@ def cli(ctx, **kwargs):
 
 
 def main(**kwargs):
-    register_repl(cli)
+    click_repl.register_repl(cli)
     return cli.main(**kwargs)
 
 

@@ -1,10 +1,10 @@
-import click
 import os
 import base64
 import json
 import logging
-import requests
 import functools
+import requests
+import click
 from . import helpers
 from .music import file, mfilter
 
@@ -53,7 +53,7 @@ class FailedRequest(Exception):
     pass
 
 
-class GraphQL:
+class GraphQL:  # pylint: disable=too-few-public-methods
     def __init__(self, graphql, headers=None):
         self.graphql = graphql
         self.headers = headers
@@ -67,7 +67,7 @@ class GraphQL:
         return response.json()
 
 
-class Admin(GraphQL):
+class Admin(GraphQL):  # pylint: disable=too-few-public-methods
     @helpers.timeit
     def __init__(self, graphql=None):
         graphql = graphql if graphql is not None else os.getenv(MB_GRAPHQL_ADMIN, DEFAULT_GRAPHQL_ADMIN)
@@ -286,45 +286,46 @@ class User(GraphQL):
         }}""".format(','.join(default_filter.ordered_dict().keys()))
         return self._post(query)['data']['allFiltersList']
 
-    def watch(user):
+    def watch(self):
         from watchdog.observers import Observer
         from watchdog.events import PatternMatchingEventHandler
         import time
 
-        def update_music(path):
-            for folder in user.folders:
-                if path.startswith(folder) and path.endswith(tuple(file.supported_formats)):
-                    logger.debug('Creating/modifying DB for: %s', path)
-                    f = file.File(path, folder)
-                    user.upsert_music(f)
-                    return
-
         class MusicWatcherHandler(PatternMatchingEventHandler):
             patterns = []
 
-            def __init__(self):
+            def __init__(self, user):
                 super().__init__()
+                self.user = user
                 MusicWatcherHandler.patterns = ['*.' + f for f in file.supported_formats]
 
             def on_modified(self, event):
-                update_music(event.src_path)
+                self.update_music(event.src_path)
 
             def on_created(self, event):
-                update_music(event.src_path)
+                self.update_music(event.src_path)
 
             def on_deleted(self, event):
                 logger.debug('Deleting entry in DB for: %s %s', event.src_path, event.event_type)
-                user.delete_music(event.src_path)
+                self.user.delete_music(event.src_path)
 
             def on_moved(self, event):
                 logger.debug('Moving entry in DB for: %s %s', event.src_path, event.event_type)
-                user.delete_music(event.src_path)
-                update_music(event.dest_path)
+                self.user.delete_music(event.src_path)
+                self.update_music(event.dest_path)
 
-        logger.info('Watching: {}'.format(user.folders))
-        event_handler = MusicWatcherHandler()
+            def update_music(self, path):
+                for folder in self.user.folders:
+                    if path.startswith(folder) and path.endswith(tuple(file.supported_formats)):
+                        logger.debug('Creating/modifying DB for: %s', path)
+                        f = file.File(path, folder)
+                        self.user.upsert_music(f)
+                        return
+
+        logger.info('Watching: %s', self.folders)
+        event_handler = MusicWatcherHandler(self)
         observer = Observer()
-        for f in user.folders:
+        for f in self.folders:
             observer.schedule(event_handler, f, recursive=True)
         observer.start()
         try:

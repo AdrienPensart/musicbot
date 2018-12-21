@@ -1,7 +1,7 @@
-import attr
-import click
 import logging
 import json
+import attr
+import click
 
 logger = logging.getLogger(__name__)
 

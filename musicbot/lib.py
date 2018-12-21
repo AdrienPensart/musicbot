@@ -30,19 +30,19 @@ def seconds_to_human(s):
 
 
 def empty_dirs(root_dir, recursive=True):
-    empty_dirs = []
+    dirs_list = []
     for root, dirs, files in os.walk(root_dir, topdown=False):
         if recursive:
             all_subs_empty = True
             for sub in dirs:
                 full_sub = os.path.join(root, sub)
-                if full_sub not in empty_dirs:
+                if full_sub not in dirs_list:
                     all_subs_empty = False
                     break
         else:
             all_subs_empty = (not dirs)
         if all_subs_empty and is_empty(files):
-            empty_dirs.append(root)
+            dirs_list.append(root)
             yield root
 
 
@@ -57,7 +57,7 @@ def raise_limits():
         logger.info("Current limits, soft and hard : %s %s", _, hard)
         resource.setrlimit(resource.RLIMIT_NOFILE, (hard, hard))
         return True
-    except Exception as e:
+    except OSError as e:
         logger.critical('You may need to check ulimit parameter: %s', e)
         return False
 

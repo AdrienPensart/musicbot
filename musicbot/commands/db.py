@@ -1,6 +1,5 @@
-import click
 import logging
-from subprocess import call
+import click
 from musicbot import helpers
 from musicbot.backend import database
 
@@ -12,6 +11,7 @@ def cli():
     '''Database management (admin)'''
 
 
+# from subprocess import call
 # @cli.command('cli', context_settings=dict(
 #     ignore_unknown_options=True,
 # ))

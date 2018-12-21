@@ -1,6 +1,6 @@
-import click
 import logging
 import json
+import click
 from musicbot import helpers, user
 from musicbot.music import mfilter
 

@@ -1,9 +1,9 @@
 import time
-import click
 import logging
 import string
 import random
 import functools
+import click
 from click_didyoumean import DYMGroup
 from .config import config
 from .lib import seconds_to_human, find_files

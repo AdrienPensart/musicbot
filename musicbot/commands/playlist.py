@@ -1,8 +1,8 @@
-import click
 import logging
 import codecs
 import os
 from textwrap import indent
+import click
 from tqdm import tqdm
 from musicbot import helpers, user
 from musicbot.music import mfilter
@@ -55,7 +55,7 @@ def bests(ctx, path, prefix, suffix, **kwargs):
                     with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:
                         logger.debug('Writing playlist to %s with content:\n%s', playlist_filepath, content)
                         playlist_file.write(content)
-                except Exception as e:
+                except (LookupError, ValueError, UnicodeError) as e:
                     logger.info('Unable to write playlist to %s because of %s', playlist_filepath, e)
             else:
                 logger.info('DRY RUN: Writing playlist to %s with content:\n%s', playlist_filepath, content)

@@ -1,7 +1,7 @@
-import click
 import logging
-import spotipy
 import functools
+import click
+import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from musicbot import helpers
 
@@ -53,5 +53,5 @@ class Spotify:
             results = self.sp.search(q="{} artist:{}".format(title, artist), limit=1)
             return results['tracks']['items'][0]['external_urls']['spotify']
         except Exception as e:
-            logger.debug(e)
+            logger.info(e)
             return 'not found'

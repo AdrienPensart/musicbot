@@ -97,7 +97,7 @@ def test_user(cli_runner, user_token, postgraphile_public_cli, postgraphile_priv
     run_cli(cli_runner, cli, ['folder', '--token', user_token, '--graphql', postgraphile_public_cli, 'consistency'])
 
     run_cli(cli_runner, cli, ['playlist', '--token', user_token, '--graphql', postgraphile_public_cli, 'new'])
-    run_cli(cli_runner, cli, ['playlist', '--token', user_token, '--graphql', postgraphile_public_cli, 'bests', '/tmp'])
+    run_cli(cli_runner, cli, ['--dry', 'playlist', '--token', user_token, '--graphql', postgraphile_public_cli, 'bests', '/tmp'])
 
     run_cli(cli_runner, cli, ['stats', '--token', user_token, '--graphql', postgraphile_public_cli, 'show'])
 

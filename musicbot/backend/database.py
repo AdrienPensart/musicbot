@@ -1,8 +1,7 @@
 import logging
+import os
 import click
 import psycopg2
-import os
-from psycopg2.extensions import parse_dsn
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +16,7 @@ class Database:
         self.db = db if db is not None else os.getenv(MB_DB, DEFAULT_DB)
 
     def create(self):
-        params = parse_dsn(self.db)
+        params = psycopg2.extensions.parse_dsn(self.db)
         db_to_create = params['dbname']
         del params['dbname']
 
@@ -41,7 +40,7 @@ class Database:
             con.commit()
 
     def drop(self):
-        params = parse_dsn(self.db)
+        params = psycopg2.extensions.parse_dsn(self.db)
         db_to_drop = params['dbname']
         del params['dbname']
         con = psycopg2.connect(**params)

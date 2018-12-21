@@ -12,6 +12,8 @@ YOUTUBE_API_VERSION = "v3"
 
 
 def youtube_duration(dur):
+    if dur is None:
+        return "any"
     if 0 <= dur <= 4 * 60:
         return "short"
     if 4 * 60 < dur <= 20 * 60:
@@ -22,7 +24,7 @@ def youtube_duration(dur):
 
 
 # pylint: disable-msg=too-many-locals
-def search(artist, title, duration):
+def search(artist, title, duration=None):
     try:
         string = ' '.join([artist, title])
         parsingChannelUrl = "https://www.googleapis.com/youtube/v3/search"
@@ -50,13 +52,15 @@ def search(artist, title, duration):
         if results is None:
             return 'not found'
 
-        mapping = {r["id"]: isodate.parse_duration(r["contentDetails"]["duration"]).total_seconds() for r in results}
-        logger.debug("duration: %s, mapping: %s", duration, mapping)
-        key = min(mapping, key=lambda k: abs(mapping[k] - duration))
-        url = "https://www.youtube.com/watch?v={}".format(key)
-        logger.debug("Most relevant: %s %s %s", key, mapping[key], url)
-        return url
+        if duration:
+            mapping = {r["id"]: isodate.parse_duration(r["contentDetails"]["duration"]).total_seconds() for r in results}
+            logger.debug("duration: %s, mapping: %s", duration, mapping)
+            key = min(mapping, key=lambda k: abs(mapping[k] - duration))
+            url = "https://www.youtube.com/watch?v={}".format(key)
+            logger.debug("Most relevant: %s %s %s", key, mapping[key], url)
+            return url
+        return "https://www.youtube.com/watch?v={}".format(results[0]["id"])
     except Exception as e:
-        logger.debug(e)
-        logger.debug('Cannot find video for artist: %s title: %s duration: %s', artist, title, duration)
+        logger.info(type(e))
+        logger.info('Cannot find video for artist: %s title: %s duration: %s', artist, title, duration)
         return 'error'

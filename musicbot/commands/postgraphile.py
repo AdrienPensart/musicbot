@@ -1,5 +1,5 @@
-import click
 import logging
+import click
 from musicbot import helpers
 from musicbot.backend import database, postgraphile
 from musicbot.backend.postgraphile import public_options, private_options
