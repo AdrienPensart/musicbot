@@ -2,11 +2,16 @@ import os
 
 my_dir = os.path.dirname(os.path.abspath(__file__))
 
+email = "test@test.com"
+password = "test_test"
+
 folder1 = my_dir + "/fixtures/folder1"
 folder2 = my_dir + "/fixtures/folder2"
 folders = [folder1, folder2]
 
-flac = "/Buckethead/1994 - Giant Robot/02 - Welcome To Bucketheadland.flac"
+one_flac = folder1 + "/Buckethead/1994 - Giant Robot/02 - Welcome To Bucketheadland.flac"
+one_mp3 = folder2 + "/1995/La Source/La Flemme.mp3"
+
 teststats = {
     'id': 1,
     'musics': 5,

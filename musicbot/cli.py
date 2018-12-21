@@ -7,11 +7,7 @@ from click_repl import register_repl
 from attrdict import AttrDict
 from musicbot import helpers, config
 
-if os.path.islink(__file__):
-    myself = os.readlink(__file__)
-else:
-    myself = __file__
-bin_folder = os.path.dirname(myself)
+bin_folder = os.path.dirname(__file__)
 commands_folder = 'commands'
 plugin_folder = os.path.join(bin_folder, commands_folder)
 CONTEXT_SETTINGS = {'auto_envvar_prefix': 'MB', 'help_option_names': ['-h', '--help']}
@@ -20,7 +16,7 @@ logger = logging.getLogger('musicbot')
 
 def custom_startswith(string, incomplete):
     """A custom completion matching that supports case insensitive matching"""
-    if os.environ.get('_MUSICBOT_CASE_INSENSITIVE_COMPLETE'):
+    if os.getenv('_MUSICBOT_CASE_INSENSITIVE_COMPLETE', False):
         string = string.lower()
         incomplete = incomplete.lower()
     return string.startswith(incomplete)
@@ -54,7 +50,7 @@ class SubCommandLineInterface(helpers.GroupWithHelp):
         return ns['cli']
 
 
-@click.group(cls=SubCommandLineInterface, context_settings=CONTEXT_SETTINGS)
+@click.group(cls=SubCommandLineInterface, context_settings=CONTEXT_SETTINGS, invoke_without_command=True)
 @click.version_option("1.0", "--version", "-V")
 @helpers.add_options(config.options)
 @click.pass_context
@@ -66,9 +62,9 @@ def cli(ctx, **kwargs):
     ctx.obj.config = config.config
 
 
-def main():
+def main(**kwargs):
     register_repl(cli)
-    return cli.main()
+    return cli.main(**kwargs)
 
 
 if __name__ == '__main__':

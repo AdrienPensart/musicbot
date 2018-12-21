@@ -69,9 +69,9 @@ class GraphQL:
 
 class Admin(GraphQL):
     @helpers.timeit
-    def __init__(self, graphql_admin=None):
-        self.graphql_admin = graphql_admin if graphql_admin is not None else os.getenv(MB_GRAPHQL_ADMIN, DEFAULT_GRAPHQL_ADMIN)
-        GraphQL.__init__(self, graphql=graphql_admin)
+    def __init__(self, graphql=None):
+        graphql = graphql if graphql is not None else os.getenv(MB_GRAPHQL_ADMIN, DEFAULT_GRAPHQL_ADMIN)
+        GraphQL.__init__(self, graphql=graphql)
 
     @helpers.timeit
     def users(self):

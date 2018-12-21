@@ -37,6 +37,7 @@ coverage = "^4.5"
 coverage-badge = "^0.2.0"
 pytest-cov = "^2.6"
 pgcli = "^2.0"
+pytest-click = "^0.1.0"
 
 [build-system]
 requires = ["poetry>=0.12"]

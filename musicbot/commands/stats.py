@@ -8,7 +8,7 @@ from musicbot.music import mfilter
 @click.pass_context
 @helpers.add_options(user.auth_options)
 def cli(ctx, **kwargs):
-    '''Youtube management'''
+    '''Stats on your music'''
     ctx.obj.u = lambda: user.User.new(**kwargs)
 
 

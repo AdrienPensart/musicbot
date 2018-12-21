@@ -1,6 +1,6 @@
 import click
-import os
 import logging
+from subprocess import call
 from musicbot import helpers
 from musicbot.backend import database
 
@@ -12,34 +12,40 @@ def cli():
     '''Database management (admin)'''
 
 
-@cli.command('cli')
-@helpers.add_options(database.db_option)
-def pgcli(db):
-    '''Start PgCLI util'''
-    os.system(r"pgcli {}".format(db))
+# @cli.command('cli', context_settings=dict(
+#     ignore_unknown_options=True,
+# ))
+# @helpers.add_options(database.db_option)
+# @click.argument('pgcli_args', nargs=-1, type=click.UNPROCESSED)
+# def pgcli(db):
+#     '''Start PgCLI util'''
+#     cmdline = ['pgcli', db] + list(pgcli_args)
+#     click.echo('Invoking: %s' % ' '.join(cmdline))
+#     call(cmdline)
+#     # os.system(r"pgcli {}".format(db))
 
 
 @cli.command()
 @helpers.add_options(database.db_option)
-def create(db):
+def create(**kwargs):
     '''Create database and load schema'''
-    database.create(db)
+    database.Database(**kwargs).create()
 
 
 @cli.command()
 @helpers.add_options(database.db_option)
 @click.confirmation_option(help='Are you sure you want to drop the DB ?')
-def drop(db):
+def drop(**kwargs):
     '''Drop database'''
-    database.drop(db)
+    database.Database(**kwargs).drop()
 
 
 @cli.command()
 @helpers.add_options(database.db_option)
 @click.confirmation_option(help='Are you sure you want to drop and recreate db?')
-def clear(db):
+def clear(**kwargs):
     '''Drop and recreate database and schema'''
-    database.clear(db)
+    database.Database(**kwargs).clear()
 #
 #
 # @cli.command()

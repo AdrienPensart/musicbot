@@ -1,6 +1,6 @@
 import logging
 from musicbot import lib
-from musicbot.music import file
+from musicbot.music import file, youtube
 from . import fixtures
 
 logger = logging.getLogger(__name__)
@@ -12,7 +12,7 @@ def test_finding_files():
 
 
 def test_flac_tags():
-    m = file.File(fixtures.folder1 + fixtures.flac, fixtures.folder1)
+    m = file.File(fixtures.one_flac, fixtures.folder1)
 
     assert m.artist == "Buckethead"
     assert m.title == "Welcome To Bucketheadland"
@@ -26,7 +26,7 @@ def test_flac_tags():
 
 
 def test_mp3_tags():
-    m = file.File(fixtures.folder2 + "/1995/La Source/La Flemme.mp3", fixtures.folder2)
+    m = file.File(fixtures.one_mp3, fixtures.folder2)
 
     assert m.artist == "1995"
     assert m.title == "La Flemme"
@@ -37,6 +37,8 @@ def test_mp3_tags():
     assert m.keywords == "rap french"
     assert m.rating == 4.5
     assert m.duration == 258
+
+    assert youtube.search(m.artist, m.title, 258) == 'https://www.youtube.com/watch?v=JyjQFMksvaM'
 
 
 def test_duration():

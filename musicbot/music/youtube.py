@@ -1,7 +1,6 @@
 import logging
 import isodate
-import ujson
-import aiohttp
+import requests
 
 logger = logging.getLogger(__name__)
 logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
@@ -23,7 +22,7 @@ def youtube_duration(dur):
 
 
 # pylint: disable-msg=too-many-locals
-async def search(artist, title, duration):
+def search(artist, title, duration):
     try:
         string = ' '.join([artist, title])
         parsingChannelUrl = "https://www.googleapis.com/youtube/v3/search"
@@ -31,10 +30,11 @@ async def search(artist, title, duration):
         parsingChannelQueryString = {"part": "id,snippet", "maxResults": "10",
                                      "key": DEVELOPER_KEY, "type": "video", "q": string, "safeSearch": "none", "videoDuration": youtube_duration(duration)}
         parsingChannel = None
-        async with aiohttp.ClientSession() as session:
-            async with session.get(parsingChannelUrl, headers=parsingChannelHeader, params=parsingChannelQueryString) as resp:
-                parsingChannel = await resp.read()
-        parsingChannelItems = ujson.loads(parsingChannel).get("items")
+
+        resp = requests.get(parsingChannelUrl, headers=parsingChannelHeader, params=parsingChannelQueryString)
+        parsingChannel = resp.json()
+
+        parsingChannelItems = parsingChannel.get("items")
         if parsingChannelItems is None or not parsingChannelItems:
             return 'not found'
         VideoIds = ",".join(str(x.get("id").get("videoId")) for x in parsingChannelItems)
@@ -43,10 +43,10 @@ async def search(artist, title, duration):
         parsingVideoHeader = {'cache-control': "no-cache"}
         parsingVideoQueryString = {"part": 'id,snippet,contentDetails', "id": VideoIds, "key": DEVELOPER_KEY}
         parsingVideo = None
-        async with aiohttp.ClientSession() as session:
-            async with session.get(parsingVideoUrl, headers=parsingVideoHeader, params=parsingVideoQueryString) as resp:
-                parsingVideo = await resp.read()
-        results = ujson.loads(parsingVideo).get("items")
+
+        resp = requests.get(parsingVideoUrl, headers=parsingVideoHeader, params=parsingVideoQueryString)
+        parsingVideo = resp.json()
+        results = parsingVideo.get("items")
         if results is None:
             return 'not found'
 

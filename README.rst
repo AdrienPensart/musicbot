@@ -102,7 +102,7 @@ Commands
     postgraphile  Postgraphile management
     repl          Start an interactive shell.
     spotify       Spotify
-    stats         Youtube management
+    stats         Stats on your music
     user          User management
 
 
@@ -231,7 +231,6 @@ musicbot db
   
   Commands:
     clear   Drop and recreate database and schema
-    cli     Start PgCLI util
     create  Create database and load schema
     drop    Drop database
     help    Print help
@@ -249,20 +248,6 @@ musicbot db clear
     --db TEXT   DB dsn string  [default:
                 postgresql://postgres:musicbot@localhost:5432/musicbot_prod]
     --yes       Are you sure you want to drop and recreate db?
-    -h, --help  Show this message and exit.
-
-
-musicbot db cli
-***************
-.. code-block::
-
-  Usage: musicbot db cli [OPTIONS]
-  
-    Start PgCLI util
-  
-  Options:
-    --db TEXT   DB dsn string  [default:
-                postgresql://postgres:musicbot@localhost:5432/musicbot_prod]
     -h, --help  Show this message and exit.
 
 
@@ -749,6 +734,7 @@ musicbot postgraphile private
     --graphql-private-interface TEXT
                                     Postgraphile private API interface
                                     [default: localhost]
+    --background                    Run in background  [default: False]
     -h, --help                      Show this message and exit.
 
 
@@ -768,6 +754,7 @@ musicbot postgraphile public
     --graphql-public-interface TEXT
                                     Postgraphile public API interface  [default:
                                     localhost]
+    --background                    Run in background  [default: False]
     -h, --help                      Show this message and exit.
 
 
@@ -838,7 +825,7 @@ musicbot stats
 
   Usage: musicbot stats [OPTIONS] COMMAND [ARGS]...
   
-    Youtube management
+    Stats on your music
   
   Options:
     -e, --email TEXT     User email

@@ -1,5 +1,4 @@
 import click
-import os
 import logging
 from musicbot import helpers
 from musicbot.backend import database, postgraphile
@@ -15,15 +14,15 @@ def cli():
 
 @cli.command()
 @helpers.add_options(database.db_option + public_options)
-def public(**kwargs):
+def public(db, jwt_secret, graphql_public_interface, graphql_public_port, **kwargs):
     '''Start public backend'''
-    cmd = postgraphile.public(**kwargs)
-    os.system(cmd)
+    pql = postgraphile.Postgraphile.public(db=db, jwt_secret=jwt_secret, interface=graphql_public_interface, port=graphql_public_port)
+    pql.run(**kwargs)
 
 
 @cli.command()
 @helpers.add_options(database.db_option + private_options)
-def private(**kwargs):
+def private(db, graphql_private_interface, graphql_private_port, **kwargs):
     '''Start private backend'''
-    cmd = postgraphile.private(**kwargs)
-    os.system(cmd)
+    pql = postgraphile.Postgraphile.private(db=db, interface=graphql_private_interface, port=graphql_private_port)
+    pql.run(**kwargs)

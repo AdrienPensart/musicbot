@@ -12,9 +12,9 @@ def cli():
 
 @cli.command('list')
 @helpers.add_options(user.graphql_admin_option)
-def _list(**kwargs):
+def _list(graphql_admin):
     '''List users (admin)'''
-    a = user.Admin(**kwargs)
+    a = user.Admin(graphql=graphql_admin)
     for u in a.users():
         print(u)
 

@@ -1,41 +1,9 @@
-import pytest
-import os
 import logging
-import signal
-import subprocess
-import time
+import pytest
 from musicbot import user, helpers
-from musicbot.backend import postgraphile
 from . import fixtures
 
 logger = logging.getLogger(__name__)
-
-
-email = "test@test.com"
-password = "test_test"
-
-os.environ['MB_GRAPHQL_PUBLIC_PORT'] = str(10000)
-os.environ['MB_GRAPHQL_PRIVATE_PORT'] = str(10001)
-os.environ['MB_GRAPHQL'] = "http://127.0.0.1:10000/graphql"
-os.environ['MB_GRAPHQL_ADMIN'] = "http://127.0.0.1:10001/graphql"
-
-
-@pytest.fixture
-def postgraphile_public():
-    cmd = postgraphile.public(graphql_public_port=10000)
-    pro = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
-    time.sleep(1)
-    yield pro
-    os.killpg(os.getpgid(pro.pid), signal.SIGTERM)
-
-
-@pytest.fixture
-def postgraphile_private():
-    cmd = postgraphile.private(graphql_private_port=10001)
-    pro = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
-    yield pro
-    time.sleep(1)
-    os.killpg(os.getpgid(pro.pid), signal.SIGTERM)
 
 
 @pytest.fixture
@@ -45,16 +13,9 @@ def files():
     return files
 
 
-@pytest.fixture
-def email_sample():
-    worker_id = os.environ['PYTEST_XDIST_WORKER']
-    email_sample = (worker_id + "_" + email)
-    return email_sample
-
-
 @pytest.fixture()
-def user_sample(worker_id, email_sample, files, postgraphile_public, postgraphile_private):
-    u = user.User.register(graphql=os.environ['MB_GRAPHQL'], first_name="first_test", last_name="last_test", email=email_sample, password=password)
+def user_sample(worker_id, email_sample, files, postgraphile_public):
+    u = user.User.register(graphql=postgraphile_public.dsn, first_name="first_test", last_name="last_test", email=email_sample, password=fixtures.password)
     assert u.authenticated
 
     u.bulk_insert(files)
@@ -70,6 +31,12 @@ def user_sample(worker_id, email_sample, files, postgraphile_public, postgraphil
 def musics(user_sample):
     musics = user_sample.do_filter()
     assert len(musics) == len(files)
+    return musics
+
+
+def test_list(user_sample, postgraphile_private):
+    a = user.Admin(postgraphile_private.dsn)
+    assert len(a.users()) == 1
 
 
 def test_delete(user_sample, files):
@@ -78,18 +45,18 @@ def test_delete(user_sample, files):
     assert len(musics) == len(files) - 1
 
 
-def test_authenticate(user_sample, email_sample):
-    same1 = user.User(email=email_sample, password=password)
+def test_authenticate(postgraphile_public, user_sample, email_sample):
+    same1 = user.User(graphql=postgraphile_public.dsn, email=email_sample, password=fixtures.password)
     assert same1.authenticated
     assert same1.token
 
-    same2 = user.User(token=same1.token)
+    same2 = user.User(graphql=postgraphile_public.dsn, token=same1.token)
     assert same2.authenticated
 
-    same3 = user.User.new(email=email_sample, password=password)
+    same3 = user.User.new(graphql=postgraphile_public.dsn, email=email_sample, password=fixtures.password)
     assert same3.authenticated
 
-    same3 = user.User.new(token=same1.token)
+    same3 = user.User.new(graphql=postgraphile_public.dsn, token=same1.token)
     assert same3.authenticated
 
 

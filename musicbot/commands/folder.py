@@ -89,6 +89,7 @@ def flac2mp3(folders, concurrency):
     '''Convert all files in folders to mp3'''
     import atexit
     import concurrent.futures as cf
+    from concurrent.futures.thread import _python_exit
     from pydub import AudioSegment
     files = lib.find_files(folders)
     flac_files = [f[1] for f in files if f[1].endswith('.flac')]
@@ -101,11 +102,14 @@ def flac2mp3(folders, concurrency):
         logger.debug('Converting %s', flac_path)
         flac_audio = AudioSegment.from_file(flac_path, "flac")
         mp3_path = flac_path.replace('.flac', '.mp3')
-        flac_audio.export(mp3_path, format="mp3")
+        if not config.dry:
+            flac_audio.export(mp3_path, format="mp3")
+        else:
+            logger.info("[DRY-RUN] Exporting from %s to %s", flac_path, mp3_path)
         if pbar:
             pbar.update(1)
     # Permit CTRL+C to work as intended
-    atexit.unregister(cf.thread._python_exit)  # pylint: disable=protected-access
+    atexit.unregister(_python_exit)  # pylint: disable=protected-access
     with cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
         executor.shutdown = lambda wait: None
         futures = [executor.submit(convert, flac_path) for flac_path in flac_files]
