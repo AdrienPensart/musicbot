@@ -2,7 +2,6 @@ import os
 import csv
 import logging
 import click
-import click_spinner
 from tqdm import tqdm
 from musicbot import helpers, lib, user
 from musicbot.music import mfilter
@@ -35,14 +34,8 @@ def scan(ctx, folders):
     u = ctx.obj.u()
     if not folders:
         folders = u.folders
-
-    print('Scanning folder')
-    with click_spinner.spinner(disable=config.quiet):
-        files = helpers.genfiles(folders)
-
-    print('Inserting musics')
-    with click_spinner.spinner(disable=config.quiet):
-        u.bulk_insert(files)
+    files = helpers.genfiles(folders)
+    u.bulk_insert(files)
 
 
 @cli.command()

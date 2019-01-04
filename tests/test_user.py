@@ -9,12 +9,13 @@ logger = logging.getLogger(__name__)
 @pytest.fixture
 def files():
     files = helpers.genfiles(fixtures.folders)
+    files = list(files)
     assert len(files) == 5
     return files
 
 
 @pytest.fixture()
-def user_sample(worker_id, email_sample, files, postgraphile_public):
+def user_sample(email_sample, files, postgraphile_public):
     u = user.User.register(graphql=postgraphile_public.dsn, first_name="first_test", last_name="last_test", email=email_sample, password=fixtures.password)
     assert u.authenticated
 
@@ -40,7 +41,7 @@ def test_list(user_sample, postgraphile_private):
 
 
 def test_delete(user_sample, files):
-    user_sample.delete_music(files[1].path)
+    user_sample.delete_music(files[0].path)
     musics = user_sample.do_filter()
     assert len(musics) == len(files) - 1
 

@@ -10,7 +10,6 @@ output_types = ["list", "json"]
 default_output_type = 'json'
 
 
-# taken from distutilS
 def str2bool(val):
     val = val.lower()
     if val in ('y', 'yes', 't', 'true', 'on', '1'):
@@ -82,16 +81,17 @@ def find_files(directories):
                 yield (directory, filename)
 
 
-def scantree(path):
+def scantree(path, supported_formats):
     for entry in os.scandir(path):
         if entry.is_dir(follow_symlinks=False):
-            yield from scantree(entry.path)
+            yield from scantree(entry.path, supported_formats)
         else:
-            yield entry
+            if entry.name.endswith(tuple(supported_formats)):
+                yield entry
 
 
-def filecount(path):
-    return len(list(scantree(path)))
+def filecount(path, supported_formats):
+    return len(list(scantree(path, supported_formats)))
 
 
 def all_files(directory):

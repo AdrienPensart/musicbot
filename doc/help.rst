@@ -26,7 +26,9 @@ Installation
 
 .. code-block:: bash
 
-  sudo apt install build-essential libssl-dev libtag1-dev ffmpeg postgresql-11 libpcre3-dev postgresql-server-dev-all
+  sudo apt install build-essential libssl-dev libtag1-dev ffmpeg postgresql-11 libpcre3-dev postgresql-server-dev-all docker.io
+  sudo usermod -aG docker $USER
+
   git clone https://github.com/AdrienPensart/musicbot.git
   cd musicbot
 
@@ -48,9 +50,9 @@ Installation
   git clone https://github.com/evanmiller/mod_zip.git
   auto/configure --prefix=/opt/nginx --add-module="$HOME/mod_zip"
   sudo make install
-  sudo ln -s /home/crunch/musicbot/scripts/musicbot.service /etc/systemd/system/musicbot.service
-  sudo ln -s /home/crunch/musicbot/scripts/nginx.service /etc/systemd/system/nginx.service
-  sudo ln -s /home/crunch/musicbot/scripts/nginx.conf /opt/nginx/conf/nginx.conf
+  sudo ln -s $HOME/musicbot/scripts/musicbot.service /etc/systemd/system/musicbot.service
+  sudo ln -s $HOME/musicbot/scripts/nginx.service /etc/systemd/system/nginx.service
+  sudo ln -s $HOME/musicbot/scripts/nginx.conf /opt/nginx/conf/nginx.conf
   sudo ln -s /opt/nginx/sbin/nginx /usr/sbin/nginx
 
   git clone https://github.com/michelp/pgjwt.git

@@ -1,12 +1,15 @@
 import time
+import os
 import logging
 import string
 import random
 import functools
 import click
+import click_spinner
 from click_didyoumean import DYMGroup
+from tqdm import tqdm
 from .config import config
-from .lib import seconds_to_human, find_files
+from .lib import seconds_to_human, find_files, filecount
 from .music.file import File, supported_formats
 
 logger = logging.getLogger(__name__)
@@ -40,7 +43,6 @@ class GroupWithHelp(DYMGroup):
                 print(c.get_help(ctx))
             else:
                 print(ctx.parent.get_help())
-
         self.add_command(_help)
 
 
@@ -66,4 +68,14 @@ def add_options(options):
 
 @timeit
 def genfiles(folders):
-    return [File(f[1], f[0]) for f in find_files(list(folders)) if f[1].endswith(tuple(supported_formats))]
+    with click_spinner.spinner(disable=config.quiet):
+        count = 0
+        directories = [os.path.abspath(f) for f in folders]
+        for d in directories:
+            count += filecount(d, supported_formats)
+        logger.info("File count: {}".format(count))
+    with tqdm(total=count, desc="Music listing", leave=False, disable=config.quiet) as bar:
+        for f in find_files(list(folders)):
+            if f[1].endswith(tuple(supported_formats)):
+                yield File(f[1], f[0])
+            bar.update(1)

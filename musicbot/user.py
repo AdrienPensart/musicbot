@@ -5,7 +5,9 @@ import logging
 import functools
 import requests
 import click
+import click_spinner
 from . import helpers
+from .config import config
 from .music import file, mfilter
 
 MB_TOKEN = 'MB_TOKEN'
@@ -232,6 +234,8 @@ class User(GraphQL):
 
     @helpers.timeit
     def bulk_insert(self, musics):
+        if not len(musics):
+            return
         j = json.dumps([m.to_dict() for m in musics])
         data = base64.b64encode(j.encode('utf-8'))
         query = '''
@@ -242,7 +246,8 @@ class User(GraphQL):
                 clientMutationId
             }}
         }}'''.format(data.decode())
-        return self._post(query)
+        with click_spinner.spinner(disable=config.quiet):
+            return self._post(query)
 
     @property
     @functools.lru_cache(maxsize=None)

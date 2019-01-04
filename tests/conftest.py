@@ -8,14 +8,18 @@ from . import fixtures
 
 
 @pytest.fixture
-def dbtest(worker_id):
-    return database.DEFAULT_DB + "_test_" + worker_id
+def my_worker_id():
+    return os.getenv('PYTEST_XDIST_WORKER', 'main')
 
 
 @pytest.fixture
-def email_sample():
-    worker_id = os.getenv('PYTEST_XDIST_WORKER', 'main')
-    email_sample = (worker_id + "_" + fixtures.email)
+def dbtest(my_worker_id):
+    return database.DEFAULT_DB + "_test_" + my_worker_id
+
+
+@pytest.fixture
+def email_sample(my_worker_id):
+    email_sample = (my_worker_id + "_" + fixtures.email)
     return email_sample
 
 

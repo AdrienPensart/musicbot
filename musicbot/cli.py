@@ -14,6 +14,14 @@ CONTEXT_SETTINGS = {'auto_envvar_prefix': 'MB', 'help_option_names': ['-h', '--h
 logger = logging.getLogger('musicbot')
 
 
+# import __version__ string
+version = {}
+with open(os.path.join(bin_folder, "version.py")) as fp:
+    exec(fp.read(), version)
+__version__ = version['__version__']
+prog_name = "musicbot"
+
+
 def custom_startswith(string, incomplete):
     """A custom completion matching that supports case insensitive matching"""
     if os.getenv('_MUSICBOT_CASE_INSENSITIVE_COMPLETE'):
@@ -51,7 +59,7 @@ class SubCommandLineInterface(helpers.GroupWithHelp):  # pylint: disable=too-man
 
 
 @click.group(cls=SubCommandLineInterface, context_settings=CONTEXT_SETTINGS, invoke_without_command=True)
-@click.version_option("1.0", "--version", "-V")
+@click.version_option(__version__, "--version", "-V", prog_name=prog_name)
 @helpers.add_options(config.options)
 @click.pass_context
 def cli(ctx, **kwargs):
@@ -60,6 +68,13 @@ def cli(ctx, **kwargs):
     ctx.obj.folder = bin_folder
     config.config.set(**kwargs)
     ctx.obj.config = config.config
+
+
+@cli.command()
+@click.pass_context
+def version(ctx):
+    '''Print version'''
+    print("{}, version {}".format(prog_name, __version__))
 
 
 def main(**kwargs):

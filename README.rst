@@ -26,7 +26,9 @@ Installation
 
 .. code-block:: bash
 
-  sudo apt install build-essential libssl-dev libtag1-dev ffmpeg postgresql-11 libpcre3-dev postgresql-server-dev-all
+  sudo apt install build-essential libssl-dev libtag1-dev ffmpeg postgresql-11 libpcre3-dev postgresql-server-dev-all docker.io
+  sudo usermod -aG docker $USER
+
   git clone https://github.com/AdrienPensart/musicbot.git
   cd musicbot
 
@@ -48,9 +50,9 @@ Installation
   git clone https://github.com/evanmiller/mod_zip.git
   auto/configure --prefix=/opt/nginx --add-module="$HOME/mod_zip"
   sudo make install
-  sudo ln -s /home/crunch/musicbot/scripts/musicbot.service /etc/systemd/system/musicbot.service
-  sudo ln -s /home/crunch/musicbot/scripts/nginx.service /etc/systemd/system/nginx.service
-  sudo ln -s /home/crunch/musicbot/scripts/nginx.conf /opt/nginx/conf/nginx.conf
+  sudo ln -s $HOME/musicbot/scripts/musicbot.service /etc/systemd/system/musicbot.service
+  sudo ln -s $HOME/musicbot/scripts/nginx.service /etc/systemd/system/nginx.service
+  sudo ln -s $HOME/musicbot/scripts/nginx.conf /opt/nginx/conf/nginx.conf
   sudo ln -s /opt/nginx/sbin/nginx /usr/sbin/nginx
 
   git clone https://github.com/michelp/pgjwt.git
@@ -80,6 +82,7 @@ Commands
     -V, --version                   Show the version and exit.
     -l, --log PATH                  Log file path  [default:
                                     /var/log/musicbot.log]
+    -i, --info                      Same as --verbosity info"
     -d, --debug                     Be very verbose, same as --verbosity debug +
                                     hide progress bars  [default: False]
     -t, --timings                   Set verbosity to info and show execution
@@ -104,6 +107,8 @@ Commands
     spotify       Spotify
     stats         Stats on your music
     user          User management
+    version       Print version
+    youtube       Youtube tool
 
 
 musicbot completion
@@ -985,5 +990,57 @@ musicbot user unregister
     --graphql TEXT       GraphQL endpoint  [default:
                          http://127.0.0.1:5000/graphql]
     -h, --help           Show this message and exit.
+
+
+musicbot version
+****************
+.. code-block::
+
+  Usage: musicbot version [OPTIONS]
+  
+    Print version
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot youtube
+****************
+.. code-block::
+
+  Usage: musicbot youtube [OPTIONS] COMMAND [ARGS]...
+  
+    Youtube tool
+  
+  Options:
+    -h, --help  Show this message and exit.
+  
+  Commands:
+    help    Print help
+    search  Generate some stats for music collection with filters
+
+
+musicbot youtube help
+*********************
+.. code-block::
+
+  Usage: musicbot youtube help [OPTIONS] [COMMAND]...
+  
+    Print help
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot youtube search
+***********************
+.. code-block::
+
+  Usage: musicbot youtube search [OPTIONS] ARTIST TITLE
+  
+    Generate some stats for music collection with filters
+  
+  Options:
+    -h, --help  Show this message and exit.
 
 
