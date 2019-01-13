@@ -28,7 +28,7 @@ six = "*"
 wrapt = "*"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Atomic file writes."
 name = "atomicwrites"
 optional = false
@@ -53,11 +53,6 @@ name = "attrs"
 optional = false
 python-versions = "*"
 version = "18.2.0"
-
-[package.extras]
-dev = ["coverage", "hypothesis", "pympler", "pytest", "six", "zope.interface", "sphinx", "zope.interface", "pre-commit"]
-docs = ["sphinx", "zope.interface"]
-tests = ["coverage", "hypothesis", "pympler", "pytest", "six", "zope.interface"]
 
 [[package]]
 category = "dev"
@@ -92,20 +87,11 @@ python-versions = "*"
 version = "1.1.0"
 
 [package.dependencies]
+Pygments = ">=1.6"
 "backports.csv" = ">=1.0.0"
 configobj = ">=5.0.5"
+tabulate = ">=0.8.2"
 terminaltables = ">=3.0.0"
-
-[package.dependencies.Pygments]
-optional = true
-version = ">=1.6"
-
-[package.dependencies.tabulate]
-extras = ["widechars"]
-version = ">=0.8.2"
-
-[package.extras]
-styles = ["Pygments (>=1.6)"]
 
 [[package]]
 category = "main"
@@ -172,9 +158,6 @@ optional = false
 python-versions = "*"
 version = "0.1.8"
 
-[package.extras]
-test = ["click", "pytest", "six"]
-
 [[package]]
 category = "main"
 description = "Cross-platform colored terminal text."
@@ -195,9 +178,6 @@ version = "10.0"
 [package.dependencies]
 colorama = "*"
 humanfriendly = ">=4.7"
-
-[package.extras]
-cron = ["capturer (>=2.4)"]
 
 [[package]]
 category = "dev"
@@ -294,9 +274,6 @@ version = "2.10"
 [package.dependencies]
 MarkupSafe = ">=0.23"
 
-[package.extras]
-i18n = ["Babel (>=0.8)"]
-
 [[package]]
 category = "dev"
 description = "A fast and thorough lazy object proxy."
@@ -330,7 +307,7 @@ python-versions = "*"
 version = "0.6.1"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "More routines for operating on iterables, beyond itertools"
 name = "more-itertools"
 optional = false
@@ -358,6 +335,7 @@ version = "2.0.2"
 
 [package.dependencies]
 Pygments = ">=2.0"
+cli-helpers = ">=1.0.1"
 click = ">=4.1"
 configobj = ">=5.0.6"
 humanize = ">=0.5.1"
@@ -366,13 +344,6 @@ prompt-toolkit = ">=2.0.6,<2.1.0"
 psycopg2 = ">=2.7.4,<2.8"
 setproctitle = ">=1.1.9"
 sqlparse = ">=0.2.2,<0.3.0"
-
-[package.dependencies.cli-helpers]
-extras = ["styles"]
-version = ">=1.0.1"
-
-[package.extras]
-keyring = ["keyring (>=12.2.0)"]
 
 [[package]]
 category = "dev"
@@ -387,15 +358,12 @@ click = ">=4.1"
 sqlparse = ">=0.1.19"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "plugin and hook calling mechanisms for python"
 name = "pluggy"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "0.8.0"
-
-[package.extras]
-dev = ["pre-commit", "tox"]
+version = "0.8.1"
 
 [[package]]
 category = "main"
@@ -426,7 +394,7 @@ python-versions = "*"
 version = "2.7.6.1"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "library with cross-python path, ini-parsing, io, code, log facilities"
 name = "py"
 optional = false
@@ -481,7 +449,7 @@ python-versions = "*"
 version = "1.4.4"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "pytest: simple powerful testing with Python"
 name = "pytest"
 optional = false
@@ -504,11 +472,11 @@ description = "Py.test plugin for Click"
 name = "pytest-click"
 optional = false
 python-versions = "*"
-version = "0.1"
+version = "0.3"
 
 [package.dependencies]
 click = ">=6.0"
-pytest = ">=2.8.5"
+pytest = ">=3.6.0"
 
 [[package]]
 category = "dev"
@@ -516,11 +484,11 @@ description = "Pytest plugin for measuring coverage."
 name = "pytest-cov"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "2.6.0"
+version = "2.6.1"
 
 [package.dependencies]
 coverage = ">=4.4"
-pytest = ">=2.9"
+pytest = ">=3.6"
 
 [[package]]
 category = "dev"
@@ -528,10 +496,10 @@ description = "run tests in isolated forked subprocesses"
 name = "pytest-forked"
 optional = false
 python-versions = "*"
-version = "0.2"
+version = "1.0.1"
 
 [package.dependencies]
-pytest = ">=2.6.0"
+pytest = ">=3.1.0"
 
 [[package]]
 category = "dev"
@@ -539,7 +507,7 @@ description = "pytest xdist plugin for distributed testing and loop-on-failing m
 name = "pytest-xdist"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.25.0"
+version = "1.26.0"
 
 [package.dependencies]
 execnet = ">=1.1"
@@ -568,10 +536,6 @@ certifi = ">=2017.4.17"
 chardet = ">=3.0.2,<3.1.0"
 idna = ">=2.5,<2.9"
 urllib3 = ">=1.21.1,<1.25"
-
-[package.extras]
-security = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)"]
-socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7)", "win-inet-pton"]
 
 [[package]]
 category = "dev"
@@ -625,12 +589,7 @@ python-versions = "*"
 version = "0.8.2"
 
 [package.dependencies]
-[package.dependencies.wcwidth]
-optional = true
-version = "*"
-
-[package.extras]
-widechars = ["wcwidth"]
+wcwidth = "*"
 
 [[package]]
 category = "dev"
@@ -646,7 +605,7 @@ description = "Fast, Extensible Progress Meter"
 name = "tqdm"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*"
-version = "4.28.1"
+version = "4.29.1"
 
 [[package]]
 category = "main"
@@ -655,10 +614,6 @@ name = "urllib3"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4"
 version = "1.24.1"
-
-[package.extras]
-secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "certifi", "ipaddress"]
-socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7,<2.0)"]
 
 [[package]]
 category = "main"
@@ -687,10 +642,10 @@ description = "Module for decorators, wrappers and monkey patching."
 name = "wrapt"
 optional = false
 python-versions = "*"
-version = "1.10.11"
+version = "1.11.0"
 
 [metadata]
-content-hash = "26f19f5fe5b00fd07d29c37b9d09baacf4af081f8a2b1ddea4a156ebca3f6c53"
+content-hash = "a29a3d7230ac165ce30672e4a706db42643c6bed125f948c81de143a9b592896"
 python-versions = "^3.7"
 
 [metadata.hashes]
@@ -730,7 +685,7 @@ more-itertools = ["38a936c0a6d98a38bcc2d03fdaaedaba9f412879461dd2ceff8d37564d652
 pathtools = ["7c35c5421a39bb82e58018febd90e3b6e5db34c5443aaaf742b3f33d4655f1c0"]
 pgcli = ["04f4d3f4dd61d2d165eb2fd8d77879357489a74ca1446cd09fa375c7561392dc", "ef64fdf4d968f108953ebe0e106ce58ce5ce14a73c4f786641f44718881cc08b"]
 pgspecial = ["f44dd48db53fd93dc78d61ebac0ca2cc3c58203f94b30edc730b02bfd3ee747b"]
-pluggy = ["447ba94990e8014ee25ec853339faf7b0fc8050cdc3289d4d71f7f410fb90095", "bde19360a8ec4dfd8a20dcb811780a30998101f078fc7ded6162f0076f50508f"]
+pluggy = ["8ddc32f03971bfdf900a81961a48ccf2fb677cf7715108f85295c67405798616", "980710797ff6a041e9a73a5787804f848996ecaa6f8a1b1e08224a5894f2074a"]
 prompt-toolkit = ["c1d6aff5252ab2ef391c2fe498ed8c088066f66bc64a8d5c095bbf795d9fec34", "d4c47f79b635a0e70b84fdb97ebd9a274203706b1ee5ed44c10da62755cf3ec9", "fd17048d8335c1e6d5ee403c3569953ba3eb8555d710bfc548faf0712666ea39"]
 psycopg2 = ["10e391687b171878181e71736d0effe3772314a339d9ae30995ec8171a0c834e", "1283f9d45e458c2dcb15ba89367923563f90ef636fe78ee22df75183484a0237", "1a9c32e4d140bea225f9821d993b2e53c913e717ea97b851246aa9b300095d8f", "1be6f2438d2b71fec7b07c3c0949dd321b04349c382907ea76b36120edec8300", "20ca6f29e118b8dd7133e8708b3fba2881e70a4e0841f874ed23985b7201a076", "227c115b3c1f65d61385e51ac690b91b584640aefb45bffacd4bd33d02ed7221", "27959abe64ca1fc6d8cd11a71a1f421d8287831a3262bd4cacd43bbf43cc3c82", "2b2daf1fe30a58300542aea679fd87d1e1c2afd36e7644837b7954fa2dbacb92", "36e51a51f295fdf67bcf05e7b1877011a6b39e6622b0013fe31c5025241873a3", "3992b9b914f2eb77dc07e8045d2ca979e491612808bc5c7cd68f307469acf9f6", "39a11de2335ad45ececed43ab851d36a4c52843d756471b940804f301792781e", "3c2afe9ef0d1649005e3ccf93c1aaccd6f8ee379530e763d3b3b77f406b7c0ae", "3fb18e0e52807fe3a300dc1b5421aa492d5e759550918f597d61863419482535", "55eab94de96ee9702f23283e9c8b03cfdb0001e2b14d5d2e1bd5ff8114b96b9f", "7e95c0ab7e7e6e452586f35d4d8966b1e924c8dd2c23977e3ea4968770ff1d26", "7f47514dbddf604f196fcfe5da955537f04691bef8124aff5632316a78d992b7", "8345370356bb4bddf93acbcfd0357163dd6b09471937adcfb38a2fbb49bdce53", "8bc6ecb220c0b88d3742042013129c817c44459795c97e9ce1bca70a3f37a53b", "8df623f248be15d1725faf5f333791678775047f12f17a90d29b5d22573f5cdc", "9645f1305e4268cc0fc88c823cd6c91de27c003e183c233a6a230e5e963039ee", "a68719ed5be8373dd72c9e45d55f7a202285e05a2e392eaa8872a67ea47d7d20", "aca0edf062ec09e954fdf0cc93d3a872362701210983a1442549e703aedec25d", "b0dd2114d93d8f424bb8ae76e0dc540f104b70ca9163172c05e7700b1459d4c9", "b2c09359d6802279efb9efb3f91a9c94567151baee95175f9b637ea628f35244", "ca7bc37b1efb7cc25271bf10f398462ed975d95259af1406d38fcb268466e34f", "e64235d9013ebf6319cb9654e08f5066112c34d8c4cc41186254ab9c3d6d5b9b", "ec9be679c0065667503851141c31fa699e1cc69ded3ba8e5d3673dd5a6eb1370", "eca00d0f91fcb44d88b12f1fd16ad138e38fa07debb79587e2b7ff1fe80d72b9", "f256e807b8b2b45b6af60d7f2bb5194aab2f4acc861241c4d8ef942a55f5030d", "fce7612a3bd6a7ba95799f88285653bf130bd7ca066b52674d5f850108b2aec0"]
 psycopg2-binary = ["036bcb198a7cc4ce0fe43344f8c2c9a8155aefa411633f426c8c6ed58a6c0426", "1d770fcc02cdf628aebac7404d56b28a7e9ebec8cfc0e63260bd54d6edfa16d4", "1fdc6f369dcf229de6c873522d54336af598b9470ccd5300e2f58ee506f5ca13", "21f9ddc0ff6e07f7d7b6b484eb9da2c03bc9931dd13e36796b111d631f7135a3", "247873cda726f7956f745a3e03158b00de79c4abea8776dc2f611d5ba368d72d", "3aa31c42f29f1da6f4fd41433ad15052d5ff045f2214002e027a321f79d64e2c", "475f694f87dbc619010b26de7d0fc575a4accf503f2200885cc21f526bffe2ad", "4b5e332a24bf6e2fda1f51ca2a57ae1083352293a08eeea1fa1112dc7dd542d1", "570d521660574aca40be7b4d532dfb6f156aad7b16b5ed62d1534f64f1ef72d8", "59072de7def0690dd13112d2bdb453e20570a97297070f876fbbb7cbc1c26b05", "5f0b658989e918ef187f8a08db0420528126f2c7da182a7b9f8bf7f85144d4e4", "649199c84a966917d86cdc2046e03d536763576c0b2a756059ae0b3a9656bc20", "6645fc9b4705ae8fbf1ef7674f416f89ae1559deec810f6dd15197dfa52893da", "6872dd54d4e398d781efe8fe2e2d7eafe4450d61b5c4898aced7610109a6df75", "6ce34fbc251fc0d691c8d131250ba6f42fd2b28ef28558d528ba8c558cb28804", "73920d167a0a4d1006f5f3b9a3efce6f0e5e883a99599d38206d43f27697df00", "8a671732b87ae423e34b51139628123bc0306c2cb85c226e71b28d3d57d7e42a", "8d517e8fda2efebca27c2018e14c90ed7dc3f04d7098b3da2912e62a1a5585fe", "9475a008eb7279e20d400c76471843c321b46acacc7ee3de0b47233a1e3fa2cf", "96947b8cd7b3148fb0e6549fcb31258a736595d6f2a599f8cd450e9a80a14781", "abf229f24daa93f67ac53e2e17c8798a71a01711eb9fcdd029abba8637164338", "b1ab012f276df584beb74f81acb63905762c25803ece647016613c3d6ad4e432", "b22b33f6f0071fe57cb4e9158f353c88d41e739a3ec0d76f7b704539e7076427", "b3b2d53274858e50ad2ffdd6d97ce1d014e1e530f82ec8b307edd5d4c921badf", "bab26a729befc7b9fab9ded1bba9c51b785188b79f8a2796ba03e7e734269e2e", "daa1a593629aa49f506eddc9d23dc7f89b35693b90e1fbcd4480182d1203ea90", "dd111280ce40e89fd17b19c1269fd1b74a30fce9d44a550840e86edb33924eb8", "e0b86084f1e2e78c451994410de756deba206884d6bed68d5a3d7f39ff5fea1d", "eb86520753560a7e89639500e2a254bb6f683342af598088cb72c73edcad21e6", "ff18c5c40a38d41811c23e2480615425c97ea81fd7e9118b8b899c512d97c737"]
@@ -741,10 +696,10 @@ pylint = ["689de29ae747642ab230c6d37be2b969bf75663176658851f456619aacf27492", "7
 pyreadline = ["4530592fc2e85b25b1a9f79664433da09237c1a270e4d78ea5aa3a2c7229e2d1", "65540c21bfe14405a3a77e4c085ecfce88724743a4ead47c66b84defcf82c32e", "9ce5fa65b8992dfa373bddc5b6e0864ead8f291c94fbfec05fbd5c836162e67b"]
 pytaglib = ["c3458e64cea61a7d4189f26c601e7bfd82053f3c02c2247cb8c430847927ef18"]
 pytest = ["3f193df1cfe1d1609d4c583838bea3d532b18d6160fd3f55c9447fdca30848ec", "e246cf173c01169b9617fc07264b7b1316e78d7a650055235d6d897bc80d9660"]
-pytest-click = ["0a6edab79ff62eda0b5d27ad815978de0996d995701a49a5d43ff030da9660ea", "91d297c17dd312fa7f6e842d4795c86c1a1d921fa7fc16b7d78fd2f2a612a448"]
-pytest-cov = ["513c425e931a0344944f84ea47f3956be0e416d95acbd897a44970c8d926d5d7", "e360f048b7dae3f2f2a9a4d067b2dd6b6a015d384d1577c994a43f3f7cbad762"]
-pytest-forked = ["e4500cd0509ec4a26535f7d4112a8cc0f17d3a41c29ffd4eab479d2a55b30805", "f275cb48a73fc61a6710726348e1da6d68a978f0ec0c54ece5a5fae5977e5a08"]
-pytest-xdist = ["96f893094c89fddeaff3f4783f4807f7aeb138be1a0d87a8805057b6af1201b5", "aab1402f2b063df48bf044b042707610f8fcc4c49d0eb9c10e79e30b3f26074f"]
+pytest-click = ["302102d8c966cfebdb89d3f81ae4342ca4072b735e89c7c6eee7443ac0a687ee"]
+pytest-cov = ["0ab664b25c6aa9716cbf203b17ddb301932383046082c081b9848a0edf5add33", "230ef817450ab0699c6cc3c9c8f7a829c34674456f2ed8df1fe1d39780f7c87f"]
+pytest-forked = ["260d03fbd38d5ce41a657759e8d19bc7c8cfa6d0dcfa36c0bc9742d33bc30742", "8d05c2e6f33cd4422571b2b1bb309720c398b0549cff499e3e4cde661875ab54"]
+pytest-xdist = ["107e9db0ee30ead02ca93e7d6d4846675f1b2142234f0eb1cd4d76739cd9ae6f", "5795f665e112520fa5beab736ad957e7f36ce7d44210f4004be9d99f86529d97"]
 pyyaml = ["3d7da3009c0f3e783b2c873687652d83b1bbfd5c88e9813fb7e5b03c0dd3108b", "3ef3092145e9b70e3ddd2c7ad59bdd0252a94dfe3949721633e41344de00a6bf", "40c71b8e076d0550b2e6380bada1f1cd1017b882f7e16f09a65be98e017f211a", "558dd60b890ba8fd982e05941927a3911dc409a63dcb8b634feaa0cda69330d3", "a7c28b45d9f99102fa092bb213aa12e0aaf9a6a1f5e395d36166639c1f96c3a1", "aa7dd4a6a427aed7df6fb7f08a580d68d9b118d90310374716ae90b710280af1", "bc558586e6045763782014934bfaf39d48b8ae85a2713117d16c39864085c613", "d46d7982b62e0729ad0175a9bc7e10a566fc07b224d2c79fafb5e032727eaa04", "d5eef459e30b09f5a098b9cea68bebfeb268697f78d647bd255a085371ac7f3f", "e01d3203230e1786cd91ccfdc8f8454c8069c91bee3962ad93b87a4b2860f537", "e170a9e6fcfd19021dd29845af83bb79236068bf5fd4df3327c1be18182b2531"]
 requests = ["502a824f31acdacb3a35b6690b5fbf0bc41d63a24a45c4004352b0242707598e", "7bf2a778576d825600030a110f3c0e3e8edc51dfaafe1c146e39a2027784957b"]
 setproctitle = ["6283b7a58477dd8478fbb9e76defb37968ee4ba47b05ec1c053cb39638bd7398", "6a035eddac62898786aed2c2eee7334c28cfc8106e8eb29fdd117cac56c6cdf0"]
@@ -754,8 +709,8 @@ spotipy = ["4b05da481b5c5dd4d1da8c0f0d13ca805dde037db648d12be866244b19501ed1"]
 sqlparse = ["ce028444cfab83be538752a2ffdb56bc417b7784ff35bb9a3062413717807dec", "d9cf190f51cbb26da0412247dfe4fb5f4098edb73db84e02f9fc21fdca31fed4"]
 tabulate = ["e4ca13f26d0a6be2a2915428dc21e732f1e44dad7f76d7030b2ef1ec251cf7f2"]
 terminaltables = ["f3eb0eb92e3833972ac36796293ca0906e998dc3be91fbe1f8615b331b853b81"]
-tqdm = ["3c4d4a5a41ef162dd61f1edb86b0e1c7859054ab656b2e7c7b77e7fbf6d9f392", "5b4d5549984503050883bc126280b386f5f4ca87e6c023c5d015655ad75bdebb"]
+tqdm = ["b856be5cb6cfaee3b2733655c7c5bbc7751291bb5d1a4f54f020af4727570b3e", "c9b9b5eeba13994a4c266aae7eef7aeeb0ba2973e431027e942b4faea139ef49"]
 urllib3 = ["61bf29cada3fc2fbefad4fdf059ea4bd1b4a86d2b6d15e1c7c0b582b9752fe39", "de9529817c93f27c8ccbfead6985011db27bd0ddfcdb2d86f3f663385c6a9c22"]
 watchdog = ["965f658d0732de3188211932aeb0bb457587f04f63ab4c1e33eab878e9de961d"]
 wcwidth = ["3df37372226d6e63e1b1e1eda15c594bca98a22d33a23832a90998faa96bc65e", "f4ebe71925af7b40a864553f761ed559b43544f8f71746c2d756c7fe788ade7c"]
-wrapt = ["d4d560d479f2c21e1b5443bbd15fe7ec4b37fe7e53d335d3b9b0a7b1226fe3c6"]
+wrapt = ["e03f19f64d81d0a3099518ca26b04550026f131eced2e76ced7b85c6b8d32128"]

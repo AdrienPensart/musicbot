@@ -1,8 +1,8 @@
-import pytest
 import socket
-import contextlib
 import time
 import os
+import contextlib
+import pytest
 from musicbot.backend import postgraphile, database
 from . import fixtures
 
@@ -19,7 +19,13 @@ def dbtest(my_worker_id):
 
 @pytest.fixture
 def email_sample(my_worker_id):
-    email_sample = (my_worker_id + "_" + fixtures.email)
+    email_sample = "{}_{}".format(my_worker_id, fixtures.email)
+    # test = os.getenv('PYTEST_CURRENT_TEST').split(':')[-1].split(' ')[0]
+    # import string
+    # from random import choice
+    # allchar = string.ascii_letters + string.digits
+    # test = "".join(choice(allchar) for x in range(12))
+    # email_sample = "{}_{}_{}".format(my_worker_id, test, fixtures.email)
     return email_sample
 
 
@@ -58,7 +64,7 @@ def postgres(dbtest):
     pg.drop()
 
 
-@pytest.fixture
+@pytest.yield_fixture
 def postgraphile_public(postgres, unused_tcp_port_factory):
     public_port = unused_tcp_port_factory()
     print('New public postgraphile with port {} and db {}'.format(public_port, postgres.db))
@@ -69,7 +75,7 @@ def postgraphile_public(postgres, unused_tcp_port_factory):
     pql.kill()
 
 
-@pytest.fixture
+@pytest.yield_fixture
 def postgraphile_private(postgres, unused_tcp_port_factory):
     private_port = unused_tcp_port_factory()
     print('New private postgraphile with port {} and db {}'.format(private_port, postgres.db))

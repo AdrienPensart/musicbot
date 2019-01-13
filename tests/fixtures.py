@@ -2,6 +2,8 @@ import os
 
 my_dir = os.path.dirname(os.path.abspath(__file__))
 
+first_name = "first_test"
+last_name = "last_test"
 email = "test@test.com"
 password = "test_test"
 

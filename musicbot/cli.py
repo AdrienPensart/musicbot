@@ -15,10 +15,10 @@ logger = logging.getLogger('musicbot')
 
 
 # import __version__ string
-version = {}
+_version = {}
 with open(os.path.join(bin_folder, "version.py")) as fp:
-    exec(fp.read(), version)
-__version__ = version['__version__']
+    exec(fp.read(), _version)  # pylint: disable=exec-used
+__version__ = _version['__version__']
 prog_name = "musicbot"
 
 

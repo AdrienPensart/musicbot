@@ -20,7 +20,6 @@ click-man = "^0.2.2"
 pytaglib = "^1.4"
 watchdog = "^0.9.0"
 humanfriendly = "^4.17"
-pytest = "^3.10"
 click-spinner = "^0.1.8"
 tqdm = "^4.28"
 isodate = "^0.6.0"
@@ -37,8 +36,8 @@ coverage = "^4.5"
 coverage-badge = "^0.2.0"
 pytest-cov = "^2.6"
 pgcli = "^2.0"
-pytest-click = "^0.1.0"
 pylint = "^2.2"
+pytest-click = "^0.3.0"
 
 [build-system]
 requires = ["poetry>=0.12"]

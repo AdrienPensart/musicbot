@@ -50,16 +50,21 @@ def postgraphile_private_cli(cli_runner, db_cli, unused_tcp_port_factory):
 
 @pytest.yield_fixture
 def user_token(cli_runner, email_sample, postgraphile_public_cli):
-    run_cli(cli_runner, user.cli, ['register', '--graphql', postgraphile_public_cli, '--email', email_sample, '--password', fixtures.password])
+    run_cli(cli_runner, user.cli, ['register', '--graphql', postgraphile_public_cli, '--email', email_sample, '--password', fixtures.password, '--first-name', fixtures.first_name, '--last-name', fixtures.last_name])
     token = run_cli(cli_runner, user.cli, ['login', '--graphql', postgraphile_public_cli, '--email', email_sample, '--password', fixtures.password])
     token = token.rstrip()
+    print("new user token", email_sample, token)
     yield token
     run_cli(cli_runner, user.cli, ['unregister', '--graphql', postgraphile_public_cli, '--token', token])
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_cli(cli_runner):
+def test_main(cli_runner):
     main(standalone_mode=False)
+
+
+@pytest.mark.runner_setup(mix_stderr=False)
+def test_cli(cli_runner):
     run_cli(cli_runner, cli)
 
 
@@ -95,8 +100,9 @@ def test_completion(cli_runner):
 
 @pytest.mark.runner_setup(mix_stderr=False)
 def test_user(cli_runner, user_token, postgraphile_public_cli, postgraphile_private_cli):
-    run_cli(cli_runner, user.cli, ['login', '--graphql', postgraphile_public_cli, '--token', user_token])
-    run_cli(cli_runner, user.cli, ['list', '--graphql-admin', postgraphile_private_cli])
+    print("using user token", user_token)
+    run_cli(cli_runner, cli, ['user', 'login', '--graphql', postgraphile_public_cli, '--token', user_token])
+    run_cli(cli_runner, cli, ['user', 'list', '--graphql-admin', postgraphile_private_cli])
 
     run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public_cli, 'load-default'])
     run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public_cli, 'list'])
@@ -117,5 +123,6 @@ def test_user(cli_runner, user_token, postgraphile_public_cli, postgraphile_priv
     run_cli(cli_runner, cli, ['stats', '--token', user_token, '--graphql', postgraphile_public_cli, 'show'])
 
 
+@pytest.mark.runner_setup(mix_stderr=False)
 def test_db(cli_runner, db_cli):
     run_cli(cli_runner, db.cli, ['clear', '--yes', '--db', db_cli])

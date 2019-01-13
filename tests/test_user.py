@@ -14,9 +14,9 @@ def files():
     return files
 
 
-@pytest.fixture()
+@pytest.yield_fixture
 def user_sample(email_sample, files, postgraphile_public):
-    u = user.User.register(graphql=postgraphile_public.dsn, first_name="first_test", last_name="last_test", email=email_sample, password=fixtures.password)
+    u = user.User.register(graphql=postgraphile_public.dsn, first_name=fixtures.first_name, last_name=fixtures.last_name, email=email_sample, password=fixtures.password)
     assert u.authenticated
 
     u.bulk_insert(files)
@@ -28,7 +28,7 @@ def user_sample(email_sample, files, postgraphile_public):
     assert not u.authenticated
 
 
-@pytest.fixture()
+@pytest.fixture
 def musics(user_sample):
     musics = user_sample.do_filter()
     assert len(musics) == len(files)
