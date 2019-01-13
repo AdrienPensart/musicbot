@@ -6,6 +6,7 @@ from tqdm import tqdm
 from musicbot import helpers, lib, user
 from musicbot.music import mfilter
 from musicbot.config import config
+from musicbot.music.file import supported_formats
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,8 @@ def cli(ctx, **kwargs):
 @click.pass_context
 def _list(ctx):
     '''List folders'''
-    print(ctx.obj.u().folders)
+    for f in ctx.obj.u().folders:
+        print(f)
 
 
 @cli.command()
@@ -47,7 +49,7 @@ def find(ctx, folders):
     if not folders:
         folders = u.folders
 
-    files = lib.find_files(folders)
+    files = lib.find_files(folders, supported_formats)
     for f in files:
         print(f[1])
 
@@ -84,8 +86,7 @@ def flac2mp3(folders, concurrency):
     import concurrent.futures as cf
     from concurrent.futures.thread import _python_exit
     from pydub import AudioSegment
-    files = lib.find_files(folders)
-    flac_files = [f[1] for f in files if f[1].endswith('.flac')]
+    flac_files = list(lib.find_files(folders, ['flac']))
 
     pbar = None
     if not config.quiet:

@@ -74,8 +74,12 @@ def genfiles(folders):
         for d in directories:
             count += filecount(d, supported_formats)
         logger.info("File count: %s", count)
+    files = []
     with tqdm(total=count, desc="Music listing", leave=False, disable=config.quiet) as pbar:
-        for f in find_files(list(folders)):
-            if f[1].endswith(tuple(supported_formats)):
-                yield File(f[1], f[0])
+        file_list = find_files(folders, supported_formats)
+        music_files = list(file_list)
+        for f in music_files:
+            m = File(f[1], f[0])
+            files.append(m)
             pbar.update(1)
+    return files

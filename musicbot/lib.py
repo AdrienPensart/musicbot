@@ -70,7 +70,7 @@ def restart():
     os._exit(0)
 
 
-def find_files(directories):
+def find_files(directories, supported_formats):
     directories = [os.path.abspath(d) for d in directories]
     for directory in directories:
         for root, _, files in os.walk(directory):
@@ -78,7 +78,8 @@ def find_files(directories):
                 continue
             for basename in files:
                 filename = os.path.join(root, basename)
-                yield (directory, filename)
+                if filename.endswith(tuple(supported_formats)):
+                    yield (directory, filename)
 
 
 def scantree(path, supported_formats):

@@ -67,7 +67,6 @@ def postgres(dbtest):
 @pytest.yield_fixture
 def postgraphile_public(postgres, unused_tcp_port_factory):
     public_port = unused_tcp_port_factory()
-    print('New public postgraphile with port {} and db {}'.format(public_port, postgres.db))
     pql = postgraphile.Postgraphile.public(db=postgres.db, port=public_port)
     pql.run(background=True)
     time.sleep(1)
@@ -78,7 +77,6 @@ def postgraphile_public(postgres, unused_tcp_port_factory):
 @pytest.yield_fixture
 def postgraphile_private(postgres, unused_tcp_port_factory):
     private_port = unused_tcp_port_factory()
-    print('New private postgraphile with port {} and db {}'.format(private_port, postgres.db))
     pql = postgraphile.Postgraphile.private(db=postgres.db, port=private_port)
     pql.run(background=True)
     time.sleep(1)

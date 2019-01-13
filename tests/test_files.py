@@ -6,11 +6,6 @@ from . import fixtures
 logger = logging.getLogger(__name__)
 
 
-def test_finding_files():
-    files = list(lib.find_files([fixtures.folder1, fixtures.folder2]))
-    assert len(files) == 5
-
-
 def test_flac_tags():
     m = file.File(fixtures.one_flac, fixtures.folder1)
 

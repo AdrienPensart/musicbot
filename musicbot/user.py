@@ -117,9 +117,9 @@ class User(GraphQL):
             if response.status_code == 200:
                 self.token = response.json()['data']['authenticate']['jwtToken']
                 if self.token is None:
-                    raise FailedAuthentication("Register failed")
+                    raise FailedAuthentication("Authenticat failed")
             else:
-                raise FailedAuthentication("Register failed")
+                raise FailedAuthentication("Authentication failed")
         elif self.token is None:
             raise FailedAuthentication("No credentials or token provided")
 
@@ -234,21 +234,22 @@ class User(GraphQL):
 
     @helpers.timeit
     def bulk_insert(self, musics):
-        pass
-        # if not list(musics):
-        #     return None
-        # j = json.dumps([m.to_dict() for m in musics])
-        # data = base64.b64encode(j.encode('utf-8'))
-        # query = '''
-        # mutation
-        # {{
-        #     bulkInsert(input: {{data: "{}"}})
-        #     {{
-        #         clientMutationId
-        #     }}
-        # }}'''.format(data.decode())
-        # with click_spinner.spinner(disable=config.quiet):
-        #     return self._post(query)
+        if not musics:
+            logger.info("no musics to insert")
+            return None
+        j = json.dumps([m.to_dict() for m in musics])
+        b64 = j.encode('utf-8')
+        data = base64.b64encode(b64)
+        query = '''
+        mutation
+        {{
+            bulkInsert(input: {{data: "{}"}})
+            {{
+                clientMutationId
+            }}
+        }}'''.format(data.decode())
+        with click_spinner.spinner(disable=config.quiet):
+            return self._post(query)
 
     @property
     @functools.lru_cache(maxsize=None)
