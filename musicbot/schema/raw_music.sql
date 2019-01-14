@@ -115,9 +115,19 @@ $$ language plpgsql;
 grant execute on function musicbot_public.upsert_music to musicbot_user;
 
 create or replace function musicbot_public.folders() returns setof text as $$
-    select distinct folder from musicbot_public.raw_music;
+    select distinct folder from musicbot_public.raw_music order by folder asc;
 $$ language sql stable;
 grant execute on function musicbot_public.folders to musicbot_user;
+
+create or replace function musicbot_public.artists() returns setof text as $$
+    select distinct artist from musicbot_public.raw_music order by artist asc;
+$$ language sql stable;
+grant execute on function musicbot_public.artists to musicbot_user;
+
+create or replace function musicbot_public.genres() returns setof text as $$
+    select distinct genre from musicbot_public.raw_music order by genre asc;
+$$ language sql stable;
+grant execute on function musicbot_public.genres to musicbot_user;
 
 create or replace function musicbot_public.delete_music(path text) returns void as $$
     delete from musicbot_public.raw_music where path = delete_music.path;

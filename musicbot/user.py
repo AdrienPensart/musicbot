@@ -264,6 +264,32 @@ class User(GraphQL):
         }"""
         return self._post(query)['data']['folders']['nodes']
 
+    @property
+    @functools.lru_cache(maxsize=None)
+    @helpers.timeit
+    def artists(self):
+        query = """
+        {
+            artists
+            {
+                nodes
+            }
+        }"""
+        return self._post(query)['data']['artists']['nodes']
+
+    @property
+    @functools.lru_cache(maxsize=None)
+    @helpers.timeit
+    def genres(self):
+        query = """
+        {
+            genres
+            {
+                nodes
+            }
+        }"""
+        return self._post(query)['data']['genres']['nodes']
+
     @functools.lru_cache(maxsize=None)
     @helpers.timeit
     def filter(self, name):
