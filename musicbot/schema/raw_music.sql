@@ -49,6 +49,7 @@ create or replace function musicbot_public.bulk_insert(data text)
 returns void as
 $$
 begin
+	-- TODO: no need this when postgresql 11.3 will be out
 	if data = 'W10=' then
 		return;
 	end if;
@@ -65,7 +66,6 @@ begin
 	delete from musicbot_public.raw_music where id in (select id from duplicates);
 end
 $$ language plpgsql;
-grant execute on function musicbot_public.bulk_insert to musicbot_user;
 
 create or replace function musicbot_public.upsert_music(
     path       text default '',
@@ -112,24 +112,19 @@ begin
     return output;
 end
 $$ language plpgsql;
-grant execute on function musicbot_public.upsert_music to musicbot_user;
 
 create or replace function musicbot_public.folders() returns setof text as $$
     select distinct folder from musicbot_public.raw_music order by folder asc;
 $$ language sql stable;
-grant execute on function musicbot_public.folders to musicbot_user;
 
 create or replace function musicbot_public.artists() returns setof text as $$
     select distinct artist from musicbot_public.raw_music order by artist asc;
 $$ language sql stable;
-grant execute on function musicbot_public.artists to musicbot_user;
 
 create or replace function musicbot_public.genres() returns setof text as $$
     select distinct genre from musicbot_public.raw_music order by genre asc;
 $$ language sql stable;
-grant execute on function musicbot_public.genres to musicbot_user;
 
 create or replace function musicbot_public.delete_music(path text) returns void as $$
     delete from musicbot_public.raw_music where path = delete_music.path;
 $$ language sql;
-grant execute on function musicbot_public.delete_music to musicbot_user;

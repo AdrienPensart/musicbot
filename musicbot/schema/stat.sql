@@ -36,7 +36,6 @@ create aggregate musicbot_public.array_cat_agg(anyarray) (
     SFUNC=array_cat,
     STYPE=anyarray
 );
-grant execute on function musicbot_public.array_cat_agg to musicbot_user;
 
 create or replace function musicbot_public.do_stat(
     min_duration integer default 0,
@@ -107,4 +106,3 @@ $$
             no_spotifys  => do_stat.no_spotifys
 		) f;
 $$ language sql stable;
-grant execute on function musicbot_public.do_stat to musicbot_user;

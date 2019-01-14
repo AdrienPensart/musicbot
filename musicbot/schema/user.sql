@@ -135,11 +135,11 @@ alter default privileges revoke execute on functions from public;
 grant usage on schema musicbot_public to musicbot_anonymous, musicbot_user;
 grant select on table musicbot_public.user to musicbot_anonymous, musicbot_user;
 grant update, delete on table musicbot_public.user to musicbot_user;
-grant execute on function musicbot_public.authenticate to musicbot_anonymous, musicbot_user;
-grant execute on function musicbot_public.new_token to musicbot_anonymous, musicbot_user;
-grant execute on function musicbot_public.current_musicbot to musicbot_anonymous, musicbot_user;
+
+grant execute on function musicbot_public.authenticate to musicbot_anonymous;
+grant execute on function musicbot_public.new_token to musicbot_anonymous;
+grant execute on function musicbot_public.current_musicbot to musicbot_anonymous;
 grant execute on function musicbot_public.register_user to musicbot_anonymous;
-grant execute on function musicbot_public.remove_user to musicbot_user;
 
 drop policy if exists select_user on musicbot_public.user cascade;
 create policy select_user on musicbot_public.user for select to musicbot_user using (id = musicbot_public.current_musicbot_id());

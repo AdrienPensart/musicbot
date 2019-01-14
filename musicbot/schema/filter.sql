@@ -66,4 +66,3 @@ begin
     insert into musicbot_public.filter as f (name, keywords) values ('only live', '{live}') on conflict do nothing;
 end;
 $$ language plpgsql;
-grant execute on function musicbot_public.load_default_filters to musicbot_user;

@@ -32,7 +32,7 @@ class Database:
         params['dbname'] = db_to_create
         with psycopg2.connect(**params) as con:
             with con.cursor() as cur:
-                for sqlfile in ['schemas.sql', 'extensions.sql', 'user.sql', 'raw_music.sql', 'filter.sql', 'playlist.sql', 'stat.sql']:
+                for sqlfile in ['schemas.sql', 'extensions.sql', 'user.sql', 'raw_music.sql', 'filter.sql', 'playlist.sql', 'stat.sql', 'grants.sql']:
                     script = os.path.join(os.path.dirname(__file__), '../schema/', sqlfile)
                     logger.debug('Loading %s', script)
                     content = open(script).read()

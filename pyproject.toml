@@ -31,13 +31,12 @@ psycopg2-binary = "^2.7"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.10"
-pytest-xdist = "^1.24"
-coverage = "^4.5"
-coverage-badge = "^0.2.0"
+pytest-xdist = "^1.25"
 pytest-cov = "^2.6"
+pytest-click = "^0.3.0"
+coverage-badge = "^0.2.0"
 pgcli = "^2.0"
 pylint = "^2.2"
-pytest-click = "^0.3.0"
 
 [build-system]
 requires = ["poetry>=0.12"]

@@ -59,7 +59,6 @@ $$
           m.title
     limit do_filter.limit;
 $$ language sql stable;
-grant execute on function musicbot_public.do_filter to musicbot_user;
 
 create or replace function musicbot_public.playlist(
     min_duration integer default 0,
@@ -123,7 +122,6 @@ $$
             no_spotifys  => playlist.no_spotifys
         )) f;
 $$ language sql stable;
-grant execute on function musicbot_public.playlist to musicbot_user;
 
 create or replace function musicbot_public.bests(
     min_duration integer default 0,
@@ -229,4 +227,3 @@ $$
 	select * from bests_artist_keywords union
 	select * from bests_keywords;
 $$ language sql stable;
-grant execute on function musicbot_public.bests to musicbot_user;

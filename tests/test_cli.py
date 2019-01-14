@@ -72,9 +72,10 @@ def test_cli_version(cli_runner):
 
 @pytest.mark.runner_setup(mix_stderr=False)
 def test_cli_help(cli_runner):
-    run_cli(cli_runner, cli, ['-h'])
-    run_cli(cli_runner, cli, ['--help'])
-    run_cli(cli_runner, cli, ['help'])
+    output1 = run_cli(cli_runner, cli, ['-h'])
+    output2 = run_cli(cli_runner, cli, ['--help'])
+    output3 = run_cli(cli_runner, cli, ['help'])
+    assert output1 == output2 == output3
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
