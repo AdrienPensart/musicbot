@@ -16,7 +16,7 @@ def _list(graphql_admin):
     '''List users (admin)'''
     a = user.Admin(graphql=graphql_admin)
     for u in a.users():
-        print(u)
+        print(u["accountByUserId"]["email"], u["firstName"], u["lastName"], u["createdAt"], u["updatedAt"])
 
 
 @cli.command()

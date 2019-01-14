@@ -92,12 +92,17 @@ def test_completion(cli_runner):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_user(cli_runner, user_token, postgraphile_public_cli, postgraphile_private_cli):
-    run_cli(cli_runner, cli, ['user', 'login', '--graphql', postgraphile_public_cli, '--token', user_token])
-    run_cli(cli_runner, cli, ['user', 'list', '--graphql-admin', postgraphile_private_cli])
+def test_admin(cli_runner, user_token, postgraphile_private_cli):
+    users = run_cli(cli_runner, cli, ['user', 'list', '--graphql-admin', postgraphile_private_cli])
+    assert len(users.split("\n")) == 1
 
+
+@pytest.mark.runner_setup(mix_stderr=False)
+def test_user(cli_runner, user_token, postgraphile_public_cli):
     run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public_cli, 'load-default'])
-    run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public_cli, 'list'])
+    filters = run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public_cli, 'list'])
+    assert len(filters.split("\n")) == 11
+
     run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public_cli, 'do'])
     run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public_cli, 'get', 'default'])
 
@@ -120,7 +125,6 @@ def test_user(cli_runner, user_token, postgraphile_public_cli, postgraphile_priv
     assert len(playlist.split("\n")) == 6
 
     run_cli(cli_runner, cli, ['--dry', 'playlist', '--token', user_token, '--graphql', postgraphile_public_cli, 'bests', '/tmp'])
-
     run_cli(cli_runner, cli, ['stats', '--token', user_token, '--graphql', postgraphile_public_cli, 'show'])
 
 

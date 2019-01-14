@@ -26,7 +26,8 @@ def load_default(ctx):
 @click.pass_context
 def _list(ctx):
     '''List filters'''
-    print(json.dumps(ctx.obj.u().filters))
+    for f in ctx.obj.u().filters:
+        print(f)
 
 
 @cli.command()
