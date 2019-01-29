@@ -34,7 +34,7 @@ click_completion.startswith = custom_startswith
 click_completion.init()
 
 
-class SubCommandLineInterface(helpers.GroupWithHelp):  # pylint: disable=too-many-ancestors
+class SubCommandLineInterface(helpers.GroupWithHelp):
     def list_commands(self, ctx):
         rv = []
         for filename in os.listdir(plugin_folder):
@@ -79,7 +79,7 @@ def version(ctx):
 
 def main(**kwargs):
     click_repl.register_repl(cli)
-    return cli.main(**kwargs)
+    return cli.main(prog_name=prog_name, **kwargs)
 
 
 if __name__ == '__main__':
