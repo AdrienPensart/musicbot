@@ -13,6 +13,8 @@ create table if not exists musicbot_public.stat
 	updated_at   timestamp with time zone default now()
 );
 
+create index if not exists stat_user_idx on musicbot_public.stat (user_id);
+
 alter table if exists musicbot_public.stat enable row level security;
 grant select on table musicbot_public.stat to musicbot_anonymous, musicbot_user;
 grant insert, update, delete on table musicbot_public.stat to musicbot_user;

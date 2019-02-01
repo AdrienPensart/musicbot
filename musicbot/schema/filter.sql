@@ -32,6 +32,9 @@ create table if not exists musicbot_public.filter
 	updated_at   timestamp with time zone default now(),
     unique(name, user_id)
 );
+
+create index if not exists filter_user_idx on musicbot_public.filter (user_id);
+
 alter table if exists musicbot_public.filter enable row level security;
 grant select on table musicbot_public.filter to musicbot_anonymous, musicbot_user;
 grant insert, update, delete on table musicbot_public.filter to musicbot_user;

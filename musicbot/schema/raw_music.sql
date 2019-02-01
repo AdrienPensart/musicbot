@@ -21,8 +21,9 @@ create table if not exists musicbot_public.raw_music
     unique(path, user_id) deferrable
     --unique(path, user_id) initially deferred
 );
+
 --create index if not exists path_idx on musicbot_public.raw_music (path);
---create index if not exists user_idx on musicbot_public.raw_music (user_id);
+create index if not exists raw_music_user_idx on musicbot_public.raw_music (user_id);
 --create index if not exists path_user_idx on musicbot_public.raw_music (path, user_id);
 
 alter table if exists musicbot_public.raw_music enable row level security;
