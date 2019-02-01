@@ -62,6 +62,7 @@ class GraphQL:  # pylint: disable=too-few-public-methods
 
     def _post(self, query, failure=None):
         response = requests.post(self.graphql, json={'query': query}, headers=self.headers)
+        logger.debug(query)
         logger.debug(response)
         if response.status_code != 200:
             failure = failure if failure is not None else FailedRequest("Query failed: {}".format(response.json()))
