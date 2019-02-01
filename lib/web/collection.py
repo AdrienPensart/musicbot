@@ -248,7 +248,7 @@ async def zip_musics(request):
     '''Generate a playlist'''
     mf = await webhelpers.get_filter(request)
     musics = await request.app.db.musics(mf)
-    if not musics == 0:
+    if not musics:
         return response.text('Empty playlist')
     name = request.args.get('name', 'archive')
     return webhelpers.zip_musics(musics, name)
