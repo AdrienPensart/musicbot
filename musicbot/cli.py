@@ -71,8 +71,7 @@ def cli(ctx, **kwargs):
 
 
 @cli.command()
-@click.pass_context
-def version(ctx):
+def version():
     '''Print version'''
     print("{}, version {}".format(prog_name, __version__))
 

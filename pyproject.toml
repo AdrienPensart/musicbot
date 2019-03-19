@@ -28,6 +28,7 @@ logging-tree = "^1.8"
 pydub = "^0.23.0"
 spotipy = "^2.4"
 psycopg2-binary = "^2.7"
+isort = {version = "^4.3",extras = ["pyproject"]}
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.10"

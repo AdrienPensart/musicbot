@@ -84,12 +84,12 @@ def test_config(cli_runner):
     run_cli(cli_runner, cli, ['config', 'logging'])
 
 
-@pytest.mark.runner_setup(mix_stderr=False)
-def test_completion(cli_runner):
-    run_cli(cli_runner, cli, ['completion', 'show', 'zsh'])
-    run_cli(cli_runner, cli, ['completion', 'show', 'bash'])
-    run_cli(cli_runner, cli, ['completion', 'install', 'zsh'])
-    run_cli(cli_runner, cli, ['completion', 'install', 'bash'])
+# @pytest.mark.runner_setup(mix_stderr=False)
+# def test_completion(cli_runner):
+#     run_cli(cli_runner, cli, ['completion', 'show', 'zsh'])
+#     run_cli(cli_runner, cli, ['completion', 'show', 'bash'])
+#     run_cli(cli_runner, cli, ['completion', 'install', 'zsh'])
+#     run_cli(cli_runner, cli, ['completion', 'install', 'bash'])
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
