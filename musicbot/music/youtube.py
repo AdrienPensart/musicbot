@@ -1,6 +1,7 @@
 import logging
 import isodate
 import requests
+from humanfriendly import format_timespan
 
 logger = logging.getLogger(__name__)
 logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
@@ -38,7 +39,7 @@ def search(artist, title, duration=None):
 
         parsingChannelItems = parsingChannel.get("items")
         if parsingChannelItems is None or not parsingChannelItems:
-            return 'not found'
+            return []
         VideoIds = ",".join(str(x.get("id").get("videoId")) for x in parsingChannelItems)
 
         parsingVideoUrl = "https://www.googleapis.com/youtube/v3/videos"
@@ -50,17 +51,16 @@ def search(artist, title, duration=None):
         parsingVideo = resp.json()
         results = parsingVideo.get("items")
         if results is None:
-            return 'not found'
+            return []
 
+        for r in results:
+            logger.info('{} {}'.format(r["snippet"]["title"], format_timespan(isodate.parse_duration(r["contentDetails"]["duration"]).total_seconds())))
         if duration:
-            mapping = {r["id"]: isodate.parse_duration(r["contentDetails"]["duration"]).total_seconds() for r in results}
-            logger.debug("duration: %s, mapping: %s", duration, mapping)
-            key = min(mapping, key=lambda k: abs(mapping[k] - duration))
-            url = "https://www.youtube.com/watch?v={}".format(key)
-            logger.debug("Most relevant: %s %s %s", key, mapping[key], url)
-            return url
-        return "https://www.youtube.com/watch?v={}".format(results[0]["id"])
+            mapping = {"https://www.youtube.com/watch?v=" + r["id"]: abs(isodate.parse_duration(r["contentDetails"]["duration"]).total_seconds() - duration) for r in results}
+            links = sorted(mapping, key=mapping.get)
+            return links
+        return ["https://www.youtube.com/watch?v=" + r["id"] for r in results]
     except Exception as e:
         logger.info(type(e))
         logger.info('Cannot find video for artist: %s title: %s duration: %s', artist, title, duration)
-        return 'error'
+        return []

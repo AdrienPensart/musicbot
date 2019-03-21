@@ -9,7 +9,8 @@ from . import lib
 logger = logging.getLogger(__name__)
 current_user = pwd.getpwuid(os.getuid()).pw_name
 
-DEFAULT_LOG = '/var/log/musicbot.log'
+USER_DIR = os.path.expanduser('~')
+DEFAULT_LOG = USER_DIR + '/musicbot.log'
 MB_LOG = 'MB_LOG'
 MB_INFO = 'MB_INFO'
 MB_DEBUG = 'MB_DEBUG'

@@ -26,7 +26,7 @@ Installation
 
 .. code-block:: bash
 
-  sudo apt install build-essential libssl-dev libtag1-dev ffmpeg postgresql-11 libpcre3-dev postgresql-server-dev-all docker.io
+  sudo apt install -y build-essential libssl-dev libtag1-dev ffmpeg postgresql-11 libpcre3-dev postgresql-server-dev-all docker.io libchromaprint-tools
   sudo usermod -aG docker $USER
 
   git clone https://github.com/AdrienPensart/musicbot.git
@@ -40,9 +40,9 @@ Installation
   curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python3
   poetry install
 
-  echo "shared_preload_libraries = 'pg_stat_statements'" >> /etc/postgresql/11/main/postgresql.conf
-  echo "pg_stat_statements.track = all" >> /etc/postgresql/11/main/postgresql.conf
-  systemctl restart postgresql
+  echo "shared_preload_libraries = 'pg_stat_statements'" | sudo tee -a /etc/postgresql/11/main/postgresql.conf
+  echo "pg_stat_statements.track = all" | sudo tee -a /etc/postgresql/11/main/postgresql.conf
+  sudo systemctl restart postgresql
   sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'musicbot';" && history -c
   poetry run pgcli postgresql://postgres:musicbot@localhost:5432
 
