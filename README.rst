@@ -26,7 +26,7 @@ Installation
 
 .. code-block:: bash
 
-  sudo apt install build-essential libssl-dev libtag1-dev ffmpeg postgresql-11 libpcre3-dev postgresql-server-dev-all docker.io
+  sudo apt install -y build-essential libssl-dev libtag1-dev ffmpeg postgresql-11 libpcre3-dev postgresql-server-dev-all docker.io libchromaprint-tools
   sudo usermod -aG docker $USER
 
   git clone https://github.com/AdrienPensart/musicbot.git
@@ -40,9 +40,9 @@ Installation
   curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python3
   poetry install
 
-  echo "shared_preload_libraries = 'pg_stat_statements'" >> /etc/postgresql/11/main/postgresql.conf
-  echo "pg_stat_statements.track = all" >> /etc/postgresql/11/main/postgresql.conf
-  systemctl restart postgresql
+  echo "shared_preload_libraries = 'pg_stat_statements'" | sudo tee -a /etc/postgresql/11/main/postgresql.conf
+  echo "pg_stat_statements.track = all" | sudo tee -a /etc/postgresql/11/main/postgresql.conf
+  sudo systemctl restart postgresql
   sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'musicbot';" && history -c
   poetry run pgcli postgresql://postgres:musicbot@localhost:5432
 
@@ -81,7 +81,7 @@ Commands
   Options:
     -V, --version                   Show the version and exit.
     -l, --log PATH                  Log file path  [default:
-                                    /var/log/musicbot.log]
+                                    /home/crunch/musicbot.log]
     -i, --info                      Same as --verbosity info"
     -d, --debug                     Be very verbose, same as --verbosity debug +
                                     hide progress bars  [default: False]
@@ -95,11 +95,14 @@ Commands
     -h, --help                      Show this message and exit.
   
   Commands:
+    artist        Artist management
     completion    Completion tool
     config        Config management
     db            Database management (admin)
     filter        Filter management
+    fingerprint   Fingerprint tool
     folder        Folder management
+    genre         Genre management
     help          Print help
     playlist      Playlist management
     postgraphile  Postgraphile management
@@ -109,6 +112,51 @@ Commands
     user          User management
     version       Print version
     youtube       Youtube tool
+
+
+musicbot artist
+***************
+.. code-block::
+
+  Usage: musicbot artist [OPTIONS] COMMAND [ARGS]...
+  
+    Artist management
+  
+  Options:
+    -e, --email TEXT     User email
+    -p, --password TEXT  User password
+    --token TEXT         User token
+    --graphql TEXT       GraphQL endpoint  [default:
+                         http://127.0.0.1:5000/graphql]
+    -h, --help           Show this message and exit.
+  
+  Commands:
+    help  Print help
+    list  List artists
+
+
+musicbot artist help
+********************
+.. code-block::
+
+  Usage: musicbot artist help [OPTIONS] [COMMAND]...
+  
+    Print help
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot artist list
+********************
+.. code-block::
+
+  Usage: musicbot artist list [OPTIONS]
+  
+    List artists
+  
+  Options:
+    -h, --help  Show this message and exit.
 
 
 musicbot completion
@@ -407,6 +455,47 @@ musicbot filter load-default
     -h, --help  Show this message and exit.
 
 
+musicbot fingerprint
+********************
+.. code-block::
+
+  Usage: musicbot fingerprint [OPTIONS] COMMAND [ARGS]...
+  
+    Fingerprint tool
+  
+  Options:
+    -h, --help  Show this message and exit.
+  
+  Commands:
+    help    Print help
+    search  Find music with fingerprint
+
+
+musicbot fingerprint help
+*************************
+.. code-block::
+
+  Usage: musicbot fingerprint help [OPTIONS] [COMMAND]...
+  
+    Print help
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot fingerprint search
+***************************
+.. code-block::
+
+  Usage: musicbot fingerprint search [OPTIONS] PATH
+  
+    Find music with fingerprint
+  
+  Options:
+    --acoustid-apikey TEXT  AcoustID API Key
+    -h, --help              Show this message and exit.
+
+
 musicbot folder
 ***************
 .. code-block::
@@ -565,6 +654,51 @@ musicbot folder watch
   Usage: musicbot folder watch [OPTIONS]
   
     Watch files changes in folders
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot genre
+**************
+.. code-block::
+
+  Usage: musicbot genre [OPTIONS] COMMAND [ARGS]...
+  
+    Genre management
+  
+  Options:
+    -e, --email TEXT     User email
+    -p, --password TEXT  User password
+    --token TEXT         User token
+    --graphql TEXT       GraphQL endpoint  [default:
+                         http://127.0.0.1:5000/graphql]
+    -h, --help           Show this message and exit.
+  
+  Commands:
+    help  Print help
+    list  List genres
+
+
+musicbot genre help
+*******************
+.. code-block::
+
+  Usage: musicbot genre help [OPTIONS] [COMMAND]...
+  
+    Print help
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot genre list
+*******************
+.. code-block::
+
+  Usage: musicbot genre list [OPTIONS]
+  
+    List genres
   
   Options:
     -h, --help  Show this message and exit.
@@ -1016,8 +1150,36 @@ musicbot youtube
     -h, --help  Show this message and exit.
   
   Commands:
-    help    Print help
-    search  Generate some stats for music collection with filters
+    find         Search a youtube link with artist and title
+    fingerprint  Fingerprint a youtube video
+    help         Print help
+    search       Search a youtube link with artist and title
+
+
+musicbot youtube find
+*********************
+.. code-block::
+
+  Usage: musicbot youtube find [OPTIONS] PATH
+  
+    Search a youtube link with artist and title
+  
+  Options:
+    --acoustid-apikey TEXT  AcoustID API Key
+    -h, --help              Show this message and exit.
+
+
+musicbot youtube fingerprint
+****************************
+.. code-block::
+
+  Usage: musicbot youtube fingerprint [OPTIONS] URL
+  
+    Fingerprint a youtube video
+  
+  Options:
+    --acoustid-apikey TEXT  AcoustID API Key
+    -h, --help              Show this message and exit.
 
 
 musicbot youtube help
@@ -1038,7 +1200,7 @@ musicbot youtube search
 
   Usage: musicbot youtube search [OPTIONS] ARTIST TITLE
   
-    Generate some stats for music collection with filters
+    Search a youtube link with artist and title
   
   Options:
     -h, --help  Show this message and exit.

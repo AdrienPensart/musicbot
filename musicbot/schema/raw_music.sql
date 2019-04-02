@@ -114,16 +114,29 @@ begin
 end
 $$ language plpgsql;
 
+drop aggregate if exists musicbot_public.array_cat_agg(anyarray) cascade;
+create aggregate musicbot_public.array_cat_agg(anyarray) (
+    SFUNC=array_cat,
+    STYPE=anyarray
+);
+
 create or replace function musicbot_public.folders() returns setof text as $$
     select distinct folder from musicbot_public.raw_music order by folder asc;
 $$ language sql stable;
 
-create or replace function musicbot_public.artists() returns setof text as $$
-    select distinct artist from musicbot_public.raw_music order by artist asc;
+create or replace function musicbot_public.artists() returns table (
+    name text,
+    albums text[]
+) as $$
+    select artist, array_agg(distinct album) from musicbot_public.raw_music where artist != '' and album != '' group by artist order by artist asc;
 $$ language sql stable;
 
 create or replace function musicbot_public.genres() returns setof text as $$
-    select distinct genre from musicbot_public.raw_music order by genre asc;
+    select distinct genre from musicbot_public.raw_music where genre != '' order by genre asc;
+$$ language sql stable;
+
+create or replace function musicbot_public.keywords() returns setof text as $$
+    select distinct keyword from (select unnest(musicbot_public.array_cat_agg(keywords)) as keyword from musicbot_public.raw_music where array_length(keywords, 1) > 0) k order by keyword asc;
 $$ language sql stable;
 
 create or replace function musicbot_public.delete_music(path text) returns void as $$

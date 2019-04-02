@@ -8,7 +8,6 @@ Vue.config.productionTip = false
 
 const GRAPHQL = `http://${location.hostname}:5000/graphql`
 
-
 const store = new Vuex.Store({
     state: {
         client: axios.create(
@@ -30,5 +29,6 @@ const store = new Vuex.Store({
 
 new Vue({
   render: h => h(App),
+  components: { App },
   store,
 }).$mount('#app')

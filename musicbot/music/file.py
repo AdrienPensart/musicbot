@@ -238,6 +238,7 @@ class File:
         ids = acoustid.match(api_key, self.path)
         for _, recording_id, _, _ in ids:
             return recording_id
+        return None
 
     def save(self):
         self.handle.save()
