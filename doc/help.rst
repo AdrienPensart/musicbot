@@ -85,3 +85,9 @@ Documentation
 poetry build
 pip3 install dist/musicbot-0.1.0-py3-none-any.whl
 doc/gen.sh
+
+Update dependencies
+------------
+
+for p in $(cat packages.txt); do poetry remove $p; poetry add $p; done
+for p in $(cat packages-dev.txt); do poetry remove -D $p; poetry add -D $p; done
