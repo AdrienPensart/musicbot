@@ -69,7 +69,7 @@ def postgraphile_public(postgres, unused_tcp_port_factory):
     public_port = unused_tcp_port_factory()
     pql = postgraphile.Postgraphile.public(db=postgres.db, port=public_port)
     pql.run(background=True)
-    time.sleep(1)
+    time.sleep(2)
     yield pql
     pql.kill()
 
@@ -79,6 +79,6 @@ def postgraphile_private(postgres, unused_tcp_port_factory):
     private_port = unused_tcp_port_factory()
     pql = postgraphile.Postgraphile.private(db=postgres.db, port=private_port)
     pql.run(background=True)
-    time.sleep(1)
+    time.sleep(2)
     yield pql
     pql.kill()
