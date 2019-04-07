@@ -23,11 +23,21 @@ class Database:
         with psycopg2.connect(**params) as con:
             con.autocommit = True
             with con.cursor() as cur:
+                cur.execute('''
+do
+$do$
+BEGIN
+   if not exists (select from pg_catalog.pg_roles where rolname = 'postgres') then
+      create role postgres login password 'musicbot';
+   end if;
+end
+$do$;
+''')
                 cur.execute("select count(*) = 1 from pg_catalog.pg_database where datname = '{}'".format(db_to_create))
                 result = cur.fetchone()
                 logger.debug('Database exists? : %s', result[0])
                 if not result[0]:
-                    cur.execute('create database {}'.format(db_to_create))
+                    cur.execute('create database {} with owner postgres'.format(db_to_create))
 
         params['dbname'] = db_to_create
         with psycopg2.connect(**params) as con:

@@ -128,6 +128,9 @@ def test_user(cli_runner, user_token, postgraphile_public_cli):
     run_cli(cli_runner, cli, ['--dry', 'playlist', '--token', user_token, '--graphql', postgraphile_public_cli, 'bests', '/tmp'])
     run_cli(cli_runner, cli, ['stats', '--token', user_token, '--graphql', postgraphile_public_cli, 'show'])
 
+    run_cli(cli_runner, cli, ['genre', '--token', user_token, '--graphql', postgraphile_public_cli, 'list'])
+    run_cli(cli_runner, cli, ['artist', '--token', user_token, '--graphql', postgraphile_public_cli, 'list'])
+
 
 @pytest.mark.runner_setup(mix_stderr=False)
 def test_db(cli_runner, db_cli):

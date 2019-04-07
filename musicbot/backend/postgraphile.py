@@ -73,7 +73,7 @@ class Postgraphile:
         interface = interface if interface is not None else os.getenv(MB_GRAPHQL_PUBLIC_INTERFACE, DEFAULT_GRAPHQL_PUBLIC_INTERFACE)
         port = port if port is not None else int(os.getenv(MB_GRAPHQL_PUBLIC_PORT, str(DEFAULT_GRAPHQL_PUBLIC_PORT)))
 
-        base_cmd_fmt = """/usr/bin/npx postgraphile --cors --no-setof-functions-contain-nulls --no-ignore-rbac --no-ignore-indexes --dynamic-json -c {} -n {} -p {} --schema musicbot_public --default-role musicbot_anonymous --jwt-token-identifier musicbot_public.jwt_token --jwt-secret {} -l 10MB --append-plugins postgraphile-plugin-connection-filter --simple-collections both"""
+        base_cmd_fmt = """npx postgraphile --cors --no-setof-functions-contain-nulls --no-ignore-rbac --no-ignore-indexes --dynamic-json -c {} -n {} -p {} --schema musicbot_public --default-role musicbot_anonymous --jwt-token-identifier musicbot_public.jwt_token --jwt-secret {} -l 10MB --append-plugins postgraphile-plugin-connection-filter --simple-collections both"""
         base_cmd = base_cmd_fmt.format(db, interface, port, jwt_secret)
 
         if config.debug:
@@ -90,7 +90,7 @@ class Postgraphile:
         interface = interface if interface is not None else os.getenv(MB_GRAPHQL_PRIVATE_INTERFACE, DEFAULT_GRAPHQL_PRIVATE_INTERFACE)
         port = port if port is not None else int(os.getenv(MB_GRAPHQL_PRIVATE_PORT, str(DEFAULT_GRAPHQL_PRIVATE_PORT)))
 
-        base_cmd = """/usr/bin/npx postgraphile --cors --include-extension-resources --no-setof-functions-contain-nulls --no-ignore-indexes --dynamic-json -c {} -n {} -p {} --schema musicbot_public,musicbot_private --default-role postgres --append-plugins postgraphile-plugin-connection-filter --enhance-graphiql --simple-collections both""".format(db, interface, port)
+        base_cmd = """npx postgraphile --cors --include-extension-resources --no-setof-functions-contain-nulls --no-ignore-indexes --dynamic-json -c {} -n {} -p {} --schema musicbot_public,musicbot_private --default-role postgres --append-plugins postgraphile-plugin-connection-filter --enhance-graphiql --simple-collections both""".format(db, interface, port)
 
         cmd = """{} --disable-graphiql --disable-query-log""".format(base_cmd)
         if config.debug:

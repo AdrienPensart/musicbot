@@ -18,4 +18,4 @@ def cli(ctx, **kwargs):
 def _list(ctx):
     '''List artists'''
     for a in ctx.obj.u().artists:
-        print(a)
+        print(a['name'])

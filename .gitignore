@@ -10,3 +10,4 @@ man
 build
 htmlcov
 node_modules
+pip-wheel-metadata

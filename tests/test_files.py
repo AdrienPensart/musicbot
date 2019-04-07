@@ -1,6 +1,6 @@
 import logging
 from musicbot import lib
-from musicbot.music import file, youtube
+from musicbot.music import file
 from . import fixtures
 
 logger = logging.getLogger(__name__)
@@ -33,7 +33,8 @@ def test_mp3_tags():
     assert m.rating == 4.5
     assert m.duration == 258
 
-    assert youtube.search(m.artist, m.title, 258) == 'https://www.youtube.com/watch?v=JyjQFMksvaM'
+    # from musicbot.music import youtube
+    # assert youtube.search(m.artist, m.title, 258) == 'https://www.youtube.com/watch?v=JyjQFMksvaM'
 
 
 def test_duration():
@@ -42,5 +43,5 @@ def test_duration():
     assert 60 * 60 * 12 == lib.duration_to_seconds("12h")
 
 
-def test_raise_limits():
-    assert lib.raise_limits() is True
+# def test_raise_limits():
+#     assert lib.raise_limits() is True

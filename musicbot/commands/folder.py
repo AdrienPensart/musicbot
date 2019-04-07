@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 def cli(ctx, **kwargs):
     '''Folder management'''
     ctx.obj.u = lambda: user.User.new(**kwargs)
-    lib.raise_limits()
+    # lib.raise_limits()
 
 
 @cli.command('list')

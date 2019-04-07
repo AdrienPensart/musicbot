@@ -26,12 +26,19 @@ def register(**kwargs):
     user.User.register(**kwargs)
 
 
+cli.add_command(register, 'new')
+cli.add_command(register, 'create')
+
+
 @cli.command()
 @helpers.add_options(user.auth_options)
 def unregister(**kwargs):
     '''Remove a user'''
     u = user.User(**kwargs)
     u.unregister()
+
+
+cli.add_command(unregister, 'delete')
 
 
 @cli.command()

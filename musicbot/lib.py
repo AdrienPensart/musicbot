@@ -56,7 +56,7 @@ def raise_limits():
         logger.info("Current limits, soft and hard : %s %s", _, hard)
         resource.setrlimit(resource.RLIMIT_NOFILE, (hard, hard))
         return True
-    except OSError as e:
+    except (ValueError, OSError) as e:
         logger.critical('You may need to check ulimit parameter: %s', e)
         return False
 

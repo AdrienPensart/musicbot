@@ -1,4 +1,4 @@
-# vue-musicbot
+# vue-musicbotx
 
 ## Project setup
 ```

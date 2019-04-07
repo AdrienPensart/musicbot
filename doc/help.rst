@@ -43,7 +43,8 @@ Installation
   echo "shared_preload_libraries = 'pg_stat_statements'" | sudo tee -a /etc/postgresql/11/main/postgresql.conf
   echo "pg_stat_statements.track = all" | sudo tee -a /etc/postgresql/11/main/postgresql.conf
   sudo systemctl restart postgresql
-  sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'musicbot';" && history -c
+  psql -d postgres -c "create user postgres with password 'musicbot' superuser;" && history -c
+  psql -d postgres -c "alter user postgres password 'musicbot';" && history -c
   poetry run pgcli postgresql://postgres:musicbot@localhost:5432
 
   git clone https://github.com/nginx/nginx.git
@@ -70,3 +71,17 @@ Installation
   sudo apt-get update && sudo apt-get install --no-install-recommends yarn
   yarn add postgraphile
   yarn add postgraphile-plugin-connection-filter
+
+  npm install -g npx
+
+Testing
+------------
+
+poetry run pytest --disable-warnings --cov-report term-missing --cov musicbot
+
+Documentation
+------------
+
+poetry build
+pip3 install dist/musicbot-0.1.0-py3-none-any.whl
+doc/gen.sh

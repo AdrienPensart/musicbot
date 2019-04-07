@@ -43,7 +43,8 @@ Installation
   echo "shared_preload_libraries = 'pg_stat_statements'" | sudo tee -a /etc/postgresql/11/main/postgresql.conf
   echo "pg_stat_statements.track = all" | sudo tee -a /etc/postgresql/11/main/postgresql.conf
   sudo systemctl restart postgresql
-  sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'musicbot';" && history -c
+  psql -d postgres -c "create user postgres with password 'musicbot' superuser;" && history -c
+  psql -d postgres -c "alter user postgres password 'musicbot';" && history -c
   poetry run pgcli postgresql://postgres:musicbot@localhost:5432
 
   git clone https://github.com/nginx/nginx.git
@@ -70,6 +71,20 @@ Installation
   sudo apt-get update && sudo apt-get install --no-install-recommends yarn
   yarn add postgraphile
   yarn add postgraphile-plugin-connection-filter
+
+  npm install -g npx
+
+Testing
+------------
+
+poetry run pytest --disable-warnings --cov-report term-missing --cov musicbot
+
+Documentation
+------------
+
+poetry build
+pip3 install dist/musicbot-0.1.0-py3-none-any.whl
+doc/gen.sh
 Commands
 --------
 .. code-block::
@@ -81,7 +96,7 @@ Commands
   Options:
     -V, --version                   Show the version and exit.
     -l, --log PATH                  Log file path  [default:
-                                    /home/crunch/musicbot.log]
+                                    /Users/apensart/musicbot.log]
     -i, --info                      Same as --verbosity info"
     -d, --debug                     Be very verbose, same as --verbosity debug +
                                     hide progress bars  [default: False]
@@ -1041,11 +1056,49 @@ musicbot user
     -h, --help  Show this message and exit.
   
   Commands:
+    create      Register a new user
+    delete      Remove a user
     help        Print help
     list        List users (admin)
     login       Authenticate user
+    new         Register a new user
     register    Register a new user
     unregister  Remove a user
+
+
+musicbot user create
+********************
+.. code-block::
+
+  Usage: musicbot user create [OPTIONS]
+  
+    Register a new user
+  
+  Options:
+    -e, --email TEXT     User email
+    -p, --password TEXT  User password
+    --first-name TEXT    User first name
+    --last-name TEXT     User last name
+    --graphql TEXT       GraphQL endpoint  [default:
+                         http://127.0.0.1:5000/graphql]
+    -h, --help           Show this message and exit.
+
+
+musicbot user delete
+********************
+.. code-block::
+
+  Usage: musicbot user delete [OPTIONS]
+  
+    Remove a user
+  
+  Options:
+    -e, --email TEXT     User email
+    -p, --password TEXT  User password
+    --token TEXT         User token
+    --graphql TEXT       GraphQL endpoint  [default:
+                         http://127.0.0.1:5000/graphql]
+    -h, --help           Show this message and exit.
 
 
 musicbot user help
@@ -1086,6 +1139,24 @@ musicbot user login
     -e, --email TEXT     User email
     -p, --password TEXT  User password
     --token TEXT         User token
+    --graphql TEXT       GraphQL endpoint  [default:
+                         http://127.0.0.1:5000/graphql]
+    -h, --help           Show this message and exit.
+
+
+musicbot user new
+*****************
+.. code-block::
+
+  Usage: musicbot user new [OPTIONS]
+  
+    Register a new user
+  
+  Options:
+    -e, --email TEXT     User email
+    -p, --password TEXT  User password
+    --first-name TEXT    User first name
+    --last-name TEXT     User last name
     --graphql TEXT       GraphQL endpoint  [default:
                          http://127.0.0.1:5000/graphql]
     -h, --help           Show this message and exit.

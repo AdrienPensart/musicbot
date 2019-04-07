@@ -1,5 +1,9 @@
 <template>
-    <div id="login" v-if="!token">
+    <div id="logout" v-if="token">
+        <button class="btn btn-primary" @click.prevent="logout">Logout</button>
+        <Music />
+    </div>
+    <div id="login" v-else>
         <p v-if="errors.length">
             <b>Please correct the following error(s):</b>
             <ul>
@@ -10,17 +14,12 @@
         <input id="password" required name="password" v-model.lazy="password" type="password" placeholder="Your password" size="25">
         <button class="btn btn-primary" @click.prevent="login">Login</button>
     </div>
-    <div v-else>
-        <Artists :client="client" />
-        <button class="btn btn-primary" @click.prevent="logout">Logout</button>
-    </div>
 </template>
 
 <script>
+import Music from './Music.vue'
 import { print } from 'graphql'
 import gql from 'graphql-tag'
-
-import Artists from './Artists.vue'
 
 const AUTH_MUTATION = gql`
     mutation Authentication($email:String!, $password:String!) {
@@ -33,7 +32,7 @@ const AUTH_MUTATION = gql`
 
 export default {
     components: {
-        Artists,
+        Music,
     },
     data() {
         return {
@@ -45,22 +44,23 @@ export default {
     },
     mounted() {
         if (localStorage.getItem('token')) {
-            this.token = localStorage.getItem('token')
+            this.token = localStorage.getItem('token');
         }
     },
     watch: {
         token(newToken) {
             if (newToken) {
                 localStorage.setItem('token', newToken)
-                this.client.defaults.headers['Authorization'] = `Bearer ${newToken}`
+                this.axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
+            } else {
+                delete this.axios.defaults.headers.common['Authorization']
+                localStorage.clear()
             }
         }
     },
     methods: {
         logout() {
-            this.token = null
-            delete this.client.defaults.headers['Authorization']
-            localStorage.clear()
+            this.token = null;
         },
         login(e) {
             if (!this.email || !this.password) {
@@ -74,15 +74,16 @@ export default {
                 e.preventDefault()
                 return
             }
-            this.$state.client.post(this.graphql, {
+            this.axios.post(this.graphql, {
                 query: print(AUTH_MUTATION),
                 variables: {
                     email: this.email,
                     password: this.password
                 }
             }).then((result) => {
-                this.token = result.data.data.authenticate.jwtToken
-                if (this.token) {
+                var tempToken = result.data.data.authenticate.jwtToken
+                if (tempToken) {
+                    this.token = tempToken
                     this.errors = []
                 } else {
                     this.errors.push('Authentication failed')

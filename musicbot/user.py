@@ -258,8 +258,7 @@ class User(GraphQL):
     def folders(self):
         query = """
         {
-            folders
-            {
+            folders {
                 nodes
             }
         }"""
@@ -271,9 +270,10 @@ class User(GraphQL):
     def artists(self):
         query = """
         {
-            artists
-            {
-                nodes
+            artists {
+                nodes {
+                    name
+                }
             }
         }"""
         return self._post(query)['data']['artists']['nodes']
@@ -284,8 +284,7 @@ class User(GraphQL):
     def genres(self):
         query = """
         {
-            genres
-            {
+            genres {
                 nodes
             }
         }"""
