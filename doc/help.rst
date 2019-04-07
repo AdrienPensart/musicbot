@@ -77,17 +77,23 @@ Installation
 Testing
 ------------
 
+.. code-block:: bash
+
 poetry run pytest --disable-warnings --cov-report term-missing --cov musicbot
 
 Documentation
 ------------
 
+.. code-block:: bash
+
 poetry build
-pip3 install dist/musicbot-0.1.0-py3-none-any.whl
+pip3 install -U dist/musicbot-0.1.0-py3-none-any.whl
 doc/gen.sh
 
 Update dependencies
 ------------
+
+.. code-block:: bash
 
 for p in $(cat packages.txt); do poetry remove $p; poetry add $p; done
 for p in $(cat packages-dev.txt); do poetry remove -D $p; poetry add -D $p; done

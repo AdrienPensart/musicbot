@@ -77,17 +77,23 @@ Installation
 Testing
 ------------
 
+.. code-block:: bash
+
 poetry run pytest --disable-warnings --cov-report term-missing --cov musicbot
 
 Documentation
 ------------
 
+.. code-block:: bash
+
 poetry build
-pip3 install dist/musicbot-0.1.0-py3-none-any.whl
+pip3 install -U dist/musicbot-0.1.0-py3-none-any.whl
 doc/gen.sh
 
 Update dependencies
 ------------
+
+.. code-block:: bash
 
 for p in $(cat packages.txt); do poetry remove $p; poetry add $p; done
 for p in $(cat packages-dev.txt); do poetry remove -D $p; poetry add -D $p; done
@@ -1070,6 +1076,8 @@ musicbot user
     login       Authenticate user
     new         Register a new user
     register    Register a new user
+    remove      Remove a user
+    token       Authenticate user
     unregister  Remove a user
 
 
@@ -1182,6 +1190,40 @@ musicbot user register
     -p, --password TEXT  User password
     --first-name TEXT    User first name
     --last-name TEXT     User last name
+    --graphql TEXT       GraphQL endpoint  [default:
+                         http://127.0.0.1:5000/graphql]
+    -h, --help           Show this message and exit.
+
+
+musicbot user remove
+********************
+.. code-block::
+
+  Usage: musicbot user remove [OPTIONS]
+  
+    Remove a user
+  
+  Options:
+    -e, --email TEXT     User email
+    -p, --password TEXT  User password
+    --token TEXT         User token
+    --graphql TEXT       GraphQL endpoint  [default:
+                         http://127.0.0.1:5000/graphql]
+    -h, --help           Show this message and exit.
+
+
+musicbot user token
+*******************
+.. code-block::
+
+  Usage: musicbot user token [OPTIONS]
+  
+    Authenticate user
+  
+  Options:
+    -e, --email TEXT     User email
+    -p, --password TEXT  User password
+    --token TEXT         User token
     --graphql TEXT       GraphQL endpoint  [default:
                          http://127.0.0.1:5000/graphql]
     -h, --help           Show this message and exit.

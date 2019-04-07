@@ -48,3 +48,6 @@ def login(**kwargs):
     '''Authenticate user'''
     u = user.User(**kwargs)
     print(u.token)
+
+
+cli.add_command(login, 'token')
