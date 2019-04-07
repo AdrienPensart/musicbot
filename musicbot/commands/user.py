@@ -39,6 +39,7 @@ def unregister(**kwargs):
 
 
 cli.add_command(unregister, 'delete')
+cli.add_command(unregister, 'remove')
 
 
 @cli.command()
