@@ -124,14 +124,38 @@ create or replace function musicbot_public.folders() returns setof text as $$
     select distinct folder from musicbot_public.raw_music order by folder asc;
 $$ language sql stable;
 
-create or replace function musicbot_public.artists() returns table (
+do $$ begin
+    create type musicbot_public.music as (name text);
+exception
+    when duplicate_object then null;
+end $$;
+
+do $$ begin
+    create type musicbot_public.album as (name text, musics musicbot_public.music[]);
+exception
+    when duplicate_object then null;
+end $$;
+
+do $$ begin
+    create type musicbot_public.artist as (name text, albums musicbot_public.album[]);
+exception
+    when duplicate_object then null;
+end $$;
+
+do $$ begin
+    create type musicbot_public.genre as (name text, artists musicbot_public.artist[]);
+exception
+    when duplicate_object then null;
+end $$;
+
+create or replace function musicbot_public.artists_tree() returns table (
     name text,
-    albums text[]
+    albums musicbot_public.album[]
 ) as $$
-    select artist, array_agg(distinct album) from musicbot_public.raw_music where artist != '' and album != '' group by artist order by artist asc;
+    select artist, array_agg(row(album, titles)::musicbot_public.album) from (select artist, album, array_agg(row(title)::musicbot_public.music) as titles from musicbot_public.raw_music where artist != '' and album != '' and title != '' group by artist, album order by artist) as albums group by artist;
 $$ language sql stable;
 
-create or replace function musicbot_public.genres() returns setof text as $$
+create or replace function musicbot_public.genres_tree() returns setof text as $$
     select distinct genre from musicbot_public.raw_music where genre != '' order by genre asc;
 $$ language sql stable;
 

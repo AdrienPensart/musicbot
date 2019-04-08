@@ -64,7 +64,7 @@ def test_authenticate(postgraphile_public, user_sample, email_sample):
 def test_default_filters(user_sample):
     user_sample.load_default_filters()
     print(user_sample.filters)
-    assert len(user_sample.filters) == 11
+    assert len(user_sample.filters) == fixtures.filters
 
 
 def test_folders(user_sample):

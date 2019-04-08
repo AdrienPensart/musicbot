@@ -26,7 +26,7 @@ class Database:
                 cur.execute('''
 do
 $do$
-BEGIN
+begin
    if not exists (select from pg_catalog.pg_roles where rolname = 'postgres') then
       create role postgres login password 'musicbot';
    end if;

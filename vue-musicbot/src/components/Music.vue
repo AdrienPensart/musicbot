@@ -6,70 +6,105 @@
                 <li v-for="error in errors" :key="error.id">{{ error }}</li>
             </ul>
         </p>
-        <splitpanes horizontal class="default-theme">
-            <span splitpanes-default="75">
-                <splitpanes vertical>
-                    <span splitpanes-default="25">
-                        <ul v-if="filters.length">
+        <splitpanes watch-slots horizontal class="default-theme" :push-other-panes="false">
+            <span v-if="queue.length" style="height:500px">
+            </span>
+            <span v-else>
+                Empty queue
+            </span>
+            <span>
+                <splitpanes watch-slots vertical style="height:500px">
+                    <span v-if="filters.length" splitpanes-default="25">
+                        <ul>
                             <li v-for="filter in filters" :key="filter.id">{{ filter.name }}</li>
                         </ul>
                     </span>
-                    <span splitpanes-default="25">
-                        <ul v-if="genres.length">
+                    <span v-else>
+                        No filters
+                    </span>
+                    <span v-if="genres.length" splitpanes-default="25">
+                        <ul>
                             <li v-for="genre in genres" :key="genre.id">{{ genre }}</li>
                         </ul>
                     </span>
-                    <span splitpanes-default="25">
-                        <ul v-if="keywords.length">
+                    <span v-else>
+                        No genres
+                    </span>
+                    <span v-if="keywords.length" splitpanes-default="25">
+                        <ul>
                             <li v-for="keyword in keywords" :key="keyword.id">{{ keyword }}</li>
                         </ul>
                     </span>
-                    <span splitpanes-default="25">
-                        <p v-if="artists.length" v-for="artist in artists" :key="artist.id">
-                            {{ artist.name }}
-                            <ul>
-                                <li v-for="album in artist.albums" :key="album.id">{{ album }}</li>
-                            </ul>
-                        </p>
+                    <span v-else>
+                        No keywords
+                    </span>
+                    <span v-if="artists.length" splitpanes-default="25">
+                        <v-treeview :items="artists"></v-treeview>
+                    </span>
+                    <span v-else>
+                        No artists
                     </span>
                 </splitpanes>
-            </span>
-            <span splitpanes-default="25">
-                Queue
             </span>
         </splitpanes>
     </div>
 </template>
-
+<style>
+.splitpanes__pane {
+    overflow: scroll;
+}
+</style>
 <script>
 import gql from 'graphql-tag'
 import { print } from 'graphql'
-import Splitpanes from 'splitpanes'
+import splitpanes from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 
 const MUSIC_QUERY = gql`
 {
   keywordsList
-  genresList
+  genresTreeList
   allFiltersList {
     name
   }
-  artistsList {
+  artistsTreeList {
+    children: albums {
+      name
+      children: musics {
+        name
+      }
+    }
     name
-    albums
   }
 }
 `
 export default {
     components: {
-        Splitpanes,
+        splitpanes,
     },
     methods: {
+        init() {
+            this.axios.post(this.graphql, {
+                query: print(MUSIC_QUERY),
+            }).then((result) => {
+                this.artists = result.data.data.artistsTreeList
+                this.keywords = result.data.data.keywordsList
+                this.genres = result.data.data.genresTreeList
+                this.filters = result.data.data.allFiltersList
+            }).catch((err) => {
+                this.errors = []
+                this.artists = []
+                this.keywords = []
+                this.genres = []
+                this.filters = []
+                this.errors.push(err)
+            })
+        }
     },
-    data() {
+    data: function() {
         return {
-            direction: '',
             errors: [],
+            queue: [],
             artists: [],
             keywords: [],
             genres: [],
@@ -77,21 +112,7 @@ export default {
         };
     },
     mounted() {
-        this.axios.post(this.graphql, {
-            query: print(MUSIC_QUERY),
-        }).then((result) => {
-            this.artists = result.data.data.artistsList
-            this.keywords = result.data.data.keywordsList
-            this.genres = result.data.data.genresList
-            this.filters = result.data.data.allFiltersList
-        }).catch((err) => {
-            this.errors = []
-            this.artists = []
-            this.keywords = []
-            this.genres = []
-            this.filters = []
-            this.errors.push(err)
-        })
+        this.init()
     },
 }
 </script>

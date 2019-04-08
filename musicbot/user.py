@@ -270,13 +270,13 @@ class User(GraphQL):
     def artists(self):
         query = """
         {
-            artists {
+            artistsTree {
                 nodes {
                     name
                 }
             }
         }"""
-        return self._post(query)['data']['artists']['nodes']
+        return self._post(query)['data']['artistsTree']['nodes']
 
     @property
     @functools.lru_cache(maxsize=None)
@@ -284,11 +284,11 @@ class User(GraphQL):
     def genres(self):
         query = """
         {
-            genres {
+            genresTree {
                 nodes
             }
         }"""
-        return self._post(query)['data']['genres']['nodes']
+        return self._post(query)['data']['genresTree']['nodes']
 
     @functools.lru_cache(maxsize=None)
     @helpers.timeit

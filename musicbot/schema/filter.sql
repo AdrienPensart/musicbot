@@ -57,6 +57,10 @@ returns void as
 $$
 begin
     insert into musicbot_public.filter as f (name) values ('default') on conflict do nothing;
+    insert into musicbot_public.filter as f (name, artists) values ('no artist set', '{}') on conflict do nothing;
+    insert into musicbot_public.filter as f (name, albums) values ('no album set', '{}') on conflict do nothing;
+    insert into musicbot_public.filter as f (name, titles) values ('no title set', '{}') on conflict do nothing;
+    insert into musicbot_public.filter as f (name, genres) values ('no genre set', '{}') on conflict do nothing;
     insert into musicbot_public.filter as f (name, youtubes) values ('youtube not found', '{not found}') on conflict do nothing;
     insert into musicbot_public.filter as f (name, spotifys) values ('spotify not found', '{not found}') on conflict do nothing;
     insert into musicbot_public.filter as f (name, youtubes) values ('no youtube links', '{}') on conflict do nothing;

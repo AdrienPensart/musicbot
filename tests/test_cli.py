@@ -102,7 +102,7 @@ def test_admin(cli_runner, user_token, postgraphile_private_cli):
 def test_user(cli_runner, user_token, postgraphile_public_cli):
     run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public_cli, 'load-default'])
     filters = run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public_cli, 'list'])
-    assert len(filters.split("\n")) == 11
+    assert len(filters.split("\n")) == fixtures.filters
 
     run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public_cli, 'do'])
     run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public_cli, 'get', 'default'])

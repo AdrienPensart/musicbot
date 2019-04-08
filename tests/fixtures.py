@@ -14,6 +14,8 @@ folders = [folder1, folder2]
 one_flac = folder1 + "/Buckethead/1994 - Giant Robot/02 - Welcome To Bucketheadland.flac"
 one_mp3 = folder2 + "/1995/La Source/La Flemme.mp3"
 
+filters = 15
+
 teststats = {
     'id': 1,
     'musics': 5,

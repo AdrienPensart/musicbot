@@ -11,18 +11,15 @@ def cli():
     '''Database management (admin)'''
 
 
-# from subprocess import call
-# @cli.command('cli', context_settings=dict(
-#     ignore_unknown_options=True,
-# ))
-# @helpers.add_options(database.db_option)
-# @click.argument('pgcli_args', nargs=-1, type=click.UNPROCESSED)
-# def pgcli(db):
-#     '''Start PgCLI util'''
-#     cmdline = ['pgcli', db] + list(pgcli_args)
-#     click.echo('Invoking: %s' % ' '.join(cmdline))
-#     call(cmdline)
-#     # os.system(r"pgcli {}".format(db))
+@cli.command('cli', context_settings=dict(ignore_unknown_options=True))
+@helpers.add_options(database.db_option)
+@click.argument('pgcli_args', nargs=-1, type=click.UNPROCESSED)
+def _pgcli(db, pgcli_args):
+    '''Start PgCLI util'''
+    from subprocess import call
+    cmdline = ['pgcli', db] + list(pgcli_args)
+    click.echo('Invoking: %s' % ' '.join(cmdline))
+    call(cmdline)
 
 
 @cli.command()
