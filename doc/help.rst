@@ -49,6 +49,7 @@ Installation
 
   git clone https://github.com/nginx/nginx.git
   git clone https://github.com/evanmiller/mod_zip.git
+  cd nginx
   auto/configure --prefix=/opt/nginx --add-module="$HOME/mod_zip"
   sudo make install
   sudo ln -s $HOME/musicbot/scripts/musicbot.service /etc/systemd/system/musicbot.service

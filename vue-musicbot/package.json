@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "flatted": "^2.0.0",
+    "graphiql": "^0.13.0",
     "graphql": "^14.1.1",
     "graphql-tag": "^2.10.1",
     "splitpanes": "^1.13.0",
@@ -16,7 +18,8 @@
     "vue-axios": "^2.1.4",
     "vue-router": "^3.0.1",
     "vuetify": "^1.5.5",
-    "vuex": "^3.0.1"
+    "vuex": "^3.0.1",
+    "webpack": "^4.29.6"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.5.0",

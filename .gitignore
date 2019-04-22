@@ -3,11 +3,13 @@ env*
 *.pyc
 doc/html
 *.egg-info
+*.pid
 .eggs
 .coverage
 dist
 man
 build
+logs
 htmlcov
 node_modules
 pip-wheel-metadata

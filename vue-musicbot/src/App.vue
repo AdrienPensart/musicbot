@@ -1,110 +1,52 @@
 <template>
   <v-app>
     <v-toolbar app>
-      <v-toolbar-title class="headline text-uppercase">
-        <span>MusicBot</span>
+      <v-toolbar-title class="headline">
+        MusicBot
       </v-toolbar-title>
+      <v-toolbar-items class="hidden-sm-and-down">
+        <v-btn href="https://github.com/AdrienPensart/musicbot" target="_blank" flat>GitHub</v-btn>
+        <v-btn href="http://127.0.0.1:5000/graphiql" target="_blank" flat>GraphiQL</v-btn>
+      </v-toolbar-items>
       <v-spacer></v-spacer>
-      <div v-if="token">
-          <v-btn small color="info" @click.prevent="logout">Logout</v-btn>
-      </div>
-      <div v-else>
-          <input id="email" required name="email" v-model.lazy="email" type="email" placeholder="Your email" size="25">
-          <input id="password" required name="password" v-model.lazy="password" type="password" placeholder="Your password" size="25">
-          <v-btn small color="success" @click.prevent="login">Login</v-btn>
-      </div>
+      <Player v-if='isLoggedIn' />
+      <Login  v-if='notLoggedIn' />
+      <Logout v-if='isLoggedIn' />
     </v-toolbar>
     <v-content>
-      <p v-if="errors.length">
-          <b>Please correct the following error(s):</b>
-          <ul>
-              <li v-for="error in errors" :key="error.id">{{ error }}</li>
-          </ul>
-      </p>
-      <Music v-if="token"/>
+      <Errors />
+      <splitpanes v-if='isLoggedIn' watch-slots vertical class="default-theme">
+        <span splitpanes-default="5">
+          <Queue />
+        </span>
+        <Music />
+      </splitpanes>
     </v-content>
   </v-app>
 </template>
-
 <script>
-import { print } from 'graphql'
-import gql from 'graphql-tag'
 import Music from './components/Music.vue'
-
-const AUTH_MUTATION = gql`
-    mutation Authentication($email:String!, $password:String!) {
-        authenticate(input: {email:$email, password:$password}) {
-            clientMutationId
-            jwtToken
-        }
-    }
-`
+import Login from './components/Login.vue'
+import Logout from './components/Logout.vue'
+import Errors from './components/Errors.vue'
+import Queue from './components/Queue.vue'
+import Player from './components/Player.vue'
+import splitpanes from 'splitpanes'
 
 export default {
-    name: 'App',
-    components: {
-        Music,
-    },
-    data() {
-        return {
-            errors: [],
-            email: '',
-            password: '',
-            token: '',
-        }
-    },
-    mounted() {
-        if (localStorage.getItem('token')) {
-            this.token = localStorage.getItem('token');
-        }
-    },
-    watch: {
-        token(newToken) {
-            if (newToken) {
-                localStorage.setItem('token', newToken)
-                this.axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
-            } else {
-                delete this.axios.defaults.headers.common['Authorization']
-                localStorage.clear()
-            }
-        }
-    },
-    methods: {
-        logout() {
-            this.token = null;
-        },
-        login(e) {
-            if (!this.email || !this.password) {
-                this.errors = []
-                if (!this.email) {
-                    this.errors.push('Email required.')
-                }
-                if (!this.password) {
-                    this.errors.push('Password required.')
-                }
-                e.preventDefault()
-                return
-            }
-            this.axios.post(this.graphql, {
-                query: print(AUTH_MUTATION),
-                variables: {
-                    email: this.email,
-                    password: this.password
-                }
-            }).then((result) => {
-                var tempToken = result.data.data.authenticate.jwtToken
-                if (tempToken) {
-                    this.token = tempToken
-                    this.errors = []
-                } else {
-                    this.errors.push('Authentication failed')
-                }
-            }).catch((err) => {
-                this.errors = []
-                this.token = null
-                this.errors.push(err)
-            })
-        },
-    },
+  name: 'App',
+  components: {
+    splitpanes,
+    Login,
+    Logout,
+    Errors,
+    Music,
+    Queue,
+    Player,
+  },
+  computed : {
+    notLoggedIn: function(){ return !this.$store.getters.isLoggedIn },
+    isLoggedIn: function(){ return this.$store.getters.isLoggedIn },
+  },
 }
 </script>

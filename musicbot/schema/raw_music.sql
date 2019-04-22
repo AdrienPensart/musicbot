@@ -124,43 +124,39 @@ create or replace function musicbot_public.folders() returns setof text as $$
     select distinct folder from musicbot_public.raw_music order by folder asc;
 $$ language sql stable;
 
-do $$ begin
-    create type musicbot_public.music as (name text);
-exception
-    when duplicate_object then null;
-end $$;
+drop type musicbot_public.music cascade;
+drop type musicbot_public.album cascade;
+drop type musicbot_public.artist cascade;
+drop type musicbot_public.genre cascade;
+drop type musicbot_public.keyword cascade;
 
-do $$ begin
-    create type musicbot_public.album as (name text, musics musicbot_public.music[]);
-exception
-    when duplicate_object then null;
-end $$;
+create type musicbot_public.music as (id bigint, name text, path text, folder text);
+create type musicbot_public.album as (id bigint, name text, musics musicbot_public.music[]);
+create type musicbot_public.artist as (id bigint, name text, albums musicbot_public.album[]);
+create type musicbot_public.genre as (id bigint, name text);
+create type musicbot_public.keyword as (id bigint, name text);
 
-do $$ begin
-    create type musicbot_public.artist as (name text, albums musicbot_public.album[]);
-exception
-    when duplicate_object then null;
-end $$;
-
-do $$ begin
-    create type musicbot_public.genre as (name text, artists musicbot_public.artist[]);
-exception
-    when duplicate_object then null;
-end $$;
-
-create or replace function musicbot_public.artists_tree() returns table (
-    name text,
-    albums musicbot_public.album[]
-) as $$
-    select artist, array_agg(row(album, titles)::musicbot_public.album) from (select artist, album, array_agg(row(title)::musicbot_public.music) as titles from musicbot_public.raw_music where artist != '' and album != '' and title != '' group by artist, album order by artist) as albums group by artist;
+create or replace function musicbot_public.artists_tree() returns setof musicbot_public.artist
+as $$
+    select row_number() over (order by artist) as id, artist, array_agg((id, album, musics)::musicbot_public.album) as albums
+    from (
+        select row_number() over (order by album) as id, artist, album, array_agg(row(id, title, path, folder)::musicbot_public.music) as musics
+        from musicbot_public.raw_music
+        where artist != '' and album != '' and title != ''
+        group by artist, album
+        order by artist
+    ) as albums
+    group by artist;
 $$ language sql stable;
 
-create or replace function musicbot_public.genres_tree() returns setof text as $$
-    select distinct genre from musicbot_public.raw_music where genre != '' order by genre asc;
+create or replace function musicbot_public.genres_tree() returns setof musicbot_public.genre
+as $$
+    select row_number() over () as id, genre from musicbot_public.raw_music where genre != '' group by genre order by genre asc;
 $$ language sql stable;
 
-create or replace function musicbot_public.keywords() returns setof text as $$
-    select distinct keyword from (select unnest(musicbot_public.array_cat_agg(keywords)) as keyword from musicbot_public.raw_music where array_length(keywords, 1) > 0) k order by keyword asc;
+create or replace function musicbot_public.keywords_tree() returns setof musicbot_public.keyword
+as $$
+    select row_number() over () as id, keyword from (select unnest(musicbot_public.array_cat_agg(keywords)) as keyword from musicbot_public.raw_music where array_length(keywords, 1) > 0) k group by keyword order by keyword asc;
 $$ language sql stable;
 
 create or replace function musicbot_public.delete_music(path text) returns void as $$

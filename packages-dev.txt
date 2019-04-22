@@ -1,7 +1,0 @@
-pytest
-pytest-xdist
-pytest-cov
-pytest-click
-coverage-badge
-pgcli
-pylint
