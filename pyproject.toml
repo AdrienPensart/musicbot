@@ -32,6 +32,8 @@ psycopg2-binary = "^2.8"
 pyacoustid = "^1.1"
 pytube = "^9.4"
 pyyaml = "^5.1"
+python-vlc = "^3.0"
+prompt_toolkit = "^2.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^4.4"
