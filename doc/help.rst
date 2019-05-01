@@ -50,7 +50,7 @@ Installation
   git clone https://github.com/nginx/nginx.git
   git clone https://github.com/evanmiller/mod_zip.git
   cd nginx
-  auto/configure --prefix=/opt/nginx --add-module="$HOME/mod_zip"
+  auto/configure --prefix=/opt/nginx --add-module="$HOME/mod_zip" --with-http_auth_request_module
   sudo make install
   sudo ln -s $HOME/musicbot/scripts/musicbot.service /etc/systemd/system/musicbot.service
   sudo ln -s $HOME/musicbot/scripts/nginx.service /etc/systemd/system/nginx.service
@@ -65,15 +65,13 @@ Installation
   sudo systemctl enable musicbot
   sudo systemctl daemon-reload
 
+  # in your user folder
   curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
   nvm install node
-  curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-  echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-  sudo apt-get update && sudo apt-get install --no-install-recommends yarn
+  curl -o- -L https://yarnpkg.com/install.sh | bash
   yarn add postgraphile
   yarn add postgraphile-plugin-connection-filter
-
-  npm install -g npx
+  yarn add npx
 
 Testing
 ------------
@@ -81,6 +79,13 @@ Testing
 .. code-block:: bash
 
 poetry run pytest --disable-warnings --cov-report term-missing --cov musicbot
+
+Linting
+------------
+
+.. code-block:: bash
+
+poetry run pylint -d line-too-long,too-many-arguments,protected-access,missing-docstring,invalid-name,too-many-public-methods,too-many-instance-attributes,duplicate-code,too-many-nested-blocks,too-many-branches,too-many-return-statements,too-many-statements,too-many-locals,too-few-public-methods,too-many-ancestors,abstract-method,anomalous-backslash-in-string musicbot tests
 
 Documentation
 ------------
@@ -90,12 +95,3 @@ Documentation
 poetry build
 pip3 install -U dist/musicbot-0.1.0-py3-none-any.whl
 doc/gen.sh
-
-Update dependencies
-------------
-
-.. code-block:: bash
-
-for p in $(cat packages.txt); do poetry remove $p; poetry add $p; done
-for p in $(cat packages-dev.txt); do poetry remove -D $p; poetry add -D $p; done
-poetry run pip3 freeze | grep -v musicbot > requirements.txt

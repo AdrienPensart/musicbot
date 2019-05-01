@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "postgraphile": "^4.3.3",
-    "postgraphile-plugin-connection-filter": "^1.0.0"
-  }
-}

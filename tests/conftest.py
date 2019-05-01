@@ -1,10 +1,26 @@
 import socket
-import time
+import signal
 import os
+import time
 import contextlib
+import traceback
+import logging
 import pytest
 from musicbot.backend import postgraphile, database
+from musicbot.cli import cli
 from . import fixtures
+
+logger = logging.getLogger(__name__)
+
+
+def run_cli(cli_runner, called_cli, *args):
+    logger.debug('Invoking %s with args %s', called_cli, args)
+    result = cli_runner.invoke(called_cli, *args)
+    logger.debug(result.output)
+    if result.exception:
+        traceback.print_exception(*result.exc_info)
+    assert result.exit_code == 0
+    return result.output.rstrip()
 
 
 @pytest.fixture
@@ -82,3 +98,39 @@ def postgraphile_private(postgres, unused_tcp_port_factory):
     time.sleep(2)
     yield pql
     pql.kill()
+
+
+@pytest.yield_fixture
+def db_cli(cli_runner, dbtest):
+    run_cli(cli_runner, cli, ['db', 'clear', '--yes', '--db', dbtest])
+    yield dbtest
+    run_cli(cli_runner, cli, ['db', 'drop', '--yes', '--db', dbtest])
+
+
+@pytest.yield_fixture
+def postgraphile_public_cli(cli_runner, db_cli, unused_tcp_port_factory):
+    port = str(unused_tcp_port_factory())
+    # public_group = run_cli(cli_runner, cli, ['--debug', 'postgraphile', 'public', 'my_testing_secret', '--background', '--db', db_cli, '--graphql-public-port', port])
+    public_group = run_cli(cli_runner, cli, ['postgraphile', 'public', 'my_testing_secret', '--background', '--db', db_cli, '--graphql-public-port', port])
+    time.sleep(1)
+    yield "http://127.0.0.1:{}/graphql".format(port)
+    os.killpg(int(public_group), signal.SIGTERM)
+
+
+@pytest.yield_fixture
+def postgraphile_private_cli(cli_runner, db_cli, unused_tcp_port_factory):
+    port = str(unused_tcp_port_factory())
+    # private_group = run_cli(cli_runner, cli, ['--debug', 'postgraphile', 'private', '--background', '--db', db_cli, '--graphql-private-port', port])
+    private_group = run_cli(cli_runner, cli, ['postgraphile', 'private', '--background', '--db', db_cli, '--graphql-private-port', port])
+    time.sleep(1)
+    yield "http://127.0.0.1:{}/graphql".format(port)
+    os.killpg(int(private_group), signal.SIGTERM)
+
+
+@pytest.yield_fixture
+def user_token(cli_runner, email_sample, postgraphile_public_cli):
+    run_cli(cli_runner, cli, ['user', 'register', '--graphql', postgraphile_public_cli, '--email', email_sample, '--password', fixtures.password, '--first-name', fixtures.first_name, '--last-name', fixtures.last_name])
+    token = run_cli(cli_runner, cli, ['user', 'login', '--graphql', postgraphile_public_cli, '--email', email_sample, '--password', fixtures.password])
+    token = token.rstrip()
+    yield token
+    run_cli(cli_runner, cli, ['user', 'unregister', '--graphql', postgraphile_public_cli, '--email', email_sample, '--password', fixtures.password])

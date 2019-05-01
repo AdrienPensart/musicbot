@@ -35,7 +35,7 @@ def musics(user_sample):
     return musics
 
 
-def test_list(user_sample, postgraphile_private):
+def test_list(user_sample, postgraphile_private):  # pylint: disable=unused-argument
     a = user.Admin(postgraphile_private.dsn)
     assert len(a.users()) == 1
 

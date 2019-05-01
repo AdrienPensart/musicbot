@@ -6,6 +6,7 @@ import functools
 import requests
 import click
 import click_spinner
+from graphql.parser import GraphQLParser
 from . import helpers
 from .config import config
 from .music import file, mfilter
@@ -45,6 +46,7 @@ options = email_option + password_option + first_name_option + last_name_option 
 logger = logging.getLogger(__name__)
 
 auth_options = email_option + password_option + token_option + graphql_option
+parser = GraphQLParser()
 
 
 class FailedAuthentication(Exception):
@@ -63,6 +65,11 @@ class GraphQL:  # pylint: disable=too-few-public-methods
     def _post(self, query, failure=None):
         response = requests.post(self.graphql, json={'query': query}, headers=self.headers)
         logger.debug(query)
+        try:
+            ast = parser.parse(query)
+            logger.debug(ast)
+        except TypeError:
+            logger.debug("Cannot parse query")
         logger.debug(response)
         if response.status_code != 200:
             failure = failure if failure is not None else FailedRequest("Query failed: {}".format(response.json()))
@@ -118,7 +125,7 @@ class User(GraphQL):
             if response.status_code == 200:
                 self.token = response.json()['data']['authenticate']['jwtToken']
                 if self.token is None:
-                    raise FailedAuthentication("Authenticat failed")
+                    raise FailedAuthentication("Authentication failed")
             else:
                 raise FailedAuthentication("Authentication failed")
         elif self.token is None:
@@ -258,11 +265,9 @@ class User(GraphQL):
     def folders(self):
         query = """
         {
-            folders {
-                nodes
-            }
+            foldersList
         }"""
-        return self._post(query)['data']['folders']['nodes']
+        return self._post(query)['data']['foldersList']
 
     @property
     @functools.lru_cache(maxsize=None)
@@ -270,13 +275,19 @@ class User(GraphQL):
     def artists(self):
         query = """
         {
-            artistsTree {
-                nodes {
-                    name
-                }
+          artistsTreeList {
+            name
+            albums {
+              name
+              musics {
+                folder
+                name
+                path
+              }
             }
+          }
         }"""
-        return self._post(query)['data']['artistsTree']['nodes']
+        return self._post(query)['data']['artistsTreeList']
 
     @property
     @functools.lru_cache(maxsize=None)
@@ -284,11 +295,11 @@ class User(GraphQL):
     def genres(self):
         query = """
         {
-            genresTree {
-                nodes
-            }
+          genresTreeList {
+            name
+          }
         }"""
-        return self._post(query)['data']['genresTree']['nodes']
+        return self._post(query)['data']['genresTreeList']
 
     @functools.lru_cache(maxsize=None)
     @helpers.timeit
@@ -391,7 +402,7 @@ class User(GraphQL):
         query = """
         mutation
         {
-            removeUser(input: {})
+            unregisterUser(input: {})
             {
                 clientMutationId
             }

@@ -32,12 +32,12 @@ Installation
   git clone https://github.com/AdrienPensart/musicbot.git
   cd musicbot
 
-  curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
+  https://pyenv.run | bash
   pyenv install --verbose $(cat .python-version) -ks
   pyenv global $(cat .python-version)
   eval "$(pyenv init -)"
 
-  curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python3
+  python <(curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py) --preview
   poetry install
 
   echo "shared_preload_libraries = 'pg_stat_statements'" | sudo tee -a /etc/postgresql/11/main/postgresql.conf
@@ -49,7 +49,8 @@ Installation
 
   git clone https://github.com/nginx/nginx.git
   git clone https://github.com/evanmiller/mod_zip.git
-  auto/configure --prefix=/opt/nginx --add-module="$HOME/mod_zip"
+  cd nginx
+  auto/configure --prefix=/opt/nginx --add-module="$HOME/mod_zip" --with-http_auth_request_module
   sudo make install
   sudo ln -s $HOME/musicbot/scripts/musicbot.service /etc/systemd/system/musicbot.service
   sudo ln -s $HOME/musicbot/scripts/nginx.service /etc/systemd/system/nginx.service
@@ -64,15 +65,13 @@ Installation
   sudo systemctl enable musicbot
   sudo systemctl daemon-reload
 
+  # in your user folder
   curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
   nvm install node
-  curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-  echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-  sudo apt-get update && sudo apt-get install --no-install-recommends yarn
+  curl -o- -L https://yarnpkg.com/install.sh | bash
   yarn add postgraphile
   yarn add postgraphile-plugin-connection-filter
-
-  npm install -g npx
+  yarn add npx
 
 Testing
 ------------
@@ -80,6 +79,13 @@ Testing
 .. code-block:: bash
 
 poetry run pytest --disable-warnings --cov-report term-missing --cov musicbot
+
+Linting
+------------
+
+.. code-block:: bash
+
+poetry run pylint -d line-too-long,too-many-arguments,protected-access,missing-docstring,invalid-name,too-many-public-methods,too-many-instance-attributes,duplicate-code,too-many-nested-blocks,too-many-branches,too-many-return-statements,too-many-statements,too-many-locals,too-few-public-methods,too-many-ancestors,abstract-method,anomalous-backslash-in-string musicbot tests
 
 Documentation
 ------------
@@ -89,15 +95,6 @@ Documentation
 poetry build
 pip3 install -U dist/musicbot-0.1.0-py3-none-any.whl
 doc/gen.sh
-
-Update dependencies
-------------
-
-.. code-block:: bash
-
-for p in $(cat packages.txt); do poetry remove $p; poetry add $p; done
-for p in $(cat packages-dev.txt); do poetry remove -D $p; poetry add -D $p; done
-poetry run pip3 freeze | grep -v musicbot > requirements.txt
 Commands
 --------
 .. code-block::
@@ -109,7 +106,7 @@ Commands
   Options:
     -V, --version                   Show the version and exit.
     -l, --log PATH                  Log file path  [default:
-                                    /Users/apensart/musicbot.log]
+                                    /home/apensart/musicbot.log]
     -i, --info                      Same as --verbosity info"
     -d, --debug                     Be very verbose, same as --verbosity debug +
                                     hide progress bars  [default: False]
@@ -124,7 +121,6 @@ Commands
   
   Commands:
     artist        Artist management
-    completion    Completion tool
     config        Config management
     db            Database management (admin)
     filter        Filter management
@@ -132,9 +128,9 @@ Commands
     folder        Folder management
     genre         Genre management
     help          Print help
+    play          Music player
     playlist      Playlist management
     postgraphile  Postgraphile management
-    repl          Start an interactive shell.
     spotify       Spotify
     stats         Stats on your music
     user          User management
@@ -185,65 +181,6 @@ musicbot artist list
   
   Options:
     -h, --help  Show this message and exit.
-
-
-musicbot completion
-*******************
-.. code-block::
-
-  Usage: musicbot completion [OPTIONS] COMMAND [ARGS]...
-  
-    Completion tool
-  
-  Options:
-    -h, --help  Show this message and exit.
-  
-  Commands:
-    help     Print help
-    install  Install the click-completion-command completion
-    show     Show the click-completion-command completion code
-
-
-musicbot completion help
-************************
-.. code-block::
-
-  Usage: musicbot completion help [OPTIONS] [COMMAND]...
-  
-    Print help
-  
-  Options:
-    -h, --help  Show this message and exit.
-
-
-musicbot completion install
-***************************
-.. code-block::
-
-  Usage: musicbot completion install [OPTIONS] [[bash|fish|zsh|powershell]]
-                                     [PATH]
-  
-    Install the click-completion-command completion
-  
-  Options:
-    --append / --overwrite          Append the completion code to the file
-    -i, --case-insensitive / --no-case-insensitive
-                                    Case insensitive completion
-    -h, --help                      Show this message and exit.
-
-
-musicbot completion show
-************************
-.. code-block::
-
-  Usage: musicbot completion show [OPTIONS] [[bash|fish|zsh|powershell]]
-  
-    Show the click-completion-command completion code
-  
-  Options:
-    -i, --case-insensitive / --no-case-insensitive
-                                    Case insensitive completion
-    -h, --help                      Show this message and exit.
 
 
 musicbot config
@@ -312,6 +249,7 @@ musicbot db
   
   Commands:
     clear   Drop and recreate database and schema
+    cli     Start PgCLI util
     create  Create database and load schema
     drop    Drop database
     help    Print help
@@ -329,6 +267,20 @@ musicbot db clear
     --db TEXT   DB dsn string  [default:
                 postgresql://postgres:musicbot@localhost:5432/musicbot_prod]
     --yes       Are you sure you want to drop and recreate db?
+    -h, --help  Show this message and exit.
+
+
+musicbot db cli
+***************
+.. code-block::
+
+  Usage: musicbot db cli [OPTIONS] [PGCLI_ARGS]...
+  
+    Start PgCLI util
+  
+  Options:
+    --db TEXT   DB dsn string  [default:
+                postgresql://postgres:musicbot@localhost:5432/musicbot_prod]
     -h, --help  Show this message and exit.
 
 
@@ -744,6 +696,47 @@ musicbot help
     -h, --help  Show this message and exit.
 
 
+musicbot play
+*************
+.. code-block::
+
+  Usage: musicbot play [OPTIONS] COMMAND [ARGS]...
+  
+  Options:
+    -e, --email TEXT        User email
+    -p, --password TEXT     User password
+    --token TEXT            User token
+    --graphql TEXT          GraphQL endpoint  [default:
+                            http://127.0.0.1:5000/graphql]
+    --name TEXT             Filter name
+    --limit INTEGER         Fetch a maximum limit of music
+    --youtubes TEXT         Select musics with a youtube link
+    --no-youtubes TEXT      Select musics without youtube link
+    --spotifys TEXT         Select musics with a spotifys link
+    --no-spotifys TEXT      Select musics without spotifys link
+    --formats TEXT          Select musics with file format
+    --no-formats TEXT       Filter musics without format
+    --keywords TEXT         Select musics with keywords
+    --no-keywords TEXT      Filter musics without keywords
+    --artists TEXT          Select musics with artists
+    --no-artists TEXT       Filter musics without artists
+    --albums TEXT           Select musics with albums
+    --no-albums TEXT        Filter musics without albums
+    --titles TEXT           Select musics with titles
+    --no-titles TEXT        Filter musics without titless
+    --genres TEXT           Select musics with genres
+    --no-genres TEXT        Filter musics without genres
+    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
+    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
+    --min-size INTEGER      Minimum file size filter (in bytes)
+    --max-size INTEGER      Maximum file size filter (in bytes)
+    --min-rating FLOAT      Minimum rating  [default: 0.0]
+    --max-rating FLOAT      Maximum rating  [default: 5.0]
+    --relative              Generate relatives paths
+    --shuffle               Randomize selection
+    -h, --help              Show this message and exit.
+
+
 musicbot playlist
 *****************
 .. code-block::
@@ -923,24 +916,6 @@ musicbot postgraphile public
                                     localhost]
     --background                    Run in background  [default: False]
     -h, --help                      Show this message and exit.
-
-
-musicbot repl
-*************
-.. code-block::
-
-  Usage: musicbot repl [OPTIONS]
-  
-    Start an interactive shell. All subcommands are available in it.
-  
-    :param old_ctx: The current Click context. :param prompt_kwargs:
-    Parameters passed to     :py:func:`prompt_toolkit.shortcuts.prompt`.
-  
-    If stdin is not a TTY, no prompt will be printed, but only commands read
-    from stdin.
-  
-  Options:
-    -h, --help  Show this message and exit.
 
 
 musicbot spotify

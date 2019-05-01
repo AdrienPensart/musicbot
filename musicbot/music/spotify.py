@@ -52,6 +52,6 @@ class Spotify:
         try:
             results = self.sp.search(q="{} artist:{}".format(title, artist), limit=1)
             return results['tracks']['items'][0]['external_urls']['spotify']
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             logger.info(e)
             return 'not found'

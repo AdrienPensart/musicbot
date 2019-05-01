@@ -233,7 +233,7 @@ class File:
     def spotify(self):
         return self.spotify_link
 
-    def fingerprint(api_key, self):
+    def fingerprint(self, api_key):
         import acoustid
         ids = acoustid.match(api_key, self.path)
         for _, recording_id, _, _ in ids:

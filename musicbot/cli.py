@@ -2,8 +2,6 @@
 import os
 import logging
 import click
-import click_completion
-import click_repl
 from attrdict import AttrDict
 from musicbot import helpers, config
 
@@ -20,18 +18,6 @@ with open(os.path.join(bin_folder, "version.py")) as fp:
     exec(fp.read(), _version)  # pylint: disable=exec-used
 __version__ = _version['__version__']
 prog_name = "musicbot"
-
-
-def custom_startswith(string, incomplete):
-    """A custom completion matching that supports case insensitive matching"""
-    if os.getenv('_MUSICBOT_CASE_INSENSITIVE_COMPLETE'):
-        string = string.lower()
-        incomplete = incomplete.lower()
-    return string.startswith(incomplete)
-
-
-click_completion.startswith = custom_startswith
-click_completion.init()
 
 
 class SubCommandLineInterface(helpers.GroupWithHelp):
@@ -77,7 +63,6 @@ def version():
 
 
 def main(**kwargs):
-    click_repl.register_repl(cli)
     return cli.main(prog_name=prog_name, **kwargs)
 
 

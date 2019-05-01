@@ -41,8 +41,8 @@ def find(path, acoustid_apikey):
             yt = YouTube(url)
             for stream in yt.streams.all():
                 with tqdm(total=stream.filesize, desc="Testing {}".format(url), disable=config.quiet, leave=False) as pbar:
-                    def show_progress_bar(stream, chunk, file_handle, bytes_remaining):
-                        pbar.update(len(chunk))
+                    def show_progress_bar(stream, chunk, file_handle, bytes_remaining):  # pylint: disable=unused-argument
+                        pbar.update(len(chunk))  # pylint: disable=cell-var-from-loop
                     yt.register_on_progress_callback(show_progress_bar)
                     yt_path = stream.download()
                     break
@@ -75,7 +75,7 @@ def fingerprint(url, acoustid_apikey):
     yt = YouTube(url)
     stream = yt.streams.filter(progressive=True).order_by('abr').asc().first()
     with tqdm(total=stream.filesize, desc="Downloading music", disable=config.quiet, leave=False) as pbar:
-        def show_progress_bar(stream, chunk, file_handle, bytes_remaining):
+        def show_progress_bar(stream, chunk, file_handle, bytes_remaining):  # pylint: disable=unused-argument
             pbar.update(len(chunk))
         yt.register_on_progress_callback(show_progress_bar)
         path = stream.download()

@@ -54,13 +54,13 @@ def search(artist, title, duration=None):
             return []
 
         for r in results:
-            logger.info('{} {}'.format(r["snippet"]["title"], format_timespan(isodate.parse_duration(r["contentDetails"]["duration"]).total_seconds())))
+            logger.info('%s %s', r["snippet"]["title"], format_timespan(isodate.parse_duration(r["contentDetails"]["duration"]).total_seconds()))
         if duration:
             mapping = {"https://www.youtube.com/watch?v=" + r["id"]: abs(isodate.parse_duration(r["contentDetails"]["duration"]).total_seconds() - duration) for r in results}
             links = sorted(mapping, key=mapping.get)
             return links
         return ["https://www.youtube.com/watch?v=" + r["id"] for r in results]
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-except
         logger.info(type(e))
         logger.info('Cannot find video for artist: %s title: %s duration: %s', artist, title, duration)
         return []

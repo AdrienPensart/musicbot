@@ -38,9 +38,9 @@ def test_mp3_tags():
 
 
 def test_duration():
-    assert 12 == lib.duration_to_seconds("12s")
-    assert 60 * 12 == lib.duration_to_seconds("12m")
-    assert 60 * 60 * 12 == lib.duration_to_seconds("12h")
+    assert lib.duration_to_seconds("12s") == 12
+    assert lib.duration_to_seconds("12m") == 60 * 12
+    assert lib.duration_to_seconds("12h") == 60 * 60 * 12
 
 
 # def test_raise_limits():

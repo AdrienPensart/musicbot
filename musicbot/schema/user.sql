@@ -75,7 +75,7 @@ $$
 	select insert_user.* from insert_user;
 $$ language sql strict security definer;
 
-create or replace function musicbot_public.remove_user()
+create or replace function musicbot_public.unregister_user()
 returns musicbot_public.user as
 $$
 	delete from musicbot_public.user u
@@ -90,13 +90,11 @@ create or replace function musicbot_public.authenticate(
 returns musicbot_public.jwt_token as
 $$
 declare
-  token_information musicbot_public.jwt_token;
   account musicbot_private.account;
 begin
-    select a.* into account
+    select a.* into strict account
     from musicbot_private.account as a
     where a.email = $1;
-
     if account.password_hash = crypt(password, account.password_hash) then
 		--set role musicbot_user;
 		--set local jwt.claims.role to 'musicbot_user';
@@ -109,6 +107,12 @@ begin
         raise notice 'Authentication failed for user %', email;
         return null;
     end if;
+    exception
+        when NO_DATA_FOUND then
+            raise notice 'Account % not found', email;
+        when TOO_MANY_ROWS then
+            raise notice 'Account % not unique', email;
+        return null;
 end;
 $$ language plpgsql strict security definer;
 
@@ -119,8 +123,19 @@ create or replace function musicbot_public.new_token(
 )
 returns text as
 $$
-    select sign((select row_to_json(info) from (select * from musicbot_public.authenticate(email, password) limit 1) info), secret) as token
-$$ language sql stable;
+declare
+  token musicbot_public.jwt_token;
+begin
+    select t.* into token
+    from musicbot_public.authenticate(email, password) as t;
+
+    if token = null then
+        raise notice 'Token failed for user %', email;
+        return null;
+    end if;
+    return sign((select row_to_json(token)), secret);
+end;
+$$ language plpgsql stable;
 
 create or replace function musicbot_public.current_musicbot()
 returns musicbot_public.user as

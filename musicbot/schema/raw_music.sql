@@ -124,11 +124,11 @@ create or replace function musicbot_public.folders() returns setof text as $$
     select distinct folder from musicbot_public.raw_music order by folder asc;
 $$ language sql stable;
 
-drop type musicbot_public.music cascade;
-drop type musicbot_public.album cascade;
-drop type musicbot_public.artist cascade;
-drop type musicbot_public.genre cascade;
-drop type musicbot_public.keyword cascade;
+drop type if exists musicbot_public.music cascade;
+drop type if exists musicbot_public.album cascade;
+drop type if exists musicbot_public.artist cascade;
+drop type if exists musicbot_public.genre cascade;
+drop type if exists musicbot_public.keyword cascade;
 
 create type musicbot_public.music as (id bigint, name text, path text, folder text);
 create type musicbot_public.album as (id bigint, name text, musics musicbot_public.music[]);
