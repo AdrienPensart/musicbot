@@ -55,8 +55,18 @@ def cli(ctx, email, password, token, graphql, **kwargs):
     def _playlist_binding(event):
         def playlist():
             """List songs"""
-            for s in songs:
-                print(s)
+            media_player = player.get_media_player()
+            media = media_player.get_media()
+            media.parse()
+            artist = media.get_meta(vlc.Meta.Artist)
+            album = media.get_meta(vlc.Meta.Album)
+            title = media.get_meta(vlc.Meta.Title)
+            for s in p:
+                if s['artist'] == artist and s['title'] == title and s['album'] == album:
+                    print('> {}'.format(s['path']))
+                else:
+                    print(s['path'])
+            print('------------------------------------------')
         run_in_terminal(playlist)
 
     @bindings.add('right')

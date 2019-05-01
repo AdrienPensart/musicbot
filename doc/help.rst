@@ -32,12 +32,12 @@ Installation
   git clone https://github.com/AdrienPensart/musicbot.git
   cd musicbot
 
-  curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
+  https://pyenv.run | bash
   pyenv install --verbose $(cat .python-version) -ks
   pyenv global $(cat .python-version)
   eval "$(pyenv init -)"
 
-  curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python3
+  python <(curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py) --preview
   poetry install
 
   echo "shared_preload_libraries = 'pg_stat_statements'" | sudo tee -a /etc/postgresql/11/main/postgresql.conf
