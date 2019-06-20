@@ -105,8 +105,7 @@ Commands
   
   Options:
     -V, --version                   Show the version and exit.
-    -l, --log PATH                  Log file path  [default:
-                                    /home/apensart/musicbot.log]
+    -l, --log PATH                  Log file path  [default: ~/musicbot.log]
     -i, --info                      Same as --verbosity info"
     -d, --debug                     Be very verbose, same as --verbosity debug +
                                     hide progress bars  [default: False]

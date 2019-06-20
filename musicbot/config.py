@@ -9,8 +9,7 @@ from . import lib
 logger = logging.getLogger(__name__)
 current_user = pwd.getpwuid(os.getuid()).pw_name
 
-USER_DIR = os.path.expanduser('~')
-DEFAULT_LOG = USER_DIR + '/musicbot.log'
+DEFAULT_LOG = '~/musicbot.log'
 MB_LOG = 'MB_LOG'
 MB_INFO = 'MB_INFO'
 MB_DEBUG = 'MB_DEBUG'
@@ -74,6 +73,7 @@ class Config:
 
     def set(self, debug=None, info=None, timings=None, dry=None, quiet=None, verbosity=None, colors=None, log=None):
         self.log = log if log is not None else os.getenv(MB_LOG, str(DEFAULT_LOG))
+        self.log = os.path.expanduser(self.log)
         self.quiet = quiet if quiet is not None else lib.str2bool(os.getenv(MB_QUIET, str(DEFAULT_QUIET)))
         self.debug = debug if debug is not None else lib.str2bool(os.getenv(MB_DEBUG, str(DEFAULT_DEBUG)))
         self.info = info if info is not None else lib.str2bool(os.getenv(MB_INFO, str(DEFAULT_INFO)))
