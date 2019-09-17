@@ -78,7 +78,7 @@ Testing
 
 .. code-block:: bash
 
-poetry run pytest --disable-warnings --cov-report term-missing --cov musicbot
+poetry run pytest --disable-warnings --cov-report term-missing --cov musicbot -x -n auto tests
 
 Linting
 ------------
