@@ -2,13 +2,17 @@
 import os
 import logging
 import click
+from click.formatting import HelpFormatter
 from attrdict import AttrDict
 from musicbot import helpers, config
+
+# little hacky but prevent click from rewraping
+HelpFormatter.write_dl.__defaults__ = (50, 2)
 
 bin_folder = os.path.dirname(__file__)
 commands_folder = 'commands'
 plugin_folder = os.path.join(bin_folder, commands_folder)
-CONTEXT_SETTINGS = {'auto_envvar_prefix': 'MB', 'help_option_names': ['-h', '--help']}
+CONTEXT_SETTINGS = {'max_content_width': 140, 'terminal_width': 140, 'auto_envvar_prefix': 'MB', 'help_option_names': ['-h', '--help']}
 logger = logging.getLogger('musicbot')
 
 

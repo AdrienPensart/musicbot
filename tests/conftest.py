@@ -7,14 +7,15 @@ import traceback
 import logging
 import pytest
 from musicbot.backend import postgraphile, database
-from musicbot.cli import cli
+from musicbot.cli import cli, prog_name
 from . import fixtures
 
 logger = logging.getLogger(__name__)
 
 
 def run_cli(cli_runner, called_cli, *args):
-    logger.debug('Invoking %s with args %s', called_cli, args)
+    if args:
+        logger.debug('Invoking : %s %s', prog_name, ' '.join(*args))
     result = cli_runner.invoke(called_cli, *args)
     logger.debug(result.output)
     if result.exception:

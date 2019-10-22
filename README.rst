@@ -43,8 +43,8 @@ Installation
   echo "shared_preload_libraries = 'pg_stat_statements'" | sudo tee -a /etc/postgresql/11/main/postgresql.conf
   echo "pg_stat_statements.track = all" | sudo tee -a /etc/postgresql/11/main/postgresql.conf
   sudo systemctl restart postgresql
-  psql -d postgres -c "create user postgres with password 'musicbot' superuser;" && history -c
-  psql -d postgres -c "alter user postgres password 'musicbot';" && history -c
+  sudo -u postgres psql -d postgres -c "create user postgres with password 'musicbot' superuser;" && history -c
+  sudo -u postgres psql -d postgres -c "alter user postgres password 'musicbot';" && history -c
   poetry run pgcli postgresql://postgres:musicbot@localhost:5432
 
   git clone https://github.com/nginx/nginx.git
@@ -54,6 +54,7 @@ Installation
   sudo make install
   sudo ln -s $HOME/musicbot/scripts/musicbot.service /etc/systemd/system/musicbot.service
   sudo ln -s $HOME/musicbot/scripts/nginx.service /etc/systemd/system/nginx.service
+  sudo rm /opt/nginx/conf/nginx.conf
   sudo ln -s $HOME/musicbot/scripts/nginx.conf /opt/nginx/conf/nginx.conf
   sudo ln -s /opt/nginx/sbin/nginx /usr/sbin/nginx
 
@@ -68,10 +69,9 @@ Installation
   # in your user folder
   curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
   nvm install node
-  curl -o- -L https://yarnpkg.com/install.sh | bash
-  yarn add postgraphile
-  yarn add postgraphile-plugin-connection-filter
-  yarn add npx
+  npm install yarn -g
+  cd $HOME/musicbot/vue-musicbot
+  yarn install
 
 Testing
 ------------
@@ -104,19 +104,17 @@ Commands
     Music swiss knife, new gen.
   
   Options:
-    -V, --version                   Show the version and exit.
-    -l, --log PATH                  Log file path  [default: ~/musicbot.log]
-    -i, --info                      Same as --verbosity info"
-    -d, --debug                     Be very verbose, same as --verbosity debug +
-                                    hide progress bars  [default: False]
-    -t, --timings                   Set verbosity to info and show execution
-                                    timings  [default: False]
+    -V, --version                                       Show the version and exit.
+    -l, --log PATH                                      Log file path  [default: ~/musicbot.log]
+    -i, --info                                          Same as --verbosity info"
+    -d, --debug                                         Be very verbose, same as --verbosity debug + hide progress bars  [default: False]
+    -t, --timings                                       Set verbosity to info and show execution timings  [default: False]
     -v, --verbosity [debug|info|warning|error|critical]
-                                    Verbosity levels  [default: warning]
-    --dry                           Take no real action  [default: False]
-    -q, --quiet                     Disable progress bars  [default: False]
-    --colors / --no-colors          Disable colorized output  [default: True]
-    -h, --help                      Show this message and exit.
+                                                        Verbosity levels  [default: warning]
+    --dry                                               Take no real action  [default: False]
+    -q, --quiet                                         Disable progress bars  [default: False]
+    --colors / --no-colors                              Disable colorized output  [default: True]
+    -h, --help                                          Show this message and exit.
   
   Commands:
     artist        Artist management
@@ -149,8 +147,7 @@ musicbot artist
     -e, --email TEXT     User email
     -p, --password TEXT  User password
     --token TEXT         User token
-    --graphql TEXT       GraphQL endpoint  [default:
-                         http://127.0.0.1:5000/graphql]
+    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
     -h, --help           Show this message and exit.
   
   Commands:
@@ -263,8 +260,7 @@ musicbot db clear
     Drop and recreate database and schema
   
   Options:
-    --db TEXT   DB dsn string  [default:
-                postgresql://postgres:musicbot@localhost:5432/musicbot_prod]
+    --db TEXT   DB dsn string  [default: postgresql://postgres:musicbot@localhost:5432/musicbot_prod]
     --yes       Are you sure you want to drop and recreate db?
     -h, --help  Show this message and exit.
 
@@ -278,8 +274,7 @@ musicbot db cli
     Start PgCLI util
   
   Options:
-    --db TEXT   DB dsn string  [default:
-                postgresql://postgres:musicbot@localhost:5432/musicbot_prod]
+    --db TEXT   DB dsn string  [default: postgresql://postgres:musicbot@localhost:5432/musicbot_prod]
     -h, --help  Show this message and exit.
 
 
@@ -292,8 +287,7 @@ musicbot db create
     Create database and load schema
   
   Options:
-    --db TEXT   DB dsn string  [default:
-                postgresql://postgres:musicbot@localhost:5432/musicbot_prod]
+    --db TEXT   DB dsn string  [default: postgresql://postgres:musicbot@localhost:5432/musicbot_prod]
     -h, --help  Show this message and exit.
 
 
@@ -306,8 +300,7 @@ musicbot db drop
     Drop database
   
   Options:
-    --db TEXT   DB dsn string  [default:
-                postgresql://postgres:musicbot@localhost:5432/musicbot_prod]
+    --db TEXT   DB dsn string  [default: postgresql://postgres:musicbot@localhost:5432/musicbot_prod]
     --yes       Are you sure you want to drop the DB ?
     -h, --help  Show this message and exit.
 
@@ -336,8 +329,7 @@ musicbot filter
     -e, --email TEXT     User email
     -p, --password TEXT  User password
     --token TEXT         User token
-    --graphql TEXT       GraphQL endpoint  [default:
-                         http://127.0.0.1:5000/graphql]
+    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
     -h, --help           Show this message and exit.
   
   Commands:
@@ -487,8 +479,7 @@ musicbot folder
     -e, --email TEXT     User email
     -p, --password TEXT  User password
     --token TEXT         User token
-    --graphql TEXT       GraphQL endpoint  [default:
-                         http://127.0.0.1:5000/graphql]
+    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
     -h, --help           Show this message and exit.
   
   Commands:
@@ -650,8 +641,7 @@ musicbot genre
     -e, --email TEXT     User email
     -p, --password TEXT  User password
     --token TEXT         User token
-    --graphql TEXT       GraphQL endpoint  [default:
-                         http://127.0.0.1:5000/graphql]
+    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
     -h, --help           Show this message and exit.
   
   Commands:
@@ -705,8 +695,7 @@ musicbot play
     -e, --email TEXT        User email
     -p, --password TEXT     User password
     --token TEXT            User token
-    --graphql TEXT          GraphQL endpoint  [default:
-                            http://127.0.0.1:5000/graphql]
+    --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
     --name TEXT             Filter name
     --limit INTEGER         Fetch a maximum limit of music
     --youtubes TEXT         Select musics with a youtube link
@@ -748,8 +737,7 @@ musicbot playlist
     -e, --email TEXT     User email
     -p, --password TEXT  User password
     --token TEXT         User token
-    --graphql TEXT       GraphQL endpoint  [default:
-                         http://127.0.0.1:5000/graphql]
+    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
     -h, --help           Show this message and exit.
   
   Commands:
@@ -886,15 +874,11 @@ musicbot postgraphile private
     Start private backend
   
   Options:
-    --db TEXT                       DB dsn string  [default: postgresql://postgr
-                                    es:musicbot@localhost:5432/musicbot_prod]
-    --graphql-private-port INTEGER  Postgraphile private API port  [default:
-                                    5001]
-    --graphql-private-interface TEXT
-                                    Postgraphile private API interface
-                                    [default: localhost]
-    --background                    Run in background  [default: False]
-    -h, --help                      Show this message and exit.
+    --db TEXT                         DB dsn string  [default: postgresql://postgres:musicbot@localhost:5432/musicbot_prod]
+    --graphql-private-port INTEGER    Postgraphile private API port  [default: 5001]
+    --graphql-private-interface TEXT  Postgraphile private API interface  [default: localhost]
+    --background                      Run in background  [default: False]
+    -h, --help                        Show this message and exit.
 
 
 musicbot postgraphile public
@@ -906,15 +890,11 @@ musicbot postgraphile public
     Start public backend
   
   Options:
-    --db TEXT                       DB dsn string  [default: postgresql://postgr
-                                    es:musicbot@localhost:5432/musicbot_prod]
-    --graphql-public-port INTEGER   Postgraphile public API port  [default:
-                                    5000]
-    --graphql-public-interface TEXT
-                                    Postgraphile public API interface  [default:
-                                    localhost]
-    --background                    Run in background  [default: False]
-    -h, --help                      Show this message and exit.
+    --db TEXT                        DB dsn string  [default: postgresql://postgres:musicbot@localhost:5432/musicbot_prod]
+    --graphql-public-port INTEGER    Postgraphile public API port  [default: 5000]
+    --graphql-public-interface TEXT  Postgraphile public API interface  [default: localhost]
+    --background                     Run in background  [default: False]
+    -h, --help                       Show this message and exit.
 
 
 musicbot spotify
@@ -972,8 +952,7 @@ musicbot stats
     -e, --email TEXT     User email
     -p, --password TEXT  User password
     --token TEXT         User token
-    --graphql TEXT       GraphQL endpoint  [default:
-                         http://127.0.0.1:5000/graphql]
+    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
     -h, --help           Show this message and exit.
   
   Commands:
@@ -1068,8 +1047,7 @@ musicbot user create
     -p, --password TEXT  User password
     --first-name TEXT    User first name
     --last-name TEXT     User last name
-    --graphql TEXT       GraphQL endpoint  [default:
-                         http://127.0.0.1:5000/graphql]
+    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
     -h, --help           Show this message and exit.
 
 
@@ -1085,8 +1063,7 @@ musicbot user delete
     -e, --email TEXT     User email
     -p, --password TEXT  User password
     --token TEXT         User token
-    --graphql TEXT       GraphQL endpoint  [default:
-                         http://127.0.0.1:5000/graphql]
+    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
     -h, --help           Show this message and exit.
 
 
@@ -1111,8 +1088,7 @@ musicbot user list
     List users (admin)
   
   Options:
-    --graphql-admin TEXT  GraphQL endpoint  [default:
-                          http://127.0.0.1:5001/graphql]
+    --graphql-admin TEXT  GraphQL endpoint  [default: http://127.0.0.1:5001/graphql]
     -h, --help            Show this message and exit.
 
 
@@ -1128,8 +1104,7 @@ musicbot user login
     -e, --email TEXT     User email
     -p, --password TEXT  User password
     --token TEXT         User token
-    --graphql TEXT       GraphQL endpoint  [default:
-                         http://127.0.0.1:5000/graphql]
+    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
     -h, --help           Show this message and exit.
 
 
@@ -1146,8 +1121,7 @@ musicbot user new
     -p, --password TEXT  User password
     --first-name TEXT    User first name
     --last-name TEXT     User last name
-    --graphql TEXT       GraphQL endpoint  [default:
-                         http://127.0.0.1:5000/graphql]
+    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
     -h, --help           Show this message and exit.
 
 
@@ -1164,8 +1138,7 @@ musicbot user register
     -p, --password TEXT  User password
     --first-name TEXT    User first name
     --last-name TEXT     User last name
-    --graphql TEXT       GraphQL endpoint  [default:
-                         http://127.0.0.1:5000/graphql]
+    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
     -h, --help           Show this message and exit.
 
 
@@ -1181,8 +1154,7 @@ musicbot user remove
     -e, --email TEXT     User email
     -p, --password TEXT  User password
     --token TEXT         User token
-    --graphql TEXT       GraphQL endpoint  [default:
-                         http://127.0.0.1:5000/graphql]
+    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
     -h, --help           Show this message and exit.
 
 
@@ -1198,8 +1170,7 @@ musicbot user token
     -e, --email TEXT     User email
     -p, --password TEXT  User password
     --token TEXT         User token
-    --graphql TEXT       GraphQL endpoint  [default:
-                         http://127.0.0.1:5000/graphql]
+    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
     -h, --help           Show this message and exit.
 
 
@@ -1215,8 +1186,7 @@ musicbot user unregister
     -e, --email TEXT     User email
     -p, --password TEXT  User password
     --token TEXT         User token
-    --graphql TEXT       GraphQL endpoint  [default:
-                         http://127.0.0.1:5000/graphql]
+    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
     -h, --help           Show this message and exit.
 
 

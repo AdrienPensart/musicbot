@@ -43,8 +43,8 @@ Installation
   echo "shared_preload_libraries = 'pg_stat_statements'" | sudo tee -a /etc/postgresql/11/main/postgresql.conf
   echo "pg_stat_statements.track = all" | sudo tee -a /etc/postgresql/11/main/postgresql.conf
   sudo systemctl restart postgresql
-  psql -d postgres -c "create user postgres with password 'musicbot' superuser;" && history -c
-  psql -d postgres -c "alter user postgres password 'musicbot';" && history -c
+  sudo -u postgres psql -d postgres -c "create user postgres with password 'musicbot' superuser;" && history -c
+  sudo -u postgres psql -d postgres -c "alter user postgres password 'musicbot';" && history -c
   poetry run pgcli postgresql://postgres:musicbot@localhost:5432
 
   git clone https://github.com/nginx/nginx.git
@@ -54,6 +54,7 @@ Installation
   sudo make install
   sudo ln -s $HOME/musicbot/scripts/musicbot.service /etc/systemd/system/musicbot.service
   sudo ln -s $HOME/musicbot/scripts/nginx.service /etc/systemd/system/nginx.service
+  sudo rm /opt/nginx/conf/nginx.conf
   sudo ln -s $HOME/musicbot/scripts/nginx.conf /opt/nginx/conf/nginx.conf
   sudo ln -s /opt/nginx/sbin/nginx /usr/sbin/nginx
 
@@ -68,10 +69,9 @@ Installation
   # in your user folder
   curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
   nvm install node
-  curl -o- -L https://yarnpkg.com/install.sh | bash
-  yarn add postgraphile
-  yarn add postgraphile-plugin-connection-filter
-  yarn add npx
+  npm install yarn -g
+  cd $HOME/musicbot/vue-musicbot
+  yarn install
 
 Testing
 ------------
