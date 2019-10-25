@@ -26,7 +26,7 @@ Installation
 
 .. code-block:: bash
 
-  sudo apt install -y build-essential libssl-dev libtag1-dev ffmpeg postgresql-11 libpcre3-dev postgresql-server-dev-all docker.io libchromaprint-tools
+  sudo apt install -y build-essential libtag1-dev ffmpeg postgresql-11 libpcre3-dev postgresql-server-dev-all docker.io libchromaprint-tools libbz2-dev libsqlite3-dev llvm libncurses5-dev libncursesw5-dev tk-dev liblzma-dev libssl-dev libreadline-dev
   sudo usermod -aG docker $USER
 
   git clone https://github.com/AdrienPensart/musicbot.git
