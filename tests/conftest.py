@@ -86,7 +86,7 @@ def postgraphile_public(postgres, unused_tcp_port_factory):
     public_port = unused_tcp_port_factory()
     pql = postgraphile.Postgraphile.public(db=postgres.db, port=public_port)
     pql.run(background=True)
-    time.sleep(2)
+    time.sleep(15)
     yield pql
     pql.kill()
 
@@ -96,7 +96,7 @@ def postgraphile_private(postgres, unused_tcp_port_factory):
     private_port = unused_tcp_port_factory()
     pql = postgraphile.Postgraphile.private(db=postgres.db, port=private_port)
     pql.run(background=True)
-    time.sleep(2)
+    time.sleep(15)
     yield pql
     pql.kill()
 
@@ -113,7 +113,7 @@ def postgraphile_public_cli(cli_runner, db_cli, unused_tcp_port_factory):
     port = str(unused_tcp_port_factory())
     # public_group = run_cli(cli_runner, cli, ['--debug', 'postgraphile', 'public', 'my_testing_secret', '--background', '--db', db_cli, '--graphql-public-port', port])
     public_group = run_cli(cli_runner, cli, ['postgraphile', 'public', 'my_testing_secret', '--background', '--db', db_cli, '--graphql-public-port', port])
-    time.sleep(1)
+    time.sleep(15)
     yield "http://127.0.0.1:{}/graphql".format(port)
     os.killpg(int(public_group), signal.SIGTERM)
 
@@ -123,7 +123,7 @@ def postgraphile_private_cli(cli_runner, db_cli, unused_tcp_port_factory):
     port = str(unused_tcp_port_factory())
     # private_group = run_cli(cli_runner, cli, ['--debug', 'postgraphile', 'private', '--background', '--db', db_cli, '--graphql-private-port', port])
     private_group = run_cli(cli_runner, cli, ['postgraphile', 'private', '--background', '--db', db_cli, '--graphql-private-port', port])
-    time.sleep(1)
+    time.sleep(15)
     yield "http://127.0.0.1:{}/graphql".format(port)
     os.killpg(int(private_group), signal.SIGTERM)
 

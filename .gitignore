@@ -5,7 +5,7 @@ doc/html
 *.egg-info
 *.pid
 .eggs
-.coverage
+.coverage*
 dist
 man
 build

@@ -26,7 +26,7 @@ Installation
 
 .. code-block:: bash
 
-  sudo apt install -y build-essential libtag1-dev ffmpeg postgresql-11 libpcre3-dev postgresql-server-dev-all docker.io libchromaprint-tools libbz2-dev libsqlite3-dev llvm libncurses5-dev libncursesw5-dev tk-dev liblzma-dev libssl-dev libreadline-dev
+  sudo apt install -y build-essential libtag1-dev ffmpeg postgresql-12 libpcre3-dev postgresql-server-dev-all docker.io libchromaprint-tools libbz2-dev libsqlite3-dev llvm libncurses5-dev libncursesw5-dev tk-dev liblzma-dev libssl-dev libreadline-dev
   sudo usermod -aG docker $USER
 
   git clone https://github.com/AdrienPensart/musicbot.git
@@ -40,8 +40,8 @@ Installation
   python <(curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py) --preview
   poetry install
 
-  echo "shared_preload_libraries = 'pg_stat_statements'" | sudo tee -a /etc/postgresql/11/main/postgresql.conf
-  echo "pg_stat_statements.track = all" | sudo tee -a /etc/postgresql/11/main/postgresql.conf
+  echo "shared_preload_libraries = 'pg_stat_statements'" | sudo tee -a /etc/postgresql/12/main/postgresql.conf
+  echo "pg_stat_statements.track = all" | sudo tee -a /etc/postgresql/12/main/postgresql.conf
   sudo systemctl restart postgresql
   sudo -u postgres psql -d postgres -c "create user postgres with password 'musicbot' superuser;" && history -c
   sudo -u postgres psql -d postgres -c "alter user postgres password 'musicbot';" && history -c

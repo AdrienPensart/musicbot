@@ -25,13 +25,13 @@ pydub==0.23.1
 pyreadline==2.1; sys_platform == "win32"
 pytaglib==1.4.5
 python-vlc==3.0.7110
-pytube==9.5.2
+pytube==9.5.3
 pyyaml==5.1.2
 requests==2.22.0
-six==1.12.0
+six==1.13.0
 spotipy==2.4.4
-toml==0.10.0; extra == "pyproject"
-tqdm==4.36.1
+toml==0.10.0
+tqdm==4.38.0
 urllib3==1.25.6
 watchdog==0.9.0
 wcwidth==0.1.7
