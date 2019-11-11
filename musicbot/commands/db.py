@@ -37,7 +37,7 @@ def drop(**kwargs):
     database.Database(**kwargs).drop()
 
 
-@cli.command()
+@cli.command(aliases=['recreate'])
 @helpers.add_options(database.db_option)
 @click.confirmation_option(help='Are you sure you want to drop and recreate db?')
 def clear(**kwargs):

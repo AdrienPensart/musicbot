@@ -33,6 +33,7 @@ pyyaml = "^5.1"
 python-vlc = "^3.0"
 prompt_toolkit = "^2.0"
 graphql-py = "^0.7.1"
+click_aliases = "^1.0.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^4.4"

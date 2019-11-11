@@ -130,6 +130,20 @@ version = "7.0"
 
 [[package]]
 category = "main"
+description = "Enable aliases for Click"
+name = "click-aliases"
+optional = false
+python-versions = "*"
+version = "1.0.1"
+
+[package.dependencies]
+click = "*"
+
+[package.extras]
+dev = ["flake8", "flake8-import-order", "tox-travis", "pytest", "pytest-cov", "coveralls", "wheel"]
+
+[[package]]
+category = "main"
 description = "Enable git-like did-you-mean feature in click."
 name = "click-didyoumean"
 optional = false
@@ -801,7 +815,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "contextlib2", "unittest2"]
 
 [metadata]
-content-hash = "9c0bc659b0dfca1d324137f0c5c0e66fa370920ade7cb0876266f7c5205f4203"
+content-hash = "9eabecc92da58dca2fc66f16a551536fbadd4322d33eadef48e651b13dd0513e"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -852,6 +866,10 @@ cli-helpers = [
 click = [
     {file = "Click-7.0-py2.py3-none-any.whl", hash = "sha256:2335065e6395b9e67ca716de5f7526736bfa6ceead690adf616d925bdc622b13"},
     {file = "Click-7.0.tar.gz", hash = "sha256:5b94b49521f6456670fdb30cd82a4eca9412788a93fa6dd6df72c94d5a8ff2d7"},
+]
+click-aliases = [
+    {file = "click-aliases-1.0.1.tar.gz", hash = "sha256:f48012077e0788eb02f4f8ee458fef3601873fec6c998e9ea8b4554394e705a3"},
+    {file = "click_aliases-1.0.1-py2.py3-none-any.whl", hash = "sha256:229ecab12a97d1d5ce3f1fd7ce16da0e4333a24ebe3b34d8b7a6d0a1d2cfab90"},
 ]
 click-didyoumean = [
     {file = "click-didyoumean-0.0.3.tar.gz", hash = "sha256:112229485c9704ff51362fe34b2d4f0b12fc71cc20f6d2b3afabed4b8bfa6aeb"},

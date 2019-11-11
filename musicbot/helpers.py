@@ -7,6 +7,7 @@ import functools
 import click
 import click_spinner
 from click_didyoumean import DYMGroup
+from click_aliases import ClickAliasedGroup
 from tqdm import tqdm
 from .config import config
 from .lib import seconds_to_human, find_files, filecount
@@ -28,7 +29,7 @@ def random_password(size=8):
     return ''.join(random.choice(alphabet) for i in range(size))
 
 
-class GroupWithHelp(DYMGroup):
+class GroupWithHelp(DYMGroup, ClickAliasedGroup):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

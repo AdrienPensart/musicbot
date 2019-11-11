@@ -1,8 +1,8 @@
 \i ./schemas.sql
 \i ./extensions.sql
-\i ./users.sql
-\i ./tables.sql
---\i ./views.sql
-\i ./functions.sql
---\i ./data.sql
---\i ./triggers.sql
+\i ./user.sql
+\i ./raw_music.sql
+\i ./filter.sql
+\i ./playlist.sql
+\i ./stat.sql
+\i ./grants.sql
