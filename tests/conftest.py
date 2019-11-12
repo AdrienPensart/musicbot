@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 def run_cli(cli_runner, called_cli, *args):
     if args:
-        logger.debug('Invoking : %s %s', prog_name, ' '.join(*args))
+        logger.debug('Invoking : %s %s', prog_name, ' '.join(str(elem) for elem in args))
     result = cli_runner.invoke(called_cli, *args)
     logger.debug(result.output)
     if result.exception:

@@ -54,12 +54,10 @@ def find(path, acoustid_apikey):
             if file_id == yt_id:
                 print('Found: fingerprint {} | url {}'.format(file_id, url))
                 break
-            elif yt_id is not None:
+            if yt_id is not None:
                 print('Not exactly found: fingerprint file: {} | yt: {} | url {}'.format(file_id, yt_id, url))
                 break
-            else:
-                print('Based only on duration, maybe: {}'.format(url))
-            # break
+            print('Based only on duration, maybe: {}'.format(url))
         except VideoUnavailable:
             pass
         finally:

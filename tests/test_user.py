@@ -47,6 +47,7 @@ def test_delete(user_sample, files):
 
 
 def test_authenticate(postgraphile_public, user_sample, email_sample):
+    assert user_sample.email == email_sample
     same1 = user.User(graphql=postgraphile_public.dsn, email=email_sample, password=fixtures.password)
     assert same1.authenticated
     assert same1.token

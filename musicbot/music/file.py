@@ -95,47 +95,47 @@ class File:
         self.handle.tags[tag].insert(0, value)
 
     @property
-    def title(self, default=''):
-        return self.__get_first('TITLE', default)
+    def title(self):
+        return self.__get_first('TITLE')
 
     @title.setter
     def title(self, title):
         self.__set_first('TITLE', title)
 
     @property
-    def album(self, default=''):
-        return self.__get_first('ALBUM', default)
+    def album(self):
+        return self.__get_first('ALBUM')
 
     @album.setter
     def album(self, album):
         self.__set_first('ALBUM', album)
 
     @property
-    def artist(self, default=''):
-        return self.__get_first('ARTIST', default)
+    def artist(self):
+        return self.__get_first('ARTIST')
 
     @artist.setter
     def artist(self, artist):
         self.__set_first('ARTIST', artist)
 
     @property
-    def rating(self, default=0.0):
-        s = self.__get_first('FMPS_RATING', default)
+    def rating(self):
+        s = self.__get_first('FMPS_RATING')
         try:
             n = float(s)
             if n < 0.0:
-                return default
+                return 0.0
             return n * 5.0
         except ValueError:
-            return default
+            return 0.0
 
     @rating.setter
     def rating(self, rating):
         self.__set_first('FMPS_RATING', rating)
 
     @property
-    def comment(self, defaults=''):
-        return self.__get_first('COMMENT', defaults)
+    def comment(self):
+        return self.__get_first('COMMENT')
 
     @comment.setter
     def comment(self, comment):
@@ -145,8 +145,8 @@ class File:
         self.__set_first('COMMENT', comment, force=True)
 
     @property
-    def description(self, default=''):
-        return self.__get_first('DESCRIPTION', default)
+    def description(self):
+        return self.__get_first('DESCRIPTION')
 
     @description.setter
     def description(self, description):
@@ -156,23 +156,23 @@ class File:
         self.__set_first('DESCRIPTION', description, force=True)
 
     @property
-    def genre(self, default=''):
-        return self.__get_first('GENRE', default)
+    def genre(self):
+        return self.__get_first('GENRE')
 
     @genre.setter
     def genre(self, genre):
         self.__set_first('GENRE', genre)
 
     @property
-    def number(self, default=-1):
-        s = self.__get_first('TRACKNUMBER', default)
+    def number(self):
+        s = self.__get_first('TRACKNUMBER')
         try:
             n = int(s)
             if n < 0:
-                return default
+                return -1
             return n
         except ValueError:
-            return default
+            return -1
 
     @number.setter
     def number(self, number):
