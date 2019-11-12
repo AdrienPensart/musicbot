@@ -19,18 +19,14 @@ def _list(graphql_admin):
         print(u["accountByUserId"]["email"], u["firstName"], u["lastName"], u["createdAt"], u["updatedAt"])
 
 
-@cli.command()
+@cli.command(aliases=['new', 'add', 'create'])
 @helpers.add_options(user.options)
 def register(**kwargs):
     '''Register a new user'''
     user.User.register(**kwargs)
 
 
-cli.add_command(register, 'new')
-cli.add_command(register, 'create')
-
-
-@cli.command()
+@cli.command(aliases=['delete', 'remove'])
 @helpers.add_options(user.auth_options)
 def unregister(**kwargs):
     '''Remove a user'''
@@ -38,16 +34,9 @@ def unregister(**kwargs):
     u.unregister()
 
 
-cli.add_command(unregister, 'delete')
-cli.add_command(unregister, 'remove')
-
-
-@cli.command()
+@cli.command(aliases=['token'])
 @helpers.add_options(user.auth_options)
 def login(**kwargs):
     '''Authenticate user'''
     u = user.User(**kwargs)
     print(u.token)
-
-
-cli.add_command(login, 'token')

@@ -2,12 +2,15 @@
 import os
 import logging
 import click
+import backtrace
 from click.formatting import HelpFormatter
 from attrdict import AttrDict
 from musicbot import helpers, config
+from musicbot.user import MusicbotError
 
 # little hacky but prevent click from rewraping
 HelpFormatter.write_dl.__defaults__ = (50, 2)
+backtrace.hook(reverse=False, align=True, strip_path=False, enable_on_envvar_only=False, on_tty=False, conservative=False, styles={})
 
 bin_folder = os.path.dirname(__file__)
 commands_folder = 'commands'
@@ -60,14 +63,20 @@ def cli(ctx, **kwargs):
     ctx.obj.config = config.config
 
 
-@cli.command()
+@cli.command(short_help='Print version')
 def version():
-    '''Print version'''
+    '''Print version
+
+       Equivalent : -V
+    '''
     print("{}, version {}".format(prog_name, __version__))
 
 
 def main(**kwargs):
-    return cli.main(prog_name=prog_name, **kwargs)
+    try:
+        return cli.main(prog_name=prog_name, **kwargs)
+    except MusicbotError as e:
+        logger.error(e)
 
 
 if __name__ == '__main__':

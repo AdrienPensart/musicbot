@@ -69,16 +69,14 @@ Installation
   # in your user folder
   curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
   nvm install node
-  npm install yarn -g
-  cd $HOME/musicbot/vue-musicbot
-  yarn install
+  npm install -g postgraphile graphile-contrib/pg-simplify-inflector postgraphile-plugin-connection-filter
 
 Testing
 ------------
 
 .. code-block:: bash
 
-poetry run pytest --disable-warnings --cov-report term-missing --cov musicbot -x -n auto tests
+poetry run pytest --disable-warnings --cov-report term-missing --durations=0 --cov musicbot -x -n auto tests
 poetry run coverage-badge > doc/coverage.svg
 
 Linting
@@ -86,7 +84,7 @@ Linting
 
 .. code-block:: bash
 
-poetry run pylint -d line-too-long,too-many-arguments,protected-access,missing-docstring,invalid-name,too-many-public-methods,too-many-instance-attributes,duplicate-code,too-many-nested-blocks,too-many-branches,too-many-return-statements,too-many-statements,too-many-locals,too-few-public-methods,too-many-ancestors,abstract-method,anomalous-backslash-in-string musicbot tests
+poetry run pylint -d line-too-long,too-many-arguments,protected-access,missing-docstring,invalid-name,too-many-public-methods,too-many-instance-attributes,duplicate-code,too-many-nested-blocks,too-many-branches,too-many-return-statements,too-many-statements,too-many-locals,too-few-public-methods,too-many-ancestors,abstract-method,anomalous-backslash-in-string,import-outside-toplevel,redefined-outer-name,unnecessary-lambda,c-extension-no-member musicbot tests
 
 Documentation
 ------------
@@ -1023,49 +1021,11 @@ musicbot user
     -h, --help  Show this message and exit.
   
   Commands:
-    create      Register a new user
-    delete      Remove a user
-    help        Print help
-    list        List users (admin)
-    login       Authenticate user
-    new         Register a new user
-    register    Register a new user
-    remove      Remove a user
-    token       Authenticate user
-    unregister  Remove a user
-
-
-musicbot user create
-********************
-.. code-block::
-
-  Usage: musicbot user create [OPTIONS]
-  
-    Register a new user
-  
-  Options:
-    -e, --email TEXT     User email
-    -p, --password TEXT  User password
-    --first-name TEXT    User first name
-    --last-name TEXT     User last name
-    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -h, --help           Show this message and exit.
-
-
-musicbot user delete
-********************
-.. code-block::
-
-  Usage: musicbot user delete [OPTIONS]
-  
-    Remove a user
-  
-  Options:
-    -e, --email TEXT     User email
-    -p, --password TEXT  User password
-    --token TEXT         User token
-    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -h, --help           Show this message and exit.
+    help                        Print help
+    list                        List users (admin)
+    login (token)               Authenticate user
+    register (add,create,new)   Register a new user
+    unregister (delete,remove)  Remove a user
 
 
 musicbot user help
@@ -1109,23 +1069,6 @@ musicbot user login
     -h, --help           Show this message and exit.
 
 
-musicbot user new
-*****************
-.. code-block::
-
-  Usage: musicbot user new [OPTIONS]
-  
-    Register a new user
-  
-  Options:
-    -e, --email TEXT     User email
-    -p, --password TEXT  User password
-    --first-name TEXT    User first name
-    --last-name TEXT     User last name
-    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -h, --help           Show this message and exit.
-
-
 musicbot user register
 **********************
 .. code-block::
@@ -1139,38 +1082,6 @@ musicbot user register
     -p, --password TEXT  User password
     --first-name TEXT    User first name
     --last-name TEXT     User last name
-    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -h, --help           Show this message and exit.
-
-
-musicbot user remove
-********************
-.. code-block::
-
-  Usage: musicbot user remove [OPTIONS]
-  
-    Remove a user
-  
-  Options:
-    -e, --email TEXT     User email
-    -p, --password TEXT  User password
-    --token TEXT         User token
-    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -h, --help           Show this message and exit.
-
-
-musicbot user token
-*******************
-.. code-block::
-
-  Usage: musicbot user token [OPTIONS]
-  
-    Authenticate user
-  
-  Options:
-    -e, --email TEXT     User email
-    -p, --password TEXT  User password
-    --token TEXT         User token
     --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
     -h, --help           Show this message and exit.
 
@@ -1198,6 +1109,8 @@ musicbot version
   Usage: musicbot version [OPTIONS]
   
     Print version
+  
+    Equivalent : -V
   
   Options:
     -h, --help  Show this message and exit.

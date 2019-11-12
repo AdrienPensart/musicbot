@@ -47,7 +47,7 @@ class Postgraphile:
         self.interface = interface if interface is not None else os.getenv(MB_GRAPHQL_PUBLIC_INTERFACE, DEFAULT_GRAPHQL_PUBLIC_INTERFACE)
         self.port = port if port is not None else int(os.getenv(MB_GRAPHQL_PUBLIC_PORT, str(DEFAULT_GRAPHQL_PUBLIC_PORT)))
         self.process = None
-        self.dsn = dsn if dsn is not None else "http://{}:{}/graphql".format(self.interface, self.port)
+        self.dsn = dsn if dsn is not None else "http://{interface}:{port}/graphql".format(interface=self.interface, port=self.port)
 
     def run(self, background=None):
         background = background if background is not None else lib.str2bool(os.getenv(MB_BACKGROUND, str(DEFAULT_BACKGROUND)))
@@ -73,13 +73,13 @@ class Postgraphile:
         interface = interface if interface is not None else os.getenv(MB_GRAPHQL_PUBLIC_INTERFACE, DEFAULT_GRAPHQL_PUBLIC_INTERFACE)
         port = port if port is not None else int(os.getenv(MB_GRAPHQL_PUBLIC_PORT, str(DEFAULT_GRAPHQL_PUBLIC_PORT)))
 
-        base_cmd_fmt = """npx postgraphile --cors --no-setof-functions-contain-nulls --no-ignore-rbac --no-ignore-indexes --dynamic-json -c {} -n {} -p {} --schema musicbot_public --default-role musicbot_anonymous --jwt-token-identifier musicbot_public.jwt_token --jwt-secret {} -l 10MB --append-plugins `pwd`/vue-musicbot/node_modules/postgraphile-plugin-connection-filter --simple-collections both"""
-        base_cmd = base_cmd_fmt.format(db, interface, port, jwt_secret)
+        base_cmd_fmt = """postgraphile --cors --no-setof-functions-contain-nulls --no-ignore-rbac --no-ignore-indexes --dynamic-json -c {db} -n {interface} -p {port} --schema musicbot_public --default-role musicbot_anonymous --jwt-token-identifier musicbot_public.jwt_token --jwt-secret {jwt_secret} -l 10MB --append-plugins postgraphile-plugin-connection-filter,@graphile-contrib/pg-simplify-inflector --simple-collections both"""
+        base_cmd = base_cmd_fmt.format(db=db, interface=interface, port=port, jwt_secret=jwt_secret)
 
         if config.debug:
-            cmd = """DEBUG="postgraphile:graphql,graphile-build-pg,postgraphile:postgres:notice,postgraphile:postgres:error" {} --enhance-graphiql --show-error-stack --watch""".format(base_cmd)
+            cmd = """DEBUG="postgraphile:graphql,graphile-build-pg,postgraphile:postgres:notice,postgraphile:postgres:error" {base_cmd} --enhance-graphiql --show-error-stack --watch""".format(base_cmd=base_cmd)
         else:
-            cmd = """{} --disable-graphiql --disable-query-log""".format(base_cmd)
+            cmd = """{base_cmd} --disable-graphiql --disable-query-log""".format(base_cmd=base_cmd)
         logger.info(cmd)
         self = Postgraphile(cmd, db, jwt_secret=jwt_secret, interface=interface, port=port)
         return self
@@ -90,11 +90,11 @@ class Postgraphile:
         interface = interface if interface is not None else os.getenv(MB_GRAPHQL_PRIVATE_INTERFACE, DEFAULT_GRAPHQL_PRIVATE_INTERFACE)
         port = port if port is not None else int(os.getenv(MB_GRAPHQL_PRIVATE_PORT, str(DEFAULT_GRAPHQL_PRIVATE_PORT)))
 
-        base_cmd = """npx postgraphile --cors --include-extension-resources --no-setof-functions-contain-nulls --no-ignore-indexes --dynamic-json -c {} -n {} -p {} --schema musicbot_public,musicbot_private --default-role postgres --append-plugins `pwd`/vue-musicbot/node_modules/postgraphile-plugin-connection-filter --enhance-graphiql --simple-collections both""".format(db, interface, port)
+        base_cmd = """postgraphile --cors --include-extension-resources --no-setof-functions-contain-nulls --no-ignore-indexes --dynamic-json -c {db} -n {interface} -p {port} --schema musicbot_public,musicbot_private --default-role postgres --append-plugins postgraphile-plugin-connection-filter,@graphile-contrib/pg-simplify-inflector --enhance-graphiql --simple-collections both""".format(db=db, interface=interface, port=port)
 
-        cmd = """{} --disable-graphiql --disable-query-log""".format(base_cmd)
+        cmd = """{base_cmd} --disable-graphiql --disable-query-log""".format(base_cmd=base_cmd)
         if config.debug:
-            cmd = """DEBUG="postgraphile:graphql,graphile-build-pg,postgraphile:postgres:notice,postgraphile:postgres:error" {} --show-error-stack --watch""".format(base_cmd)
+            cmd = """DEBUG="postgraphile:graphql,graphile-build-pg,postgraphile:postgres:notice,postgraphile:postgres:error" {base_cmd} --show-error-stack --watch""".format(base_cmd=base_cmd)
         logger.info(cmd)
         self = Postgraphile(cmd, db, interface=interface, port=port)
         return self

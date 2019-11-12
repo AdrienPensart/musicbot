@@ -6,7 +6,6 @@ import functools
 import requests
 import click
 import click_spinner
-from graphql.parser import GraphQLParser
 from . import helpers
 from .config import config
 from .music import file, mfilter
@@ -46,14 +45,17 @@ options = email_option + password_option + first_name_option + last_name_option 
 logger = logging.getLogger(__name__)
 
 auth_options = email_option + password_option + token_option + graphql_option
-parser = GraphQLParser()
 
 
-class FailedAuthentication(Exception):
+class MusicbotError(Exception):
     pass
 
 
-class FailedRequest(Exception):
+class FailedAuthentication(MusicbotError):
+    pass
+
+
+class FailedRequest(MusicbotError):
     pass
 
 
@@ -63,18 +65,17 @@ class GraphQL:  # pylint: disable=too-few-public-methods
         self.headers = headers
 
     def _post(self, query, failure=None):
-        response = requests.post(self.graphql, json={'query': query}, headers=self.headers)
         logger.debug(query)
-        try:
-            ast = parser.parse(query)
-            logger.debug(ast)
-        except TypeError:
-            logger.debug("Cannot parse query")
-        logger.debug(response)
+        response = requests.post(self.graphql, json={'query': query}, headers=self.headers)
+        json_response = response.json()
+        logger.debug(json_response)
         if response.status_code != 200:
-            failure = failure if failure is not None else FailedRequest("Query failed: {}".format(response.json()))
+            failure = failure if failure is not None else FailedRequest("Query failed: {}".format(json_response))
             raise failure
-        return response.json()
+        if 'errors' in json_response and len(json_response['errors']):
+            failure = failure if failure is not None else FailedRequest("Query failed: {}".format([e['message'] for e in json_response['errors']]))
+            raise failure
+        return json_response
 
 
 class Admin(GraphQL):  # pylint: disable=too-few-public-methods
@@ -87,7 +88,7 @@ class Admin(GraphQL):  # pylint: disable=too-few-public-methods
     def users(self):
         query = """
         {
-          allUsersList{
+          usersList{
               firstName,
               lastName,
               createdAt,
@@ -99,7 +100,7 @@ class Admin(GraphQL):  # pylint: disable=too-few-public-methods
               }
           }
         }"""
-        return self._post(query)['data']['allUsersList']
+        return self._post(query)['data']['usersList']
 
 
 class User(GraphQL):
@@ -120,14 +121,8 @@ class User(GraphQL):
                     jwtToken
                 }}
             }}""".format(self.email, self.password)
-            response = requests.post(self.graphql, json={'query': query})
-            logger.debug(response)
-            if response.status_code == 200:
-                self.token = response.json()['data']['authenticate']['jwtToken']
-                if self.token is None:
-                    raise FailedAuthentication("Authentication failed")
-            else:
-                raise FailedAuthentication("Authentication failed")
+            self.headers = None
+            self.token = self._post(query, failure=FailedAuthentication("Authentication failed"))['data']['authenticate']['jwtToken']
         elif self.token is None:
             raise FailedAuthentication("No credentials or token provided")
 
@@ -307,13 +302,13 @@ class User(GraphQL):
         default_filter = mfilter.Filter()
         query = """
         {{
-            allFiltersList(filter: {{name: {{equalTo: "{}"}}}})
+            filtersList(filter: {{name: {{equalTo: "{}"}}}})
             {{
                 name,
                 {}
             }}
         }}""".format(name, ','.join(default_filter.ordered_dict().keys()))
-        return self._post(query)['data']['allFiltersList'][0]
+        return self._post(query)['data']['filtersList'][0]
 
     @property
     @functools.lru_cache(maxsize=None)
@@ -322,13 +317,13 @@ class User(GraphQL):
         default_filter = mfilter.Filter()
         query = """
         {{
-            allFiltersList
+            filtersList
             {{
                 name,
                 {}
             }}
         }}""".format(','.join(default_filter.ordered_dict().keys()))
-        return self._post(query)['data']['allFiltersList']
+        return self._post(query)['data']['filtersList']
 
     def watch(self):
         from watchdog.observers import Observer
@@ -390,12 +385,15 @@ class User(GraphQL):
                 clientMutationId
             }}
         }}""".format(first_name, last_name, email, password)
+        logger.debug(query)
         response = requests.post(graphql, json={'query': query})
-        logger.debug(response)
+        json_response = response.json()
+        logger.debug(json_response)
         if response.status_code != 200:
-            raise FailedAuthentication("Cannot create user {}".format(email))
-        self = User(graphql, email, password)
-        return self
+            raise FailedAuthentication("Cannot create user: {}".format(email))
+        if 'errors' in json_response and len(json_response['errors']):
+            raise FailedAuthentication("Cannot create user: {}".format([e['message'] for e in json_response['errors']]))
+        return User(graphql, email, password)
 
     @helpers.timeit
     def unregister(self):

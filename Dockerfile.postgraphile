@@ -1,0 +1,4 @@
+FROM graphile/postgraphile:latest
+
+RUN yarn add postgraphile-plugin-connection-filter
+RUN yarn add @graphile-contrib/pg-simplify-inflector

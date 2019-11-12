@@ -1,0 +1,17 @@
+FROM postgres:latest
+
+RUN apt-get update
+RUN apt-get install -y git postgresql-server-dev-all
+RUN git clone https://github.com/michelp/pgjwt.git /pgjwt && cd /pgjwt && make install
+
+RUN echo "shared_preload_libraries=pg_stat_statements" >> /etc/postgresql/postgresql.conf
+RUN echo "pg_stat_statements.track=all" >> /etc/postgresql/postgresql.conf
+
+ADD musicbot/schema/schemas.sql /docker-entrypoint-initdb.d/a_schema.sql
+ADD musicbot/schema/extensions.sql /docker-entrypoint-initdb.d/b_extensions.sql
+ADD musicbot/schema/user.sql /docker-entrypoint-initdb.d/c_user.sql
+ADD musicbot/schema/raw_music.sql /docker-entrypoint-initdb.d/d_raw_music.sql
+ADD musicbot/schema/filter.sql /docker-entrypoint-initdb.d/e_filter.sql
+ADD musicbot/schema/playlist.sql /docker-entrypoint-initdb.d/f_playlist.sql
+ADD musicbot/schema/stat.sql /docker-entrypoint-initdb.d/g_stat.sql
+ADD musicbot/schema/grants.sql /docker-entrypoint-initdb.d/h_grants.sql

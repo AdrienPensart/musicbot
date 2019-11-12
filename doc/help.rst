@@ -69,17 +69,19 @@ Installation
   # in your user folder
   curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
   nvm install node
-  npm install yarn -g
-  cd $HOME/musicbot/vue-musicbot
-  yarn install
+  npm install -g postgraphile graphile-contrib/pg-simplify-inflector postgraphile-plugin-connection-filter
 
 Testing
 ------------
 
 .. code-block:: bash
 
-poetry run pytest --disable-warnings --cov-report term-missing --cov musicbot -x -n auto tests
+poetry run pytest --disable-warnings --cov-report term-missing --durations=0 --cov musicbot -x -n auto tests
 poetry run coverage-badge > doc/coverage.svg
+
+docker-compose build
+docker-compose up
+docker run -it -v ~/projects/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli folder -e test@test.com -p password --graphql http://postgraphile_public:5000/graphql scan /tests/fixtures/folder1 /tests/fixtures/folder2
 
 Linting
 ------------
