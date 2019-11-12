@@ -31,7 +31,7 @@ def create(**kwargs):
 
 @cli.command()
 @helpers.add_options(database.db_option)
-@click.confirmation_option(help='Are you sure you want to drop the DB ?')
+@click.confirmation_option('--yes', '-y', help='Are you sure you want to drop the DB ?')
 def drop(**kwargs):
     '''Drop database'''
     database.Database(**kwargs).drop()
@@ -39,7 +39,7 @@ def drop(**kwargs):
 
 @cli.command(aliases=['recreate'])
 @helpers.add_options(database.db_option)
-@click.confirmation_option(help='Are you sure you want to drop and recreate db?')
+@click.confirmation_option('--yes', '-y', help='Are you sure you want to drop and recreate db?')
 def clear(**kwargs):
     '''Drop and recreate database and schema'''
     database.Database(**kwargs).clear()

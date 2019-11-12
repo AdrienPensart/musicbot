@@ -28,8 +28,8 @@ create table if not exists musicbot_public.filter
     no_youtubes  text[] default '{}',
     spotifys     text[] default '{}',
     no_spotifys  text[] default '{}',
-	created_at   timestamp with time zone default now(),
-	updated_at   timestamp with time zone default now(),
+    created_at   timestamp with time zone default now(),
+    updated_at   timestamp with time zone default now(),
     unique(name, user_id)
 );
 

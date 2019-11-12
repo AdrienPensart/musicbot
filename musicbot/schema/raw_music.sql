@@ -50,21 +50,21 @@ create or replace function musicbot_public.bulk_insert(data text)
 returns void as
 $$
 begin
-	-- TODO: no need this when postgresql 11.3 will be out
-	if data = 'W10=' then
-		return;
-	end if;
+    -- TODO: no need this when postgresql 11.3 will be out
+    if data = 'W10=' then
+        return;
+    end if;
     set constraints musicbot_public.raw_music_path_user_id_key deferred;
-	with records as (
+    with records as (
         select title, album, genre, artist, folder, youtube, spotify, number, path, rating, duration, size, keywords
         from json_populate_recordset(null::musicbot_public.raw_music, convert_from(decode(data, 'BASE64'), 'UTF-8')::json)
     ), recent_music as (
         insert into musicbot_public.raw_music (title, album, genre, artist, folder, youtube, spotify, number, path, rating, duration, size, keywords)
         select * from records
-	), duplicates as (
-		select distinct on (path) id from musicbot_public.raw_music order by path, id desc
-	)
-	delete from musicbot_public.raw_music where id in (select id from duplicates);
+    ), duplicates as (
+    select distinct on (path) id from musicbot_public.raw_music order by path, id desc
+    )
+    delete from musicbot_public.raw_music where id in (select id from duplicates);
 end
 $$ language plpgsql;
 

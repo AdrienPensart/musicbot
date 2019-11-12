@@ -156,7 +156,7 @@ returns table (
 ) as
 $$
     with recursive musics as (
-		select path, folder, artist, genre, keywords from musicbot_public.do_filter(
+        select path, folder, artist, genre, keywords from musicbot_public.do_filter(
             min_duration => bests.min_duration,
             max_duration => bests.max_duration,
             min_size     => bests.min_size,
@@ -182,9 +182,9 @@ $$
             no_youtubes  => bests.no_youtubes,
             spotifys     => bests.spotifys,
             no_spotifys  => bests.no_spotifys
-	    )
+        )
     ),
-	bests_artists as (
+    bests_artists as (
         select
             (m.artist || '/bests') as name,
             case when bests.relative is false then coalesce('#EXTM3U' || E'\n' || string_agg(path, E'\n'), '')
@@ -192,17 +192,17 @@ $$
             end
         from musics m
         group by m.artist
-	),
+    ),
     bests_genres as (
-		select
+        select
             (m.genre) as name,
             case when bests.relative is false then coalesce('#EXTM3U' || E'\n' || string_agg(path, E'\n'), '')
             else coalesce('#EXTM3U' || E'\n' || string_agg(substring(path from char_length(folder)+2), E'\n'), '')
             end
         from musics m
         group by m.genre
-	),
-	bests_artist_keywords as (
+    ),
+    bests_artist_keywords as (
         with keywords as (select path, folder, artist, unnest(keywords) as k from musics group by path, folder, artist, keywords order by k)
         select
             (artist || '/' || k.k) as name,
@@ -211,9 +211,9 @@ $$
             end
         from keywords k
         group by artist, k
-	),
-	bests_keywords as (
-		with keywords as (select path, folder, unnest(keywords) as k from musics group by path, folder, keywords order by k)
+    ),
+    bests_keywords as (
+        with keywords as (select path, folder, unnest(keywords) as k from musics group by path, folder, keywords order by k)
         select
             (k.k) as name,
             case when bests.relative is false then coalesce('#EXTM3U' || E'\n' || string_agg(path, E'\n'), '')
@@ -221,9 +221,9 @@ $$
             end
         from keywords k
         group by k
-	)
-	select * from bests_artists union
-	select * from bests_genres union
-	select * from bests_artist_keywords union
-	select * from bests_keywords;
+    )
+    select * from bests_artists union
+    select * from bests_genres union
+    select * from bests_artist_keywords union
+    select * from bests_keywords;
 $$ language sql stable;

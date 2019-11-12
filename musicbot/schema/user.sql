@@ -66,21 +66,21 @@ returns musicbot_public.user as
 $$
     with insert_user as (
         insert into musicbot_public.user as u (first_name, last_name)
-		values (first_name, last_name)
+        values (first_name, last_name)
         returning *
-	), insert_account as (
+    ), insert_account as (
         insert into musicbot_private.account (user_id, email, password_hash)
         values ((select insert_user.id from insert_user), email, crypt(password, gen_salt('bf')))
-	)
-	select insert_user.* from insert_user;
+    )
+    select insert_user.* from insert_user;
 $$ language sql strict security definer;
 
 create or replace function musicbot_public.unregister_user()
 returns musicbot_public.user as
 $$
-	delete from musicbot_public.user u
-	where u.id = musicbot_public.current_musicbot_id()
-	returning *
+    delete from musicbot_public.user u
+    where u.id = musicbot_public.current_musicbot_id()
+    returning *
 $$ language sql;
 
 create or replace function musicbot_public.authenticate(
@@ -96,12 +96,12 @@ begin
     from musicbot_private.account as a
     where a.email = $1;
     if account.password_hash = crypt(password, account.password_hash) then
-		--set role musicbot_user;
-		--set local jwt.claims.role to 'musicbot_user';
-		--set local jwt.claims.user_id to
-		--set session authorization musicbot_user;
-		--perform set_config('jwt.claims.role', 'musicbot_user', false);
-		--perform set_config('jwt.claims.user_id', account.user_id::text, false);
+        --set role musicbot_user;
+        --set local jwt.claims.role to 'musicbot_user';
+        --set local jwt.claims.user_id to
+        --set session authorization musicbot_user;
+        --perform set_config('jwt.claims.role', 'musicbot_user', false);
+        --perform set_config('jwt.claims.user_id', account.user_id::text, false);
         return ('musicbot_user', account.user_id)::musicbot_public.jwt_token;
     else
         raise notice 'Authentication failed for user %', email;

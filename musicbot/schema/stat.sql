@@ -9,8 +9,8 @@ create table if not exists musicbot_public.stat
     keywords     bigint not null default 0,
     duration     bigint not null default 0,
     size         bigint not null default 0,
-	created_at   timestamp with time zone default now(),
-	updated_at   timestamp with time zone default now()
+    created_at   timestamp with time zone default now(),
+    updated_at   timestamp with time zone default now()
 );
 
 create index if not exists stat_user_idx on musicbot_public.stat (user_id);
@@ -70,7 +70,7 @@ returns musicbot_public.stat as
 $$
     select
         row_number() over () as id,
-		musicbot_public.current_musicbot_id(),
+        musicbot_public.current_musicbot_id(),
         count(distinct f.path) as musics,
         count(distinct f.album) as albums,
         count(distinct f.artist) as artists,
@@ -78,8 +78,8 @@ $$
         (select count(distinct k.keywords) from (select unnest(musicbot_public.array_cat_agg(f.keywords)) as keywords) as k) as keywords,
         coalesce(sum(f.duration),0) as duration,
         coalesce(sum(f.size),0) as size,
-		now(),
-		now()
+        now(),
+        now()
     from musicbot_public.do_filter(
             min_duration => do_stat.min_duration,
             max_duration => do_stat.max_duration,
@@ -106,5 +106,5 @@ $$
             no_youtubes  => do_stat.no_youtubes,
             spotifys     => do_stat.spotifys,
             no_spotifys  => do_stat.no_spotifys
-		) f;
+        ) f;
 $$ language sql stable;
