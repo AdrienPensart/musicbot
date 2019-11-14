@@ -17,7 +17,7 @@ services:
     environment:
       POSTGRES_PASSWORD: musicbot
       POSTGRES_DB: musicbot
-    restart: unless-stopped
+    restart: always
     ports:
       - 5432:5432
   adminer:
@@ -29,6 +29,8 @@ services:
       ADMINER_DEFAULT_DB_NAME: musicbot
     ports:
       - 8080:8080
+    depends_on:
+      - db
   postgraphile_custom:
     build:
       context: .
@@ -36,15 +38,19 @@ services:
     entrypoint: ["echo", "Service postgraphile custom disabled"]
   postgraphile_public:
     image: musicbot_postgraphile_custom:latest
-    restart: unless-stopped
+    restart: always
     stop_signal: SIGKILL
     ports:
       - 5000:5000
-    command: ["postgraphile", "--cors", "--no-setof-functions-contain-nulls", "--no-ignore-rbac", "--no-ignore-indexes", "--dynamic-json", "--connection", $DATABASE_URL, "--host", "0.0.0.0", "--port", "5000", "--schema", "musicbot_public", "--default-role", "musicbot_anonymous", "--enhance-graphiql", "--allow-explain", "--jwt-token-identifier", "musicbot_public.jwt_token", "--jwt-secret", $MUSICBOT_SECRET, "-l", "10MB", "--simple-collections", "both", "--append-plugins", "postgraphile-plugin-connection-filter,@graphile-contrib/pg-simplify-inflector"]
+    depends_on:
+      - db
+    command: ["postgraphile", "--retry-on-init-fail", "--cors", "--no-setof-functions-contain-nulls", "--no-ignore-rbac", "--no-ignore-indexes", "--dynamic-json", "--connection", $DATABASE_URL, "--host", "0.0.0.0", "--port", "5000", "--schema", "musicbot_public", "--default-role", "musicbot_anonymous", "--enhance-graphiql", "--allow-explain", "--jwt-token-identifier", "musicbot_public.jwt_token", "--jwt-secret", $MUSICBOT_SECRET, "-l", "10MB", "--simple-collections", "both", "--append-plugins", "postgraphile-plugin-connection-filter,@graphile-contrib/pg-simplify-inflector"]
   postgraphile_private:
     image: musicbot_postgraphile_custom:latest
-    restart: unless-stopped
+    restart: always
     stop_signal: SIGKILL
+    depends_on:
+      - db
     ports:
       - 5001:5001
-    command: ["postgraphile", "--cors", "--include-extension-resources", "--no-setof-functions-contain-nulls", "--no-ignore-indexes", "--dynamic-json", "--connection", $DATABASE_URL, "--host", "0.0.0.0", "--port", "5001", "--schema", "musicbot_public,musicbot_private", "--default-role", "postgres", "--enhance-graphiql", "--allow-explain", "--simple-collections", "both", "--append-plugins", "postgraphile-plugin-connection-filter,@graphile-contrib/pg-simplify-inflector"]
+    command: ["postgraphile", "--retry-on-init-fail", "--cors", "--include-extension-resources", "--no-setof-functions-contain-nulls", "--no-ignore-indexes", "--dynamic-json", "--connection", $DATABASE_URL, "--host", "0.0.0.0", "--port", "5001", "--schema", "musicbot_public,musicbot_private", "--default-role", "postgres", "--enhance-graphiql", "--allow-explain", "--simple-collections", "both", "--append-plugins", "postgraphile-plugin-connection-filter,@graphile-contrib/pg-simplify-inflector"]

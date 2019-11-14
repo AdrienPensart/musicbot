@@ -79,6 +79,17 @@ Testing
 poetry run pytest --disable-warnings --cov-report term-missing --durations=0 --cov musicbot -x -n auto tests
 poetry run coverage-badge > doc/coverage.svg
 
+Docker
+------------
+
+.. code-block:: bash
+
+docker-compose build
+docker-compose up
+docker run -it -v /home/crunch/projects/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli user create -e test@test.com -p password --first-name Test --last-name Me --graphql http://postgraphile_public:5000/graphql
+docker run -it -v ~/projects/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli folder -e test@test.com -p password --graphql http://postgraphile_public:5000/graphql scan /tests/fixtures/folder1 /tests/fixtures/folder2
+docker run -it -v /home/crunch/projects/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli db cli --db postgresql://postgres:musicbot@db:5432/musicbot
+
 Linting
 ------------
 
