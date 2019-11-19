@@ -72,7 +72,7 @@ class GraphQL:  # pylint: disable=too-few-public-methods
         if response.status_code != 200:
             failure = failure if failure is not None else FailedRequest("Query failed: {}".format(json_response))
             raise failure
-        if 'errors' in json_response and len(json_response['errors']):
+        if 'errors' in json_response and json_response['errors']:
             failure = failure if failure is not None else FailedRequest("Query failed: {}".format([e['message'] for e in json_response['errors']]))
             raise failure
         return json_response
@@ -391,7 +391,7 @@ class User(GraphQL):
         logger.debug(json_response)
         if response.status_code != 200:
             raise FailedAuthentication("Cannot create user: {}".format(email))
-        if 'errors' in json_response and len(json_response['errors']):
+        if 'errors' in json_response and json_response['errors']:
             raise FailedAuthentication("Cannot create user: {}".format([e['message'] for e in json_response['errors']]))
         return User(graphql, email, password)
 

@@ -86,16 +86,16 @@ Docker
 
 docker-compose build
 docker-compose up
-docker run -it -v /home/crunch/projects/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli user create -e test@test.com -p password --first-name Test --last-name Me --graphql http://postgraphile_public:5000/graphql
-docker run -it -v ~/projects/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli folder -e test@test.com -p password --graphql http://postgraphile_public:5000/graphql scan /tests/fixtures/folder1 /tests/fixtures/folder2
-docker run -it -v /home/crunch/projects/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli db cli --db postgresql://postgres:musicbot@db:5432/musicbot
+docker run -it -v ~/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli user create -e test@test.com -p password --first-name Test --last-name Me --graphql http://postgraphile_public:5000/graphql
+docker run -it -v ~/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli folder -e test@test.com -p password --graphql http://postgraphile_public:5000/graphql scan /tests/fixtures/folder1 /tests/fixtures/folder2
+docker run -it -v ~/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli db cli --db postgresql://postgres:musicbot@db:5432/musicbot
 
 Linting
 ------------
 
 .. code-block:: bash
 
-poetry run pylint -d line-too-long,too-many-arguments,protected-access,missing-docstring,invalid-name,too-many-public-methods,too-many-instance-attributes,duplicate-code,too-many-nested-blocks,too-many-branches,too-many-return-statements,too-many-statements,too-many-locals,too-few-public-methods,too-many-ancestors,abstract-method,anomalous-backslash-in-string,import-outside-toplevel,redefined-outer-name,unnecessary-lambda,c-extension-no-member musicbot tests
+poetry run pylint musicbot tests
 
 Documentation
 ------------
@@ -103,5 +103,4 @@ Documentation
 .. code-block:: bash
 
 poetry build
-pip3 install -U dist/musicbot-0.1.0-py3-none-any.whl
-doc/gen.sh
+poetry run doc/gen.sh

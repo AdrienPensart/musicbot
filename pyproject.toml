@@ -36,6 +36,7 @@ graphql-py = "^0.7.1"
 click_aliases = "^1.0.1"
 pgcli = "^2.1.1"
 backtrace = "^0.2.1"
+feedparser = "^5.2.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^4.4"
