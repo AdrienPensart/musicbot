@@ -43,7 +43,7 @@ def db(function_scoped_container_getter):
 
 
 @pytest.fixture
-def postgraphile_public(db, function_scoped_container_getter):
+def postgraphile_public(db, function_scoped_container_getter):  # pylint: disable=unused-argument
     service = function_scoped_container_getter.get("postgraphile_public").network_info[0]
     time.sleep(10)
     wait_for_service(service)
@@ -51,7 +51,7 @@ def postgraphile_public(db, function_scoped_container_getter):
 
 
 @pytest.fixture
-def postgraphile_private(db, function_scoped_container_getter):
+def postgraphile_private(db, function_scoped_container_getter):  # pylint: disable=unused-argument
     service = function_scoped_container_getter.get("postgraphile_private").network_info[0]
     time.sleep(10)
     wait_for_service(service)
