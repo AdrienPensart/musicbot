@@ -1,8 +1,6 @@
 FROM debian:sid
 
-RUN apt-get update
-RUN apt-get upgrade -y
-RUN apt-get install -y libtag1-dev postgresql-server-dev-all python3-pip
+RUN apt-get update && apt-get upgrade -y && apt-get install -y libtag1-dev postgresql-server-dev-all python3-pip
 
 WORKDIR /musicbot
 ADD setup.py ./
