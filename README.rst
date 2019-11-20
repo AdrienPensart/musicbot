@@ -86,16 +86,16 @@ Docker
 
 docker-compose build
 docker-compose up
-docker run -it -v /home/crunch/projects/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli user create -e test@test.com -p password --first-name Test --last-name Me --graphql http://postgraphile_public:5000/graphql
-docker run -it -v ~/projects/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli folder -e test@test.com -p password --graphql http://postgraphile_public:5000/graphql scan /tests/fixtures/folder1 /tests/fixtures/folder2
-docker run -it -v /home/crunch/projects/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli db cli --db postgresql://postgres:musicbot@db:5432/musicbot
+docker run -it -v ~/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli user create -e test@test.com -p password --first-name Test --last-name Me --graphql http://postgraphile_public:5000/graphql
+docker run -it -v ~/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli folder -e test@test.com -p password --graphql http://postgraphile_public:5000/graphql scan /tests/fixtures/folder1 /tests/fixtures/folder2
+docker run -it -v ~/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli db cli --db postgresql://postgres:musicbot@db:5432/musicbot
 
 Linting
 ------------
 
 .. code-block:: bash
 
-poetry run pylint -d line-too-long,too-many-arguments,protected-access,missing-docstring,invalid-name,too-many-public-methods,too-many-instance-attributes,duplicate-code,too-many-nested-blocks,too-many-branches,too-many-return-statements,too-many-statements,too-many-locals,too-few-public-methods,too-many-ancestors,abstract-method,anomalous-backslash-in-string,import-outside-toplevel,redefined-outer-name,unnecessary-lambda,c-extension-no-member musicbot tests
+poetry run pylint musicbot tests
 
 Documentation
 ------------
@@ -103,8 +103,7 @@ Documentation
 .. code-block:: bash
 
 poetry build
-pip3 install -U dist/musicbot-0.1.0-py3-none-any.whl
-doc/gen.sh
+poetry run doc/gen.sh
 Commands
 --------
 .. code-block::
@@ -121,7 +120,6 @@ Commands
     -t, --timings                                       Set verbosity to info and show execution timings  [default: False]
     -v, --verbosity [debug|info|warning|error|critical]
                                                         Verbosity levels  [default: warning]
-    --dry                                               Take no real action  [default: False]
     -q, --quiet                                         Disable progress bars  [default: False]
     --colors / --no-colors                              Disable colorized output  [default: True]
     -h, --help                                          Show this message and exit.
@@ -550,6 +548,7 @@ musicbot folder flac2mp3
   
   Options:
     --concurrency INTEGER  Number of coroutines  [default: 8]
+    --dry                  Take no real action  [default: False]
     -h, --help             Show this message and exit.
 
 
@@ -598,6 +597,7 @@ musicbot folder sync
     Copy selected musics with filters to destination folder
   
   Options:
+    --dry                   Take no real action  [default: False]
     --name TEXT             Filter name
     --limit INTEGER         Fetch a maximum limit of music
     --youtubes TEXT         Select musics with a youtube link
@@ -765,6 +765,7 @@ musicbot playlist bests
     Generate bests playlists with some rules
   
   Options:
+    --dry                   Take no real action  [default: False]
     --name TEXT             Filter name
     --limit INTEGER         Fetch a maximum limit of music
     --youtubes TEXT         Select musics with a youtube link
@@ -817,6 +818,7 @@ musicbot playlist new
     Generate a new playlist
   
   Options:
+    --dry                   Take no real action  [default: False]
     --name TEXT             Filter name
     --limit INTEGER         Fetch a maximum limit of music
     --youtubes TEXT         Select musics with a youtube link

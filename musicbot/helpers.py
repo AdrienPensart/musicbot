@@ -15,10 +15,13 @@ from .music.file import File, supported_formats
 
 logger = logging.getLogger(__name__)
 
+MB_CONCURRENCY = 'MB_CONCURRENCY'
 DEFAULT_MB_CONCURRENCY = 8
-concurrency_options = [
-    click.option('--concurrency', envvar='MB_CONCURRENCY', help='Number of coroutines', default=DEFAULT_MB_CONCURRENCY, show_default=True),
-]
+concurrency_options = [click.option('--concurrency', envvar=MB_CONCURRENCY, help='Number of coroutines', default=DEFAULT_MB_CONCURRENCY, show_default=True)]
+
+DEFAULT_DRY = False
+MB_DRY = 'MB_DRY'
+dry_option = [click.option('--dry', help='Take no real action', envvar=MB_DRY, default=DEFAULT_DRY, is_flag=True, show_default=True)]
 
 
 logger = logging.getLogger(__name__)

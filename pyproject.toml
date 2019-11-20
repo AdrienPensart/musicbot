@@ -29,22 +29,21 @@ spotipy = "^2.4"
 psycopg2-binary = "^2.8"
 pyacoustid = "^1.1"
 pytube = "^9.4"
-pyyaml = "^5.1"
 python-vlc = "^3.0"
 prompt_toolkit = "^2.0"
 graphql-py = "^0.7.1"
 click_aliases = "^1.0.1"
 pgcli = "^2.1.1"
-backtrace = "^0.2.1"
 feedparser = "^5.2.1"
 
 [tool.poetry.dev-dependencies]
-pytest = "^4.4"
+pytest = "^5.2.4"
 pytest-xdist = "^1.28"
 pytest-cov = "^2.6"
 pytest-click = "^0.3.0"
 coverage-badge = "^1.0"
 pylint = "^2.3"
+pytest-docker-compose = "^3.1.2"
 
 [tool.dephell.main]
 from = {format = "poetry", path = "pyproject.toml"}

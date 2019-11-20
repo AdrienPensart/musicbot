@@ -2,7 +2,6 @@
 import os
 import logging
 import click
-import backtrace
 from click.formatting import HelpFormatter
 from attrdict import AttrDict
 from musicbot import helpers, config
@@ -10,7 +9,6 @@ from musicbot.user import MusicbotError
 
 # little hacky but prevent click from rewraping
 HelpFormatter.write_dl.__defaults__ = (50, 2)
-backtrace.hook(reverse=False, align=True, strip_path=False, enable_on_envvar_only=False, on_tty=False, conservative=False, styles={})
 
 bin_folder = os.path.dirname(__file__)
 commands_folder = 'commands'

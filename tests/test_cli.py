@@ -37,45 +37,40 @@ def test_config(cli_runner):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_admin(cli_runner, user_token, postgraphile_private_cli):  # pylint: disable=unused-argument
-    users = run_cli(cli_runner, cli, ['user', 'list', '--graphql-admin', postgraphile_private_cli])
+def test_admin(cli_runner, user_token, postgraphile_private):  # pylint: disable=unused-argument
+    users = run_cli(cli_runner, cli, ['user', 'list', '--graphql-admin', postgraphile_private])
     assert len(users.split("\n")) == 1
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_user(cli_runner, user_token, postgraphile_public_cli):
-    run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public_cli, 'load-default'])
-    filters = run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public_cli, 'list'])
+def test_user(cli_runner, user_token, postgraphile_public):
+    run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public, 'load-default'])
+    filters = run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public, 'list'])
     assert len(filters.split("\n")) == fixtures.filters
 
-    run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public_cli, 'do'])
-    run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public_cli, 'get', 'default'])
+    run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public, 'do'])
+    run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public, 'get', 'default'])
 
-    run_cli(cli_runner, cli, ['folder', '--token', user_token, '--graphql', postgraphile_public_cli, 'scan', *fixtures.folders])
+    run_cli(cli_runner, cli, ['folder', '--token', user_token, '--graphql', postgraphile_public, 'scan', *fixtures.folders])
 
-    folders = run_cli(cli_runner, cli, ['folder', '--token', user_token, '--graphql', postgraphile_public_cli, 'list'])
+    folders = run_cli(cli_runner, cli, ['folder', '--token', user_token, '--graphql', postgraphile_public, 'list'])
     assert len(folders.split("\n")) == 2
 
-    musics = run_cli(cli_runner, cli, ['folder', '--token', user_token, '--graphql', postgraphile_public_cli, 'find'])
+    musics = run_cli(cli_runner, cli, ['folder', '--token', user_token, '--graphql', postgraphile_public, 'find'])
     assert len(musics.split("\n")) == 5
 
-    csv = run_cli(cli_runner, cli, ['folder', '--token', user_token, '--graphql', postgraphile_public_cli, 'csv'])
+    csv = run_cli(cli_runner, cli, ['folder', '--token', user_token, '--graphql', postgraphile_public, 'csv'])
     assert len(csv.split("\n")) == 5
 
-    run_cli(cli_runner, cli, ['--dry', 'folder', '--token', user_token, '--graphql', postgraphile_public_cli, 'flac2mp3'])
-    run_cli(cli_runner, cli, ['--dry', 'folder', '--token', user_token, '--graphql', postgraphile_public_cli, 'sync', '/tmp'])
-    run_cli(cli_runner, cli, ['folder', '--token', user_token, '--graphql', postgraphile_public_cli, 'consistency'])
+    run_cli(cli_runner, cli, ['folder', '--token', user_token, '--graphql', postgraphile_public, 'flac2mp3', '--dry'])
+    run_cli(cli_runner, cli, ['folder', '--token', user_token, '--graphql', postgraphile_public, 'sync', '/tmp', '--dry'])
+    run_cli(cli_runner, cli, ['folder', '--token', user_token, '--graphql', postgraphile_public, 'consistency'])
 
-    playlist = run_cli(cli_runner, cli, ['playlist', '--token', user_token, '--graphql', postgraphile_public_cli, 'new'])
+    playlist = run_cli(cli_runner, cli, ['playlist', '--token', user_token, '--graphql', postgraphile_public, 'new'])
     assert len(playlist.split("\n")) == 6
 
-    run_cli(cli_runner, cli, ['--dry', 'playlist', '--token', user_token, '--graphql', postgraphile_public_cli, 'bests', '/tmp'])
-    run_cli(cli_runner, cli, ['stats', '--token', user_token, '--graphql', postgraphile_public_cli, 'show'])
+    run_cli(cli_runner, cli, ['playlist', '--token', user_token, '--graphql', postgraphile_public, 'bests', '/tmp'])
+    run_cli(cli_runner, cli, ['stats', '--token', user_token, '--graphql', postgraphile_public, 'show'])
 
-    run_cli(cli_runner, cli, ['genre', '--token', user_token, '--graphql', postgraphile_public_cli, 'list'])
-    run_cli(cli_runner, cli, ['artist', '--token', user_token, '--graphql', postgraphile_public_cli, 'list'])
-
-
-@pytest.mark.runner_setup(mix_stderr=False)
-def test_db(cli_runner, db_cli):
-    run_cli(cli_runner, cli, ['db', 'clear', '--yes', '--db', db_cli])
+    run_cli(cli_runner, cli, ['genre', '--token', user_token, '--graphql', postgraphile_public, 'list'])
+    run_cli(cli_runner, cli, ['artist', '--token', user_token, '--graphql', postgraphile_public, 'list'])

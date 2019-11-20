@@ -79,8 +79,8 @@ def watch(ctx):
 
 @cli.command()
 @click.argument('folders', nargs=-1)
-@helpers.add_options(helpers.concurrency_options)
-def flac2mp3(folders, concurrency):
+@helpers.add_options(helpers.concurrency_options + helpers.dry_option)
+def flac2mp3(folders, concurrency, dry):
     '''Convert all files in folders to mp3'''
     import atexit
     import concurrent.futures as cf
@@ -96,7 +96,7 @@ def flac2mp3(folders, concurrency):
         logger.debug('Converting %s', flac_path)
         flac_audio = AudioSegment.from_file(flac_path, "flac")
         mp3_path = flac_path.replace('.flac', '.mp3')
-        if not config.dry:
+        if not dry:
             flac_audio.export(mp3_path, format="mp3")
         else:
             logger.info("[DRY-RUN] Exporting from %s to %s", flac_path, mp3_path)
@@ -111,10 +111,10 @@ def flac2mp3(folders, concurrency):
 
 
 @cli.command()
-@helpers.add_options(mfilter.options)
+@helpers.add_options(helpers.dry_option + mfilter.options)
 @click.argument('destination')
 @click.pass_context
-def sync(ctx, destination, **kwargs):
+def sync(ctx, dry, destination, **kwargs):
     '''Copy selected musics with filters to destination folder'''
     logger.info('Destination: %s', destination)
     mf = mfilter.Filter(**kwargs)
@@ -127,7 +127,7 @@ def sync(ctx, destination, **kwargs):
     if to_delete:
         with tqdm(total=len(to_delete), desc="Deleting music", disable=config.quiet) as pbar:
             for d in to_delete:
-                if not config.dry:
+                if not dry:
                     try:
                         logger.info("Deleting %s", destinations[d])
                         os.remove(destinations[d])
@@ -142,7 +142,7 @@ def sync(ctx, destination, **kwargs):
             from shutil import copyfile
             for c in sorted(to_copy):
                 final_destination = os.path.join(destination, c)
-                if not config.dry:
+                if not dry:
                     logger.info("Copying %s to %s", sources[c], final_destination)
                     os.makedirs(os.path.dirname(final_destination), exist_ok=True)
                     copyfile(sources[c], final_destination)
@@ -152,7 +152,7 @@ def sync(ctx, destination, **kwargs):
 
     import shutil
     for d in lib.empty_dirs(destination):
-        if not config.dry:
+        if not dry:
             shutil.rmtree(d)
         logger.info("[DRY-RUN] Removing empty dir %s", d)
 

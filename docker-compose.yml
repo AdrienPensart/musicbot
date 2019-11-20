@@ -4,12 +4,22 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.cli
+    volumes:
+      - ./tests/fixtures/:/fixtures
+    depends_on:
+      - db
+      - postgraphile_public
+      - postgraphile_private
   ui:
     build:
       context: .
       dockerfile: Dockerfile.ui
     ports:
       - 80:80
+    depends_on:
+      - db
+      - postgraphile_public
+      - postgraphile_private
   db:
     build:
       context: .
@@ -20,6 +30,8 @@ services:
     restart: always
     ports:
       - 5432:5432
+    #volumes:
+    #  - ./postgres-data:/var/lib/postgresql/data
   adminer:
     image: adminer
     restart: unless-stopped

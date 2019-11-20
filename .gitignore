@@ -6,6 +6,7 @@ doc/html
 *.pid
 .eggs
 .coverage*
+postgres-data
 dist
 man
 build

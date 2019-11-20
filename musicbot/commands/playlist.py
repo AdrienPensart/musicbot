@@ -21,13 +21,13 @@ def cli(ctx, **kwargs):
 
 @cli.command()
 @click.pass_context
-@helpers.add_options(mfilter.options)
+@helpers.add_options(helpers.dry_option + mfilter.options)
 @click.argument('path', type=click.File('w'), default='-')
-def new(ctx, path, **kwargs):
+def new(ctx, path, dry, **kwargs):
     '''Generate a new playlist'''
     mf = mfilter.Filter(**kwargs)
     p = ctx.obj.u().playlist(mf)
-    if not config.dry:
+    if not dry:
         print(p, file=path)
     else:
         logger.info('DRY RUN: Writing playlist to %s with content:\n%s', path, p)
@@ -35,11 +35,11 @@ def new(ctx, path, **kwargs):
 
 @cli.command()
 @click.pass_context
-@helpers.add_options(mfilter.options)
+@helpers.add_options(helpers.dry_option + mfilter.options)
 @click.argument('path', type=click.Path(exists=True))
 @click.option('--prefix', envvar='MB_PREFIX', help="Append prefix before each path (implies relative)", default='')
 @click.option('--suffix', envvar='MB_SUFFIX', help="Append this suffix to playlist name", default='')
-def bests(ctx, path, prefix, suffix, **kwargs):
+def bests(ctx, dry, path, prefix, suffix, **kwargs):
     '''Generate bests playlists with some rules'''
     mf = mfilter.Filter(**kwargs)
     if prefix:
@@ -50,7 +50,7 @@ def bests(ctx, path, prefix, suffix, **kwargs):
         for p in playlists:
             playlist_filepath = os.path.join(path, p['name'] + suffix + '.m3u')
             content = indent(p['content'], prefix, lambda line: line != '#EXTM3U')
-            if not config.dry:
+            if not dry:
                 try:
                     with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:
                         logger.debug('Writing playlist to %s with content:\n%s', playlist_filepath, content)

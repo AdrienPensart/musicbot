@@ -15,12 +15,10 @@ MB_INFO = 'MB_INFO'
 MB_DEBUG = 'MB_DEBUG'
 MB_TIMINGS = 'MB_TIMINGS'
 MB_VERBOSITY = 'MB_VERBOSITY'
-MB_DRY = 'MB_DRY'
 MB_QUIET = 'MB_QUIET'
 MB_COLORS = 'MB_COLORS'
 
 DEFAULT_VERBOSITY = 'warning'
-DEFAULT_DRY = False
 DEFAULT_QUIET = False
 DEFAULT_DEBUG = False
 DEFAULT_COLORS = True
@@ -40,7 +38,6 @@ options = [
     click.option('--debug', '-d', help='Be very verbose, same as --verbosity debug + hide progress bars', envvar=MB_DEBUG, default=DEFAULT_DEBUG, is_flag=True, show_default=True),
     click.option('--timings', '-t', help='Set verbosity to info and show execution timings', envvar=MB_TIMINGS, default=DEFAULT_TIMINGS, is_flag=True, show_default=True),
     click.option('--verbosity', '-v', help='Verbosity levels', envvar=MB_VERBOSITY, default=DEFAULT_VERBOSITY, type=click.Choice(verbosities.keys()), show_default=True),
-    click.option('--dry', help='Take no real action', envvar=MB_DRY, default=DEFAULT_DRY, is_flag=True, show_default=True),
     click.option('--quiet', '-q', help='Disable progress bars', envvar=MB_QUIET, default=DEFAULT_QUIET, is_flag=True, show_default=True),
     click.option('--colors/--no-colors', help='Disable colorized output', envvar=MB_COLORS, default=DEFAULT_COLORS, show_default=True),
 ]
@@ -65,20 +62,18 @@ class Config:
     debug = attr.ib(default=DEFAULT_DEBUG)
     info = attr.ib(default=DEFAULT_INFO)
     timings = attr.ib(default=DEFAULT_TIMINGS)
-    dry = attr.ib(default=DEFAULT_DRY)
     colors = attr.ib(default=DEFAULT_COLORS)
     verbosity = attr.ib(default=DEFAULT_VERBOSITY)
     level = attr.ib(default=verbosities[DEFAULT_VERBOSITY])
     fmt = attr.ib(default="%(asctime)s %(name)s[%(process)d] %(levelname)s %(message)s")
 
-    def set(self, debug=None, info=None, timings=None, dry=None, quiet=None, verbosity=None, colors=None, log=None):
+    def set(self, debug=None, info=None, timings=None, quiet=None, verbosity=None, colors=None, log=None):
         self.log = log if log is not None else os.getenv(MB_LOG, str(DEFAULT_LOG))
         self.log = os.path.expanduser(self.log)
         self.quiet = quiet if quiet is not None else lib.str2bool(os.getenv(MB_QUIET, str(DEFAULT_QUIET)))
         self.debug = debug if debug is not None else lib.str2bool(os.getenv(MB_DEBUG, str(DEFAULT_DEBUG)))
         self.info = info if info is not None else lib.str2bool(os.getenv(MB_INFO, str(DEFAULT_INFO)))
         self.timings = timings if timings is not None else lib.str2bool(os.getenv(MB_TIMINGS, str(DEFAULT_TIMINGS)))
-        self.dry = dry if dry is not None else lib.str2bool(os.getenv(MB_DRY, str(DEFAULT_DRY)))
         self.colors = colors if colors is not None else lib.str2bool(os.getenv(MB_COLORS, str(DEFAULT_COLORS)))
         self.verbosity = verbosity if verbosity is not None else os.getenv(MB_VERBOSITY, DEFAULT_VERBOSITY)
 
@@ -104,8 +99,8 @@ class Config:
         logger.debug(self)
 
     def __repr__(self):
-        fmt = 'log:{} timings:{} debug:{} quiet:{} dry:{} verbosity:{} colors:{}'
-        return fmt.format(self.log, self.timings, self.debug, self.quiet, self.dry, self.verbosity, self.colors)
+        fmt = 'log:{} timings:{} debug:{} quiet:{} verbosity:{} colors:{}'
+        return fmt.format(self.log, self.timings, self.debug, self.quiet, self.verbosity, self.colors)
 
 
 config = Config()

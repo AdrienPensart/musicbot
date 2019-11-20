@@ -122,7 +122,7 @@ class User(GraphQL):
                 }}
             }}""".format(self.email, self.password)
             self.headers = None
-            self.token = self._post(query, failure=FailedAuthentication("Authentication failed"))['data']['authenticate']['jwtToken']
+            self.token = self._post(query, failure=FailedAuthentication("Authentication failed for email {}".format(self.email)))['data']['authenticate']['jwtToken']
         elif self.token is None:
             raise FailedAuthentication("No credentials or token provided")
 
