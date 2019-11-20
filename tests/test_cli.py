@@ -69,7 +69,7 @@ def test_user(cli_runner, user_token, postgraphile_public):
     playlist = run_cli(cli_runner, cli, ['playlist', '--token', user_token, '--graphql', postgraphile_public, 'new'])
     assert len(playlist.split("\n")) == 6
 
-    run_cli(cli_runner, cli, ['playlist', '--token', user_token, '--graphql', postgraphile_public, 'bests', '/tmp'])
+    run_cli(cli_runner, cli, ['playlist', '--token', user_token, '--graphql', postgraphile_public, 'bests', '/tmp', '--dry'])
     run_cli(cli_runner, cli, ['stats', '--token', user_token, '--graphql', postgraphile_public, 'show'])
 
     run_cli(cli_runner, cli, ['genre', '--token', user_token, '--graphql', postgraphile_public, 'list'])
