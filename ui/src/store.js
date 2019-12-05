@@ -32,16 +32,19 @@ export default new Vuex.Store({
       state.errors = []
     },
     graphql_error(state, errors){
+      state.status = 'error'
+      state.errors = []
       errors.forEach((error) => {
         state.errors.push(error.message)
       })
     },
-    auth_error(state, errors){
+    auth_error(state, error){
       state.status = 'error'
-      state.errors = errors
+      state.errors = []
+      state.errors.push(error)
     },
     logout(state){
-      state.status = ''
+      state.status = 'success'
       state.token = ''
       state.errors = []
     },
@@ -57,7 +60,6 @@ export default new Vuex.Store({
         }
       })
       .then((resp) => {
-        console.log(resp.data.errors)
         if ( resp.errors ) {
           commit('graphql_error', resp.errors)
           return
@@ -67,6 +69,10 @@ export default new Vuex.Store({
           return
         }
         const token = resp.data.data.authenticate.jwtToken
+        if ( !token ) {
+          commit('auth_error', 'login failed')
+          return
+        }
         localStorage.setItem('token', token)
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
         commit('auth_success', token)

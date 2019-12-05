@@ -30,11 +30,10 @@ psycopg2-binary = "^2.8"
 pyacoustid = "^1.1"
 pytube = "^9.4"
 python-vlc = "^3.0"
-prompt_toolkit = "^2.0"
 graphql-py = "^0.7.1"
 click_aliases = "^1.0.1"
-pgcli = "^2.1.1"
 feedparser = "^5.2.1"
+pgcli = "^2.1.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2.4"
