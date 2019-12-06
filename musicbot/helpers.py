@@ -83,7 +83,10 @@ def genfiles(folders):
         file_list = find_files(folders, supported_formats)
         music_files = list(file_list)
         for f in music_files:
-            m = File(f[1], f[0])
-            files.append(m)
-            pbar.update(1)
+            try:
+                m = File(f[1], f[0])
+                files.append(m)
+                pbar.update(1)
+            except Exception as e:
+                logger.error(e)
     return files
