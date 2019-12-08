@@ -33,7 +33,9 @@ graphql-py = "^0.7.1"
 click_aliases = "^1.0.1"
 feedparser = "^5.2.1"
 pgcli = "^2.1.1"
-spotify = "^0.8.2"
+spotify = {git = "https://github.com/mental32/spotify.py"}
+python-dotenv = "^0.10.3"
+flask = "^1.1.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2.4"

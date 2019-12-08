@@ -87,6 +87,6 @@ def genfiles(folders):
                 m = File(f[1], f[0])
                 files.append(m)
                 pbar.update(1)
-            except Exception as e:
+            except OSError as e:
                 logger.error(e)
     return files
