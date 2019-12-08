@@ -1,5 +1,6 @@
 import os
 import logging
+import configparser
 import pwd
 import attr
 import click
@@ -9,7 +10,7 @@ from . import lib
 logger = logging.getLogger(__name__)
 current_user = pwd.getpwuid(os.getuid()).pw_name
 
-DEFAULT_LOG = '~/musicbot.log'
+MB_CONFIG = 'MB_CONFIG'
 MB_LOG = 'MB_LOG'
 MB_INFO = 'MB_INFO'
 MB_DEBUG = 'MB_DEBUG'
@@ -18,6 +19,8 @@ MB_VERBOSITY = 'MB_VERBOSITY'
 MB_QUIET = 'MB_QUIET'
 MB_COLORS = 'MB_COLORS'
 
+DEFAULT_CONFIG = '~/musicbot.ini'
+DEFAULT_LOG = '~/musicbot.log'
 DEFAULT_VERBOSITY = 'warning'
 DEFAULT_QUIET = False
 DEFAULT_DEBUG = False
@@ -33,6 +36,7 @@ verbosities = {'debug': logging.DEBUG,
                'critical': logging.CRITICAL}
 
 options = [
+    click.option('--config', '-c', help='Config file path', type=click.Path(), envvar=MB_CONFIG, default=DEFAULT_CONFIG, show_default=True),
     click.option('--log', '-l', help='Log file path', type=click.Path(), envvar=MB_LOG, default=DEFAULT_LOG, show_default=True),
     click.option('--info', '-i', help='Same as --verbosity info"', envvar=MB_INFO, default=DEFAULT_INFO, is_flag=True, show_default=False),
     click.option('--debug', '-d', help='Be very verbose, same as --verbosity debug + hide progress bars', envvar=MB_DEBUG, default=DEFAULT_DEBUG, is_flag=True, show_default=True),
@@ -64,10 +68,17 @@ class Config:
     timings = attr.ib(default=DEFAULT_TIMINGS)
     colors = attr.ib(default=DEFAULT_COLORS)
     verbosity = attr.ib(default=DEFAULT_VERBOSITY)
+    config = attr.ib(default=DEFAULT_CONFIG)
+    configfile = attr.ib(default=None)
     level = attr.ib(default=verbosities[DEFAULT_VERBOSITY])
     fmt = attr.ib(default="%(asctime)s %(name)s[%(process)d] %(levelname)s %(message)s")
 
-    def set(self, debug=None, info=None, timings=None, quiet=None, verbosity=None, colors=None, log=None):
+    def set(self, config=None, debug=None, info=None, timings=None, quiet=None, verbosity=None, colors=None, log=None):
+        self.config = config if config is not None else os.getenv(MB_CONFIG, DEFAULT_CONFIG)
+        self.config = os.path.expanduser(self.config)
+        self.configfile = configparser.ConfigParser()
+        self.configfile.read(self.config)
+
         self.log = log if log is not None else os.getenv(MB_LOG, str(DEFAULT_LOG))
         self.log = os.path.expanduser(self.log)
         self.quiet = quiet if quiet is not None else lib.str2bool(os.getenv(MB_QUIET, str(DEFAULT_QUIET)))
