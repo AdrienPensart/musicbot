@@ -911,19 +911,14 @@ version = "1.13.0"
 
 [[package]]
 category = "main"
-description = ""
+description = "spotify.py is an asynchronous API wrapper for Spotify written in Python."
 name = "spotify"
 optional = false
-python-versions = "^3.6"
+python-versions = ">=3.6,<4.0"
 version = "0.8.2"
 
 [package.dependencies]
-aiohttp = "^3.6"
-
-[package.source]
-reference = "f42b5c5977b686f0e99b9605e163e30d7781d408"
-type = "git"
-url = "https://github.com/mental32/spotify.py"
+aiohttp = ">=3.6,<4.0"
 
 [[package]]
 category = "dev"
@@ -1056,7 +1051,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "contextlib2", "unittest2"]
 
 [metadata]
-content-hash = "350e1400589cc3fc73edc965a6ec1c3d5f4badce1cc955d7d188e3b7b68621e0"
+content-hash = "caba81df2ded7f3e80d1eb7d911c2e5f506f6f5cba376ba5f8ef24a31eaff9f9"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -1597,7 +1592,10 @@ six = [
     {file = "six-1.13.0-py2.py3-none-any.whl", hash = "sha256:1f1b7d42e254082a9db6279deae68afb421ceba6158efa6131de7b3003ee93fd"},
     {file = "six-1.13.0.tar.gz", hash = "sha256:30f610279e8b2578cab6db20741130331735c781b56053c59c4076da27f06b66"},
 ]
-spotify = []
+spotify = [
+    {file = "spotify-0.8.2-py3-none-any.whl", hash = "sha256:5ac023406bfdcde55e750cc8754a72fb42e1cfbc869f2f9d2c766fd82e89b368"},
+    {file = "spotify-0.8.2.tar.gz", hash = "sha256:fc608ae6f29a2970b9ec0e2411355288a4ced820df434ade0031ab401c6b07f4"},
+]
 texttable = [
     {file = "texttable-1.6.2.tar.gz", hash = "sha256:eff3703781fbc7750125f50e10f001195174f13825a92a45e9403037d539b4f4"},
 ]
