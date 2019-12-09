@@ -4,6 +4,7 @@ import asyncio
 from contextlib import contextmanager
 from functools import partial
 import click
+import spotify as async_spotify
 import spotify.sync as sync_spotify
 from musicbot.helpers import config_string
 
@@ -40,7 +41,7 @@ def spotify_user(spotify_token, spotify_refresh_token, **kwargs):
         with spotify_client(**kwargs) as client:
             user = sync_spotify.User.from_token(client, spotify_token, spotify_refresh_token)
             yield user
-    except sync_spotify.errors.SpotifyException as e:
+    except async_spotify.errors.SpotifyException as e:
         logger.error(e)
         sys.exit(-1)
     finally:

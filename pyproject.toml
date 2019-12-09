@@ -32,11 +32,11 @@ python-vlc = "^3.0"
 graphql-py = "^0.7.1"
 click_aliases = "^1.0.1"
 feedparser = "^5.2.1"
-pgcli = "^2.1.1"
 spotify = {git = "https://github.com/mental32/spotify.py"}
 python-dotenv = "^0.10.3"
 flask = "^1.1.1"
 prettytable = "^0.7.2"
+prompt_toolkit = "^3.0.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2.4"
