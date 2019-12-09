@@ -17,7 +17,7 @@ jobs:
       run: |
         sudo apt-get install -y libtag1-dev postgresql-server-dev-all ffmpeg
         python -m pip install --upgrade pip
-        python3 setup.py install
+        pip install -r requirements.txt
     - name: Lint with pylint
       run: |
         pylint musicbot tests
