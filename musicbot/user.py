@@ -3,27 +3,26 @@ import base64
 import json
 import logging
 import functools
+from functools import partial
 import requests
 import click
 import click_spinner
 from . import helpers
 from .config import config
+from .helpers import config_string
 from .music import file, mfilter
 
 MB_TOKEN = 'MB_TOKEN'
 DEFAULT_TOKEN = None
-token_argument = [click.argument('token')]
-token_option = [click.option('--token', envvar=MB_TOKEN, help='User token', default=DEFAULT_TOKEN, show_default=False)]
+token_option = [click.option('--token', '-t', help='User token', default=DEFAULT_TOKEN, callback=partial(config_string, MB_TOKEN, 'token', False))]
 
 MB_EMAIL = 'MB_EMAIL'
 DEFAULT_EMAIL = None
-email_argument = [click.argument('email')]
-email_option = [click.option('--email', '-e', envvar=MB_EMAIL, help='User email', default=DEFAULT_EMAIL, show_default=True)]
+email_option = [click.option('--email', '-e', help='User email', default=DEFAULT_EMAIL, callback=partial(config_string, MB_EMAIL, 'email', False))]
 
 MB_PASSWORD = 'MB_PASSWORD'
 DEFAULT_PASSWORD = None
-password_argument = [click.argument('password')]
-password_option = [click.option('--password', '-p', envvar=MB_PASSWORD, help='User password', default=DEFAULT_PASSWORD, show_default=False)]
+password_option = [click.option('--password', '-p', help='User password', default=DEFAULT_PASSWORD, callback=partial(config_string, MB_PASSWORD, 'password', False))]
 
 MB_FIRST_NAME = 'MB_FIRST_NAME'
 DEFAULT_FIRST_NAME = None
@@ -112,6 +111,11 @@ class User(GraphQL):
         self.token = token
         self.authenticated = False
 
+        if self.token:
+            self.authenticated = True
+            GraphQL.__init__(self, graphql=graphql, headers={"Authorization": "Bearer {}".format(self.token)})
+            return
+
         if self.email and self.password:
             query = """
             mutation
@@ -123,11 +127,9 @@ class User(GraphQL):
             }}""".format(self.email, self.password)
             self.headers = None
             self.token = self._post(query, failure=FailedAuthentication("Authentication failed for email {}".format(self.email)))['data']['authenticate']['jwtToken']
-        elif self.token is None:
-            raise FailedAuthentication("No credentials or token provided")
-
-        self.authenticated = True
-        GraphQL.__init__(self, graphql=graphql, headers={"Authorization": "Bearer {}".format(self.token)})
+            self.authenticated = True
+            GraphQL.__init__(self, graphql=graphql, headers={"Authorization": "Bearer {}".format(self.token)})
+        raise FailedAuthentication("No credentials or token provided")
 
     @classmethod
     @functools.lru_cache(maxsize=None)

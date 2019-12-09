@@ -665,7 +665,7 @@ description = "Meta-commands handler for Postgres Database."
 name = "pgspecial"
 optional = false
 python-versions = "*"
-version = "1.11.8"
+version = "1.11.9"
 
 [package.dependencies]
 click = ">=4.1"
@@ -1039,7 +1039,6 @@ aiohttp = "^3.6"
 reference = "f42b5c5977b686f0e99b9605e163e30d7781d408"
 type = "git"
 url = "https://github.com/mental32/spotify.py"
-
 [[package]]
 category = "main"
 description = "Non-validating SQL parser"
@@ -1583,7 +1582,7 @@ pgcli = [
     {file = "pgcli-2.2.0.tar.gz", hash = "sha256:54138a31e6736a34c63b84a6d134c9292c9a73543cc0f66e80a0aaf79259d39b"},
 ]
 pgspecial = [
-    {file = "pgspecial-1.11.8.tar.gz", hash = "sha256:8c53fa2b2490fa9ec34ede4eafff8ddbe8bce5cba3dcae96509be36ec8c75575"},
+    {file = "pgspecial-1.11.9.tar.gz", hash = "sha256:77f8651450ccbde7d3036cfe93486a4eeeb5ade28d1ebc4b2ba186fea0023c56"},
 ]
 pluggy = [
     {file = "pluggy-0.13.1-py2.py3-none-any.whl", hash = "sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d"},

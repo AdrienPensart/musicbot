@@ -70,6 +70,18 @@ def add_options(options):
     return _add_options
 
 
+def config_string(envvar, configkey, required, ctx, param, value):
+    if not value:
+        value = os.getenv(envvar, None)
+    if not value:
+        value = config.configfile['DEFAULT'].get(configkey, None)
+    if not value:
+        if required:
+            raise click.BadParameter('or missing env {} / config {} in {}'.format(envvar, configkey, config.config), ctx, param)
+    ctx.params[param.name] = value
+    return ctx.params[param.name]
+
+
 @timeit
 def genfiles(folders):
     with click_spinner.spinner(disable=config.quiet):

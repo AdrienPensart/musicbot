@@ -1,16 +1,16 @@
 import logging
 import asyncio
 import click
-import spotify.sync as spotify
+import spotify as async_spotify
+import spotify.sync as sync_spotify
 import flask
 from flask import request
 from prettytable import PrettyTable
-from musicbot.music.spotify import spotify_user, spotify_client, spotify_id_option, spotify_secret_option, options
 from musicbot import helpers
+from musicbot.config import config
+from musicbot.music.spotify import spotify_user, spotify_client, spotify_id_option, spotify_secret_option, options
 
 logger = logging.getLogger(__name__)
-werkzeug_logger = logging.getLogger('werkzeug')
-werkzeug_logger.setLevel(logging.ERROR)
 
 
 @click.group(cls=helpers.GroupWithHelp)
@@ -24,10 +24,9 @@ def token(**kwargs):
     '''Get spotify token'''
     with spotify_client(**kwargs) as client:
         app = flask.Flask(__name__)
-        app.secret_key = 'super secret key'
         REDIRECT_URI = 'http://localhost:8888/spotify/callback'
-        OAUTH2_SCOPES = ('user-library-read', 'user-modify-playback-state', 'user-read-currently-playing', 'user-read-playback-state')
-        oauth2 = spotify.OAuth2(client.id, REDIRECT_URI, scopes=OAUTH2_SCOPES)
+        OAUTH2_SCOPES = ('user-library-read', 'user-follow-read', 'user-top-read', 'playlist-read-private', 'user-modify-playback-state', 'user-read-currently-playing', 'user-read-playback-state')
+        oauth2 = sync_spotify.OAuth2(client.id, REDIRECT_URI, scopes=OAUTH2_SCOPES)
         token = None
 
         @app.route('/spotify/callback')
@@ -37,11 +36,13 @@ def token(**kwargs):
             except KeyError:
                 return flask.redirect('/spotify/failed')
             else:
-                user = spotify.User.from_code(client, code, redirect_uri=REDIRECT_URI)
+                user = sync_spotify.User.from_code(client, code, redirect_uri=REDIRECT_URI)
                 token = user.http.bearer_info["access_token"]
                 asyncio.run(user.http.close())
-                print(token)
-                print(user.http.refresh_token)
+                config.configfile['DEFAULT']['spotify_token'] = token
+                config.configfile['DEFAULT']['spotify_refresh_token'] = user.http.refresh_token
+                with open(config.config, 'w') as output_config:
+                    config.configfile.write(output_config)
                 shutdown_hook = request.environ.get('werkzeug.server.shutdown')
                 if shutdown_hook is not None:
                     shutdown_hook()
@@ -56,9 +57,9 @@ def token(**kwargs):
         def _index():
             if not token:
                 return flask.redirect(oauth2.url)
-            return ""
+            return "token written to config file"
 
-        app.run('0.0.0.0', port=8888, debug=False)
+        app.run('127.0.0.1', port=8888, debug=False)
 
 
 def print_tracks(tracks):
@@ -89,7 +90,7 @@ def print_artists(artists):
     pt = PrettyTable()
     pt.field_names = ["Name"]
     for a in artists:
-        pt.add_row([a.name])
+        pt.add_row([a['name']])
     print(pt)
 
 
@@ -140,12 +141,16 @@ def albums(**kwargs):
     with spotify_user(**kwargs) as user:
         albums = user.library.get_all_albums()
         print_albums(albums)
-#
-#
-# @cli.command()
-# @helpers.add_options(options)
-# def artists(**kwargs):
-#     '''Show artists'''
-#     with spotify_user(**kwargs) as user:
-#         artists = asyncio.run(user.http.followed_artists())
-#         print_artists(artists)
+
+
+@cli.command()
+@helpers.add_options(options)
+def artists(spotify_id, spotify_secret, spotify_token, spotify_refresh_token):
+    '''Show artists'''
+    async def get_artists():
+        async with async_spotify.Client(spotify_id, spotify_secret) as client:
+            user = await async_spotify.User.from_token(client, spotify_token, spotify_refresh_token)
+            result = await user.http.followed_artists()
+            await user.http.close()
+            print_artists(result['artists']['items'])
+    asyncio.run(get_artists())
