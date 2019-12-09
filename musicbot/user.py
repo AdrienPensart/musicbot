@@ -112,11 +112,8 @@ class User(GraphQL):
         self.authenticated = False
 
         if self.token:
-            self.authenticated = True
-            GraphQL.__init__(self, graphql=graphql, headers={"Authorization": "Bearer {}".format(self.token)})
-            return
-
-        if self.email and self.password:
+            pass
+        elif self.email and self.password:
             query = """
             mutation
             {{
@@ -127,9 +124,10 @@ class User(GraphQL):
             }}""".format(self.email, self.password)
             self.headers = None
             self.token = self._post(query, failure=FailedAuthentication("Authentication failed for email {}".format(self.email)))['data']['authenticate']['jwtToken']
-            self.authenticated = True
-            GraphQL.__init__(self, graphql=graphql, headers={"Authorization": "Bearer {}".format(self.token)})
-        raise FailedAuthentication("No credentials or token provided")
+        else:
+            raise FailedAuthentication("No credentials or token provided")
+        self.authenticated = True
+        GraphQL.__init__(self, graphql=graphql, headers={"Authorization": "Bearer {}".format(self.token)})
 
     @classmethod
     @functools.lru_cache(maxsize=None)

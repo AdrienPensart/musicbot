@@ -51,26 +51,25 @@ def test_user(cli_runner, user_token, postgraphile_public):
     run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public, 'do'])
     run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public, 'get', 'default'])
 
-    run_cli(cli_runner, cli, ['folder', '--token', user_token, '--graphql', postgraphile_public, 'scan', *fixtures.folders])
+    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'scan', *fixtures.folders])
 
-    folders = run_cli(cli_runner, cli, ['folder', '--token', user_token, '--graphql', postgraphile_public, 'list'])
+    folders = run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'folders'])
     assert len(folders.split("\n")) == 2
 
-    musics = run_cli(cli_runner, cli, ['folder', '--token', user_token, '--graphql', postgraphile_public, 'find'])
+    musics = run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'find'])
     assert len(musics.split("\n")) == 5
 
-    csv = run_cli(cli_runner, cli, ['folder', '--token', user_token, '--graphql', postgraphile_public, 'csv'])
+    csv = run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'csv'])
     assert len(csv.split("\n")) == 5
 
-    run_cli(cli_runner, cli, ['folder', '--token', user_token, '--graphql', postgraphile_public, 'flac2mp3', '--dry'])
-    run_cli(cli_runner, cli, ['folder', '--token', user_token, '--graphql', postgraphile_public, 'sync', '/tmp', '--dry'])
-    run_cli(cli_runner, cli, ['folder', '--token', user_token, '--graphql', postgraphile_public, 'consistency'])
+    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'flac2mp3', '--dry'])
+    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'sync', '/tmp', '--dry'])
+    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'consistency'])
 
-    playlist = run_cli(cli_runner, cli, ['playlist', '--token', user_token, '--graphql', postgraphile_public, 'new'])
+    playlist = run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'playlist'])
     assert len(playlist.split("\n")) == 6
 
-    run_cli(cli_runner, cli, ['playlist', '--token', user_token, '--graphql', postgraphile_public, 'bests', '/tmp', '--dry'])
-    run_cli(cli_runner, cli, ['stats', '--token', user_token, '--graphql', postgraphile_public, 'show'])
+    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'bests', '/tmp', '--dry'])
+    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'stats'])
 
-    run_cli(cli_runner, cli, ['genre', '--token', user_token, '--graphql', postgraphile_public, 'list'])
-    run_cli(cli_runner, cli, ['artist', '--token', user_token, '--graphql', postgraphile_public, 'list'])
+    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'artists'])

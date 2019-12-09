@@ -77,8 +77,8 @@ Testing
 
 .. code-block:: bash
 
-poetry run pytest --disable-warnings --cov-report term-missing --durations=0 --cov musicbot -x -n auto tests
-poetry run coverage-badge > doc/coverage.svg
+poetry run pytest
+poetry run coverage-badge -f -o doc/coverage.svg
 
 Docker
 ------------

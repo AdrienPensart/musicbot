@@ -1,15 +1,15 @@
 version: '3'
 services:
-  #cli:
-  #  build:
-  #    context: .
-  #    dockerfile: Dockerfile.cli
-  #  volumes:
-  #    - ./tests/fixtures/:/fixtures
-  #  depends_on:
-  #    - db
-  #    - postgraphile_public
-  #    - postgraphile_private
+  cli:
+    build:
+      context: .
+      dockerfile: Dockerfile.cli
+    volumes:
+      - ./tests/fixtures/:/fixtures
+    depends_on:
+      - db
+      - postgraphile_public
+      - postgraphile_private
   ui:
     build:
       context: .

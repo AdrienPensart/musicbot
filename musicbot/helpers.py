@@ -72,12 +72,15 @@ def add_options(options):
 
 def config_string(envvar, configkey, required, ctx, param, value):
     if not value:
+        logger.info("Try loading with envvar %s", envvar)
         value = os.getenv(envvar, None)
     if not value:
+        logger.info("Try loading with config key %s", configkey)
         value = config.configfile['DEFAULT'].get(configkey, None)
     if not value:
         if required:
             raise click.BadParameter('or missing env {} / config {} in {}'.format(envvar, configkey, config.config), ctx, param)
+    logger.info("Value loaded: %s", value)
     ctx.params[param.name] = value
     return ctx.params[param.name]
 
