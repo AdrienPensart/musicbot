@@ -12,6 +12,7 @@ from .config import config
 from .helpers import config_string
 from .music import file, mfilter
 
+logger = logging.getLogger(__name__)
 MB_TOKEN = 'MB_TOKEN'
 DEFAULT_TOKEN = None
 token_option = [click.option('--token', '-t', help='User token', default=DEFAULT_TOKEN, callback=partial(config_string, MB_TOKEN, 'token', False))]
@@ -40,10 +41,9 @@ MB_GRAPHQL = 'MB_GRAPHQL'
 DEFAULT_GRAPHQL = 'http://127.0.0.1:5000/graphql'
 graphql_option = [click.option('--graphql', envvar=MB_GRAPHQL, help='GraphQL endpoint', default=DEFAULT_GRAPHQL, show_default=True)]
 
-options = email_option + password_option + first_name_option + last_name_option + graphql_option
-logger = logging.getLogger(__name__)
-
-auth_options = email_option + password_option + token_option + graphql_option
+register_options = email_option + password_option + first_name_option + last_name_option + graphql_option
+login_options = email_option + password_option + graphql_option
+auth_options = login_options + token_option
 
 
 class MusicbotError(Exception):
@@ -93,9 +93,7 @@ class Admin(GraphQL):  # pylint: disable=too-few-public-methods
               createdAt,
               updatedAt,
               accountByUserId{
-                userId,
-                email,
-                passwordHash
+                email
               }
           }
         }"""
@@ -141,10 +139,21 @@ class User(GraphQL):
         query = """
         mutation
         {
-            loadDefaultFilters(input: {})
-            {
-                clientMutationId
-            }
+            default:           createFilter(input: {filter: {name: "default"                                                                           }}){clientMutationId}
+            no_artist_set:     createFilter(input: {filter: {name: "no artist set",     artists:    ""                                                 }}){clientMutationId}
+            no_album_set:      createFilter(input: {filter: {name: "no album set",      albums:     ""                                                 }}){clientMutationId}
+            no_title_set:      createFilter(input: {filter: {name: "no title set",      titles:     ""                                                 }}){clientMutationId}
+            no_genre_set:      createFilter(input: {filter: {name: "no genre set",      genres:     ""                                                 }}){clientMutationId}
+            youtube_not_found: createFilter(input: {filter: {name: "youtube not found", youtubes:   ["not found"]                                      }}){clientMutationId}
+            spotify_not_found: createFilter(input: {filter: {name: "spotify not found", spotifys:   ["not found"]                                      }}){clientMutationId}
+            no_youtube_links:  createFilter(input: {filter: {name: "no youtube links",  youtubes:   []                                                 }}){clientMutationId}
+            no_spotify_links:  createFilter(input: {filter: {name: "no spotify links",  spotifys:   ["not found"]                                      }}){clientMutationId}
+            no_rating:         createFilter(input: {filter: {name: "no rating",         minRating:  0.0, maxRating: 0.0                                }}){clientMutationId}
+            bests_40:          createFilter(input: {filter: {name: "best (4.0+)",       minRating:  4.0, noKeywords: ["cutoff", "bad", "demo", "intro"]}}){clientMutationId}
+            bests_45:          createFilter(input: {filter: {name: "best (4.5+)",       minRating:  4.5, noKeywords: ["cutoff", "bad", "demo", "intro"]}}){clientMutationId}
+            bests_50:          createFilter(input: {filter: {name: "best (5.0+)",       minRating:  5.0, noKeywords: ["cutoff", "bad", "demo", "intro"]}}){clientMutationId}
+            no_live:           createFilter(input: {filter: {name: "no live",           noKeywords: ["live"]                                           }}){clientMutationId}
+            only_live:         createFilter(input: {filter: {name: "only live",         keywords:   ["live"]                                           }}){clientMutationId}
         }"""
         return self._post(query)
 

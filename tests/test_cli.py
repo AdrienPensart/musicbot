@@ -1,4 +1,5 @@
 import logging
+import json
 import pytest
 from musicbot import version
 from musicbot.cli import cli
@@ -38,23 +39,25 @@ def test_config(cli_runner):
 
 @pytest.mark.runner_setup(mix_stderr=False)
 def test_admin(cli_runner, user_token, postgraphile_private):  # pylint: disable=unused-argument
-    users = run_cli(cli_runner, cli, ['user', 'list', '--graphql-admin', postgraphile_private])
-    assert len(users.split("\n")) == 1
+    users_json = run_cli(cli_runner, cli, ['user', 'list', '--output', 'json', '--graphql-admin', postgraphile_private])
+    users = json.loads(users_json)
+    assert len(users) == 1
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
 def test_user(cli_runner, user_token, postgraphile_public):
-    run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public, 'load-default'])
-    filters = run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public, 'list'])
-    assert len(filters.split("\n")) == fixtures.filters
+    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'load-filters'])
+    filters_json = run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'filters', '--output', 'json'])
+    filters = json.loads(filters_json)
+    assert len(filters) == fixtures.filters
 
-    run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public, 'do'])
-    run_cli(cli_runner, cli, ['filter', '--token', user_token, '--graphql', postgraphile_public, 'get', 'default'])
-
+    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'filter', 'default'])
+    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'tracks'])
     run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'scan', *fixtures.folders])
 
-    folders = run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'folders'])
-    assert len(folders.split("\n")) == 2
+    folders_json = run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'folders', '--output', 'json'])
+    folders = json.loads(folders_json)
+    assert len(folders) == 2
 
     musics = run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'find'])
     assert len(musics.split("\n")) == 5

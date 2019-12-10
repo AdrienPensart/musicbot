@@ -4,7 +4,7 @@ from musicbot import helpers
 from musicbot.config import config
 
 
-@click.group(cls=helpers.GroupWithHelp)
+@click.group(hidden=True, cls=helpers.GroupWithHelp)
 def cli():
     '''Config management'''
 

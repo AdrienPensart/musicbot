@@ -61,6 +61,6 @@ def postgraphile_private(db, function_scoped_container_getter):  # pylint: disab
 @pytest.yield_fixture
 def user_token(cli_runner, postgraphile_public):
     run_cli(cli_runner, cli, ['user', 'register', '--graphql', postgraphile_public, '--email', fixtures.email, '--password', fixtures.password, '--first-name', fixtures.first_name, '--last-name', fixtures.last_name])
-    token = run_cli(cli_runner, cli, ['user', 'login', '--graphql', postgraphile_public, '--email', fixtures.email, '--password', fixtures.password])
+    token = run_cli(cli_runner, cli, ['user', 'token', '--graphql', postgraphile_public, '--email', fixtures.email, '--password', fixtures.password])
     token = token.rstrip()
     return token

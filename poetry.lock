@@ -17,14 +17,6 @@ yarl = ">=1.0,<2.0"
 speedups = ["aiodns", "brotlipy", "cchardet"]
 
 [[package]]
-category = "dev"
-description = "apipkg: namespace control and lazy-import mechanism"
-name = "apipkg"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.5"
-
-[[package]]
 category = "main"
 description = "An unobtrusive argparse wrapper with natural syntax"
 name = "argh"
@@ -100,7 +92,7 @@ python-versions = "*"
 version = "2.1.8"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Modern password hashing for your software and your servers"
 name = "bcrypt"
 optional = false
@@ -115,7 +107,7 @@ six = ">=1.4.1"
 tests = ["pytest (>=3.2.1,<3.3.0 || >3.3.0)"]
 
 [[package]]
-category = "dev"
+category = "main"
 description = "A decorator for caching properties in classes."
 name = "cached-property"
 optional = false
@@ -131,7 +123,7 @@ python-versions = "*"
 version = "2019.11.28"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Foreign Function Interface for Python calling C code."
 name = "cffi"
 optional = false
@@ -245,7 +237,7 @@ python-versions = "*"
 version = "1.0.1"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "cryptography is a package which provides cryptographic recipes and primitives to Python developers."
 name = "cryptography"
 optional = false
@@ -264,7 +256,7 @@ pep8test = ["flake8", "flake8-import-order", "pep8-naming"]
 test = ["pytest (>=3.6.0,<3.9.0 || >3.9.0,<3.9.1 || >3.9.1,<3.9.2 || >3.9.2)", "pretend", "iso8601", "pytz", "hypothesis (>=1.11.4,<3.79.2 || >3.79.2)"]
 
 [[package]]
-category = "dev"
+category = "main"
 description = "A Python library for the Docker Engine API."
 name = "docker"
 optional = false
@@ -289,7 +281,7 @@ ssh = ["paramiko (>=2.4.2)"]
 tls = ["pyOpenSSL (>=17.5.0)", "cryptography (>=1.3.4)", "idna (>=2.0.0)"]
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Multi-container orchestration for Docker"
 name = "docker-compose"
 optional = false
@@ -316,7 +308,7 @@ version = ">=3.7.0,<5"
 socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7,<2)"]
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Python library to use the pseudo-tty of a docker container"
 name = "dockerpty"
 optional = false
@@ -327,26 +319,12 @@ version = "0.4.1"
 six = ">=1.3.0"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Pythonic argument parser, that will make you smile"
 name = "docopt"
 optional = false
 python-versions = "*"
 version = "0.6.2"
-
-[[package]]
-category = "dev"
-description = "execnet: rapid multi-Python deployment"
-name = "execnet"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.7.1"
-
-[package.dependencies]
-apipkg = ">=1.4"
-
-[package.extras]
-testing = ["pre-commit"]
 
 [[package]]
 category = "main"
@@ -406,7 +384,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "2.8"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Read metadata from Python packages"
 marker = "python_version < \"3.8\""
 name = "importlib-metadata"
@@ -474,7 +452,7 @@ MarkupSafe = ">=0.23"
 i18n = ["Babel (>=0.8)"]
 
 [[package]]
-category = "dev"
+category = "main"
 description = "An implementation of JSON Schema validation for Python"
 name = "jsonschema"
 optional = false
@@ -528,7 +506,7 @@ python-versions = "*"
 version = "0.6.1"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "More routines for operating on iterables, beyond itertools"
 name = "more-itertools"
 optional = false
@@ -556,12 +534,12 @@ pyparsing = ">=2.0.2"
 six = "*"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "SSH2 protocol library"
 name = "paramiko"
 optional = false
 python-versions = "*"
-version = "2.7.0"
+version = "2.7.1"
 
 [package.dependencies]
 bcrypt = ">=3.1.3"
@@ -654,7 +632,7 @@ audioread = "*"
 requests = "*"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "C parser in Python"
 name = "pycparser"
 optional = false
@@ -684,7 +662,7 @@ isort = ">=4.2.5,<5"
 mccabe = ">=0.6,<0.7"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Python binding to the Networking and Cryptography (NaCl) library"
 name = "pynacl"
 optional = false
@@ -708,7 +686,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 version = "2.4.5"
 
 [[package]]
-category = "dev"
+category = "main"
 description = ""
 marker = "sys_platform == \"win32\" and python_version >= \"3.6\""
 name = "pypiwin32"
@@ -729,7 +707,7 @@ python-versions = "*"
 version = "2.1"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Persistent/Functional/Immutable data structures"
 name = "pyrsistent"
 optional = false
@@ -812,34 +790,6 @@ docker-compose = "*"
 pytest = ">=3.3"
 
 [[package]]
-category = "dev"
-description = "run tests in isolated forked subprocesses"
-name = "pytest-forked"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.1.3"
-
-[package.dependencies]
-pytest = ">=3.1.0"
-
-[[package]]
-category = "dev"
-description = "pytest xdist plugin for distributed testing and loop-on-failing modes"
-name = "pytest-xdist"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.30.0"
-
-[package.dependencies]
-execnet = ">=1.1"
-pytest = ">=4.4.0"
-pytest-forked = "*"
-six = "*"
-
-[package.extras]
-testing = ["filelock"]
-
-[[package]]
 category = "main"
 description = "Add .env support to your django/flask apps in development and deployments"
 name = "python-dotenv"
@@ -867,7 +817,7 @@ python-versions = "*"
 version = "9.5.3"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Python for Window Extensions"
 marker = "sys_platform == \"win32\" and python_version >= \"3.6\""
 name = "pywin32"
@@ -921,7 +871,7 @@ version = "0.8.2"
 aiohttp = ">=3.6,<4.0"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "module for creating simple ASCII tables"
 name = "texttable"
 optional = false
@@ -942,7 +892,7 @@ description = "Fast, Extensible Progress Meter"
 name = "tqdm"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*"
-version = "4.40.1"
+version = "4.40.2"
 
 [package.extras]
 dev = ["py-make (>=0.1.0)", "twine", "argopt", "pydoc-markdown"]
@@ -991,7 +941,7 @@ python-versions = "*"
 version = "0.1.7"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "WebSocket client for Python. hybi13 is supported."
 name = "websocket-client"
 optional = false
@@ -1035,7 +985,7 @@ idna = ">=2.0"
 multidict = ">=4.0"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Backport of pathlib-compatible object wrapper for zip files"
 marker = "python_version < \"3.8\""
 name = "zipp"
@@ -1051,7 +1001,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "contextlib2", "unittest2"]
 
 [metadata]
-content-hash = "caba81df2ded7f3e80d1eb7d911c2e5f506f6f5cba376ba5f8ef24a31eaff9f9"
+content-hash = "119134523be861d99064f2df2674b3b7e461277449d02c7448449b321de294aa"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -1068,10 +1018,6 @@ aiohttp = [
     {file = "aiohttp-3.6.2-cp37-cp37m-win_amd64.whl", hash = "sha256:32e5f3b7e511aa850829fbe5aa32eb455e5534eaa4b1ce93231d00e2f76e5654"},
     {file = "aiohttp-3.6.2-py3-none-any.whl", hash = "sha256:460bd4237d2dbecc3b5ed57e122992f60188afe46e7319116da5eb8a9dfedba4"},
     {file = "aiohttp-3.6.2.tar.gz", hash = "sha256:259ab809ff0727d0e834ac5e8a283dc5e3e0ecc30c4d80b3cd17a4139ce1f326"},
-]
-apipkg = [
-    {file = "apipkg-1.5-py2.py3-none-any.whl", hash = "sha256:58587dd4dc3daefad0487f6d9ae32b4542b185e1c36db6993290e7c41ca2b47c"},
-    {file = "apipkg-1.5.tar.gz", hash = "sha256:37228cda29411948b422fae072f57e31d3396d2ee1c9783775980ee9c9990af6"},
 ]
 argh = [
     {file = "argh-0.26.2-py2.py3-none-any.whl", hash = "sha256:a9b3aaa1904eeb78e32394cd46c6f37ac0fb4af6dc488daa58971bdc7d7fcaf3"},
@@ -1268,10 +1214,6 @@ dockerpty = [
 docopt = [
     {file = "docopt-0.6.2.tar.gz", hash = "sha256:49b3a825280bd66b3aa83585ef59c4a8c82f2c8a522dbe754a8bc8d08c85c491"},
 ]
-execnet = [
-    {file = "execnet-1.7.1-py2.py3-none-any.whl", hash = "sha256:d4efd397930c46415f62f8a31388d6be4f27a91d7550eb79bc64a756e0056547"},
-    {file = "execnet-1.7.1.tar.gz", hash = "sha256:cacb9df31c9680ec5f95553976c4da484d407e85e41c83cb812aa014f0eddc50"},
-]
 feedparser = [
     {file = "feedparser-5.2.1.tar.bz2", hash = "sha256:ce875495c90ebd74b179855449040003a1beb40cd13d5f037a0654251e260b02"},
     {file = "feedparser-5.2.1.tar.gz", hash = "sha256:bd030652c2d08532c034c27fcd7c85868e7fa3cb2b17f230a44a6bbc92519bf9"},
@@ -1405,8 +1347,8 @@ packaging = [
     {file = "packaging-19.2.tar.gz", hash = "sha256:28b924174df7a2fa32c1953825ff29c61e2f5e082343165438812f00d3a7fc47"},
 ]
 paramiko = [
-    {file = "paramiko-2.7.0-py2.py3-none-any.whl", hash = "sha256:ee034658ca12be4eafb62609e192d68f89c83626f5ac4fcb29cedd4e3e7e3c51"},
-    {file = "paramiko-2.7.0.tar.gz", hash = "sha256:fba9c46340e3d690ad5a9d0dbf06677cd91425de3afa7e9c0c187298ee4ddd0d"},
+    {file = "paramiko-2.7.1-py2.py3-none-any.whl", hash = "sha256:9c980875fa4d2cb751604664e9a2d0f69096643f5be4db1b99599fe114a97b2f"},
+    {file = "paramiko-2.7.1.tar.gz", hash = "sha256:920492895db8013f6cc0179293147f830b8c7b21fdfc839b6bad760c27459d9f"},
 ]
 pathtools = [
     {file = "pathtools-0.1.2.tar.gz", hash = "sha256:7c35c5421a39bb82e58018febd90e3b6e5db34c5443aaaf742b3f33d4655f1c0"},
@@ -1537,14 +1479,6 @@ pytest-docker-compose = [
     {file = "pytest-docker-compose-3.1.2.tar.gz", hash = "sha256:f0d5c7b7e31458862aca3e5668aa6d32c5e22a177ef77c1898c74d95c6590a79"},
     {file = "pytest_docker_compose-3.1.2-py3-none-any.whl", hash = "sha256:59462d39df9b5e09f4ddeb46f0d062b77a94dbb8d475e1a48cdea3e46aa6cee5"},
 ]
-pytest-forked = [
-    {file = "pytest-forked-1.1.3.tar.gz", hash = "sha256:1805699ed9c9e60cb7a8179b8d4fa2b8898098e82d229b0825d8095f0f261100"},
-    {file = "pytest_forked-1.1.3-py2.py3-none-any.whl", hash = "sha256:1ae25dba8ee2e56fb47311c9638f9e58552691da87e82d25b0ce0e4bf52b7d87"},
-]
-pytest-xdist = [
-    {file = "pytest-xdist-1.30.0.tar.gz", hash = "sha256:5d1b1d4461518a6023d56dab62fb63670d6f7537f23e2708459a557329accf48"},
-    {file = "pytest_xdist-1.30.0-py2.py3-none-any.whl", hash = "sha256:a8569b027db70112b290911ce2ed732121876632fb3f40b1d39cd2f72f58b147"},
-]
 python-dotenv = [
     {file = "python-dotenv-0.10.3.tar.gz", hash = "sha256:f157d71d5fec9d4bd5f51c82746b6344dffa680ee85217c123f4a0c8117c4544"},
     {file = "python_dotenv-0.10.3-py2.py3-none-any.whl", hash = "sha256:debd928b49dbc2bf68040566f55cdb3252458036464806f4094487244e2a4093"},
@@ -1605,8 +1539,8 @@ toml = [
     {file = "toml-0.10.0.tar.gz", hash = "sha256:229f81c57791a41d65e399fc06bf0848bab550a9dfd5ed66df18ce5f05e73d5c"},
 ]
 tqdm = [
-    {file = "tqdm-4.40.1-py2.py3-none-any.whl", hash = "sha256:895796ea8df435b6f502bf122f2b2034a3d48e6d8ff52175606ac1051b0e3e12"},
-    {file = "tqdm-4.40.1.tar.gz", hash = "sha256:e405d16c98fcf30725d0c9d493ed07302a18846b5452de5253030ccd18996f87"},
+    {file = "tqdm-4.40.2-py2.py3-none-any.whl", hash = "sha256:7543892c59720e36e4212180274d8f58dde36803bc1f6370fd09afa20b8f5892"},
+    {file = "tqdm-4.40.2.tar.gz", hash = "sha256:f0ab01cf3ae5673d18f918700c0165e5fad0f26b5ebe4b34f62ead92686b5340"},
 ]
 typed-ast = [
     {file = "typed_ast-1.4.0-cp35-cp35m-manylinux1_i686.whl", hash = "sha256:262c247a82d005e43b5b7f69aff746370538e176131c32dda9cb0f324d27141e"},

@@ -51,25 +51,3 @@ create policy update_filter on musicbot_public.filter for update using (user_id 
 
 drop policy if exists delete_filter on musicbot_public.filter cascade;
 create policy delete_filter on musicbot_public.filter for delete using (user_id = musicbot_public.current_musicbot_id());
-
-create or replace function musicbot_public.load_default_filters()
-returns void as
-$$
-begin
-    insert into musicbot_public.filter as f (name) values ('default') on conflict do nothing;
-    insert into musicbot_public.filter as f (name, artists) values ('no artist set', '{}') on conflict do nothing;
-    insert into musicbot_public.filter as f (name, albums) values ('no album set', '{}') on conflict do nothing;
-    insert into musicbot_public.filter as f (name, titles) values ('no title set', '{}') on conflict do nothing;
-    insert into musicbot_public.filter as f (name, genres) values ('no genre set', '{}') on conflict do nothing;
-    insert into musicbot_public.filter as f (name, youtubes) values ('youtube not found', '{not found}') on conflict do nothing;
-    insert into musicbot_public.filter as f (name, spotifys) values ('spotify not found', '{not found}') on conflict do nothing;
-    insert into musicbot_public.filter as f (name, youtubes) values ('no youtube links', '{}') on conflict do nothing;
-    insert into musicbot_public.filter as f (name, spotifys) values ('no spotify links', '{}') on conflict do nothing;
-    insert into musicbot_public.filter as f (name, min_rating, max_rating) values ('no rating', 0.0, 0.0) on conflict do nothing;
-    insert into musicbot_public.filter as f (name, min_rating, no_keywords) values ('best (4.0+)', 4.0, '{cutoff,bad,demo,intro}') on conflict do nothing;
-    insert into musicbot_public.filter as f (name, min_rating, no_keywords) values ('best (4.5+)', 4.5, '{cutoff,bad,demo,intro}') on conflict do nothing;
-    insert into musicbot_public.filter as f (name, min_rating, no_keywords) values ('best (5.0+)', 5.0, '{cutoff,bad,demo,intro}') on conflict do nothing;
-    insert into musicbot_public.filter as f (name, no_keywords) values ('no live', '{live}') on conflict do nothing;
-    insert into musicbot_public.filter as f (name, keywords) values ('only live', '{live}') on conflict do nothing;
-end;
-$$ language plpgsql;

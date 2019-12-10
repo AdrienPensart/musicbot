@@ -2,6 +2,7 @@ import logging
 import os
 import codecs
 import csv
+import json
 import datetime
 from textwrap import indent
 import click
@@ -36,62 +37,121 @@ def cli(ctx, **kwargs):
 
 @cli.command()
 @click.pass_context
-def artists(ctx):
+@helpers.add_options(helpers.output_option)
+def artists(ctx, output):
     '''List artists'''
-    for a in ctx.obj.u().artists:
-        print(a['name'])
+    if output == 'table':
+        pt = PrettyTable()
+        pt.field_names = ["Name"]
+        for a in ctx.obj.u().artists:
+            pt.add_row([a['name']])
+        print(pt)
+    elif output == 'json':
+        print(json.dumps(ctx.obj.u().artists))
 
 
 @cli.command()
 @click.pass_context
-@helpers.add_options(mfilter.options)
-def tracks(ctx, **kwargs):
+def load_filters(ctx):
+    '''Load default filters'''
+    ctx.obj.u().load_default_filters()
+
+
+@cli.command()
+@click.pass_context
+@helpers.add_options(helpers.output_option)
+def filters(ctx, output):
+    '''List filters'''
+    if output == 'json':
+        print(json.dumps(ctx.obj.u().filters))
+    elif output == 'table':
+        pt = PrettyTable()
+        pt.field_names = ["Name", "Keywords", "No keywords", "Min rating", "Max rating"]
+        for f in ctx.obj.u().filters:
+            pt.add_row([f['name'], f['keywords'], f['noKeywords'], f['minRating'], f['maxRating']])
+        print(pt)
+
+
+@cli.command()
+@click.pass_context
+@helpers.add_options(helpers.output_option)
+@click.argument('name')
+def filter(ctx, name, output):
+    '''Print a filter'''
+    f = ctx.obj.u().filter(name)
+    if output == 'json':
+        print(json.dumps(f))
+    elif output == 'table':
+        print(f)
+
+
+@cli.command()
+@click.pass_context
+@helpers.add_options(helpers.output_option + mfilter.options)
+def tracks(ctx, output, **kwargs):
     '''List tracks'''
     mf = mfilter.Filter(**kwargs)
     tracks = ctx.obj.u().do_filter(mf)
-    pt = PrettyTable()
-    pt.field_names = [
-        "Title",
-        "Album",
-        "Artist",
-        # "Genre",
-        # "Folder",
-        # "Youtube",
-        # "Spotify",
-        # "Number",
-        # "Path",
-        # "Rating",
-        # "Duration",
-        # "Size",
-        # "Keywords"
-    ]
-    for t in tracks:
-        pt.add_row([t['title'], t['album'], t['artist']])
-    print(pt)
+    if output == 'json':
+        print(json.dumps(tracks))
+    elif output == 'table':
+        pt = PrettyTable()
+        pt.field_names = [
+            "Title",
+            "Album",
+            "Artist",
+            # "Genre",
+            # "Folder",
+            # "Youtube",
+            # "Spotify",
+            # "Number",
+            # "Path",
+            # "Rating",
+            # "Duration",
+            # "Size",
+            "Keywords"
+        ]
+        for t in tracks:
+            pt.add_row([t['title'], t['album'], t['artist'], t['keywords']])
+        print(pt)
 
 
 @cli.command()
 @click.pass_context
-@helpers.add_options(mfilter.options)
-def stats(ctx, **kwargs):
+@helpers.add_options(helpers.output_option + mfilter.options)
+def stats(ctx, output, **kwargs):
     '''Generate some stats for music collection with filters'''
     mf = mfilter.Filter(**kwargs)
     stats = ctx.obj.u().do_stat(mf)
-    print("Music    :", stats['musics'])
-    print("Artist   :", stats['artists'])
-    print("Album    :", stats['albums'])
-    print("Genre    :", stats['genres'])
-    print("Keywords :", stats['keywords'])
-    print("Size     :", lib.bytes_to_human(int(stats['size'])))
-    print("Total duration :", datetime.timedelta(seconds=int(stats['duration'])))
+    if output == 'json':
+        print(json.dumps(stats))
+    elif output == 'table':
+        pt = PrettyTable()
+        pt.field_names = ["Stat", "Value"]
+        pt.add_row(["Music", stats['musics']])
+        pt.add_row(["Artist", stats['artists']])
+        pt.add_row(["Album", stats['albums']])
+        pt.add_row(["Genre", stats['genres']])
+        pt.add_row(["Keywords", stats['keywords']])
+        pt.add_row(["Size", lib.bytes_to_human(int(stats['size']))])
+        pt.add_row(["Total duration", datetime.timedelta(seconds=int(stats['duration']))])
+        print(pt)
 
 
 @cli.command()
 @click.pass_context
-def folders(ctx):
+@helpers.add_options(helpers.output_option)
+def folders(ctx, output):
     '''List folders'''
-    for f in ctx.obj.u().folders:
-        print(f)
+    _folders = ctx.obj.u().folders
+    if output == 'json':
+        print(json.dumps(_folders))
+    elif output == 'table':
+        pt = PrettyTable()
+        pt.field_names = ["Folder"]
+        for f in _folders:
+            pt.add_row([f])
+        print(pt)
 
 
 @cli.command()
@@ -232,39 +292,39 @@ def consistency(ctx, folders):
         folders = ctx.obj.u().folders
 
     musics = helpers.genfiles(folders)
-    report = []
+    pt = PrettyTable()
+    pt.field_names = ["Inconsistency", "File"]
     for m in musics:
         try:
             if m.path.endswith('.flac'):
                 if m.comment and not m.description:
-                    report.append('Comment (' + m.comment + ') used in flac: ' + m.path)
+                    pt.add_row(['Comment (' + m.comment + ') used in flac', m.path])
             if m.path.endswith('.mp3'):
                 if m.description and not m.comment:
-                    report.append('Description (' + m.description + ') used in mp3 : ' + m.path)
+                    pt.add_row(['Description (' + m.description + ') used in mp3 : ', m.path])
             if not m.title:
-                report.append("No title  : '" + m.title + "' on " + m.path)
+                pt.add_row(["No title  : '" + m.title + "' on ", m.path])
             filename = os.path.basename(m.path)
             if filename == "{} - {}.mp3".format(str(m.number).zfill(2), m.title):
                 continue
             if filename == "{} - {}.flac".format(str(m.number).zfill(2), m.title):
                 continue
-            report.append("Invalid title format, '{}' should start by '{}'".
-                          format(filename, '{} - {}'.format(str(m.number).zfill(2), m.title)))
+            pt.add_row(["Invalid title format, '{}' should start by '{}'". format(filename, '{} - {}'.format(str(m.number).zfill(2), m.title)), m.path])
             if m.artist not in m.path:
-                report.append("Artist invalid : " + m.artist + " is not in " + m.path)
+                pt.add_row(["Artist invalid : " + m.artist + " is not in ", m.path])
             if m.genre == '':
-                report.append("No genre : " + m.path)
+                pt.add_row(["No genre : ", m.path])
             if m.album == '':
-                report.append("No album : " + m.path)
+                pt.add_row(["No album : ", m.path])
             if m.artist == '':
-                report.append("No artist : " + m.path)
+                pt.add_row(["No artist : ", m.path])
             if m.rating == 0.0:
-                report.append("No rating : " + m.path)
+                pt.add_row(["No rating : ", m.path])
             if m.number == -1:
-                report.append("Invalid track number : " + m.path)
+                pt.add_row(["Invalid track number : ", m.path])
         except OSError:
-            report.append("Could not open file : " + m.path)
-    print(report)
+            pt.add_row(["Could not open file : ", m.path])
+    print(pt)
 
 
 @cli.command(short_help='Music player')
@@ -401,6 +461,6 @@ def bests(ctx, dry, path, prefix, suffix, **kwargs):
 @click.argument('path')
 @helpers.add_options(acoustid_apikey_option)
 def fingerprint(path, acoustid_apikey):
-    '''Find music with fingerprint'''
+    '''Print music fingerprint'''
     f = File(path)
     print(f.fingerprint(acoustid_apikey))

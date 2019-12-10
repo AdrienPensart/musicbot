@@ -1,6 +1,7 @@
 FROM postgres:11
 
-RUN apt-get update && apt-get upgrade -y && apt-get install -y curl build-essential git postgresql-server-dev-11
+RUN apt-get update && apt-get upgrade -y && apt-get install -y python3-pip curl build-essential git postgresql-server-dev-11
+RUN pip3 install pgcli
 RUN git clone https://github.com/michelp/pgjwt.git /pgjwt && cd /pgjwt && make install
 
 RUN echo "shared_preload_libraries=pg_stat_statements" >> /etc/postgresql/postgresql.conf

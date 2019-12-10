@@ -37,10 +37,10 @@ flask = "^1.1.1"
 prettytable = "^0.7.2"
 prompt_toolkit = "^3.0.2"
 spotify = "^0.8.2"
+docker-compose = "^1.25.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2.4"
-pytest-xdist = "^1.28"
 pytest-cov = "^2.6"
 pytest-click = "^0.3.0"
 coverage-badge = "^1.0"

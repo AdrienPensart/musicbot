@@ -23,6 +23,13 @@ DEFAULT_DRY = False
 MB_DRY = 'MB_DRY'
 dry_option = [click.option('--dry', help='Take no real action', envvar=MB_DRY, default=DEFAULT_DRY, is_flag=True, show_default=True)]
 
+DEFAULT_SAVE = False
+MB_SAVE = 'MB_SAVE'
+save_option = [click.option('--save', '-s', help='Save to config file', envvar=MB_SAVE, default=DEFAULT_SAVE, is_flag=True, show_default=True)]
+
+MB_OUTPUT = 'MB_OUTPUT'
+DEFAULT_MB_OUTPUT = 'table'
+output_option = [click.option('--output', envvar=MB_OUTPUT, help='Output format', default=DEFAULT_MB_OUTPUT, show_default=True, type=click.Choice(['table', 'json']))]
 
 logger = logging.getLogger(__name__)
 

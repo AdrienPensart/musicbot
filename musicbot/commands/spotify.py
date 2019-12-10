@@ -19,8 +19,8 @@ def cli():
 
 
 @cli.command()
-@helpers.add_options(spotify_id_option + spotify_secret_option)
-def token(**kwargs):
+@helpers.add_options(spotify_id_option + spotify_secret_option + helpers.save_option)
+def token(save, **kwargs):
     '''Get spotify token'''
     with spotify_client(**kwargs) as client:
         app = flask.Flask(__name__)
@@ -39,10 +39,12 @@ def token(**kwargs):
                 user = sync_spotify.User.from_code(client, code, redirect_uri=REDIRECT_URI)
                 token = user.http.bearer_info["access_token"]
                 asyncio.run(user.http.close())
-                config.configfile['DEFAULT']['spotify_token'] = token
-                config.configfile['DEFAULT']['spotify_refresh_token'] = user.http.refresh_token
-                with open(config.config, 'w') as output_config:
-                    config.configfile.write(output_config)
+                logger.info(token)
+                logger.info(user.http.refresh_token)
+                if save:
+                    config.configfile['DEFAULT']['spotify_token'] = token
+                    config.configfile['DEFAULT']['spotify_refresh_token'] = user.http.refresh_token
+                    config.write()
                 shutdown_hook = request.environ.get('werkzeug.server.shutdown')
                 if shutdown_hook is not None:
                     shutdown_hook()

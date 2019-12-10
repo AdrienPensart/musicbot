@@ -109,6 +109,10 @@ class Config:
                 logger.warning('No permission to write to %s for current user %s', self.log, current_user)
         logger.debug(self)
 
+    def write(self):
+        with open(self.config, 'w') as output_config:
+            self.configfile.write(output_config)
+
     def __repr__(self):
         fmt = 'log:{} timings:{} debug:{} quiet:{} verbosity:{} colors:{}'
         return fmt.format(self.log, self.timings, self.debug, self.quiet, self.verbosity, self.colors)
