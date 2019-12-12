@@ -53,8 +53,8 @@ Docker
 
 .. code-block:: bash
 
-  docker-compose build --parallel
-  docker-compose up
+  poetry run docker-compose build --parallel
+  poetry docker-compose up
   export MB_USER=test@test.com
   export MB_PASSWORD=password
   musicbot user create
