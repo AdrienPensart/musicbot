@@ -19,14 +19,14 @@ Description
 -----------
 CLI / API / Website to manipulate music and create smart playlists, and play it !
 
-It uses poetry tool to manage project life.
+It uses poetry tool to manage project life and docker to test it.
 
-Installation
+Dev Environment
 ------------
 
 .. code-block:: bash
 
-  sudo apt install -y build-essential libtag1-dev ffmpeg postgresql-12 libpcre3-dev postgresql-server-dev-all docker.io libchromaprint-tools libbz2-dev libsqlite3-dev llvm libncurses5-dev libncursesw5-dev tk-dev liblzma-dev libssl-dev libreadline-dev
+  sudo apt install -y vlc libtag1-dev postgresql-server-dev-all ffmpeg python3-pip docker.io libchromaprint-tools libbz2-dev libsqlite3-dev llvm libncurses5-dev libncursesw5-dev tk-dev liblzma-dev libssl-dev libreadline-dev
   sudo usermod -aG docker $USER
 
   git clone https://github.com/AdrienPensart/musicbot.git
@@ -40,68 +40,36 @@ Installation
   python <(curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py) --preview
   poetry install
 
-  echo "shared_preload_libraries = 'pg_stat_statements'" | sudo tee -a /etc/postgresql/12/main/postgresql.conf
-  echo "pg_stat_statements.track = all" | sudo tee -a /etc/postgresql/12/main/postgresql.conf
-  sudo systemctl restart postgresql
-  sudo -u postgres psql -d postgres -c "create user postgres with password 'musicbot' superuser;" && history -c
-  sudo -u postgres psql -d postgres -c "alter user postgres password 'musicbot';" && history -c
-  poetry run pgcli postgresql://postgres:musicbot@localhost:5432
-
-  git clone https://github.com/nginx/nginx.git
-  git clone https://github.com/evanmiller/mod_zip.git
-  cd nginx
-  auto/configure --prefix=/opt/nginx --add-module="$HOME/mod_zip" --with-http_auth_request_module
-  sudo make install
-  sudo ln -s $HOME/musicbot/scripts/musicbot.service /etc/systemd/system/musicbot.service
-  sudo ln -s $HOME/musicbot/scripts/nginx.service /etc/systemd/system/nginx.service
-  sudo rm /opt/nginx/conf/nginx.conf
-  sudo ln -s $HOME/musicbot/scripts/nginx.conf /opt/nginx/conf/nginx.conf
-  sudo ln -s /opt/nginx/sbin/nginx /usr/sbin/nginx
-
-  git clone https://github.com/michelp/pgjwt.git
-  cd pgjwt
-  sudo make install
-
-  sudo systemctl enable nginx
-  sudo systemctl enable musicbot
-  sudo systemctl daemon-reload
-
-  # in your user folder
-  curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
-  nvm install node
-  yarn global add @vue/cli
-  npm install -g postgraphile graphile-contrib/pg-simplify-inflector postgraphile-plugin-connection-filter
-
 Testing
 ------------
 
 .. code-block:: bash
 
-poetry run pytest
-poetry run coverage-badge -f -o doc/coverage.svg
+  poetry run pytest
+  poetry run coverage-badge -f -o doc/coverage.svg
 
 Docker
 ------------
 
 .. code-block:: bash
 
-docker-compose build
-docker-compose up
-docker run -it -v ~/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli user create -e test@test.com -p password --first-name Test --last-name Me --graphql http://postgraphile_public:5000/graphql
-docker run -it -v ~/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli folder -e test@test.com -p password --graphql http://postgraphile_public:5000/graphql scan /tests/fixtures/folder1 /tests/fixtures/folder2
-docker run -it -v ~/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli db cli --db postgresql://postgres:musicbot@db:5432/musicbot
+  docker-compose build --parallel
+  docker-compose up
+  docker run -it -v ~/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli user create -e test@test.com -p password --first-name Test --last-name Me --graphql http://postgraphile_public:5000/graphql
+  docker run -it -v ~/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli folder -e test@test.com -p password --graphql http://postgraphile_public:5000/graphql scan /tests/fixtures/folder1 /tests/fixtures/folder2
+  docker run -it -v ~/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli db cli --db postgresql://postgres:musicbot@db:5432/musicbot
 
 Linting
 ------------
 
 .. code-block:: bash
 
-poetry run pylint musicbot tests
+  poetry run pylint musicbot tests
 
 Documentation
 ------------
 
 .. code-block:: bash
 
-poetry build
-poetry run doc/gen.sh
+  poetry build
+  poetry run doc/gen.sh
