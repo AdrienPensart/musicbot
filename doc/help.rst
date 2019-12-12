@@ -55,9 +55,11 @@ Docker
 
   docker-compose build --parallel
   docker-compose up
-  docker run -it -v ~/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli user create -e test@test.com -p password --first-name Test --last-name Me --graphql http://postgraphile_public:5000/graphql
-  docker run -it -v ~/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli folder -e test@test.com -p password --graphql http://postgraphile_public:5000/graphql scan /tests/fixtures/folder1 /tests/fixtures/folder2
-  docker run -it -v ~/musicbot/tests:/tests --network container:musicbot_db_1 musicbot_cli db cli --db postgresql://postgres:musicbot@db:5432/musicbot
+  export MB_USER=test@test.com
+  export MB_PASSWORD=password
+  musicbot user create
+  musicbot local scan /tests/fixtures/folder1 /tests/fixtures/folder2
+  musicbot local tracks
 
 Linting
 ------------
