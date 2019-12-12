@@ -72,11 +72,11 @@ def filters(ctx, output):
         print(pt)
 
 
-@cli.command()
+@cli.command('filter')
 @click.pass_context
 @helpers.add_options(helpers.output_option)
 @click.argument('name')
-def filter(ctx, name, output):
+def _filter(ctx, name, output):
     '''Print a filter'''
     f = ctx.obj.u().filter(name)
     if output == 'json':
