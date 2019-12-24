@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Music swiss army knife"
 authors = ["Adrien Pensart <crunchengine@gmail.com>"]
 license = "MIT"
+readme = "README.rst"
 
 [tool.poetry.scripts]
 musicbot = 'musicbot.cli:main'
