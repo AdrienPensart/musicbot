@@ -71,7 +71,7 @@ export default {
         this.genres = result.data.data.genresTreeList
         this.filters = result.data.data.allFiltersList
       }).catch((err) => {
-        console.log(err)
+        window.console.log(err)
         this.artists = []
         this.keywords = []
         this.genres = []

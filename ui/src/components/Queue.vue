@@ -57,7 +57,7 @@ export default {
       }).then((result) => {
         this.musics = result.data.data.allRawMusicsList
       }).catch((err) => {
-        console.log(err)
+        window.console.log(err)
         this.musics = []
       })
     },

@@ -27,7 +27,7 @@ Dev Environment
 .. code-block:: bash
 
   sudo apt install -y vlc libtag1-dev postgresql-server-dev-all ffmpeg python3-pip docker.io libchromaprint-tools libbz2-dev libsqlite3-dev llvm libncurses5-dev libncursesw5-dev tk-dev liblzma-dev libssl-dev libreadline-dev
-  sudo usermod -aG docker $USER
+  sudo usermod -aG docker $(whoami)
 
   git clone https://github.com/AdrienPensart/musicbot.git
   cd musicbot
