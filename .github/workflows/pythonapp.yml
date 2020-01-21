@@ -1,27 +1,26 @@
+---
 name: Python application
-
 on: [push]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v1
-    - name: Set up Python 3.7
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.7
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libtag1-dev postgresql-server-dev-all ffmpeg
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    - name: Lint with pylint
-      run: |
-        pylint musicbot tests
-    - name: Test with pytest
-      run: |
-        pytest
+      - uses: actions/checkout@v1
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libtag1-dev postgresql-server-dev-all ffmpeg
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Lint with pylint
+        run: |
+          pip install pylint
+          pylint musicbot tests
+      - name: Test with pytest
+        run: |
+          pytest
