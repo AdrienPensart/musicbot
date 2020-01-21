@@ -10,16 +10,16 @@ services:
   #    - db
   #    - postgraphile_public
   #    - postgraphile_private
-  ui:
-    build:
-      context: .
-      dockerfile: Dockerfile.ui
-    ports:
-      - 80:80
-    depends_on:
-      - db
-      - postgraphile_public
-      - postgraphile_private
+  #ui:
+  #  build:
+  #    context: .
+  #    dockerfile: Dockerfile.ui
+  #  ports:
+  #    - 80:80
+  #  depends_on:
+  #    - db
+  #    - postgraphile_public
+  #    - postgraphile_private
   db:
     build:
       context: .
@@ -32,17 +32,17 @@ services:
       - 5432:5432
     #volumes:
     #  - ./postgres-data:/var/lib/postgresql/data
-  adminer:
-    image: adminer
-    restart: unless-stopped
-    environment:
-      ADMINER_DEFAULT_DB_DRIVER: pgsql
-      ADMINER_DEFAULT_DB_HOST: localhost
-      ADMINER_DEFAULT_DB_NAME: musicbot
-    ports:
-      - 8080:8080
-    depends_on:
-      - db
+  #adminer:
+  #  image: adminer
+  #  restart: unless-stopped
+  #  environment:
+  #    ADMINER_DEFAULT_DB_DRIVER: pgsql
+  #    ADMINER_DEFAULT_DB_HOST: localhost
+  #    ADMINER_DEFAULT_DB_NAME: musicbot
+  #  ports:
+  #    - 8080:8080
+  #  depends_on:
+  #    - db
   postgraphile_custom:
     build:
       context: .
