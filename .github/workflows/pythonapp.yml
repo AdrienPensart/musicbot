@@ -15,7 +15,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libtag1-dev postgresql-server-dev-all ffmpeg
-          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
       - name: Lint with pylint
         run: |
           pip install pylint
