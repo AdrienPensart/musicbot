@@ -38,6 +38,8 @@ prettytable = "^0.7.2"
 prompt_toolkit = "^3.0.2"
 spotify = "^0.8.2"
 watchdog = "^0.10.0"
+mps-youtube = "^0.2.8"
+youtube-dl = "^2020.1.24"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2.4"

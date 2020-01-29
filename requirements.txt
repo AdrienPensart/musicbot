@@ -23,7 +23,9 @@ itsdangerous==1.1.0
 jinja2==2.11.0
 logging-tree==1.8.1
 markupsafe==1.1.1
+mps-youtube==0.2.8
 multidict==4.7.4
+pafy==0.5.5
 pathtools==0.1.2
 ply==3.11
 prettytable==0.7.2
@@ -49,3 +51,4 @@ watchdog==0.10.0
 wcwidth==0.1.8
 werkzeug==0.16.1
 yarl==1.4.2
+youtube-dl==2020.1.24

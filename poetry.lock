@@ -763,6 +763,17 @@ version = "8.1.0"
 
 [[package]]
 category = "main"
+description = "Terminal based YouTube player and downloader"
+name = "mps-youtube"
+optional = false
+python-versions = "*"
+version = "0.2.8"
+
+[package.dependencies]
+pafy = ">=0.3.82,<0.4.0 || >0.4.0,<0.4.1 || >0.4.1,<0.4.2 || >0.4.2"
+
+[[package]]
+category = "main"
 description = "multidict implementation"
 name = "multidict"
 optional = false
@@ -780,6 +791,17 @@ version = "20.1"
 [package.dependencies]
 pyparsing = ">=2.0.2"
 six = "*"
+
+[[package]]
+category = "main"
+description = "Retrieve YouTube content and metadata"
+name = "pafy"
+optional = false
+python-versions = "*"
+version = "0.5.5"
+
+[package.extras]
+youtube-dl-backend = ["youtube-dl"]
 
 [[package]]
 category = "dev"
@@ -1348,6 +1370,14 @@ python-versions = "*"
 version = "0.16.0"
 
 [[package]]
+category = "main"
+description = "YouTube video downloader"
+name = "youtube-dl"
+optional = false
+python-versions = "*"
+version = "2020.1.24"
+
+[[package]]
 category = "dev"
 description = "Backport of pathlib-compatible object wrapper for zip files"
 marker = "python_version < \"3.8\""
@@ -1361,7 +1391,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools"]
 
 [metadata]
-content-hash = "7467eea29a8fb3c25f9f56c2c9aeb0baaf23b456681911080af8ff7d33f414de"
+content-hash = "b688e7080b924b021f3d79f4c2b18b87c416bdd43e79144746acb0e3afe6158b"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -1752,6 +1782,10 @@ more-itertools = [
     {file = "more-itertools-8.1.0.tar.gz", hash = "sha256:c468adec578380b6281a114cb8a5db34eb1116277da92d7c46f904f0b52d3288"},
     {file = "more_itertools-8.1.0-py3-none-any.whl", hash = "sha256:1a2a32c72400d365000412fe08eb4a24ebee89997c18d3d147544f70f5403b39"},
 ]
+mps-youtube = [
+    {file = "mps-youtube-0.2.8.tar.gz", hash = "sha256:59ce3944626fbd1a041e1e1b15714bbd138ebc71ceb89e32ea9470d8152af083"},
+    {file = "mps_youtube-0.2.8-py3-none-any.whl", hash = "sha256:e1e85092682f5f2f1d941bc17856f9c0c2d4d11b2e4715bac357e621295903b5"},
+]
 multidict = [
     {file = "multidict-4.7.4-cp35-cp35m-macosx_10_13_x86_64.whl", hash = "sha256:93166e0f5379cf6cd29746989f8a594fa7204dcae2e9335ddba39c870a287e1c"},
     {file = "multidict-4.7.4-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:a8ed33e8f9b67e3b592c56567135bb42e7e0e97417a4b6a771e60898dfd5182b"},
@@ -1774,6 +1808,10 @@ multidict = [
 packaging = [
     {file = "packaging-20.1-py2.py3-none-any.whl", hash = "sha256:170748228214b70b672c581a3dd610ee51f733018650740e98c7df862a583f73"},
     {file = "packaging-20.1.tar.gz", hash = "sha256:e665345f9eef0c621aa0bf2f8d78cf6d21904eef16a93f020240b704a57f1334"},
+]
+pafy = [
+    {file = "pafy-0.5.5-py2.py3-none-any.whl", hash = "sha256:769e35aa6988686d47fa2ab235d15c9952c7873c470f6a6b05cf6bcd93e62515"},
+    {file = "pafy-0.5.5.tar.gz", hash = "sha256:364f1d1312c89582d97dc7225cf6858cde27cb11dfd64a9c2bab1a2f32133b1e"},
 ]
 paramiko = [
     {file = "paramiko-2.7.1-py2.py3-none-any.whl", hash = "sha256:9c980875fa4d2cb751604664e9a2d0f69096643f5be4db1b99599fe114a97b2f"},
@@ -2100,6 +2138,10 @@ yarl = [
 yaspin = [
     {file = "yaspin-0.16.0-py2.py3-none-any.whl", hash = "sha256:e88bf9c9fe4ac588e3620588aadae655dfc20f1f7460338394ef4693bdc2b800"},
     {file = "yaspin-0.16.0.tar.gz", hash = "sha256:efca3eb7162e575d3ab2e49743cd9bd1f5ec2adc7d85b9489ab145a3f6460ed4"},
+]
+youtube-dl = [
+    {file = "youtube_dl-2020.1.24-py2.py3-none-any.whl", hash = "sha256:3ba838c943744cd4f1669f74328b9c0f7814145b92dfcf59c3278caf8175886f"},
+    {file = "youtube_dl-2020.1.24.tar.gz", hash = "sha256:82189f971fbe3f4b2e66a9aba7fb5bdd1b4b8c0876d7cd55382045f5555a5e44"},
 ]
 zipp = [
     {file = "zipp-2.1.0-py3-none-any.whl", hash = "sha256:ccc94ed0909b58ffe34430ea5451f07bc0c76467d7081619a454bf5c98b89e28"},

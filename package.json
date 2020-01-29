@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "@graphile-contrib/pg-simplify-inflector": "github:graphile-contrib/pg-simplify-inflector",
-    "postgraphile": "^4.4.4",
-    "postgraphile-plugin-connection-filter": "^1.1.3"
-  }
-}
