@@ -20,7 +20,7 @@ idna==2.8
 isodate==0.6.0
 isort==4.3.21
 itsdangerous==1.1.0
-jinja2==2.11.0
+jinja2==2.11.1
 logging-tree==1.8.1
 markupsafe==1.1.1
 mps-youtube==0.2.8
@@ -45,9 +45,9 @@ requests==2.22.0
 six==1.14.0
 spotify==0.8.4
 toml==0.10.0
-tqdm==4.42.0
+tqdm==4.42.1
 urllib3==1.25.8
-watchdog==0.10.0
+watchdog==0.10.1
 wcwidth==0.1.8
 werkzeug==0.16.1
 yarl==1.4.2
