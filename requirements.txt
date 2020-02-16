@@ -33,9 +33,6 @@ prompt-toolkit==3.0.3
 psycopg2-binary==2.8.4
 pyacoustid==1.1.7
 pydub==0.23.1
-pyobjc-core==6.1; sys_platform == "darwin"
-pyobjc-framework-cocoa==6.1; sys_platform == "darwin"
-pyobjc-framework-fsevents==6.1; sys_platform == "darwin"
 pyreadline==2.1; sys_platform == "win32"
 pytaglib==1.4.5
 python-dotenv==0.10.5
@@ -47,8 +44,8 @@ spotify==0.8.4
 toml==0.10.0
 tqdm==4.42.1
 urllib3==1.25.8
-watchdog==0.10.1
+watchdog==0.10.2
 wcwidth==0.1.8
-werkzeug==0.16.1
+werkzeug==1.0.0
 yarl==1.4.2
-youtube-dl==2020.1.24
+youtube-dl==2020.2.16
