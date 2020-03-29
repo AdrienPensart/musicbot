@@ -1,11 +1,8 @@
 import logging
-import sys
-import asyncio
-from contextlib import contextmanager
+import itertools
 from functools import partial
+import spotipy
 import click
-import spotify as async_spotify
-import spotify.sync as sync_spotify
 from musicbot.helpers import config_string
 
 logger = logging.getLogger(__name__)
@@ -19,31 +16,54 @@ spotify_secret_option = [click.option('--spotify-secret', help='Spotify secret',
 MB_SPOTIFY_TOKEN = 'MB_SPOTIFY_TOKEN'
 spotify_token_option = [click.option('--spotify-token', help='Spotify token', callback=partial(config_string, MB_SPOTIFY_TOKEN, 'spotify_token', True))]
 
-MB_SPOTIFY_REFRESH_TOKEN = 'MB_SPOTIFY_TOKEN'
-spotify_refresh_token_option = [click.option('--spotify-refresh-token', help='Spotify refresh token', callback=partial(config_string, MB_SPOTIFY_REFRESH_TOKEN, 'spotify_refresh_token', True))]
+# MB_SPOTIFY_REFRESH_TOKEN = 'MB_SPOTIFY_REFRESH_TOKEN'
+# spotify_refresh_token_option = [click.option('--spotify-refresh-token', help='Spotify refresh token', callback=partial(config_string, MB_SPOTIFY_REFRESH_TOKEN, 'spotify_refresh_token', False))]
 
-options = spotify_id_option + spotify_secret_option + spotify_token_option + spotify_refresh_token_option
-
-
-@contextmanager
-def spotify_client(spotify_id, spotify_secret):
-    try:
-        client = sync_spotify.Client(spotify_id, spotify_secret)
-        yield client
-    finally:
-        client.close()
+options = spotify_id_option + spotify_secret_option + spotify_token_option  # + spotify_refresh_token_option
 
 
-@contextmanager
-def spotify_user(spotify_token, spotify_refresh_token, **kwargs):
-    user = None
-    try:
-        with spotify_client(**kwargs) as client:
-            user = sync_spotify.User.from_token(client, spotify_token, spotify_refresh_token)
-            yield user
-    except async_spotify.errors.SpotifyException as e:
-        logger.error(e)
-        sys.exit(-1)
-    finally:
-        if user:
-            asyncio.run(user.http.close())
+def get_tracks(spotify_token):
+    sp = spotipy.Spotify(auth=spotify_token)
+    offset = 0
+    limit = 50
+    objects = []
+    while True:
+        new_objects = sp.current_user_saved_tracks(limit=limit, offset=offset)
+        objects.append(new_objects['items'])
+        logger.info("chunk size: %s", len(new_objects['items']))
+        offset += len(new_objects['items'])
+        if len(new_objects['items']) < limit:
+            break
+    return itertools.chain(*objects)
+
+
+def get_playlists(spotify_token):
+    sp = spotipy.Spotify(auth=spotify_token)
+    offset = 0
+    limit = 50
+    objects = []
+    while True:
+        new_objects = sp.current_user_playlists(limit=limit, offset=offset)
+        length = len(new_objects['items'])
+        objects.append(new_objects['items'])
+        logger.info("chunk size: %s", length)
+        offset += length
+        if length < limit:
+            break
+    logger.debug("length: %s", offset)
+    return itertools.chain(*objects)
+
+
+def get_playlist(name, spotify_token):
+    sp = spotipy.Spotify(auth=spotify_token)
+    playlists = get_playlists(spotify_token)
+    for p in playlists:
+        if p['name'] == name:
+            tracks = []
+            results = sp.playlist(p['id'], fields="tracks,next")
+            new_tracks = results['tracks']
+            tracks.append(new_tracks['items'])
+            while new_tracks['next']:
+                new_tracks = sp.next(new_tracks)
+                tracks.append(new_tracks['tracks']['items'])
+            return itertools.chain(*tracks)

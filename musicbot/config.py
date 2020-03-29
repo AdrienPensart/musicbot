@@ -69,7 +69,7 @@ class Config:
     colors = attr.ib(default=DEFAULT_COLORS)
     verbosity = attr.ib(default=DEFAULT_VERBOSITY)
     config = attr.ib(default=DEFAULT_CONFIG)
-    configfile = attr.ib(default=None)
+    configfile = attr.ib(default=None, repr=False)
     level = attr.ib(default=verbosities[DEFAULT_VERBOSITY])
     fmt = attr.ib(default="%(asctime)s %(name)s[%(process)d] %(levelname)s %(message)s")
 

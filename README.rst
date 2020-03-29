@@ -566,46 +566,10 @@ musicbot spotify
     -h, --help  Show this message and exit.
   
   Commands:
-    albums     Show albums
-    artists    Show artists
     help       Print help
     playlist   Show playlist
     playlists  List playlists
-    search     Search tracks
-    token      Get spotify token
     tracks     Show tracks
-
-
-musicbot spotify albums
-***********************
-.. code-block::
-
-  Usage: musicbot spotify albums [OPTIONS]
-  
-    Show albums
-  
-  Options:
-    --spotify-id TEXT             Spotify ID
-    --spotify-secret TEXT         Spotify secret
-    --spotify-token TEXT          Spotify token
-    --spotify-refresh-token TEXT  Spotify refresh token
-    -h, --help                    Show this message and exit.
-
-
-musicbot spotify artists
-************************
-.. code-block::
-
-  Usage: musicbot spotify artists [OPTIONS]
-  
-    Show artists
-  
-  Options:
-    --spotify-id TEXT             Spotify ID
-    --spotify-secret TEXT         Spotify secret
-    --spotify-token TEXT          Spotify token
-    --spotify-refresh-token TEXT  Spotify refresh token
-    -h, --help                    Show this message and exit.
 
 
 musicbot spotify help
@@ -629,11 +593,8 @@ musicbot spotify playlist
     Show playlist
   
   Options:
-    --spotify-id TEXT             Spotify ID
-    --spotify-secret TEXT         Spotify secret
-    --spotify-token TEXT          Spotify token
-    --spotify-refresh-token TEXT  Spotify refresh token
-    -h, --help                    Show this message and exit.
+    --spotify-token TEXT  Spotify token
+    -h, --help            Show this message and exit.
 
 
 musicbot spotify playlists
@@ -645,40 +606,8 @@ musicbot spotify playlists
     List playlists
   
   Options:
-    --spotify-id TEXT             Spotify ID
-    --spotify-secret TEXT         Spotify secret
-    --spotify-token TEXT          Spotify token
-    --spotify-refresh-token TEXT  Spotify refresh token
-    -h, --help                    Show this message and exit.
-
-
-musicbot spotify search
-***********************
-.. code-block::
-
-  Usage: musicbot spotify search [OPTIONS] TRACK
-  
-    Search tracks
-  
-  Options:
-    --spotify-id TEXT      Spotify ID
-    --spotify-secret TEXT  Spotify secret
-    -h, --help             Show this message and exit.
-
-
-musicbot spotify token
-**********************
-.. code-block::
-
-  Usage: musicbot spotify token [OPTIONS]
-  
-    Get spotify token
-  
-  Options:
-    --spotify-id TEXT      Spotify ID
-    --spotify-secret TEXT  Spotify secret
-    -s, --save             Save to config file  [default: False]
-    -h, --help             Show this message and exit.
+    --spotify-token TEXT  Spotify token
+    -h, --help            Show this message and exit.
 
 
 musicbot spotify tracks
@@ -690,11 +619,8 @@ musicbot spotify tracks
     Show tracks
   
   Options:
-    --spotify-id TEXT             Spotify ID
-    --spotify-secret TEXT         Spotify secret
-    --spotify-token TEXT          Spotify token
-    --spotify-refresh-token TEXT  Spotify refresh token
-    -h, --help                    Show this message and exit.
+    --spotify-token TEXT  Spotify token
+    -h, --help            Show this message and exit.
 
 
 musicbot user

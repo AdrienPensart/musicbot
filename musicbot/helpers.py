@@ -78,16 +78,34 @@ def add_options(options):
 
 
 def config_string(envvar, configkey, required, ctx, param, value):
-    if not value:
-        logger.info("Try loading with envvar %s", envvar)
-        value = os.getenv(envvar, None)
-    if not value:
-        logger.info("Try loading with config key %s", configkey)
-        value = config.configfile['DEFAULT'].get(configkey, None)
-    if not value:
-        if required:
-            raise click.BadParameter('or missing env {} / config {} in {}'.format(envvar, configkey, config.config), ctx, param)
-    logger.info("Value loaded: %s", value)
+    arg_value = value
+    logger.info("%s : try loading with value : %s", param.name, value)
+
+    env_value = os.getenv(envvar, None)
+    logger.info("%s : try loading with envvar %s : %s", param.name, envvar, env_value)
+
+    config_value = config.configfile['DEFAULT'].get(configkey, None)
+    logger.info("%s : try loading with config key %s : %s", param.name, configkey, config_value)
+
+    if arg_value:
+        value = arg_value
+
+    if config_value:
+        if value is None:
+            value = config_value
+        if arg_value is not None and arg_value != config_value:
+            logger.warning("%s : config value is not sync with arg value", param.name)
+
+    if env_value:
+        if value is None:
+            value = env_value
+        if config_value is not None and config_value != env_value:
+            logger.warning("%s : config value is not sync with env value", param.name)
+        if arg_value is not None and env_value != arg_value:
+            logger.warning("%s : env value is not sync with arg value", param.name)
+
+    if not value and required:
+        raise click.BadParameter('or missing env {} / config {} in {}'.format(envvar, configkey, config.config), ctx, param.name)
     ctx.params[param.name] = value
     return ctx.params[param.name]
 
