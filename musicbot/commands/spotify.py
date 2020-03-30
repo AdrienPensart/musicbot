@@ -1,4 +1,5 @@
 import logging
+import json
 import click
 from prettytable import PrettyTable
 from musicbot import helpers
@@ -9,12 +10,12 @@ logger = logging.getLogger(__name__)
 
 @click.group(cls=helpers.GroupWithHelp)
 def cli():
-    '''Spotify'''
+    '''Spotify tool'''
 
 
 def print_tracks(tracks):
     pt = PrettyTable()
-    pt.field_names = ["Track", "Artists", "Album"]
+    pt.field_names = ["Track", "Artist", "Album"]
     for t in tracks:
         pt.add_row([t['track']['name'], t['track']['artists'][0]['name'], t['track']['album']['name']])
     print(pt)
@@ -46,8 +47,12 @@ def playlist(name, spotify_token):
 
 
 @cli.command()
-@helpers.add_options(spotify_token_option)
-def tracks(spotify_token):
+@helpers.add_options(spotify_token_option + helpers.output_option)
+def tracks(spotify_token, output):
     '''Show tracks'''
     tracks = get_tracks(spotify_token)
-    print_tracks(tracks)
+    if output == 'table':
+        print_tracks(tracks)
+    elif output == 'json':
+        tracks_dict = [{'title': t['track']['name'], 'artist': t['track']['artists'][0]['name'], 'album': t['track']['album']['name']} for t in tracks]
+        print(json.dumps(tracks_dict))

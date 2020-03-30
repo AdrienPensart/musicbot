@@ -105,7 +105,7 @@ def config_string(envvar, configkey, required, ctx, param, value):
             logger.warning("%s : env value is not sync with arg value", param.name)
 
     if not value and required:
-        raise click.BadParameter('or missing env {} / config {} in {}'.format(envvar, configkey, config.config), ctx, param.name)
+        raise click.BadParameter('or missing env {} / config {} in {}'.format(envvar, configkey, config.config), ctx, param.name, param.name)
     ctx.params[param.name] = value
     return ctx.params[param.name]
 

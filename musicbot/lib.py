@@ -83,12 +83,17 @@ def find_files(directories, supported_formats):
 
 
 def scantree(path, supported_formats):
-    for entry in os.scandir(path):
-        if entry.is_dir(follow_symlinks=False):
-            yield from scantree(entry.path, supported_formats)
-        else:
-            if entry.name.endswith(tuple(supported_formats)):
-                yield entry
+    try:
+        if '/.' in path:
+            return
+        for entry in os.scandir(path):
+            if entry.is_dir(follow_symlinks=False):
+                yield from scantree(entry.path, supported_formats)
+            else:
+                if entry.name.endswith(tuple(supported_formats)):
+                    yield entry
+    except PermissionError as e:
+        logger.error(e)
 
 
 def filecount(path, supported_formats):

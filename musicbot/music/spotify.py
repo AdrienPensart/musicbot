@@ -34,7 +34,7 @@ def get_tracks(spotify_token):
         offset += len(new_objects['items'])
         if len(new_objects['items']) < limit:
             break
-    return itertools.chain(*objects)
+    return list(itertools.chain(*objects))
 
 
 def get_playlists(spotify_token):
@@ -51,7 +51,7 @@ def get_playlists(spotify_token):
         if length < limit:
             break
     logger.debug("length: %s", offset)
-    return itertools.chain(*objects)
+    return list(itertools.chain(*objects))
 
 
 def get_playlist(name, spotify_token):
@@ -66,4 +66,5 @@ def get_playlist(name, spotify_token):
             while new_tracks['next']:
                 new_tracks = sp.next(new_tracks)
                 tracks.append(new_tracks['tracks']['items'])
-            return itertools.chain(*tracks)
+            return list(itertools.chain(*tracks))
+    return []
