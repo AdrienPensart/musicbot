@@ -29,7 +29,7 @@ save_option = [click.option('--save', '-s', help='Save to config file', envvar=M
 
 MB_OUTPUT = 'MB_OUTPUT'
 DEFAULT_MB_OUTPUT = 'table'
-output_option = [click.option('--output', envvar=MB_OUTPUT, help='Output format', default=DEFAULT_MB_OUTPUT, show_default=True, type=click.Choice(['table', 'json']))]
+output_option = [click.option('--output', envvar=MB_OUTPUT, help='Output format', default=DEFAULT_MB_OUTPUT, show_default=True, type=click.Choice(['table', 'json', 'm3u', 'csv']))]
 
 logger = logging.getLogger(__name__)
 

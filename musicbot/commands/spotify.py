@@ -3,7 +3,7 @@ import json
 import click
 from prettytable import PrettyTable
 from musicbot import helpers
-from musicbot.music.spotify import get_tracks, get_playlists, get_playlist, spotify_token_option
+from musicbot.music.spotify import get_search, get_tracks, get_playlists, get_playlist, spotify_token_option
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +27,13 @@ def print_playlists(playlists):
     for p in playlists:
         pt.add_row([p['name'], p['tracks']['total']])
     print(pt)
+
+
+@cli.command()
+@helpers.add_options(spotify_token_option)
+@click.argument('query')
+def search(**kwargs):
+    get_search(**kwargs)
 
 
 @cli.command()

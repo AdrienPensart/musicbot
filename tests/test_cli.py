@@ -62,15 +62,18 @@ def test_user(cli_runner, user_token, postgraphile_public):
     musics = run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'find'])
     assert len(musics.split("\n")) == 5
 
-    csv = run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'csv'])
-    assert len(csv.split("\n")) == 5
-
     run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'flac2mp3', '--dry'])
     run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'sync', '/tmp', '--dry'])
     run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'consistency'])
 
-    playlist = run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'playlist'])
-    assert len(playlist.split("\n")) == 6
+    # playlist = run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'playlist'])
+    # assert len(playlist.split("\n")) == 6
+    # csv = run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'csv'])
+    # assert len(csv.split("\n")) == 5
+    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'playlist', '--output csv'])
+    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'playlist', '--output json'])
+    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'playlist', '--output table'])
+    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'playlist', '--output m3u'])
 
     run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'bests', '/tmp', '--dry'])
     run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'stats'])

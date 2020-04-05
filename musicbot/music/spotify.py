@@ -22,6 +22,17 @@ spotify_token_option = [click.option('--spotify-token', help='Spotify token', ca
 options = spotify_id_option + spotify_secret_option + spotify_token_option  # + spotify_refresh_token_option
 
 
+def get_search(spotify_token, query):
+    sp = spotipy.Spotify(auth=spotify_token)
+    results = sp.search(q=query, type='artist')
+    print(results.keys())
+    print(results["artists"])
+    # items = results['tracks']['items']
+    # if len(items) > 0:
+    #     track = items[0]
+    #     print(track['name'])
+
+
 def get_tracks(spotify_token):
     sp = spotipy.Spotify(auth=spotify_token)
     offset = 0
