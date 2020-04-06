@@ -81,7 +81,7 @@ $$
     delete from musicbot_public.user u
     where u.id = musicbot_public.current_musicbot_id()
     returning *
-$$ language sql;
+$$ language sql strict security definer;
 
 create or replace function musicbot_public.authenticate(
   email text,

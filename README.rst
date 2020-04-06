@@ -54,8 +54,8 @@ Docker
 .. code-block:: bash
 
   poetry run docker-compose build --parallel
-  poetry docker-compose up
-  export MB_USER=test@test.com
+  poetry run docker-compose up
+  export MB_EMAIL=test@test.com
   export MB_PASSWORD=password
   musicbot user create
   musicbot local scan /tests/fixtures/folder1 /tests/fixtures/folder2
@@ -99,7 +99,7 @@ Commands
   Commands:
     help     Print help
     local    Local music management
-    spotify  Spotify
+    spotify  Spotify tool
     user     User management
     version  Print version
     youtube  Youtube tool
@@ -135,8 +135,9 @@ musicbot local
   Commands:
     artists       List artists
     bests         Generate bests playlists with some rules
+    clean         Clean all musics
     consistency   Check music files consistency
-    csv           Export music files to csv file
+    diff          List tracks
     filter        Print a filter
     filters       List filters
     find          Just list music files
@@ -163,8 +164,8 @@ musicbot local artists
     List artists
   
   Options:
-    --output [table|json]  Output format  [default: table]
-    -h, --help             Show this message and exit.
+    --output [table|json|m3u|csv]  Output format  [default: table]
+    -h, --help                     Show this message and exit.
 
 
 musicbot local bests
@@ -208,6 +209,18 @@ musicbot local bests
     -h, --help              Show this message and exit.
 
 
+musicbot local clean
+********************
+.. code-block::
+
+  Usage: musicbot local clean [OPTIONS]
+  
+    Clean all musics
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
 musicbot local consistency
 **************************
 .. code-block::
@@ -220,13 +233,13 @@ musicbot local consistency
     -h, --help  Show this message and exit.
 
 
-musicbot local csv
-******************
+musicbot local diff
+*******************
 .. code-block::
 
-  Usage: musicbot local csv [OPTIONS] [PATH]
+  Usage: musicbot local diff [OPTIONS] SOURCE DESTINATION
   
-    Export music files to csv file
+    List tracks
   
   Options:
     -h, --help  Show this message and exit.
@@ -241,8 +254,8 @@ musicbot local filter
     Print a filter
   
   Options:
-    --output [table|json]  Output format  [default: table]
-    -h, --help             Show this message and exit.
+    --output [table|json|m3u|csv]  Output format  [default: table]
+    -h, --help                     Show this message and exit.
 
 
 musicbot local filters
@@ -254,8 +267,8 @@ musicbot local filters
     List filters
   
   Options:
-    --output [table|json]  Output format  [default: table]
-    -h, --help             Show this message and exit.
+    --output [table|json|m3u|csv]  Output format  [default: table]
+    -h, --help                     Show this message and exit.
 
 
 musicbot local find
@@ -306,8 +319,8 @@ musicbot local folders
     List folders
   
   Options:
-    --output [table|json]  Output format  [default: table]
-    -h, --help             Show this message and exit.
+    --output [table|json|m3u|csv]  Output format  [default: table]
+    -h, --help                     Show this message and exit.
 
 
 musicbot local help
@@ -339,6 +352,8 @@ musicbot local play
 .. code-block::
 
   Usage: musicbot local play [OPTIONS]
+  
+    Music player
   
   Options:
     -e, --email TEXT        User email
@@ -383,34 +398,35 @@ musicbot local playlist
     Generate a new playlist
   
   Options:
-    --dry                   Take no real action  [default: False]
-    --name TEXT             Filter name
-    --limit INTEGER         Fetch a maximum limit of music
-    --youtubes TEXT         Select musics with a youtube link
-    --no-youtubes TEXT      Select musics without youtube link
-    --spotifys TEXT         Select musics with a spotifys link
-    --no-spotifys TEXT      Select musics without spotifys link
-    --formats TEXT          Select musics with file format
-    --no-formats TEXT       Filter musics without format
-    --keywords TEXT         Select musics with keywords
-    --no-keywords TEXT      Filter musics without keywords
-    --artists TEXT          Select musics with artists
-    --no-artists TEXT       Filter musics without artists
-    --albums TEXT           Select musics with albums
-    --no-albums TEXT        Filter musics without albums
-    --titles TEXT           Select musics with titles
-    --no-titles TEXT        Filter musics without titless
-    --genres TEXT           Select musics with genres
-    --no-genres TEXT        Filter musics without genres
-    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER      Minimum file size filter (in bytes)
-    --max-size INTEGER      Maximum file size filter (in bytes)
-    --min-rating FLOAT      Minimum rating  [default: 0.0]
-    --max-rating FLOAT      Maximum rating  [default: 5.0]
-    --relative              Generate relatives paths
-    --shuffle               Randomize selection
-    -h, --help              Show this message and exit.
+    --dry                          Take no real action  [default: False]
+    --name TEXT                    Filter name
+    --limit INTEGER                Fetch a maximum limit of music
+    --youtubes TEXT                Select musics with a youtube link
+    --no-youtubes TEXT             Select musics without youtube link
+    --spotifys TEXT                Select musics with a spotifys link
+    --no-spotifys TEXT             Select musics without spotifys link
+    --formats TEXT                 Select musics with file format
+    --no-formats TEXT              Filter musics without format
+    --keywords TEXT                Select musics with keywords
+    --no-keywords TEXT             Filter musics without keywords
+    --artists TEXT                 Select musics with artists
+    --no-artists TEXT              Filter musics without artists
+    --albums TEXT                  Select musics with albums
+    --no-albums TEXT               Filter musics without albums
+    --titles TEXT                  Select musics with titles
+    --no-titles TEXT               Filter musics without titless
+    --genres TEXT                  Select musics with genres
+    --no-genres TEXT               Filter musics without genres
+    --min-duration INTEGER         Minimum duration filter (hours:minutes:seconds)
+    --max-duration INTEGER         Maximum duration filter (hours:minutes:seconds))
+    --min-size INTEGER             Minimum file size filter (in bytes)
+    --max-size INTEGER             Maximum file size filter (in bytes)
+    --min-rating FLOAT             Minimum rating  [default: 0.0]
+    --max-rating FLOAT             Maximum rating  [default: 5.0]
+    --relative                     Generate relatives paths
+    --shuffle                      Randomize selection
+    --output [table|json|m3u|csv]  Output format  [default: table]
+    -h, --help                     Show this message and exit.
 
 
 musicbot local scan
@@ -434,34 +450,34 @@ musicbot local stats
     Generate some stats for music collection with filters
   
   Options:
-    --output [table|json]   Output format  [default: table]
-    --name TEXT             Filter name
-    --limit INTEGER         Fetch a maximum limit of music
-    --youtubes TEXT         Select musics with a youtube link
-    --no-youtubes TEXT      Select musics without youtube link
-    --spotifys TEXT         Select musics with a spotifys link
-    --no-spotifys TEXT      Select musics without spotifys link
-    --formats TEXT          Select musics with file format
-    --no-formats TEXT       Filter musics without format
-    --keywords TEXT         Select musics with keywords
-    --no-keywords TEXT      Filter musics without keywords
-    --artists TEXT          Select musics with artists
-    --no-artists TEXT       Filter musics without artists
-    --albums TEXT           Select musics with albums
-    --no-albums TEXT        Filter musics without albums
-    --titles TEXT           Select musics with titles
-    --no-titles TEXT        Filter musics without titless
-    --genres TEXT           Select musics with genres
-    --no-genres TEXT        Filter musics without genres
-    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER      Minimum file size filter (in bytes)
-    --max-size INTEGER      Maximum file size filter (in bytes)
-    --min-rating FLOAT      Minimum rating  [default: 0.0]
-    --max-rating FLOAT      Maximum rating  [default: 5.0]
-    --relative              Generate relatives paths
-    --shuffle               Randomize selection
-    -h, --help              Show this message and exit.
+    --output [table|json|m3u|csv]  Output format  [default: table]
+    --name TEXT                    Filter name
+    --limit INTEGER                Fetch a maximum limit of music
+    --youtubes TEXT                Select musics with a youtube link
+    --no-youtubes TEXT             Select musics without youtube link
+    --spotifys TEXT                Select musics with a spotifys link
+    --no-spotifys TEXT             Select musics without spotifys link
+    --formats TEXT                 Select musics with file format
+    --no-formats TEXT              Filter musics without format
+    --keywords TEXT                Select musics with keywords
+    --no-keywords TEXT             Filter musics without keywords
+    --artists TEXT                 Select musics with artists
+    --no-artists TEXT              Filter musics without artists
+    --albums TEXT                  Select musics with albums
+    --no-albums TEXT               Filter musics without albums
+    --titles TEXT                  Select musics with titles
+    --no-titles TEXT               Filter musics without titless
+    --genres TEXT                  Select musics with genres
+    --no-genres TEXT               Filter musics without genres
+    --min-duration INTEGER         Minimum duration filter (hours:minutes:seconds)
+    --max-duration INTEGER         Maximum duration filter (hours:minutes:seconds))
+    --min-size INTEGER             Minimum file size filter (in bytes)
+    --max-size INTEGER             Maximum file size filter (in bytes)
+    --min-rating FLOAT             Minimum rating  [default: 0.0]
+    --max-rating FLOAT             Maximum rating  [default: 5.0]
+    --relative                     Generate relatives paths
+    --shuffle                      Randomize selection
+    -h, --help                     Show this message and exit.
 
 
 musicbot local sync
@@ -507,39 +523,13 @@ musicbot local tracks
 *********************
 .. code-block::
 
-  Usage: musicbot local tracks [OPTIONS]
+  Usage: musicbot local tracks [OPTIONS] FOLDER
   
     List tracks
   
   Options:
-    --output [table|json]   Output format  [default: table]
-    --name TEXT             Filter name
-    --limit INTEGER         Fetch a maximum limit of music
-    --youtubes TEXT         Select musics with a youtube link
-    --no-youtubes TEXT      Select musics without youtube link
-    --spotifys TEXT         Select musics with a spotifys link
-    --no-spotifys TEXT      Select musics without spotifys link
-    --formats TEXT          Select musics with file format
-    --no-formats TEXT       Filter musics without format
-    --keywords TEXT         Select musics with keywords
-    --no-keywords TEXT      Filter musics without keywords
-    --artists TEXT          Select musics with artists
-    --no-artists TEXT       Filter musics without artists
-    --albums TEXT           Select musics with albums
-    --no-albums TEXT        Filter musics without albums
-    --titles TEXT           Select musics with titles
-    --no-titles TEXT        Filter musics without titless
-    --genres TEXT           Select musics with genres
-    --no-genres TEXT        Filter musics without genres
-    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER      Minimum file size filter (in bytes)
-    --max-size INTEGER      Maximum file size filter (in bytes)
-    --min-rating FLOAT      Minimum rating  [default: 0.0]
-    --max-rating FLOAT      Maximum rating  [default: 5.0]
-    --relative              Generate relatives paths
-    --shuffle               Randomize selection
-    -h, --help              Show this message and exit.
+    --output [table|json|m3u|csv]  Output format  [default: table]
+    -h, --help                     Show this message and exit.
 
 
 musicbot local watch
@@ -560,7 +550,7 @@ musicbot spotify
 
   Usage: musicbot spotify [OPTIONS] COMMAND [ARGS]...
   
-    Spotify
+    Spotify tool
   
   Options:
     -h, --help  Show this message and exit.
@@ -593,8 +583,8 @@ musicbot spotify playlist
     Show playlist
   
   Options:
-    --spotify-token TEXT  Spotify token
-    -h, --help            Show this message and exit.
+    --spotify TEXT  Spotify token
+    -h, --help      Show this message and exit.
 
 
 musicbot spotify playlists
@@ -606,8 +596,8 @@ musicbot spotify playlists
     List playlists
   
   Options:
-    --spotify-token TEXT  Spotify token
-    -h, --help            Show this message and exit.
+    --spotify TEXT  Spotify token
+    -h, --help      Show this message and exit.
 
 
 musicbot spotify tracks
@@ -619,8 +609,9 @@ musicbot spotify tracks
     Show tracks
   
   Options:
-    --spotify-token TEXT  Spotify token
-    -h, --help            Show this message and exit.
+    --spotify TEXT                 Spotify token
+    --output [table|json|m3u|csv]  Output format  [default: table]
+    -h, --help                     Show this message and exit.
 
 
 musicbot user
@@ -663,9 +654,9 @@ musicbot user list
     List users (admin)
   
   Options:
-    --output [table|json]  Output format  [default: table]
-    --graphql-admin TEXT   GraphQL endpoint  [default: http://127.0.0.1:5001/graphql]
-    -h, --help             Show this message and exit.
+    --output [table|json|m3u|csv]  Output format  [default: table]
+    --graphql-admin TEXT           GraphQL endpoint  [default: http://127.0.0.1:5001/graphql]
+    -h, --help                     Show this message and exit.
 
 
 musicbot user login

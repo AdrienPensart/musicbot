@@ -103,7 +103,7 @@ class User(GraphQL):
         self.authenticated = False
 
         if self.token:
-            pass
+            logger.debug("using token : %s", self.token)
         elif self.email and self.password:
             query = """
             mutation

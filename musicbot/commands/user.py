@@ -30,10 +30,16 @@ def _list(graphql_admin, output):
 
 
 @cli.command(aliases=['new', 'add', 'create'])
-@helpers.add_options(user.register_options)
-def register(**kwargs):
+@helpers.add_options(user.register_options + helpers.save_option)
+def register(save, **kwargs):
     '''Register a new user'''
-    user.User.register(**kwargs)
+    u = user.User.register(**kwargs)
+    if u.token and save:
+        logger.info("saving user infos")
+        config.configfile['DEFAULT']['email'] = u.email
+        config.configfile['DEFAULT']['password'] = u.password
+        config.configfile['DEFAULT']['token'] = u.token
+        config.write()
 
 
 @cli.command(aliases=['delete', 'remove'])
@@ -50,6 +56,7 @@ def login(save, **kwargs):
     '''Authenticate user'''
     u = user.User(**kwargs)
     print(u.token)
-    if save:
+    if u.token and save:
+        logger.info("saving user infos")
         config.configfile['DEFAULT']['token'] = u.token
         config.write()
