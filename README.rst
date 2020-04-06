@@ -153,7 +153,7 @@ musicbot folder tracks
 **********************
 .. code-block::
 
-  Usage: musicbot folder tracks [OPTIONS] FOLDER
+  Usage: musicbot folder tracks [OPTIONS] [FOLDERS]...
   
     List tracks
   
@@ -610,8 +610,8 @@ musicbot music fingerprint
     Print music fingerprint
   
   Options:
-    --acoustid-apikey TEXT  AcoustID API Key
-    -h, --help              Show this message and exit.
+    --acoustid-api-key TEXT  AcoustID API Key
+    -h, --help               Show this message and exit.
 
 
 musicbot music help
@@ -665,7 +665,7 @@ musicbot spotify playlist
     Show playlist
   
   Options:
-    --spotify TEXT  Spotify token
+    --spotify TEXT  Spotify token  [required]
     -h, --help      Show this message and exit.
 
 
@@ -678,7 +678,7 @@ musicbot spotify playlists
     List playlists
   
   Options:
-    --spotify TEXT  Spotify token
+    --spotify TEXT  Spotify token  [required]
     -h, --help      Show this message and exit.
 
 
@@ -691,7 +691,7 @@ musicbot spotify tracks
     Show tracks
   
   Options:
-    --spotify TEXT                 Spotify token
+    --spotify TEXT                 Spotify token  [required]
     --output [table|json|m3u|csv]  Output format  [default: table]
     -h, --help                     Show this message and exit.
 
@@ -832,8 +832,9 @@ musicbot youtube find
     Search a youtube link with artist and title
   
   Options:
-    --acoustid-apikey TEXT  AcoustID API Key
-    -h, --help              Show this message and exit.
+    --youtube-api-key TEXT   YouTube API Key
+    --acoustid-api-key TEXT  AcoustID API Key
+    -h, --help               Show this message and exit.
 
 
 musicbot youtube fingerprint
@@ -845,8 +846,8 @@ musicbot youtube fingerprint
     Fingerprint a youtube video
   
   Options:
-    --acoustid-apikey TEXT  AcoustID API Key
-    -h, --help              Show this message and exit.
+    --acoustid-api-key TEXT  AcoustID API Key
+    -h, --help               Show this message and exit.
 
 
 musicbot youtube help
@@ -870,6 +871,7 @@ musicbot youtube search
     Search a youtube link with artist and title
   
   Options:
-    -h, --help  Show this message and exit.
+    --youtube-api-key TEXT  YouTube API Key
+    -h, --help              Show this message and exit.
 
 
