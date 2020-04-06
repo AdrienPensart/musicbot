@@ -250,7 +250,7 @@ class User(GraphQL):
                     logger.debug("inserting %s", music)
                     self.upsert_music(music)
                     pbar.update(1)
-            return
+            return None
 
         j = json.dumps([m.to_dict() for m in musics])
         b64 = j.encode('utf-8')

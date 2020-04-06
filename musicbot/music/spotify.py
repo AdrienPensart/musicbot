@@ -8,12 +8,12 @@ logger = logging.getLogger(__name__)
 
 
 def sane_spotify(ctx, **kwargs):
-    spotify = config_string(configkey="spotify", required=True, ctx=ctx, **kwargs)
+    spotify = config_string(ctx=ctx, **kwargs)
     ctx.params['spotify'] = Spotify(spotify)
     return ctx.params['spotify']
 
 
-spotify_token_option = [click.option('--spotify', help='Spotify token', callback=sane_spotify)]
+spotify_token_option = [click.option('--spotify', help='Spotify token', required=True, callback=sane_spotify)]
 
 
 class Spotify:

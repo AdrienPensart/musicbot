@@ -175,9 +175,9 @@ class File:
             n = int(s)
             if n < 0:
                 return -1
-            elif n > 2 ** 31 - 1:
+            if n > 2 ** 31 - 1:
                 logger.warning("%s : invalid number %s", self, n)
-                n = 0
+                return 0
             return n
         except ValueError:
             return -1
