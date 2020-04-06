@@ -46,29 +46,35 @@ def test_admin(cli_runner, user_token, postgraphile_private):  # pylint: disable
 
 @pytest.mark.runner_setup(mix_stderr=False)
 def test_user(cli_runner, user_token, postgraphile_public):
-    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'load-filters'])
-    filters_json = run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'filters', '--output', 'json'])
+    common_args = ['--token', user_token, '--graphql', postgraphile_public]
+
+    run_cli(cli_runner, cli, ['local', *common_args, 'load-filters'])
+    filters_json = run_cli(cli_runner, cli, ['local', *common_args, 'filters', '--output', 'json'])
     filters = json.loads(filters_json)
     assert len(filters) == fixtures.filters
 
-    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'filter', 'default'])
-    # run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'tracks'])
-    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'scan', *fixtures.folders])
+    run_cli(cli_runner, cli, ['local', *common_args, 'filter', 'default'])
+    run_cli(cli_runner, cli, ['local', *common_args, 'scan', *fixtures.folders])
 
-    folders_json = run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'folders', '--output', 'json'])
+    folders_json = run_cli(cli_runner, cli, ['local', *common_args, 'folders', '--output', 'json'])
     folders = json.loads(folders_json)
     assert len(folders) == 2
 
-    musics = run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'find'])
+    musics = run_cli(cli_runner, cli, ['local', *common_args, 'find'])
     assert len(musics.split("\n")) == 5
 
-    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'flac2mp3', '--dry'])
-    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'sync', '/tmp', '--dry'])
-    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'consistency'])
-    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'playlist', '--output', 'csv'])
-    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'playlist', '--output', 'json'])
-    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'playlist', '--output', 'table'])
-    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'playlist', '--output', 'm3u'])
-    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'bests', '/tmp', '--dry'])
-    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'stats'])
-    run_cli(cli_runner, cli, ['local', '--token', user_token, '--graphql', postgraphile_public, 'artists'])
+    run_cli(cli_runner, cli, ['local', *common_args, 'sync', '/tmp', '--dry'])
+    run_cli(cli_runner, cli, ['local', *common_args, 'consistency'])
+    run_cli(cli_runner, cli, ['local', *common_args, 'playlist', '--output', 'csv'])
+    run_cli(cli_runner, cli, ['local', *common_args, 'playlist', '--output', 'json'])
+    run_cli(cli_runner, cli, ['local', *common_args, 'playlist', '--output', 'table'])
+    run_cli(cli_runner, cli, ['local', *common_args, 'playlist', '--output', 'm3u'])
+    run_cli(cli_runner, cli, ['local', *common_args, 'bests', '/tmp', '--dry'])
+    run_cli(cli_runner, cli, ['local', *common_args, 'stats'])
+    run_cli(cli_runner, cli, ['local', *common_args, 'artists'])
+
+
+@pytest.mark.runner_setup(mix_stderr=False)
+def test_folder(cli_runner):
+    run_cli(cli_runner, cli, ['folder', 'flac2mp3', '--dry', *fixtures.folders])
+    run_cli(cli_runner, cli, ['folder', 'tracks', *fixtures.folders])

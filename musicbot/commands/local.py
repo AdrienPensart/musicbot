@@ -15,13 +15,11 @@ from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit import HTML, print_formatted_text
 from tqdm import tqdm
-from slugify import slugify
 from prettytable import PrettyTable
 from musicbot import helpers, user, lib
 from musicbot.music import mfilter
 from musicbot.config import config
-from musicbot.music.file import File, supported_formats
-from musicbot.music.fingerprint import acoustid_apikey_option
+from musicbot.music.file import supported_formats
 
 
 logger = logging.getLogger(__name__)
@@ -33,46 +31,6 @@ logging.getLogger("vlc").setLevel(logging.NOTSET)
 @helpers.add_options(user.auth_options)
 def cli(ctx, **kwargs):
     ctx.obj.u = lambda: user.User.new(**kwargs)
-
-
-@cli.command(help='''List tracks''')
-@click.argument('folder')
-@helpers.add_options(helpers.output_option)
-def tracks(folder, output):
-    tracks = helpers.genfiles([folder])
-    if output == 'json':
-        tracks_dict = [{'title': t.title, 'artist': t.artist, 'album': t.album} for t in tracks]
-        print(json.dumps(tracks_dict))
-    elif output == 'table':
-        pt = PrettyTable()
-        pt.field_names = ["Title", "Artist", "Album"]
-        for t in tracks:
-            pt.add_row([t.title, t.artist, t.album])
-        print(pt)
-
-
-@cli.command(help='''List tracks''')
-@click.argument('source', type=click.File('r'))
-@click.argument('destination', type=click.File('r'))
-def diff(source, destination):
-    source = json.loads(source.read())
-    destination = json.loads(destination.read())
-    stopwords = [
-        'the',
-        'remaster',
-        'remastered',
-        'cut',
-        'part',
-    ] + list(map(str, range(1900, 2020)))
-    replacements = [['praxis', 'buckethead'], ['lawson-rollins', 'buckethead']]
-    source_items = {slugify("{}-{}".format(t['artist'], t['title']), stopwords=stopwords, replacements=replacements) for t in source}
-    destination_items = {slugify("{}-{}".format(t['artist'], t['title']), stopwords=stopwords, replacements=replacements) for t in destination}
-    differences = source_items.difference(destination_items)
-    differences = sorted(differences)
-    for difference in differences:
-        print(difference)
-
-    print("diff : {}".format(len(differences)))
 
 
 @cli.command(help='''List artists''')
@@ -87,6 +45,8 @@ def artists(ctx, output):
         print(pt)
     elif output == 'json':
         print(json.dumps(ctx.obj.u().artists))
+    else:
+        raise NotImplementedError
 
 
 @cli.command()
@@ -108,6 +68,8 @@ def filters(ctx, output):
         for f in ctx.obj.u().filters:
             pt.add_row([f['name'], f['keywords'], f['noKeywords'], f['minRating'], f['maxRating']])
         print(pt)
+    else:
+        raise NotImplementedError
 
 
 @cli.command('filter', help='''Print a filter''')
@@ -120,6 +82,8 @@ def _filter(ctx, name, output):
         print(json.dumps(f))
     elif output == 'table':
         print(f)
+    else:
+        raise NotImplementedError
 
 
 @cli.command(help='''Generate some stats for music collection with filters''')
@@ -141,6 +105,8 @@ def stats(ctx, output, **kwargs):
         pt.add_row(["Size", lib.bytes_to_human(int(stats['size']))])
         pt.add_row(["Total duration", datetime.timedelta(seconds=int(stats['duration']))])
         print(pt)
+    else:
+        raise NotImplementedError
 
 
 @cli.command(help='''List folders''')
@@ -156,6 +122,8 @@ def folders(ctx, output):
         for f in _folders:
             pt.add_row([f])
         print(pt)
+    else:
+        raise NotImplementedError
 
 
 @cli.command(help='''(re)Load musics''')
@@ -192,38 +160,6 @@ def watch(ctx):
 @click.pass_context
 def clean(ctx):
     ctx.obj.u().clean_musics()
-
-
-@cli.command(help='''Convert all files in folders to mp3''')
-@click.argument('folders', nargs=-1)
-@helpers.add_options(helpers.concurrency_options + helpers.dry_option)
-def flac2mp3(folders, concurrency, dry):
-    import atexit
-    import concurrent.futures as cf
-    from concurrent.futures.thread import _python_exit
-    from pydub import AudioSegment
-    flac_files = list(lib.find_files(folders, ['flac']))
-
-    pbar = None
-    if not config.quiet:
-        pbar = click.progressbar(length=len(flac_files), label='Converting musics')
-
-    def convert(flac_path):
-        logger.debug('Converting %s', flac_path)
-        flac_audio = AudioSegment.from_file(flac_path, "flac")
-        mp3_path = flac_path.replace('.flac', '.mp3')
-        if not dry:
-            flac_audio.export(mp3_path, format="mp3")
-        else:
-            logger.info("[DRY-RUN] Exporting from %s to %s", flac_path, mp3_path)
-        if pbar:
-            pbar.update(1)
-    # Permit CTRL+C to work as intended
-    atexit.unregister(_python_exit)  # pylint: disable=protected-access
-    with cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
-        executor.shutdown = lambda wait: None
-        futures = [executor.submit(convert, flac_path) for flac_path in flac_files]
-        cf.wait(futures)
 
 
 @cli.command(help='''Copy selected musics with filters to destination folder''')
@@ -464,11 +400,3 @@ def bests(ctx, dry, path, prefix, suffix, **kwargs):
             else:
                 logger.info('DRY RUN: Writing playlist to %s with content:\n%s', playlist_filepath, content)
             pbar.update(1)
-
-
-@cli.command(help='''Print music fingerprint''')
-@click.argument('path')
-@helpers.add_options(acoustid_apikey_option)
-def fingerprint(path, acoustid_apikey):
-    f = File(path)
-    print(f.fingerprint(acoustid_apikey))

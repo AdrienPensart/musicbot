@@ -55,9 +55,7 @@ Docker
 
   poetry run docker-compose build --parallel
   poetry run docker-compose up
-  export MB_EMAIL=test@test.com
-  export MB_PASSWORD=password
-  musicbot user create
+  musicbot user create --email your_email --password your_password --save
   musicbot local scan /tests/fixtures/folder1 /tests/fixtures/folder2
   musicbot local tracks
 
@@ -97,12 +95,71 @@ Commands
     -h, --help                                          Show this message and exit.
   
   Commands:
+    folder   Music file
     help     Print help
+    json     Music file
     local    Local music management
+    music    Music file
     spotify  Spotify tool
     user     User management
     version  Print version
     youtube  Youtube tool
+
+
+musicbot folder
+***************
+.. code-block::
+
+  Usage: musicbot folder [OPTIONS] COMMAND [ARGS]...
+  
+    Music file
+  
+  Options:
+    -h, --help  Show this message and exit.
+  
+  Commands:
+    flac2mp3  Convert all files in folders to mp3
+    help      Print help
+    tracks    List tracks
+
+
+musicbot folder flac2mp3
+************************
+.. code-block::
+
+  Usage: musicbot folder flac2mp3 [OPTIONS] [FOLDERS]...
+  
+    Convert all files in folders to mp3
+  
+  Options:
+    --concurrency INTEGER  Number of coroutines  [default: 8]
+    --dry                  Take no real action  [default: False]
+    -h, --help             Show this message and exit.
+
+
+musicbot folder help
+********************
+.. code-block::
+
+  Usage: musicbot folder help [OPTIONS] [COMMAND]...
+  
+    Print help
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot folder tracks
+**********************
+.. code-block::
+
+  Usage: musicbot folder tracks [OPTIONS] FOLDER
+  
+    List tracks
+  
+  Options:
+    --output [table|json|m3u|csv]  Output format  [default: table]
+    -h, --help                     Show this message and exit.
 
 
 musicbot help
@@ -110,6 +167,46 @@ musicbot help
 .. code-block::
 
   Usage: musicbot help [OPTIONS] [COMMAND]...
+  
+    Print help
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot json
+*************
+.. code-block::
+
+  Usage: musicbot json [OPTIONS] COMMAND [ARGS]...
+  
+    Music file
+  
+  Options:
+    -h, --help  Show this message and exit.
+  
+  Commands:
+    diff  Diff tracks
+    help  Print help
+
+
+musicbot json diff
+******************
+.. code-block::
+
+  Usage: musicbot json diff [OPTIONS] SOURCE DESTINATION
+  
+    Diff tracks
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot json help
+******************
+.. code-block::
+
+  Usage: musicbot json help [OPTIONS] [COMMAND]...
   
     Print help
   
@@ -137,12 +234,9 @@ musicbot local
     bests         Generate bests playlists with some rules
     clean         Clean all musics
     consistency   Check music files consistency
-    diff          List tracks
     filter        Print a filter
     filters       List filters
     find          Just list music files
-    fingerprint   Print music fingerprint
-    flac2mp3      Convert all files in folders to mp3
     folders       List folders
     help          Print help
     load-filters  Load default filters
@@ -151,7 +245,6 @@ musicbot local
     scan          (re)Load musics
     stats         Generate some stats for music collection with filters
     sync          Copy selected musics with filters to destination folder
-    tracks        List tracks
     watch         Watch files changes in folders
 
 
@@ -233,18 +326,6 @@ musicbot local consistency
     -h, --help  Show this message and exit.
 
 
-musicbot local diff
-*******************
-.. code-block::
-
-  Usage: musicbot local diff [OPTIONS] SOURCE DESTINATION
-  
-    List tracks
-  
-  Options:
-    -h, --help  Show this message and exit.
-
-
 musicbot local filter
 *********************
 .. code-block::
@@ -281,33 +362,6 @@ musicbot local find
   
   Options:
     -h, --help  Show this message and exit.
-
-
-musicbot local fingerprint
-**************************
-.. code-block::
-
-  Usage: musicbot local fingerprint [OPTIONS] PATH
-  
-    Print music fingerprint
-  
-  Options:
-    --acoustid-apikey TEXT  AcoustID API Key
-    -h, --help              Show this message and exit.
-
-
-musicbot local flac2mp3
-***********************
-.. code-block::
-
-  Usage: musicbot local flac2mp3 [OPTIONS] [FOLDERS]...
-  
-    Convert all files in folders to mp3
-  
-  Options:
-    --concurrency INTEGER  Number of coroutines  [default: 8]
-    --dry                  Take no real action  [default: False]
-    -h, --help             Show this message and exit.
 
 
 musicbot local folders
@@ -519,19 +573,6 @@ musicbot local sync
     -h, --help              Show this message and exit.
 
 
-musicbot local tracks
-*********************
-.. code-block::
-
-  Usage: musicbot local tracks [OPTIONS] FOLDER
-  
-    List tracks
-  
-  Options:
-    --output [table|json|m3u|csv]  Output format  [default: table]
-    -h, --help                     Show this message and exit.
-
-
 musicbot local watch
 ********************
 .. code-block::
@@ -539,6 +580,47 @@ musicbot local watch
   Usage: musicbot local watch [OPTIONS]
   
     Watch files changes in folders
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot music
+**************
+.. code-block::
+
+  Usage: musicbot music [OPTIONS] COMMAND [ARGS]...
+  
+    Music file
+  
+  Options:
+    -h, --help  Show this message and exit.
+  
+  Commands:
+    fingerprint  Print music fingerprint
+    help         Print help
+
+
+musicbot music fingerprint
+**************************
+.. code-block::
+
+  Usage: musicbot music fingerprint [OPTIONS] PATH
+  
+    Print music fingerprint
+  
+  Options:
+    --acoustid-apikey TEXT  AcoustID API Key
+    -h, --help              Show this message and exit.
+
+
+musicbot music help
+*******************
+.. code-block::
+
+  Usage: musicbot music help [OPTIONS] [COMMAND]...
+  
+    Print help
   
   Options:
     -h, --help  Show this message and exit.
@@ -689,6 +771,7 @@ musicbot user register
     --first-name TEXT    User first name
     --last-name TEXT     User last name
     --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -s, --save           Save to config file  [default: False]
     -h, --help           Show this message and exit.
 
 
