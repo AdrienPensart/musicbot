@@ -1,7 +1,7 @@
 create table if not exists musicbot_public.raw_music
 (
     id         serial primary key,
-    user_id    integer not null references musicbot_public.user (id) on delete cascade default musicbot_public.current_musicbot_id(),
+    user_id    integer not null references musicbot_public.user (id) on delete cascade default musicbot_public.current_musicbot(),
     path       text not null,
     title      text default '',
     album      text default '',
@@ -27,6 +27,7 @@ create index if not exists raw_music_user_idx on musicbot_public.raw_music (user
 --create index if not exists path_user_idx on musicbot_public.raw_music (path, user_id);
 
 alter table if exists musicbot_public.raw_music enable row level security;
+alter table if exists musicbot_public.raw_music force row level security;
 grant usage on sequence musicbot_public.raw_music_id_seq to musicbot_user;
 
 grant select on table musicbot_public.raw_music to musicbot_anonymous, musicbot_user;
@@ -35,16 +36,16 @@ grant insert, update, delete on table musicbot_public.raw_music to musicbot_user
 alter table if exists musicbot_public.raw_music enable row level security;
 
 drop policy if exists insert_raw_music on musicbot_public.raw_music cascade;
-create policy insert_raw_music on musicbot_public.raw_music for insert with check (user_id = musicbot_public.current_musicbot_id());
+create policy insert_raw_music on musicbot_public.raw_music for insert with check (user_id = musicbot_public.current_musicbot());
 
 drop policy if exists select_raw_music on musicbot_public.raw_music cascade;
-create policy select_raw_music on musicbot_public.raw_music for select using (user_id = musicbot_public.current_musicbot_id());
+create policy select_raw_music on musicbot_public.raw_music for select using (user_id = musicbot_public.current_musicbot());
 
 drop policy if exists update_raw_music on musicbot_public.raw_music cascade;
-create policy update_raw_music on musicbot_public.raw_music for update using (user_id = musicbot_public.current_musicbot_id());
+create policy update_raw_music on musicbot_public.raw_music for update using (user_id = musicbot_public.current_musicbot());
 
 drop policy if exists delete_raw_music on musicbot_public.raw_music cascade;
-create policy delete_raw_music on musicbot_public.raw_music for delete using (user_id = musicbot_public.current_musicbot_id());
+create policy delete_raw_music on musicbot_public.raw_music for delete using (user_id = musicbot_public.current_musicbot());
 
 create or replace function musicbot_public.bulk_insert(data text)
 returns void as

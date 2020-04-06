@@ -1,7 +1,7 @@
 create table if not exists musicbot_public.filter
 (
     id           serial primary key,
-    user_id      integer not null references musicbot_public.user (id) on delete cascade default musicbot_public.current_musicbot_id(),
+    user_id      integer not null references musicbot_public.user (id) on delete cascade default musicbot_public.current_musicbot(),
     name         text not null,
     min_duration integer default 0,
     max_duration integer default +2147483647,
@@ -41,13 +41,13 @@ grant insert, update, delete on table musicbot_public.filter to musicbot_user;
 grant usage on sequence musicbot_public.filter_id_seq to musicbot_user;
 
 drop policy if exists insert_filter on musicbot_public.filter cascade;
-create policy insert_filter on musicbot_public.filter for insert with check (user_id = musicbot_public.current_musicbot_id());
+create policy insert_filter on musicbot_public.filter for insert with check (user_id = musicbot_public.current_musicbot());
 
 drop policy if exists select_filter on musicbot_public.filter cascade;
-create policy select_filter on musicbot_public.filter for select using (user_id = musicbot_public.current_musicbot_id());
+create policy select_filter on musicbot_public.filter for select using (user_id = musicbot_public.current_musicbot());
 
 drop policy if exists update_filter on musicbot_public.filter cascade;
-create policy update_filter on musicbot_public.filter for update using (user_id = musicbot_public.current_musicbot_id());
+create policy update_filter on musicbot_public.filter for update using (user_id = musicbot_public.current_musicbot());
 
 drop policy if exists delete_filter on musicbot_public.filter cascade;
-create policy delete_filter on musicbot_public.filter for delete using (user_id = musicbot_public.current_musicbot_id());
+create policy delete_filter on musicbot_public.filter for delete using (user_id = musicbot_public.current_musicbot());

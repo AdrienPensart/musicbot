@@ -57,6 +57,8 @@ services:
       - 5000:5000
     depends_on:
       - db
+    environment:
+      DEBUG: postgraphile:postgres:notice
     command: ["postgraphile", "--retry-on-init-fail", "--cors", "--no-setof-functions-contain-nulls", "--no-ignore-rbac", "--no-ignore-indexes", "--dynamic-json", "--connection", $DATABASE_URL, "--host", "0.0.0.0", "--port", "5000", "--schema", "musicbot_public", "--default-role", "musicbot_anonymous", "--enhance-graphiql", "--allow-explain", "--jwt-token-identifier", "musicbot_public.jwt_token", "--jwt-secret", $MUSICBOT_SECRET, "-l", "10MB", "--simple-collections", "both", "--append-plugins", "postgraphile-plugin-connection-filter,@graphile-contrib/pg-simplify-inflector"]
   postgraphile_private:
     image: musicbot_postgraphile_custom:latest
@@ -66,4 +68,6 @@ services:
       - db
     ports:
       - 5001:5001
+    environment:
+      DEBUG: postgraphile:postgres:notice
     command: ["postgraphile", "--retry-on-init-fail", "--cors", "--include-extension-resources", "--no-setof-functions-contain-nulls", "--no-ignore-indexes", "--dynamic-json", "--connection", $DATABASE_URL, "--host", "0.0.0.0", "--port", "5001", "--schema", "musicbot_public,musicbot_private", "--default-role", "postgres", "--enhance-graphiql", "--allow-explain", "--simple-collections", "both", "--append-plugins", "postgraphile-plugin-connection-filter,@graphile-contrib/pg-simplify-inflector"]

@@ -1,7 +1,7 @@
 create table if not exists musicbot_public.stat
 (
     id           bigserial primary key,
-    user_id      integer not null references musicbot_public.user (id) on delete cascade default musicbot_public.current_musicbot_id(),
+    user_id      integer not null references musicbot_public.user (id) on delete cascade default musicbot_public.current_musicbot(),
     musics       bigint not null default 0,
     albums       bigint not null default 0,
     artists      bigint not null default 0,
@@ -21,16 +21,16 @@ grant insert, update, delete on table musicbot_public.stat to musicbot_user;
 grant usage on sequence musicbot_public.stat_id_seq to musicbot_user;
 
 drop policy if exists insert_stat on musicbot_public.stat cascade;
-create policy insert_stat on musicbot_public.stat for insert with check (user_id = musicbot_public.current_musicbot_id());
+create policy insert_stat on musicbot_public.stat for insert with check (user_id = musicbot_public.current_musicbot());
 
 drop policy if exists select_stat on musicbot_public.stat cascade;
-create policy select_stat on musicbot_public.stat for select using (user_id = musicbot_public.current_musicbot_id());
+create policy select_stat on musicbot_public.stat for select using (user_id = musicbot_public.current_musicbot());
 
 drop policy if exists update_stat on musicbot_public.stat cascade;
-create policy update_stat on musicbot_public.stat for update using (user_id = musicbot_public.current_musicbot_id());
+create policy update_stat on musicbot_public.stat for update using (user_id = musicbot_public.current_musicbot());
 
 drop policy if exists delete_stat on musicbot_public.stat cascade;
-create policy delete_stat on musicbot_public.stat for delete using (user_id = musicbot_public.current_musicbot_id());
+create policy delete_stat on musicbot_public.stat for delete using (user_id = musicbot_public.current_musicbot());
 
 
 drop aggregate if exists musicbot_public.array_cat_agg(anyarray) cascade;
@@ -70,7 +70,7 @@ returns musicbot_public.stat as
 $$
     select
         row_number() over () as id,
-        musicbot_public.current_musicbot_id(),
+        musicbot_public.current_musicbot(),
         count(distinct f.path) as musics,
         count(distinct f.album) as albums,
         count(distinct f.artist) as artists,

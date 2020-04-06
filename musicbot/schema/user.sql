@@ -1,7 +1,3 @@
-create or replace function musicbot_public.current_musicbot_id() returns integer as $$
-    select current_setting('jwt.claims.user_id')::integer
-$$ language sql stable;
-
 create table if not exists musicbot_public.user (
     id               serial primary key,
     first_name       text not null check (char_length(first_name) < 80),
@@ -10,6 +6,24 @@ create table if not exists musicbot_public.user (
     updated_at       timestamp with time zone default now()
 );
 alter table if exists musicbot_public.user enable row level security;
+
+create or replace function musicbot_public.current_musicbot()
+returns integer as
+$$
+declare
+  user_id integer;
+begin
+    --select id into user_id
+    --from musicbot_public.user
+    --where id = current_setting('jwt.claims.user_id', true)::integer;
+    user_id = current_setting('jwt.claims.user_id', true)::integer;
+    raise notice 'Detected user_id %', user_id;
+    if user_id is null then
+        raise exception 'Invalid user %', user_id;
+    end if;
+    return user_id;
+end;
+$$ language plpgsql stable;
 
 create table if not exists musicbot_private.account (
     user_id          integer primary key references musicbot_public.user(id) on delete cascade,
@@ -53,7 +67,8 @@ grant musicbot_user to musicbot_postgraphile;
 drop type if exists musicbot_public.jwt_token cascade;
 create type musicbot_public.jwt_token as (
     role text,
-    user_id integer
+    user_id integer,
+    exp int
 );
 
 create or replace function musicbot_public.register_user(
@@ -79,7 +94,7 @@ create or replace function musicbot_public.unregister_user()
 returns musicbot_public.user as
 $$
     delete from musicbot_public.user u
-    where u.id = musicbot_public.current_musicbot_id()
+    where u.id = musicbot_public.current_musicbot()
     returning *
 $$ language sql strict security definer;
 
@@ -102,17 +117,16 @@ begin
         --set session authorization musicbot_user;
         --perform set_config('jwt.claims.role', 'musicbot_user', false);
         --perform set_config('jwt.claims.user_id', account.user_id::text, false);
-        raise notice 'Token Authorization for user % : %', email, ('musicbot_user', account.user_id)::musicbot_public.jwt_token;
-        return ('musicbot_user', account.user_id)::musicbot_public.jwt_token;
+        raise notice 'Token Authorization for user % : %', email, ('musicbot_user', account.user_id, extract(epoch from (now() + interval '1 day')))::musicbot_public.jwt_token;
+        return ('musicbot_user', account.user_id, extract(epoch from (now() + interval '1 day')))::musicbot_public.jwt_token;
     else
-        raise notice 'Authentication failed for user %', email;
-        return null;
+        raise exception 'Authentication failed for user %', email;
     end if;
     exception
         when NO_DATA_FOUND then
-            raise notice 'Account % not found', email;
+            raise exception 'Account % not found', email;
         when TOO_MANY_ROWS then
-            raise notice 'Account % not unique', email;
+            raise exception 'Account % not unique', email;
         return null;
 end;
 $$ language plpgsql strict security definer;
@@ -138,14 +152,6 @@ begin
 end;
 $$ language plpgsql stable;
 
-create or replace function musicbot_public.current_musicbot()
-returns musicbot_public.user as
-$$
-    select *
-    from musicbot_public.user
-    where id = musicbot_public.current_musicbot_id()
-$$ language sql stable;
-
 alter default privileges revoke execute on functions from public;
 
 grant usage on schema musicbot_public to musicbot_anonymous, musicbot_user;
@@ -158,10 +164,10 @@ grant execute on function musicbot_public.current_musicbot to musicbot_anonymous
 grant execute on function musicbot_public.register_user to musicbot_anonymous;
 
 drop policy if exists select_user on musicbot_public.user cascade;
-create policy select_user on musicbot_public.user for select to musicbot_user using (id = musicbot_public.current_musicbot_id());
+create policy select_user on musicbot_public.user for select to musicbot_user using (id = musicbot_public.current_musicbot());
 
 drop policy if exists update_user on musicbot_public.user cascade;
-create policy update_user on musicbot_public.user for update to musicbot_user using (id = musicbot_public.current_musicbot_id());
+create policy update_user on musicbot_public.user for update to musicbot_user using (id = musicbot_public.current_musicbot());
 
 drop policy if exists delete_user on musicbot_public.user cascade;
-create policy delete_user on musicbot_public.user for delete to musicbot_user using (id = musicbot_public.current_musicbot_id());
+create policy delete_user on musicbot_public.user for delete to musicbot_user using (id = musicbot_public.current_musicbot());
