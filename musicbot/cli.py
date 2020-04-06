@@ -2,6 +2,7 @@
 import os
 import logging
 import click
+import requests
 import spotipy
 from click.formatting import HelpFormatter
 from attrdict import AttrDict
@@ -74,7 +75,7 @@ def version():
 def main(**kwargs):
     try:
         return cli.main(prog_name=prog_name, **kwargs)
-    except (MusicbotError, spotipy.client.SpotifyException) as e:
+    except (MusicbotError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError) as e:
         logger.error(e)
 
 
