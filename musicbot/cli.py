@@ -5,7 +5,7 @@ import click
 import spotipy
 from click.formatting import HelpFormatter
 from attrdict import AttrDict
-from musicbot import helpers, config
+from musicbot import lib, helpers, config
 from musicbot.user import MusicbotError
 
 # little hacky but prevent click from rewraping
@@ -79,4 +79,5 @@ def main(**kwargs):
 
 
 if __name__ == '__main__':
+    lib.raise_limits()
     main()

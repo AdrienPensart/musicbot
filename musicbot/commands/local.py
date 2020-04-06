@@ -57,33 +57,14 @@ def tracks(folder, output):
 def diff(source, destination):
     source = json.loads(source.read())
     destination = json.loads(destination.read())
-
     stopwords = [
         'the',
         'remaster',
         'remastered',
-        'bonus',
-        'edition',
-        'live',
         'cut',
-        'onleashed',
-        'unleashed',
-        'from',
-        'dakota',
-        'mono',
-        'version',
-        'acoustic',
-        'soundtrack',
-        'and',
-        'edit',
-        'single',
-        'mix',
-        'remix'
-        'unplugged',
-        'pt',
         'part',
     ] + list(map(str, range(1900, 2020)))
-    replacements = [['praxis', 'buckethead']]
+    replacements = [['praxis', 'buckethead'], ['lawson-rollins', 'buckethead']]
     source_items = {slugify("{}-{}".format(t['artist'], t['title']), stopwords=stopwords, replacements=replacements) for t in source}
     destination_items = {slugify("{}-{}".format(t['artist'], t['title']), stopwords=stopwords, replacements=replacements) for t in destination}
     differences = source_items.difference(destination_items)
