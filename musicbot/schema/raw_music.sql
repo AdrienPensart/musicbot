@@ -162,3 +162,7 @@ $$ language sql stable;
 create or replace function musicbot_public.delete_music(path text) returns void as $$
     delete from musicbot_public.raw_music where path = delete_music.path;
 $$ language sql;
+
+create or replace function musicbot_public.delete_all_music() returns void as $$
+    delete from musicbot_public.raw_music;
+$$ language sql;

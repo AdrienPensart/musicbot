@@ -25,6 +25,7 @@ services:
       context: .
       dockerfile: Dockerfile.postgresql
     environment:
+      # POSTGRES_USER: root
       POSTGRES_PASSWORD: musicbot
       POSTGRES_DB: musicbot
     restart: always

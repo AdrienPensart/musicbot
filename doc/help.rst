@@ -54,8 +54,8 @@ Docker
 .. code-block:: bash
 
   poetry run docker-compose build --parallel
-  poetry docker-compose up
-  export MB_USER=test@test.com
+  poetry run docker-compose up
+  export MB_EMAIL=test@test.com
   export MB_PASSWORD=password
   musicbot user create
   musicbot local scan /tests/fixtures/folder1 /tests/fixtures/folder2

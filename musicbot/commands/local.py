@@ -188,6 +188,12 @@ def watch(ctx):
     ctx.obj.u().watch()
 
 
+@cli.command(help='''Clean all musics''')
+@click.pass_context
+def clean(ctx):
+    ctx.obj.u().clean_musics()
+
+
 @cli.command(help='''Convert all files in folders to mp3''')
 @click.argument('folders', nargs=-1)
 @helpers.add_options(helpers.concurrency_options + helpers.dry_option)
@@ -421,7 +427,7 @@ def playlist(ctx, output, path, dry, **kwargs):
             ]
             for t in tracks:
                 pt.add_row([t['title'], t['album'], t['artist']])
-            print(p, pt)
+            print(pt)
         elif output == 'csv':
             folders = ctx.obj.u().folders
             logger.info('Scanning folders: %s', folders)

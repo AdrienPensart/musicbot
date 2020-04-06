@@ -388,7 +388,17 @@ class User(GraphQL):
 
     @classmethod
     @helpers.timeit
-    def register(cls, graphql, first_name, last_name, email, password):
+    def register(cls, graphql=None, first_name=None, last_name=None, email=None, password=None):
+        first_name = first_name if first_name is not None else DEFAULT_FIRST_NAME
+        last_name = last_name if last_name is not None else DEFAULT_LAST_NAME
+        email = email if email is not None else DEFAULT_EMAIL
+        password = password if password is not None else DEFAULT_PASSWORD
+
+        if email is None:
+            raise click.BadParameter('Missing value for email')
+        if password is None:
+            raise click.BadParameter('Missing value for password')
+
         query = """
         mutation
         {{
@@ -431,4 +441,16 @@ class User(GraphQL):
                 clientMutationId
             }}
         }}""".format(path)
+        return self._post(query)
+
+    @helpers.timeit
+    def clean_musics(self):
+        query = """
+        mutation
+        {
+            deleteAllMusic(input: {})
+            {
+                clientMutationId
+            }
+        }"""
         return self._post(query)
