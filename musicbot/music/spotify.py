@@ -5,11 +5,10 @@ import click
 from musicbot.helpers import config_string
 
 logger = logging.getLogger(__name__)
-MB_SPOTIFY_TOKEN = 'MB_SPOTIFY_TOKEN'
 
 
-def sane_spotify(ctx, param, value):
-    spotify = config_string(MB_SPOTIFY_TOKEN, "spotify", True, ctx, param, value)
+def sane_spotify(ctx, **kwargs):
+    spotify = config_string(configkey="spotify", required=True, ctx=ctx, **kwargs)
     ctx.params['spotify'] = Spotify(spotify)
     return ctx.params['spotify']
 

@@ -15,21 +15,17 @@ from .music.file import File, supported_formats
 
 logger = logging.getLogger(__name__)
 
-MB_CONCURRENCY = 'MB_CONCURRENCY'
 DEFAULT_MB_CONCURRENCY = 8
-concurrency_options = [click.option('--concurrency', envvar=MB_CONCURRENCY, help='Number of coroutines', default=DEFAULT_MB_CONCURRENCY, show_default=True)]
+concurrency_options = [click.option('--concurrency', help='Number of coroutines', default=DEFAULT_MB_CONCURRENCY, show_default=True)]
 
 DEFAULT_DRY = False
-MB_DRY = 'MB_DRY'
-dry_option = [click.option('--dry', help='Take no real action', envvar=MB_DRY, default=DEFAULT_DRY, is_flag=True, show_default=True)]
+dry_option = [click.option('--dry', help='Take no real action', default=DEFAULT_DRY, is_flag=True, show_default=True)]
 
 DEFAULT_SAVE = False
-MB_SAVE = 'MB_SAVE'
-save_option = [click.option('--save', '-s', help='Save to config file', envvar=MB_SAVE, default=DEFAULT_SAVE, is_flag=True, show_default=True)]
+save_option = [click.option('--save', '-s', help='Save to config file', default=DEFAULT_SAVE, is_flag=True, show_default=True)]
 
-MB_OUTPUT = 'MB_OUTPUT'
 DEFAULT_MB_OUTPUT = 'table'
-output_option = [click.option('--output', envvar=MB_OUTPUT, help='Output format', default=DEFAULT_MB_OUTPUT, show_default=True, type=click.Choice(['table', 'json', 'm3u', 'csv']))]
+output_option = [click.option('--output', help='Output format', default=DEFAULT_MB_OUTPUT, show_default=True, type=click.Choice(['table', 'json', 'm3u', 'csv']))]
 
 logger = logging.getLogger(__name__)
 
@@ -77,35 +73,25 @@ def add_options(options):
     return _add_options
 
 
-def config_string(envvar, configkey, required, ctx, param, value):
+def config_string(ctx, param, value):
     arg_value = value
     logger.info("%s : try loading with value : %s", param.name, value)
 
-    env_value = os.getenv(envvar, None)
-    logger.info("%s : try loading with envvar %s : %s", param.name, envvar, env_value)
-
-    config_value = config.configfile['DEFAULT'].get(configkey, None)
-    logger.info("%s : try loading with config key %s : %s", param.name, configkey, config_value)
+    config_value = config.configfile['DEFAULT'].get(param.name, None)
+    logger.info("%s : try loading with config key : %s", param.name, config_value)
 
     if arg_value:
         value = arg_value
 
     if config_value:
-        if value is None:
+        if value is None or value == param.default:
             value = config_value
-        if arg_value is not None and arg_value != config_value:
-            logger.warning("%s : config value is not sync with arg value", param.name)
+        elif arg_value is not None and arg_value != config_value:
+            logger.warning("%s : config value %s is not sync with arg value %s", param.name, config_value, arg_value)
 
-    if env_value:
-        if value is None:
-            value = env_value
-        if config_value is not None and config_value != env_value:
-            logger.warning("%s : config value is not sync with env value", param.name)
-        if arg_value is not None and env_value != arg_value:
-            logger.warning("%s : env value is not sync with arg value", param.name)
-
-    if not value and required:
-        raise click.BadParameter('or missing env {} / config {} in {}'.format(envvar, configkey, config.config), ctx, param.name, param.name)
+    if not value and param.required:
+        raise click.BadParameter('missing arg or config {} in {}'.format(param.name, config.config), ctx, param.name, param.name)
+    logger.info("%s : final value %s", param.name, value)
     ctx.params[param.name] = value
     return ctx.params[param.name]
 

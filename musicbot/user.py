@@ -1,45 +1,37 @@
-import os
 import base64
 import json
 import logging
 import functools
-from functools import partial
 import requests
 import click
 import click_spinner
+from tqdm import tqdm
 from . import helpers
 from .config import config
 from .helpers import config_string
 from .music import file, mfilter
 
 logger = logging.getLogger(__name__)
-MB_TOKEN = 'MB_TOKEN'
 DEFAULT_TOKEN = None
-token_option = [click.option('--token', '-t', help='User token', default=DEFAULT_TOKEN, callback=partial(config_string, MB_TOKEN, 'token', False))]
+token_option = [click.option('--token', '-t', help='User token', default=DEFAULT_TOKEN, callback=config_string)]
 
-MB_EMAIL = 'MB_EMAIL'
 DEFAULT_EMAIL = None
-email_option = [click.option('--email', '-e', help='User email', default=DEFAULT_EMAIL, callback=partial(config_string, MB_EMAIL, 'email', False))]
+email_option = [click.option('--email', '-e', help='User email', default=DEFAULT_EMAIL, callback=config_string)]
 
-MB_PASSWORD = 'MB_PASSWORD'
 DEFAULT_PASSWORD = None
-password_option = [click.option('--password', '-p', help='User password', default=DEFAULT_PASSWORD, callback=partial(config_string, MB_PASSWORD, 'password', False))]
+password_option = [click.option('--password', '-p', help='User password', default=DEFAULT_PASSWORD, callback=config_string)]
 
-MB_FIRST_NAME = 'MB_FIRST_NAME'
 DEFAULT_FIRST_NAME = None
-first_name_option = [click.option('--first-name', envvar=MB_FIRST_NAME, help='User first name', default=DEFAULT_FIRST_NAME, show_default=True)]
+first_name_option = [click.option('--first-name', help='User first name', default=DEFAULT_FIRST_NAME, callback=config_string, show_default=True)]
 
-MB_LAST_NAME = 'MB_LAST_NAME'
 DEFAULT_LAST_NAME = None
-last_name_option = [click.option('--last-name', envvar=MB_LAST_NAME, help='User last name', default=DEFAULT_FIRST_NAME, show_default=True)]
+last_name_option = [click.option('--last-name', help='User last name', default=DEFAULT_FIRST_NAME, callback=config_string, show_default=True)]
 
-MB_GRAPHQL_ADMIN = 'MB_GRAPHQL_ADMIN'
 DEFAULT_GRAPHQL_ADMIN = 'http://127.0.0.1:5001/graphql'
-graphql_admin_option = [click.option('--graphql-admin', envvar=MB_GRAPHQL_ADMIN, help='GraphQL endpoint', default=DEFAULT_GRAPHQL_ADMIN, show_default=True)]
+graphql_admin_option = [click.option('--graphql-admin', help='GraphQL endpoint', default=DEFAULT_GRAPHQL_ADMIN, callback=config_string, show_default=True)]
 
-MB_GRAPHQL = 'MB_GRAPHQL'
 DEFAULT_GRAPHQL = 'http://127.0.0.1:5000/graphql'
-graphql_option = [click.option('--graphql', envvar=MB_GRAPHQL, help='GraphQL endpoint', default=DEFAULT_GRAPHQL, show_default=True)]
+graphql_option = [click.option('--graphql', help='GraphQL endpoint', default=DEFAULT_GRAPHQL, callback=config_string, show_default=True)]
 
 register_options = email_option + password_option + first_name_option + last_name_option + graphql_option
 login_options = email_option + password_option + graphql_option
@@ -66,6 +58,7 @@ class GraphQL:  # pylint: disable=too-few-public-methods
     def _post(self, query, failure=None):
         logger.debug(query)
         response = requests.post(self.graphql, json={'query': query}, headers=self.headers)
+        logger.debug(response)
         json_response = response.json()
         logger.debug(json_response)
         if response.status_code != 200:
@@ -80,7 +73,7 @@ class GraphQL:  # pylint: disable=too-few-public-methods
 class Admin(GraphQL):  # pylint: disable=too-few-public-methods
     @helpers.timeit
     def __init__(self, graphql=None):
-        graphql = graphql if graphql is not None else os.getenv(MB_GRAPHQL_ADMIN, DEFAULT_GRAPHQL_ADMIN)
+        graphql = graphql if graphql is not None else DEFAULT_GRAPHQL_ADMIN
         GraphQL.__init__(self, graphql=graphql)
 
     @helpers.timeit
@@ -103,7 +96,7 @@ class Admin(GraphQL):  # pylint: disable=too-few-public-methods
 class User(GraphQL):
     @helpers.timeit
     def __init__(self, graphql=None, email=None, password=None, token=None):
-        self.graphql = graphql if graphql is not None else os.getenv(MB_GRAPHQL, DEFAULT_GRAPHQL)
+        self.graphql = graphql if graphql is not None else DEFAULT_GRAPHQL
         self.email = email
         self.password = password
         self.token = token
@@ -122,6 +115,8 @@ class User(GraphQL):
             }}""".format(self.email, self.password)
             self.headers = None
             self.token = self._post(query, failure=FailedAuthentication("Authentication failed for email {}".format(self.email)))['data']['authenticate']['jwtToken']
+            if not self.token:
+                raise FailedAuthentication("Invalid token received : {}".format(self.token))
         else:
             raise FailedAuthentication("No credentials or token provided")
         self.authenticated = True
@@ -249,6 +244,14 @@ class User(GraphQL):
         if not musics:
             logger.info("no musics to insert")
             return None
+        if config.debug:
+            with tqdm(total=len(musics), desc="inserting music one by one") as pbar:
+                for music in musics:
+                    logger.debug("inserting %s", music)
+                    self.upsert_music(music)
+                    pbar.update(1)
+            return
+
         j = json.dumps([m.to_dict() for m in musics])
         b64 = j.encode('utf-8')
         data = base64.b64encode(b64)

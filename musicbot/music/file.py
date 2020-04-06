@@ -1,3 +1,4 @@
+import logging
 import json
 import copy
 import os
@@ -5,14 +6,15 @@ import click
 import taglib
 
 
+logger = logging.getLogger(__name__)
 options = [
-    click.option('--keywords', envvar='MB_KEYWORDS', help='Keywords', default=None),
-    click.option('--artist', envvar='MB_ARTIST', help='Artist', default=None),
-    click.option('--album', envvar='MB_ALBUM', help='Album', default=None),
-    click.option('--title', envvar='MB_TITLE', help='Title', default=None),
-    click.option('--genre', envvar='MB_GENRE', help='Genre', default=None),
-    click.option('--number', envvar='MB_NUMBER', help='Track number', default=None),
-    click.option('--rating', envvar='MB_RATING', help='Rating', default=None),
+    click.option('--keywords', help='Keywords', default=None),
+    click.option('--artist', help='Artist', default=None),
+    click.option('--album', help='Album', default=None),
+    click.option('--title', help='Title', default=None),
+    click.option('--genre', help='Genre', default=None),
+    click.option('--number', help='Track number', default=None),
+    click.option('--rating', help='Rating', default=None),
 ]
 supported_formats = ["mp3", "flac"]
 
@@ -37,6 +39,9 @@ class File:
         self.handle = taglib.File(filename)
         self.youtube_link = ''
         self.spotify_link = ''
+
+    def __repr__(self):
+        return self.path
 
     def close(self):
         self.handle.close()
@@ -170,6 +175,9 @@ class File:
             n = int(s)
             if n < 0:
                 return -1
+            elif n > 2 ** 31 - 1:
+                logger.warning("%s : invalid number %s", self, n)
+                n = 0
             return n
         except ValueError:
             return -1
