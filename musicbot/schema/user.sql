@@ -102,6 +102,7 @@ begin
         --set session authorization musicbot_user;
         --perform set_config('jwt.claims.role', 'musicbot_user', false);
         --perform set_config('jwt.claims.user_id', account.user_id::text, false);
+        raise notice 'Token Authorization for user % : %', email, ('musicbot_user', account.user_id)::musicbot_public.jwt_token;
         return ('musicbot_user', account.user_id)::musicbot_public.jwt_token;
     else
         raise notice 'Authentication failed for user %', email;
