@@ -244,7 +244,8 @@ class File:
     def fingerprint(self, api_key):
         import acoustid
         ids = acoustid.match(api_key, self.path)
-        for _, recording_id, _, _ in ids:
+        for score, recording_id, title, artist in ids:
+            logger.info("score : %s | recording_id : %s | title : %s | artist : %s", score, recording_id, title, artist)
             return recording_id
         return None
 

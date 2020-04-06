@@ -1,4 +1,5 @@
 import click
+from musicbot.helpers import config_string
 
-DEFAULT_ACOUSTID_APIKEY = "WMdZYqSO2I"
-acoustid_apikey_option = [click.option('--acoustid-apikey', envvar='MB_ACOUSTID_APIKEY', help='AcoustID API Key', default=DEFAULT_ACOUSTID_APIKEY)]
+DEFAULT_ACOUSTID_API_KEY = None
+acoustid_api_key_option = [click.option('--acoustid-api-key', help='AcoustID API Key', default=DEFAULT_ACOUSTID_API_KEY, callback=config_string)]

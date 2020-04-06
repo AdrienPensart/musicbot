@@ -6,10 +6,10 @@ import requests
 import click
 import click_spinner
 from tqdm import tqdm
-from . import helpers
-from .config import config
-from .helpers import config_string
-from .music import file, mfilter
+from musicbot import helpers
+from musicbot.config import config
+from musicbot.helpers import config_string
+from musicbot.music import file, mfilter
 
 logger = logging.getLogger(__name__)
 DEFAULT_TOKEN = None

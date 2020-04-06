@@ -78,3 +78,18 @@ def test_user(cli_runner, user_token, postgraphile_public):
 def test_folder(cli_runner):
     run_cli(cli_runner, cli, ['folder', 'flac2mp3', '--dry', *fixtures.folders])
     run_cli(cli_runner, cli, ['folder', 'tracks', *fixtures.folders])
+
+
+@pytest.mark.runner_setup(mix_stderr=False)
+def test_youtube_search(cli_runner):
+    run_cli(cli_runner, cli, ['youtube', 'search', 'buckethead', 'welcome to bucketheadland'])
+
+
+@pytest.mark.runner_setup(mix_stderr=False)
+def test_youtube_fingerprint(cli_runner):
+    run_cli(cli_runner, cli, ['youtube', 'fingerprint', fixtures.youtube_url])
+
+
+@pytest.mark.runner_setup(mix_stderr=False)
+def test_youtube_find(cli_runner):
+    run_cli(cli_runner, cli, ['youtube', 'find', fixtures.one_mp3])

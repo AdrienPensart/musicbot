@@ -5,7 +5,6 @@ from slugify import slugify
 from musicbot import helpers
 
 logger = logging.getLogger(__name__)
-folder_argument = [click.argument('folder', callback=helpers.config_string)]
 
 
 @click.group(help='''Music file''', cls=helpers.GroupWithHelp)

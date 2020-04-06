@@ -6,7 +6,7 @@ from musicbot import helpers, lib
 from musicbot.config import config
 
 logger = logging.getLogger(__name__)
-folder_argument = [click.argument('folder', callback=helpers.config_string)]
+folders_argument = [click.argument('folders', nargs=-1, callback=helpers.config_string)]
 
 
 @click.group(help='''Music file''', cls=helpers.GroupWithHelp)
@@ -15,9 +15,9 @@ def cli():
 
 
 @cli.command(help='''List tracks''')
-@helpers.add_options(folder_argument + helpers.output_option)
-def tracks(folder, output):
-    tracks = helpers.genfiles([folder])
+@helpers.add_options(folders_argument + helpers.output_option)
+def tracks(folders, output):
+    tracks = helpers.genfiles(folders)
     if output == 'json':
         tracks_dict = [{'title': t.title, 'artist': t.artist, 'album': t.album} for t in tracks]
         print(json.dumps(tracks_dict))

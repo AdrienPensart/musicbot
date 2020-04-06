@@ -10,6 +10,7 @@ password = "test_test"
 folder1 = my_dir + "/fixtures/folder1"
 folder2 = my_dir + "/fixtures/folder2"
 folders = [folder1, folder2]
+youtube_url = "https://www.youtube.com/watch?v=rIlLqmI_VkE"
 
 one_flac = folder1 + "/Buckethead/1994 - Giant Robot/02 - Welcome To Bucketheadland.flac"
 one_mp3 = folder2 + "/1995/La Source/La Flemme.mp3"

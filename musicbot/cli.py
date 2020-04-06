@@ -4,6 +4,7 @@ import logging
 import click
 import requests
 import spotipy
+import acoustid
 from click.formatting import HelpFormatter
 from attrdict import AttrDict
 from musicbot import lib, helpers, config
@@ -75,7 +76,7 @@ def version():
 def main(**kwargs):
     try:
         return cli.main(prog_name=prog_name, **kwargs)
-    except (MusicbotError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError) as e:
+    except (acoustid.WebServiceError, MusicbotError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError) as e:
         logger.error(e)
 
 
