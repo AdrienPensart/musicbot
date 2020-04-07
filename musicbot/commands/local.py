@@ -127,7 +127,7 @@ def folders(ctx, output):
 
 
 @cli.command(help='''(re)Load musics''')
-@click.argument('folders', nargs=-1)
+@helpers.add_options(helpers.folders_argument)
 @click.pass_context
 def scan(ctx, folders):
     u = ctx.obj.u()
@@ -138,7 +138,7 @@ def scan(ctx, folders):
 
 
 @cli.command(help='''Just list music files''')
-@click.argument('folders', nargs=-1)
+@helpers.add_options(helpers.folders_argument)
 @click.pass_context
 def find(ctx, folders):
     u = ctx.obj.u()
@@ -210,7 +210,7 @@ def sync(ctx, dry, destination, **kwargs):
 
 @cli.command(help='''Check music files consistency''')
 @click.pass_context
-@click.argument('folders', nargs=-1)
+@helpers.add_options(helpers.folders_argument)
 def consistency(ctx, folders):
     if not folders:
         folders = ctx.obj.u().folders

@@ -84,9 +84,32 @@ def config_string(ctx, param, value):
         value = arg_value
 
     if config_value:
-        if value is None or value == param.default:
+        if not value or value == param.default:
             value = config_value
-        elif arg_value is not None and arg_value != config_value:
+        elif arg_value and arg_value != config_value:
+            logger.warning("%s : config value %s is not sync with arg value %s", param.name, config_value, arg_value)
+
+    if not value and param.required:
+        raise click.BadParameter('missing arg or config {} in {}'.format(param.name, config.config), ctx, param.name, param.name)
+    logger.info("%s : final value %s", param.name, value)
+    ctx.params[param.name] = value
+    return ctx.params[param.name]
+
+
+def config_list(ctx, param, value):
+    arg_value = value
+    logger.info("%s : try loading with value : %s", param.name, value)
+
+    config_value = config.configfile['DEFAULT'].get(param.name, None).split(',')
+    logger.info("%s : try loading with config key : %s", param.name, config_value)
+
+    if arg_value:
+        value = arg_value
+
+    if config_value:
+        if not value or value == param.default:
+            value = config_value
+        elif arg_value and arg_value != config_value:
             logger.warning("%s : config value %s is not sync with arg value %s", param.name, config_value, arg_value)
 
     if not value and param.required:
@@ -116,3 +139,6 @@ def genfiles(folders):
             except OSError as e:
                 logger.error(e)
     return files
+
+
+folders_argument = [click.argument('folders', nargs=-1, callback=config_list)]

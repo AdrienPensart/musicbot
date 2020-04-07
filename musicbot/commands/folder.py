@@ -6,7 +6,6 @@ from musicbot import helpers, lib
 from musicbot.config import config
 
 logger = logging.getLogger(__name__)
-folders_argument = [click.argument('folders', nargs=-1, callback=helpers.config_string)]
 
 
 @click.group(help='''Music file''', cls=helpers.GroupWithHelp)
@@ -15,7 +14,7 @@ def cli():
 
 
 @cli.command(help='''List tracks''')
-@helpers.add_options(folders_argument + helpers.output_option)
+@helpers.add_options(helpers.folders_argument + helpers.output_option)
 def tracks(folders, output):
     tracks = helpers.genfiles(folders)
     if output == 'json':
@@ -32,8 +31,7 @@ def tracks(folders, output):
 
 
 @cli.command(help='''Convert all files in folders to mp3''')
-@click.argument('folders', nargs=-1)
-@helpers.add_options(helpers.concurrency_options + helpers.dry_option)
+@helpers.add_options(helpers.folders_argument + helpers.concurrency_options + helpers.dry_option)
 def flac2mp3(folders, concurrency, dry):
     import atexit
     import concurrent.futures as cf
