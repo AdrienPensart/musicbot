@@ -103,9 +103,9 @@ def config_list(ctx, param, value):
     arg_value = value
     logger.info("%s : try loading with value : %s", param.name, value)
 
-    config_value = config.configfile['DEFAULT'].get(param.name, None).split(',')
+    config_value = config.configfile['DEFAULT'].get(param.name, None)
     if config_value is not None:
-        config_value = tuple(config_value.split('y'))
+        config_value = tuple(config_value.split(','))
     logger.info("%s : try loading with config key : %s", param.name, config_value)
 
     if arg_value:
@@ -133,7 +133,7 @@ def genfiles(folders):
             count += filecount(d, supported_formats)
         logger.info("File count: %s", count)
     files = []
-    with tqdm(total=count, desc="Music listing", leave=False, disable=config.quiet) as pbar:
+    with tqdm(total=count, desc="Music listing", disable=config.quiet) as pbar:
         file_list = find_files(folders, supported_formats)
         music_files = list(file_list)
         for f in music_files:
