@@ -27,7 +27,10 @@ save_option = [click.option('--save', '-s', help='Save to config file', default=
 DEFAULT_MB_OUTPUT = 'table'
 output_option = [click.option('--output', help='Output format', default=DEFAULT_MB_OUTPUT, show_default=True, type=click.Choice(['table', 'json', 'm3u', 'csv']))]
 
-logger = logging.getLogger(__name__)
+Red = "\033[0;31;40m"
+Green = "\033[0;32;40m"
+Yellow = "\033[0;33;40m"
+Reset = "\033[0m"
 
 
 def random_password(size=8):

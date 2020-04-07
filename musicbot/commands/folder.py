@@ -15,17 +15,18 @@ def cli():
 
 @cli.command(help='''List tracks''')
 @helpers.add_options(helpers.folders_argument + helpers.output_option)
-def tracks(folders, output):
+@click.argument('path', type=click.File('w'), default='-')
+def tracks(folders, output, path):
     tracks = helpers.genfiles(folders)
     if output == 'json':
         tracks_dict = [{'title': t.title, 'artist': t.artist, 'album': t.album} for t in tracks]
-        print(json.dumps(tracks_dict))
+        print(json.dumps(tracks_dict), file=path)
     elif output == 'table':
         pt = PrettyTable()
         pt.field_names = ["Title", "Artist", "Album"]
         for t in tracks:
             pt.add_row([t.title, t.artist, t.album])
-        print(pt)
+        print(pt, file=path)
     else:
         raise NotImplementedError
 

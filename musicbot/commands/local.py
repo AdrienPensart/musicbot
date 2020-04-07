@@ -1,4 +1,5 @@
 import logging
+import sys
 import os
 import codecs
 import csv
@@ -47,6 +48,13 @@ def artists(ctx, output):
         print(json.dumps(ctx.obj.u().artists))
     else:
         raise NotImplementedError
+
+
+@cli.command(help='''Raw query''')
+@click.pass_context
+@click.argument('query')
+def execute(ctx, query):
+    print(json.dumps(ctx.obj.u()._post(query)['data']))
 
 
 @cli.command()
@@ -353,7 +361,7 @@ def playlist(ctx, output, path, dry, **kwargs):
     else:
         tracks = ctx.obj.u().do_filter(mf)
         if output == 'json':
-            print(json.dumps(tracks))
+            print(json.dumps(tracks), file=path)
         elif output == 'table':
             pt = PrettyTable()
             pt.field_names = [
@@ -363,7 +371,7 @@ def playlist(ctx, output, path, dry, **kwargs):
             ]
             for t in tracks:
                 pt.add_row([t['title'], t['album'], t['artist']])
-            print(pt)
+            print(pt, file=path)
         elif output == 'csv':
             folders = ctx.obj.u().folders
             logger.info('Scanning folders: %s', folders)
@@ -381,11 +389,10 @@ def playlist(ctx, output, path, dry, **kwargs):
 @click.option('--prefix', envvar='MB_PREFIX', help="Append prefix before each path (implies relative)", default='')
 @click.option('--suffix', envvar='MB_SUFFIX', help="Append this suffix to playlist name", default='')
 def bests(ctx, dry, path, prefix, suffix, **kwargs):
-    mf = mfilter.Filter(**kwargs)
     if prefix:
-        ctx.obj.mf.relative = True
+        kwargs['relative'] = True
+    mf = mfilter.Filter(**kwargs)
     playlists = ctx.obj.u().bests(mf)
-    print(playlists)
     with tqdm(total=len(playlists), desc="Bests playlists", disable=config.quiet) as pbar:
         for p in playlists:
             playlist_filepath = os.path.join(path, p['name'] + suffix + '.m3u')
@@ -395,8 +402,8 @@ def bests(ctx, dry, path, prefix, suffix, **kwargs):
                     with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:
                         logger.debug('Writing playlist to %s with content:\n%s', playlist_filepath, content)
                         playlist_file.write(content)
-                except (LookupError, ValueError, UnicodeError) as e:
-                    logger.info('Unable to write playlist to %s because of %s', playlist_filepath, e)
+                except (FileNotFoundError, LookupError, ValueError, UnicodeError) as e:
+                    pbar.write(helpers.Yellow + 'Unable to write playlist to {} because of {}'.format(playlist_filepath, e) + helpers.Reset, file=sys.stderr)
             else:
                 logger.info('DRY RUN: Writing playlist to %s with content:\n%s', playlist_filepath, content)
             pbar.update(1)
