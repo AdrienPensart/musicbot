@@ -103,7 +103,9 @@ def config_list(ctx, param, value):
     arg_value = value
     logger.info("%s : try loading with value : %s", param.name, value)
 
-    config_value = tuple(config.configfile['DEFAULT'].get(param.name, None).split(','))
+    config_value = config.configfile['DEFAULT'].get(param.name, None).split(',')
+    if config_value is not None:
+        config_value = tuple(config_value.split('y'))
     logger.info("%s : try loading with config key : %s", param.name, config_value)
 
     if arg_value:
