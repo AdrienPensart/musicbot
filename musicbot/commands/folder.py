@@ -33,9 +33,7 @@ def tracks(folders, output):
 @cli.command(help='''Convert all files in folders to mp3''')
 @helpers.add_options(helpers.folders_argument + helpers.concurrency_options + helpers.dry_option)
 def flac2mp3(folders, concurrency, dry):
-    import atexit
     import concurrent.futures as cf
-    from concurrent.futures.thread import _python_exit
     from pydub import AudioSegment
     flac_files = list(lib.find_files(folders, ['flac']))
 
@@ -54,7 +52,9 @@ def flac2mp3(folders, concurrency, dry):
         if pbar:
             pbar.update(1)
     # Permit CTRL+C to work as intended
-    atexit.unregister(_python_exit)  # pylint: disable=protected-access
+    # import atexit
+    # from concurrent.futures.thread import _python_exit
+    # atexit.unregister(_python_exit)  # pylint: disable=protected-access
     with cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
         executor.shutdown = lambda wait: None
         futures = [executor.submit(convert, flac_path) for flac_path in flac_files]

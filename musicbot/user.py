@@ -50,7 +50,7 @@ class FailedRequest(MusicbotError):
     pass
 
 
-class GraphQL:  # pylint: disable=too-few-public-methods
+class GraphQL:
     def __init__(self, graphql, headers=None):
         self.graphql = graphql
         self.headers = headers
@@ -71,7 +71,7 @@ class GraphQL:  # pylint: disable=too-few-public-methods
         return json_response
 
 
-class Admin(GraphQL):  # pylint: disable=too-few-public-methods
+class Admin(GraphQL):
     @helpers.timeit
     def __init__(self, graphql=None):
         graphql = graphql if graphql is not None else DEFAULT_GRAPHQL_ADMIN
