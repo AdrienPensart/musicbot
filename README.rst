@@ -91,7 +91,6 @@ Commands
     -v, --verbosity [debug|info|warning|error|critical]
                                                         Verbosity levels  [default: warning]
     -q, --quiet                                         Disable progress bars  [default: False]
-    --colors / --no-colors                              Disable colorized output  [default: True]
     -h, --help                                          Show this message and exit.
   
   Commands:
@@ -234,6 +233,7 @@ musicbot local
     bests         Generate bests playlists with some rules
     clean         Clean all musics
     consistency   Check music files consistency
+    execute       Raw query
     filter        Print a filter
     filters       List filters
     find          Just list music files
@@ -321,6 +321,18 @@ musicbot local consistency
   Usage: musicbot local consistency [OPTIONS] [FOLDERS]...
   
     Check music files consistency
+  
+  Options:
+    -h, --help  Show this message and exit.
+
+
+musicbot local execute
+**********************
+.. code-block::
+
+  Usage: musicbot local execute [OPTIONS] QUERY
+  
+    Raw query
   
   Options:
     -h, --help  Show this message and exit.
@@ -665,7 +677,7 @@ musicbot spotify playlist
     Show playlist
   
   Options:
-    --spotify TEXT  Spotify token  [required]
+    --spotify TEXT  Spotify token
     -h, --help      Show this message and exit.
 
 
@@ -678,7 +690,7 @@ musicbot spotify playlists
     List playlists
   
   Options:
-    --spotify TEXT  Spotify token  [required]
+    --spotify TEXT  Spotify token
     -h, --help      Show this message and exit.
 
 
@@ -691,7 +703,7 @@ musicbot spotify tracks
     Show tracks
   
   Options:
-    --spotify TEXT                 Spotify token  [required]
+    --spotify TEXT                 Spotify token
     --output [table|json|m3u|csv]  Output format  [default: table]
     -h, --help                     Show this message and exit.
 

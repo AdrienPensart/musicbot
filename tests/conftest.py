@@ -1,4 +1,5 @@
 import socket
+import os
 import time
 import traceback
 import logging
@@ -8,6 +9,10 @@ from . import fixtures
 
 logger = logging.getLogger(__name__)
 pytest_plugins = ["docker_compose"]
+
+
+def pytest_generate_tests(_):
+    os.environ['MB_CONFIG'] = '/tmp/musicbot.ini'
 
 
 def wait_for_service(service, timeout=60):
@@ -24,7 +29,8 @@ def wait_for_service(service, timeout=60):
 
 def run_cli(cli_runner, called_cli, *args):
     if args:
-        logger.debug('Invoking : %s %s', prog_name, ' '.join(str(elem) for elem in args))
+        elems = ' '.join(str(elem) for elem in args)
+        logger.debug(f'Invoking : {prog_name} {elems}')
     result = cli_runner.invoke(called_cli, *args)
     logger.debug(result.output)
     if result.exception:
@@ -59,7 +65,20 @@ def postgraphile_private(db, function_scoped_container_getter):  # pylint: disab
 
 @pytest.yield_fixture
 def user_token(cli_runner, postgraphile_public):
-    run_cli(cli_runner, cli, ['user', 'register', '--graphql', postgraphile_public, '--email', fixtures.email, '--password', fixtures.password, '--first-name', fixtures.first_name, '--last-name', fixtures.last_name])
-    token = run_cli(cli_runner, cli, ['user', 'token', '--graphql', postgraphile_public, '--email', fixtures.email, '--password', fixtures.password])
+    run_cli(cli_runner, cli, [
+        'user', 'register',
+        '--graphql', postgraphile_public,
+        '--email', fixtures.email,
+        '--password', fixtures.password,
+        '--first-name', fixtures.first_name,
+        '--last-name', fixtures.last_name
+    ])
+    token = run_cli(cli_runner, cli, [
+        'user', 'token',
+        '--graphql', postgraphile_public,
+        '--email', fixtures.email,
+        '--password', fixtures.password
+    ])
     token = token.rstrip()
+    assert token.count('\n') == 0
     return token
