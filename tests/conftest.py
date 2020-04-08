@@ -19,8 +19,7 @@ def wait_for_service(service, timeout=60):
         except OSError as ex:
             time.sleep(0.01)
             if time.perf_counter() - start_time >= timeout:
-                raise TimeoutError('Waited too long for the port {} on host {} to start accepting '
-                                   'connections.'.format(service.host_port, service.hostname)) from ex
+                raise TimeoutError(f'Waited too long for the port {service.host_port} on host {service.hostname} to start accepting connections.') from ex
 
 
 def run_cli(cli_runner, called_cli, *args):
@@ -37,7 +36,7 @@ def run_cli(cli_runner, called_cli, *args):
 @pytest.fixture
 def db(function_scoped_container_getter):
     service = function_scoped_container_getter.get("db").network_info[0]
-    db_dsn = "postgresql://postgres:musicbot@{}:{}/musicbot".format(service.hostname, service.host_port)
+    db_dsn = f"postgresql://postgres:musicbot@{service.hostname}:{service.host_port}/musicbot"
     wait_for_service(service)
     return db_dsn
 
@@ -47,7 +46,7 @@ def postgraphile_public(db, function_scoped_container_getter):  # pylint: disabl
     service = function_scoped_container_getter.get("postgraphile_public").network_info[0]
     time.sleep(10)
     wait_for_service(service)
-    return "http://{}:{}/graphql".format(service.hostname, service.host_port)
+    return f"http://{service.hostname}:{service.host_port}/graphql"
 
 
 @pytest.fixture
@@ -55,7 +54,7 @@ def postgraphile_private(db, function_scoped_container_getter):  # pylint: disab
     service = function_scoped_container_getter.get("postgraphile_private").network_info[0]
     time.sleep(10)
     wait_for_service(service)
-    return "http://{}:{}/graphql".format(service.hostname, service.host_port)
+    return f"http://{service.hostname}:{service.host_port}/graphql"
 
 
 @pytest.yield_fixture
