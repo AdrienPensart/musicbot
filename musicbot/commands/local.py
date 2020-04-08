@@ -1,5 +1,4 @@
 import logging
-import sys
 import os
 import codecs
 import csv
@@ -237,11 +236,11 @@ def consistency(ctx, folders):
             if not m.title:
                 pt.add_row(["No title  : '" + m.title + "' on ", m.path])
             filename = os.path.basename(m.path)
-            if filename == "{} - {}.mp3".format(str(m.number).zfill(2), m.title):
+            if filename == f"{str(m.number).zfill(2)} - {m.title}.mp3":
                 continue
-            if filename == "{} - {}.flac".format(str(m.number).zfill(2), m.title):
+            if filename == f"{str(m.number).zfill(2)} - {m.title}.flac":
                 continue
-            pt.add_row(["Invalid title format, '{}' should start by '{}'". format(filename, '{} - {}'.format(str(m.number).zfill(2), m.title)), m.path])
+            pt.add_row([f"Invalid title format, '{filename}' should start by '{str(m.number).zfill(2)} - {m.title}'", m.path])
             if m.artist not in m.path:
                 pt.add_row(["Artist invalid : " + m.artist + " is not in ", m.path])
             if m.genre == '':
@@ -306,7 +305,7 @@ def play(ctx, email, password, token, graphql, **kwargs):
                 title = media.get_meta(vlc.Meta.Title)
                 for s in p:
                     if s['artist'] == artist and s['title'] == title and s['album'] == album:
-                        print_formatted_text('> {}'.format(s['path']))
+                        print_formatted_text(f'''> {s['path']}''')
                     else:
                         print_formatted_text(s['path'])
                 print_formatted_text('------------------------------------------')
@@ -329,9 +328,9 @@ def play(ctx, email, password, token, graphql, **kwargs):
             artist = media.get_meta(vlc.Meta.Artist)
             album = media.get_meta(vlc.Meta.Album)
             title = media.get_meta(vlc.Meta.Title)
-            current = '({} / {}) {} - {} - {}'.format(media_time, media_length, artist, album, title)
+            current = f'({media_time} / {media_length}) {artist} - {album} - {title}'
             get_app().invalidate()
-            return HTML('Current song: {}'.format(current))
+            return HTML(f'Current song: {current}')
 
         player.play()
         print_formatted_text(HTML('Bindings: q = quit | p = play | s = pause/continue | right = next song | left = previous song | l = playlist'))
@@ -403,7 +402,7 @@ def bests(ctx, dry, path, prefix, suffix, **kwargs):
                         logger.debug('Writing playlist to %s with content:\n%s', playlist_filepath, content)
                         playlist_file.write(content)
                 except (FileNotFoundError, LookupError, ValueError, UnicodeError) as e:
-                    pbar.write(helpers.Yellow + 'Unable to write playlist to {} because of {}'.format(playlist_filepath, e) + helpers.Reset, file=sys.stderr)
+                    logger.warning(f'Unable to write playlist to {playlist_filepath} because of {e}')
             else:
                 logger.info('DRY RUN: Writing playlist to %s with content:\n%s', playlist_filepath, content)
             pbar.update(1)

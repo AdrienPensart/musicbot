@@ -4,6 +4,7 @@ import configparser
 import pwd
 import attr
 import click
+import tqdm
 import coloredlogs
 from . import lib
 
@@ -42,9 +43,18 @@ debug_option = [click.option('--debug', '-d', help='Be very verbose, same as --v
 timings_option = [click.option('--timings', '-t', help='Set verbosity to info and show execution timings', envvar=MB_TIMINGS, default=DEFAULT_TIMINGS, is_flag=True, show_default=True)]
 verbosity_option = [click.option('--verbosity', '-v', help='Verbosity levels', envvar=MB_VERBOSITY, default=DEFAULT_VERBOSITY, type=click.Choice(verbosities.keys()), show_default=True)]
 quiet_option = [click.option('--quiet', '-q', help='Disable progress bars', envvar=MB_QUIET, default=DEFAULT_QUIET, is_flag=True, show_default=True)]
-colors_option = [click.option('--colors/--no-colors', help='Disable colorized output', envvar=MB_COLORS, default=DEFAULT_COLORS, show_default=True)]
 
-options = config_option + log_option + info_option + debug_option + timings_option + verbosity_option + quiet_option + colors_option
+options = config_option + log_option + info_option + debug_option + timings_option + verbosity_option + quiet_option
+
+
+class TqdmStream:
+    @classmethod
+    def write(cls, s):
+        tqdm.tqdm.write(s, end='')
+
+    @classmethod
+    def isatty(cls):
+        return True
 
 
 def check_file_writable(fnm):
@@ -66,14 +76,13 @@ class Config:
     debug = attr.ib(default=DEFAULT_DEBUG)
     info = attr.ib(default=DEFAULT_INFO)
     timings = attr.ib(default=DEFAULT_TIMINGS)
-    colors = attr.ib(default=DEFAULT_COLORS)
     verbosity = attr.ib(default=DEFAULT_VERBOSITY)
     config = attr.ib(default=DEFAULT_CONFIG)
     configfile = attr.ib(default=None, repr=False)
     level = attr.ib(default=verbosities[DEFAULT_VERBOSITY])
     fmt = attr.ib(default="%(asctime)s %(name)s[%(process)d] %(levelname)s %(message)s")
 
-    def set(self, config=None, debug=None, info=None, timings=None, quiet=None, verbosity=None, colors=None, log=None):
+    def set(self, config=None, debug=None, info=None, timings=None, quiet=None, verbosity=None, log=None):
         self.config = config if config is not None else os.getenv(MB_CONFIG, DEFAULT_CONFIG)
         self.config = os.path.expanduser(self.config)
         self.configfile = configparser.ConfigParser()
@@ -85,7 +94,6 @@ class Config:
         self.debug = debug if debug is not None else lib.str2bool(os.getenv(MB_DEBUG, str(DEFAULT_DEBUG)))
         self.info = info if info is not None else lib.str2bool(os.getenv(MB_INFO, str(DEFAULT_INFO)))
         self.timings = timings if timings is not None else lib.str2bool(os.getenv(MB_TIMINGS, str(DEFAULT_TIMINGS)))
-        self.colors = colors if colors is not None else lib.str2bool(os.getenv(MB_COLORS, str(DEFAULT_COLORS)))
         self.verbosity = verbosity if verbosity is not None else os.getenv(MB_VERBOSITY, DEFAULT_VERBOSITY)
 
         if self.timings or self.info:
@@ -97,8 +105,7 @@ class Config:
 
         self.level = verbosities[self.verbosity]
         logging.basicConfig(level=self.level, format=self.fmt)
-        if self.colors:
-            coloredlogs.install(level=self.level, fmt=self.fmt)
+        coloredlogs.install(level=self.level, fmt=self.fmt, stream=TqdmStream(), isatty=True)
 
         if self.log is not None:
             if check_file_writable(self.log):
@@ -112,10 +119,6 @@ class Config:
     def write(self):
         with open(self.config, 'w') as output_config:
             self.configfile.write(output_config)
-
-    def __repr__(self):
-        fmt = 'log:{} timings:{} debug:{} quiet:{} verbosity:{} colors:{}'
-        return fmt.format(self.log, self.timings, self.debug, self.quiet, self.verbosity, self.colors)
 
 
 config = Config()

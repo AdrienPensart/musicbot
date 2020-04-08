@@ -38,14 +38,14 @@ def find(path, acoustid_api_key, youtube_api_key):
     f = File(path)
     file_id = f.fingerprint(acoustid_api_key)
 
-    print('Searching for artist {} and title {} and duration {}'.format(f.artist, f.title, format_timespan(f.duration)))
+    print(f'Searching for artist {f.artist} and title {f.title} and duration {format_timespan(f.duration)}')
     urls = youtube.search(youtube_api_key, f.artist, f.title, f.duration)
     for url in urls:
         yt_path = None
         try:
             yt = YouTube(url)
             for stream in yt.streams.filter(only_audio=True):
-                with tqdm(total=stream.filesize, desc="Testing {}".format(url), disable=config.quiet, leave=False) as pbar:
+                with tqdm(total=stream.filesize, desc=f"Testing {url}", disable=config.quiet, leave=False) as pbar:
                     def show_progress_bar(stream, chunk, bytes_remaining):  # pylint: disable=unused-argument
                         pbar.update(len(chunk))  # pylint: disable=cell-var-from-loop
                     yt.register_on_progress_callback(show_progress_bar)
@@ -57,12 +57,12 @@ def find(path, acoustid_api_key, youtube_api_key):
                 yt_id = recording_id
                 break
             if file_id == yt_id:
-                print('Found: fingerprint {} | url {}'.format(file_id, url))
+                print(f'Found: fingerprint {file_id} | url {url}')
                 break
             if yt_id is not None:
-                print('Not exactly found: fingerprint file: {} | yt: {} | url {}'.format(file_id, yt_id, url))
+                print(f'Not exactly found: fingerprint file: {file_id} | yt: {yt_id} | url {url}')
                 break
-            print('Based only on duration, maybe: {}'.format(url))
+            print(f'Based only on duration, maybe: {url}')
         except VideoUnavailable:
             pass
         finally:

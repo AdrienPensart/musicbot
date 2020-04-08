@@ -63,7 +63,7 @@ def raise_limits():
 
 def restart():
     python = sys.executable
-    print('Restarting myself: {} {}'.format(python, sys.argv))
+    print(f'Restarting myself: {python} {sys.argv}')
     # only works on linux, not windows with WSL
     # os.execl(python, python, * sys.argv)
     # permit to exit from a thread

@@ -62,10 +62,11 @@ class GraphQL:  # pylint: disable=too-few-public-methods
         json_response = response.json()
         logger.debug(json_response)
         if response.status_code != 200:
-            failure = failure if failure is not None else FailedRequest("Query failed: {}".format(json_response))
+            failure = failure if failure is not None else FailedRequest(f"Query failed: {json_response}")
             raise failure
         if 'errors' in json_response and json_response['errors']:
-            failure = failure if failure is not None else FailedRequest("Query failed: {}".format([e['message'] for e in json_response['errors']]))
+            errors = [e['message'] for e in json_response['errors']]
+            failure = failure if failure is not None else FailedRequest(f"Query failed: {errors}")
             raise failure
         return json_response
 
@@ -105,22 +106,27 @@ class User(GraphQL):
         if self.token:
             logger.debug("using token : %s", self.token)
         elif self.email and self.password:
-            query = """
+            query = f"""
             mutation
             {{
-                authenticate(input: {{email: "{}", password: "{}"}})
+                authenticate(input: {{email: "{self.email}", password: "{self.password}"}})
                 {{
                     jwtToken
                 }}
-            }}""".format(self.email, self.password)
+            }}"""
             self.headers = None
-            self.token = self._post(query, failure=FailedAuthentication("Authentication failed for email {}".format(self.email)))['data']['authenticate']['jwtToken']
+
+            response = self._post(query, failure=FailedAuthentication(f"Authentication failed for email {self.email}"))
+            try:
+                self.token = response['data']['authenticate']['jwtToken']
+            except KeyError:
+                raise FailedAuthentication(f"Invalid response received : {response}")
             if not self.token:
-                raise FailedAuthentication("Invalid token received : {}".format(self.token))
+                raise FailedAuthentication(f"Invalid token received : {self.token}")
         else:
             raise FailedAuthentication("No credentials or token provided")
         self.authenticated = True
-        GraphQL.__init__(self, graphql=graphql, headers={"Authorization": "Bearer {}".format(self.token)})
+        GraphQL.__init__(self, graphql=graphql, headers={"Authorization": f"Bearer {self.token}"})
 
     @classmethod
     @functools.lru_cache(maxsize=None)
@@ -155,18 +161,18 @@ class User(GraphQL):
     @helpers.timeit
     def playlist(self, mf=None):
         mf = mf if mf is not None else mfilter.Filter()
-        query = """
+        query = f"""
         {{
-            playlist({})
-        }}""".format(mf.to_graphql())
+            playlist({mf.to_graphql()})
+        }}"""
         return self._post(query)['data']['playlist']
 
     @helpers.timeit
     def bests(self, mf=None):
         mf = mf if mf is not None else mfilter.Filter()
-        query = """
+        query = f"""
         {{
-            bests({})
+            bests({mf.to_graphql()})
             {{
                 nodes
                 {{
@@ -174,7 +180,7 @@ class User(GraphQL):
                     content
                 }}
             }}
-        }}""".format(mf.to_graphql())
+        }}"""
         return self._post(query)['data']['bests']['nodes']
 
     @helpers.timeit
@@ -185,9 +191,9 @@ class User(GraphQL):
             print(kwargs)
             mf = mfilter.Filter(**kwargs)
 
-        query = """
+        query = f"""
         {{
-            doFilter({})
+            doFilter({mf.to_graphql()})
             {{
                 nodes
                 {{
@@ -206,15 +212,15 @@ class User(GraphQL):
                     keywords
                 }}
             }}
-        }}""".format(mf.to_graphql())
+        }}"""
         return self._post(query)['data']['doFilter']['nodes']
 
     @helpers.timeit
     def do_stat(self, mf=None):
         mf = mf if mf is not None else mfilter.Filter()
-        query = """
+        query = f"""
         {{
-            doStat({})
+            doStat({mf.to_graphql()})
             {{
               musics,
               artists,
@@ -224,19 +230,19 @@ class User(GraphQL):
               size,
               duration
             }}
-        }}""".format(mf.to_graphql())
+        }}"""
         return self._post(query)['data']['doStat']
 
     @helpers.timeit
     def upsert_music(self, music):
-        query = """
+        query = f"""
         mutation
         {{
-            upsertMusic(input: {{{}}})
+            upsertMusic(input: {{{music.to_graphql()}}})
             {{
                 clientMutationId
             }}
-        }}""".format(music.to_graphql())
+        }}"""
         return self._post(query)
 
     @helpers.timeit
@@ -255,14 +261,14 @@ class User(GraphQL):
         j = json.dumps([m.to_dict() for m in musics])
         b64 = j.encode('utf-8')
         data = base64.b64encode(b64)
-        query = '''
+        query = f'''
         mutation
         {{
-            bulkInsert(input: {{data: "{}"}})
+            bulkInsert(input: {{data: "{data.decode()}"}})
             {{
                 clientMutationId
             }}
-        }}'''.format(data.decode())
+        }}'''
         with click_spinner.spinner(disable=config.quiet):
             return self._post(query)
 
@@ -312,14 +318,15 @@ class User(GraphQL):
     @helpers.timeit
     def filter(self, name):
         default_filter = mfilter.Filter()
-        query = """
+        filter_members = ','.join(default_filter.ordered_dict().keys())
+        query = f"""
         {{
-            filtersList(filter: {{name: {{equalTo: "{}"}}}})
+            filtersList(filter: {{name: {{equalTo: "{name}"}}}})
             {{
                 name,
-                {}
+                {filter_members}
             }}
-        }}""".format(name, ','.join(default_filter.ordered_dict().keys()))
+        }}"""
         return self._post(query)['data']['filtersList'][0]
 
     @property
@@ -327,14 +334,15 @@ class User(GraphQL):
     @helpers.timeit
     def filters(self):
         default_filter = mfilter.Filter()
-        query = """
+        filter_members = ','.join(default_filter.ordered_dict().keys())
+        query = f"""
         {{
             filtersList
             {{
                 name,
-                {}
+                {filter_members}
             }}
-        }}""".format(','.join(default_filter.ordered_dict().keys()))
+        }}"""
         return self._post(query)['data']['filtersList']
 
     def watch(self):
@@ -399,22 +407,23 @@ class User(GraphQL):
         if password is None:
             raise click.BadParameter('Missing value for password')
 
-        query = """
+        query = f"""
         mutation
         {{
-            registerUser(input: {{firstName: "{}", lastName: "{}", email: "{}", password: "{}"}})
+            registerUser(input: {{firstName: "{first_name}", lastName: "{last_name}", email: "{email}", password: "{password}"}})
             {{
                 clientMutationId
             }}
-        }}""".format(first_name, last_name, email, password)
+        }}"""
         logger.debug(query)
         response = requests.post(graphql, json={'query': query})
         json_response = response.json()
         logger.debug(json_response)
         if response.status_code != 200:
-            raise FailedAuthentication("Cannot create user: {}".format(email))
+            raise FailedAuthentication(f"Cannot create user: {email}")
         if 'errors' in json_response and json_response['errors']:
-            raise FailedAuthentication("Cannot create user: {}".format([e['message'] for e in json_response['errors']]))
+            errors = [e['message'] for e in json_response['errors']]
+            raise FailedAuthentication(f"Cannot create user: {errors}")
         return User(graphql, email, password)
 
     @helpers.timeit
@@ -427,20 +436,20 @@ class User(GraphQL):
                 clientMutationId
             }
         }"""
-        result = self._post(query, failure=FailedAuthentication("Cannot delete user {}".format(self.email)))
+        result = self._post(query, failure=FailedAuthentication(f"Cannot delete user {self.email}"))
         self.authenticated = False
         return result
 
     @helpers.timeit
     def delete_music(self, path):
-        query = """
+        query = f"""
         mutation
         {{
-            deleteMusic(input: {{path: "{}"}})
+            deleteMusic(input: {{path: "{path}"}})
             {{
                 clientMutationId
             }}
-        }}""".format(path)
+        }}"""
         return self._post(query)
 
     @helpers.timeit

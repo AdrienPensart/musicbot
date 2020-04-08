@@ -20,10 +20,10 @@ def diff(source, destination):
     destination = json.loads(destination.read())
     stopwords = ['the', 'remaster', 'remastered', 'cut', 'part'] + list(map(str, range(1900, 2020)))
     replacements = [['praxis', 'buckethead'], ['lawson-rollins', 'buckethead']]
-    source_items = {slugify("{}-{}".format(t['artist'], t['title']), stopwords=stopwords, replacements=replacements) for t in source}
-    destination_items = {slugify("{}-{}".format(t['artist'], t['title']), stopwords=stopwords, replacements=replacements) for t in destination}
+    source_items = {slugify(f"""{t['artist']}-{t['title']}""", stopwords=stopwords, replacements=replacements) for t in source}
+    destination_items = {slugify(f"""{t['artist']}-{t['title']}""", stopwords=stopwords, replacements=replacements) for t in destination}
     differences = source_items.difference(destination_items)
     differences = sorted(differences)
     for difference in differences:
         print(difference)
-    print("diff : {}".format(len(differences)))
+    print(f"diff : {len(differences)}")

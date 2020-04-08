@@ -81,13 +81,13 @@ class Filter:
 
     def __attrs_post_init__(self):
         if self.min_size > self.max_size:
-            raise ValueError("Invalid minimum ({}) or maximum ({}) size".format(self.min_rating, self.max_rating))
+            raise ValueError(f"Invalid minimum ({self.min_rating}) or maximum ({self.max_rating}) size")
 
         if self.min_rating > self.max_rating:
-            raise ValueError("Invalid minimum ({}) or maximum ({}) rating".format(self.min_rating, self.max_rating))
+            raise ValueError(f"Invalid minimum ({self.min_rating}) or maximum ({self.max_rating}) rating")
 
         if self.min_duration > self.max_duration:
-            raise ValueError("Invalid minimum ({}) or maximum ({}) duration".format(self.min_duration, self.max_duration))
+            raise ValueError(f"Invalid minimum ({self.min_duration}) or maximum ({self.max_duration}) duration")
 
         is_bad_formats = set(self.formats).intersection(self.no_formats)
         is_bad_artists = set(self.artists).intersection(self.no_artists)
@@ -97,7 +97,7 @@ class Filter:
         is_bad_keywords = set(self.keywords).intersection(self.no_keywords)
         not_empty_set = is_bad_formats or is_bad_artists or is_bad_genres or is_bad_albums or is_bad_titles or is_bad_keywords
         if not_empty_set:
-            raise ValueError("You can't have duplicates value in filters {}".format(self))
+            raise ValueError(f"You can't have duplicates value in filters {self}")
         logger.debug('Filter: %s', self)
 
     def __repr__(self):
@@ -144,7 +144,7 @@ class Filter:
                             ('noSpotifys', self.no_spotifys)])
 
     def to_graphql(self):
-        return ", ".join(['{}: {}'.format(k, json.dumps(v)) for k, v in self.ordered_dict().items()])
+        return ", ".join([f'{k}: {json.dumps(v)}' for k, v in self.ordered_dict().items()])
 
 
 options = [

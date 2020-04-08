@@ -93,7 +93,7 @@ def config_string(ctx, param, value):
             logger.warning("%s : config value %s is not sync with arg value %s", param.name, config_value, arg_value)
 
     if not value and param.required:
-        raise click.BadParameter('missing arg or config {} in {}'.format(param.name, config.config), ctx, param.name, param.name)
+        raise click.BadParameter(f'missing arg or config {param.name} in {config.config}', ctx, param.name, param.name)
     logger.info("%s : final value %s", param.name, value)
     ctx.params[param.name] = value
     return ctx.params[param.name]
@@ -118,7 +118,7 @@ def config_list(ctx, param, value):
             logger.warning("%s : config value %s is not sync with arg value %s", param.name, config_value, arg_value)
 
     if not value and param.required:
-        raise click.BadParameter('missing arg or config {} in {}'.format(param.name, config.config), ctx, param.name, param.name)
+        raise click.BadParameter(f'missing arg or config {param.name} in {config.config}', ctx, param.name, param.name)
     logger.info("%s : final value %s", param.name, value)
     ctx.params[param.name] = value
     return ctx.params[param.name]

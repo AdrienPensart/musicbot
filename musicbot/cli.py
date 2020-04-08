@@ -44,7 +44,7 @@ class SubCommandLineInterface(helpers.GroupWithHelp):
         try:
             with open(fn) as f:
                 code = compile(f.read(), fn, 'exec')
-                ns['__name__'] = '{}.{}'.format(commands_folder, cmd_name)
+                ns['__name__'] = f'{commands_folder}.{cmd_name}'
                 ns['__file__'] = fn
                 eval(code, ns, ns)  # pylint: disable=eval-used
         except FileNotFoundError:
@@ -70,7 +70,7 @@ def version():
 
        Equivalent : -V
     '''
-    print("{}, version {}".format(prog_name, __version__))
+    print(f"{prog_name}, version {__version__}")
 
 
 def main(**kwargs):

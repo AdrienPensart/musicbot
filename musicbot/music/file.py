@@ -69,7 +69,7 @@ class File:
         return dict(self.ordered_dict())
 
     def to_graphql(self):
-        return ", ".join(['{}: {}'.format(k, json.dumps(v)) for k, v in self.ordered_dict().items()])
+        return ", ".join([f'{k}: {json.dumps(v)}' for k, v in self.ordered_dict().items()])
 
     def to_json(self):
         return json.dumps(self.ordered_dict())
