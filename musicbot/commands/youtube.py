@@ -77,6 +77,7 @@ def find(path, acoustid_api_key, youtube_api_key):
 @helpers.add_options(acoustid_api_key_option)
 def fingerprint(url, acoustid_api_key):
     '''Fingerprint a youtube video'''
+    path = None
     try:
         yt = YouTube(url)
         stream = yt.streams.filter(only_audio=True).order_by('abr').asc().first()
@@ -92,4 +93,5 @@ def fingerprint(url, acoustid_api_key):
     except acoustid.WebServiceError as e:
         logger.error(e)
     finally:
-        os.remove(path)
+        if path:
+            os.remove(path)
