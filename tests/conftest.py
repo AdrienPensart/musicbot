@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 pytest_plugins = ["docker_compose"]
 
 
-def pytest_generate_tests(_):
+def pytest_generate_tests(metafunc):  # pylint: disable=unused-argument
     os.environ['MB_CONFIG'] = '/tmp/musicbot.ini'
 
 
