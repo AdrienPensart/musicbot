@@ -4,6 +4,7 @@ import codecs
 import csv
 import json
 import datetime
+from shutil import copyfile
 from textwrap import indent
 import click
 import vlc
@@ -178,13 +179,21 @@ def sync(ctx, dry, destination, **kwargs):
     mf = mfilter.Filter(**kwargs)
     musics = ctx.obj.u().do_filter(mf)
 
-    files = lib.all_files(destination)
+    files = list(lib.all_files(destination))
+    logger.info(f"Files : {len(files)}")
+    if not files:
+        logger.warning("No files found in destination")
+
     destinations = {f[len(destination) + 1:]: f for f in files}
+    logger.info(f"Destinations : {len(destinations)}")
     sources = {m['path'][len(m['folder']) + 1:]: m['path'] for m in musics}
+    logger.info(f"Sources : {len(sources)}")
     to_delete = set(destinations.keys()) - set(sources.keys())
+    logger.info(f"To delete: {len(to_delete)}")
     if to_delete:
-        with tqdm(total=len(to_delete), desc="Deleting music", disable=config.quiet) as pbar:
+        with tqdm(total=len(to_delete), disable=config.quiet) as pbar:
             for d in to_delete:
+                pbar.set_description(f"Deleting musics and playlists: {os.path.basename(destinations[d])}")
                 if not dry:
                     try:
                         logger.info("Deleting %s", destinations[d])
@@ -194,22 +203,32 @@ def sync(ctx, dry, destination, **kwargs):
                 else:
                     logger.info("[DRY-RUN] False Deleting %s", destinations[d])
                 pbar.update(1)
+
     to_copy = set(sources.keys()) - set(destinations.keys())
+    logger.info(f"To copy: {len(to_copy)}")
     if to_copy:
-        with tqdm(total=len(to_copy), desc="Copying music", disable=config.quiet) as pbar:
-            from shutil import copyfile
+        with tqdm(total=len(to_copy), disable=config.quiet) as pbar:
             for c in sorted(to_copy):
                 final_destination = os.path.join(destination, c)
-                if not dry:
-                    logger.info("Copying %s to %s", sources[c], final_destination)
-                    os.makedirs(os.path.dirname(final_destination), exist_ok=True)
-                    copyfile(sources[c], final_destination)
-                else:
-                    logger.info("[DRY-RUN] False Copying %s to %s", sources[c], final_destination)
-                pbar.update(1)
+                try:
+                    pbar.set_description(f'Copying {os.path.basename(sources[c])} to {destination}')
+                    if not dry:
+                        logger.info("Copying %s to %s", sources[c], final_destination)
+                        os.makedirs(os.path.dirname(final_destination), exist_ok=True)
+                        copyfile(sources[c], final_destination)
+                    else:
+                        logger.info("[DRY-RUN] False Copying %s to %s", sources[c], final_destination)
+                    pbar.update(1)
+                except KeyboardInterrupt:
+                    logger.debug(f"Cleanup {final_destination}")
+                    os.remove(final_destination)
+                    raise
 
     import shutil
     for d in lib.empty_dirs(destination):
+        if any(e in d for e in lib.exceptions):
+            logger.debug(f"Invalid path {d}")
+            continue
         if not dry:
             shutil.rmtree(d)
         logger.info("[DRY-RUN] Removing empty dir %s", d)
@@ -392,9 +411,10 @@ def bests(ctx, dry, path, prefix, suffix, **kwargs):
         kwargs['relative'] = True
     mf = mfilter.Filter(**kwargs)
     playlists = ctx.obj.u().bests(mf)
-    with tqdm(total=len(playlists), desc="Bests playlists", disable=config.quiet) as pbar:
+    with tqdm(total=len(playlists), disable=config.quiet) as pbar:
         for p in playlists:
             playlist_filepath = os.path.join(path, p['name'] + suffix + '.m3u')
+            pbar.set_description(f"Best playlist: {os.path.basename(playlist_filepath)}")
             content = indent(p['content'], prefix, lambda line: line != '#EXTM3U')
             if not dry:
                 try:

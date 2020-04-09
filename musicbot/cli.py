@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import sys
 import os
 import logging
 import click
@@ -77,7 +78,7 @@ def main(**kwargs):
         return cli.main(prog_name=prog_name, **kwargs)
     except (MusicbotError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError) as e:
         logger.error(e)
-        return 0
+        sys.exit(1)
 
 
 if __name__ == '__main__':

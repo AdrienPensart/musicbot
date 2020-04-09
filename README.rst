@@ -84,7 +84,7 @@ Commands
   Options:
     -V, --version                                       Show the version and exit.
     -c, --config PATH                                   Config file path  [default: ~/musicbot.ini]
-    -l, --log PATH                                      Log file path  [default: ~/musicbot.log]
+    -l, --log PATH                                      Log file path
     -i, --info                                          Same as --verbosity info"
     -d, --debug                                         Be very verbose, same as --verbosity debug + hide progress bars  [default: False]
     -t, --timings                                       Set verbosity to info and show execution timings  [default: False]

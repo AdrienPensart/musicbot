@@ -1,4 +1,5 @@
 import os
+import sys
 import logging
 import configparser
 import pwd
@@ -21,7 +22,7 @@ MB_QUIET = 'MB_QUIET'
 MB_COLORS = 'MB_COLORS'
 
 DEFAULT_CONFIG = '~/musicbot.ini'
-DEFAULT_LOG = '~/musicbot.log'
+DEFAULT_LOG = None
 DEFAULT_VERBOSITY = 'warning'
 DEFAULT_QUIET = False
 DEFAULT_DEBUG = False
@@ -50,7 +51,7 @@ options = config_option + log_option + info_option + debug_option + timings_opti
 class TqdmStream:
     @classmethod
     def write(cls, s):
-        tqdm.tqdm.write(s, end='')
+        tqdm.tqdm.write(s, end='', file=sys.stderr)
 
     @classmethod
     def isatty(cls):
@@ -88,8 +89,10 @@ class Config:
         self.configfile = configparser.ConfigParser()
         self.configfile.read(self.config)
 
-        self.log = log if log is not None else os.getenv(MB_LOG, str(DEFAULT_LOG))
-        self.log = os.path.expanduser(self.log)
+        self.log = log if log is not None else os.getenv(MB_LOG, DEFAULT_LOG)
+        if self.log:
+            self.log = os.path.expanduser(self.log)
+
         self.quiet = quiet if quiet is not None else lib.str2bool(os.getenv(MB_QUIET, str(DEFAULT_QUIET)))
         self.debug = debug if debug is not None else lib.str2bool(os.getenv(MB_DEBUG, str(DEFAULT_DEBUG)))
         self.info = info if info is not None else lib.str2bool(os.getenv(MB_INFO, str(DEFAULT_INFO)))
@@ -104,8 +107,7 @@ class Config:
             self.quiet = True
 
         self.level = verbosities[self.verbosity]
-        logging.basicConfig(level=self.level, format=self.fmt)
-        coloredlogs.install(level=self.level, fmt=self.fmt, stream=TqdmStream(), isatty=True)
+        coloredlogs.install(level=self.level, fmt=self.fmt, stream=TqdmStream())
 
         if self.log is not None:
             if check_file_writable(self.log):

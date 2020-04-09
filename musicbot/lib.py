@@ -7,6 +7,7 @@ import humanfriendly
 logger = logging.getLogger(__name__)
 
 output_types = ["list", "json"]
+exceptions = ['.Spotlight-V100', '.zfs', 'Android', 'LOST.DIR']
 default_output_type = 'json'
 
 
@@ -74,7 +75,8 @@ def find_files(directories, supported_formats):
     directories = [os.path.abspath(d) for d in directories]
     for directory in directories:
         for root, _, files in os.walk(directory):
-            if '.zfs' in root:
+            if any(e in root for e in exceptions):
+                logger.debug(f"Invalid path {root}")
                 continue
             for basename in files:
                 filename = os.path.join(root, basename)
@@ -102,6 +104,9 @@ def filecount(path, supported_formats):
 
 def all_files(directory):
     for root, _, files in os.walk(directory):
+        if any(e in root for e in exceptions):
+            logger.debug(f"Invalid path {root}")
+            continue
         for basename in files:
             yield os.path.join(root, basename)
 

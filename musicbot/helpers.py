@@ -133,7 +133,7 @@ def genfiles(folders):
             count += filecount(d, supported_formats)
         logger.info("File count: %s", count)
     files = []
-    with tqdm(total=count, desc="Music listing", disable=config.quiet) as pbar:
+    with tqdm(total=count, desc=f"Music listing {folders}", disable=config.quiet) as pbar:
         file_list = find_files(folders, supported_formats)
         music_files = list(file_list)
         for f in music_files:
