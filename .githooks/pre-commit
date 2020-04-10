@@ -1,0 +1,20 @@
+#!/bin/sh
+
+set -e
+trap '[ $? -eq 0 ] && exit 0 || echo "$0 FAILED"' EXIT
+
+if [ `uname -r` = *"microsoft"* ]; then
+    echo "No unit testing because docker not available"
+else
+    poetry run pytest
+    poetry run coverage-badge -f -o doc/coverage.svg
+    git add doc/coverage.svg
+fi
+
+poetry run pylint musicbot tests
+poetry run rstcheck doc/help.rst
+poetry run doc/gen.sh
+poetry run rstcheck README.rst
+git add README.rst
+
+exit 0

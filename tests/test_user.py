@@ -16,7 +16,7 @@ def files():
 
 
 @pytest.yield_fixture
-def user_sample(files, user_unregister, postgraphile_public):
+def user_sample(files, user_unregister, postgraphile_public):  # pylint: disable=unused-argument
     u = User.register(graphql=postgraphile_public, first_name=fixtures.first_name, last_name=fixtures.last_name, email=fixtures.email, password=fixtures.password)
     assert u.authenticated
 

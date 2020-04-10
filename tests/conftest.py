@@ -74,7 +74,7 @@ def user_unregister(postgraphile_public):
 
 
 @pytest.yield_fixture
-def user_token(cli_runner, postgraphile_public, user_unregister):
+def user_token(cli_runner, postgraphile_public, user_unregister):  # pylint: disable=unused-argument
     run_cli(cli_runner, cli, [
         'user', 'register',
         '--graphql', postgraphile_public,
