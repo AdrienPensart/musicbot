@@ -44,11 +44,15 @@ services:
   #    - 8080:8080
   #  depends_on:
   #    - db
+
+  # this is needed as an intermediate image
   postgraphile_custom:
     build:
       context: .
       dockerfile: Dockerfile.postgraphile
     entrypoint: ["echo", "Service postgraphile custom disabled"]
+
+  # public API
   postgraphile_public:
     image: musicbot_postgraphile_custom:latest
     restart: always
@@ -60,6 +64,8 @@ services:
     environment:
       DEBUG: postgraphile:postgres:notice
     command: ["postgraphile", "--retry-on-init-fail", "--cors", "--no-setof-functions-contain-nulls", "--no-ignore-rbac", "--no-ignore-indexes", "--dynamic-json", "--connection", $DATABASE_URL, "--host", "0.0.0.0", "--port", "5000", "--schema", "musicbot_public", "--default-role", "musicbot_anonymous", "--enhance-graphiql", "--allow-explain", "--jwt-token-identifier", "musicbot_public.jwt_token", "--jwt-secret", $MUSICBOT_SECRET, "-l", "10MB", "--simple-collections", "both", "--append-plugins", "postgraphile-plugin-connection-filter,@graphile-contrib/pg-simplify-inflector"]
+
+  # private API
   postgraphile_private:
     image: musicbot_postgraphile_custom:latest
     restart: always

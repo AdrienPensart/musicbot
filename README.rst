@@ -19,7 +19,10 @@ Description
 -----------
 CLI / API / Website to manipulate music and create smart playlists, and play it !
 
-It uses poetry tool to manage project life and docker to test it.
+It uses poetry and pyenv tools to manage project life and docker to test it.
+
+Under the hood, there is a postgraphile API frontend backed by a postgresql database, it allow us
+to have users and security integrated.
 
 Dev Environment
 ------------
@@ -35,6 +38,8 @@ Dev Environment
   https://pyenv.run | bash
   pyenv install --verbose $(cat .python-version) -ks
   pyenv global $(cat .python-version)
+
+  # you should put that at your shell startup
   eval "$(pyenv init -)"
 
   python <(curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py) --preview
@@ -48,7 +53,7 @@ Testing
   poetry run pytest
   poetry run coverage-badge -f -o doc/coverage.svg
 
-Docker
+How to use
 ------------
 
 .. code-block:: bash
@@ -71,8 +76,8 @@ Documentation
 
 .. code-block:: bash
 
-  poetry build
   poetry run doc/gen.sh
+
 Commands
 --------
 .. code-block::
@@ -85,8 +90,8 @@ Commands
     -V, --version                                       Show the version and exit.
     -c, --config PATH                                   Config file path  [default: ~/musicbot.ini]
     -l, --log PATH                                      Log file path
-    -i, --info                                          Same as --verbosity info"
-    -d, --debug                                         Be very verbose, same as --verbosity debug + hide progress bars  [default: False]
+    -i, --info                                          Same as "--verbosity info"
+    -d, --debug                                         Be very verbose, same as "--verbosity debug" + hide progress bars  [default: False]
     -t, --timings                                       Set verbosity to info and show execution timings  [default: False]
     -v, --verbosity [debug|info|warning|error|critical]
                                                         Verbosity levels  [default: warning]
@@ -94,9 +99,9 @@ Commands
     -h, --help                                          Show this message and exit.
   
   Commands:
-    folder   Music file
+    folder   Manage folders
     help     Print help
-    json     Music file
+    json     JSON tools for music libraries
     local    Local music management
     music    Music file
     spotify  Spotify tool
@@ -111,7 +116,7 @@ musicbot folder
 
   Usage: musicbot folder [OPTIONS] COMMAND [ARGS]...
   
-    Music file
+    Manage folders
   
   Options:
     -h, --help  Show this message and exit.
@@ -134,18 +139,6 @@ musicbot folder flac2mp3
     --concurrency INTEGER  Number of coroutines  [default: 8]
     --dry                  Take no real action  [default: False]
     -h, --help             Show this message and exit.
-
-
-musicbot folder help
-********************
-.. code-block::
-
-  Usage: musicbot folder help [OPTIONS] [COMMAND]...
-  
-    Print help
-  
-  Options:
-    -h, --help  Show this message and exit.
 
 
 musicbot folder tracks
@@ -179,7 +172,7 @@ musicbot json
 
   Usage: musicbot json [OPTIONS] COMMAND [ARGS]...
   
-    Music file
+    JSON tools for music libraries
   
   Options:
     -h, --help  Show this message and exit.
@@ -196,18 +189,6 @@ musicbot json diff
   Usage: musicbot json diff [OPTIONS] SOURCE DESTINATION
   
     Diff tracks
-  
-  Options:
-    -h, --help  Show this message and exit.
-
-
-musicbot json help
-******************
-.. code-block::
-
-  Usage: musicbot json help [OPTIONS] [COMMAND]...
-  
-    Print help
   
   Options:
     -h, --help  Show this message and exit.
@@ -387,18 +368,6 @@ musicbot local folders
   Options:
     --output [table|json|m3u|csv]  Output format  [default: table]
     -h, --help                     Show this message and exit.
-
-
-musicbot local help
-*******************
-.. code-block::
-
-  Usage: musicbot local help [OPTIONS] [COMMAND]...
-  
-    Print help
-  
-  Options:
-    -h, --help  Show this message and exit.
 
 
 musicbot local load-filters
@@ -626,18 +595,6 @@ musicbot music fingerprint
     -h, --help               Show this message and exit.
 
 
-musicbot music help
-*******************
-.. code-block::
-
-  Usage: musicbot music help [OPTIONS] [COMMAND]...
-  
-    Print help
-  
-  Options:
-    -h, --help  Show this message and exit.
-
-
 musicbot spotify
 ****************
 .. code-block::
@@ -654,18 +611,6 @@ musicbot spotify
     playlist   Show playlist
     playlists  List playlists
     tracks     Show tracks
-
-
-musicbot spotify help
-*********************
-.. code-block::
-
-  Usage: musicbot spotify help [OPTIONS] [COMMAND]...
-  
-    Print help
-  
-  Options:
-    -h, --help  Show this message and exit.
 
 
 musicbot spotify playlist
@@ -725,18 +670,6 @@ musicbot user
     login (token)               Authenticate user
     register (add,create,new)   Register a new user
     unregister (delete,remove)  Remove a user
-
-
-musicbot user help
-******************
-.. code-block::
-
-  Usage: musicbot user help [OPTIONS] [COMMAND]...
-  
-    Print help
-  
-  Options:
-    -h, --help  Show this message and exit.
 
 
 musicbot user list
@@ -860,18 +793,6 @@ musicbot youtube fingerprint
   Options:
     --acoustid-api-key TEXT  AcoustID API Key
     -h, --help               Show this message and exit.
-
-
-musicbot youtube help
-*********************
-.. code-block::
-
-  Usage: musicbot youtube help [OPTIONS] [COMMAND]...
-  
-    Print help
-  
-  Options:
-    -h, --help  Show this message and exit.
 
 
 musicbot youtube search

@@ -7,12 +7,12 @@ from musicbot import helpers
 logger = logging.getLogger(__name__)
 
 
-@click.group(help='''Music file''', cls=helpers.GroupWithHelp)
+@click.group(help='JSON tools for music libraries', cls=helpers.GroupWithHelp)
 def cli():
     pass
 
 
-@cli.command(help='''Diff tracks''')
+@cli.command(help='Diff tracks')
 @click.argument('source', type=click.File('r'))
 @click.argument('destination', type=click.File('r'))
 def diff(source, destination):

@@ -39,8 +39,8 @@ verbosities = {'debug': logging.DEBUG,
 
 config_option = [click.option('--config', '-c', help='Config file path', type=click.Path(), envvar=MB_CONFIG, default=DEFAULT_CONFIG, show_default=True)]
 log_option = [click.option('--log', '-l', help='Log file path', type=click.Path(), envvar=MB_LOG, default=DEFAULT_LOG, show_default=True)]
-info_option = [click.option('--info', '-i', help='Same as --verbosity info"', envvar=MB_INFO, default=DEFAULT_INFO, is_flag=True, show_default=False)]
-debug_option = [click.option('--debug', '-d', help='Be very verbose, same as --verbosity debug + hide progress bars', envvar=MB_DEBUG, default=DEFAULT_DEBUG, is_flag=True, show_default=True)]
+info_option = [click.option('--info', '-i', help='Same as "--verbosity info"', envvar=MB_INFO, default=DEFAULT_INFO, is_flag=True, show_default=False)]
+debug_option = [click.option('--debug', '-d', help='Be very verbose, same as "--verbosity debug" + hide progress bars', envvar=MB_DEBUG, default=DEFAULT_DEBUG, is_flag=True, show_default=True)]
 timings_option = [click.option('--timings', '-t', help='Set verbosity to info and show execution timings', envvar=MB_TIMINGS, default=DEFAULT_TIMINGS, is_flag=True, show_default=True)]
 verbosity_option = [click.option('--verbosity', '-v', help='Verbosity levels', envvar=MB_VERBOSITY, default=DEFAULT_VERBOSITY, type=click.Choice(verbosities.keys()), show_default=True)]
 quiet_option = [click.option('--quiet', '-q', help='Disable progress bars', envvar=MB_QUIET, default=DEFAULT_QUIET, is_flag=True, show_default=True)]

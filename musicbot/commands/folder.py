@@ -8,12 +8,12 @@ from musicbot.config import config
 logger = logging.getLogger(__name__)
 
 
-@click.group(help='''Music file''', cls=helpers.GroupWithHelp)
+@click.group(help='Manage folders', cls=helpers.GroupWithHelp)
 def cli():
     pass
 
 
-@cli.command(help='''List tracks''')
+@cli.command(help='List tracks')
 @helpers.add_options(helpers.folders_argument + helpers.output_option)
 def tracks(folders, output):
     tracks = helpers.genfiles(folders)
@@ -30,7 +30,7 @@ def tracks(folders, output):
         raise NotImplementedError
 
 
-@cli.command(help='''Convert all files in folders to mp3''')
+@cli.command(help='Convert all files in folders to mp3')
 @helpers.add_options(helpers.folders_argument + helpers.concurrency_options + helpers.dry_option)
 def flac2mp3(folders, concurrency, dry):
     import concurrent.futures as cf

@@ -19,7 +19,10 @@ Description
 -----------
 CLI / API / Website to manipulate music and create smart playlists, and play it !
 
-It uses poetry tool to manage project life and docker to test it.
+It uses poetry and pyenv tools to manage project life and docker to test it.
+
+Under the hood, there is a postgraphile API frontend backed by a postgresql database, it allow us
+to have users and security integrated.
 
 Dev Environment
 ------------
@@ -35,6 +38,8 @@ Dev Environment
   https://pyenv.run | bash
   pyenv install --verbose $(cat .python-version) -ks
   pyenv global $(cat .python-version)
+
+  # you should put that at your shell startup
   eval "$(pyenv init -)"
 
   python <(curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py) --preview
@@ -48,7 +53,7 @@ Testing
   poetry run pytest
   poetry run coverage-badge -f -o doc/coverage.svg
 
-Docker
+How to use
 ------------
 
 .. code-block:: bash
@@ -71,5 +76,5 @@ Documentation
 
 .. code-block:: bash
 
-  poetry build
   poetry run doc/gen.sh
+
