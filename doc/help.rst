@@ -42,7 +42,7 @@ Dev Environment
   # you should put that at your shell startup
   eval "$(pyenv init -)"
 
-  python <(curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py) --preview
+  python <(curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py)
   poetry install
 
 Testing
