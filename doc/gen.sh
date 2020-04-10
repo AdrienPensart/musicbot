@@ -36,7 +36,7 @@ do
     echo -e ".. code-block::\n" >> $commands
     musicbot $command_name --help | sed 's/^/  /' >> $commands
     echo -e "\n" >> $commands
-    subcommand_list=$(musicbot $command_name --help | grep -v help |awk '/Commands/{y=1;next}y')
+    subcommand_list=$(musicbot $command_name --help | grep -vw help | awk '/Commands/{y=1;next}y')
     for s in $subcommand_list;
     do
         subcommand_name=$(echo "$s" | awk '{print $1}')
