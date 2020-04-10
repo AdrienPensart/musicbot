@@ -101,15 +101,60 @@ Commands
     -h, --help                                          Show this message and exit.
   
   Commands:
-    folder   Manage folders
+    completion  Shell completion
+    folder      Manage folders
+    help        Print help
+    json        JSON tools for music libraries
+    local       Local music management
+    music       Music file
+    spotify     Spotify tool
+    user        User management
+    version     Print version
+    youtube     Youtube tool
+
+
+musicbot completion
+*******************
+.. code-block::
+
+  Usage: musicbot completion [OPTIONS] COMMAND [ARGS]...
+  
+    Shell completion
+  
+  Options:
+    -h, --help  Show this message and exit.
+  
+  Commands:
     help     Print help
-    json     JSON tools for music libraries
-    local    Local music management
-    music    Music file
-    spotify  Spotify tool
-    user     User management
-    version  Print version
-    youtube  Youtube tool
+    install  Install the click-completion-command completion
+    show     Show the click-completion-command completion code
+
+
+musicbot completion install
+***************************
+.. code-block::
+
+  Usage: musicbot completion install [OPTIONS] [[bash|fish|zsh|powershell]] [PATH]
+  
+    Install the click-completion-command completion
+  
+  Options:
+    --append / --overwrite                          Append the completion code to the file
+    -i, --case-insensitive / --no-case-insensitive  Case insensitive completion
+    -h, --help                                      Show this message and exit.
+
+
+musicbot completion show
+************************
+.. code-block::
+
+  Usage: musicbot completion show [OPTIONS] [[bash|fish|zsh|powershell]]
+  
+    Show the click-completion-command completion code
+  
+  Options:
+    -i, --case-insensitive / --no-case-insensitive  Case insensitive completion
+    -h, --help                                      Show this message and exit.
 
 
 musicbot folder

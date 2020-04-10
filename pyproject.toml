@@ -41,6 +41,7 @@ humanfriendly = "^8.1"
 python-dotenv = "^0.12.0"
 coloredlogs = "^14.0"
 python-slugify = "^4.0.0"
+click-completion = "^0.5.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2.4"

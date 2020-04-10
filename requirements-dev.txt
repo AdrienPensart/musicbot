@@ -13,6 +13,7 @@ cffi==1.14.0
 chardet==3.0.4
 click==7.1.1
 click-aliases==1.0.1
+click-completion==0.5.2
 click-didyoumean==0.0.3
 click-man==0.4.1
 click-spinner==0.1.8

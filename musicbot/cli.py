@@ -5,6 +5,8 @@ import logging
 import click
 import requests
 import spotipy
+import click_completion
+import click_completion.core
 from click.formatting import HelpFormatter
 from attrdict import AttrDict
 from musicbot import lib, helpers, config
@@ -18,6 +20,18 @@ commands_folder = 'commands'
 plugin_folder = os.path.join(bin_folder, commands_folder)
 CONTEXT_SETTINGS = {'max_content_width': 140, 'terminal_width': 140, 'auto_envvar_prefix': 'MB', 'help_option_names': ['-h', '--help']}
 logger = logging.getLogger('musicbot')
+
+
+def custom_startswith(string, incomplete):
+    """A custom completion matching that supports case insensitive matching"""
+    if os.environ.get('_CLICK_COMPLETION_COMMAND_CASE_INSENSITIVE_COMPLETE'):
+        string = string.lower()
+        incomplete = incomplete.lower()
+    return string.startswith(incomplete)
+
+
+click_completion.core.startswith = custom_startswith
+click_completion.init()
 
 
 # import __version__ string
