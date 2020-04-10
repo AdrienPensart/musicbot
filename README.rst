@@ -25,7 +25,7 @@ Under the hood, there is a postgraphile API frontend backed by a postgresql data
 to have users and security integrated.
 
 Dev Environment
-------------
+---------------
 
 .. code-block:: bash
 
@@ -72,11 +72,13 @@ Linting
   poetry run pylint musicbot tests
 
 Documentation
-------------
+-------------
 
 .. code-block:: bash
 
+  poetry run rstcheck doc/help.rst
   poetry run doc/gen.sh
+  poetry run rstcheck README.rst
 
 Commands
 --------
