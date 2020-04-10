@@ -1,6 +1,7 @@
 import logging
 import pytest
-from musicbot import user, helpers
+from musicbot import helpers
+from musicbot.user import User, Admin
 from . import fixtures
 
 logger = logging.getLogger(__name__)
@@ -15,8 +16,8 @@ def files():
 
 
 @pytest.yield_fixture
-def user_sample(files, postgraphile_public):
-    u = user.User.register(graphql=postgraphile_public, first_name=fixtures.first_name, last_name=fixtures.last_name, email=fixtures.email, password=fixtures.password)
+def user_sample(files, user_unregister, postgraphile_public):
+    u = User.register(graphql=postgraphile_public, first_name=fixtures.first_name, last_name=fixtures.last_name, email=fixtures.email, password=fixtures.password)
     assert u.authenticated
 
     u.bulk_insert(files)
@@ -36,8 +37,12 @@ def musics(user_sample):
 
 
 def test_list(user_sample, postgraphile_private):  # pylint: disable=unused-argument
-    a = user.Admin(postgraphile_private)
-    assert len(a.users()) == 1
+    a = Admin(postgraphile_private)
+    for user in a.users():
+        if user['accountByUserId']['email'] == fixtures.email and user['firstName'] == fixtures.first_name and user['lastName'] == fixtures.last_name:
+            break
+    else:
+        pytest.fail("test user not detected")
 
 
 def test_delete(user_sample, files):
@@ -48,17 +53,17 @@ def test_delete(user_sample, files):
 
 def test_authenticate(postgraphile_public, user_sample):
     assert user_sample.email == fixtures.email
-    same1 = user.User(graphql=postgraphile_public, email=fixtures.email, password=fixtures.password)
+    same1 = User(graphql=postgraphile_public, email=fixtures.email, password=fixtures.password)
     assert same1.authenticated
     assert same1.token
 
-    same2 = user.User(graphql=postgraphile_public, token=same1.token)
+    same2 = User(graphql=postgraphile_public, token=same1.token)
     assert same2.authenticated
 
-    same3 = user.User.new(graphql=postgraphile_public, email=fixtures.email, password=fixtures.password)
+    same3 = User.new(graphql=postgraphile_public, email=fixtures.email, password=fixtures.password)
     assert same3.authenticated
 
-    same3 = user.User.new(graphql=postgraphile_public, token=same1.token)
+    same3 = User.new(graphql=postgraphile_public, token=same1.token)
     assert same3.authenticated
 
 

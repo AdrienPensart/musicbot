@@ -5,6 +5,7 @@ import traceback
 import logging
 import pytest
 from musicbot.cli import cli, prog_name
+from musicbot.user import User, FailedAuthentication
 from . import fixtures
 
 logger = logging.getLogger(__name__)
@@ -64,7 +65,16 @@ def postgraphile_private(db, function_scoped_container_getter):  # pylint: disab
 
 
 @pytest.yield_fixture
-def user_token(cli_runner, postgraphile_public):
+def user_unregister(postgraphile_public):
+    try:
+        user = User(graphql=postgraphile_public, email=fixtures.email, password=fixtures.password)
+        user.unregister()
+    except FailedAuthentication:
+        pass
+
+
+@pytest.yield_fixture
+def user_token(cli_runner, postgraphile_public, user_unregister):
     run_cli(cli_runner, cli, [
         'user', 'register',
         '--graphql', postgraphile_public,

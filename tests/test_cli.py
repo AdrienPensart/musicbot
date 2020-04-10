@@ -41,7 +41,11 @@ def test_config(cli_runner):
 def test_admin(cli_runner, user_token, postgraphile_private):  # pylint: disable=unused-argument
     users_json = run_cli(cli_runner, cli, ['user', 'list', '--output', 'json', '--graphql-admin', postgraphile_private])
     users = json.loads(users_json)
-    assert len(users) == 1
+    for user in users:
+        if user['accountByUserId']['email'] == fixtures.email and user['firstName'] == fixtures.first_name and user['lastName'] == fixtures.last_name:
+            break
+    else:
+        pytest.fail("test user not detected")
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
