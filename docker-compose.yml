@@ -1,25 +1,5 @@
 version: '3'
 services:
-  #cli:
-  #  build:
-  #    context: .
-  #    dockerfile: Dockerfile.cli
-  #  volumes:
-  #    - ./tests/fixtures/:/fixtures
-  #  depends_on:
-  #    - db
-  #    - postgraphile_public
-  #    - postgraphile_private
-  #ui:
-  #  build:
-  #    context: .
-  #    dockerfile: Dockerfile.ui
-  #  ports:
-  #    - 80:80
-  #  depends_on:
-  #    - db
-  #    - postgraphile_public
-  #    - postgraphile_private
   db:
     build:
       context: .
@@ -33,17 +13,6 @@ services:
       - 5432:5432
     volumes:
       - /home/postgres-data:/var/lib/postgresql/data
-  #adminer:
-  #  image: adminer
-  #  restart: unless-stopped
-  #  environment:
-  #    ADMINER_DEFAULT_DB_DRIVER: pgsql
-  #    ADMINER_DEFAULT_DB_HOST: localhost
-  #    ADMINER_DEFAULT_DB_NAME: musicbot
-  #  ports:
-  #    - 8080:8080
-  #  depends_on:
-  #    - db
 
   # this is needed as an intermediate image
   postgraphile_custom:
