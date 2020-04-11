@@ -8,16 +8,16 @@ case "$kernel" in
 *microsoft*) echo "No unit testing because docker not available" ;;
 *       )
     echo "Running unit tests"
-    poetry run pytest
+    poetry run pytest --testmon
     poetry run coverage-badge -f -o doc/coverage.svg
     git add doc/coverage.svg
     ;;
 esac
 
 poetry run pylint musicbot tests
-poetry run rstcheck doc/help.rst
+poetry run rst-lint doc/help.rst
 poetry run doc/gen.sh
-poetry run rstcheck README.rst
+poetry run rst-lint README.rst
 git add README.rst
 
 exit 0

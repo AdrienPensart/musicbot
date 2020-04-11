@@ -8,6 +8,8 @@ import click
 import tqdm
 import coloredlogs
 from . import lib
+from .exceptions import MusicbotConfigError
+
 
 logger = logging.getLogger(__name__)
 current_user = pwd.getpwuid(os.getuid()).pw_name
@@ -88,6 +90,10 @@ class Config:
         self.config = os.path.expanduser(self.config)
         self.configfile = configparser.ConfigParser()
         self.configfile.read(self.config)
+        if 'DEFAULT' not in self.configfile:
+            raise MusicbotConfigError(f'DEFAULT section not present in {self.config}')
+        if 'spotify' not in self.configfile:
+            raise MusicbotConfigError(f'spotify section not present in {self.config}')
 
         self.log = log if log is not None else os.getenv(MB_LOG, DEFAULT_LOG)
         if self.log:

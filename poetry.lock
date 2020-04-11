@@ -952,6 +952,14 @@ version = "0.23.1"
 
 [[package]]
 category = "dev"
+description = "Pygments is a syntax highlighting package written in Python."
+name = "pygments"
+optional = false
+python-versions = ">=3.5"
+version = "2.6.1"
+
+[[package]]
+category = "dev"
 description = "python code static checker"
 name = "pylint"
 optional = false
@@ -1094,6 +1102,18 @@ docker-compose = "*"
 pytest = ">=3.3"
 
 [[package]]
+category = "dev"
+description = "selects tests affected by changed files and methods"
+name = "pytest-testmon"
+optional = false
+python-versions = ">=3.6"
+version = "1.0.2"
+
+[package.dependencies]
+coverage = ">=4,<6"
+pytest = ">=5,<6"
+
+[[package]]
 category = "main"
 description = "Add .env support to your django/flask apps in development and deployments"
 name = "python-dotenv"
@@ -1125,17 +1145,6 @@ name = "python-vlc"
 optional = false
 python-versions = "*"
 version = "3.0.7110"
-
-[[package]]
-category = "main"
-description = "Python 3 library for downloading YouTube Videos."
-name = "pytube3"
-optional = false
-python-versions = ">=3.6"
-version = "9.6.4"
-
-[package.dependencies]
-typing-extensions = "*"
 
 [[package]]
 category = "dev"
@@ -1174,14 +1183,14 @@ socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7)", "win-inet-pton"]
 
 [[package]]
 category = "dev"
-description = "Checks syntax of reStructuredText and code blocks nested within it"
-name = "rstcheck"
+description = "reStructuredText linter"
+name = "restructuredtext-lint"
 optional = false
 python-versions = "*"
-version = "3.3.1"
+version = "1.3.0"
 
 [package.dependencies]
-docutils = ">=0.7"
+docutils = ">=0.11,<1.0"
 
 [[package]]
 category = "dev"
@@ -1231,11 +1240,15 @@ description = "A light weight Python library for the Spotify Web API"
 name = "spotipy"
 optional = false
 python-versions = "*"
-version = "2.10.0"
+version = "2.11.1"
 
 [package.dependencies]
 requests = ">=2.20.0"
 six = ">=1.10.0"
+
+[package.extras]
+doc = ["Sphinx (>=1.5.2)"]
+test = ["mock (2.0.0)"]
 
 [[package]]
 category = "main"
@@ -1288,14 +1301,6 @@ name = "typed-ast"
 optional = false
 python-versions = "*"
 version = "1.4.1"
-
-[[package]]
-category = "main"
-description = "Backported and Experimental Type Hints for Python 3.5+"
-name = "typing-extensions"
-optional = false
-python-versions = "*"
-version = "3.7.4.2"
 
 [[package]]
 category = "main"
@@ -1413,7 +1418,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "6ef9dbda130bfc34adc788375ba9fd52693ed0aafe48c372bf56b827404a123b"
+content-hash = "da1abb2700478615d261fe581372564b2c53e71d6b42732907e7127d034b7f6d"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -1786,11 +1791,6 @@ markupsafe = [
     {file = "MarkupSafe-1.1.1-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:ba59edeaa2fc6114428f1637ffff42da1e311e29382d81b339c1817d37ec93c6"},
     {file = "MarkupSafe-1.1.1-cp37-cp37m-win32.whl", hash = "sha256:b00c1de48212e4cc9603895652c5c410df699856a2853135b3967591e4beebc2"},
     {file = "MarkupSafe-1.1.1-cp37-cp37m-win_amd64.whl", hash = "sha256:9bf40443012702a1d2070043cb6291650a0841ece432556f784f004937f0f32c"},
-    {file = "MarkupSafe-1.1.1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:6788b695d50a51edb699cb55e35487e430fa21f1ed838122d722e0ff0ac5ba15"},
-    {file = "MarkupSafe-1.1.1-cp38-cp38-manylinux1_i686.whl", hash = "sha256:cdb132fc825c38e1aeec2c8aa9338310d29d337bebbd7baa06889d09a60a1fa2"},
-    {file = "MarkupSafe-1.1.1-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:13d3144e1e340870b25e7b10b98d779608c02016d5184cfb9927a9f10c689f42"},
-    {file = "MarkupSafe-1.1.1-cp38-cp38-win32.whl", hash = "sha256:596510de112c685489095da617b5bcbbac7dd6384aeebeda4df6025d0256a81b"},
-    {file = "MarkupSafe-1.1.1-cp38-cp38-win_amd64.whl", hash = "sha256:e8313f01ba26fbbe36c7be1966a7b7424942f670f38e666995b88d012765b9be"},
     {file = "MarkupSafe-1.1.1.tar.gz", hash = "sha256:29872e92839765e546828bb7754a68c418d927cd064fd4708fab9fe9c8bb116b"},
 ]
 mccabe = [
@@ -1915,6 +1915,10 @@ pydub = [
     {file = "pydub-0.23.1-py2.py3-none-any.whl", hash = "sha256:d29901a486fb421c5d7b0f3d5d3a60527179204d8ffb20e74e1ae81c17e81b46"},
     {file = "pydub-0.23.1.tar.gz", hash = "sha256:c362fa02da1eebd1d08bd47aa9b0102582dff7ca2269dbe9e043d228a0c1ea93"},
 ]
+pygments = [
+    {file = "Pygments-2.6.1-py3-none-any.whl", hash = "sha256:ff7a40b4860b727ab48fad6360eb351cc1b33cbf9b15a0f689ca5353e9463324"},
+    {file = "Pygments-2.6.1.tar.gz", hash = "sha256:647344a061c249a3b74e230c739f434d7ea4d8b1d5f3721bc0f3558049b38f44"},
+]
 pylint = [
     {file = "pylint-2.4.4-py3-none-any.whl", hash = "sha256:886e6afc935ea2590b462664b161ca9a5e40168ea99e5300935f6591ad467df4"},
     {file = "pylint-2.4.4.tar.gz", hash = "sha256:3db5468ad013380e987410a8d6956226963aed94ecb5f9d3a28acca6d9ac36cd"},
@@ -1976,6 +1980,10 @@ pytest-docker-compose = [
     {file = "pytest-docker-compose-3.1.2.tar.gz", hash = "sha256:f0d5c7b7e31458862aca3e5668aa6d32c5e22a177ef77c1898c74d95c6590a79"},
     {file = "pytest_docker_compose-3.1.2-py3-none-any.whl", hash = "sha256:59462d39df9b5e09f4ddeb46f0d062b77a94dbb8d475e1a48cdea3e46aa6cee5"},
 ]
+pytest-testmon = [
+    {file = "pytest-testmon-1.0.2.tar.gz", hash = "sha256:fdb016d953036051d1ef0e36569b7168cefa4914014789a65a4ffefc87f85ac5"},
+    {file = "pytest_testmon-1.0.2-py3-none-any.whl", hash = "sha256:e79852203894bbd5a6adb7e0541316c0a3a84322e9766f746ed6b8b62f9897d9"},
+]
 python-dotenv = [
     {file = "python-dotenv-0.12.0.tar.gz", hash = "sha256:92b3123fb2d58a284f76cc92bfe4ee6c502c32ded73e8b051c4f6afc8b6751ed"},
     {file = "python_dotenv-0.12.0-py2.py3-none-any.whl", hash = "sha256:81822227f771e0cab235a2939f0f265954ac4763cafd806d845801c863bf372f"},
@@ -1986,10 +1994,6 @@ python-slugify = [
 python-vlc = [
     {file = "python-vlc-3.0.7110.tar.gz", hash = "sha256:821bca0dbe08fbff97a65e56ff2318ad7d499330876579c39f01f3fb38c7b679"},
     {file = "python_vlc-3.0.7110-py3-none-any.whl", hash = "sha256:f62987571cf3d58adfc5b2c0adab679f96dcce76e8096d14cc56abd4c3d3527b"},
-]
-pytube3 = [
-    {file = "pytube3-9.6.4-py3-none-any.whl", hash = "sha256:a02694b097c897a2afc68777e142a3d5268046960d01d4e01ac0584fda4499b1"},
-    {file = "pytube3-9.6.4.tar.gz", hash = "sha256:98ae480a2d637572582e5c8b2e90fb7495f6d3a56daaffa7b2055113380f7d61"},
 ]
 pywin32 = [
     {file = "pywin32-227-cp27-cp27m-win32.whl", hash = "sha256:371fcc39416d736401f0274dd64c2302728c9e034808e37381b5e1b22be4a6b0"},
@@ -2022,8 +2026,8 @@ requests = [
     {file = "requests-2.23.0-py2.py3-none-any.whl", hash = "sha256:43999036bfa82904b6af1d99e4882b560e5e2c68e5c4b0aa03b655f3d7d73fee"},
     {file = "requests-2.23.0.tar.gz", hash = "sha256:b3f43d496c6daba4493e7c431722aeb7dbc6288f52a6e04e7b6023b0247817e6"},
 ]
-rstcheck = [
-    {file = "rstcheck-3.3.1.tar.gz", hash = "sha256:92c4f79256a54270e0402ba16a2f92d0b3c15c8f4410cb9c57127067c215741f"},
+restructuredtext-lint = [
+    {file = "restructuredtext_lint-1.3.0.tar.gz", hash = "sha256:97b3da356d5b3a8514d8f1f9098febd8b41463bed6a1d9f126cf0a048b6fd908"},
 ]
 "ruamel.yaml" = [
     {file = "ruamel.yaml-0.16.10-py2.py3-none-any.whl", hash = "sha256:0962fd7999e064c4865f96fb1e23079075f4a2a14849bcdc5cdba53a24f9759b"},
@@ -2059,16 +2063,15 @@ six = [
     {file = "six-1.14.0.tar.gz", hash = "sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a"},
 ]
 spotipy = [
-    {file = "spotipy-2.10.0-py2-none-any.whl", hash = "sha256:ed95a516d3f3297665db4baf5be363ac9af6b826cb466692defa370ca7597c79"},
-    {file = "spotipy-2.10.0-py3-none-any.whl", hash = "sha256:4cb4ce6509ea2641b59fd8a3791d145865f7589f2c901ddcf0316cd147724cfc"},
-    {file = "spotipy-2.10.0.tar.gz", hash = "sha256:f5bd0d04f4fd37d3b38cd3b35d2e9ce05182a57bc52403d6bad14d07bb4f4e68"},
+    {file = "spotipy-2.11.1-py2-none-any.whl", hash = "sha256:861c5762a61f342820eed07d2e4f6268dcd159d712f9f6e2c7c4468ec836430a"},
+    {file = "spotipy-2.11.1-py3-none-any.whl", hash = "sha256:29679098449c15a7a19b892fc95bf791f9b019672b4ce86185ff8b6f62d5fd51"},
+    {file = "spotipy-2.11.1.tar.gz", hash = "sha256:77307501a777440f451394cd541734d1744303ceebc1c49ca701cf0e54f1703c"},
 ]
 text-unidecode = [
     {file = "text-unidecode-1.3.tar.gz", hash = "sha256:bad6603bb14d279193107714b288be206cac565dfa49aa5b105294dd5c4aab93"},
     {file = "text_unidecode-1.3-py2.py3-none-any.whl", hash = "sha256:1311f10e8b895935241623731c2ba64f4c455287888b18189350b67134a822e8"},
 ]
 texttable = [
-    {file = "texttable-1.6.2-py2.py3-none-any.whl", hash = "sha256:7dc282a5b22564fe0fdc1c771382d5dd9a54742047c61558e071c8cd595add86"},
     {file = "texttable-1.6.2.tar.gz", hash = "sha256:eff3703781fbc7750125f50e10f001195174f13825a92a45e9403037d539b4f4"},
 ]
 toml = [
@@ -2106,11 +2109,6 @@ typed-ast = [
     {file = "typed_ast-1.4.1-cp38-cp38-win_amd64.whl", hash = "sha256:fc0fea399acb12edbf8a628ba8d2312f583bdbdb3335635db062fa98cf71fca4"},
     {file = "typed_ast-1.4.1-cp39-cp39-macosx_10_15_x86_64.whl", hash = "sha256:d43943ef777f9a1c42bf4e552ba23ac77a6351de620aa9acf64ad54933ad4d34"},
     {file = "typed_ast-1.4.1.tar.gz", hash = "sha256:8c8aaad94455178e3187ab22c8b01a3837f8ee50e09cf31f1ba129eb293ec30b"},
-]
-typing-extensions = [
-    {file = "typing_extensions-3.7.4.2-py2-none-any.whl", hash = "sha256:f8d2bd89d25bc39dabe7d23df520442fa1d8969b82544370e03d88b5a591c392"},
-    {file = "typing_extensions-3.7.4.2-py3-none-any.whl", hash = "sha256:6e95524d8a547a91e08f404ae485bbb71962de46967e1b71a0cb89af24e761c5"},
-    {file = "typing_extensions-3.7.4.2.tar.gz", hash = "sha256:79ee589a3caca649a9bfd2a8de4709837400dfa00b6cc81962a1e6a1815969ae"},
 ]
 urllib3 = [
     {file = "urllib3-1.25.8-py2.py3-none-any.whl", hash = "sha256:2f3db8b19923a873b3e5256dc9c2dedfa883e33d87c690d9c7913e1f40673cdc"},

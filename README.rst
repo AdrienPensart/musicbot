@@ -669,8 +669,14 @@ musicbot spotify playlist
     Show playlist
   
   Options:
-    --spotify TEXT  Spotify token
-    -h, --help      Show this message and exit.
+    --username TEXT       Spotify username
+    --client-id TEXT      Spotify client ID
+    --client-secret TEXT  Spotify client secret
+    --token TEXT          Spotify token
+    --cache-path TEXT     Spotify cache dir
+    --scopes TEXT         Spotify scopes
+    --redirect-uri TEXT   Spotify redirect URI
+    -h, --help            Show this message and exit.
 
 
 musicbot spotify playlists
@@ -682,8 +688,14 @@ musicbot spotify playlists
     List playlists
   
   Options:
-    --spotify TEXT  Spotify token
-    -h, --help      Show this message and exit.
+    --username TEXT       Spotify username
+    --client-id TEXT      Spotify client ID
+    --client-secret TEXT  Spotify client secret
+    --token TEXT          Spotify token
+    --cache-path TEXT     Spotify cache dir
+    --scopes TEXT         Spotify scopes
+    --redirect-uri TEXT   Spotify redirect URI
+    -h, --help            Show this message and exit.
 
 
 musicbot spotify tracks
@@ -695,7 +707,13 @@ musicbot spotify tracks
     Show tracks
   
   Options:
-    --spotify TEXT                 Spotify token
+    --username TEXT                Spotify username
+    --client-id TEXT               Spotify client ID
+    --client-secret TEXT           Spotify client secret
+    --token TEXT                   Spotify token
+    --cache-path TEXT              Spotify cache dir
+    --scopes TEXT                  Spotify scopes
+    --redirect-uri TEXT            Spotify redirect URI
     --output [table|json|m3u|csv]  Output format  [default: table]
     -h, --help                     Show this message and exit.
 
@@ -809,10 +827,24 @@ musicbot youtube
     -h, --help  Show this message and exit.
   
   Commands:
+    download     Download a youtube link with artist and title
     find         Search a youtube link with artist and title
     fingerprint  Fingerprint a youtube video
     help         Print help
     search       Search a youtube link with artist and title
+
+
+musicbot youtube download
+*************************
+.. code-block::
+
+  Usage: musicbot youtube download [OPTIONS] ARTIST TITLE
+  
+    Download a youtube link with artist and title
+  
+  Options:
+    --path TEXT
+    -h, --help   Show this message and exit.
 
 
 musicbot youtube find
@@ -824,7 +856,6 @@ musicbot youtube find
     Search a youtube link with artist and title
   
   Options:
-    --youtube-api-key TEXT   YouTube API Key
     --acoustid-api-key TEXT  AcoustID API Key
     -h, --help               Show this message and exit.
 
@@ -851,7 +882,6 @@ musicbot youtube search
     Search a youtube link with artist and title
   
   Options:
-    --youtube-api-key TEXT  YouTube API Key
-    -h, --help              Show this message and exit.
+    -h, --help  Show this message and exit.
 
 

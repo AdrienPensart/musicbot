@@ -9,6 +9,7 @@ from tqdm import tqdm
 from musicbot import helpers
 from musicbot.config import config
 from musicbot.helpers import config_string
+from musicbot.exceptions import FailedAuthentication, FailedRequest
 from musicbot.music import file, mfilter
 
 logger = logging.getLogger(__name__)
@@ -36,18 +37,6 @@ graphql_option = [click.option('--graphql', help='GraphQL endpoint', default=DEF
 register_options = email_option + password_option + first_name_option + last_name_option + graphql_option
 login_options = email_option + password_option + graphql_option
 auth_options = login_options + token_option
-
-
-class MusicbotError(Exception):
-    pass
-
-
-class FailedAuthentication(MusicbotError):
-    pass
-
-
-class FailedRequest(MusicbotError):
-    pass
 
 
 class GraphQL:

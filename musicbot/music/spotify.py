@@ -1,24 +1,124 @@
 import logging
+import os
 import itertools
 import spotipy
 import click
-from musicbot.helpers import config_string
+from musicbot.config import config
+from musicbot.exceptions import FailedAuthentication
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_CACHE_PATH = '.spotify_cache'
+DEFAULT_SCOPES = 'user-library-read,user-follow-read,user-top-read,playlist-read-private,user-modify-playback-state,user-read-currently-playing,user-read-playback-state'
+DEFAULT_REDIRECT_URI = 'http://localhost/spotify/callback'
 
-def sane_spotify(ctx, param, value):
-    spotify = config_string(ctx=ctx, param=param, value=value)
-    ctx.params['spotify'] = Spotify(spotify)
+
+def config_string_spotify(ctx, param, arg_value):  # pylint: disable=unused-argument
+    name = param.name
+
+    config_value = config.configfile['spotify'].get(name, None)
+    if config_value:
+        value = config_value
+        logger.info(f"{name} : config key loaded : {config_value}")
+
+    name_upper = name.upper().replace('-', '_')
+    env_name = 'MB_SPOTIFY_' + name_upper
+    env_value = os.getenv(env_name, None)
+    if env_value:
+        value = env_value
+        logger.info(f"{name} : env key {env_name} loaded : {env_value}")
+
+    default_name = 'DEFAULT_' + name_upper
+    default_value = globals().get(default_name, None)
+    logger.info(f'{name} : default_name: {default_name} default_value: {default_value}')
+
+    if arg_value and arg_value != default_value:
+        logger.info(f"{name} : arg value loaded : {arg_value}")
+        value = arg_value
+
+    if not value:
+        logger.info(f"{name} : default arg value loaded {default_name} : {arg_value}")
+        value = default_value
+
+    if env_value and arg_value and env_value != arg_value:
+        logger.info(f"{name} : env value {env_value} is not sync with arg value {arg_value}")
+    if env_value and config_value and env_value != config_value:
+        logger.info(f"{name} : config value {config_value} is not sync with env value {env_value}")
+    if arg_value and config_value and arg_value != config_value:
+        logger.info(f"{name} : config value {config_value} is not sync with arg value {arg_value}")
+
+    if not value:
+        raise click.BadParameter(f'missing arg {param.name} or env {env_name} or config in [spotify] section of {config.config}', ctx, param.name, param.name)
+    logger.info(f"{name} : final value {value}")
+    return value
+
+
+def sane_spotify(ctx, param, value):  # pylint: disable=unused-argument
+    username = ctx.params['username']
+    ctx.params.pop('username')
+
+    client_id = ctx.params['client_id']
+    ctx.params.pop('client_id')
+
+    client_secret = ctx.params['client_secret']
+    ctx.params.pop('client_secret')
+
+    cache_path = ctx.params['cache_path']
+    ctx.params.pop('cache_path')
+
+    redirect_uri = ctx.params['redirect_uri']
+    ctx.params.pop('redirect_uri')
+
+    scopes = ctx.params['scopes']
+    ctx.params.pop('scopes')
+
+    ctx.params['spotify'] = Spotify(
+        username=username,
+        client_id=client_id,
+        client_secret=client_secret,
+        cache_path=cache_path,
+        redirect_uri=redirect_uri,
+        scopes=scopes,
+    )
     return ctx.params['spotify']
 
 
-spotify_token_option = [click.option('--spotify', help='Spotify token', callback=sane_spotify)]
+cache_path_option = [click.option('--cache-path', help='Spotify cache dir', is_eager=True, callback=config_string_spotify)]
+scopes_option = [click.option('--scopes', help='Spotify scopes', is_eager=True, callback=config_string_spotify)]
+redirect_uri_option = [click.option('--redirect-uri', help='Spotify redirect URI', is_eager=True, callback=config_string_spotify)]
+
+username_option = [click.option('--username', help='Spotify username', is_eager=True, callback=config_string_spotify)]
+client_id_option = [click.option('--client-id', help='Spotify client ID', is_eager=True, callback=config_string_spotify)]
+client_secret_option = [click.option('--client-secret', help='Spotify client secret', is_eager=True, callback=config_string_spotify)]
+
+token_option = [click.option('--token', help='Spotify token', expose_value=False, callback=sane_spotify)]
+options = username_option + client_id_option + client_secret_option + token_option + cache_path_option + scopes_option + redirect_uri_option
 
 
 class Spotify:
-    def __init__(self, spotify_token):
-        self.sp = spotipy.Spotify(auth=spotify_token)
+    def __init__(self, username, client_id, client_secret, cache_path, scopes, redirect_uri):
+        self.scopes = scopes
+        self.redirect_uri = redirect_uri
+        self.cache_path = cache_path
+        self.username = username
+        self.client_id = client_id
+        self.client_secret = client_secret
+
+        if not self.username or not self.client_id or not self.client_secret:
+            raise FailedAuthentication("Missing username, client_id or client_secret")
+
+        self.token = spotipy.util.prompt_for_user_token(
+            client_id=self.client_id,
+            client_secret=self.client_secret,
+            username=self.username,
+            cache_path=self.cache_path,
+            redirect_uri=self.redirect_uri,
+            scope=self.scopes,
+        )
+        self.sp = spotipy.Spotify(auth=self.token)
+
+    def __repr__(self):
+        return f'token: {self.token} | username: {self.username} | client_id: {self.client_id} | client_secret: {self.client_secret} | cache: {self.cache_path} | redirect uri: {self.redirect_uri} | scopes: {self.scopes}'
 
     def tracks(self):
         offset = 0

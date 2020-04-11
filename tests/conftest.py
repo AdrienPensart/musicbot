@@ -1,5 +1,4 @@
 import socket
-import os
 import time
 import traceback
 import logging
@@ -12,8 +11,9 @@ logger = logging.getLogger(__name__)
 pytest_plugins = ["docker_compose"]
 
 
-def pytest_generate_tests(metafunc):  # pylint: disable=unused-argument
-    os.environ['MB_CONFIG'] = '/tmp/musicbot.ini'
+# import os
+# def pytest_generate_tests(metafunc):  # pylint: disable=unused-argument
+#     os.environ['MB_CONFIG'] = '/tmp/musicbot.ini'
 
 
 def wait_for_service(service, timeout=60):

@@ -4,6 +4,7 @@ env*
 doc/html
 *.egg-info
 *.pid
+*.mp3
 .eggs
 .coverage*
 postgres-data
@@ -14,3 +15,5 @@ logs
 htmlcov
 node_modules
 pip-wheel-metadata
+.testmondata
+!tests/fixtures/*.mp3

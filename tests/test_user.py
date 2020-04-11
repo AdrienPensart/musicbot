@@ -1,10 +1,43 @@
 import logging
+import json
 import pytest
 from musicbot import helpers
 from musicbot.user import User, Admin
+from musicbot.cli import cli
 from . import fixtures
+from .conftest import run_cli
 
 logger = logging.getLogger(__name__)
+
+
+@pytest.mark.runner_setup(mix_stderr=False)
+def test_user(cli_runner, user_token, postgraphile_public):
+    common_args = ['--token', user_token, '--graphql', postgraphile_public]
+
+    run_cli(cli_runner, cli, ['local', *common_args, 'load-filters'])
+    filters_json = run_cli(cli_runner, cli, ['local', *common_args, 'filters', '--output', 'json'])
+    filters = json.loads(filters_json)
+    assert len(filters) == fixtures.filters
+
+    run_cli(cli_runner, cli, ['local', *common_args, 'filter', 'default'])
+    run_cli(cli_runner, cli, ['local', *common_args, 'scan', *fixtures.folders])
+
+    folders_json = run_cli(cli_runner, cli, ['local', *common_args, 'folders', '--output', 'json'])
+    folders = json.loads(folders_json)
+    assert len(folders) == 2
+
+    musics = run_cli(cli_runner, cli, ['local', *common_args, 'find'])
+    assert len(musics.split("\n")) == 5
+
+    run_cli(cli_runner, cli, ['local', *common_args, 'sync', '/tmp', '--dry'])
+    run_cli(cli_runner, cli, ['local', *common_args, 'consistency'])
+    run_cli(cli_runner, cli, ['local', *common_args, 'playlist', '--output', 'csv'])
+    run_cli(cli_runner, cli, ['local', *common_args, 'playlist', '--output', 'json'])
+    run_cli(cli_runner, cli, ['local', *common_args, 'playlist', '--output', 'table'])
+    run_cli(cli_runner, cli, ['local', *common_args, 'playlist', '--output', 'm3u'])
+    run_cli(cli_runner, cli, ['local', *common_args, 'bests', '/tmp', '--dry'])
+    run_cli(cli_runner, cli, ['local', *common_args, 'stats'])
+    run_cli(cli_runner, cli, ['local', *common_args, 'artists'])
 
 
 @pytest.fixture

@@ -1,9 +1,12 @@
 import logging
 import json
 import click
+# import flask
+# from flask import request
 from prettytable import PrettyTable
+# import spotipy.util as util
 from musicbot import helpers
-from musicbot.music.spotify import spotify_token_option
+from musicbot.music.spotify import options
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +33,7 @@ def print_playlists(playlists):
 
 
 @cli.command()
-@helpers.add_options(spotify_token_option)
+@helpers.add_options(options)
 def playlists(spotify):
     '''List playlists'''
     playlists = spotify.playlists()
@@ -38,7 +41,7 @@ def playlists(spotify):
 
 
 @cli.command()
-@helpers.add_options(spotify_token_option)
+@helpers.add_options(options)
 @click.argument("name")
 def playlist(name, spotify):
     '''Show playlist'''
@@ -47,7 +50,7 @@ def playlist(name, spotify):
 
 
 @cli.command()
-@helpers.add_options(spotify_token_option + helpers.output_option)
+@helpers.add_options(options + helpers.output_option)
 def tracks(spotify, output):
     '''Show tracks'''
     tracks = spotify.tracks()

@@ -9,8 +9,7 @@ import click_completion
 import click_completion.core
 from click.formatting import HelpFormatter
 from attrdict import AttrDict
-from musicbot import lib, helpers, config
-from musicbot.user import MusicbotError
+from musicbot import lib, helpers, config, exceptions
 
 # little hacky but prevent click from rewraping
 HelpFormatter.write_dl.__defaults__ = (50, 2)
@@ -90,7 +89,7 @@ def version():
 def main(**kwargs):
     try:
         return cli.main(prog_name=prog_name, **kwargs)
-    except (MusicbotError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError) as e:
+    except (exceptions.MusicbotError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError) as e:
         logger.error(e)
         sys.exit(1)
 
