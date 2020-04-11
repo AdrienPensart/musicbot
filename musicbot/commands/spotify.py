@@ -1,12 +1,11 @@
 import logging
 import json
 import click
-# import flask
-# from flask import request
+from slugify import slugify
 from prettytable import PrettyTable
-# import spotipy.util as util
 from musicbot import helpers
-from musicbot.music.spotify import options
+from musicbot.music.spotify import spotify_options
+from musicbot.user import auth_options
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +32,7 @@ def print_playlists(playlists):
 
 
 @cli.command()
-@helpers.add_options(options)
+@helpers.add_options(spotify_options)
 def playlists(spotify):
     '''List playlists'''
     playlists = spotify.playlists()
@@ -41,7 +40,7 @@ def playlists(spotify):
 
 
 @cli.command()
-@helpers.add_options(options)
+@helpers.add_options(spotify_options)
 @click.argument("name")
 def playlist(name, spotify):
     '''Show playlist'''
@@ -50,12 +49,31 @@ def playlist(name, spotify):
 
 
 @cli.command()
-@helpers.add_options(options + helpers.output_option)
+@helpers.add_options(spotify_options + helpers.output_option)
 def tracks(spotify, output):
     '''Show tracks'''
-    tracks = spotify.tracks()
+    spotify_tracks = spotify.tracks()
     if output == 'table':
         print_tracks(tracks)
     elif output == 'json':
-        tracks_dict = [{'title': t['track']['name'], 'artist': t['track']['artists'][0]['name'], 'album': t['track']['album']['name']} for t in tracks]
-        print(json.dumps(tracks_dict))
+        spotify_tracks = [{'title': t['track']['name'], 'artist': t['track']['artists'][0]['name'], 'album': t['track']['album']['name']} for t in spotify_tracks]
+        print(json.dumps(spotify_tracks))
+
+
+@cli.command(help='Diff between local and spotify')
+@helpers.add_options(auth_options + spotify_options + helpers.output_option)
+def diff(user, spotify, output):
+    spotify_tracks = spotify.tracks()
+    spotify_tracks = [{'title': t['track']['name'], 'artist': t['track']['artists'][0]['name'], 'album': t['track']['album']['name']} for t in spotify_tracks]
+    local_tracks = user.do_filter()
+
+    stopwords = ['the', 'remaster', 'remastered', 'cut', 'part'] + list(map(str, range(1900, 2020)))
+    replacements = [['praxis', 'buckethead'], ['lawson-rollins', 'buckethead']]
+    source_items = {slugify(f"""{t['artist']}-{t['title']}""", stopwords=stopwords, replacements=replacements) for t in spotify_tracks}
+    destination_items = {slugify(f"""{t['artist']}-{t['title']}""", stopwords=stopwords, replacements=replacements) for t in local_tracks}
+    differences = source_items.difference(destination_items)
+
+    differences = sorted(differences)
+    for difference in differences:
+        print(difference)
+    print(f"diff : {len(differences)}")

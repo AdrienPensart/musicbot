@@ -2,85 +2,62 @@ import base64
 import json
 import logging
 import functools
-import requests
 import click
 import click_spinner
+import requests
 from tqdm import tqdm
-from musicbot import helpers
-from musicbot.config import config
-from musicbot.helpers import config_string
-from musicbot.exceptions import FailedAuthentication, FailedRequest
-from musicbot.music import file, mfilter
+from . import helpers
+from .graphql import GraphQL
+from .config import config
+from .helpers import config_string
+from .exceptions import FailedAuthentication
+from .music import file, mfilter
 
 logger = logging.getLogger(__name__)
-DEFAULT_TOKEN = None
-token_option = [click.option('--token', '-t', help='User token', default=DEFAULT_TOKEN, callback=config_string)]
+
 
 DEFAULT_EMAIL = None
-email_option = [click.option('--email', '-e', help='User email', default=DEFAULT_EMAIL, callback=config_string)]
+email_option = [click.option('--email', '-e', help='User email', default=DEFAULT_EMAIL, is_eager=True, callback=config_string)]
 
 DEFAULT_PASSWORD = None
-password_option = [click.option('--password', '-p', help='User password', default=DEFAULT_PASSWORD, callback=config_string)]
+password_option = [click.option('--password', '-p', help='User password', default=DEFAULT_PASSWORD, is_eager=True, callback=config_string)]
 
 DEFAULT_FIRST_NAME = None
-first_name_option = [click.option('--first-name', help='User first name', default=DEFAULT_FIRST_NAME, callback=config_string, show_default=True)]
+first_name_option = [click.option('--first-name', help='User first name', default=DEFAULT_FIRST_NAME, is_eager=True, callback=config_string, show_default=True)]
 
 DEFAULT_LAST_NAME = None
-last_name_option = [click.option('--last-name', help='User last name', default=DEFAULT_FIRST_NAME, callback=config_string, show_default=True)]
-
-DEFAULT_GRAPHQL_ADMIN = 'http://127.0.0.1:5001/graphql'
-graphql_admin_option = [click.option('--graphql-admin', help='GraphQL endpoint', default=DEFAULT_GRAPHQL_ADMIN, callback=config_string, show_default=True)]
+last_name_option = [click.option('--last-name', help='User last name', default=DEFAULT_FIRST_NAME, is_eager=True, callback=config_string, show_default=True)]
 
 DEFAULT_GRAPHQL = 'http://127.0.0.1:5000/graphql'
-graphql_option = [click.option('--graphql', help='GraphQL endpoint', default=DEFAULT_GRAPHQL, callback=config_string, show_default=True)]
+graphql_option = [click.option('--graphql', help='GraphQL endpoint', default=DEFAULT_GRAPHQL, is_eager=True, callback=config_string, show_default=True)]
+
+
+def sane_user(ctx, param, value):  # pylint: disable=unused-argument
+    email = ctx.params['email']
+    ctx.params.pop('email')
+
+    password = ctx.params['password']
+    ctx.params.pop('password')
+
+    graphql = ctx.params['graphql']
+    ctx.params.pop('graphql')
+
+    token = value
+    ctx.params['user'] = User(
+        email=email,
+        password=password,
+        graphql=graphql,
+        token=token,
+    )
+    return ctx.params['user']
+
+
+DEFAULT_TOKEN = None
+token_option = [click.option('--token', '-t', help='User token', expose_value=False, callback=sane_user)]
 
 register_options = email_option + password_option + first_name_option + last_name_option + graphql_option
 login_options = email_option + password_option + graphql_option
 auth_options = login_options + token_option
-
-
-class GraphQL:
-    def __init__(self, graphql, headers=None):
-        self.graphql = graphql
-        self.headers = headers
-
-    def _post(self, query, failure=None):
-        logger.debug(query)
-        response = requests.post(self.graphql, json={'query': query}, headers=self.headers)
-        logger.debug(response)
-        json_response = response.json()
-        logger.debug(json_response)
-        if response.status_code != 200:
-            failure = failure if failure is not None else FailedRequest(f"Query failed: {json_response}")
-            raise failure
-        if 'errors' in json_response and json_response['errors']:
-            errors = [e['message'] for e in json_response['errors']]
-            failure = failure if failure is not None else FailedRequest(f"Query failed: {errors}")
-            raise failure
-        return json_response
-
-
-class Admin(GraphQL):
-    @helpers.timeit
-    def __init__(self, graphql=None):
-        graphql = graphql if graphql is not None else DEFAULT_GRAPHQL_ADMIN
-        GraphQL.__init__(self, graphql=graphql)
-
-    @helpers.timeit
-    def users(self):
-        query = """
-        {
-          usersList{
-              firstName,
-              lastName,
-              createdAt,
-              updatedAt,
-              accountByUserId{
-                email
-              }
-          }
-        }"""
-        return self._post(query)['data']['usersList']
 
 
 class User(GraphQL):

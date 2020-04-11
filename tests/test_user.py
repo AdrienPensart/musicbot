@@ -2,7 +2,8 @@ import logging
 import json
 import pytest
 from musicbot import helpers
-from musicbot.user import User, Admin
+from musicbot.user import User
+from musicbot.admin import Admin
 from musicbot.cli import cli
 from . import fixtures
 from .conftest import run_cli

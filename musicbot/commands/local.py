@@ -28,52 +28,48 @@ logging.getLogger("vlc").setLevel(logging.NOTSET)
 
 
 @click.group(help='''Local music management''', cls=helpers.GroupWithHelp)
-@click.pass_context
-@helpers.add_options(user.auth_options)
-def cli(ctx, **kwargs):
-    ctx.obj.u = lambda: user.User.new(**kwargs)
+def cli():
+    pass
 
 
 @cli.command(help='''List artists''')
-@click.pass_context
-@helpers.add_options(helpers.output_option)
-def artists(ctx, output):
+@helpers.add_options(user.auth_options + helpers.output_option)
+def artists(user, output):
     if output == 'table':
         pt = PrettyTable()
         pt.field_names = ["Name"]
-        for a in ctx.obj.u().artists:
+        for a in user.artists:
             pt.add_row([a['name']])
         print(pt)
     elif output == 'json':
-        print(json.dumps(ctx.obj.u().artists))
+        print(json.dumps(user.artists))
     else:
         raise NotImplementedError
 
 
 @cli.command(help='''Raw query''')
-@click.pass_context
 @click.argument('query')
-def execute(ctx, query):
-    print(json.dumps(ctx.obj.u()._post(query)['data']))
+@helpers.add_options(user.auth_options)
+def execute(user, query):
+    print(json.dumps(user._post(query)['data']))
 
 
 @cli.command()
-@click.pass_context
-def load_filters(ctx):
+@helpers.add_options(user.auth_options)
+def load_filters(user):
     '''Load default filters'''
-    ctx.obj.u().load_default_filters()
+    user.load_default_filters()
 
 
 @cli.command(help='''List filters''')
-@click.pass_context
-@helpers.add_options(helpers.output_option)
-def filters(ctx, output):
+@helpers.add_options(user.auth_options + helpers.output_option)
+def filters(user, output):
     if output == 'json':
-        print(json.dumps(ctx.obj.u().filters))
+        print(json.dumps(user.filters))
     elif output == 'table':
         pt = PrettyTable()
         pt.field_names = ["Name", "Keywords", "No keywords", "Min rating", "Max rating"]
-        for f in ctx.obj.u().filters:
+        for f in user.filters:
             pt.add_row([f['name'], f['keywords'], f['noKeywords'], f['minRating'], f['maxRating']])
         print(pt)
     else:
@@ -81,11 +77,10 @@ def filters(ctx, output):
 
 
 @cli.command('filter', help='''Print a filter''')
-@click.pass_context
-@helpers.add_options(helpers.output_option)
+@helpers.add_options(user.auth_options + helpers.output_option)
 @click.argument('name')
-def _filter(ctx, name, output):
-    f = ctx.obj.u().filter(name)
+def _filter(user, name, output):
+    f = user.filter(name)
     if output == 'json':
         print(json.dumps(f))
     elif output == 'table':
@@ -95,11 +90,10 @@ def _filter(ctx, name, output):
 
 
 @cli.command(help='''Generate some stats for music collection with filters''')
-@click.pass_context
-@helpers.add_options(helpers.output_option + mfilter.options)
-def stats(ctx, output, **kwargs):
+@helpers.add_options(user.auth_options + helpers.output_option + mfilter.options)
+def stats(user, output, **kwargs):
     mf = mfilter.Filter(**kwargs)
-    stats = ctx.obj.u().do_stat(mf)
+    stats = user.do_stat(mf)
     if output == 'json':
         print(json.dumps(stats))
     elif output == 'table':
@@ -118,10 +112,9 @@ def stats(ctx, output, **kwargs):
 
 
 @cli.command(help='''List folders''')
-@click.pass_context
-@helpers.add_options(helpers.output_option)
-def folders(ctx, output):
-    _folders = ctx.obj.u().folders
+@helpers.add_options(user.auth_options + helpers.output_option)
+def folders(user, output):
+    _folders = user.folders
     if output == 'json':
         print(json.dumps(_folders))
     elif output == 'table':
@@ -135,23 +128,19 @@ def folders(ctx, output):
 
 
 @cli.command(help='''(re)Load musics''')
-@helpers.add_options(helpers.folders_argument)
-@click.pass_context
-def scan(ctx, folders):
-    u = ctx.obj.u()
+@helpers.add_options(user.auth_options + helpers.folders_argument)
+def scan(user, folders):
     if not folders:
-        folders = u.folders
+        folders = user.folders
     files = helpers.genfiles(folders)
-    u.bulk_insert(files)
+    user.bulk_insert(files)
 
 
 @cli.command(help='''Just list music files''')
-@helpers.add_options(helpers.folders_argument)
-@click.pass_context
-def find(ctx, folders):
-    u = ctx.obj.u()
+@helpers.add_options(user.auth_options + helpers.folders_argument)
+def find(user, folders):
     if not folders:
-        folders = u.folders
+        folders = user.folders
 
     files = lib.find_files(folders, supported_formats)
     for f in files:
@@ -159,25 +148,24 @@ def find(ctx, folders):
 
 
 @cli.command(help='''Watch files changes in folders''')
-@click.pass_context
-def watch(ctx):
-    ctx.obj.u().watch()
+@helpers.add_options(user.auth_options)
+def watch(user):
+    user.watch()
 
 
 @cli.command(help='''Clean all musics''')
-@click.pass_context
-def clean(ctx):
-    ctx.obj.u().clean_musics()
+@helpers.add_options(user.auth_options)
+def clean(user):
+    user.clean_musics()
 
 
 @cli.command(help='''Copy selected musics with filters to destination folder''')
-@helpers.add_options(helpers.dry_option + mfilter.options)
+@helpers.add_options(user.auth_options + helpers.dry_option + mfilter.options)
 @click.argument('destination')
-@click.pass_context
-def sync(ctx, dry, destination, **kwargs):
+def sync(user, dry, destination, **kwargs):
     logger.info('Destination: %s', destination)
     mf = mfilter.Filter(**kwargs)
-    musics = ctx.obj.u().do_filter(mf)
+    musics = user.do_filter(mf)
 
     files = list(lib.all_files(destination))
     logger.info(f"Files : {len(files)}")
@@ -235,11 +223,10 @@ def sync(ctx, dry, destination, **kwargs):
 
 
 @cli.command(help='''Check music files consistency''')
-@click.pass_context
-@helpers.add_options(helpers.folders_argument)
-def consistency(ctx, folders):
+@helpers.add_options(user.auth_options + helpers.folders_argument)
+def consistency(user, folders):
     if not folders:
-        folders = ctx.obj.u().folders
+        folders = user.folders
 
     musics = helpers.genfiles(folders)
     pt = PrettyTable()
@@ -277,15 +264,74 @@ def consistency(ctx, folders):
     print(pt)
 
 
+@cli.command(help='''Generate a new playlist''')
+@helpers.add_options(user.auth_options + helpers.dry_option + mfilter.options + helpers.output_option)
+@click.argument('path', type=click.File('w'), default='-')
+def playlist(user, output, path, dry, **kwargs):
+    mf = mfilter.Filter(**kwargs)
+    if output == 'm3u':
+        p = user.playlist(mf)
+        if not dry:
+            print(p, file=path)
+        else:
+            logger.info('DRY RUN: Writing playlist to %s with content:\n%s', path, p)
+    else:
+        tracks = user.do_filter(mf)
+        if output == 'json':
+            print(json.dumps(tracks), file=path)
+        elif output == 'table':
+            pt = PrettyTable()
+            pt.field_names = [
+                "Title",
+                "Album",
+                "Artist",
+            ]
+            for t in tracks:
+                pt.add_row([t['title'], t['album'], t['artist']])
+            print(pt, file=path)
+        elif output == 'csv':
+            folders = user.folders
+            logger.info('Scanning folders: %s', folders)
+            files = helpers.genfiles(folders)
+
+            musicwriter = csv.writer(path, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            for f in files:
+                musicwriter.writerow(f.ordered_dict().values())
+
+
+@cli.command(help='''Generate bests playlists with some rules''')
+@helpers.add_options(user.auth_options + helpers.dry_option + mfilter.options)
+@click.argument('path', type=click.Path(exists=True))
+@click.option('--prefix', envvar='MB_PREFIX', help="Append prefix before each path (implies relative)", default='')
+@click.option('--suffix', envvar='MB_SUFFIX', help="Append this suffix to playlist name", default='')
+def bests(user, dry, path, prefix, suffix, **kwargs):
+    if prefix:
+        kwargs['relative'] = True
+    mf = mfilter.Filter(**kwargs)
+    playlists = user.bests(mf)
+    with tqdm(total=len(playlists), disable=config.quiet) as pbar:
+        for p in playlists:
+            playlist_filepath = os.path.join(path, p['name'] + suffix + '.m3u')
+            pbar.set_description(f"Best playlist {prefix} {suffix}: {os.path.basename(playlist_filepath)}")
+            content = indent(p['content'], prefix, lambda line: line != '#EXTM3U')
+            if not dry:
+                try:
+                    with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:
+                        logger.debug('Writing playlist to %s with content:\n%s', playlist_filepath, content)
+                        playlist_file.write(content)
+                except (FileNotFoundError, LookupError, ValueError, UnicodeError) as e:
+                    logger.warning(f'Unable to write playlist to {playlist_filepath} because of {e}')
+            else:
+                logger.info('DRY RUN: Writing playlist to %s with content:\n%s', playlist_filepath, content)
+            pbar.update(1)
+
+
 @cli.command(help='Music player')
-@helpers.add_options(user.auth_options)
-@helpers.add_options(mfilter.options)
-@click.pass_context
-def play(ctx, email, password, token, graphql, **kwargs):
+@helpers.add_options(user.auth_options + mfilter.options)
+def play(user, **kwargs):
     try:
-        ctx.obj.u = lambda: user.User.new(email=email, password=password, token=token, graphql=graphql)
         mf = mfilter.Filter(**kwargs)
-        p = ctx.obj.u().do_filter(mf)
+        p = user.do_filter(mf)
         if not p:
             logger.warning('Empty playlist')
             return
@@ -362,67 +408,3 @@ def play(ctx, email, password, token, graphql, **kwargs):
         app.run()
     except NameError:
         logger.critical("Your VLC version may be outdated: %s", vlc.libvlc_get_version())
-
-
-@cli.command(help='''Generate a new playlist''')
-@click.pass_context
-@helpers.add_options(helpers.dry_option + mfilter.options + helpers.output_option)
-@click.argument('path', type=click.File('w'), default='-')
-def playlist(ctx, output, path, dry, **kwargs):
-    mf = mfilter.Filter(**kwargs)
-    if output == 'm3u':
-        p = ctx.obj.u().playlist(mf)
-        if not dry:
-            print(p, file=path)
-        else:
-            logger.info('DRY RUN: Writing playlist to %s with content:\n%s', path, p)
-    else:
-        tracks = ctx.obj.u().do_filter(mf)
-        if output == 'json':
-            print(json.dumps(tracks), file=path)
-        elif output == 'table':
-            pt = PrettyTable()
-            pt.field_names = [
-                "Title",
-                "Album",
-                "Artist",
-            ]
-            for t in tracks:
-                pt.add_row([t['title'], t['album'], t['artist']])
-            print(pt, file=path)
-        elif output == 'csv':
-            folders = ctx.obj.u().folders
-            logger.info('Scanning folders: %s', folders)
-            files = helpers.genfiles(folders)
-
-            musicwriter = csv.writer(path, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            for f in files:
-                musicwriter.writerow(f.ordered_dict().values())
-
-
-@cli.command(help='''Generate bests playlists with some rules''')
-@click.pass_context
-@helpers.add_options(helpers.dry_option + mfilter.options)
-@click.argument('path', type=click.Path(exists=True))
-@click.option('--prefix', envvar='MB_PREFIX', help="Append prefix before each path (implies relative)", default='')
-@click.option('--suffix', envvar='MB_SUFFIX', help="Append this suffix to playlist name", default='')
-def bests(ctx, dry, path, prefix, suffix, **kwargs):
-    if prefix:
-        kwargs['relative'] = True
-    mf = mfilter.Filter(**kwargs)
-    playlists = ctx.obj.u().bests(mf)
-    with tqdm(total=len(playlists), disable=config.quiet) as pbar:
-        for p in playlists:
-            playlist_filepath = os.path.join(path, p['name'] + suffix + '.m3u')
-            pbar.set_description(f"Best playlist {prefix} {suffix}: {os.path.basename(playlist_filepath)}")
-            content = indent(p['content'], prefix, lambda line: line != '#EXTM3U')
-            if not dry:
-                try:
-                    with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:
-                        logger.debug('Writing playlist to %s with content:\n%s', playlist_filepath, content)
-                        playlist_file.write(content)
-                except (FileNotFoundError, LookupError, ValueError, UnicodeError) as e:
-                    logger.warning(f'Unable to write playlist to {playlist_filepath} because of {e}')
-            else:
-                logger.info('DRY RUN: Writing playlist to %s with content:\n%s', playlist_filepath, content)
-            pbar.update(1)

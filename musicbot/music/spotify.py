@@ -8,10 +8,6 @@ from musicbot.config import config, check_file_writable, current_user
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_CACHE_PATH = '~/.spotify_cache'
-DEFAULT_SCOPES = 'user-library-read,user-follow-read,user-top-read,playlist-read-private,user-modify-playback-state,user-read-currently-playing,user-read-playback-state'
-DEFAULT_REDIRECT_URI = 'http://localhost:8888/spotify/callback'
-
 
 def config_string_spotify(ctx, param, arg_value):  # pylint: disable=unused-argument
     name = param.name
@@ -87,16 +83,21 @@ def sane_spotify(ctx, param, value):  # pylint: disable=unused-argument
     return ctx.params['spotify']
 
 
-cache_path_option = [click.option('--cache-path', help='Spotify cache dir', is_eager=True, callback=config_string_spotify)]
-scopes_option = [click.option('--scopes', help='Spotify scopes', is_eager=True, callback=config_string_spotify)]
-redirect_uri_option = [click.option('--redirect-uri', help='Spotify redirect URI', is_eager=True, callback=config_string_spotify)]
+DEFAULT_CACHE_PATH = '~/.spotify_cache'
+cache_path_option = [click.option('--cache-path', help='Spotify cache path', is_eager=True, default=DEFAULT_CACHE_PATH, callback=config_string_spotify)]
+
+DEFAULT_SCOPES = 'user-library-read,user-follow-read,user-top-read,playlist-read-private,user-modify-playback-state,user-read-currently-playing,user-read-playback-state'
+scopes_option = [click.option('--scopes', help='Spotify scopes', is_eager=True, default=DEFAULT_SCOPES, callback=config_string_spotify)]
+
+DEFAULT_REDIRECT_URI = 'http://localhost:8888/spotify/callback'
+redirect_uri_option = [click.option('--redirect-uri', help='Spotify redirect URI', is_eager=True, default=DEFAULT_REDIRECT_URI, callback=config_string_spotify)]
 
 username_option = [click.option('--username', help='Spotify username', is_eager=True, callback=config_string_spotify)]
 client_id_option = [click.option('--client-id', help='Spotify client ID', is_eager=True, callback=config_string_spotify)]
 client_secret_option = [click.option('--client-secret', help='Spotify client secret', is_eager=True, callback=config_string_spotify)]
 
 token_option = [click.option('--token', help='Spotify token', expose_value=False, callback=sane_spotify)]
-options = username_option + client_id_option + client_secret_option + token_option + cache_path_option + scopes_option + redirect_uri_option
+spotify_options = username_option + client_id_option + client_secret_option + token_option + cache_path_option + scopes_option + redirect_uri_option
 
 
 class Spotify:
