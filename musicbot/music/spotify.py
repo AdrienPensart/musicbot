@@ -3,12 +3,12 @@ import os
 import itertools
 import spotipy
 import click
-from musicbot.config import config
+from musicbot.config import config, check_file_writable, current_user
 # from musicbot.exceptions import FailedAuthentication
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_CACHE_PATH = '.spotify_cache'
+DEFAULT_CACHE_PATH = '~/.spotify_cache'
 DEFAULT_SCOPES = 'user-library-read,user-follow-read,user-top-read,playlist-read-private,user-modify-playback-state,user-read-currently-playing,user-read-playback-state'
 DEFAULT_REDIRECT_URI = 'http://localhost:8888/spotify/callback'
 
@@ -66,6 +66,9 @@ def sane_spotify(ctx, param, value):  # pylint: disable=unused-argument
 
     cache_path = ctx.params['cache_path']
     ctx.params.pop('cache_path')
+    cache_path = os.path.expanduser(cache_path)
+    if not check_file_writable(cache_path):
+        logger.warning(f'No permission to write to {cache_path} for current user {current_user}')
 
     redirect_uri = ctx.params['redirect_uri']
     ctx.params.pop('redirect_uri')

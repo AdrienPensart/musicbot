@@ -62,7 +62,6 @@ class TqdmStream:
 
 def check_file_writable(fnm):
     if os.path.exists(fnm):
-        # path exists
         if os.path.isfile(fnm):
             return os.access(fnm, os.W_OK)
         return False
@@ -87,6 +86,8 @@ class Config:
     def set(self, config=None, debug=None, info=None, timings=None, quiet=None, verbosity=None, log=None):
         self.config = config if config is not None else os.getenv(MB_CONFIG, DEFAULT_CONFIG)
         self.config = os.path.expanduser(self.config)
+        if not check_file_writable(self.config):
+            logger.warning(f'No permission to write to {self.config} for current user {current_user}')
 
         self.log = log if log is not None else os.getenv(MB_LOG, DEFAULT_LOG)
         if self.log:
@@ -114,7 +115,7 @@ class Config:
                 fh.setLevel(logging.DEBUG)
                 logging.getLogger().addHandler(fh)
             else:
-                logger.warning('No permission to write to %s for current user %s', self.log, current_user)
+                logger.warning(f'No permission to write to {self.log} for current user {current_user}')
         logger.debug(self)
 
     @cached_property
