@@ -104,7 +104,6 @@ Commands
     completion  Shell completion
     folder      Manage folders
     help        Print help
-    json        JSON tools for music libraries
     local       Local music management
     music       Music file
     spotify     Spotify tool
@@ -213,34 +212,6 @@ musicbot help
     -h, --help  Show this message and exit.
 
 
-musicbot json
-*************
-.. code-block::
-
-  Usage: musicbot json [OPTIONS] COMMAND [ARGS]...
-  
-    JSON tools for music libraries
-  
-  Options:
-    -h, --help  Show this message and exit.
-  
-  Commands:
-    diff  Diff tracks
-    help  Print help
-
-
-musicbot json diff
-******************
-.. code-block::
-
-  Usage: musicbot json diff [OPTIONS] SOURCE DESTINATION
-  
-    Diff tracks
-  
-  Options:
-    -h, --help  Show this message and exit.
-
-
 musicbot local
 **************
 .. code-block::
@@ -250,11 +221,7 @@ musicbot local
     Local music management
   
   Options:
-    -e, --email TEXT     User email
-    -p, --password TEXT  User password
-    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -t, --token TEXT     User token
-    -h, --help           Show this message and exit.
+    -h, --help  Show this message and exit.
   
   Commands:
     artists       List artists
@@ -285,6 +252,10 @@ musicbot local artists
     List artists
   
   Options:
+    -e, --email TEXT               User email
+    -p, --password TEXT            User password
+    --graphql TEXT                 GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -t, --token TEXT               User token
     --output [table|json|m3u|csv]  Output format  [default: table]
     -h, --help                     Show this message and exit.
 
@@ -298,6 +269,10 @@ musicbot local bests
     Generate bests playlists with some rules
   
   Options:
+    -e, --email TEXT        User email
+    -p, --password TEXT     User password
+    --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -t, --token TEXT        User token
     --dry                   Take no real action  [default: False]
     --name TEXT             Filter name
     --limit INTEGER         Fetch a maximum limit of music
@@ -339,7 +314,11 @@ musicbot local clean
     Clean all musics
   
   Options:
-    -h, --help  Show this message and exit.
+    -e, --email TEXT     User email
+    -p, --password TEXT  User password
+    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -t, --token TEXT     User token
+    -h, --help           Show this message and exit.
 
 
 musicbot local consistency
@@ -351,7 +330,11 @@ musicbot local consistency
     Check music files consistency
   
   Options:
-    -h, --help  Show this message and exit.
+    -e, --email TEXT     User email
+    -p, --password TEXT  User password
+    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -t, --token TEXT     User token
+    -h, --help           Show this message and exit.
 
 
 musicbot local execute
@@ -363,7 +346,11 @@ musicbot local execute
     Raw query
   
   Options:
-    -h, --help  Show this message and exit.
+    -e, --email TEXT     User email
+    -p, --password TEXT  User password
+    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -t, --token TEXT     User token
+    -h, --help           Show this message and exit.
 
 
 musicbot local filter
@@ -375,6 +362,10 @@ musicbot local filter
     Print a filter
   
   Options:
+    -e, --email TEXT               User email
+    -p, --password TEXT            User password
+    --graphql TEXT                 GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -t, --token TEXT               User token
     --output [table|json|m3u|csv]  Output format  [default: table]
     -h, --help                     Show this message and exit.
 
@@ -388,6 +379,10 @@ musicbot local filters
     List filters
   
   Options:
+    -e, --email TEXT               User email
+    -p, --password TEXT            User password
+    --graphql TEXT                 GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -t, --token TEXT               User token
     --output [table|json|m3u|csv]  Output format  [default: table]
     -h, --help                     Show this message and exit.
 
@@ -401,7 +396,11 @@ musicbot local find
     Just list music files
   
   Options:
-    -h, --help  Show this message and exit.
+    -e, --email TEXT     User email
+    -p, --password TEXT  User password
+    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -t, --token TEXT     User token
+    -h, --help           Show this message and exit.
 
 
 musicbot local folders
@@ -413,6 +412,10 @@ musicbot local folders
     List folders
   
   Options:
+    -e, --email TEXT               User email
+    -p, --password TEXT            User password
+    --graphql TEXT                 GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -t, --token TEXT               User token
     --output [table|json|m3u|csv]  Output format  [default: table]
     -h, --help                     Show this message and exit.
 
@@ -426,7 +429,11 @@ musicbot local load-filters
     Load default filters
   
   Options:
-    -h, --help  Show this message and exit.
+    -e, --email TEXT     User email
+    -p, --password TEXT  User password
+    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -t, --token TEXT     User token
+    -h, --help           Show this message and exit.
 
 
 musicbot local play
@@ -480,6 +487,10 @@ musicbot local playlist
     Generate a new playlist
   
   Options:
+    -e, --email TEXT               User email
+    -p, --password TEXT            User password
+    --graphql TEXT                 GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -t, --token TEXT               User token
     --dry                          Take no real action  [default: False]
     --name TEXT                    Filter name
     --limit INTEGER                Fetch a maximum limit of music
@@ -520,7 +531,11 @@ musicbot local scan
     (re)Load musics
   
   Options:
-    -h, --help  Show this message and exit.
+    -e, --email TEXT     User email
+    -p, --password TEXT  User password
+    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -t, --token TEXT     User token
+    -h, --help           Show this message and exit.
 
 
 musicbot local stats
@@ -532,6 +547,10 @@ musicbot local stats
     Generate some stats for music collection with filters
   
   Options:
+    -e, --email TEXT               User email
+    -p, --password TEXT            User password
+    --graphql TEXT                 GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -t, --token TEXT               User token
     --output [table|json|m3u|csv]  Output format  [default: table]
     --name TEXT                    Filter name
     --limit INTEGER                Fetch a maximum limit of music
@@ -571,6 +590,10 @@ musicbot local sync
     Copy selected musics with filters to destination folder
   
   Options:
+    -e, --email TEXT        User email
+    -p, --password TEXT     User password
+    --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -t, --token TEXT        User token
     --dry                   Take no real action  [default: False]
     --name TEXT             Filter name
     --limit INTEGER         Fetch a maximum limit of music
@@ -610,7 +633,11 @@ musicbot local watch
     Watch files changes in folders
   
   Options:
-    -h, --help  Show this message and exit.
+    -e, --email TEXT     User email
+    -p, --password TEXT  User password
+    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -t, --token TEXT     User token
+    -h, --help           Show this message and exit.
 
 
 musicbot music
@@ -654,10 +681,34 @@ musicbot spotify
     -h, --help  Show this message and exit.
   
   Commands:
+    diff       Diff between local and spotify
     help       Print help
     playlist   Show playlist
     playlists  List playlists
     tracks     Show tracks
+
+
+musicbot spotify diff
+*********************
+.. code-block::
+
+  Usage: musicbot spotify diff [OPTIONS]
+  
+    Diff between local and spotify
+  
+  Options:
+    -e, --email TEXT      User email
+    -p, --password TEXT   User password
+    --graphql TEXT        GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -t, --token TEXT      User token
+    --username TEXT       Spotify username
+    --client-id TEXT      Spotify client ID
+    --client-secret TEXT  Spotify client secret
+    --token TEXT          Spotify token
+    --cache-path TEXT     Spotify cache path
+    --scopes TEXT         Spotify scopes
+    --redirect-uri TEXT   Spotify redirect URI
+    -h, --help            Show this message and exit.
 
 
 musicbot spotify playlist
@@ -673,7 +724,7 @@ musicbot spotify playlist
     --client-id TEXT      Spotify client ID
     --client-secret TEXT  Spotify client secret
     --token TEXT          Spotify token
-    --cache-path TEXT     Spotify cache dir
+    --cache-path TEXT     Spotify cache path
     --scopes TEXT         Spotify scopes
     --redirect-uri TEXT   Spotify redirect URI
     -h, --help            Show this message and exit.
@@ -692,7 +743,7 @@ musicbot spotify playlists
     --client-id TEXT      Spotify client ID
     --client-secret TEXT  Spotify client secret
     --token TEXT          Spotify token
-    --cache-path TEXT     Spotify cache dir
+    --cache-path TEXT     Spotify cache path
     --scopes TEXT         Spotify scopes
     --redirect-uri TEXT   Spotify redirect URI
     -h, --help            Show this message and exit.
@@ -711,7 +762,7 @@ musicbot spotify tracks
     --client-id TEXT               Spotify client ID
     --client-secret TEXT           Spotify client secret
     --token TEXT                   Spotify token
-    --cache-path TEXT              Spotify cache dir
+    --cache-path TEXT              Spotify cache path
     --scopes TEXT                  Spotify scopes
     --redirect-uri TEXT            Spotify redirect URI
     --output [table|json|m3u|csv]  Output format  [default: table]
