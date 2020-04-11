@@ -16,15 +16,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libtag1-dev postgresql-server-dev-all ffmpeg
           pip install -r requirements-dev.txt
-      - name: Lint with pylint
+      - name: Linting
         run: |
-          pip install pylint
+          pip install pylint rst-lint
           pylint musicbot tests
+          rst-lint README.rst
       - name: Test with pytest
         env:
           MB_SPOTIFY_CACHE: ${{ secrets.MB_SPOTIFY_CACHE }}
           MB_SPOTIFY_CLIENT_ID: ${{ secrets.MB_SPOTIFY_CLIENT_ID }}
           MB_SPOTIFY_CLIENT_SECRET: ${{ secrets.MB_SPOTIFY_CLIENT_SECRET }}
         run: |
-          echo "$env:MB_SPOTIFY_CACHE" > .spotify_cache
+          echo -n "$MB_SPOTIFY_CACHE" > .spotify_cache
           pytest
