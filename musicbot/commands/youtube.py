@@ -94,7 +94,11 @@ def find(path, acoustid_api_key):
     except acoustid.WebServiceError as e:
         logger.error(e)
     finally:
-        os.remove(yt_path)
+        try:
+            if yt_path:
+                os.remove(yt_path)
+        except FileNotFoundError:
+            logger.warning(f"File not found: {yt_path}")
 
 
 @cli.command(help='Fingerprint a youtube video')
