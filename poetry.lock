@@ -99,7 +99,7 @@ six = ">=1.4.1"
 tests = ["pytest (>=3.2.1,<3.3.0 || >3.3.0)"]
 
 [[package]]
-category = "dev"
+category = "main"
 description = "A decorator for caching properties in classes."
 name = "cached-property"
 optional = false
@@ -1418,7 +1418,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "da1abb2700478615d261fe581372564b2c53e71d6b42732907e7127d034b7f6d"
+content-hash = "0b2430b5932070d003d17cf56ab35589b87286edb9f95f878d06baf8a4741d2d"
 python-versions = "^3.7"
 
 [metadata.files]

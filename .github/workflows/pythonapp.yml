@@ -23,7 +23,6 @@ jobs:
       - name: Test with pytest
         env:
           MB_SPOTIFY_CACHE: ${{ secrets.MB_SPOTIFY_CACHE }}
-          MB_SPOTIFY_USERNAME: ${{ secrets.MB_SPOTIFY_USERNAME }}
           MB_SPOTIFY_CLIENT_ID: ${{ secrets.MB_SPOTIFY_CLIENT_ID }}
           MB_SPOTIFY_CLIENT_SECRET: ${{ secrets.MB_SPOTIFY_CLIENT_SECRET }}
         run: |

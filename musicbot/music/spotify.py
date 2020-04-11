@@ -4,19 +4,20 @@ import itertools
 import spotipy
 import click
 from musicbot.config import config
-from musicbot.exceptions import FailedAuthentication
+# from musicbot.exceptions import FailedAuthentication
 
 logger = logging.getLogger(__name__)
 
 DEFAULT_CACHE_PATH = '.spotify_cache'
 DEFAULT_SCOPES = 'user-library-read,user-follow-read,user-top-read,playlist-read-private,user-modify-playback-state,user-read-currently-playing,user-read-playback-state'
-DEFAULT_REDIRECT_URI = 'http://localhost/spotify/callback'
+DEFAULT_REDIRECT_URI = 'http://localhost:8888/spotify/callback'
 
 
 def config_string_spotify(ctx, param, arg_value):  # pylint: disable=unused-argument
     name = param.name
+    value = None
 
-    config_value = config.configfile['spotify'].get(name, None)
+    config_value = config.configfile.get('spotify', name, fallback=None)
     if config_value:
         value = config_value
         logger.info(f"{name} : config key loaded : {config_value}")
@@ -47,8 +48,8 @@ def config_string_spotify(ctx, param, arg_value):  # pylint: disable=unused-argu
     if arg_value and config_value and arg_value != config_value:
         logger.info(f"{name} : config value {config_value} is not sync with arg value {arg_value}")
 
-    if not value:
-        raise click.BadParameter(f'missing arg {param.name} or env {env_name} or config in [spotify] section of {config.config}', ctx, param.name, param.name)
+    if not value and param.required:
+        raise click.BadParameter(f'missing arg {param.name} or env {env_name} or {param.name} in [spotify] section of {config.config}', ctx, param.name, param.name)
     logger.info(f"{name} : final value {value}")
     return value
 
@@ -104,8 +105,8 @@ class Spotify:
         self.client_id = client_id
         self.client_secret = client_secret
 
-        if not self.username or not self.client_id or not self.client_secret:
-            raise FailedAuthentication("Missing username, client_id or client_secret")
+        # if not self.username or not self.client_id or not self.client_secret:
+        #     raise FailedAuthentication("Missing username, client_id or client_secret")
 
         self.token = spotipy.util.prompt_for_user_token(
             client_id=self.client_id,

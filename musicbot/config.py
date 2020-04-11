@@ -7,8 +7,8 @@ import attr
 import click
 import tqdm
 import coloredlogs
+from cached_property import cached_property
 from . import lib
-from .exceptions import MusicbotConfigError
 
 
 logger = logging.getLogger(__name__)
@@ -81,19 +81,12 @@ class Config:
     timings = attr.ib(default=DEFAULT_TIMINGS)
     verbosity = attr.ib(default=DEFAULT_VERBOSITY)
     config = attr.ib(default=DEFAULT_CONFIG)
-    configfile = attr.ib(default=None, repr=False)
     level = attr.ib(default=verbosities[DEFAULT_VERBOSITY])
     fmt = attr.ib(default="%(asctime)s %(name)s[%(process)d] %(levelname)s %(message)s")
 
     def set(self, config=None, debug=None, info=None, timings=None, quiet=None, verbosity=None, log=None):
         self.config = config if config is not None else os.getenv(MB_CONFIG, DEFAULT_CONFIG)
         self.config = os.path.expanduser(self.config)
-        self.configfile = configparser.ConfigParser()
-        self.configfile.read(self.config)
-        if 'DEFAULT' not in self.configfile:
-            raise MusicbotConfigError(f'DEFAULT section not present in {self.config}')
-        if 'spotify' not in self.configfile:
-            raise MusicbotConfigError(f'spotify section not present in {self.config}')
 
         self.log = log if log is not None else os.getenv(MB_LOG, DEFAULT_LOG)
         if self.log:
@@ -123,6 +116,16 @@ class Config:
             else:
                 logger.warning('No permission to write to %s for current user %s', self.log, current_user)
         logger.debug(self)
+
+    @cached_property
+    def configfile(self):
+        file = configparser.ConfigParser()
+        file.read(self.config)
+        if 'DEFAULT' not in file:
+            logger.warning(f'DEFAULT section not present in {self.config}')
+        if 'spotify' not in file:
+            logger.warning(f'spotify section not present in {self.config}')
+        return file
 
     def write(self):
         with open(self.config, 'w') as output_config:
