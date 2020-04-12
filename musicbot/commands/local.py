@@ -307,13 +307,15 @@ def playlist(user, output, path, dry, **kwargs):
 def bests(user, dry, path, prefix, suffix, **kwargs):
     if prefix:
         kwargs['relative'] = True
+        if not prefix.endswith('/'):
+            prefix += '/'
     mf = mfilter.Filter(**kwargs)
     playlists = user.bests(mf)
     with tqdm(total=len(playlists), disable=config.quiet) as pbar:
         for p in playlists:
             playlist_filepath = os.path.join(path, p['name'] + suffix + '.m3u')
             pbar.set_description(f"Best playlist {prefix} {suffix}: {os.path.basename(playlist_filepath)}")
-            content = indent(p['content'], prefix, lambda line: line != '#EXTM3U')
+            content = indent(p['content'], prefix, lambda line: line != '#EXTM3U\n')
             if not dry:
                 try:
                     with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:
