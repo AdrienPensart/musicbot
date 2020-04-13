@@ -4,6 +4,7 @@ import traceback
 import logging
 import pytest
 from musicbot.cli import cli, prog_name
+from musicbot.helpers import genfiles
 from musicbot.user import User, FailedAuthentication
 from . import fixtures
 
@@ -92,3 +93,42 @@ def user_token(cli_runner, postgraphile_public, user_unregister):  # pylint: dis
     token = token.rstrip()
     assert token.count('\n') == 0
     return token
+
+
+@pytest.fixture
+def files():
+    files = genfiles(fixtures.folders)
+    files = list(files)
+    assert len(files) == 5
+    return files
+
+
+@pytest.yield_fixture
+def user_sample(files, user_unregister, postgraphile_public):  # pylint: disable=unused-argument
+    u = User.register(graphql=postgraphile_public, first_name=fixtures.first_name, last_name=fixtures.last_name, email=fixtures.email, password=fixtures.password)
+    assert u.authenticated
+
+    u.bulk_insert(files)
+    for f in files:
+        u.upsert_music(f)
+
+    yield u
+    u.unregister()
+    assert not u.authenticated
+
+
+@pytest.fixture
+def musics(user_sample):
+    musics = user_sample.do_filter()
+    assert len(musics) == len(files)
+    return musics
+
+
+@pytest.fixture
+def common_args(user_token, postgraphile_public):
+    return ['--token', user_token, '--graphql', postgraphile_public]
+
+
+@pytest.fixture
+def user_musics(cli_runner, common_args):
+    run_cli(cli_runner, cli, ['local', 'scan', *common_args, *fixtures.folders])

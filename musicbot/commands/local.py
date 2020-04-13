@@ -1,4 +1,5 @@
 import logging
+import io
 import os
 import codecs
 import json
@@ -285,6 +286,9 @@ def bests(user, dry, path, prefix, suffix, **kwargs):
 @cli.command(help='Music player', aliases=['play'])
 @helpers.add_options(user.auth_options + mfilter.options)
 def player(user, **kwargs):
-    mf = mfilter.Filter(**kwargs)
-    tracks = user.do_filter(mf)
-    play(tracks)
+    try:
+        mf = mfilter.Filter(**kwargs)
+        tracks = user.do_filter(mf)
+        play(tracks)
+    except io.UnsupportedOperation:
+        logger.critical('Unable to load UI')
