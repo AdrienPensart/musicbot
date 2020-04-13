@@ -19,7 +19,7 @@ idna==2.9
 isodate==0.6.0
 isort==4.3.21
 itsdangerous==1.1.0
-jinja2==2.11.1
+jinja2==2.11.2
 logging-tree==1.8.1
 markupsafe==1.1.1
 mps-youtube==0.2.8

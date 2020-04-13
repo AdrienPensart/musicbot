@@ -7,24 +7,18 @@ import datetime
 from shutil import copyfile
 from textwrap import indent
 import click
-import vlc
-from prompt_toolkit import Application
-from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.application import run_in_terminal, get_app
-from prompt_toolkit.layout.containers import HSplit, Window
-from prompt_toolkit.layout.layout import Layout
-from prompt_toolkit.layout.controls import FormattedTextControl
-from prompt_toolkit import HTML, print_formatted_text
 from tqdm import tqdm
 from prettytable import PrettyTable
-from musicbot import helpers, user, lib
+from musicbot import helpers, user
+from musicbot.lib import bytes_to_human, find_files, all_files, empty_dirs, except_directories
 from musicbot.music import mfilter
+from musicbot.player import play
+from musicbot.playlist import print_playlist
 from musicbot.config import config
 from musicbot.music.file import supported_formats
 
 
 logger = logging.getLogger(__name__)
-logging.getLogger("vlc").setLevel(logging.NOTSET)
 
 
 @click.group(help='''Local music management''', cls=helpers.GroupWithHelp)
@@ -104,7 +98,7 @@ def stats(user, output, **kwargs):
         pt.add_row(["Album", stats['albums']])
         pt.add_row(["Genre", stats['genres']])
         pt.add_row(["Keywords", stats['keywords']])
-        pt.add_row(["Size", lib.bytes_to_human(int(stats['size']))])
+        pt.add_row(["Size", bytes_to_human(int(stats['size']))])
         pt.add_row(["Total duration", datetime.timedelta(seconds=int(stats['duration']))])
         print(pt)
     else:
@@ -142,7 +136,7 @@ def find(user, folders):
     if not folders:
         folders = user.folders
 
-    files = lib.find_files(folders, supported_formats)
+    files = find_files(folders, supported_formats)
     for f in files:
         print(f[1])
 
@@ -167,7 +161,7 @@ def sync(user, dry, destination, **kwargs):
     mf = mfilter.Filter(**kwargs)
     musics = user.do_filter(mf)
 
-    files = list(lib.all_files(destination))
+    files = list(all_files(destination))
     logger.info(f"Files : {len(files)}")
     if not files:
         logger.warning("No files found in destination")
@@ -213,8 +207,8 @@ def sync(user, dry, destination, **kwargs):
                     raise
 
     import shutil
-    for d in lib.empty_dirs(destination):
-        if any(e in d for e in lib.exceptions):
+    for d in empty_dirs(destination):
+        if any(e in d for e in except_directories):
             logger.debug(f"Invalid path {d}")
             continue
         if not dry:
@@ -280,15 +274,7 @@ def playlist(user, output, path, dry, **kwargs):
         if output == 'json':
             print(json.dumps(tracks), file=path)
         elif output == 'table':
-            pt = PrettyTable()
-            pt.field_names = [
-                "Title",
-                "Album",
-                "Artist",
-            ]
-            for t in tracks:
-                pt.add_row([t['title'], t['album'], t['artist']])
-            print(pt, file=path)
+            print_playlist(tracks, path)
         elif output == 'csv':
             folders = user.folders
             logger.info('Scanning folders: %s', folders)
@@ -328,85 +314,9 @@ def bests(user, dry, path, prefix, suffix, **kwargs):
             pbar.update(1)
 
 
-@cli.command(help='Music player')
+@cli.command(help='Music player', aliases=['play'])
 @helpers.add_options(user.auth_options + mfilter.options)
-def play(user, **kwargs):
-    try:
-        mf = mfilter.Filter(**kwargs)
-        p = user.do_filter(mf)
-        if not p:
-            logger.warning('Empty playlist')
-            return
-        instance = vlc.Instance()
-        songs = [song['path'] for song in p]
-        player = instance.media_list_player_new()
-        media_list = instance.media_list_new(songs)
-        player.set_media_list(media_list)
-        bindings = KeyBindings()
-
-        @bindings.add('p')
-        def _play_binding():
-            def play():
-                """Play song"""
-                player.play()
-            run_in_terminal(play)
-
-        @bindings.add('q')
-        def _quit_binding(event):
-            player.pause()
-            event.app.exit()
-
-        @bindings.add('s')
-        def _pause_binding():
-            player.pause()
-
-        @bindings.add('l')
-        def _playlist_binding():
-            def playlist():
-                """List songs"""
-                media_player = player.get_media_player()
-                media = media_player.get_media()
-                media.parse()
-                artist = media.get_meta(vlc.Meta.Artist)
-                album = media.get_meta(vlc.Meta.Album)
-                title = media.get_meta(vlc.Meta.Title)
-                for s in p:
-                    if s['artist'] == artist and s['title'] == title and s['album'] == album:
-                        print_formatted_text(f'''> {s['path']}''')
-                    else:
-                        print_formatted_text(s['path'])
-                print_formatted_text('------------------------------------------')
-            run_in_terminal(playlist)
-
-        @bindings.add('right')
-        def _next_binding():
-            player.next()
-
-        @bindings.add('left')
-        def _previous_binding():
-            player.previous()
-
-        def bottom_toolbar():
-            media_player = player.get_media_player()
-            media = media_player.get_media()
-            media.parse()
-            media_time = lib.seconds_to_human(round(media_player.get_time() / 1000))
-            media_length = lib.seconds_to_human(round(media_player.get_length() / 1000))
-            artist = media.get_meta(vlc.Meta.Artist)
-            album = media.get_meta(vlc.Meta.Album)
-            title = media.get_meta(vlc.Meta.Title)
-            current = f'({media_time} / {media_length}) {artist} - {album} - {title}'
-            get_app().invalidate()
-            return HTML(f'Current song: {current}')
-
-        player.play()
-        print_formatted_text(HTML('Bindings: q = quit | p = play | s = pause/continue | right = next song | left = previous song | l = playlist'))
-
-        root_container = HSplit(
-            [Window(FormattedTextControl(lambda: bottom_toolbar, style='class:bottom-toolbar.text'), style='class:bottom-toolbar')]
-        )
-        layout = Layout(root_container)
-        app = Application(layout=layout, key_bindings=bindings)
-        app.run()
-    except NameError:
-        logger.critical("Your VLC version may be outdated: %s", vlc.libvlc_get_version())
+def player(user, **kwargs):
+    mf = mfilter.Filter(**kwargs)
+    tracks = user.do_filter(mf)
+    play(tracks)

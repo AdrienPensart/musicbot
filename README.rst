@@ -224,23 +224,23 @@ musicbot local
     -h, --help  Show this message and exit.
   
   Commands:
-    artists       List artists
-    bests         Generate bests playlists with some rules
-    clean         Clean all musics
-    consistency   Check music files consistency
-    execute       Raw query
-    filter        Print a filter
-    filters       List filters
-    find          Just list music files
-    folders       List folders
-    help          Print help
-    load-filters  Load default filters
-    play          Music player
-    playlist      Generate a new playlist
-    scan          (re)Load musics
-    stats         Generate some stats for music collection with filters
-    sync          Copy selected musics with filters to destination folder
-    watch         Watch files changes in folders
+    artists        List artists
+    bests          Generate bests playlists with some rules
+    clean          Clean all musics
+    consistency    Check music files consistency
+    execute        Raw query
+    filter         Print a filter
+    filters        List filters
+    find           Just list music files
+    folders        List folders
+    help           Print help
+    load-filters   Load default filters
+    player (play)  Music player
+    playlist       Generate a new playlist
+    scan           (re)Load musics
+    stats          Generate some stats for music collection with filters
+    sync           Copy selected musics with filters to destination folder
+    watch          Watch files changes in folders
 
 
 musicbot local artists
@@ -436,11 +436,11 @@ musicbot local load-filters
     -h, --help           Show this message and exit.
 
 
-musicbot local play
-*******************
+musicbot local player
+*********************
 .. code-block::
 
-  Usage: musicbot local play [OPTIONS]
+  Usage: musicbot local player [OPTIONS]
   
     Music player
   
