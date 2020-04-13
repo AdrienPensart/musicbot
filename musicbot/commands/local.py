@@ -1,7 +1,6 @@
 import logging
 import os
 import codecs
-import csv
 import json
 import datetime
 from shutil import copyfile
@@ -24,21 +23,6 @@ logger = logging.getLogger(__name__)
 @click.group(help='''Local music management''', cls=helpers.GroupWithHelp)
 def cli():
     pass
-
-
-@cli.command(help='''List artists''')
-@helpers.add_options(user.auth_options + helpers.output_option)
-def artists(user, output):
-    if output == 'table':
-        pt = PrettyTable()
-        pt.field_names = ["Name"]
-        for a in user.artists:
-            pt.add_row([a['name']])
-        print(pt)
-    elif output == 'json':
-        print(json.dumps(user.artists))
-    else:
-        raise NotImplementedError
 
 
 @cli.command(help='''Raw query''')
@@ -66,8 +50,6 @@ def filters(user, output):
         for f in user.filters:
             pt.add_row([f['name'], f['keywords'], f['noKeywords'], f['minRating'], f['maxRating']])
         print(pt)
-    else:
-        raise NotImplementedError
 
 
 @cli.command('filter', help='''Print a filter''')
@@ -79,8 +61,6 @@ def _filter(user, name, output):
         print(json.dumps(f))
     elif output == 'table':
         print(f)
-    else:
-        raise NotImplementedError
 
 
 @cli.command(help='''Generate some stats for music collection with filters''')
@@ -101,8 +81,6 @@ def stats(user, output, **kwargs):
         pt.add_row(["Size", bytes_to_human(int(stats['size']))])
         pt.add_row(["Total duration", datetime.timedelta(seconds=int(stats['duration']))])
         print(pt)
-    else:
-        raise NotImplementedError
 
 
 @cli.command(help='''List folders''')
@@ -117,8 +95,6 @@ def folders(user, output):
         for f in _folders:
             pt.add_row([f])
         print(pt)
-    else:
-        raise NotImplementedError
 
 
 @cli.command(help='''(re)Load musics''')
@@ -259,7 +235,7 @@ def consistency(user, folders):
 
 
 @cli.command(help='''Generate a new playlist''')
-@helpers.add_options(user.auth_options + helpers.dry_option + mfilter.options + helpers.output_option)
+@helpers.add_options(user.auth_options + helpers.dry_option + mfilter.options + helpers.playlist_output_option)
 @click.argument('path', type=click.File('w'), default='-')
 def playlist(user, output, path, dry, **kwargs):
     mf = mfilter.Filter(**kwargs)
@@ -269,20 +245,12 @@ def playlist(user, output, path, dry, **kwargs):
             print(p, file=path)
         else:
             logger.info('DRY RUN: Writing playlist to %s with content:\n%s', path, p)
-    else:
+    elif output == 'json':
         tracks = user.do_filter(mf)
-        if output == 'json':
-            print(json.dumps(tracks), file=path)
-        elif output == 'table':
-            print_playlist(tracks, path)
-        elif output == 'csv':
-            folders = user.folders
-            logger.info('Scanning folders: %s', folders)
-            files = helpers.genfiles(folders)
-
-            musicwriter = csv.writer(path, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            for f in files:
-                musicwriter.writerow(f.ordered_dict().values())
+        print(json.dumps(tracks), file=path)
+    elif output == 'table':
+        tracks = user.do_filter(mf)
+        print_playlist(tracks, path)
 
 
 @cli.command(help='''Generate bests playlists with some rules''')

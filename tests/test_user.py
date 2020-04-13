@@ -32,13 +32,13 @@ def test_user(cli_runner, user_token, postgraphile_public):
 
     run_cli(cli_runner, cli, ['local', 'sync', *common_args, '/tmp', '--dry'])
     run_cli(cli_runner, cli, ['local', 'consistency', *common_args])
-    run_cli(cli_runner, cli, ['local', 'playlist', *common_args, '--output', 'csv'])
     run_cli(cli_runner, cli, ['local', 'playlist', *common_args, '--output', 'json'])
     run_cli(cli_runner, cli, ['local', 'playlist', *common_args, '--output', 'table'])
     run_cli(cli_runner, cli, ['local', 'playlist', *common_args, '--output', 'm3u'])
     run_cli(cli_runner, cli, ['local', 'bests', *common_args, '/tmp', '--dry'])
     run_cli(cli_runner, cli, ['local', 'stats', *common_args])
     run_cli(cli_runner, cli, ['local', 'artists', *common_args])
+    run_cli(cli_runner, cli, ['local', 'player', *common_args])
 
 
 @pytest.fixture

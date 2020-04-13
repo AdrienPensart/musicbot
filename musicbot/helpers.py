@@ -25,7 +25,8 @@ DEFAULT_SAVE = False
 save_option = [click.option('--save', '-s', help='Save to config file', default=DEFAULT_SAVE, is_flag=True, show_default=True)]
 
 DEFAULT_MB_OUTPUT = 'table'
-output_option = [click.option('--output', help='Output format', default=DEFAULT_MB_OUTPUT, show_default=True, type=click.Choice(['table', 'json', 'm3u', 'csv']))]
+output_option = [click.option('--output', help='Output format', default=DEFAULT_MB_OUTPUT, show_default=True, type=click.Choice(['table', 'json']))]
+playlist_output_option = [click.option('--output', help='Output format', default=DEFAULT_MB_OUTPUT, show_default=True, type=click.Choice(['json', 'm3u', 'table']))]
 
 Red = "\033[0;31;40m"
 Green = "\033[0;32;40m"
