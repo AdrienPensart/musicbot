@@ -1,4 +1,5 @@
 import logging
+import os
 import json
 import click
 from prettytable import PrettyTable
@@ -59,3 +60,57 @@ def flac2mp3(folders, concurrency, dry):
         executor.shutdown = lambda wait: None
         futures = [executor.submit(convert, flac_path) for flac_path in flac_files]
         cf.wait(futures)
+
+
+checks = ['no-title', 'bad-comment', 'invalid-artist', 'no-genre', 'no-album', 'no-artist', 'no-rating', 'invalid-track-number']
+@cli.command(help='''Check music files consistency''')
+@click.option('--checks', help=f'Consistency tests', multiple=True, default=checks, show_default=True, type=click.Choice(['no-title', 'invalid-title', 'bad-comment', 'invalid-artist', 'no-genre', 'no-album', 'no-artist', 'no-rating', 'invalid-track-number']))
+@helpers.add_options(helpers.folders_argument)
+def check_consistency(folders, checks):
+    if not checks:
+        logger.warning("Nothing to check")
+        return
+
+    musics = helpers.genfiles(folders)
+    pt = PrettyTable()
+    pt.field_names = ["Path", "Inconsistencies"]
+    for m in musics:
+        try:
+            inconsistencies = []
+            if 'invalid-comment' in checks:
+                if m.path.endswith('.flac'):
+                    if m.comment and not m.description:
+                        inconsistencies.append(f'invalid-comment comment {m.comment} used in flac instead of description')
+                if m.path.endswith('.mp3'):
+                    if m.description and not m.comment:
+                        inconsistencies.append(f'invalid-comment description {m.description} used in mp3 instead of comment')
+            if 'no-title' in checks:
+                if not m.title:
+                    inconsistencies.append("no-title")
+            if 'invalid-title' in checks:
+                filename = os.path.basename(m.path)
+                if filename != f"{str(m.number).zfill(2)} - {m.title}.mp3" or filename != f"{str(m.number).zfill(2)} - {m.title}.flac":
+                    inconsistencies.append(f"invalid-title, '{filename}' should start by '{str(m.number).zfill(2)} - {m.title}'")
+            if 'invalid-artist' in checks:
+                if m.artist not in m.path:
+                    inconsistencies.append(f"invalid-artist : {m.artist} is not in path")
+            if 'no-genre' in checks:
+                if m.genre == '':
+                    inconsistencies.append("no-genre")
+            if 'no-album' in checks:
+                if m.album == '':
+                    inconsistencies.append("no-album")
+            if 'no-artist' in checks:
+                if m.artist == '':
+                    inconsistencies.append("no-artist")
+            if 'no-rating' in checks:
+                if m.rating == 0.0:
+                    inconsistencies.append("no-rating")
+            if 'invalid-track-number' in checks:
+                if m.number == -1:
+                    inconsistencies.append("invalid-track-number")
+            if inconsistencies:
+                pt.add_row([m.path, ', '.join(inconsistencies)])
+        except OSError:
+            pt.add_row([m.path, "Could not open file"])
+    print(pt)

@@ -168,9 +168,26 @@ musicbot folder
     -h, --help  Show this message and exit.
   
   Commands:
-    flac2mp3  Convert all files in folders to mp3
-    help      Print help
-    tracks    List tracks
+    check-consistency  Check music files consistency
+    flac2mp3           Convert all files in folders to mp3
+    help               Print help
+    tracks             List tracks
+
+
+musicbot folder check-consistency
+*********************************
+.. code-block::
+
+  Usage: musicbot folder check-consistency [OPTIONS] [FOLDERS]...
+  
+    Check music files consistency
+  
+  Options:
+    --checks [no-title|invalid-title|bad-comment|invalid-artist|no-genre|no-album|no-artist|no-rating|invalid-track-number]
+                                                        Consistency tests  [default: no-title, bad-comment, invalid-artist, no-genre, no-
+                                                        album, no-artist, no-rating, invalid-track-number]
+  
+    -h, --help                                          Show this message and exit.
 
 
 musicbot folder flac2mp3
@@ -224,22 +241,21 @@ musicbot local
     -h, --help  Show this message and exit.
   
   Commands:
-    bests              Generate bests playlists with some rules
-    check-consistency  Check music files consistency
-    clean              Clean all musics
-    execute            Raw query
-    filter             Print a filter
-    filters            List filters
-    find               Just list music files
-    folders            List folders
-    help               Print help
-    load-filters       Load default filters
-    player (play)      Music player
-    playlist           Generate a new playlist
-    scan               (re)Load musics
-    stats (stat)       Generate some stats for music collection with filters
-    sync               Copy selected musics with filters to destination folder
-    watch              Watch files changes in folders
+    bests          Generate bests playlists with some rules
+    clean          Clean all musics
+    execute        Raw query
+    filter         Print a filter
+    filters        List filters
+    find           Just list music files
+    folders        List folders
+    help           Print help
+    load-filters   Load default filters
+    player (play)  Music player
+    playlist       Generate a new playlist
+    scan           (re)Load musics
+    stats (stat)   Generate some stats for music collection with filters
+    sync           Copy selected musics with filters to destination folder
+    watch          Watch files changes in folders
 
 
 musicbot local bests
@@ -285,26 +301,6 @@ musicbot local bests
     --prefix TEXT           Append prefix before each path (implies relative)
     --suffix TEXT           Append this suffix to playlist name
     -h, --help              Show this message and exit.
-
-
-musicbot local check-consistency
-********************************
-.. code-block::
-
-  Usage: musicbot local check-consistency [OPTIONS] [FOLDERS]...
-  
-    Check music files consistency
-  
-  Options:
-    --checks [no-title|invalid-title|bad-comment|invalid-artist|no-genre|no-album|no-artist|no-rating|invalid-track-number]
-                                                        Consistency tests  [default: no-title, bad-comment, invalid-artist, no-genre, no-
-                                                        album, no-artist, no-rating, invalid-track-number]
-  
-    -e, --email TEXT                                    User email
-    -p, --password TEXT                                 User password
-    --graphql TEXT                                      GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -t, --token TEXT                                    User token
-    -h, --help                                          Show this message and exit.
 
 
 musicbot local clean

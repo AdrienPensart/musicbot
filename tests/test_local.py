@@ -11,11 +11,6 @@ def test_local_sync(cli_runner, common_args, user_musics):  # pylint: disable=un
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_local_consistency(cli_runner, common_args, user_musics):  # pylint: disable=unused-argument
-    run_cli(cli_runner, cli, ['local', 'consistency', *common_args])
-
-
-@pytest.mark.runner_setup(mix_stderr=False)
 def test_local_playlist(cli_runner, common_args, user_musics):  # pylint: disable=unused-argument
     run_cli(cli_runner, cli, ['local', 'playlist', *common_args, '--output', 'json'])
     run_cli(cli_runner, cli, ['local', 'playlist', *common_args, '--output', 'table'])
