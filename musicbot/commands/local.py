@@ -64,7 +64,7 @@ def _filter(user, name, output):
         print(f)
 
 
-@cli.command(help='''Generate some stats for music collection with filters''')
+@cli.command(help='''Generate some stats for music collection with filters''', aliases=['stat'])
 @helpers.add_options(user.auth_options + helpers.output_option + mfilter.options)
 def stats(user, output, **kwargs):
     mf = mfilter.Filter(**kwargs)
@@ -193,45 +193,59 @@ def sync(user, dry, destination, **kwargs):
         logger.info("[DRY-RUN] Removing empty dir %s", d)
 
 
+checks = ['no-title', 'bad-comment', 'invalid-artist', 'no-genre', 'no-album', 'no-artist', 'no-rating', 'invalid-track-number']
 @cli.command(help='''Check music files consistency''')
+@click.option('--checks', help=f'Consistency tests', multiple=True, default=checks, show_default=True, type=click.Choice(['no-title', 'invalid-title', 'bad-comment', 'invalid-artist', 'no-genre', 'no-album', 'no-artist', 'no-rating', 'invalid-track-number']))
 @helpers.add_options(user.auth_options + helpers.folders_argument)
-def consistency(user, folders):
+def check_consistency(user, folders, checks):
     if not folders:
         folders = user.folders
+    if not checks:
+        logger.warning("Nothing to check")
+        return
 
     musics = helpers.genfiles(folders)
     pt = PrettyTable()
-    pt.field_names = ["Inconsistency", "File"]
+    pt.field_names = ["Path", "Inconsistencies"]
     for m in musics:
         try:
-            if m.path.endswith('.flac'):
-                if m.comment and not m.description:
-                    pt.add_row(['Comment (' + m.comment + ') used in flac', m.path])
-            if m.path.endswith('.mp3'):
-                if m.description and not m.comment:
-                    pt.add_row(['Description (' + m.description + ') used in mp3 : ', m.path])
-            if not m.title:
-                pt.add_row(["No title  : '" + m.title + "' on ", m.path])
-            filename = os.path.basename(m.path)
-            if filename == f"{str(m.number).zfill(2)} - {m.title}.mp3":
-                continue
-            if filename == f"{str(m.number).zfill(2)} - {m.title}.flac":
-                continue
-            pt.add_row([f"Invalid title format, '{filename}' should start by '{str(m.number).zfill(2)} - {m.title}'", m.path])
-            if m.artist not in m.path:
-                pt.add_row(["Artist invalid : " + m.artist + " is not in ", m.path])
-            if m.genre == '':
-                pt.add_row(["No genre : ", m.path])
-            if m.album == '':
-                pt.add_row(["No album : ", m.path])
-            if m.artist == '':
-                pt.add_row(["No artist : ", m.path])
-            if m.rating == 0.0:
-                pt.add_row(["No rating : ", m.path])
-            if m.number == -1:
-                pt.add_row(["Invalid track number : ", m.path])
+            inconsistencies = []
+            if 'invalid-comment' in checks:
+                if m.path.endswith('.flac'):
+                    if m.comment and not m.description:
+                        inconsistencies.append(f'invalid-comment comment {m.comment} used in flac instead of description')
+                if m.path.endswith('.mp3'):
+                    if m.description and not m.comment:
+                        inconsistencies.append(f'invalid-comment description {m.description} used in mp3 instead of comment')
+            if 'no-title' in checks:
+                if not m.title:
+                    inconsistencies.append("no-title")
+            if 'invalid-title' in checks:
+                filename = os.path.basename(m.path)
+                if filename != f"{str(m.number).zfill(2)} - {m.title}.mp3" or filename != f"{str(m.number).zfill(2)} - {m.title}.flac":
+                    inconsistencies.append(f"invalid-title, '{filename}' should start by '{str(m.number).zfill(2)} - {m.title}'")
+            if 'invalid-artist' in checks:
+                if m.artist not in m.path:
+                    inconsistencies.append(f"invalid-artist : {m.artist} is not in path")
+            if 'no-genre' in checks:
+                if m.genre == '':
+                    inconsistencies.append("no-genre")
+            if 'no-album' in checks:
+                if m.album == '':
+                    inconsistencies.append("no-album")
+            if 'no-artist' in checks:
+                if m.artist == '':
+                    inconsistencies.append("no-artist")
+            if 'no-rating' in checks:
+                if m.rating == 0.0:
+                    inconsistencies.append("no-rating")
+            if 'invalid-track-number' in checks:
+                if m.number == -1:
+                    inconsistencies.append("invalid-track-number")
+            if inconsistencies:
+                pt.add_row([m.path, ', '.join(inconsistencies)])
         except OSError:
-            pt.add_row(["Could not open file : ", m.path])
+            pt.add_row([m.path, "Could not open file"])
     print(pt)
 
 
