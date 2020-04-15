@@ -16,16 +16,15 @@ class Admin(GraphQL):
 
     @helpers.timeit
     def users(self):
-        query = """
-        {
-          usersList{
-              firstName,
-              lastName,
-              createdAt,
-              updatedAt,
-              accountByUserId{
+        query = """{
+            accountsList {
+                user {
+                  lastName
+                  createdAt
+                  updatedAt
+                  firstName
+                }
                 email
-              }
-          }
+            }
         }"""
-        return self._post(query)['data']['usersList']
+        return self._post(query)['data']['accountsList']
