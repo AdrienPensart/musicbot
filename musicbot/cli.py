@@ -10,6 +10,7 @@ import click_completion.core
 from click.formatting import HelpFormatter
 from attrdict import AttrDict
 from musicbot import lib, helpers, config, exceptions
+from musicbot import __version__
 
 # little hacky but prevent click from rewraping
 HelpFormatter.write_dl.__defaults__ = (50, 2)
@@ -32,12 +33,6 @@ def custom_startswith(string, incomplete):
 click_completion.core.startswith = custom_startswith
 click_completion.init()
 
-
-# import __version__ string
-_version = {}
-with open(os.path.join(bin_folder, "version.py")) as fp:
-    exec(fp.read(), _version)  # pylint: disable=exec-used
-__version__ = _version['__version__']
 prog_name = "musicbot"
 
 
