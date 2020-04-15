@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "musicbot"
-version = "0.3.0"
+version = "0.4.0"
 description = "Music swiss army knife"
 authors = ["Adrien Pensart <crunchengine@gmail.com>"]
 license = "MIT"
