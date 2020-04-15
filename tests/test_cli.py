@@ -1,6 +1,6 @@
 import logging
 import pytest
-from musicbot import version
+from musicbot import __version__
 from musicbot.cli import cli
 from .conftest import run_cli
 
@@ -18,7 +18,7 @@ def test_cli_version(cli_runner):
     output2 = run_cli(cli_runner, cli, ['--version'])
     output3 = run_cli(cli_runner, cli, ['version'])
     assert output1 == output2 == output3
-    assert version.__version__ in output1
+    assert __version__ in output1
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
