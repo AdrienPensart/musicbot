@@ -29,3 +29,13 @@ jobs:
         run: |
           echo -n "$MB_SPOTIFY_CACHE" > $HOME/.spotify_cache
           MB_SPOTIFY_CACHE_PATH=$HOME/.spotify_cache pytest
+      - name: Build package
+        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+        run: |
+          python3 setup.py bdist
+      - name: Publish package
+        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+        user: __token__
+        password: ${{ secrets.PYPI_TOKEN }}
