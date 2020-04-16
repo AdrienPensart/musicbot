@@ -32,7 +32,7 @@ jobs:
       - name: Build package
         if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
         run: |
-          python3 setup.py bdist
+          python3 setup.py bdist_wheel sdist
       - name: Publish package
         if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@master
