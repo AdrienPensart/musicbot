@@ -180,7 +180,10 @@ def sync(user, dry, destination, **kwargs):
                     pbar.update(1)
                 except KeyboardInterrupt:
                     logger.debug(f"Cleanup {final_destination}")
-                    os.remove(final_destination)
+                    try:
+                        os.remove(final_destination)
+                    except OSError:
+                        pass
                     raise
 
     import shutil
