@@ -107,7 +107,8 @@ class Config:
             self.quiet = True
 
         self.level = verbosities[self.verbosity]
-        coloredlogs.install(level=self.level, fmt=self.fmt, stream=TqdmStream())
+        logging.getLogger().handlers = []
+        coloredlogs.install(level=self.level, fmt=self.fmt, stream=TqdmStream(), isatty=True)
 
         if self.log is not None:
             if check_file_writable(self.log):

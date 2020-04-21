@@ -186,7 +186,7 @@ $$
     ),
     bests_artists as (
         select
-            (m.artist || '/bests') as name,
+            (m.artist || 'bests') as name,
             case when bests.relative is false then coalesce('#EXTM3U' || E'\n' || string_agg(path, E'\n'), '')
             else coalesce('#EXTM3U' || E'\n' || string_agg(substring(path from char_length(folder)+2), E'\n'), '')
             end

@@ -234,7 +234,7 @@ def bests(user, dry, path, prefix, suffix, **kwargs):
                     with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:
                         logger.debug('Writing playlist to %s with content:\n%s', playlist_filepath, content)
                         playlist_file.write(content)
-                except (FileNotFoundError, LookupError, ValueError, UnicodeError) as e:
+                except (OSError, LookupError, ValueError, UnicodeError) as e:
                     logger.warning(f'Unable to write playlist to {playlist_filepath} because of {e}')
             else:
                 logger.info('DRY RUN: Writing playlist to %s with content:\n%s', playlist_filepath, content)
