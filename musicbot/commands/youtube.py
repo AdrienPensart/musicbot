@@ -29,10 +29,13 @@ def search(artist, title):
         'quiet': True,
         'no_warnings': True,
     }
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        infos = ydl.extract_info(f"ytsearch1:'{artist} {title}'", download=False)
-        for entry in infos['entries']:
-            print(entry['webpage_url'])
+    try:
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            infos = ydl.extract_info(f"ytsearch1:'{artist} {title}'", download=False)
+            for entry in infos['entries']:
+                print(entry['webpage_url'])
+    except Exception as e:
+        logger.error(e)
 
 
 @cli.command(help='Download a youtube link with artist and title')
@@ -45,6 +48,7 @@ def download(artist, title, path):
             path = f"{artist} - {title}.mp3"
         ydl_opts = {
             'format': 'bestaudio/best',
+            'cachedir': False,
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
@@ -70,6 +74,7 @@ def find(path, acoustid_api_key):
         ydl_opts = {
             'format': 'bestaudio/best',
             'quiet': True,
+            'cachedir': False,
             'no_warnings': True,
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
