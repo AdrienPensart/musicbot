@@ -34,7 +34,7 @@ def search(artist, title):
             infos = ydl.extract_info(f"ytsearch1:'{artist} {title}'", download=False)
             for entry in infos['entries']:
                 print(entry['webpage_url'])
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-except
         logger.error(e)
 
 
