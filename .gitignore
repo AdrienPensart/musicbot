@@ -9,6 +9,8 @@ doc/html
 .coverage*
 postgres-data
 dist
+*.build
+*.dist
 man
 build
 logs

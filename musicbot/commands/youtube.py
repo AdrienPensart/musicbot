@@ -24,6 +24,7 @@ def search(artist, title):
     '''Search a youtube link with artist and title'''
     ydl_opts = {
         'format': 'bestaudio',
+        'ignoreerrors': True,
         'skip_download': True,
         'quiet': True,
         'no_warnings': True,
@@ -39,19 +40,22 @@ def search(artist, title):
 @click.argument('title')
 @click.option('--path', default=None)
 def download(artist, title, path):
-    if not path:
-        path = f"{artist} - {title}.mp3"
-    ydl_opts = {
-        'format': 'bestaudio/best',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
-        'outtmpl': path,
-    }
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        ydl.extract_info(f"ytsearch1:'{artist} {title}'", download=True)
+    try:
+        if not path:
+            path = f"{artist} - {title}.mp3"
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+            'outtmpl': path,
+        }
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            ydl.extract_info(f"ytsearch1:'{artist} {title}'", download=True)
+    except youtube_dl.utils.DownloadError as e:
+        logger.error(e)
 
 
 @cli.command(help='Search a youtube link with artist and title')
@@ -93,11 +97,13 @@ def find(path, acoustid_api_key):
                 print(f'Based only on duration, maybe: {url}')
     except acoustid.WebServiceError as e:
         logger.error(e)
+    except youtube_dl.utils.DownloadError as e:
+        logger.error(e)
     finally:
         try:
             if yt_path:
                 os.remove(yt_path)
-        except FileNotFoundError:
+        except OSError:
             logger.warning(f"File not found: {yt_path}")
 
 
@@ -124,5 +130,7 @@ def fingerprint(url, acoustid_api_key):
             for _, recording_id, _, _ in yt_ids:
                 print(recording_id)
                 break
+    except youtube_dl.utils.DownloadError as e:
+        logger.error(e)
     except acoustid.WebServiceError as e:
         logger.error(e)

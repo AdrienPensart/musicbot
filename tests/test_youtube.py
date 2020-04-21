@@ -15,7 +15,10 @@ def test_youtube_download(cli_runner):
     try:
         run_cli(cli_runner, cli, ['youtube', 'download', 'buckethead', 'welcome to bucketheadland', '--path', 'test.mp3'])
     finally:
-        os.remove('test.mp3')
+        try:
+            os.remove('test.mp3')
+        except OSError:
+            pass
 
 
 @pytest.mark.runner_setup(mix_stderr=False)

@@ -11,6 +11,14 @@ from click.formatting import HelpFormatter
 from attrdict import AttrDict
 from musicbot import lib, helpers, config, exceptions
 from musicbot import __version__
+from musicbot.commands.completion import cli as completion_cli
+from musicbot.commands.config import cli as config_cli
+from musicbot.commands.folder import cli as folder_cli
+from musicbot.commands.local import cli as local_cli
+from musicbot.commands.music import cli as music_cli
+from musicbot.commands.spotify import cli as spotify_cli
+from musicbot.commands.user import cli as user_cli
+from musicbot.commands.youtube import cli as youtube_cli
 
 # little hacky but prevent click from rewraping
 HelpFormatter.write_dl.__defaults__ = (50, 2)
@@ -36,31 +44,7 @@ click_completion.init()
 prog_name = "musicbot"
 
 
-class SubCommandLineInterface(helpers.GroupWithHelp):
-    def list_commands(self, ctx):
-        rv = []
-        for filename in os.listdir(plugin_folder):
-            if filename.endswith('.py') and '__init__' not in filename:
-                rv.append(filename[:-3])
-        all_commands = rv + super().list_commands(ctx)
-        all_commands.sort()
-        return all_commands
-
-    def get_command(self, ctx, cmd_name):
-        ns = {}
-        fn = os.path.join(plugin_folder, cmd_name + '.py')
-        try:
-            with open(fn) as f:
-                code = compile(f.read(), fn, 'exec')
-                ns['__name__'] = f'{commands_folder}.{cmd_name}'
-                ns['__file__'] = fn
-                eval(code, ns, ns)  # pylint: disable=eval-used
-        except FileNotFoundError:
-            return super().get_command(ctx, cmd_name)
-        return ns['cli']
-
-
-@click.group(cls=SubCommandLineInterface, context_settings=CONTEXT_SETTINGS, invoke_without_command=True)
+@click.group(cls=helpers.GroupWithHelp, context_settings=CONTEXT_SETTINGS, invoke_without_command=True)
 @click.version_option(__version__, "--version", "-V", prog_name=prog_name)
 @helpers.add_options(config.options)
 @click.pass_context
@@ -70,6 +54,16 @@ def cli(ctx, **kwargs):
     ctx.obj.folder = bin_folder
     config.config.set(**kwargs)
     ctx.obj.config = config.config
+
+
+cli.add_command(config_cli, 'config')
+cli.add_command(folder_cli, 'folder')
+cli.add_command(local_cli, 'local')
+cli.add_command(music_cli, 'music')
+cli.add_command(spotify_cli, 'spotify')
+cli.add_command(youtube_cli, 'youtube')
+cli.add_command(user_cli, 'user')
+cli.add_command(completion_cli, 'completion')
 
 
 @cli.command(short_help='Print version')
