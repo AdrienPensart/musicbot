@@ -101,7 +101,7 @@ class Filter:
         logger.debug('Filter: %s', self)
 
     def __repr__(self):
-        return self.ordered_dict()
+        return json.dumps(self.ordered_dict())
 
     def diff(self):
         '''Print only differences with default filter'''

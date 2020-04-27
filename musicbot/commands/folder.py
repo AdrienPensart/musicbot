@@ -64,7 +64,7 @@ def flac2mp3(folders, concurrency, dry):
 
 checks = ['no-title', 'bad-comment', 'invalid-artist', 'no-genre', 'no-album', 'no-artist', 'no-rating', 'invalid-track-number']
 @cli.command(help='''Check music files consistency''')
-@click.option('--checks', help=f'Consistency tests', multiple=True, default=checks, show_default=True, type=click.Choice(['no-title', 'invalid-title', 'bad-comment', 'invalid-artist', 'no-genre', 'no-album', 'no-artist', 'no-rating', 'invalid-track-number']))
+@click.option('--checks', help='Consistency tests', multiple=True, default=checks, show_default=True, type=click.Choice(['no-title', 'invalid-title', 'bad-comment', 'invalid-artist', 'no-genre', 'no-album', 'no-artist', 'no-rating', 'invalid-track-number']))
 @helpers.add_options(helpers.folders_argument)
 def check_consistency(folders, checks):
     if not checks:

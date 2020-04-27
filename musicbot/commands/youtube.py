@@ -116,7 +116,7 @@ def find(path, acoustid_api_key):
 @click.argument('url')
 @helpers.add_options(acoustid_api_key_option)
 def fingerprint(url, acoustid_api_key):
-    yt_path = f"intermediate.mp3"
+    yt_path = "intermediate.mp3"
     ydl_opts = {
         'format': 'bestaudio/best',
         'quiet': True,
