@@ -10,6 +10,7 @@ click-completion==0.5.2
 click-didyoumean==0.0.3
 click-man==0.4.1
 click-spinner==0.1.10
+colorama==0.4.3
 coloredlogs==14.0
 feedparser==5.2.1
 flask==1.1.2
