@@ -1,8 +1,8 @@
 import os
 import sys
+import getpass
 import logging
 import configparser
-import pwd
 import attr
 import click
 import tqdm
@@ -12,7 +12,7 @@ from . import lib
 
 
 logger = logging.getLogger(__name__)
-current_user = pwd.getpwuid(os.getuid()).pw_name
+current_user = getpass.getuser()
 
 MB_CONFIG = 'MB_CONFIG'
 MB_LOG = 'MB_LOG'

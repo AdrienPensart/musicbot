@@ -1,4 +1,5 @@
 import os
+import platform
 import re
 import sys
 import logging
@@ -51,7 +52,10 @@ def is_empty(files):
 
 
 def raise_limits():
-    import resource
+    if platform.system() == 'Windows':
+        logger.debug('Cannot raise system limits on Windows')
+        return False
+    import resource  # pylint: disable=import-error
     try:
         _, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
         logger.info("Current limits, soft and hard : %s %s", _, hard)

@@ -1,5 +1,6 @@
 import logging
-import vlc
+import os
+import platform
 from prompt_toolkit import Application
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.application import run_in_terminal, get_app
@@ -20,6 +21,9 @@ def play(tracks):
         return
 
     try:
+        if platform.system() == 'Windows':
+            os.add_dll_directory(r'C:\Program Files\VideoLAN\VLC')
+        import vlc
         instance = vlc.Instance()
         if not instance:
             logger.critical('Unable to start VLC instance')
