@@ -183,10 +183,11 @@ musicbot folder check-consistency
     Check music files consistency
   
   Options:
-    --checks [no-title|invalid-title|bad-comment|invalid-artist|no-genre|no-album|no-artist|no-rating|invalid-track-number]
-                                                        Consistency tests  [default: no-title, bad-comment, invalid-artist, no-genre, no-
-                                                        album, no-artist, no-rating, invalid-track-number]
+    --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-artist|invalid-comment]
+                                                        Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
+                                                        tracknumber, invalid-title, invalid-artist, invalid-comment]
   
+    --fix
     -h, --help                                          Show this message and exit.
 
 
@@ -634,8 +635,28 @@ musicbot music
     -h, --help  Show this message and exit.
   
   Commands:
-    fingerprint  Print music fingerprint
-    help         Print help
+    check-consistency  Check music consistency
+    fingerprint        Print music fingerprint
+    help               Print help
+    set-tags           Set music title
+    tags               Print music tags
+
+
+musicbot music check-consistency
+********************************
+.. code-block::
+
+  Usage: musicbot music check-consistency [OPTIONS] PATH
+  
+    Check music consistency
+  
+  Options:
+    --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-artist|invalid-comment]
+                                                        Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
+                                                        tracknumber, invalid-title, invalid-artist, invalid-comment]
+  
+    --fix
+    -h, --help                                          Show this message and exit.
 
 
 musicbot music fingerprint
@@ -649,6 +670,37 @@ musicbot music fingerprint
   Options:
     --acoustid-api-key TEXT  AcoustID API Key
     -h, --help               Show this message and exit.
+
+
+musicbot music set-tags
+***********************
+.. code-block::
+
+  Usage: musicbot music set-tags [OPTIONS] PATH
+  
+    Set music title
+  
+  Options:
+    --keywords TEXT  Keywords
+    --artist TEXT    Artist
+    --album TEXT     Album
+    --title TEXT     Title
+    --genre TEXT     Genre
+    --number TEXT    Track number
+    --rating TEXT    Rating
+    -h, --help       Show this message and exit.
+
+
+musicbot music tags
+*******************
+.. code-block::
+
+  Usage: musicbot music tags [OPTIONS] PATH
+  
+    Print music tags
+  
+  Options:
+    -h, --help  Show this message and exit.
 
 
 musicbot spotify

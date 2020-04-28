@@ -4,7 +4,7 @@ audioread==2.1.8
 cached-property==1.5.1
 certifi==2020.4.5.1
 chardet==3.0.4
-click==7.1.1
+click==7.1.2
 click-aliases==1.0.1
 click-completion==0.5.2
 click-didyoumean==0.0.3
@@ -23,6 +23,7 @@ jinja2==2.11.2
 logging-tree==1.8.1
 markupsafe==1.1.1
 mps-youtube==0.2.8
+mutagen==1.44.0
 pafy==0.5.5
 pathtools==0.1.2
 ply==3.11
@@ -32,7 +33,6 @@ psycopg2-binary==2.8.5
 pyacoustid==1.1.7
 pydub==0.23.1
 pyreadline==2.1; sys_platform == "win32"
-pytaglib==1.4.6
 python-dotenv==0.12.0
 python-slugify==4.0.0
 python-vlc==3.0.7110
