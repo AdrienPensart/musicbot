@@ -36,7 +36,7 @@ pydub==0.23.1
 pyreadline==2.1; sys_platform == "win32"
 python-dotenv==0.12.0
 python-slugify==4.0.0
-python-vlc==3.0.7110
+python-vlc==3.0.9113
 requests==2.23.0
 shellingham==1.3.2
 six==1.14.0
