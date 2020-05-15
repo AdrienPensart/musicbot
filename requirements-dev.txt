@@ -1,5 +1,5 @@
 aiohttp==3.6.2
-astroid==2.4.0
+astroid==2.4.1
 async-timeout==3.0.1
 atomicwrites==1.4.0; sys_platform == "win32"
 attrdict==2.0.1
@@ -28,7 +28,7 @@ dephell-archive==0.1.6
 dephell-argparse==0.1.2
 dephell-changelogs==0.0.1
 dephell-discover==0.2.10
-dephell-licenses==0.1.6
+dephell-licenses==0.1.7
 dephell-links==0.1.5
 dephell-markers==1.0.3
 dephell-pythons==0.1.14
@@ -62,7 +62,7 @@ mccabe==0.6.1
 mistune==0.8.4
 more-itertools==8.2.0
 mps-youtube==0.2.8
-multidict==4.7.5
+multidict==4.7.6
 mutagen==1.44.0
 packaging==20.3
 pafy==0.5.5
@@ -76,22 +76,22 @@ prompt-toolkit==3.0.5
 psycopg2-binary==2.8.5
 ptyprocess==0.6.0
 py==1.8.1
-pyacoustid==1.1.7
+pyacoustid==1.2.0
 pycparser==2.20
-pydub==0.23.1
+pydub==0.24.0
 pygments==2.6.1
-pylint==2.5.0
+pylint==2.5.2
 pynacl==1.3.0
 pyparsing==2.4.7
 pypiwin32==223; sys_platform == "win32" and python_version >= "3.6"
 pyreadline==2.1; sys_platform == "win32"
 pyrsistent==0.16.0
-pytest==5.4.1
+pytest==5.4.2
 pytest-click==0.3
 pytest-cov==2.8.1
 pytest-docker-compose==3.1.2
 pytest-testmon==1.0.2
-python-dotenv==0.12.0
+python-dotenv==0.13.0
 python-slugify==4.0.0
 python-vlc==3.0.9113
 pywin32==227; sys_platform == "win32" and python_version >= "3.6"
@@ -105,9 +105,9 @@ six==1.14.0
 spotipy==2.12.0
 text-unidecode==1.3
 texttable==1.6.2
-toml==0.10.0
+toml==0.10.1
 tomlkit==0.6.0
-tqdm==4.45.0
+tqdm==4.46.0
 typed-ast==1.4.1; implementation_name == "cpython" and python_version < "3.8"
 urllib3==1.25.9
 watchdog==0.10.2
@@ -117,6 +117,6 @@ websocket-client==0.57.0
 werkzeug==1.0.1
 wrapt==1.12.1
 yarl==1.4.2
-yaspin==0.16.0
-youtube-dl==2020.3.24
+yaspin==0.17.0
+youtube-dl==2020.5.8
 zipp==3.1.0; python_version < "3.8"
