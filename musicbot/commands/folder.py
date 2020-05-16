@@ -1,6 +1,8 @@
 import logging
 import json
+import concurrent.futures as cf
 import click
+from pydub import AudioSegment
 from prettytable import PrettyTable
 from musicbot import helpers, lib
 from musicbot.config import config
@@ -34,35 +36,28 @@ def tracks(folders, output):
 @cli.command(help='Convert all files in folders to mp3')
 @helpers.add_options(helpers.folders_argument + helpers.concurrency_options + helpers.dry_option)
 def flac2mp3(folders, concurrency, dry):
-    import concurrent.futures as cf
-    from pydub import AudioSegment
     flac_files = list(lib.find_files(folders, ['flac']))
+    if not flac_files:
+        logger.warning(f"No flac files detected in {folders}")
+        return
 
-    pbar = None
-    if not config.quiet:
-        pbar = click.progressbar(length=len(flac_files), label='Converting musics')
-
-    def convert(flac_path):
-        logger.debug('Converting %s', flac_path)
-        flac_audio = AudioSegment.from_file(flac_path, "flac")
-        mp3_path = flac_path.replace('.flac', '.mp3')
-        if not dry:
-            flac_audio.export(mp3_path, format="mp3")
-        else:
-            logger.info("[DRY-RUN] Exporting from %s to %s", flac_path, mp3_path)
-        if pbar:
-            pbar.update(1)
-    # Permit CTRL+C to work as intended
-    # import atexit
-    # from concurrent.futures.thread import _python_exit
-    # atexit.unregister(_python_exit)  # pylint: disable=protected-access
-    with cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
-        executor.shutdown = lambda wait: None
-        futures = [executor.submit(convert, flac_path) for flac_path in flac_files]
-        cf.wait(futures)
+    with config.tqdm(total=len(flac_files), leave=True, desc='Converting musics') as pbar:
+        with cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
+            def convert(flac_path):
+                mp3_path = flac_path.replace('.flac', '.mp3')
+                if not dry:
+                    logger.info(f"Converting {flac_path} to {mp3_path}")
+                    flac_audio = AudioSegment.from_file(flac_path, "flac")
+                    flac_audio.export(mp3_path, format="mp3")
+                else:
+                    logger.info(f"[DRY-RUN] Exporting from {flac_path} to {mp3_path}")
+                pbar.update(1)
+            executor.shutdown = lambda wait: None
+            futures = [executor.submit(convert, flac_path[1]) for flac_path in flac_files]
+            cf.wait(futures)
 
 
-@cli.command(help='''Check music files consistency''')
+@cli.command(help='Check music files consistency')
 @helpers.add_options(helpers.folders_argument + checks_options)
 def check_consistency(folders, checks, fix):
     if not checks:

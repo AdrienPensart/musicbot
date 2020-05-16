@@ -7,12 +7,12 @@ from musicbot.music.fingerprint import acoustid_api_key_option
 logger = logging.getLogger(__name__)
 
 
-@click.group(help='''Music file''', cls=helpers.GroupWithHelp)
+@click.group(help='Music file', cls=helpers.GroupWithHelp)
 def cli():
     pass
 
 
-@cli.command(help='''Print music fingerprint''')
+@cli.command(help='Print music fingerprint')
 @click.argument('path')
 @helpers.add_options(acoustid_api_key_option)
 def fingerprint(path, acoustid_api_key):
@@ -20,7 +20,7 @@ def fingerprint(path, acoustid_api_key):
     print(f.fingerprint(acoustid_api_key))
 
 
-@cli.command(help='''Print music tags''')
+@cli.command(help='Print music tags')
 @click.argument('path')
 def tags(path):
     f = File(path)
@@ -28,7 +28,7 @@ def tags(path):
     print(f.ordered_dict())
 
 
-@cli.command(help='''Check music consistency''')
+@cli.command(help='Check music consistency')
 @click.argument('path')
 @helpers.add_options(checks_options)
 def check_consistency(path, **kwargs):
@@ -37,7 +37,7 @@ def check_consistency(path, **kwargs):
     print(f.check_consistency(**kwargs))
 
 
-@cli.command(help='''Set music title''')
+@cli.command(help='Set music title')
 @click.argument('path')
 @helpers.add_options(options)
 def set_tags(path, title, artist, album, genre, keywords, rating, number):

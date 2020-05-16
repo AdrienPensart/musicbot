@@ -15,10 +15,9 @@ def cli():
     pass
 
 
-@cli.command('list')
+@cli.command('list', help='List users (admin)')
 @helpers.add_options(helpers.output_option + graphql_admin_option)
 def _list(graphql_admin, output):
-    '''List users (admin)'''
     a = Admin(graphql=graphql_admin)
     users = a.users()
     if output == 'table':
@@ -31,10 +30,9 @@ def _list(graphql_admin, output):
         print(json.dumps(users))
 
 
-@cli.command(aliases=['new', 'add', 'create'])
+@cli.command(aliases=['new', 'add', 'create'], help='Register a new user')
 @helpers.add_options(register_options + helpers.save_option)
 def register(save, **kwargs):
-    '''Register a new user'''
     u = User.register(**kwargs)
     if u.token and save:
         logger.info("saving user infos")
@@ -44,18 +42,16 @@ def register(save, **kwargs):
         config.write()
 
 
-@cli.command(aliases=['delete', 'remove'])
+@cli.command(aliases=['delete', 'remove'], help='Remove a user')
 @helpers.add_options(auth_options)
 def unregister(**kwargs):
-    '''Remove a user'''
     u = User(**kwargs)
     u.unregister()
 
 
-@cli.command(aliases=['token'])
+@cli.command(aliases=['token'], help='Authenticate user')
 @helpers.add_options(login_options + helpers.save_option)
 def login(save, **kwargs):
-    '''Authenticate user'''
     u = User(**kwargs)
     print(u.token)
     if u.token and save:

@@ -4,18 +4,17 @@ from musicbot import helpers
 from musicbot.config import config
 
 
-@click.group(hidden=True, cls=helpers.GroupWithHelp)
+@click.group(hidden=True, help='Config management', cls=helpers.GroupWithHelp)
 def cli():
-    '''Config management'''
+    pass
 
 
-@cli.command()
+@cli.command(help='Print global config')
 def show():
-    '''Print default config'''
     print(config)
 
 
-@cli.command('print')
+@cli.command('print', help='Print config file')
 def _print():
     for each_section in config.configfile.sections():
         print(f"[{each_section}]")
@@ -25,7 +24,6 @@ def _print():
 
 
 
-@cli.command()
+@cli.command('Print logging config')
 def logging():
-    '''Show loggers tree'''
     printout()

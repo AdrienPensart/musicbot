@@ -8,7 +8,6 @@ import click
 import click_spinner
 from click_didyoumean import DYMGroup
 from click_aliases import ClickAliasedGroup
-from tqdm import tqdm
 from .config import config
 from .lib import seconds_to_human, find_files, filecount
 from .music.file import File, supported_formats
@@ -134,7 +133,7 @@ def genfiles(folders):
             count += filecount(d, supported_formats)
         logger.info("File count: %s", count)
     files = []
-    with tqdm(total=count, desc=f"Music listing {folders}", disable=config.quiet) as pbar:
+    with config.tqdm(total=count, desc=f"Music listing {folders}") as pbar:
         file_list = find_files(folders, supported_formats)
         music_files = list(file_list)
         for f in music_files:

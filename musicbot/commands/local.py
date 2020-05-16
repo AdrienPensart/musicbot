@@ -7,7 +7,6 @@ import datetime
 from shutil import copyfile
 from textwrap import indent
 import click
-from tqdm import tqdm
 from prettytable import PrettyTable
 from musicbot import helpers, user
 from musicbot.lib import bytes_to_human, find_files, all_files, empty_dirs, except_directories
@@ -26,21 +25,20 @@ def cli():
     pass
 
 
-@cli.command(help='''Raw query''')
+@cli.command(help='Raw query')
 @click.argument('query')
 @helpers.add_options(user.auth_options)
 def execute(user, query):
     print(json.dumps(user._post(query)['data']))
 
 
-@cli.command()
+@cli.command(help='Load default filters')
 @helpers.add_options(user.auth_options)
 def load_filters(user):
-    '''Load default filters'''
     user.load_default_filters()
 
 
-@cli.command(help='''List filters''')
+@cli.command(help='List filters')
 @helpers.add_options(user.auth_options + helpers.output_option)
 def filters(user, output):
     if output == 'json':
@@ -53,7 +51,7 @@ def filters(user, output):
         print(pt)
 
 
-@cli.command('filter', help='''Print a filter''')
+@cli.command('filter', help='Print a filter')
 @helpers.add_options(user.auth_options + helpers.output_option)
 @click.argument('name')
 def _filter(user, name, output):
@@ -64,7 +62,7 @@ def _filter(user, name, output):
         print(f)
 
 
-@cli.command(help='''Generate some stats for music collection with filters''', aliases=['stat'])
+@cli.command(aliases=['stat'], help='Generate some stats for music collection with filters')
 @helpers.add_options(user.auth_options + helpers.output_option + mfilter.options)
 def stats(user, output, **kwargs):
     mf = mfilter.Filter(**kwargs)
@@ -84,7 +82,7 @@ def stats(user, output, **kwargs):
         print(pt)
 
 
-@cli.command(help='''List folders''')
+@cli.command(help='List folders')
 @helpers.add_options(user.auth_options + helpers.output_option)
 def folders(user, output):
     _folders = user.folders
@@ -98,7 +96,7 @@ def folders(user, output):
         print(pt)
 
 
-@cli.command(help='''(re)Load musics''')
+@cli.command(help='(re)Load musics')
 @helpers.add_options(user.auth_options + helpers.folders_argument)
 def scan(user, folders):
     if not folders:
@@ -107,7 +105,7 @@ def scan(user, folders):
     user.bulk_insert(files)
 
 
-@cli.command(help='''Just list music files''')
+@cli.command(help='Just list music files')
 @helpers.add_options(user.auth_options + helpers.folders_argument)
 def find(user, folders):
     if not folders:
@@ -118,19 +116,19 @@ def find(user, folders):
         print(f[1])
 
 
-@cli.command(help='''Watch files changes in folders''')
+@cli.command(help='Watch files changes in folders')
 @helpers.add_options(user.auth_options)
 def watch(user):
     user.watch()
 
 
-@cli.command(help='''Clean all musics''')
+@cli.command(help='Clean all musics')
 @helpers.add_options(user.auth_options)
 def clean(user):
     user.clean_musics()
 
 
-@cli.command(help='''Copy selected musics with filters to destination folder''')
+@cli.command(help='Copy selected musics with filters to destination folder')
 @helpers.add_options(user.auth_options + helpers.dry_option + mfilter.options)
 @click.argument('destination')
 def sync(user, dry, destination, **kwargs):
@@ -150,7 +148,7 @@ def sync(user, dry, destination, **kwargs):
     to_delete = set(destinations.keys()) - set(sources.keys())
     logger.info(f"To delete: {len(to_delete)}")
     if to_delete:
-        with tqdm(total=len(to_delete), disable=config.quiet) as pbar:
+        with config.tqdm(total=len(to_delete)) as pbar:
             for d in to_delete:
                 pbar.set_description(f"Deleting musics and playlists: {os.path.basename(destinations[d])}")
                 if not dry:
@@ -166,7 +164,7 @@ def sync(user, dry, destination, **kwargs):
     to_copy = set(sources.keys()) - set(destinations.keys())
     logger.info(f"To copy: {len(to_copy)}")
     if to_copy:
-        with tqdm(total=len(to_copy), disable=config.quiet) as pbar:
+        with config.tqdm(total=len(to_copy)) as pbar:
             for c in sorted(to_copy):
                 final_destination = os.path.join(destination, c)
                 try:
@@ -196,7 +194,7 @@ def sync(user, dry, destination, **kwargs):
         logger.info("[DRY-RUN] Removing empty dir %s", d)
 
 
-@cli.command(help='''Generate a new playlist''')
+@cli.command(help='Generate a new playlist')
 @helpers.add_options(user.auth_options + helpers.dry_option + mfilter.options + helpers.playlist_output_option)
 @click.argument('path', type=click.File('w'), default='-')
 def playlist(user, output, path, dry, **kwargs):
@@ -215,7 +213,7 @@ def playlist(user, output, path, dry, **kwargs):
         print_playlist(tracks, path)
 
 
-@cli.command(help='''Generate bests playlists with some rules''')
+@cli.command(help='Generate bests playlists with some rules')
 @helpers.add_options(user.auth_options + helpers.dry_option + mfilter.options)
 @click.argument('path', type=click.Path(exists=True))
 @click.option('--prefix', envvar='MB_PREFIX', help="Append prefix before each path (implies relative)", default='')
@@ -227,7 +225,7 @@ def bests(user, dry, path, prefix, suffix, **kwargs):
             prefix += '/'
     mf = mfilter.Filter(**kwargs)
     playlists = user.bests(mf)
-    with tqdm(total=len(playlists), disable=config.quiet) as pbar:
+    with config.tqdm(total=len(playlists)) as pbar:
         for p in playlists:
             playlist_filepath = os.path.join(path, p['name'] + suffix + '.m3u')
             pbar.set_description(f"Best playlist {prefix} {suffix}: {os.path.basename(playlist_filepath)}")
@@ -244,7 +242,7 @@ def bests(user, dry, path, prefix, suffix, **kwargs):
             pbar.update(1)
 
 
-@cli.command(help='Music player', aliases=['play'])
+@cli.command(aliases=['play'], help='Music player')
 @helpers.add_options(user.auth_options + mfilter.options)
 def player(user, **kwargs):
     try:

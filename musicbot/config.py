@@ -3,6 +3,7 @@ import sys
 import getpass
 import logging
 import configparser
+import functools
 import attr
 import click
 import tqdm
@@ -82,6 +83,7 @@ class Config:
     config = attr.ib(default=DEFAULT_CONFIG)
     level = attr.ib(default=verbosities[DEFAULT_VERBOSITY])
     fmt = attr.ib(default="%(asctime)s %(name)s[%(process)d] %(levelname)s %(message)s")
+    tqdm = attr.ib(default=tqdm.tqdm, repr=False)
 
     def set(self, config=None, debug=None, info=None, timings=None, quiet=None, verbosity=None, log=None):
         self.config = config if config is not None else os.getenv(MB_CONFIG, DEFAULT_CONFIG)
@@ -118,6 +120,7 @@ class Config:
             else:
                 logger.warning(f'No permission to write to {self.log} for current user {current_user}')
         logger.debug(self)
+        self.tqdm = functools.partial(tqdm.tqdm, dynamic_ncols=True, leave=False, disable=self.quiet)
 
     @cached_property
     def configfile(self):

@@ -5,7 +5,6 @@ import functools
 import click
 import click_spinner
 import requests
-from tqdm import tqdm
 from . import helpers
 from .graphql import GraphQL
 from .config import config
@@ -217,7 +216,7 @@ class User(GraphQL):
             logger.info("no musics to insert")
             return None
         if config.debug:
-            with tqdm(total=len(musics), desc="inserting music one by one") as pbar:
+            with config.tqdm(total=len(musics), desc="inserting music one by one") as pbar:
                 for music in musics:
                     logger.debug("inserting %s", music)
                     self.upsert_music(music)

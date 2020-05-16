@@ -80,7 +80,6 @@ def find_files(directories, supported_formats):
     for directory in directories:
         for root, _, files in os.walk(directory):
             if any(e in root for e in except_directories):
-                logger.debug(f"Invalid path {root}")
                 continue
             for basename in files:
                 filename = os.path.join(root, basename)
