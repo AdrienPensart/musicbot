@@ -123,8 +123,8 @@ class Config:
     def configfile(self):
         file = configparser.ConfigParser()
         file.read(self.config)
-        if 'DEFAULT' not in file:
-            logger.warning(f'DEFAULT section not present in {self.config}')
+        if 'musicbot' not in file:
+            logger.warning(f'[musicbot] section is not present in {self.config}')
         if 'spotify' not in file:
             logger.warning(f'spotify section not present in {self.config}')
         return file

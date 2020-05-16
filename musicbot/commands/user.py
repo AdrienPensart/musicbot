@@ -38,9 +38,9 @@ def register(save, **kwargs):
     u = User.register(**kwargs)
     if u.token and save:
         logger.info("saving user infos")
-        config.configfile['DEFAULT']['email'] = u.email
-        config.configfile['DEFAULT']['password'] = u.password
-        config.configfile['DEFAULT']['token'] = u.token
+        config.configfile['musicbot']['email'] = u.email
+        config.configfile['musicbot']['password'] = u.password
+        config.configfile['musicbot']['token'] = u.token
         config.write()
 
 
@@ -60,5 +60,5 @@ def login(save, **kwargs):
     print(u.token)
     if u.token and save:
         logger.info("saving user infos")
-        config.configfile['DEFAULT']['token'] = u.token
+        config.configfile['musicbot']['token'] = u.token
         config.write()
