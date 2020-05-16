@@ -60,7 +60,7 @@ m2r==0.2.1
 markupsafe==1.1.1
 mccabe==0.6.1
 mistune==0.8.4
-more-itertools==8.2.0
+more-itertools==8.3.0
 mps-youtube==0.2.8
 multidict==4.7.6
 mutagen==1.44.0
