@@ -1,5 +1,6 @@
 import logging
 import click
+from pydub import AudioSegment
 from musicbot import helpers
 from musicbot.music.file import File, options, checks_options
 from musicbot.music.fingerprint import acoustid_api_key_option
@@ -10,6 +11,17 @@ logger = logging.getLogger(__name__)
 @click.group(help='Music file', cls=helpers.GroupWithHelp)
 def cli():
     pass
+
+
+@cli.command(help='Convert flac music to mp3')
+@click.argument('path')
+def flac2mp3(path):
+    if not path.endswith('.flac'):
+        logger.error(f"{path} is not a flac file")
+        return
+    mp3_path = path.replace('.flac', '.mp3')
+    flac_audio = AudioSegment.from_file(path, "flac")
+    flac_audio.export(mp3_path, format="mp3")
 
 
 @cli.command(help='Print music fingerprint')

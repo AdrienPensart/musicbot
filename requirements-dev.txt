@@ -64,7 +64,7 @@ more-itertools==8.3.0
 mps-youtube==0.2.8
 multidict==4.7.6
 mutagen==1.44.0
-packaging==20.3
+packaging==20.4
 pafy==0.5.5
 paramiko==2.7.1
 pathtools==0.1.2
