@@ -17,7 +17,7 @@ def show(shell, case_insensitive):
     click.echo(click_completion.core.get_code(shell, extra_env=extra_env))
 
 
-@cli.command('Install the click-completion-command completion')
+@cli.command(help='Install the click-completion-command completion')
 @click.option('--append/--overwrite', help="Append the completion code to the file", default=None)
 @click.option('-i', '--case-insensitive/--no-case-insensitive', help="Case insensitive completion")
 @click.argument('shell', required=False, type=click_completion.DocumentedChoice(click_completion.core.shells))

@@ -1,7 +1,10 @@
+import logging
 import click
 from logging_tree import printout
 from musicbot import helpers
 from musicbot.config import config
+
+logger = logging.getLogger('musicbot')
 
 
 @click.group(hidden=True, help='Config management', cls=helpers.GroupWithHelp)
@@ -24,6 +27,6 @@ def _print():
 
 
 
-@cli.command('Print logging config')
-def logging():
+@cli.command('logging', help='Print logging config')
+def _logging():
     printout()

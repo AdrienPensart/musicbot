@@ -637,6 +637,7 @@ musicbot music
   Commands:
     check-consistency  Check music consistency
     fingerprint        Print music fingerprint
+    flac2mp3           Convert flac music to mp3
     help               Print help
     set-tags           Set music title
     tags               Print music tags
@@ -670,6 +671,18 @@ musicbot music fingerprint
   Options:
     --acoustid-api-key TEXT  AcoustID API Key
     -h, --help               Show this message and exit.
+
+
+musicbot music flac2mp3
+***********************
+.. code-block::
+
+  Usage: musicbot music flac2mp3 [OPTIONS] PATH
+  
+    Convert flac music to mp3
+  
+  Options:
+    -h, --help  Show this message and exit.
 
 
 musicbot music set-tags
