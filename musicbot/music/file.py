@@ -1,9 +1,11 @@
 import logging
+import pathlib
 import json
 import copy
 import os
 import click
 import mutagen
+from pydub import AudioSegment
 from mutagen.id3 import TXXX, TRCK, TIT2, TALB, TPE1, TCON, COMM
 
 
@@ -17,15 +19,31 @@ options = [
     click.option('--number', help='Track number', default=None),
     click.option('--rating', help='Rating', default=None),
 ]
-checks = ['no-title', 'no-artist', 'no-album', 'no-genre', 'no-rating', 'no-tracknumber', 'invalid-title', 'invalid-artist', 'invalid-comment']
+DEFAULT_CHECKS = [
+    'no-title',
+    'no-artist',
+    'no-album',
+    'no-genre',
+    'no-rating',
+    'no-tracknumber',
+    'invalid-title',
+    'invalid-comment',
+    'invalid-path',
+]
+path_argument = [
+    click.argument('path', type=click.Path(exists=True))
+]
+folder_option = [
+    click.option('--folder', help="Destination folder"),
+]
 checks_options = [
     click.option(
         '--checks',
         help='Consistency tests',
         multiple=True,
-        default=checks,
+        default=DEFAULT_CHECKS,
         show_default=True,
-        type=click.Choice(checks)
+        type=click.Choice(DEFAULT_CHECKS)
     ),
     click.option('--fix', is_flag=True),
 ]
@@ -42,16 +60,22 @@ def mysplit(s, delim=','):
     raise ValueError(s)
 
 
+def ensure(path):
+    p = pathlib.Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    return str(p)
+
+
 # pylint: disable-msg=unsupported-membership-test
 # pylint: disable-msg=unsubscriptable-object
 # pylint: disable-msg=unsupported-assignment-operation
 class File:
-    def __init__(self, filename, _folder=''):
-        self.handle = mutagen.File(filename)
-        self._folder = _folder
-        self.filename = filename
-        self.youtube_link = ''
-        self.spotify_link = ''
+    def __init__(self, path, folder=None, youtube_link=None, spotify_link=None):
+        self.path = path
+        self.folder = folder if folder is not None else ''
+        self.youtube_link = youtube_link if youtube_link is not None else ''
+        self.spotify_link = spotify_link if spotify_link is not None else ''
+        self.handle = mutagen.File(self.path)
 
     def __repr__(self):
         return self.path
@@ -59,21 +83,48 @@ class File:
     def close(self):
         self.handle.close()
 
+    def to_mp3(self, folder=None, dry=None):
+        dry = dry if dry is not None else False
+        folder = folder if folder is not None else self.folder
+
+        if self.extension != '.flac':
+            logger.error(f"{self} is not a flac file")
+            return
+        if self.check_consistency(checks=['invalid-path']):
+            logger.error(f"{self} does not have a canonic path like : {self.canonic_artist_album_filename}")
+            return
+
+        mp3_path = os.path.join(folder, self.artist, self.album, self.canonic_title + '.mp3')
+        if os.path.exists(mp3_path):
+            logger.info(f"{mp3_path} already exists, not overwriting")
+            return
+        logger.debug(f"{self} convert destination : {mp3_path}")
+        if not dry:
+            ensure(mp3_path)
+            flac_audio = AudioSegment.from_file(self.path, "flac")
+            flac_audio.export(mp3_path, format="mp3")
+
     def ordered_dict(self):
         from collections import OrderedDict
-        return OrderedDict([('title', self.title),
-                            ('album', self.album),
-                            ('genre', self.genre),
-                            ('artist', self.artist),
-                            ('folder', self._folder),
-                            ('youtube', self.youtube),
-                            ('spotify', self.spotify),
-                            ('number', self.number),
-                            ('path', self.path),
-                            ('rating', self.rating),
-                            ('duration', self.duration),
-                            ('size', self.size),
-                            ('keywords', mysplit(self.keywords, ' '))])
+        return OrderedDict([
+            ('title', self.title),
+            ('album', self.album),
+            ('genre', self.genre),
+            ('artist', self.artist),
+            ('folder', self.folder),
+            ('youtube', self.youtube),
+            ('spotify', self.spotify),
+            ('number', self.number),
+            ('path', self.path),
+            ('rating', self.rating),
+            ('duration', self.duration),
+            ('size', self.size),
+            ('keywords', mysplit(self.keywords, ' '))
+        ])
+
+    @property
+    def extension(self):
+        return pathlib.Path(self.path).suffix
 
     def __iter__(self):
         yield from self.ordered_dict().items()
@@ -88,12 +139,20 @@ class File:
         return json.dumps(self.ordered_dict())
 
     @property
-    def path(self):
-        return self.filename
+    def canonic_path(self):
+        return str(pathlib.PurePath(self.folder, self.canonic_artist_album_filename))
 
     @property
-    def folder(self):
-        return self._folder
+    def canonic_artist_album_filename(self):
+        return str(pathlib.PurePath(self.artist, self.album, self.canonic_filename))
+
+    @property
+    def filename(self):
+        return os.path.basename(self.path)
+
+    @property
+    def canonic_filename(self):
+        return f"{self.canonic_title}{self.extension}"
 
     def _get_first(self, tag, default=''):
         if tag not in self.handle:
@@ -108,63 +167,67 @@ class File:
 
     @property
     def size(self):
-        return os.path.getsize(self.filename)
+        return os.path.getsize(self.path)
 
     @property
     def title(self):
-        if self.filename.endswith('flac'):
+        if self.extension == '.flac':
             return self._get_first('title')
         return self._get_first('TIT2')
 
     @title.setter
     def title(self, title):
-        if self.filename.endswith('flac'):
+        if self.extension == '.flac':
             self.handle.tags['title'] = title
         else:
             self.handle.tags.add(TIT2(text=title))
 
     @property
+    def canonic_title(self):
+        return f"{str(self.number).zfill(2)} - {self.title}"
+
+    @property
     def album(self):
-        if self.filename.endswith('flac'):
+        if self.extension == '.flac':
             return self._get_first('album')
         return self._get_first('TALB')
 
     @album.setter
     def album(self, album):
-        if self.filename.endswith('flac'):
+        if self.extension == '.flac':
             self.handle.tags['album'] = album
         else:
             self.handle.tags.add(TALB(text=album))
 
     @property
     def artist(self):
-        if self.filename.endswith('flac'):
+        if self.extension == '.flac':
             return self._get_first('artist')
         return self._get_first('TPE1')
 
     @artist.setter
     def artist(self, artist):
-        if self.filename.endswith('flac'):
+        if self.extension == '.flac':
             self.handle.tags['artist'] = artist
         else:
             self.handle.tags.add(TPE1(text=artist))
 
     @property
     def genre(self):
-        if self.filename.endswith('flac'):
+        if self.extension == '.flac':
             return self._get_first('genre')
         return self._get_first('TCON')
 
     @genre.setter
     def genre(self, genre):
-        if self.filename.endswith('flac'):
+        if self.extension == '.flac':
             self.handle.tags['genre'] = genre
         else:
             self.handle.tags.add(TCON(text=genre))
 
     @property
     def rating(self):
-        if self.filename.endswith('flac'):
+        if self.extension == '.flac':
             s = self._get_first('fmps_rating')
         else:
             s = self._get_first('TXXX:FMPS_Rating')
@@ -178,7 +241,7 @@ class File:
 
     @rating.setter
     def rating(self, rating):
-        if self.filename.endswith('flac'):
+        if self.extension == '.flac':
             self.handle['fmps_rating'] = str(rating)
         else:
             self.handle.tags.add(TXXX(desc='FMPS_Rating', text=str(rating)))
@@ -201,7 +264,7 @@ class File:
 
     @property
     def number(self):
-        if self.filename.endswith('flac'):
+        if self.extension == '.flac':
             s = self._get_first('tracknumber')
         else:
             s = self._get_first('TRCK')
@@ -220,16 +283,16 @@ class File:
 
     @number.setter
     def number(self, number):
-        if self.filename.endswith('flac'):
+        if self.extension == '.flac':
             self.handle.tags['tracknumber'] = str(number)
         else:
             self.handle.tags.add(TRCK(text=str(number)))
 
     @property
     def keywords(self):
-        if str(self.filename).endswith('mp3'):
+        if self.extension == '.mp3':
             return self._comment
-        if str(self.filename).endswith('flac'):
+        if self.extension == '.flac':
             if self._comment and not self._description:
                 self.description = self._comment
             return self._description
@@ -237,10 +300,10 @@ class File:
 
     @keywords.setter
     def keywords(self, keywords):
-        if str(self.filename).endswith('mp3'):
-            self._comment = keywords
-        elif str(self.filename).endswith('flac'):
+        if self.extension == '.flac':
             self.description = keywords
+        elif self.extension == '.mp3':
+            self._comment = keywords
 
     def add_keywords(self, keywords):
         tags = copy.deepcopy(self.keywords)
@@ -280,7 +343,10 @@ class File:
             return recording_id
         return None
 
-    def check_consistency(self, checks, fix):
+    def check_consistency(self, checks=None, fix=None, dry=None):
+        checks = checks if checks is not None else DEFAULT_CHECKS
+        fix = fix if fix is not None else False
+        dry = dry if dry is not None else False
         inconsistencies = []
         if 'no-title' in checks:
             if not self.title:
@@ -294,35 +360,36 @@ class File:
         if 'no-artist' in checks:
             if self.artist == '':
                 inconsistencies.append("no-artist")
+        if 'no-rating' in checks and self.rating == -1:
+            inconsistencies.append("no-rating")
+            if fix:
+                self.rating = 0.0
+        if 'no-tracknumber' in checks and self.number == -1:
+            inconsistencies.append("no-tracknumber")
+            if fix:
+                self.number = 0
         if 'invalid-comment' in checks:
-            if self.filename.endswith('flac'):
-                if self._comment and not self._description:
-                    inconsistencies.append(f'invalid-comment comment {self._comment} used in flac instead of description')
-                    if fix:
-                        self._description = ''
-            if self.path.endswith('mp3'):
-                if self._description and not self._comment:
-                    inconsistencies.append(f'invalid-comment description {self._description} used in mp3 instead of comment')
-                    if fix:
-                        self._comment = ''
-        if 'invalid-artist' in checks:
-            if self.artist not in self.path:
-                inconsistencies.append(f"invalid-artist : {self.artist} is not in path")
-        if 'no-rating' in checks:
-            if self.rating == -1:
-                inconsistencies.append("no-rating")
+            if self.extension == '.flac' and self._comment and not self._description:
+                inconsistencies.append(f'invalid-comment comment {self._comment} used in flac instead of description')
                 if fix:
-                    self.rating = 0.0
-        if self.number == -1:
-            if 'no-tracknumber' in checks:
-                inconsistencies.append("no-tracknumber")
+                    self._description = ''
+            if self.extension == '.mp3' and self._description and not self._comment:
+                inconsistencies.append(f'invalid-comment description {self._description} used in mp3 instead of comment')
                 if fix:
-                    self.number = 0
-        if self.number not in (-1, 0) and 'invalid-title' in checks:
-            filename = os.path.basename(self.path)
-            if filename != f"{str(self.number).zfill(2)} - {self.title}.mp3" or filename != f"{str(self.number).zfill(2)} - {self.title}.flac":
-                inconsistencies.append(f"invalid-title, '{self.filename}' should start by '{str(self.number).zfill(2)} - {self.title}'")
-        if inconsistencies and fix:
+                    self._comment = ''
+        if 'invalid-title' in checks and self.number not in (-1, 0) and self.title != self.canonic_title:
+            inconsistencies.append(f"invalid-title, '{self.title}' should be '{self.canonic_title}'")
+            if fix:
+                self.title = self.canonic_title
+        if 'invalid-path' in checks and self.number not in (-1, 0) and not self.path.endswith(self.canonic_path):
+            inconsistencies.append(f"invalid-path, '{self.path}' should be '{self.canonic_path}'")
+            if fix and not dry:
+                logger.debug(f"Moving {self.path} to {self.canonic_path}")
+                path = pathlib.Path(self.path)
+                path.replace(self.canonic_path)
+                self.path = self.canonic_path
+                self.handle = mutagen.File(self.path)
+        if inconsistencies and fix and not dry:
             self.save()
         return inconsistencies
 

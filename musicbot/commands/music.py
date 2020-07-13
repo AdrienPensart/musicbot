@@ -1,8 +1,7 @@
 import logging
 import click
-from pydub import AudioSegment
 from musicbot import helpers
-from musicbot.music.file import File, options, checks_options
+from musicbot.music.file import File, path_argument, folder_option, options, checks_options
 from musicbot.music.fingerprint import acoustid_api_key_option
 
 logger = logging.getLogger(__name__)
@@ -14,26 +13,30 @@ def cli():
 
 
 @cli.command(help='Convert flac music to mp3')
-@click.argument('path')
-def flac2mp3(path):
-    if not path.endswith('.flac'):
-        logger.error(f"{path} is not a flac file")
-        return
-    mp3_path = path.replace('.flac', '.mp3')
-    flac_audio = AudioSegment.from_file(path, "flac")
-    flac_audio.export(mp3_path, format="mp3")
+@helpers.add_options(
+    path_argument +
+    folder_option +
+    helpers.dry_option
+)
+def flac2mp3(path, folder, dry):
+    f = File(path)
+    f.to_mp3(folder, dry)
 
 
 @cli.command(help='Print music fingerprint')
-@click.argument('path')
-@helpers.add_options(acoustid_api_key_option)
+@helpers.add_options(
+    path_argument +
+    acoustid_api_key_option
+)
 def fingerprint(path, acoustid_api_key):
     f = File(path)
     print(f.fingerprint(acoustid_api_key))
 
 
 @cli.command(help='Print music tags')
-@click.argument('path')
+@helpers.add_options(
+    path_argument
+)
 def tags(path):
     f = File(path)
     logger.info(f.handle.tags.keys())
@@ -41,8 +44,11 @@ def tags(path):
 
 
 @cli.command(help='Check music consistency')
-@click.argument('path')
-@helpers.add_options(checks_options)
+@helpers.add_options(
+    path_argument +
+    helpers.dry_option +
+    checks_options
+)
 def check_consistency(path, **kwargs):
     f = File(path)
     logger.info(f.handle.tags.keys())
@@ -50,8 +56,10 @@ def check_consistency(path, **kwargs):
 
 
 @cli.command(help='Set music title')
-@click.argument('path')
-@helpers.add_options(options)
+@helpers.add_options(
+    path_argument +
+    options
+)
 def set_tags(path, title, artist, album, genre, keywords, rating, number):
     f = File(path)
     if title:

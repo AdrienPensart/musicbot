@@ -69,7 +69,7 @@ Linting
 
 .. code-block:: bash
 
-  poetry run pylint musicbot tests
+  poetry run pylint musicbot tests doc
 
 Documentation
 -------------
@@ -77,17 +77,18 @@ Documentation
 .. code-block:: bash
 
   poetry run rstcheck doc/help.rst
-  poetry run doc/gen.sh
+  poetry run doc/gen.py > README.rst
   poetry run rstcheck README.rst
+
 
 Commands
 --------
 .. code-block::
 
   Usage: musicbot [OPTIONS] COMMAND [ARGS]...
-  
+
     Music swiss knife, new gen.
-  
+
   Options:
     -V, --version                                       Show the version and exit.
     -c, --config PATH                                   Config file path  [default: ~/musicbot.ini]
@@ -99,7 +100,7 @@ Commands
                                                         Verbosity levels  [default: warning]
     -q, --quiet                                         Disable progress bars  [default: False]
     -h, --help                                          Show this message and exit.
-  
+
   Commands:
     completion  Shell completion
     folder      Manage folders
@@ -117,12 +118,12 @@ musicbot completion
 .. code-block::
 
   Usage: musicbot completion [OPTIONS] COMMAND [ARGS]...
-  
+
     Shell completion
-  
+
   Options:
     -h, --help  Show this message and exit.
-  
+
   Commands:
     help     Print help
     install  Install the click-completion-command completion
@@ -134,9 +135,9 @@ musicbot completion install
 .. code-block::
 
   Usage: musicbot completion install [OPTIONS] [[bash|fish|zsh|powershell]] [PATH]
-  
+
     Install the click-completion-command completion
-  
+
   Options:
     --append / --overwrite                          Append the completion code to the file
     -i, --case-insensitive / --no-case-insensitive  Case insensitive completion
@@ -148,9 +149,9 @@ musicbot completion show
 .. code-block::
 
   Usage: musicbot completion show [OPTIONS] [[bash|fish|zsh|powershell]]
-  
+
     Show the click-completion-command completion code
-  
+
   Options:
     -i, --case-insensitive / --no-case-insensitive  Case insensitive completion
     -h, --help                                      Show this message and exit.
@@ -161,12 +162,12 @@ musicbot folder
 .. code-block::
 
   Usage: musicbot folder [OPTIONS] COMMAND [ARGS]...
-  
+
     Manage folders
-  
+
   Options:
     -h, --help  Show this message and exit.
-  
+
   Commands:
     check-consistency  Check music files consistency
     flac2mp3           Convert all files in folders to mp3
@@ -179,14 +180,15 @@ musicbot folder check-consistency
 .. code-block::
 
   Usage: musicbot folder check-consistency [OPTIONS] [FOLDERS]...
-  
+
     Check music files consistency
-  
+
   Options:
-    --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-artist|invalid-comment]
+    --dry                                               Take no real action  [default: False]
+    --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-comment|invalid-path]
                                                         Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
-                                                        tracknumber, invalid-title, invalid-artist, invalid-comment]
-  
+                                                        tracknumber, invalid-title, invalid-comment, invalid-path]
+
     --fix
     -h, --help                                          Show this message and exit.
 
@@ -196,10 +198,11 @@ musicbot folder flac2mp3
 .. code-block::
 
   Usage: musicbot folder flac2mp3 [OPTIONS] [FOLDERS]...
-  
+
     Convert all files in folders to mp3
-  
+
   Options:
+    --folder TEXT          Destination folder
     --concurrency INTEGER  Number of coroutines  [default: 8]
     --dry                  Take no real action  [default: False]
     -h, --help             Show this message and exit.
@@ -210,9 +213,9 @@ musicbot folder tracks
 .. code-block::
 
   Usage: musicbot folder tracks [OPTIONS] [FOLDERS]...
-  
+
     List tracks
-  
+
   Options:
     --output [table|json]  Output format  [default: table]
     -h, --help             Show this message and exit.
@@ -222,10 +225,10 @@ musicbot help
 *************
 .. code-block::
 
-  Usage: musicbot help [OPTIONS] [COMMAND]...
-  
+  Usage: musicbot help [OPTIONS] [COMMAND]
+
     Print help
-  
+
   Options:
     -h, --help  Show this message and exit.
 
@@ -235,12 +238,12 @@ musicbot local
 .. code-block::
 
   Usage: musicbot local [OPTIONS] COMMAND [ARGS]...
-  
+
     Local music management
-  
+
   Options:
     -h, --help  Show this message and exit.
-  
+
   Commands:
     bests          Generate bests playlists with some rules
     clean          Clean all musics
@@ -264,9 +267,9 @@ musicbot local bests
 .. code-block::
 
   Usage: musicbot local bests [OPTIONS] PATH
-  
+
     Generate bests playlists with some rules
-  
+
   Options:
     -e, --email TEXT        User email
     -p, --password TEXT     User password
@@ -309,9 +312,9 @@ musicbot local clean
 .. code-block::
 
   Usage: musicbot local clean [OPTIONS]
-  
+
     Clean all musics
-  
+
   Options:
     -e, --email TEXT     User email
     -p, --password TEXT  User password
@@ -325,9 +328,9 @@ musicbot local execute
 .. code-block::
 
   Usage: musicbot local execute [OPTIONS] QUERY
-  
+
     Raw query
-  
+
   Options:
     -e, --email TEXT     User email
     -p, --password TEXT  User password
@@ -341,9 +344,9 @@ musicbot local filter
 .. code-block::
 
   Usage: musicbot local filter [OPTIONS] NAME
-  
+
     Print a filter
-  
+
   Options:
     -e, --email TEXT       User email
     -p, --password TEXT    User password
@@ -358,9 +361,9 @@ musicbot local filters
 .. code-block::
 
   Usage: musicbot local filters [OPTIONS]
-  
+
     List filters
-  
+
   Options:
     -e, --email TEXT       User email
     -p, --password TEXT    User password
@@ -375,9 +378,9 @@ musicbot local find
 .. code-block::
 
   Usage: musicbot local find [OPTIONS] [FOLDERS]...
-  
+
     Just list music files
-  
+
   Options:
     -e, --email TEXT     User email
     -p, --password TEXT  User password
@@ -391,9 +394,9 @@ musicbot local folders
 .. code-block::
 
   Usage: musicbot local folders [OPTIONS]
-  
+
     List folders
-  
+
   Options:
     -e, --email TEXT       User email
     -p, --password TEXT    User password
@@ -408,9 +411,9 @@ musicbot local load-filters
 .. code-block::
 
   Usage: musicbot local load-filters [OPTIONS]
-  
+
     Load default filters
-  
+
   Options:
     -e, --email TEXT     User email
     -p, --password TEXT  User password
@@ -424,9 +427,9 @@ musicbot local player
 .. code-block::
 
   Usage: musicbot local player [OPTIONS]
-  
+
     Music player
-  
+
   Options:
     -e, --email TEXT        User email
     -p, --password TEXT     User password
@@ -466,9 +469,9 @@ musicbot local playlist
 .. code-block::
 
   Usage: musicbot local playlist [OPTIONS] [PATH]
-  
+
     Generate a new playlist
-  
+
   Options:
     -e, --email TEXT           User email
     -p, --password TEXT        User password
@@ -510,9 +513,9 @@ musicbot local scan
 .. code-block::
 
   Usage: musicbot local scan [OPTIONS] [FOLDERS]...
-  
+
     (re)Load musics
-  
+
   Options:
     -e, --email TEXT     User email
     -p, --password TEXT  User password
@@ -526,9 +529,9 @@ musicbot local stats
 .. code-block::
 
   Usage: musicbot local stats [OPTIONS]
-  
+
     Generate some stats for music collection with filters
-  
+
   Options:
     -e, --email TEXT        User email
     -p, --password TEXT     User password
@@ -569,9 +572,9 @@ musicbot local sync
 .. code-block::
 
   Usage: musicbot local sync [OPTIONS] DESTINATION
-  
+
     Copy selected musics with filters to destination folder
-  
+
   Options:
     -e, --email TEXT        User email
     -p, --password TEXT     User password
@@ -612,9 +615,9 @@ musicbot local watch
 .. code-block::
 
   Usage: musicbot local watch [OPTIONS]
-  
+
     Watch files changes in folders
-  
+
   Options:
     -e, --email TEXT     User email
     -p, --password TEXT  User password
@@ -628,12 +631,12 @@ musicbot music
 .. code-block::
 
   Usage: musicbot music [OPTIONS] COMMAND [ARGS]...
-  
+
     Music file
-  
+
   Options:
     -h, --help  Show this message and exit.
-  
+
   Commands:
     check-consistency  Check music consistency
     fingerprint        Print music fingerprint
@@ -648,14 +651,15 @@ musicbot music check-consistency
 .. code-block::
 
   Usage: musicbot music check-consistency [OPTIONS] PATH
-  
+
     Check music consistency
-  
+
   Options:
-    --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-artist|invalid-comment]
+    --dry                                               Take no real action  [default: False]
+    --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-comment|invalid-path]
                                                         Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
-                                                        tracknumber, invalid-title, invalid-artist, invalid-comment]
-  
+                                                        tracknumber, invalid-title, invalid-comment, invalid-path]
+
     --fix
     -h, --help                                          Show this message and exit.
 
@@ -665,9 +669,9 @@ musicbot music fingerprint
 .. code-block::
 
   Usage: musicbot music fingerprint [OPTIONS] PATH
-  
+
     Print music fingerprint
-  
+
   Options:
     --acoustid-api-key TEXT  AcoustID API Key
     -h, --help               Show this message and exit.
@@ -678,11 +682,13 @@ musicbot music flac2mp3
 .. code-block::
 
   Usage: musicbot music flac2mp3 [OPTIONS] PATH
-  
+
     Convert flac music to mp3
-  
+
   Options:
-    -h, --help  Show this message and exit.
+    --folder TEXT  Destination folder
+    --dry          Take no real action  [default: False]
+    -h, --help     Show this message and exit.
 
 
 musicbot music set-tags
@@ -690,9 +696,9 @@ musicbot music set-tags
 .. code-block::
 
   Usage: musicbot music set-tags [OPTIONS] PATH
-  
+
     Set music title
-  
+
   Options:
     --keywords TEXT  Keywords
     --artist TEXT    Artist
@@ -709,9 +715,9 @@ musicbot music tags
 .. code-block::
 
   Usage: musicbot music tags [OPTIONS] PATH
-  
+
     Print music tags
-  
+
   Options:
     -h, --help  Show this message and exit.
 
@@ -721,12 +727,12 @@ musicbot spotify
 .. code-block::
 
   Usage: musicbot spotify [OPTIONS] COMMAND [ARGS]...
-  
+
     Spotify tool
-  
+
   Options:
     -h, --help  Show this message and exit.
-  
+
   Commands:
     diff       Diff between local and spotify
     help       Print help
@@ -740,9 +746,9 @@ musicbot spotify diff
 .. code-block::
 
   Usage: musicbot spotify diff [OPTIONS]
-  
+
     Diff between local and spotify
-  
+
   Options:
     -e, --email TEXT      User email
     -p, --password TEXT   User password
@@ -763,9 +769,9 @@ musicbot spotify playlist
 .. code-block::
 
   Usage: musicbot spotify playlist [OPTIONS] NAME
-  
+
     Show playlist
-  
+
   Options:
     --username TEXT       Spotify username
     --client-id TEXT      Spotify client ID
@@ -782,9 +788,9 @@ musicbot spotify playlists
 .. code-block::
 
   Usage: musicbot spotify playlists [OPTIONS]
-  
+
     List playlists
-  
+
   Options:
     --username TEXT       Spotify username
     --client-id TEXT      Spotify client ID
@@ -801,9 +807,9 @@ musicbot spotify tracks
 .. code-block::
 
   Usage: musicbot spotify tracks [OPTIONS]
-  
+
     Show tracks
-  
+
   Options:
     --username TEXT        Spotify username
     --client-id TEXT       Spotify client ID
@@ -821,12 +827,12 @@ musicbot user
 .. code-block::
 
   Usage: musicbot user [OPTIONS] COMMAND [ARGS]...
-  
+
     User management
-  
+
   Options:
     -h, --help  Show this message and exit.
-  
+
   Commands:
     help                        Print help
     list                        List users (admin)
@@ -840,9 +846,9 @@ musicbot user list
 .. code-block::
 
   Usage: musicbot user list [OPTIONS]
-  
+
     List users (admin)
-  
+
   Options:
     --output [table|json]  Output format  [default: table]
     --graphql-admin TEXT   GraphQL endpoint  [default: http://127.0.0.1:5001/graphql]
@@ -854,9 +860,9 @@ musicbot user login
 .. code-block::
 
   Usage: musicbot user login [OPTIONS]
-  
+
     Authenticate user
-  
+
   Options:
     -e, --email TEXT     User email
     -p, --password TEXT  User password
@@ -870,9 +876,9 @@ musicbot user register
 .. code-block::
 
   Usage: musicbot user register [OPTIONS]
-  
+
     Register a new user
-  
+
   Options:
     -e, --email TEXT     User email
     -p, --password TEXT  User password
@@ -888,9 +894,9 @@ musicbot user unregister
 .. code-block::
 
   Usage: musicbot user unregister [OPTIONS]
-  
+
     Remove a user
-  
+
   Options:
     -e, --email TEXT     User email
     -p, --password TEXT  User password
@@ -904,11 +910,11 @@ musicbot version
 .. code-block::
 
   Usage: musicbot version [OPTIONS]
-  
+
     Print version
-  
+
     Equivalent : -V
-  
+
   Options:
     -h, --help  Show this message and exit.
 
@@ -918,12 +924,12 @@ musicbot youtube
 .. code-block::
 
   Usage: musicbot youtube [OPTIONS] COMMAND [ARGS]...
-  
+
     Youtube tool
-  
+
   Options:
     -h, --help  Show this message and exit.
-  
+
   Commands:
     download     Download a youtube link with artist and title
     find         Search a youtube link with artist and title
@@ -937,9 +943,9 @@ musicbot youtube download
 .. code-block::
 
   Usage: musicbot youtube download [OPTIONS] ARTIST TITLE
-  
+
     Download a youtube link with artist and title
-  
+
   Options:
     --path TEXT
     -h, --help   Show this message and exit.
@@ -950,9 +956,9 @@ musicbot youtube find
 .. code-block::
 
   Usage: musicbot youtube find [OPTIONS] PATH
-  
+
     Search a youtube link with artist and title
-  
+
   Options:
     --acoustid-api-key TEXT  AcoustID API Key
     -h, --help               Show this message and exit.
@@ -963,9 +969,9 @@ musicbot youtube fingerprint
 .. code-block::
 
   Usage: musicbot youtube fingerprint [OPTIONS] URL
-  
+
     Fingerprint a youtube video
-  
+
   Options:
     --acoustid-api-key TEXT  AcoustID API Key
     -h, --help               Show this message and exit.
@@ -976,10 +982,8 @@ musicbot youtube search
 .. code-block::
 
   Usage: musicbot youtube search [OPTIONS] ARTIST TITLE
-  
+
     Search a youtube link with artist and title
-  
+
   Options:
     -h, --help  Show this message and exit.
-
-

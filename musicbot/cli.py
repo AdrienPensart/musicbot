@@ -26,7 +26,12 @@ backtrace.hook(reverse=False, align=True, strip_path=False, enable_on_envvar_onl
 bin_folder = os.path.dirname(__file__)
 commands_folder = 'commands'
 plugin_folder = os.path.join(bin_folder, commands_folder)
-CONTEXT_SETTINGS = {'max_content_width': 140, 'terminal_width': 140, 'auto_envvar_prefix': 'MB', 'help_option_names': ['-h', '--help']}
+CONTEXT_SETTINGS = {
+    'max_content_width': 140,
+    'terminal_width': 140,
+    'auto_envvar_prefix': 'MB',
+    'help_option_names': ['-h', '--help']
+}
 logger = logging.getLogger('musicbot')
 
 

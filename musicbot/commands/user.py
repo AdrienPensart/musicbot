@@ -16,7 +16,10 @@ def cli():
 
 
 @cli.command('list', help='List users (admin)')
-@helpers.add_options(helpers.output_option + graphql_admin_option)
+@helpers.add_options(
+    helpers.output_option +
+    graphql_admin_option
+)
 def _list(graphql_admin, output):
     a = Admin(graphql=graphql_admin)
     users = a.users()
@@ -31,7 +34,10 @@ def _list(graphql_admin, output):
 
 
 @cli.command(aliases=['new', 'add', 'create'], help='Register a new user')
-@helpers.add_options(register_options + helpers.save_option)
+@helpers.add_options(
+    register_options +
+    helpers.save_option
+)
 def register(save, **kwargs):
     u = User.register(**kwargs)
     if u.token and save:
@@ -50,7 +56,10 @@ def unregister(**kwargs):
 
 
 @cli.command(aliases=['token'], help='Authenticate user')
-@helpers.add_options(login_options + helpers.save_option)
+@helpers.add_options(
+    login_options +
+    helpers.save_option
+)
 def login(save, **kwargs):
     u = User(**kwargs)
     print(u.token)
