@@ -16,19 +16,62 @@ logger = logging.getLogger(__name__)
 
 
 DEFAULT_EMAIL = None
-email_option = [click.option('--email', '-e', help='User email', default=DEFAULT_EMAIL, is_eager=True, callback=config_string)]
+email_option = [
+    click.option(
+        '--email', '-e',
+        help='User email',
+        default=DEFAULT_EMAIL,
+        is_eager=True,
+        callback=config_string
+    )
+]
 
 DEFAULT_PASSWORD = None
-password_option = [click.option('--password', '-p', help='User password', default=DEFAULT_PASSWORD, is_eager=True, callback=config_string)]
+password_option = [
+    click.option(
+        '--password', '-p',
+        help='User password',
+        default=DEFAULT_PASSWORD,
+        is_eager=True,
+        callback=config_string
+    )
+]
 
 DEFAULT_FIRST_NAME = None
-first_name_option = [click.option('--first-name', help='User first name', default=DEFAULT_FIRST_NAME, is_eager=True, callback=config_string, show_default=True)]
+first_name_option = [
+    click.option(
+        '--first-name',
+        help='User first name',
+        default=DEFAULT_FIRST_NAME,
+        is_eager=True,
+        callback=config_string,
+        show_default=True
+    )
+]
 
 DEFAULT_LAST_NAME = None
-last_name_option = [click.option('--last-name', help='User last name', default=DEFAULT_FIRST_NAME, is_eager=True, callback=config_string, show_default=True)]
+last_name_option = [
+    click.option(
+        '--last-name',
+        help='User last name',
+        default=DEFAULT_FIRST_NAME,
+        is_eager=True,
+        callback=config_string,
+        show_default=True
+    )
+]
 
 DEFAULT_GRAPHQL = 'http://127.0.0.1:5000/graphql'
-graphql_option = [click.option('--graphql', help='GraphQL endpoint', default=DEFAULT_GRAPHQL, is_eager=True, callback=config_string, show_default=True)]
+graphql_option = [
+    click.option(
+        '--graphql',
+        help='GraphQL endpoint',
+        default=DEFAULT_GRAPHQL,
+        is_eager=True,
+        callback=config_string,
+        show_default=True
+    )
+]
 
 
 def sane_user(ctx, param, value):  # pylint: disable=unused-argument
@@ -52,7 +95,14 @@ def sane_user(ctx, param, value):  # pylint: disable=unused-argument
 
 
 DEFAULT_TOKEN = None
-token_option = [click.option('--token', '-t', help='User token', expose_value=False, callback=sane_user)]
+token_option = [
+    click.option(
+        '--token', '-t',
+        help='User token',
+        expose_value=False,
+        callback=sane_user
+    )
+]
 
 register_options = email_option + password_option + first_name_option + last_name_option + graphql_option
 login_options = email_option + password_option + graphql_option

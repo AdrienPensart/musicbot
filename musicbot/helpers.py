@@ -15,17 +15,56 @@ from .music.file import File, supported_formats
 logger = logging.getLogger(__name__)
 
 DEFAULT_MB_CONCURRENCY = 8
-concurrency_options = [click.option('--concurrency', help='Number of coroutines', default=DEFAULT_MB_CONCURRENCY, show_default=True)]
+concurrency_options = [
+    click.option(
+        '--concurrency',
+        help='Number of coroutines',
+        default=DEFAULT_MB_CONCURRENCY,
+        show_default=True
+    )
+]
 
 DEFAULT_DRY = False
-dry_option = [click.option('--dry', help='Take no real action', default=DEFAULT_DRY, is_flag=True, show_default=True)]
+dry_option = [
+    click.option(
+        '--dry',
+        help='Take no real action',
+        default=DEFAULT_DRY,
+        is_flag=True,
+        show_default=True
+    )
+]
 
 DEFAULT_SAVE = False
-save_option = [click.option('--save', '-s', help='Save to config file', default=DEFAULT_SAVE, is_flag=True, show_default=True)]
+save_option = [
+    click.option(
+        '--save', '-s',
+        help='Save to config file',
+        default=DEFAULT_SAVE,
+        is_flag=True,
+        show_default=True
+    )
+]
 
 DEFAULT_MB_OUTPUT = 'table'
-output_option = [click.option('--output', help='Output format', default=DEFAULT_MB_OUTPUT, show_default=True, type=click.Choice(['table', 'json']))]
-playlist_output_option = [click.option('--output', help='Output format', default=DEFAULT_MB_OUTPUT, show_default=True, type=click.Choice(['json', 'm3u', 'table']))]
+output_option = [
+    click.option(
+        '--output',
+        help='Output format',
+        default=DEFAULT_MB_OUTPUT,
+        show_default=True,
+        type=click.Choice(['table', 'json'])
+    )
+]
+playlist_output_option = [
+    click.option(
+        '--output',
+        help='Output format',
+        default=DEFAULT_MB_OUTPUT,
+        show_default=True,
+        type=click.Choice(['json', 'm3u', 'table'])
+    )
+]
 
 Red = "\033[0;31;40m"
 Green = "\033[0;32;40m"
@@ -43,7 +82,7 @@ class GroupWithHelp(DYMGroup, ClickAliasedGroup):
         super().__init__(*args, **kwargs)
 
         @click.command('help')
-        @click.argument('command', nargs=-1)
+        @click.argument('command', required=False)
         @click.pass_context
         def _help(ctx, command):
             '''Print help'''
@@ -146,4 +185,6 @@ def genfiles(folders):
     return files
 
 
-folders_argument = [click.argument('folders', nargs=-1, callback=config_list)]
+folders_argument = [
+    click.argument('folders', nargs=-1, callback=config_list)
+]

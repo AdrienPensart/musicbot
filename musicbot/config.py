@@ -7,7 +7,7 @@ import functools
 import attr
 import click
 import tqdm
-import coloredlogs
+import colorlog
 from cached_property import cached_property
 from . import lib
 
@@ -34,31 +34,101 @@ DEFAULT_TIMINGS = False
 DEFAULT_INFO = False
 
 
-verbosities = {'debug': logging.DEBUG,
-               'info': logging.INFO,
-               'warning': logging.WARNING,
-               'error': logging.ERROR,
-               'critical': logging.CRITICAL}
+verbosities = {
+    'debug': logging.DEBUG,
+    'info': logging.INFO,
+    'warning': logging.WARNING,
+    'error': logging.ERROR,
+    'critical': logging.CRITICAL
+}
 
-config_option = [click.option('--config', '-c', help='Config file path', type=click.Path(), envvar=MB_CONFIG, default=DEFAULT_CONFIG, show_default=True)]
-log_option = [click.option('--log', '-l', help='Log file path', type=click.Path(), envvar=MB_LOG, default=DEFAULT_LOG, show_default=True)]
-info_option = [click.option('--info', '-i', help='Same as "--verbosity info"', envvar=MB_INFO, default=DEFAULT_INFO, is_flag=True, show_default=False)]
-debug_option = [click.option('--debug', '-d', help='Be very verbose, same as "--verbosity debug" + hide progress bars', envvar=MB_DEBUG, default=DEFAULT_DEBUG, is_flag=True, show_default=True)]
-timings_option = [click.option('--timings', '-t', help='Set verbosity to info and show execution timings', envvar=MB_TIMINGS, default=DEFAULT_TIMINGS, is_flag=True, show_default=True)]
-verbosity_option = [click.option('--verbosity', '-v', help='Verbosity levels', envvar=MB_VERBOSITY, default=DEFAULT_VERBOSITY, type=click.Choice(verbosities.keys()), show_default=True)]
-quiet_option = [click.option('--quiet', '-q', help='Disable progress bars', envvar=MB_QUIET, default=DEFAULT_QUIET, is_flag=True, show_default=True)]
+config_option = [
+    click.option(
+        '--config', '-c',
+        help='Config file path',
+        type=click.Path(),
+        envvar=MB_CONFIG,
+        default=DEFAULT_CONFIG,
+        show_default=True
+    )
+]
+
+log_option = [
+    click.option(
+        '--log', '-l',
+        help='Log file path',
+        type=click.Path(),
+        envvar=MB_LOG,
+        default=DEFAULT_LOG,
+        show_default=True
+    )
+]
+
+info_option = [
+    click.option(
+        '--info', '-i',
+        help='Same as "--verbosity info"',
+        envvar=MB_INFO,
+        default=DEFAULT_INFO,
+        is_flag=True,
+        show_default=False
+    )
+]
+
+debug_option = [
+    click.option(
+        '--debug', '-d',
+        help='Be very verbose, same as "--verbosity debug" + hide progress bars',
+        envvar=MB_DEBUG,
+        default=DEFAULT_DEBUG,
+        is_flag=True,
+        show_default=True
+    )
+]
+
+timings_option = [
+    click.option(
+        '--timings', '-t',
+        help='Set verbosity to info and show execution timings',
+        envvar=MB_TIMINGS,
+        default=DEFAULT_TIMINGS,
+        is_flag=True,
+        show_default=True
+    )
+]
+
+verbosity_option = [
+    click.option(
+        '--verbosity', '-v',
+        help='Verbosity levels',
+        envvar=MB_VERBOSITY,
+        default=DEFAULT_VERBOSITY,
+        type=click.Choice(verbosities.keys()),
+        show_default=True
+    )
+]
+
+quiet_option = [
+    click.option(
+        '--quiet', '-q',
+        help='Disable progress bars',
+        envvar=MB_QUIET,
+        default=DEFAULT_QUIET,
+        is_flag=True,
+        show_default=True
+    )
+]
 
 options = config_option + log_option + info_option + debug_option + timings_option + verbosity_option + quiet_option
 
 
-class TqdmStream:
-    @classmethod
-    def write(cls, s):
-        tqdm.tqdm.write(s, end='', file=sys.stderr)
+class TqdmHandler(logging.StreamHandler):
+    def __init__(self):
+        logging.StreamHandler.__init__(self)
 
-    @classmethod
-    def isatty(cls):
-        return True
+    def emit(self, record):
+        msg = self.format(record)
+        tqdm.tqdm.write(msg, end='\n', file=sys.stderr)
 
 
 def check_file_writable(fnm):
@@ -82,7 +152,7 @@ class Config:
     verbosity = attr.ib(default=DEFAULT_VERBOSITY)
     config = attr.ib(default=DEFAULT_CONFIG)
     level = attr.ib(default=verbosities[DEFAULT_VERBOSITY])
-    fmt = attr.ib(default="%(asctime)s %(name)s[%(process)d] %(levelname)s %(message)s")
+    fmt = attr.ib(default='%(log_color)s%(name)s | %(asctime)s | %(levelname)s | %(message)s', repr=False)
     tqdm = attr.ib(default=tqdm.tqdm, repr=False)
 
     def set(self, config=None, debug=None, info=None, timings=None, quiet=None, verbosity=None, log=None):
@@ -109,8 +179,23 @@ class Config:
             self.quiet = True
 
         self.level = verbosities[self.verbosity]
-        logging.getLogger().handlers = []
-        coloredlogs.install(level=self.level, fmt=self.fmt, stream=TqdmStream(), isatty=True)
+        root_logger = logging.getLogger()
+        root_logger.setLevel(self.level)
+        handler = TqdmHandler()
+        handler.setLevel(self.level)
+        handler.setFormatter(
+            colorlog.ColoredFormatter(
+                self.fmt,
+                datefmt='%Y-%d-%d %H:%M:%S',
+                log_colors={
+                    'DEBUG': 'cyan',
+                    'INFO': 'green',
+                    'WARNING': 'yellow',
+                    'ERROR': 'red',
+                    'CRITICAL': 'red,bg_white'},
+            )
+        )
+        root_logger.addHandler(handler)
 
         if self.log is not None:
             if check_file_writable(self.log):

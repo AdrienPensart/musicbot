@@ -69,7 +69,7 @@ Linting
 
 .. code-block:: bash
 
-  poetry run pylint musicbot tests
+  poetry run pylint musicbot tests doc
 
 Documentation
 -------------
@@ -77,6 +77,6 @@ Documentation
 .. code-block:: bash
 
   poetry run rstcheck doc/help.rst
-  poetry run doc/gen.sh
+  poetry run doc/gen.py > README.rst
   poetry run rstcheck README.rst
 

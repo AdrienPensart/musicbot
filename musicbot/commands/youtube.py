@@ -5,8 +5,7 @@ import acoustid
 import youtube_dl
 from humanfriendly import format_timespan
 from musicbot import helpers
-# from musicbot.config import config
-from musicbot.music.file import File
+from musicbot.music.file import File, path_argument
 from musicbot.music.fingerprint import acoustid_api_key_option
 
 logger = logging.getLogger(__name__)
@@ -63,8 +62,10 @@ def download(artist, title, path):
 
 
 @cli.command(help='Search a youtube link with artist and title')
-@click.argument('path')
-@helpers.add_options(acoustid_api_key_option)
+@helpers.add_options(
+    path_argument +
+    acoustid_api_key_option
+)
 def find(path, acoustid_api_key):
     f = File(path)
     yt_path = f"{f.artist} - {f.title}.mp3"

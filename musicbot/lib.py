@@ -145,5 +145,14 @@ def seconds_to_str(duration):
     return str(datetime.timedelta(seconds=duration))
 
 
-default_checks = ['keywords', 'strict_title', 'title', 'path',
-                  'genre', 'album', 'artist', 'rating', 'number']
+default_checks = [
+    'keywords',
+    'strict_title',
+    'title',
+    'path',
+    'genre',
+    'album',
+    'artist',
+    'rating',
+    'number'
+]

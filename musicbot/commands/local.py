@@ -14,7 +14,7 @@ from musicbot.music import mfilter
 from musicbot.player import play
 from musicbot.playlist import print_playlist
 from musicbot.config import config
-from musicbot.music.file import supported_formats
+from musicbot.music.file import path_argument, supported_formats
 
 
 logger = logging.getLogger(__name__)
@@ -33,13 +33,18 @@ def execute(user, query):
 
 
 @cli.command(help='Load default filters')
-@helpers.add_options(user.auth_options)
+@helpers.add_options(
+    user.auth_options
+)
 def load_filters(user):
     user.load_default_filters()
 
 
 @cli.command(help='List filters')
-@helpers.add_options(user.auth_options + helpers.output_option)
+@helpers.add_options(
+    user.auth_options +
+    helpers.output_option
+)
 def filters(user, output):
     if output == 'json':
         print(json.dumps(user.filters))
@@ -52,7 +57,10 @@ def filters(user, output):
 
 
 @cli.command('filter', help='Print a filter')
-@helpers.add_options(user.auth_options + helpers.output_option)
+@helpers.add_options(
+    user.auth_options +
+    helpers.output_option
+)
 @click.argument('name')
 def _filter(user, name, output):
     f = user.filter(name)
@@ -63,7 +71,11 @@ def _filter(user, name, output):
 
 
 @cli.command(aliases=['stat'], help='Generate some stats for music collection with filters')
-@helpers.add_options(user.auth_options + helpers.output_option + mfilter.options)
+@helpers.add_options(
+    user.auth_options +
+    helpers.output_option +
+    mfilter.options
+)
 def stats(user, output, **kwargs):
     mf = mfilter.Filter(**kwargs)
     stats = user.do_stat(mf)
@@ -83,7 +95,10 @@ def stats(user, output, **kwargs):
 
 
 @cli.command(help='List folders')
-@helpers.add_options(user.auth_options + helpers.output_option)
+@helpers.add_options(
+    user.auth_options +
+    helpers.output_option
+)
 def folders(user, output):
     _folders = user.folders
     if output == 'json':
@@ -97,7 +112,10 @@ def folders(user, output):
 
 
 @cli.command(help='(re)Load musics')
-@helpers.add_options(user.auth_options + helpers.folders_argument)
+@helpers.add_options(
+    user.auth_options +
+    helpers.folders_argument
+)
 def scan(user, folders):
     if not folders:
         folders = user.folders
@@ -106,7 +124,10 @@ def scan(user, folders):
 
 
 @cli.command(help='Just list music files')
-@helpers.add_options(user.auth_options + helpers.folders_argument)
+@helpers.add_options(
+    user.auth_options +
+    helpers.folders_argument
+)
 def find(user, folders):
     if not folders:
         folders = user.folders
@@ -129,7 +150,11 @@ def clean(user):
 
 
 @cli.command(help='Copy selected musics with filters to destination folder')
-@helpers.add_options(user.auth_options + helpers.dry_option + mfilter.options)
+@helpers.add_options(
+    user.auth_options +
+    helpers.dry_option +
+    mfilter.options
+)
 @click.argument('destination')
 def sync(user, dry, destination, **kwargs):
     logger.info('Destination: %s', destination)
@@ -195,7 +220,12 @@ def sync(user, dry, destination, **kwargs):
 
 
 @cli.command(help='Generate a new playlist')
-@helpers.add_options(user.auth_options + helpers.dry_option + mfilter.options + helpers.playlist_output_option)
+@helpers.add_options(
+    user.auth_options +
+    helpers.dry_option +
+    mfilter.options +
+    helpers.playlist_output_option
+)
 @click.argument('path', type=click.File('w'), default='-')
 def playlist(user, output, path, dry, **kwargs):
     mf = mfilter.Filter(**kwargs)
@@ -214,8 +244,12 @@ def playlist(user, output, path, dry, **kwargs):
 
 
 @cli.command(help='Generate bests playlists with some rules')
-@helpers.add_options(user.auth_options + helpers.dry_option + mfilter.options)
-@click.argument('path', type=click.Path(exists=True))
+@helpers.add_options(
+    path_argument +
+    user.auth_options +
+    helpers.dry_option +
+    mfilter.options
+)
 @click.option('--prefix', envvar='MB_PREFIX', help="Append prefix before each path (implies relative)", default='')
 @click.option('--suffix', envvar='MB_SUFFIX', help="Append this suffix to playlist name", default='')
 def bests(user, dry, path, prefix, suffix, **kwargs):
@@ -243,7 +277,10 @@ def bests(user, dry, path, prefix, suffix, **kwargs):
 
 
 @cli.command(aliases=['play'], help='Music player')
-@helpers.add_options(user.auth_options + mfilter.options)
+@helpers.add_options(
+    user.auth_options +
+    mfilter.options
+)
 def player(user, **kwargs):
     try:
         mf = mfilter.Filter(**kwargs)

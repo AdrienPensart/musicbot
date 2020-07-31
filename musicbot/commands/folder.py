@@ -2,11 +2,10 @@ import logging
 import json
 import concurrent.futures as cf
 import click
-from pydub import AudioSegment
 from prettytable import PrettyTable
 from musicbot import helpers, lib
 from musicbot.config import config
-from musicbot.music.file import checks_options
+from musicbot.music.file import File, folder_option, checks_options
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +16,10 @@ def cli():
 
 
 @cli.command(help='List tracks')
-@helpers.add_options(helpers.folders_argument + helpers.output_option)
+@helpers.add_options(
+    helpers.folders_argument +
+    helpers.output_option
+)
 def tracks(folders, output):
     tracks = helpers.genfiles(folders)
     if output == 'json':
@@ -25,17 +27,22 @@ def tracks(folders, output):
         print(json.dumps(tracks_dict))
     elif output == 'table':
         pt = PrettyTable()
-        pt.field_names = ["Title", "Artist", "Album"]
+        pt.field_names = ["Track", "Title", "Artist", "Album"]
         for t in tracks:
-            pt.add_row([t.title, t.artist, t.album])
+            pt.add_row([t.number, t.title, t.artist, t.album])
         print(pt)
     else:
         raise NotImplementedError
 
 
 @cli.command(help='Convert all files in folders to mp3')
-@helpers.add_options(helpers.folders_argument + helpers.concurrency_options + helpers.dry_option)
-def flac2mp3(folders, concurrency, dry):
+@helpers.add_options(
+    folder_option +
+    helpers.folders_argument +
+    helpers.concurrency_options +
+    helpers.dry_option
+)
+def flac2mp3(folders, folder, concurrency, dry):
     flac_files = list(lib.find_files(folders, ['flac']))
     if not flac_files:
         logger.warning(f"No flac files detected in {folders}")
@@ -44,13 +51,8 @@ def flac2mp3(folders, concurrency, dry):
     with config.tqdm(total=len(flac_files), leave=True, desc='Converting musics') as pbar:
         with cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
             def convert(flac_path):
-                mp3_path = flac_path.replace('.flac', '.mp3')
-                if not dry:
-                    logger.info(f"Converting {flac_path} to {mp3_path}")
-                    flac_audio = AudioSegment.from_file(flac_path, "flac")
-                    flac_audio.export(mp3_path, format="mp3")
-                else:
-                    logger.info(f"[DRY-RUN] Exporting from {flac_path} to {mp3_path}")
+                f = File(flac_path)
+                f.to_mp3(folder, dry)
                 pbar.update(1)
             executor.shutdown = lambda wait: None
             futures = [executor.submit(convert, flac_path[1]) for flac_path in flac_files]
@@ -58,20 +60,20 @@ def flac2mp3(folders, concurrency, dry):
 
 
 @cli.command(help='Check music files consistency')
-@helpers.add_options(helpers.folders_argument + checks_options)
-def check_consistency(folders, checks, fix):
-    if not checks:
-        logger.warning("Nothing to check")
-        return
-
+@helpers.add_options(
+    helpers.folders_argument +
+    helpers.dry_option +
+    checks_options
+)
+def check_consistency(folders, **kwargs):
     musics = helpers.genfiles(folders)
     pt = PrettyTable()
-    pt.field_names = ["Path", "Inconsistencies"]
+    pt.field_names = ["Folder", "Path", "Inconsistencies"]
     for m in musics:
         try:
-            inconsistencies = m.check_consistency(checks, fix)
+            inconsistencies = m.check_consistency(**kwargs)
             if inconsistencies:
-                pt.add_row([m.path, ', '.join(inconsistencies)])
+                pt.add_row([m.folder, m.path, ', '.join(inconsistencies)])
         except OSError:
             pt.add_row([m.path, "Could not open file"])
     print(pt)

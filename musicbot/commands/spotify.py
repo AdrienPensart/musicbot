@@ -28,13 +28,22 @@ def playlist(name, spotify):
 
 
 @cli.command(help='Show tracks')
-@helpers.add_options(spotify_options + helpers.output_option)
+@helpers.add_options(
+    spotify_options +
+    helpers.output_option
+)
 def tracks(spotify, output):
     if output == 'table':
         spotify.print_tracks()
     elif output == 'json':
         spotify_tracks = spotify.tracks()
-        spotify_tracks = [{'title': t['track']['name'], 'artist': t['track']['artists'][0]['name'], 'album': t['track']['album']['name']} for t in spotify_tracks]
+        spotify_tracks = [
+            {
+                'title': t['track']['name'],
+                'artist': t['track']['artists'][0]['name'],
+                'album': t['track']['album']['name']
+            } for t in spotify_tracks
+        ]
         print(json.dumps(spotify_tracks))
 
 
@@ -42,7 +51,13 @@ def tracks(spotify, output):
 @helpers.add_options(auth_options + spotify_options)
 def diff(user, spotify):
     spotify_tracks = spotify.tracks()
-    spotify_tracks = [{'title': t['track']['name'], 'artist': t['track']['artists'][0]['name'], 'album': t['track']['album']['name']} for t in spotify_tracks]
+    spotify_tracks = [
+        {
+            'title': t['track']['name'],
+            'artist': t['track']['artists'][0]['name'],
+            'album': t['track']['album']['name']
+        } for t in spotify_tracks
+    ]
     local_tracks = user.do_filter()
 
     stopwords = ['the', 'remaster', 'remastered', 'cut', 'part'] + list(map(str, range(1900, 2020)))
