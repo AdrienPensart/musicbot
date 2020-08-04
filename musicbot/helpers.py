@@ -102,7 +102,7 @@ def timeit(f):
         result = f(*args, **params)
         for_human = seconds_to_human(time.time() - start)
         if config.timings:
-            logger.info('TIMINGS %s: %s', f.__name__, for_human)
+            logger.info(f'TIMINGS {f.__name__}: {for_human}')
         return result
     return wrapper
 
@@ -117,10 +117,10 @@ def add_options(options):
 
 def config_string(ctx, param, value):
     arg_value = value
-    logger.info("%s : try loading with value : %s", param.name, value)
+    logger.info(f"{param.name} : try loading with value : {value}")
 
     config_value = config.configfile.get('musicbot', param.name, fallback=None)
-    logger.info("%s : try loading with config key : %s", param.name, config_value)
+    logger.info(f"{param.name} : try loading with config key : {config_value}")
 
     if arg_value:
         value = arg_value
@@ -129,23 +129,23 @@ def config_string(ctx, param, value):
         if not value or value == param.default:
             value = config_value
         elif arg_value and arg_value != config_value:
-            logger.warning("%s : config value %s is not sync with arg value %s", param.name, config_value, arg_value)
+            logger.warning(f"{param.name} : config value {config_value} is not sync with arg value {arg_value}")
 
     if not value and param.required:
         raise click.BadParameter(f'missing arg or config {param.name} in {config.config}', ctx, param.name, param.name)
-    logger.info("%s : final value %s", param.name, value)
+    logger.info(f"{param.name} : final value {value}")
     ctx.params[param.name] = value
     return ctx.params[param.name]
 
 
 def config_list(ctx, param, value):
     arg_value = value
-    logger.info("%s : try loading with value : %s", param.name, value)
+    logger.info(f"{param.name} : try loading with value : {value}")
 
     config_value = config.configfile.get('musicbot', param.name, fallback=None)
     if config_value is not None:
         config_value = tuple(config_value.split(','))
-    logger.info("%s : try loading with config key : %s", param.name, config_value)
+    logger.info(f"{param.name} : try loading with config key : {config_value}")
 
     if arg_value:
         value = arg_value
@@ -154,11 +154,11 @@ def config_list(ctx, param, value):
         if not value or value == param.default:
             value = config_value
         elif arg_value and arg_value != config_value:
-            logger.warning("%s : config value %s is not sync with arg value %s", param.name, config_value, arg_value)
+            logger.warning(f"{param.name} : config value {config_value} is not sync with arg value {arg_value}")
 
     if not value and param.required:
         raise click.BadParameter(f'missing arg or config {param.name} in {config.config}', ctx, param.name, param.name)
-    logger.info("%s : final value %s", param.name, value)
+    logger.info(f"{param.name} : final value {value}")
     ctx.params[param.name] = value
     return ctx.params[param.name]
 
@@ -170,7 +170,7 @@ def genfiles(folders):
         directories = [os.path.abspath(f) for f in folders]
         for d in directories:
             count += filecount(d, supported_formats)
-        logger.info("File count: %s", count)
+        logger.info(f"File count: {count}")
     files = []
     with config.tqdm(total=count, desc=f"Music listing {folders}") as pbar:
         file_list = find_files(folders, supported_formats)
@@ -184,7 +184,6 @@ def genfiles(folders):
                 logger.error(e)
     return files
 
-
 folders_argument = [
-    click.argument('folders', nargs=-1, callback=config_list)
+    click.argument('folders', nargs=-1, callback=config_list, type=click.Path(exists=True, file_okay=False))
 ]

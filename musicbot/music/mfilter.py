@@ -117,61 +117,239 @@ class Filter:
 
     def ordered_dict(self):
         from collections import OrderedDict
-        return OrderedDict([('minDuration', self.min_duration),
-                            ('maxDuration', self.max_duration),
-                            ('minSize', self.min_size),
-                            ('maxSize', self.max_size),
-                            ('minRating', self.min_rating),
-                            ('maxRating', self.max_rating),
-                            ('artists', self.artists),
-                            ('noArtists', self.no_artists),
-                            ('albums', self.albums),
-                            ('noAlbums', self.no_albums),
-                            ('titles', self.titles),
-                            ('noTitles', self.no_titles),
-                            ('genres', self.genres),
-                            ('noGenres', self.no_genres),
-                            ('formats', self.formats),
-                            ('noFormats', self.no_formats),
-                            ('keywords', self.keywords),
-                            ('noKeywords', self.no_keywords),
-                            ('shuffle', self.shuffle),
-                            ('relative', self.relative),
-                            ('limit', self.limit),
-                            ('youtubes', self.youtubes),
-                            ('noYoutubes', self.no_youtubes),
-                            ('spotifys', self.spotifys),
-                            ('noSpotifys', self.no_spotifys)])
+        return OrderedDict(
+            [
+                ('minDuration', self.min_duration),
+                ('maxDuration', self.max_duration),
+                ('minSize', self.min_size),
+                ('maxSize', self.max_size),
+                ('minRating', self.min_rating),
+                ('maxRating', self.max_rating),
+                ('artists', self.artists),
+                ('noArtists', self.no_artists),
+                ('albums', self.albums),
+                ('noAlbums', self.no_albums),
+                ('titles', self.titles),
+                ('noTitles', self.no_titles),
+                ('genres', self.genres),
+                ('noGenres', self.no_genres),
+                ('formats', self.formats),
+                ('noFormats', self.no_formats),
+                ('keywords', self.keywords),
+                ('noKeywords', self.no_keywords),
+                ('shuffle', self.shuffle),
+                ('relative', self.relative),
+                ('limit', self.limit),
+                ('youtubes', self.youtubes),
+                ('noYoutubes', self.no_youtubes),
+                ('spotifys', self.spotifys),
+                ('noSpotifys', self.no_spotifys)
+            ]
+        )
 
     def to_graphql(self):
         return ", ".join([f'{k}: {json.dumps(v)}' for k, v in self.ordered_dict().items()])
 
 
 options = [
-    click.option('--name', help='Filter name', default=default_name),
-    click.option('--limit', help='Fetch a maximum limit of music', default=default_limit),
-    click.option('--youtubes', help='Select musics with a youtube link', multiple=True, default=default_youtubes),
-    click.option('--no-youtubes', help='Select musics without youtube link', multiple=True, default=default_no_youtubes),
-    click.option('--spotifys', help='Select musics with a spotifys link', multiple=True, default=default_youtubes),
-    click.option('--no-spotifys', help='Select musics without spotifys link', multiple=True, default=default_no_youtubes),
-    click.option('--formats', help='Select musics with file format', multiple=True, default=default_formats),
-    click.option('--no-formats', help='Filter musics without format', multiple=True, default=default_no_formats),
-    click.option('--keywords', help='Select musics with keywords', multiple=True, default=default_keywords),
-    click.option('--no-keywords', help='Filter musics without keywords', multiple=True, default=default_no_keywords),
-    click.option('--artists', help='Select musics with artists', multiple=True, default=default_artists),
-    click.option('--no-artists', help='Filter musics without artists', multiple=True, default=default_no_artists),
-    click.option('--albums', help='Select musics with albums', multiple=True, default=default_albums),
-    click.option('--no-albums', help='Filter musics without albums', multiple=True, default=default_no_albums),
-    click.option('--titles', help='Select musics with titles', multiple=True, default=default_titles),
-    click.option('--no-titles', help='Filter musics without titless', multiple=True, default=default_no_titles),
-    click.option('--genres', help='Select musics with genres', multiple=True, default=default_genres),
-    click.option('--no-genres', help='Filter musics without genres', multiple=True, default=default_no_genres),
-    click.option('--min-duration', help='Minimum duration filter (hours:minutes:seconds)', default=default_min_duration),
-    click.option('--max-duration', help='Maximum duration filter (hours:minutes:seconds))', default=default_max_duration),
-    click.option('--min-size', help='Minimum file size filter (in bytes)', default=default_min_size),
-    click.option('--max-size', help='Maximum file size filter (in bytes)', default=default_max_size),
-    click.option('--min-rating', help='Minimum rating', default=default_min_rating, show_default=True, callback=sane_rating),
-    click.option('--max-rating', help='Maximum rating', default=default_max_rating, show_default=True, callback=sane_rating),
-    click.option('--relative', help='Generate relatives paths', default=default_relative, is_flag=True),
-    click.option('--shuffle', help='Randomize selection', default=default_shuffle, is_flag=True),
+    click.option(
+        '--name',
+        help='Filter name',
+        default=default_name,
+        is_eager=True,
+    ),
+    click.option(
+        '--limit',
+        help='Fetch a maximum limit of music',
+        default=default_limit,
+        is_eager=True,
+    ),
+    click.option(
+        '--youtubes',
+        help='Select musics with a youtube link',
+        multiple=True,
+        default=default_youtubes,
+        is_eager=True,
+    ),
+    click.option(
+        '--no-youtubes',
+        help='Select musics without youtube link',
+        multiple=True,
+        default=default_no_youtubes,
+        is_eager=True,
+    ),
+    click.option(
+        '--spotifys',
+        help='Select musics with a spotifys link',
+        multiple=True,
+        default=default_youtubes,
+        is_eager=True,
+    ),
+    click.option(
+        '--no-spotifys',
+        help='Select musics without spotifys link',
+        multiple=True,
+        default=default_no_youtubes,
+        is_eager=True,
+    ),
+    click.option(
+        '--formats',
+        help='Select musics with file format',
+        multiple=True,
+        default=default_formats,
+        is_eager=True,
+    ),
+    click.option(
+        '--no-formats',
+        help='Filter musics without format',
+        multiple=True,
+        default=default_no_formats,
+        is_eager=True,
+    ),
+    click.option(
+        '--keywords',
+        help='Select musics with keywords',
+        multiple=True,
+        default=default_keywords,
+        is_eager=True,
+    ),
+    click.option(
+        '--no-keywords',
+        help='Filter musics without keywords',
+        multiple=True,
+        default=default_no_keywords,
+        is_eager=True,
+    ),
+    click.option(
+        '--artists',
+        help='Select musics with artists',
+        multiple=True,
+        default=default_artists,
+        is_eager=True,
+    ),
+    click.option(
+        '--no-artists',
+        help='Filter musics without artists',
+        multiple=True,
+        default=default_no_artists,
+        is_eager=True,
+    ),
+    click.option(
+        '--albums',
+        help='Select musics with albums',
+        multiple=True,
+        default=default_albums,
+        is_eager=True,
+    ),
+    click.option(
+        '--no-albums',
+        help='Filter musics without albums',
+        multiple=True,
+        default=default_no_albums,
+        is_eager=True,
+    ),
+    click.option(
+        '--titles',
+        help='Select musics with titles',
+        multiple=True,
+        default=default_titles,
+        is_eager=True,
+    ),
+    click.option(
+        '--no-titles',
+        help='Filter musics without titless',
+        multiple=True,
+        default=default_no_titles,
+        is_eager=True,
+    ),
+    click.option(
+        '--genres',
+        help='Select musics with genres',
+        multiple=True,
+        default=default_genres,
+        is_eager=True,
+    ),
+    click.option(
+        '--no-genres',
+        help='Filter musics without genres',
+        multiple=True,
+        default=default_no_genres,
+        is_eager=True,
+    ),
+    click.option(
+        '--min-duration',
+        help='Minimum duration filter (hours:minutes:seconds)',
+        default=default_min_duration,
+        is_eager=True,
+    ),
+    click.option(
+        '--max-duration',
+        help='Maximum duration filter (hours:minutes:seconds))',
+        default=default_max_duration,
+        is_eager=True,
+    ),
+    click.option(
+        '--min-size',
+        help='Minimum file size filter (in bytes)',
+        default=default_min_size,
+        is_eager=True,
+    ),
+    click.option(
+        '--max-size',
+        help='Maximum file size filter (in bytes)',
+        default=default_max_size,
+        is_eager=True,
+    ),
+    click.option(
+        '--min-rating',
+        help='Minimum rating',
+        default=default_min_rating,
+        show_default=True,
+        callback=sane_rating,
+        is_eager=True,
+    ),
+    click.option(
+        '--max-rating',
+        help='Maximum rating',
+        default=default_max_rating,
+        show_default=True,
+        callback=sane_rating,
+        is_eager=True,
+    ),
+    click.option(
+        '--relative',
+        help='Generate relatives paths',
+        default=default_relative,
+        is_flag=True,
+        is_eager=True,
+    ),
+    click.option(
+        '--shuffle',
+        help='Randomize selection',
+        default=default_shuffle,
+        is_flag=True,
+        is_eager=True,
+    ),
 ]
+
+def sane_filter(ctx, param, value):  # pylint: disable=unused-argument
+    kwargs = {}
+    for field in attr.fields_dict(Filter):
+        kwargs[field] = ctx.params[field]
+        ctx.params.pop(field)
+
+    ctx.params['music_filter'] = Filter(**kwargs)
+    return ctx.params['music_filter']
+
+
+DEFAULT_FILTER = None
+mfilter_option = [
+    click.option(
+        '--music-filter',
+        help='Music Filter',
+        expose_value=False,
+        callback=sane_filter,
+        hidden=True,
+    )
+]
+mfilter_options = mfilter_option + options

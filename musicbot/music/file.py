@@ -6,6 +6,7 @@ import os
 import click
 import mutagen
 from pydub import AudioSegment
+from mutagen import MutagenError
 from mutagen.id3 import TXXX, TRCK, TIT2, TALB, TPE1, TCON, COMM
 
 
@@ -31,10 +32,10 @@ DEFAULT_CHECKS = [
     'invalid-path',
 ]
 path_argument = [
-    click.argument('path', type=click.Path(exists=True))
+    click.argument('path', type=click.Path(exists=True, dir_okay=False))
 ]
 folder_option = [
-    click.option('--folder', help="Destination folder"),
+    click.option('--folder', help="Destination folder", type=click.Path(exists=True, file_okay=False)),
 ]
 checks_options = [
     click.option(
@@ -76,6 +77,29 @@ class File:
         self.youtube_link = youtube_link if youtube_link is not None else ''
         self.spotify_link = spotify_link if spotify_link is not None else ''
         self.handle = mutagen.File(self.path)
+        self.inconsistencies = []
+        if not self.title:
+            self.inconsistencies.append("no-title")
+        if self.genre == '':
+            self.inconsistencies.append("no-genre")
+        if self.album == '':
+            self.inconsistencies.append("no-album")
+        if self.artist == '':
+            self.inconsistencies.append("no-artist")
+        if self.rating == -1:
+            self.inconsistencies.append("no-rating")
+        if self.number == -1:
+            self.inconsistencies.append("no-tracknumber")
+        if self.extension == '.flac' and self._comment and not self._description:
+            self.inconsistencies.append('invalid-comment')
+        if self.extension == '.mp3' and self._description and not self._comment:
+            self.inconsistencies.append('invalid-comment')
+        if self.number not in (-1, 0) and self.title != self.canonic_title:
+            logger.info(f"invalid-title, '{self.title}' should be '{self.canonic_title}'")
+            self.inconsistencies.append("invalid-title")
+        if self.number not in (-1, 0) and not self.path.endswith(self.canonic_path):
+            logger.info(f"invalid-path, '{self.path}' should be '{self.canonic_path}'")
+            self.inconsistencies.append("invalid-path")
 
     def __repr__(self):
         return self.path
@@ -90,7 +114,7 @@ class File:
         if self.extension != '.flac':
             logger.error(f"{self} is not a flac file")
             return
-        if self.check_consistency(checks=['invalid-path']):
+        if 'invalid-path' in self.inconsistencies:
             logger.error(f"{self} does not have a canonic path like : {self.canonic_artist_album_filename}")
             return
 
@@ -106,21 +130,23 @@ class File:
 
     def ordered_dict(self):
         from collections import OrderedDict
-        return OrderedDict([
-            ('title', self.title),
-            ('album', self.album),
-            ('genre', self.genre),
-            ('artist', self.artist),
-            ('folder', self.folder),
-            ('youtube', self.youtube),
-            ('spotify', self.spotify),
-            ('number', self.number),
-            ('path', self.path),
-            ('rating', self.rating),
-            ('duration', self.duration),
-            ('size', self.size),
-            ('keywords', mysplit(self.keywords, ' '))
-        ])
+        return OrderedDict(
+            [
+                ('title', self.title),
+                ('album', self.album),
+                ('genre', self.genre),
+                ('artist', self.artist),
+                ('folder', self.folder),
+                ('youtube', self.youtube),
+                ('spotify', self.spotify),
+                ('number', self.number),
+                ('path', self.path),
+                ('rating', self.rating),
+                ('duration', self.duration),
+                ('size', self.size),
+                ('keywords', mysplit(self.keywords, ' '))
+            ]
+        )
 
     @property
     def extension(self):
@@ -343,55 +369,39 @@ class File:
             return recording_id
         return None
 
-    def check_consistency(self, checks=None, fix=None, dry=None):
+    def fix(self, checks=None, dry=None):
         checks = checks if checks is not None else DEFAULT_CHECKS
-        fix = fix if fix is not None else False
         dry = dry if dry is not None else False
-        inconsistencies = []
-        if 'no-title' in checks:
-            if not self.title:
-                inconsistencies.append("no-title")
-        if 'no-genre' in checks:
-            if self.genre == '':
-                inconsistencies.append("no-genre")
-        if 'no-album' in checks:
-            if self.album == '':
-                inconsistencies.append("no-album")
-        if 'no-artist' in checks:
-            if self.artist == '':
-                inconsistencies.append("no-artist")
-        if 'no-rating' in checks and self.rating == -1:
-            inconsistencies.append("no-rating")
-            if fix:
-                self.rating = 0.0
-        if 'no-tracknumber' in checks and self.number == -1:
-            inconsistencies.append("no-tracknumber")
-            if fix:
-                self.number = 0
+        if 'no-rating' in checks:
+            self.rating = 0.0
+            self.inconsistencies.remove('no-rating')
+        if 'no-tracknumber' in checks:
+            self.number = 0
+            self.inconsistencies.remove('no-tracknumber')
         if 'invalid-comment' in checks:
             if self.extension == '.flac' and self._comment and not self._description:
-                inconsistencies.append(f'invalid-comment comment {self._comment} used in flac instead of description')
-                if fix:
-                    self._description = ''
+                self._description = ''
             if self.extension == '.mp3' and self._description and not self._comment:
-                inconsistencies.append(f'invalid-comment description {self._description} used in mp3 instead of comment')
-                if fix:
-                    self._comment = ''
-        if 'invalid-title' in checks and self.number not in (-1, 0) and self.title != self.canonic_title:
-            inconsistencies.append(f"invalid-title, '{self.title}' should be '{self.canonic_title}'")
-            if fix:
-                self.title = self.canonic_title
-        if 'invalid-path' in checks and self.number not in (-1, 0) and not self.path.endswith(self.canonic_path):
-            inconsistencies.append(f"invalid-path, '{self.path}' should be '{self.canonic_path}'")
-            if fix and not dry:
-                logger.debug(f"Moving {self.path} to {self.canonic_path}")
+                self._comment = ''
+            self.inconsistencies.remove('invalid-comment')
+        if 'invalid-title' in checks:
+            logger.info(f"{self} : {self.title} => {self.canonic_title}")
+            self.title = self.canonic_title
+            self.inconsistencies.remove('invalid-title')
+        if 'invalid-path' in checks:
+            logger.info(f"{self} : {self.path} => {self.canonic_path}")
+            if not dry:
+                ensure(self.canonic_path)
                 path = pathlib.Path(self.path)
                 path.replace(self.canonic_path)
                 self.path = self.canonic_path
                 self.handle = mutagen.File(self.path)
-        if inconsistencies and fix and not dry:
+                self.inconsistencies.remove('invalid-path')
+        if not dry:
             self.save()
-        return inconsistencies
 
     def save(self):
-        self.handle.save()
+        try:
+            self.handle.save()
+        except MutagenError as e:
+            logger.error(e)

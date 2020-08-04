@@ -24,7 +24,7 @@ jinja2==2.11.2
 logging-tree==1.8.1
 markupsafe==1.1.1
 mps-youtube==0.2.8
-mutagen==1.45.0
+mutagen==1.45.1
 pafy==0.5.5
 pathtools==0.1.2
 ply==3.11
@@ -43,7 +43,7 @@ six==1.15.0
 spotipy==2.13.0
 text-unidecode==1.3
 toml==0.10.1
-tqdm==4.48.0
+tqdm==4.48.2
 urllib3==1.25.10
 watchdog==0.10.3
 wcwidth==0.2.5

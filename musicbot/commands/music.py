@@ -1,5 +1,7 @@
 import logging
 import click
+from prettytable import PrettyTable
+from mutagen import MutagenError
 from musicbot import helpers
 from musicbot.music.file import File, path_argument, folder_option, options, checks_options
 from musicbot.music.fingerprint import acoustid_api_key_option
@@ -43,16 +45,25 @@ def tags(path):
     print(f.ordered_dict())
 
 
-@cli.command(help='Check music consistency')
+@cli.command(aliases=['consistency'], help='Check music consistency')
 @helpers.add_options(
+    folder_option +
     path_argument +
     helpers.dry_option +
     checks_options
 )
-def check_consistency(path, **kwargs):
-    f = File(path)
-    logger.info(f.handle.tags.keys())
-    print(f.check_consistency(**kwargs))
+def inconsistencies(path, folder, fix, **kwargs):
+    m = File(path, folder)
+    pt = PrettyTable()
+    pt.field_names = ["Folder", "Path", "Inconsistencies"]
+    try:
+        if fix:
+            m.fix(**kwargs)
+        if m.inconsistencies:
+            pt.add_row([m.folder, m.path, ', '.join(m.inconsistencies)])
+    except (OSError, MutagenError):
+        pt.add_row([m.folder, m.path, "could not open file"])
+    print(pt)
 
 
 @cli.command(help='Set music title')

@@ -3,7 +3,9 @@ import json
 import concurrent.futures as cf
 import click
 from prettytable import PrettyTable
+from mutagen import MutagenError
 from musicbot import helpers, lib
+from musicbot.exceptions import MusicbotError
 from musicbot.config import config
 from musicbot.music.file import File, folder_option, checks_options
 
@@ -51,29 +53,34 @@ def flac2mp3(folders, folder, concurrency, dry):
     with config.tqdm(total=len(flac_files), leave=True, desc='Converting musics') as pbar:
         with cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
             def convert(flac_path):
-                f = File(flac_path)
-                f.to_mp3(folder, dry)
-                pbar.update(1)
+                try:
+                    f = File(flac_path)
+                    f.to_mp3(folder, dry)
+                except MusicbotError as e:
+                    logger(e)
+                finally:
+                    pbar.update(1)
             executor.shutdown = lambda wait: None
             futures = [executor.submit(convert, flac_path[1]) for flac_path in flac_files]
             cf.wait(futures)
 
 
-@cli.command(help='Check music files consistency')
+@cli.command(aliases=['consistency'], help='Check music files consistency')
 @helpers.add_options(
     helpers.folders_argument +
     helpers.dry_option +
     checks_options
 )
-def check_consistency(folders, **kwargs):
+def inconsistencies(folders, fix, **kwargs):
     musics = helpers.genfiles(folders)
     pt = PrettyTable()
     pt.field_names = ["Folder", "Path", "Inconsistencies"]
     for m in musics:
         try:
-            inconsistencies = m.check_consistency(**kwargs)
-            if inconsistencies:
-                pt.add_row([m.folder, m.path, ', '.join(inconsistencies)])
-        except OSError:
-            pt.add_row([m.path, "Could not open file"])
+            if fix:
+                m.fix(**kwargs)
+            if m.inconsistencies:
+                pt.add_row([m.folder, m.path, ', '.join(m.inconsistencies)])
+        except (OSError, MutagenError):
+            pt.add_row([m.folder, m.path, "could not open file"])
     print(pt)

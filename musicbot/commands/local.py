@@ -8,13 +8,14 @@ from shutil import copyfile
 from textwrap import indent
 import click
 from prettytable import PrettyTable
+from mutagen import MutagenError
 from musicbot import helpers, user
 from musicbot.lib import bytes_to_human, find_files, all_files, empty_dirs, except_directories
 from musicbot.music import mfilter
 from musicbot.player import play
 from musicbot.playlist import print_playlist
 from musicbot.config import config
-from musicbot.music.file import path_argument, supported_formats
+from musicbot.music.file import File, checks_options, path_argument, supported_formats
 
 
 logger = logging.getLogger(__name__)
@@ -74,11 +75,10 @@ def _filter(user, name, output):
 @helpers.add_options(
     user.auth_options +
     helpers.output_option +
-    mfilter.options
+    mfilter.mfilter_options
 )
-def stats(user, output, **kwargs):
-    mf = mfilter.Filter(**kwargs)
-    stats = user.do_stat(mf)
+def stats(user, output, music_filter):
+    stats = user.do_stat(music_filter)
     if output == 'json':
         print(json.dumps(stats))
     elif output == 'table':
@@ -153,13 +153,12 @@ def clean(user):
 @helpers.add_options(
     user.auth_options +
     helpers.dry_option +
-    mfilter.options
+    mfilter.mfilter_options
 )
 @click.argument('destination')
-def sync(user, dry, destination, **kwargs):
+def sync(user, dry, destination, music_filter):
     logger.info('Destination: %s', destination)
-    mf = mfilter.Filter(**kwargs)
-    musics = user.do_filter(mf)
+    musics = user.do_filter(music_filter)
 
     files = list(all_files(destination))
     logger.info(f"Files : {len(files)}")
@@ -223,23 +222,22 @@ def sync(user, dry, destination, **kwargs):
 @helpers.add_options(
     user.auth_options +
     helpers.dry_option +
-    mfilter.options +
+    mfilter.mfilter_options +
     helpers.playlist_output_option
 )
 @click.argument('path', type=click.File('w'), default='-')
-def playlist(user, output, path, dry, **kwargs):
-    mf = mfilter.Filter(**kwargs)
+def playlist(user, output, path, dry, music_filter):
     if output == 'm3u':
-        p = user.playlist(mf)
+        p = user.playlist(music_filter)
         if not dry:
             print(p, file=path)
         else:
             logger.info('DRY RUN: Writing playlist to %s with content:\n%s', path, p)
     elif output == 'json':
-        tracks = user.do_filter(mf)
+        tracks = user.do_filter(music_filter)
         print(json.dumps(tracks), file=path)
     elif output == 'table':
-        tracks = user.do_filter(mf)
+        tracks = user.do_filter(music_filter)
         print_playlist(tracks, path)
 
 
@@ -248,17 +246,16 @@ def playlist(user, output, path, dry, **kwargs):
     path_argument +
     user.auth_options +
     helpers.dry_option +
-    mfilter.options
+    mfilter.mfilter_options
 )
 @click.option('--prefix', envvar='MB_PREFIX', help="Append prefix before each path (implies relative)", default='')
 @click.option('--suffix', envvar='MB_SUFFIX', help="Append this suffix to playlist name", default='')
-def bests(user, dry, path, prefix, suffix, **kwargs):
+def bests(user, dry, path, prefix, suffix, music_filter):
     if prefix:
-        kwargs['relative'] = True
+        music_filter.relative = True
         if not prefix.endswith('/'):
             prefix += '/'
-    mf = mfilter.Filter(**kwargs)
-    playlists = user.bests(mf)
+    playlists = user.bests(music_filter)
     with config.tqdm(total=len(playlists)) as pbar:
         for p in playlists:
             playlist_filepath = os.path.join(path, p['name'] + suffix + '.m3u')
@@ -279,12 +276,34 @@ def bests(user, dry, path, prefix, suffix, **kwargs):
 @cli.command(aliases=['play'], help='Music player')
 @helpers.add_options(
     user.auth_options +
-    mfilter.options
+    mfilter.mfilter_options
 )
-def player(user, **kwargs):
+def player(user, music_filter):
     try:
-        mf = mfilter.Filter(**kwargs)
-        tracks = user.do_filter(mf)
+        tracks = user.do_filter(music_filter)
         play(tracks)
     except io.UnsupportedOperation:
         logger.critical('Unable to load UI')
+
+
+@cli.command(aliases=['consistency'], help='Check music consistency')
+@helpers.add_options(
+    user.auth_options +
+    helpers.dry_option +
+    checks_options +
+    mfilter.mfilter_options
+)
+def inconsistencies(user, dry, fix, checks, music_filter):
+    tracks = user.do_filter(music_filter)
+    pt = PrettyTable()
+    pt.field_names = ["Folder", "Path", "Inconsistencies"]
+    for t in tracks:
+        try:
+            m = File(t['path'], t['folder'])
+            if fix:
+                m.fix(dry=dry, checks=checks)
+            if m.inconsistencies:
+                pt.add_row([m.folder, m.path, ', '.join(m.inconsistencies)])
+        except (OSError, MutagenError):
+            pt.add_row([t['folder'], t['path'], "could not open file"])
+    print(pt)

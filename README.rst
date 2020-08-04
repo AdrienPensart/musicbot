@@ -102,15 +102,15 @@ Commands
     -h, --help                                          Show this message and exit.
 
   Commands:
-    completion  Shell completion
-    folder      Manage folders
-    help        Print help
-    local       Local music management
-    music       Music file
-    spotify     Spotify tool
-    user        User management
-    version     Print version
-    youtube     Youtube tool
+    completion    Shell completion
+    folder        Manage folders
+    help          Print help
+    local         Local music management
+    music (file)  Music file
+    spotify       Spotify tool
+    user          User management
+    version       Print version
+    youtube       Youtube tool
 
 
 musicbot completion
@@ -169,28 +169,10 @@ musicbot folder
     -h, --help  Show this message and exit.
 
   Commands:
-    check-consistency  Check music files consistency
-    flac2mp3           Convert all files in folders to mp3
-    help               Print help
-    tracks             List tracks
-
-
-musicbot folder check-consistency
-*********************************
-.. code-block::
-
-  Usage: musicbot folder check-consistency [OPTIONS] [FOLDERS]...
-
-    Check music files consistency
-
-  Options:
-    --dry                                               Take no real action  [default: False]
-    --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-comment|invalid-path]
-                                                        Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
-                                                        tracknumber, invalid-title, invalid-comment, invalid-path]
-
-    --fix
-    -h, --help                                          Show this message and exit.
+    flac2mp3                       Convert all files in folders to mp3
+    help                           Print help
+    inconsistencies (consistency)  Check music files consistency
+    tracks                         List tracks
 
 
 musicbot folder flac2mp3
@@ -202,10 +184,28 @@ musicbot folder flac2mp3
     Convert all files in folders to mp3
 
   Options:
-    --folder TEXT          Destination folder
+    --folder DIRECTORY     Destination folder
     --concurrency INTEGER  Number of coroutines  [default: 8]
     --dry                  Take no real action  [default: False]
     -h, --help             Show this message and exit.
+
+
+musicbot folder inconsistencies
+*******************************
+.. code-block::
+
+  Usage: musicbot folder inconsistencies [OPTIONS] [FOLDERS]...
+
+    Check music files consistency
+
+  Options:
+    --dry                                               Take no real action  [default: False]
+    --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-comment|invalid-path]
+                                                        Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
+                                                        tracknumber, invalid-title, invalid-comment, invalid-path]
+
+    --fix
+    -h, --help                                          Show this message and exit.
 
 
 musicbot folder tracks
@@ -245,21 +245,22 @@ musicbot local
     -h, --help  Show this message and exit.
 
   Commands:
-    bests          Generate bests playlists with some rules
-    clean          Clean all musics
-    execute        Raw query
-    filter         Print a filter
-    filters        List filters
-    find           Just list music files
-    folders        List folders
-    help           Print help
-    load-filters   Load default filters
-    player (play)  Music player
-    playlist       Generate a new playlist
-    scan           (re)Load musics
-    stats (stat)   Generate some stats for music collection with filters
-    sync           Copy selected musics with filters to destination folder
-    watch          Watch files changes in folders
+    bests                          Generate bests playlists with some rules
+    clean                          Clean all musics
+    execute                        Raw query
+    filter                         Print a filter
+    filters                        List filters
+    find                           Just list music files
+    folders                        List folders
+    help                           Print help
+    inconsistencies (consistency)  Check music consistency
+    load-filters                   Load default filters
+    player (play)                  Music player
+    playlist                       Generate a new playlist
+    scan                           (re)Load musics
+    stats (stat)                   Generate some stats for music collection with filters
+    sync                           Copy selected musics with filters to destination folder
+    watch                          Watch files changes in folders
 
 
 musicbot local bests
@@ -404,6 +405,54 @@ musicbot local folders
     -t, --token TEXT       User token
     --output [table|json]  Output format  [default: table]
     -h, --help             Show this message and exit.
+
+
+musicbot local inconsistencies
+******************************
+.. code-block::
+
+  Usage: musicbot local inconsistencies [OPTIONS]
+
+    Check music consistency
+
+  Options:
+    -e, --email TEXT                                    User email
+    -p, --password TEXT                                 User password
+    --graphql TEXT                                      GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -t, --token TEXT                                    User token
+    --dry                                               Take no real action  [default: False]
+    --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-comment|invalid-path]
+                                                        Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
+                                                        tracknumber, invalid-title, invalid-comment, invalid-path]
+
+    --fix
+    --name TEXT                                         Filter name
+    --limit INTEGER                                     Fetch a maximum limit of music
+    --youtubes TEXT                                     Select musics with a youtube link
+    --no-youtubes TEXT                                  Select musics without youtube link
+    --spotifys TEXT                                     Select musics with a spotifys link
+    --no-spotifys TEXT                                  Select musics without spotifys link
+    --formats TEXT                                      Select musics with file format
+    --no-formats TEXT                                   Filter musics without format
+    --keywords TEXT                                     Select musics with keywords
+    --no-keywords TEXT                                  Filter musics without keywords
+    --artists TEXT                                      Select musics with artists
+    --no-artists TEXT                                   Filter musics without artists
+    --albums TEXT                                       Select musics with albums
+    --no-albums TEXT                                    Filter musics without albums
+    --titles TEXT                                       Select musics with titles
+    --no-titles TEXT                                    Filter musics without titless
+    --genres TEXT                                       Select musics with genres
+    --no-genres TEXT                                    Filter musics without genres
+    --min-duration INTEGER                              Minimum duration filter (hours:minutes:seconds)
+    --max-duration INTEGER                              Maximum duration filter (hours:minutes:seconds))
+    --min-size INTEGER                                  Minimum file size filter (in bytes)
+    --max-size INTEGER                                  Maximum file size filter (in bytes)
+    --min-rating FLOAT                                  Minimum rating  [default: 0.0]
+    --max-rating FLOAT                                  Maximum rating  [default: 5.0]
+    --relative                                          Generate relatives paths
+    --shuffle                                           Randomize selection
+    -h, --help                                          Show this message and exit.
 
 
 musicbot local load-filters
@@ -638,30 +687,12 @@ musicbot music
     -h, --help  Show this message and exit.
 
   Commands:
-    check-consistency  Check music consistency
-    fingerprint        Print music fingerprint
-    flac2mp3           Convert flac music to mp3
-    help               Print help
-    set-tags           Set music title
-    tags               Print music tags
-
-
-musicbot music check-consistency
-********************************
-.. code-block::
-
-  Usage: musicbot music check-consistency [OPTIONS] PATH
-
-    Check music consistency
-
-  Options:
-    --dry                                               Take no real action  [default: False]
-    --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-comment|invalid-path]
-                                                        Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
-                                                        tracknumber, invalid-title, invalid-comment, invalid-path]
-
-    --fix
-    -h, --help                                          Show this message and exit.
+    fingerprint                    Print music fingerprint
+    flac2mp3                       Convert flac music to mp3
+    help                           Print help
+    inconsistencies (consistency)  Check music consistency
+    set-tags                       Set music title
+    tags                           Print music tags
 
 
 musicbot music fingerprint
@@ -686,9 +717,28 @@ musicbot music flac2mp3
     Convert flac music to mp3
 
   Options:
-    --folder TEXT  Destination folder
-    --dry          Take no real action  [default: False]
-    -h, --help     Show this message and exit.
+    --folder DIRECTORY  Destination folder
+    --dry               Take no real action  [default: False]
+    -h, --help          Show this message and exit.
+
+
+musicbot music inconsistencies
+******************************
+.. code-block::
+
+  Usage: musicbot music inconsistencies [OPTIONS] PATH
+
+    Check music consistency
+
+  Options:
+    --folder DIRECTORY                                  Destination folder
+    --dry                                               Take no real action  [default: False]
+    --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-comment|invalid-path]
+                                                        Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
+                                                        tracknumber, invalid-title, invalid-comment, invalid-path]
+
+    --fix
+    -h, --help                                          Show this message and exit.
 
 
 musicbot music set-tags

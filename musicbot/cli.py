@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import sys
 import os
 import logging
 import click
@@ -8,6 +7,7 @@ import spotipy
 import click_completion
 import click_completion.core
 from click.formatting import HelpFormatter
+from mutagen import MutagenError
 from attrdict import AttrDict
 from musicbot import lib, helpers, config, exceptions, backtrace
 from musicbot import __version__
@@ -70,6 +70,8 @@ cli.add_command(youtube_cli, 'youtube')
 cli.add_command(user_cli, 'user')
 cli.add_command(completion_cli, 'completion')
 
+cli._commands['music'] = ['file']
+cli._aliases['file'] = 'music'
 
 @cli.command(short_help='Print version')
 def version():
@@ -83,9 +85,11 @@ def version():
 def main(**kwargs):
     try:
         return cli.main(prog_name=prog_name, **kwargs)
-    except (exceptions.MusicbotError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError) as e:
-        logger.error(e)
-        sys.exit(1)
+    except (MutagenError, exceptions.MusicbotError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError) as e:
+        if config.config.debug:
+            logger.exception(e)
+        else:
+            raise e
 
 
 if __name__ == '__main__':
