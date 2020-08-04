@@ -7,6 +7,7 @@ import datetime
 from shutil import copyfile
 from textwrap import indent
 import click
+import attr
 from prettytable import PrettyTable
 from mutagen import MutagenError
 from musicbot import helpers, user
@@ -15,7 +16,7 @@ from musicbot.music import mfilter
 from musicbot.player import play
 from musicbot.playlist import print_playlist
 from musicbot.config import config
-from musicbot.music.file import File, checks_options, path_argument, supported_formats
+from musicbot.music.file import File, checks_options, folder_argument, supported_formats
 
 
 logger = logging.getLogger(__name__)
@@ -243,22 +244,22 @@ def playlist(user, output, path, dry, music_filter):
 
 @cli.command(help='Generate bests playlists with some rules')
 @helpers.add_options(
-    path_argument +
+    folder_argument +
     user.auth_options +
     helpers.dry_option +
     mfilter.mfilter_options
 )
 @click.option('--prefix', envvar='MB_PREFIX', help="Append prefix before each path (implies relative)", default='')
 @click.option('--suffix', envvar='MB_SUFFIX', help="Append this suffix to playlist name", default='')
-def bests(user, dry, path, prefix, suffix, music_filter):
+def bests(user, dry, folder, prefix, suffix, music_filter):
     if prefix:
-        music_filter.relative = True
+        music_filter = attr.evolve(music_filter, relative=True)
         if not prefix.endswith('/'):
             prefix += '/'
     playlists = user.bests(music_filter)
     with config.tqdm(total=len(playlists)) as pbar:
         for p in playlists:
-            playlist_filepath = os.path.join(path, p['name'] + suffix + '.m3u')
+            playlist_filepath = os.path.join(folder, p['name'] + suffix + '.m3u')
             pbar.set_description(f"Best playlist {prefix} {suffix}: {os.path.basename(playlist_filepath)}")
             content = indent(p['content'], prefix, lambda line: line != '#EXTM3U\n')
             if not dry:

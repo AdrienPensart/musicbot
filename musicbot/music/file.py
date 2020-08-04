@@ -37,6 +37,9 @@ path_argument = [
 folder_option = [
     click.option('--folder', help="Destination folder", type=click.Path(exists=True, file_okay=False)),
 ]
+folder_argument = [
+    click.argument('folder', type=click.Path(exists=True, file_okay=False)),
+]
 checks_options = [
     click.option(
         '--checks',

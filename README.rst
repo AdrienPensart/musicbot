@@ -267,7 +267,7 @@ musicbot local bests
 ********************
 .. code-block::
 
-  Usage: musicbot local bests [OPTIONS] PATH
+  Usage: musicbot local bests [OPTIONS] FOLDER
 
     Generate bests playlists with some rules
 

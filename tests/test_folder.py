@@ -16,4 +16,4 @@ def test_folder_tracks(cli_runner):
 
 @pytest.mark.runner_setup(mix_stderr=False)
 def test_folder_check_consistency(cli_runner):
-    run_cli(cli_runner, cli, ['folder', 'check-consistency', *fixtures.folders])
+    run_cli(cli_runner, cli, ['folder', 'consistency', *fixtures.folders])

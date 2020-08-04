@@ -1,5 +1,6 @@
 import logging
 import json
+from collections import OrderedDict
 import attr
 import click
 
@@ -116,7 +117,6 @@ class Filter:
         return {k: myself[k] for k in myself if default[k] == myself[k] and k != 'name'}
 
     def ordered_dict(self):
-        from collections import OrderedDict
         return OrderedDict(
             [
                 ('minDuration', self.min_duration),
