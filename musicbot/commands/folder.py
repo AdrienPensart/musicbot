@@ -2,6 +2,7 @@ import logging
 import json
 import concurrent.futures as cf
 import click
+import enlighten
 from prettytable import PrettyTable
 from mutagen import MutagenError
 from musicbot import helpers, lib
@@ -50,19 +51,21 @@ def flac2mp3(folders, folder, concurrency, dry):
         logger.warning(f"No flac files detected in {folders}")
         return
 
-    with config.tqdm(total=len(flac_files), leave=True, desc='Converting musics') as pbar:
-        with cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
-            def convert(flac_path):
-                try:
-                    f = File(flac_path)
-                    f.to_mp3(folder, dry)
-                except MusicbotError as e:
-                    logger(e)
-                finally:
-                    pbar.update(1)
-            executor.shutdown = lambda wait: None
-            futures = [executor.submit(convert, flac_path[1]) for flac_path in flac_files]
-            cf.wait(futures)
+    enabled = not config.quiet
+    with enlighten.Manager(enabled=enabled) as manager:
+        with manager.counter(total=len(flac_files), desc="converting musics") as pbar:
+            with cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
+                def convert(flac_path):
+                    try:
+                        f = File(flac_path)
+                        f.to_mp3(folder, dry)
+                    except MusicbotError as e:
+                        logger(e)
+                    finally:
+                        pbar.update()
+                executor.shutdown = lambda wait: None
+                futures = [executor.submit(convert, flac_path[1]) for flac_path in flac_files]
+                cf.wait(futures)
 
 
 @cli.command(aliases=['consistency'], help='Check music files consistency')

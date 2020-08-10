@@ -113,4 +113,5 @@ def play(tracks):
         app = Application(layout=layout, key_bindings=bindings)
         app.run()
     except NameError:
-        logger.critical("Your VLC version may be outdated: %s", vlc.libvlc_get_version())
+        version = vlc.libvlc_get_version()
+        logger.critical(f"Your VLC version may be outdated: {version}")

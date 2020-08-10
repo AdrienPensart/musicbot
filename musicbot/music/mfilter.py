@@ -99,7 +99,7 @@ class Filter:
         not_empty_set = is_bad_formats or is_bad_artists or is_bad_genres or is_bad_albums or is_bad_titles or is_bad_keywords
         if not_empty_set:
             raise ValueError(f"You can't have duplicates value in filters {self}")
-        logger.debug('Filter: %s', self)
+        logger.debug(f'Filter: {self}')
 
     def __repr__(self):
         return json.dumps(self.ordered_dict())

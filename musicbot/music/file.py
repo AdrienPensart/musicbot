@@ -304,7 +304,7 @@ class File:
             if n < 0:
                 return -1
             if n > 2 ** 31 - 1:
-                logger.warning("%s : invalid number %s", self, n)
+                logger.warning(f"{self} : invalid track number {n}")
                 return 0
             return n
         except ValueError:

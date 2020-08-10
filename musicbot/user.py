@@ -3,7 +3,7 @@ import json
 import logging
 import functools
 import click
-import click_spinner
+import enlighten
 import requests
 from . import helpers
 from .graphql import GraphQL
@@ -119,7 +119,7 @@ class User(GraphQL):
         self.authenticated = False
 
         if self.token:
-            logger.debug("using token : %s", self.token)
+            logger.debug(f"using token : {self.token}")
         elif self.email and self.password:
             query = f"""
             mutation
@@ -266,11 +266,12 @@ class User(GraphQL):
             logger.info("no musics to insert")
             return None
         if config.debug:
-            with config.tqdm(total=len(musics), desc="inserting music one by one") as pbar:
-                for music in musics:
-                    logger.debug("inserting %s", music)
-                    self.upsert_music(music)
-                    pbar.update(1)
+            with enlighten.Manager() as manager:
+                with manager.counter(total=len(musics), desc="inserting music one by one") as pbar:
+                    for music in musics:
+                        logger.debug(f"inserting {music}")
+                        self.upsert_music(music)
+                        pbar.update()
             return None
 
         j = json.dumps([m.to_dict() for m in musics])
@@ -284,8 +285,7 @@ class User(GraphQL):
                 clientMutationId
             }}
         }}'''
-        with click_spinner.spinner(disable=config.quiet):
-            return self._post(query)
+        return self._post(query)
 
     @property
     @functools.lru_cache(maxsize=None)
@@ -380,23 +380,23 @@ class User(GraphQL):
                 self.update_music(event.src_path)
 
             def on_deleted(self, event):
-                logger.debug('Deleting entry in DB for: %s %s', event.src_path, event.event_type)
+                logger.debug(f'Deleting entry in DB for: {event.src_path} {event.event_type}')
                 self.user.delete_music(event.src_path)
 
             def on_moved(self, event):
-                logger.debug('Moving entry in DB for: %s %s', event.src_path, event.event_type)
+                logger.debug(f'Moving entry in DB for: {event.src_path} {event.event_type}')
                 self.user.delete_music(event.src_path)
                 self.update_music(event.dest_path)
 
             def update_music(self, path):
                 for folder in self.user.folders:
                     if path.startswith(folder) and path.endswith(tuple(file.supported_formats)):
-                        logger.debug('Creating/modifying DB for: %s', path)
+                        logger.debug(f'Creating/modifying DB for: {path}')
                         f = file.File(path, folder)
                         self.user.upsert_music(f)
                         return
 
-        logger.info('Watching: %s', self.folders)
+        logger.info(f'Watching: {self.folders}')
         event_handler = MusicWatcherHandler(self)
         observer = Observer()
         for f in self.folders:

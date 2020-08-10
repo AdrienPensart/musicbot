@@ -57,12 +57,12 @@ def raise_limits():
         return False
     import resource  # pylint: disable=import-error
     try:
-        _, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
-        logger.info("Current limits, soft and hard : %s %s", _, hard)
+        soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
+        logger.info(f"Current limits, soft and hard : {soft} {hard}", soft, hard)
         resource.setrlimit(resource.RLIMIT_NOFILE, (hard, hard))
         return True
     except (ValueError, OSError) as e:
-        logger.critical('You may need to check ulimit parameter: %s', e)
+        logger.critical(f'You may need to check ulimit parameter: {e}')
         return False
 
 

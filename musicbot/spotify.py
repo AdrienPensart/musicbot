@@ -186,7 +186,8 @@ class Spotify:
         while True:
             new_objects = self.sp.current_user_saved_tracks(limit=limit, offset=offset)
             objects.append(new_objects['items'])
-            logger.info("chunk size: %s", len(new_objects['items']))
+            length = len(new_objects['items'])
+            logger.info(f"chunk size: {length}")
             offset += len(new_objects['items'])
             if len(new_objects['items']) < limit:
                 break
@@ -200,11 +201,11 @@ class Spotify:
             new_objects = self.sp.current_user_playlists(limit=limit, offset=offset)
             length = len(new_objects['items'])
             objects.append(new_objects['items'])
-            logger.info("chunk size: %s", length)
+            logger.info(f"chunk size: {length}")
             offset += length
             if length < limit:
                 break
-        logger.debug("length: %s", offset)
+        logger.debug(f"length: {offset}")
         return list(itertools.chain(*objects))
 
     def playlist(self, name):

@@ -25,4 +25,4 @@ def show(shell, case_insensitive):
 def install(append, case_insensitive, shell, path):
     extra_env = {'_CLICK_COMPLETION_COMMAND_CASE_INSENSITIVE_COMPLETE': 'ON'} if case_insensitive else {}
     shell, path = click_completion.core.install(shell=shell, path=path, append=append, extra_env=extra_env)
-    click.echo('%s completion installed in %s' % (shell, path))
+    click.echo(f'{shell} completion installed in {path}')

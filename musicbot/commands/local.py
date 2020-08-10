@@ -1,5 +1,6 @@
 import logging
 import io
+import shutil
 import os
 import codecs
 import json
@@ -7,6 +8,7 @@ import datetime
 from shutil import copyfile
 from textwrap import indent
 import click
+import enlighten
 import attr
 from prettytable import PrettyTable
 from mutagen import MutagenError
@@ -158,7 +160,7 @@ def clean(user):
 )
 @click.argument('destination')
 def sync(user, dry, destination, music_filter):
-    logger.info('Destination: %s', destination)
+    logger.info(f'Destination: {destination}')
     musics = user.do_filter(music_filter)
 
     files = list(all_files(destination))
@@ -171,36 +173,38 @@ def sync(user, dry, destination, music_filter):
     sources = {m['path'][len(m['folder']) + 1:]: m['path'] for m in musics}
     logger.info(f"Sources : {len(sources)}")
     to_delete = set(destinations.keys()) - set(sources.keys())
-    logger.info(f"To delete: {len(to_delete)}")
-    if to_delete:
-        with config.tqdm(total=len(to_delete)) as pbar:
+    with enlighten.Manager() as manager:
+        logger.info(f"To delete: {len(to_delete)}")
+        enabled = to_delete and not config.quiet
+        with manager.counter(total=len(to_delete), enabled=enabled) as pbar:
             for d in to_delete:
-                pbar.set_description(f"Deleting musics and playlists: {os.path.basename(destinations[d])}")
-                if not dry:
-                    try:
-                        logger.info("Deleting %s", destinations[d])
-                        os.remove(destinations[d])
-                    except OSError as e:
-                        logger.error(e)
-                else:
-                    logger.info("[DRY-RUN] False Deleting %s", destinations[d])
-                pbar.update(1)
+                try:
+                    pbar.desc = f"Deleting musics and playlists: {os.path.basename(destinations[d])}"
+                    if not dry:
+                        try:
+                            logger.info(f"Deleting {destinations[d]}")
+                            os.remove(destinations[d])
+                        except OSError as e:
+                            logger.error(e)
+                    else:
+                        logger.info(f"[DRY-RUN] False Deleting {destinations[d]}")
+                finally:
+                    pbar.update()
 
-    to_copy = set(sources.keys()) - set(destinations.keys())
-    logger.info(f"To copy: {len(to_copy)}")
-    if to_copy:
-        with config.tqdm(total=len(to_copy)) as pbar:
+        to_copy = set(sources.keys()) - set(destinations.keys())
+        logger.info(f"To copy: {len(to_copy)}")
+        enabled = to_copy and not config.quiet
+        with manager.counter(total=len(to_copy), enabled=enabled) as pbar:
             for c in sorted(to_copy):
                 final_destination = os.path.join(destination, c)
                 try:
-                    pbar.set_description(f'Copying {os.path.basename(sources[c])} to {destination}')
+                    pbar.desc = f'Copying {os.path.basename(sources[c])} to {destination}'
                     if not dry:
-                        logger.info("Copying %s to %s", sources[c], final_destination)
+                        logger.info(f"Copying {sources[c]} to {final_destination}")
                         os.makedirs(os.path.dirname(final_destination), exist_ok=True)
                         copyfile(sources[c], final_destination)
                     else:
-                        logger.info("[DRY-RUN] False Copying %s to %s", sources[c], final_destination)
-                    pbar.update(1)
+                        logger.info(f"[DRY-RUN] False Copying {sources[c]} to {final_destination}")
                 except KeyboardInterrupt:
                     logger.debug(f"Cleanup {final_destination}")
                     try:
@@ -208,15 +212,16 @@ def sync(user, dry, destination, music_filter):
                     except OSError:
                         pass
                     raise
+                finally:
+                    pbar.update()
 
-    import shutil
     for d in empty_dirs(destination):
         if any(e in d for e in except_directories):
             logger.debug(f"Invalid path {d}")
             continue
         if not dry:
             shutil.rmtree(d)
-        logger.info("[DRY-RUN] Removing empty dir %s", d)
+        logger.info(f"[DRY-RUN] Removing empty dir {d}")
 
 
 @cli.command(help='Generate a new playlist')
@@ -233,7 +238,7 @@ def playlist(user, output, path, dry, music_filter):
         if not dry:
             print(p, file=path)
         else:
-            logger.info('DRY RUN: Writing playlist to %s with content:\n%s', path, p)
+            logger.info(f'DRY RUN: Writing playlist to {path} with content:\n{p}')
     elif output == 'json':
         tracks = user.do_filter(music_filter)
         print(json.dumps(tracks), file=path)
@@ -257,21 +262,25 @@ def bests(user, dry, folder, prefix, suffix, music_filter):
         if not prefix.endswith('/'):
             prefix += '/'
     playlists = user.bests(music_filter)
-    with config.tqdm(total=len(playlists)) as pbar:
-        for p in playlists:
-            playlist_filepath = os.path.join(folder, p['name'] + suffix + '.m3u')
-            pbar.set_description(f"Best playlist {prefix} {suffix}: {os.path.basename(playlist_filepath)}")
-            content = indent(p['content'], prefix, lambda line: line != '#EXTM3U\n')
-            if not dry:
+    enabled = playlists and not config.quiet
+    with enlighten.Manager(enabled=enabled) as manager:
+        with manager.counter(total=len(playlists)) as pbar:
+            for p in playlists:
                 try:
-                    with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:
-                        logger.debug('Writing playlist to %s with content:\n%s', playlist_filepath, content)
-                        playlist_file.write(content)
-                except (OSError, LookupError, ValueError, UnicodeError) as e:
-                    logger.warning(f'Unable to write playlist to {playlist_filepath} because of {e}')
-            else:
-                logger.info('DRY RUN: Writing playlist to %s with content:\n%s', playlist_filepath, content)
-            pbar.update(1)
+                    playlist_filepath = os.path.join(folder, p['name'] + suffix + '.m3u')
+                    pbar.desc = f"Best playlist {prefix} {suffix}: {os.path.basename(playlist_filepath)}"
+                    content = indent(p['content'], prefix, lambda line: line != '#EXTM3U\n')
+                    if not dry:
+                        try:
+                            with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:
+                                logger.debug(f'Writing playlist to {playlist_filepath} with content:\n{content}')
+                                playlist_file.write(content)
+                        except (OSError, LookupError, ValueError, UnicodeError) as e:
+                            logger.warning(f'Unable to write playlist to {playlist_filepath} because of {e}')
+                    else:
+                        logger.info(f'DRY RUN: Writing playlist to {playlist_filepath} with content:\n{content}')
+                finally:
+                    pbar.update()
 
 
 @cli.command(aliases=['play'], help='Music player')

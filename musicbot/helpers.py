@@ -4,8 +4,8 @@ import logging
 import string
 import random
 import functools
+import enlighten
 import click
-import click_spinner
 from click_didyoumean import DYMGroup
 from click_aliases import ClickAliasedGroup
 from .config import config
@@ -165,23 +165,28 @@ def config_list(ctx, param, value):
 
 @timeit
 def genfiles(folders):
-    with click_spinner.spinner(disable=config.quiet):
+    directories = [os.path.abspath(f) for f in folders]
+    enabled = directories and not config.quiet
+    with enlighten.Manager(enabled=enabled) as manager:
         count = 0
-        directories = [os.path.abspath(f) for f in folders]
-        for d in directories:
-            count += filecount(d, supported_formats)
-        logger.info(f"File count: {count}")
-    files = []
-    with config.tqdm(total=count, desc=f"Music listing {folders}") as pbar:
-        file_list = find_files(folders, supported_formats)
-        music_files = list(file_list)
-        for f in music_files:
-            try:
-                m = File(f[1], f[0])
-                files.append(m)
-                pbar.update(1)
-            except OSError as e:
-                logger.error(e)
+        with manager.counter(total=len(directories), desc=f"Music counting {folders}") as pbar:
+            for d in directories:
+                subcount = filecount(d, supported_formats)
+                count += subcount
+                pbar.update()
+                logger.info(f"{d} : file count: {subcount}")
+        files = []
+        enabled = count and not config.quiet
+        with manager.counter(total=count, desc=f"Music listing {folders}", enabled=enabled) as pbar:
+            file_list = find_files(folders, supported_formats)
+            music_files = list(file_list)
+            for f in music_files:
+                try:
+                    m = File(f[1], f[0])
+                    files.append(m)
+                    pbar.update()
+                except OSError as e:
+                    logger.error(e)
     return files
 
 folders_argument = [

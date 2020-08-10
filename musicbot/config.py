@@ -1,12 +1,9 @@
 import os
-import sys
 import getpass
 import logging
 import configparser
-import functools
 import attr
 import click
-import tqdm
 import colorlog
 from cached_property import cached_property
 from . import lib
@@ -122,15 +119,6 @@ quiet_option = [
 options = config_option + log_option + info_option + debug_option + timings_option + verbosity_option + quiet_option
 
 
-class TqdmHandler(logging.StreamHandler):
-    def __init__(self):
-        logging.StreamHandler.__init__(self)
-
-    def emit(self, record):
-        msg = self.format(record)
-        tqdm.tqdm.write(msg, end='\n', file=sys.stderr)
-
-
 def check_file_writable(fnm):
     if os.path.exists(fnm):
         if os.path.isfile(fnm):
@@ -153,7 +141,6 @@ class Config:
     config = attr.ib(default=DEFAULT_CONFIG)
     level = attr.ib(default=verbosities[DEFAULT_VERBOSITY])
     fmt = attr.ib(default='%(log_color)s%(name)s | %(asctime)s | %(levelname)s | %(message)s', repr=False)
-    tqdm = attr.ib(default=tqdm.tqdm, repr=False)
 
     def set(self, config=None, debug=None, info=None, timings=None, quiet=None, verbosity=None, log=None):
         self.config = config if config is not None else os.getenv(MB_CONFIG, DEFAULT_CONFIG)
@@ -181,7 +168,7 @@ class Config:
         self.level = verbosities[self.verbosity]
         root_logger = logging.getLogger()
         root_logger.setLevel(self.level)
-        handler = TqdmHandler()
+        handler = logging.StreamHandler()
         handler.setLevel(self.level)
         handler.setFormatter(
             colorlog.ColoredFormatter(
@@ -205,7 +192,6 @@ class Config:
             else:
                 logger.warning(f'No permission to write to {self.log} for current user {current_user}')
         logger.debug(self)
-        self.tqdm = functools.partial(tqdm.tqdm, dynamic_ncols=True, leave=False, disable=self.quiet)
 
     @cached_property
     def configfile(self):
