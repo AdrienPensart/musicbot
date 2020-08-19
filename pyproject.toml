@@ -56,6 +56,18 @@ Pygments = "^2.6.1"
 bump2version = "^1.0.0"
 pytest = "^6.0.1"
 
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--cov-report term-missing --durations=0 --cov musicbot --docker-compose-no-build -x --use-running-containers "
+
+[tool.pylint.master]
+jobs = 4
+[tool.pylint.messages_control]
+disable = """
+line-too-long,too-many-arguments,missing-docstring,invalid-name,too-many-public-methods,too-many-instance-attributes,duplicate-code,too-many-nested-blocks,too-many-branches,too-many-return-statements,too-many-statements,too-many-locals,too-few-public-methods,too-many-ancest
+ors,abstract-method,anomalous-backslash-in-string,broad-except,too-many-lines,import-outside-toplevel,logging-fstring-interpolation
+"""
+
 [tool.dephell.main]
 from = {format = "poetry", path = "pyproject.toml"}
 to = {format = "setuppy", path = "setup.py"}

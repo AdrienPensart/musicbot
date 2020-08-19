@@ -170,23 +170,27 @@ def genfiles(folders):
     with enlighten.Manager(enabled=enabled) as manager:
         count = 0
         with manager.counter(total=len(directories), desc=f"Music counting {folders}") as pbar:
-            for d in directories:
-                subcount = filecount(d, supported_formats)
-                count += subcount
-                pbar.update()
-                logger.info(f"{d} : file count: {subcount}")
+            for directory in directories:
+                try:
+                    pbar.desc = f"Music counting {directory}"
+                    subcount = filecount(directory, supported_formats)
+                    logger.info(f"{directory} : file count: {subcount}")
+                    count += subcount
+                finally:
+                    pbar.update()
         files = []
         enabled = count and not config.quiet
-        with manager.counter(total=count, desc=f"Music listing {folders}", enabled=enabled) as pbar:
+        with manager.counter(total=count, desc=f"Music listing", enabled=enabled) as pbar:
             file_list = find_files(folders, supported_formats)
             music_files = list(file_list)
             for f in music_files:
                 try:
                     m = File(f[1], f[0])
                     files.append(m)
-                    pbar.update()
                 except OSError as e:
                     logger.error(e)
+                finally:
+                    pbar.update()
     return files
 
 folders_argument = [

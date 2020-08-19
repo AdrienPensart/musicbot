@@ -89,7 +89,7 @@ def main(**kwargs):
         if config.config.debug:
             logger.exception(e)
         else:
-            raise e
+            raise
 
 
 if __name__ == '__main__':
