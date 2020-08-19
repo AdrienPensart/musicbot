@@ -180,7 +180,7 @@ def genfiles(folders):
                     pbar.update()
         files = []
         enabled = count and not config.quiet
-        with manager.counter(total=count, desc=f"Music listing", enabled=enabled) as pbar:
+        with manager.counter(total=count, desc="Music listing", enabled=enabled) as pbar:
             file_list = find_files(folders, supported_formats)
             music_files = list(file_list)
             for f in music_files:
