@@ -1,6 +1,6 @@
 ansicon==1.89.0; platform_system == "Windows"
 attrdict==2.0.1
-attrs==19.3.0
+attrs==20.1.0
 audioread==2.1.8
 blessed==1.17.9
 cached-property==1.5.1

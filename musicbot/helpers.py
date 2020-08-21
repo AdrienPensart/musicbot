@@ -1,4 +1,5 @@
 import time
+import re
 import os
 import logging
 import string
@@ -71,6 +72,11 @@ Red = "\033[0;31;40m"
 Green = "\033[0;32;40m"
 Yellow = "\033[0;33;40m"
 Reset = "\033[0m"
+
+
+def strip_colors(text):
+    ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+    return ansi_escape.sub('', text)
 
 
 def random_password(size=8):
