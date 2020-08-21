@@ -1,5 +1,4 @@
 import logging
-import re
 import pytest
 from musicbot import __version__
 from musicbot.cli import cli
