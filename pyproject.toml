@@ -60,7 +60,7 @@ pytest = "^6.0.1"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--cov-report term-missing --durations=0 --cov musicbot --docker-compose-no-build -x --use-running-containers tests/test_cli.py"
+addopts = "--cov-report term-missing --durations=0 --cov musicbot --docker-compose-no-build -x --use-running-containers "
 
 [tool.pylint.master]
 jobs = 4
