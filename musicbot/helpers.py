@@ -6,6 +6,7 @@ import random
 import functools
 import enlighten
 import click
+from click_help_colors import HelpColorsGroup
 from click_didyoumean import DYMGroup
 from click_aliases import ClickAliasedGroup
 from .config import config
@@ -77,8 +78,10 @@ def random_password(size=8):
     return ''.join(random.choice(alphabet) for i in range(size))
 
 
-class GroupWithHelp(DYMGroup, ClickAliasedGroup):
+class GroupWithHelp(DYMGroup, ClickAliasedGroup, HelpColorsGroup):
     def __init__(self, *args, **kwargs):
+        kwargs['help_headers_color'] = 'yellow'
+        kwargs['help_options_color'] = 'green'
         super().__init__(*args, **kwargs)
 
         @click.command('help')

@@ -35,8 +35,8 @@ def _list(graphql_admin, output):
 
 @cli.command(aliases=['new', 'add', 'create'], help='Register a new user')
 @helpers.add_options(
-    register_options +
-    helpers.save_option
+    helpers.save_option +
+    register_options
 )
 def register(save, **kwargs):
     u = User.register(**kwargs)
@@ -57,8 +57,8 @@ def unregister(**kwargs):
 
 @cli.command(aliases=['token'], help='Authenticate user')
 @helpers.add_options(
-    login_options +
-    helpers.save_option
+    helpers.save_option +
+    login_options
 )
 def login(save, **kwargs):
     u = User(**kwargs)

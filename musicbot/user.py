@@ -5,6 +5,7 @@ import functools
 import click
 import enlighten
 import requests
+from click_option_group import optgroup
 from . import helpers
 from .graphql import GraphQL
 from .config import config
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_EMAIL = None
 email_option = [
-    click.option(
+    optgroup.option(
         '--email', '-e',
         help='User email',
         default=DEFAULT_EMAIL,
@@ -28,7 +29,7 @@ email_option = [
 
 DEFAULT_PASSWORD = None
 password_option = [
-    click.option(
+    optgroup.option(
         '--password', '-p',
         help='User password',
         default=DEFAULT_PASSWORD,
@@ -39,7 +40,7 @@ password_option = [
 
 DEFAULT_FIRST_NAME = None
 first_name_option = [
-    click.option(
+    optgroup.option(
         '--first-name',
         help='User first name',
         default=DEFAULT_FIRST_NAME,
@@ -51,7 +52,7 @@ first_name_option = [
 
 DEFAULT_LAST_NAME = None
 last_name_option = [
-    click.option(
+    optgroup.option(
         '--last-name',
         help='User last name',
         default=DEFAULT_FIRST_NAME,
@@ -63,7 +64,7 @@ last_name_option = [
 
 DEFAULT_GRAPHQL = 'http://127.0.0.1:5000/graphql'
 graphql_option = [
-    click.option(
+    optgroup.option(
         '--graphql',
         help='GraphQL endpoint',
         default=DEFAULT_GRAPHQL,
@@ -96,7 +97,7 @@ def sane_user(ctx, param, value):  # pylint: disable=unused-argument
 
 DEFAULT_TOKEN = None
 token_option = [
-    click.option(
+    optgroup.option(
         '--token', '-t',
         help='User token',
         expose_value=False,
@@ -104,9 +105,26 @@ token_option = [
     )
 ]
 
-register_options = email_option + password_option + first_name_option + last_name_option + graphql_option
-login_options = email_option + password_option + graphql_option
-auth_options = login_options + token_option
+register_options =\
+    [optgroup.group('Register options')] +\
+    email_option +\
+    password_option +\
+    first_name_option +\
+    last_name_option +\
+    graphql_option
+
+login_options =\
+    [optgroup.group('User options')] +\
+    email_option +\
+    password_option +\
+    graphql_option
+
+auth_options =\
+    [optgroup.group('Auth options')] +\
+    email_option +\
+    password_option +\
+    graphql_option +\
+    token_option
 
 
 class User(GraphQL):
@@ -134,8 +152,8 @@ class User(GraphQL):
             response = self._post(query, failure=FailedAuthentication(f"Authentication failed for email {self.email}"))
             try:
                 self.token = response['data']['authenticate']['jwtToken']
-            except KeyError:
-                raise FailedAuthentication(f"Invalid response received : {response}")
+            except KeyError as e:
+                raise FailedAuthentication(f"Invalid response received : {response}") from e
             if not self.token:
                 raise FailedAuthentication(f"Invalid token received : {self.token}")
         else:

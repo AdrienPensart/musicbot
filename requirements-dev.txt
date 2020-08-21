@@ -18,7 +18,9 @@ click==7.1.2
 click-aliases==1.0.1
 click-completion==0.5.2
 click-didyoumean==0.0.3
+click-help-colors==0.8
 click-man==0.4.1
+click-option-group==0.5.1
 colorama==0.4.3
 colorlog==4.2.1
 coverage==5.2.1
@@ -39,7 +41,7 @@ dephell-specifier==0.2.2
 dephell-venvs==0.1.17
 dephell-versioning==0.1.2
 distro==1.5.0
-docker==4.3.0
+docker==4.3.1
 docker-compose==1.26.2
 dockerpty==0.4.1
 docopt==0.6.2
@@ -85,7 +87,7 @@ pyacoustid==1.2.0
 pycparser==2.20
 pydub==0.24.1
 pygments==2.6.1
-pylint==2.5.3
+pylint==2.6.0
 pynacl==1.4.0
 pyparsing==2.4.7
 pyreadline==2.1; sys_platform == "win32"

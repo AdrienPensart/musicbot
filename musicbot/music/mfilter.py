@@ -2,7 +2,7 @@ import logging
 import json
 from collections import OrderedDict
 import attr
-import click
+from click_option_group import optgroup
 
 logger = logging.getLogger(__name__)
 
@@ -152,155 +152,155 @@ class Filter:
 
 
 options = [
-    click.option(
+    optgroup.option(
         '--name',
         help='Filter name',
         default=default_name,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--limit',
         help='Fetch a maximum limit of music',
         default=default_limit,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--youtubes',
         help='Select musics with a youtube link',
         multiple=True,
         default=default_youtubes,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--no-youtubes',
         help='Select musics without youtube link',
         multiple=True,
         default=default_no_youtubes,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--spotifys',
         help='Select musics with a spotifys link',
         multiple=True,
         default=default_youtubes,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--no-spotifys',
         help='Select musics without spotifys link',
         multiple=True,
         default=default_no_youtubes,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--formats',
         help='Select musics with file format',
         multiple=True,
         default=default_formats,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--no-formats',
         help='Filter musics without format',
         multiple=True,
         default=default_no_formats,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--keywords',
         help='Select musics with keywords',
         multiple=True,
         default=default_keywords,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--no-keywords',
         help='Filter musics without keywords',
         multiple=True,
         default=default_no_keywords,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--artists',
         help='Select musics with artists',
         multiple=True,
         default=default_artists,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--no-artists',
         help='Filter musics without artists',
         multiple=True,
         default=default_no_artists,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--albums',
         help='Select musics with albums',
         multiple=True,
         default=default_albums,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--no-albums',
         help='Filter musics without albums',
         multiple=True,
         default=default_no_albums,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--titles',
         help='Select musics with titles',
         multiple=True,
         default=default_titles,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--no-titles',
         help='Filter musics without titless',
         multiple=True,
         default=default_no_titles,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--genres',
         help='Select musics with genres',
         multiple=True,
         default=default_genres,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--no-genres',
         help='Filter musics without genres',
         multiple=True,
         default=default_no_genres,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--min-duration',
         help='Minimum duration filter (hours:minutes:seconds)',
         default=default_min_duration,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--max-duration',
         help='Maximum duration filter (hours:minutes:seconds))',
         default=default_max_duration,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--min-size',
         help='Minimum file size filter (in bytes)',
         default=default_min_size,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--max-size',
         help='Maximum file size filter (in bytes)',
         default=default_max_size,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--min-rating',
         help='Minimum rating',
         default=default_min_rating,
@@ -308,7 +308,7 @@ options = [
         callback=sane_rating,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--max-rating',
         help='Maximum rating',
         default=default_max_rating,
@@ -316,14 +316,14 @@ options = [
         callback=sane_rating,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--relative',
         help='Generate relatives paths',
         default=default_relative,
         is_flag=True,
         is_eager=True,
     ),
-    click.option(
+    optgroup.option(
         '--shuffle',
         help='Randomize selection',
         default=default_shuffle,
@@ -344,7 +344,7 @@ def sane_filter(ctx, param, value):  # pylint: disable=unused-argument
 
 DEFAULT_FILTER = None
 mfilter_option = [
-    click.option(
+    optgroup.option(
         '--music-filter',
         help='Music Filter',
         expose_value=False,
@@ -352,4 +352,7 @@ mfilter_option = [
         hidden=True,
     )
 ]
-mfilter_options = mfilter_option + options
+mfilter_options =\
+    [optgroup.group('Filter options')] +\
+    mfilter_option +\
+    options

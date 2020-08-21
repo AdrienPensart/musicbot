@@ -18,7 +18,7 @@ def str2bool(val):
         return 1
     if val in ('n', 'no', 'f', 'false', 'off', '0'):
         return 0
-    raise ValueError("invalid truth value %r" % (val,))
+    raise ValueError(f"invalid truth value {val}")
 
 
 def bytes_to_human(b):
@@ -137,7 +137,7 @@ def duration_to_seconds(duration):
         return int(duration[:-1]) * 60
     if re.match(r'\d+h', duration):
         return int(duration[:-1]) * 3600
-    raise ValueError(duration)
+    raise ValueError(f"bad duration {duration}")
 
 
 def seconds_to_str(duration):

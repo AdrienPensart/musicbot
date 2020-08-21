@@ -4,8 +4,8 @@ import itertools
 import spotipy
 import click
 from prettytable import PrettyTable
+from click_option_group import optgroup
 from musicbot.config import config, check_file_writable, current_user
-# from musicbot.exceptions import FailedAuthentication
 
 logger = logging.getLogger(__name__)
 
@@ -86,72 +86,80 @@ def sane_spotify(ctx, param, value):  # pylint: disable=unused-argument
 
 DEFAULT_CACHE_PATH = '~/.spotify_cache'
 cache_path_option = [
-    click.option(
+    optgroup.option(
         '--cache-path',
         help='Spotify cache path',
         is_eager=True,
         default=DEFAULT_CACHE_PATH,
-        callback=config_string_spotify
+        callback=config_string_spotify,
     )
 ]
 
 DEFAULT_SCOPES = 'user-library-read,user-follow-read,user-top-read,playlist-read-private,user-modify-playback-state,user-read-currently-playing,user-read-playback-state'
 scopes_option = [
-    click.option(
+    optgroup.option(
         '--scopes',
         help='Spotify scopes',
         is_eager=True,
         default=DEFAULT_SCOPES,
-        callback=config_string_spotify
+        callback=config_string_spotify,
     )
 ]
 
 DEFAULT_REDIRECT_URI = 'http://localhost:8888/spotify/callback'
 redirect_uri_option = [
-    click.option(
+    optgroup.option(
         '--redirect-uri',
         help='Spotify redirect URI',
         is_eager=True,
         default=DEFAULT_REDIRECT_URI,
-        callback=config_string_spotify
+        callback=config_string_spotify,
     )
 ]
 
 username_option = [
-    click.option(
+    optgroup.option(
         '--username',
         help='Spotify username',
         is_eager=True,
-        callback=config_string_spotify
+        callback=config_string_spotify,
     )
 ]
 client_id_option = [
-    click.option(
+    optgroup.option(
         '--client-id',
         help='Spotify client ID',
         is_eager=True,
-        callback=config_string_spotify
+        callback=config_string_spotify,
     )
 ]
 client_secret_option = [
-    click.option(
+    optgroup.option(
         '--client-secret',
         help='Spotify client secret',
         is_eager=True,
-        callback=config_string_spotify
+        callback=config_string_spotify,
     )
 ]
 
 token_option = [
-    click.option(
+    optgroup.option(
         '--token',
         help='Spotify token',
         expose_value=False,
-        callback=sane_spotify
+        callback=sane_spotify,
     )
 ]
 
-spotify_options = username_option + client_id_option + client_secret_option + token_option + cache_path_option + scopes_option + redirect_uri_option
+spotify_options =\
+    [optgroup.group('Spotify options')] +\
+    username_option +\
+    client_id_option +\
+    client_secret_option +\
+    token_option +\
+    cache_path_option +\
+    scopes_option +\
+    redirect_uri_option
 
 
 class Spotify:
@@ -162,10 +170,6 @@ class Spotify:
         self.username = username
         self.client_id = client_id
         self.client_secret = client_secret
-
-        # if not self.username or not self.client_id or not self.client_secret:
-        #     raise FailedAuthentication("Missing username, client_id or client_secret")
-
         self.token = spotipy.util.prompt_for_user_token(
             client_id=self.client_id,
             client_secret=self.client_secret,

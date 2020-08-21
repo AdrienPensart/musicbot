@@ -6,6 +6,7 @@ import attr
 import click
 import colorlog
 from cached_property import cached_property
+from click_option_group import optgroup
 from . import lib
 
 
@@ -40,7 +41,7 @@ verbosities = {
 }
 
 config_option = [
-    click.option(
+    optgroup.option(
         '--config', '-c',
         help='Config file path',
         type=click.Path(),
@@ -51,7 +52,7 @@ config_option = [
 ]
 
 log_option = [
-    click.option(
+    optgroup.option(
         '--log', '-l',
         help='Log file path',
         type=click.Path(),
@@ -62,7 +63,7 @@ log_option = [
 ]
 
 info_option = [
-    click.option(
+    optgroup.option(
         '--info', '-i',
         help='Same as "--verbosity info"',
         envvar=MB_INFO,
@@ -73,7 +74,7 @@ info_option = [
 ]
 
 debug_option = [
-    click.option(
+    optgroup.option(
         '--debug', '-d',
         help='Be very verbose, same as "--verbosity debug" + hide progress bars',
         envvar=MB_DEBUG,
@@ -84,7 +85,7 @@ debug_option = [
 ]
 
 timings_option = [
-    click.option(
+    optgroup.option(
         '--timings', '-t',
         help='Set verbosity to info and show execution timings',
         envvar=MB_TIMINGS,
@@ -95,7 +96,7 @@ timings_option = [
 ]
 
 verbosity_option = [
-    click.option(
+    optgroup.option(
         '--verbosity', '-v',
         help='Verbosity levels',
         envvar=MB_VERBOSITY,
@@ -106,7 +107,7 @@ verbosity_option = [
 ]
 
 quiet_option = [
-    click.option(
+    optgroup.option(
         '--quiet', '-q',
         help='Disable progress bars',
         envvar=MB_QUIET,
@@ -116,7 +117,15 @@ quiet_option = [
     )
 ]
 
-options = config_option + log_option + info_option + debug_option + timings_option + verbosity_option + quiet_option
+options =\
+    [optgroup.group('Config options')] +\
+    config_option +\
+    log_option +\
+    info_option +\
+    debug_option +\
+    timings_option +\
+    verbosity_option +\
+    quiet_option
 
 
 def check_file_writable(fnm):

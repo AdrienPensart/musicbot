@@ -7,6 +7,7 @@ import spotipy
 import click_completion
 import click_completion.core
 from click.formatting import HelpFormatter
+from click_help_colors import version_option
 from mutagen import MutagenError
 from attrdict import AttrDict
 from musicbot import lib, helpers, config, exceptions, backtrace
@@ -24,8 +25,6 @@ from musicbot.commands.youtube import cli as youtube_cli
 HelpFormatter.write_dl.__defaults__ = (50, 2)
 backtrace.hook(reverse=False, align=True, strip_path=False, enable_on_envvar_only=False, on_tty=False, conservative=False, styles={})
 bin_folder = os.path.dirname(__file__)
-commands_folder = 'commands'
-plugin_folder = os.path.join(bin_folder, commands_folder)
 CONTEXT_SETTINGS = {
     'max_content_width': 140,
     'terminal_width': 140,
@@ -49,8 +48,17 @@ click_completion.init()
 prog_name = "musicbot"
 
 
-@click.group(cls=helpers.GroupWithHelp, context_settings=CONTEXT_SETTINGS, invoke_without_command=True)
-@click.version_option(__version__, "--version", "-V", prog_name=prog_name)
+@click.group(
+    cls=helpers.GroupWithHelp,
+    context_settings=CONTEXT_SETTINGS,
+)
+@version_option(
+    __version__,
+    "--version", "-V",
+    version_color='green',
+    prog_name=prog_name,
+    prog_name_color='yellow',
+)
 @helpers.add_options(config.options)
 @click.pass_context
 def cli(ctx, **kwargs):
@@ -79,7 +87,7 @@ def version():
 
        Equivalent : -V
     '''
-    print(f"{prog_name}, version {__version__}")
+    click.echo(f"{click.style(prog_name, fg='yellow')}, version {click.style(__version__, fg='green')}")
 
 
 def main(**kwargs):

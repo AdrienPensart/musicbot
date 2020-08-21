@@ -15,7 +15,6 @@ isort = {version = "^4.3",extras = ["pyproject"]}
 click = "^7.0"
 click-didyoumean = "^0.0.3"
 attrdict = "^2.0"
-attrs = "^19.1"
 isodate = "^0.6.0"
 logging-tree = "^1.8"
 psycopg2-binary = "^2.8"
@@ -42,6 +41,9 @@ pydub = "^0.24.0"
 python-dotenv = "^0.13.0"
 colorlog = "^4.1.0"
 enlighten = "^1.6.1"
+click-option-group = "^0.5.1"
+click-help-colors = "^0.8"
+attrs = "^20.1.0"
 
 [tool.poetry.dev-dependencies]
 pytest-cov = "^2.6"

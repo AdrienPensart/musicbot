@@ -8,17 +8,19 @@ import mutagen
 from pydub import AudioSegment
 from mutagen import MutagenError
 from mutagen.id3 import TXXX, TRCK, TIT2, TALB, TPE1, TCON, COMM
+from click_option_group import optgroup
 
 
 logger = logging.getLogger(__name__)
 options = [
-    click.option('--keywords', help='Keywords', default=None),
-    click.option('--artist', help='Artist', default=None),
-    click.option('--album', help='Album', default=None),
-    click.option('--title', help='Title', default=None),
-    click.option('--genre', help='Genre', default=None),
-    click.option('--number', help='Track number', default=None),
-    click.option('--rating', help='Rating', default=None),
+    optgroup.group('Music options'),
+    optgroup.option('--keywords', help='Keywords', default=None),
+    optgroup.option('--artist', help='Artist', default=None),
+    optgroup.option('--album', help='Album', default=None),
+    optgroup.option('--title', help='Title', default=None),
+    optgroup.option('--genre', help='Genre', default=None),
+    optgroup.option('--number', help='Track number', default=None),
+    optgroup.option('--rating', help='Rating', default=None),
 ]
 DEFAULT_CHECKS = [
     'no-title',
@@ -32,16 +34,27 @@ DEFAULT_CHECKS = [
     'invalid-path',
 ]
 path_argument = [
-    click.argument('path', type=click.Path(exists=True, dir_okay=False))
+    click.argument(
+        'path',
+        type=click.Path(exists=True, dir_okay=False)
+    ),
 ]
 folder_option = [
-    click.option('--folder', help="Destination folder", type=click.Path(exists=True, file_okay=False)),
+    click.option(
+        '--folder',
+        help="Destination folder",
+        type=click.Path(exists=True, file_okay=False)
+    ),
 ]
 folder_argument = [
-    click.argument('folder', type=click.Path(exists=True, file_okay=False)),
+    click.argument(
+        'folder',
+        type=click.Path(exists=True, file_okay=False)
+    ),
 ]
 checks_options = [
-    click.option(
+    optgroup.group('Check options'),
+    optgroup.option(
         '--checks',
         help='Consistency tests',
         multiple=True,
@@ -49,7 +62,11 @@ checks_options = [
         show_default=True,
         type=click.Choice(DEFAULT_CHECKS)
     ),
-    click.option('--fix', is_flag=True),
+    optgroup.option(
+        '--fix',
+        help="Fix musics",
+        is_flag=True
+    ),
 ]
 supported_formats = ["mp3", "flac"]
 

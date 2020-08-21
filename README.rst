@@ -91,14 +91,15 @@ Commands
 
   Options:
     -V, --version                                       Show the version and exit.
-    -c, --config PATH                                   Config file path  [default: ~/musicbot.ini]
-    -l, --log PATH                                      Log file path
-    -i, --info                                          Same as "--verbosity info"
-    -d, --debug                                         Be very verbose, same as "--verbosity debug" + hide progress bars  [default: False]
-    -t, --timings                                       Set verbosity to info and show execution timings  [default: False]
-    -v, --verbosity [debug|info|warning|error|critical]
+    Config options: 
+      -c, --config PATH                                 Config file path  [default: ~/musicbot.ini]
+      -l, --log PATH                                    Log file path
+      -i, --info                                        Same as "--verbosity info"
+      -d, --debug                                       Be very verbose, same as "--verbosity debug" + hide progress bars  [default: False]
+      -t, --timings                                     Set verbosity to info and show execution timings  [default: False]
+      -v, --verbosity [debug|info|warning|error|critical]
                                                         Verbosity levels  [default: warning]
-    -q, --quiet                                         Disable progress bars  [default: False]
+      -q, --quiet                                       Disable progress bars  [default: False]
     -h, --help                                          Show this message and exit.
 
   Commands:
@@ -200,11 +201,12 @@ musicbot folder inconsistencies
 
   Options:
     --dry                                               Take no real action  [default: False]
-    --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-comment|invalid-path]
+    Check options: 
+      --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-comment|invalid-path]
                                                         Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
                                                         tracknumber, invalid-title, invalid-comment, invalid-path]
 
-    --fix
+      --fix                                             Fix musics
     -h, --help                                          Show this message and exit.
 
 
@@ -272,40 +274,42 @@ musicbot local bests
     Generate bests playlists with some rules
 
   Options:
-    -e, --email TEXT        User email
-    -p, --password TEXT     User password
-    --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -t, --token TEXT        User token
-    --dry                   Take no real action  [default: False]
-    --name TEXT             Filter name
-    --limit INTEGER         Fetch a maximum limit of music
-    --youtubes TEXT         Select musics with a youtube link
-    --no-youtubes TEXT      Select musics without youtube link
-    --spotifys TEXT         Select musics with a spotifys link
-    --no-spotifys TEXT      Select musics without spotifys link
-    --formats TEXT          Select musics with file format
-    --no-formats TEXT       Filter musics without format
-    --keywords TEXT         Select musics with keywords
-    --no-keywords TEXT      Filter musics without keywords
-    --artists TEXT          Select musics with artists
-    --no-artists TEXT       Filter musics without artists
-    --albums TEXT           Select musics with albums
-    --no-albums TEXT        Filter musics without albums
-    --titles TEXT           Select musics with titles
-    --no-titles TEXT        Filter musics without titless
-    --genres TEXT           Select musics with genres
-    --no-genres TEXT        Filter musics without genres
-    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER      Minimum file size filter (in bytes)
-    --max-size INTEGER      Maximum file size filter (in bytes)
-    --min-rating FLOAT      Minimum rating  [default: 0.0]
-    --max-rating FLOAT      Maximum rating  [default: 5.0]
-    --relative              Generate relatives paths
-    --shuffle               Randomize selection
-    --prefix TEXT           Append prefix before each path (implies relative)
-    --suffix TEXT           Append this suffix to playlist name
-    -h, --help              Show this message and exit.
+    --prefix TEXT             Append prefix before each path (implies relative)
+    --suffix TEXT             Append this suffix to playlist name
+    --dry                     Take no real action  [default: False]
+    Auth options: 
+      -e, --email TEXT        User email
+      -p, --password TEXT     User password
+      --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT        User token
+    Filter options: 
+      --name TEXT             Filter name
+      --limit INTEGER         Fetch a maximum limit of music
+      --youtubes TEXT         Select musics with a youtube link
+      --no-youtubes TEXT      Select musics without youtube link
+      --spotifys TEXT         Select musics with a spotifys link
+      --no-spotifys TEXT      Select musics without spotifys link
+      --formats TEXT          Select musics with file format
+      --no-formats TEXT       Filter musics without format
+      --keywords TEXT         Select musics with keywords
+      --no-keywords TEXT      Filter musics without keywords
+      --artists TEXT          Select musics with artists
+      --no-artists TEXT       Filter musics without artists
+      --albums TEXT           Select musics with albums
+      --no-albums TEXT        Filter musics without albums
+      --titles TEXT           Select musics with titles
+      --no-titles TEXT        Filter musics without titless
+      --genres TEXT           Select musics with genres
+      --no-genres TEXT        Filter musics without genres
+      --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
+      --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
+      --min-size INTEGER      Minimum file size filter (in bytes)
+      --max-size INTEGER      Maximum file size filter (in bytes)
+      --min-rating FLOAT      Minimum rating  [default: 0.0]
+      --max-rating FLOAT      Maximum rating  [default: 5.0]
+      --relative              Generate relatives paths
+      --shuffle               Randomize selection
+    -h, --help                Show this message and exit.
 
 
 musicbot local clean
@@ -317,11 +321,12 @@ musicbot local clean
     Clean all musics
 
   Options:
-    -e, --email TEXT     User email
-    -p, --password TEXT  User password
-    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -t, --token TEXT     User token
-    -h, --help           Show this message and exit.
+    Auth options: 
+      -e, --email TEXT     User email
+      -p, --password TEXT  User password
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
+    -h, --help             Show this message and exit.
 
 
 musicbot local execute
@@ -333,11 +338,12 @@ musicbot local execute
     Raw query
 
   Options:
-    -e, --email TEXT     User email
-    -p, --password TEXT  User password
-    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -t, --token TEXT     User token
-    -h, --help           Show this message and exit.
+    Auth options: 
+      -e, --email TEXT     User email
+      -p, --password TEXT  User password
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
+    -h, --help             Show this message and exit.
 
 
 musicbot local filter
@@ -349,11 +355,12 @@ musicbot local filter
     Print a filter
 
   Options:
-    -e, --email TEXT       User email
-    -p, --password TEXT    User password
-    --graphql TEXT         GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -t, --token TEXT       User token
     --output [table|json]  Output format  [default: table]
+    Auth options: 
+      -e, --email TEXT     User email
+      -p, --password TEXT  User password
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 
 
@@ -366,11 +373,12 @@ musicbot local filters
     List filters
 
   Options:
-    -e, --email TEXT       User email
-    -p, --password TEXT    User password
-    --graphql TEXT         GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -t, --token TEXT       User token
     --output [table|json]  Output format  [default: table]
+    Auth options: 
+      -e, --email TEXT     User email
+      -p, --password TEXT  User password
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 
 
@@ -383,11 +391,12 @@ musicbot local find
     Just list music files
 
   Options:
-    -e, --email TEXT     User email
-    -p, --password TEXT  User password
-    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -t, --token TEXT     User token
-    -h, --help           Show this message and exit.
+    Auth options: 
+      -e, --email TEXT     User email
+      -p, --password TEXT  User password
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
+    -h, --help             Show this message and exit.
 
 
 musicbot local folders
@@ -399,11 +408,12 @@ musicbot local folders
     List folders
 
   Options:
-    -e, --email TEXT       User email
-    -p, --password TEXT    User password
-    --graphql TEXT         GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -t, --token TEXT       User token
     --output [table|json]  Output format  [default: table]
+    Auth options: 
+      -e, --email TEXT     User email
+      -p, --password TEXT  User password
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 
 
@@ -416,42 +426,45 @@ musicbot local inconsistencies
     Check music consistency
 
   Options:
-    -e, --email TEXT                                    User email
-    -p, --password TEXT                                 User password
-    --graphql TEXT                                      GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -t, --token TEXT                                    User token
-    --dry                                               Take no real action  [default: False]
-    --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-comment|invalid-path]
+    Check options: 
+      --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-comment|invalid-path]
                                                         Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
                                                         tracknumber, invalid-title, invalid-comment, invalid-path]
 
-    --fix
-    --name TEXT                                         Filter name
-    --limit INTEGER                                     Fetch a maximum limit of music
-    --youtubes TEXT                                     Select musics with a youtube link
-    --no-youtubes TEXT                                  Select musics without youtube link
-    --spotifys TEXT                                     Select musics with a spotifys link
-    --no-spotifys TEXT                                  Select musics without spotifys link
-    --formats TEXT                                      Select musics with file format
-    --no-formats TEXT                                   Filter musics without format
-    --keywords TEXT                                     Select musics with keywords
-    --no-keywords TEXT                                  Filter musics without keywords
-    --artists TEXT                                      Select musics with artists
-    --no-artists TEXT                                   Filter musics without artists
-    --albums TEXT                                       Select musics with albums
-    --no-albums TEXT                                    Filter musics without albums
-    --titles TEXT                                       Select musics with titles
-    --no-titles TEXT                                    Filter musics without titless
-    --genres TEXT                                       Select musics with genres
-    --no-genres TEXT                                    Filter musics without genres
-    --min-duration INTEGER                              Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER                              Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER                                  Minimum file size filter (in bytes)
-    --max-size INTEGER                                  Maximum file size filter (in bytes)
-    --min-rating FLOAT                                  Minimum rating  [default: 0.0]
-    --max-rating FLOAT                                  Maximum rating  [default: 5.0]
-    --relative                                          Generate relatives paths
-    --shuffle                                           Randomize selection
+      --fix                                             Fix musics
+    --dry                                               Take no real action  [default: False]
+    Auth options: 
+      -e, --email TEXT                                  User email
+      -p, --password TEXT                               User password
+      --graphql TEXT                                    GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT                                  User token
+    Filter options: 
+      --name TEXT                                       Filter name
+      --limit INTEGER                                   Fetch a maximum limit of music
+      --youtubes TEXT                                   Select musics with a youtube link
+      --no-youtubes TEXT                                Select musics without youtube link
+      --spotifys TEXT                                   Select musics with a spotifys link
+      --no-spotifys TEXT                                Select musics without spotifys link
+      --formats TEXT                                    Select musics with file format
+      --no-formats TEXT                                 Filter musics without format
+      --keywords TEXT                                   Select musics with keywords
+      --no-keywords TEXT                                Filter musics without keywords
+      --artists TEXT                                    Select musics with artists
+      --no-artists TEXT                                 Filter musics without artists
+      --albums TEXT                                     Select musics with albums
+      --no-albums TEXT                                  Filter musics without albums
+      --titles TEXT                                     Select musics with titles
+      --no-titles TEXT                                  Filter musics without titless
+      --genres TEXT                                     Select musics with genres
+      --no-genres TEXT                                  Filter musics without genres
+      --min-duration INTEGER                            Minimum duration filter (hours:minutes:seconds)
+      --max-duration INTEGER                            Maximum duration filter (hours:minutes:seconds))
+      --min-size INTEGER                                Minimum file size filter (in bytes)
+      --max-size INTEGER                                Maximum file size filter (in bytes)
+      --min-rating FLOAT                                Minimum rating  [default: 0.0]
+      --max-rating FLOAT                                Maximum rating  [default: 5.0]
+      --relative                                        Generate relatives paths
+      --shuffle                                         Randomize selection
     -h, --help                                          Show this message and exit.
 
 
@@ -464,11 +477,12 @@ musicbot local load-filters
     Load default filters
 
   Options:
-    -e, --email TEXT     User email
-    -p, --password TEXT  User password
-    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -t, --token TEXT     User token
-    -h, --help           Show this message and exit.
+    Auth options: 
+      -e, --email TEXT     User email
+      -p, --password TEXT  User password
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
+    -h, --help             Show this message and exit.
 
 
 musicbot local player
@@ -480,37 +494,39 @@ musicbot local player
     Music player
 
   Options:
-    -e, --email TEXT        User email
-    -p, --password TEXT     User password
-    --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -t, --token TEXT        User token
-    --name TEXT             Filter name
-    --limit INTEGER         Fetch a maximum limit of music
-    --youtubes TEXT         Select musics with a youtube link
-    --no-youtubes TEXT      Select musics without youtube link
-    --spotifys TEXT         Select musics with a spotifys link
-    --no-spotifys TEXT      Select musics without spotifys link
-    --formats TEXT          Select musics with file format
-    --no-formats TEXT       Filter musics without format
-    --keywords TEXT         Select musics with keywords
-    --no-keywords TEXT      Filter musics without keywords
-    --artists TEXT          Select musics with artists
-    --no-artists TEXT       Filter musics without artists
-    --albums TEXT           Select musics with albums
-    --no-albums TEXT        Filter musics without albums
-    --titles TEXT           Select musics with titles
-    --no-titles TEXT        Filter musics without titless
-    --genres TEXT           Select musics with genres
-    --no-genres TEXT        Filter musics without genres
-    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER      Minimum file size filter (in bytes)
-    --max-size INTEGER      Maximum file size filter (in bytes)
-    --min-rating FLOAT      Minimum rating  [default: 0.0]
-    --max-rating FLOAT      Maximum rating  [default: 5.0]
-    --relative              Generate relatives paths
-    --shuffle               Randomize selection
-    -h, --help              Show this message and exit.
+    Auth options: 
+      -e, --email TEXT        User email
+      -p, --password TEXT     User password
+      --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT        User token
+    Filter options: 
+      --name TEXT             Filter name
+      --limit INTEGER         Fetch a maximum limit of music
+      --youtubes TEXT         Select musics with a youtube link
+      --no-youtubes TEXT      Select musics without youtube link
+      --spotifys TEXT         Select musics with a spotifys link
+      --no-spotifys TEXT      Select musics without spotifys link
+      --formats TEXT          Select musics with file format
+      --no-formats TEXT       Filter musics without format
+      --keywords TEXT         Select musics with keywords
+      --no-keywords TEXT      Filter musics without keywords
+      --artists TEXT          Select musics with artists
+      --no-artists TEXT       Filter musics without artists
+      --albums TEXT           Select musics with albums
+      --no-albums TEXT        Filter musics without albums
+      --titles TEXT           Select musics with titles
+      --no-titles TEXT        Filter musics without titless
+      --genres TEXT           Select musics with genres
+      --no-genres TEXT        Filter musics without genres
+      --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
+      --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
+      --min-size INTEGER      Minimum file size filter (in bytes)
+      --max-size INTEGER      Maximum file size filter (in bytes)
+      --min-rating FLOAT      Minimum rating  [default: 0.0]
+      --max-rating FLOAT      Maximum rating  [default: 5.0]
+      --relative              Generate relatives paths
+      --shuffle               Randomize selection
+    -h, --help                Show this message and exit.
 
 
 musicbot local playlist
@@ -522,38 +538,40 @@ musicbot local playlist
     Generate a new playlist
 
   Options:
-    -e, --email TEXT           User email
-    -p, --password TEXT        User password
-    --graphql TEXT             GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -t, --token TEXT           User token
     --dry                      Take no real action  [default: False]
-    --name TEXT                Filter name
-    --limit INTEGER            Fetch a maximum limit of music
-    --youtubes TEXT            Select musics with a youtube link
-    --no-youtubes TEXT         Select musics without youtube link
-    --spotifys TEXT            Select musics with a spotifys link
-    --no-spotifys TEXT         Select musics without spotifys link
-    --formats TEXT             Select musics with file format
-    --no-formats TEXT          Filter musics without format
-    --keywords TEXT            Select musics with keywords
-    --no-keywords TEXT         Filter musics without keywords
-    --artists TEXT             Select musics with artists
-    --no-artists TEXT          Filter musics without artists
-    --albums TEXT              Select musics with albums
-    --no-albums TEXT           Filter musics without albums
-    --titles TEXT              Select musics with titles
-    --no-titles TEXT           Filter musics without titless
-    --genres TEXT              Select musics with genres
-    --no-genres TEXT           Filter musics without genres
-    --min-duration INTEGER     Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER     Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER         Minimum file size filter (in bytes)
-    --max-size INTEGER         Maximum file size filter (in bytes)
-    --min-rating FLOAT         Minimum rating  [default: 0.0]
-    --max-rating FLOAT         Maximum rating  [default: 5.0]
-    --relative                 Generate relatives paths
-    --shuffle                  Randomize selection
     --output [json|m3u|table]  Output format  [default: table]
+    Auth options: 
+      -e, --email TEXT         User email
+      -p, --password TEXT      User password
+      --graphql TEXT           GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT         User token
+    Filter options: 
+      --name TEXT              Filter name
+      --limit INTEGER          Fetch a maximum limit of music
+      --youtubes TEXT          Select musics with a youtube link
+      --no-youtubes TEXT       Select musics without youtube link
+      --spotifys TEXT          Select musics with a spotifys link
+      --no-spotifys TEXT       Select musics without spotifys link
+      --formats TEXT           Select musics with file format
+      --no-formats TEXT        Filter musics without format
+      --keywords TEXT          Select musics with keywords
+      --no-keywords TEXT       Filter musics without keywords
+      --artists TEXT           Select musics with artists
+      --no-artists TEXT        Filter musics without artists
+      --albums TEXT            Select musics with albums
+      --no-albums TEXT         Filter musics without albums
+      --titles TEXT            Select musics with titles
+      --no-titles TEXT         Filter musics without titless
+      --genres TEXT            Select musics with genres
+      --no-genres TEXT         Filter musics without genres
+      --min-duration INTEGER   Minimum duration filter (hours:minutes:seconds)
+      --max-duration INTEGER   Maximum duration filter (hours:minutes:seconds))
+      --min-size INTEGER       Minimum file size filter (in bytes)
+      --max-size INTEGER       Maximum file size filter (in bytes)
+      --min-rating FLOAT       Minimum rating  [default: 0.0]
+      --max-rating FLOAT       Maximum rating  [default: 5.0]
+      --relative               Generate relatives paths
+      --shuffle                Randomize selection
     -h, --help                 Show this message and exit.
 
 
@@ -566,11 +584,12 @@ musicbot local scan
     (re)Load musics
 
   Options:
-    -e, --email TEXT     User email
-    -p, --password TEXT  User password
-    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -t, --token TEXT     User token
-    -h, --help           Show this message and exit.
+    Auth options: 
+      -e, --email TEXT     User email
+      -p, --password TEXT  User password
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
+    -h, --help             Show this message and exit.
 
 
 musicbot local stats
@@ -582,38 +601,40 @@ musicbot local stats
     Generate some stats for music collection with filters
 
   Options:
-    -e, --email TEXT        User email
-    -p, --password TEXT     User password
-    --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -t, --token TEXT        User token
-    --output [table|json]   Output format  [default: table]
-    --name TEXT             Filter name
-    --limit INTEGER         Fetch a maximum limit of music
-    --youtubes TEXT         Select musics with a youtube link
-    --no-youtubes TEXT      Select musics without youtube link
-    --spotifys TEXT         Select musics with a spotifys link
-    --no-spotifys TEXT      Select musics without spotifys link
-    --formats TEXT          Select musics with file format
-    --no-formats TEXT       Filter musics without format
-    --keywords TEXT         Select musics with keywords
-    --no-keywords TEXT      Filter musics without keywords
-    --artists TEXT          Select musics with artists
-    --no-artists TEXT       Filter musics without artists
-    --albums TEXT           Select musics with albums
-    --no-albums TEXT        Filter musics without albums
-    --titles TEXT           Select musics with titles
-    --no-titles TEXT        Filter musics without titless
-    --genres TEXT           Select musics with genres
-    --no-genres TEXT        Filter musics without genres
-    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER      Minimum file size filter (in bytes)
-    --max-size INTEGER      Maximum file size filter (in bytes)
-    --min-rating FLOAT      Minimum rating  [default: 0.0]
-    --max-rating FLOAT      Maximum rating  [default: 5.0]
-    --relative              Generate relatives paths
-    --shuffle               Randomize selection
-    -h, --help              Show this message and exit.
+    --output [table|json]     Output format  [default: table]
+    Auth options: 
+      -e, --email TEXT        User email
+      -p, --password TEXT     User password
+      --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT        User token
+    Filter options: 
+      --name TEXT             Filter name
+      --limit INTEGER         Fetch a maximum limit of music
+      --youtubes TEXT         Select musics with a youtube link
+      --no-youtubes TEXT      Select musics without youtube link
+      --spotifys TEXT         Select musics with a spotifys link
+      --no-spotifys TEXT      Select musics without spotifys link
+      --formats TEXT          Select musics with file format
+      --no-formats TEXT       Filter musics without format
+      --keywords TEXT         Select musics with keywords
+      --no-keywords TEXT      Filter musics without keywords
+      --artists TEXT          Select musics with artists
+      --no-artists TEXT       Filter musics without artists
+      --albums TEXT           Select musics with albums
+      --no-albums TEXT        Filter musics without albums
+      --titles TEXT           Select musics with titles
+      --no-titles TEXT        Filter musics without titless
+      --genres TEXT           Select musics with genres
+      --no-genres TEXT        Filter musics without genres
+      --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
+      --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
+      --min-size INTEGER      Minimum file size filter (in bytes)
+      --max-size INTEGER      Maximum file size filter (in bytes)
+      --min-rating FLOAT      Minimum rating  [default: 0.0]
+      --max-rating FLOAT      Maximum rating  [default: 5.0]
+      --relative              Generate relatives paths
+      --shuffle               Randomize selection
+    -h, --help                Show this message and exit.
 
 
 musicbot local sync
@@ -625,38 +646,40 @@ musicbot local sync
     Copy selected musics with filters to destination folder
 
   Options:
-    -e, --email TEXT        User email
-    -p, --password TEXT     User password
-    --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -t, --token TEXT        User token
-    --dry                   Take no real action  [default: False]
-    --name TEXT             Filter name
-    --limit INTEGER         Fetch a maximum limit of music
-    --youtubes TEXT         Select musics with a youtube link
-    --no-youtubes TEXT      Select musics without youtube link
-    --spotifys TEXT         Select musics with a spotifys link
-    --no-spotifys TEXT      Select musics without spotifys link
-    --formats TEXT          Select musics with file format
-    --no-formats TEXT       Filter musics without format
-    --keywords TEXT         Select musics with keywords
-    --no-keywords TEXT      Filter musics without keywords
-    --artists TEXT          Select musics with artists
-    --no-artists TEXT       Filter musics without artists
-    --albums TEXT           Select musics with albums
-    --no-albums TEXT        Filter musics without albums
-    --titles TEXT           Select musics with titles
-    --no-titles TEXT        Filter musics without titless
-    --genres TEXT           Select musics with genres
-    --no-genres TEXT        Filter musics without genres
-    --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
-    --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-    --min-size INTEGER      Minimum file size filter (in bytes)
-    --max-size INTEGER      Maximum file size filter (in bytes)
-    --min-rating FLOAT      Minimum rating  [default: 0.0]
-    --max-rating FLOAT      Maximum rating  [default: 5.0]
-    --relative              Generate relatives paths
-    --shuffle               Randomize selection
-    -h, --help              Show this message and exit.
+    --dry                     Take no real action  [default: False]
+    Auth options: 
+      -e, --email TEXT        User email
+      -p, --password TEXT     User password
+      --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT        User token
+    Filter options: 
+      --name TEXT             Filter name
+      --limit INTEGER         Fetch a maximum limit of music
+      --youtubes TEXT         Select musics with a youtube link
+      --no-youtubes TEXT      Select musics without youtube link
+      --spotifys TEXT         Select musics with a spotifys link
+      --no-spotifys TEXT      Select musics without spotifys link
+      --formats TEXT          Select musics with file format
+      --no-formats TEXT       Filter musics without format
+      --keywords TEXT         Select musics with keywords
+      --no-keywords TEXT      Filter musics without keywords
+      --artists TEXT          Select musics with artists
+      --no-artists TEXT       Filter musics without artists
+      --albums TEXT           Select musics with albums
+      --no-albums TEXT        Filter musics without albums
+      --titles TEXT           Select musics with titles
+      --no-titles TEXT        Filter musics without titless
+      --genres TEXT           Select musics with genres
+      --no-genres TEXT        Filter musics without genres
+      --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
+      --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
+      --min-size INTEGER      Minimum file size filter (in bytes)
+      --max-size INTEGER      Maximum file size filter (in bytes)
+      --min-rating FLOAT      Minimum rating  [default: 0.0]
+      --max-rating FLOAT      Maximum rating  [default: 5.0]
+      --relative              Generate relatives paths
+      --shuffle               Randomize selection
+    -h, --help                Show this message and exit.
 
 
 musicbot local watch
@@ -668,11 +691,12 @@ musicbot local watch
     Watch files changes in folders
 
   Options:
-    -e, --email TEXT     User email
-    -p, --password TEXT  User password
-    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -t, --token TEXT     User token
-    -h, --help           Show this message and exit.
+    Auth options: 
+      -e, --email TEXT     User email
+      -p, --password TEXT  User password
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
+    -h, --help             Show this message and exit.
 
 
 musicbot music
@@ -733,11 +757,12 @@ musicbot music inconsistencies
   Options:
     --folder DIRECTORY                                  Destination folder
     --dry                                               Take no real action  [default: False]
-    --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-comment|invalid-path]
+    Check options: 
+      --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-comment|invalid-path]
                                                         Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
                                                         tracknumber, invalid-title, invalid-comment, invalid-path]
 
-    --fix
+      --fix                                             Fix musics
     -h, --help                                          Show this message and exit.
 
 
@@ -750,14 +775,15 @@ musicbot music set-tags
     Set music title
 
   Options:
-    --keywords TEXT  Keywords
-    --artist TEXT    Artist
-    --album TEXT     Album
-    --title TEXT     Title
-    --genre TEXT     Genre
-    --number TEXT    Track number
-    --rating TEXT    Rating
-    -h, --help       Show this message and exit.
+    Music options: 
+      --keywords TEXT  Keywords
+      --artist TEXT    Artist
+      --album TEXT     Album
+      --title TEXT     Title
+      --genre TEXT     Genre
+      --number TEXT    Track number
+      --rating TEXT    Rating
+    -h, --help         Show this message and exit.
 
 
 musicbot music tags
@@ -800,18 +826,20 @@ musicbot spotify diff
     Diff between local and spotify
 
   Options:
-    -e, --email TEXT      User email
-    -p, --password TEXT   User password
-    --graphql TEXT        GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -t, --token TEXT      User token
-    --username TEXT       Spotify username
-    --client-id TEXT      Spotify client ID
-    --client-secret TEXT  Spotify client secret
-    --token TEXT          Spotify token
-    --cache-path TEXT     Spotify cache path
-    --scopes TEXT         Spotify scopes
-    --redirect-uri TEXT   Spotify redirect URI
-    -h, --help            Show this message and exit.
+    Auth options: 
+      -e, --email TEXT      User email
+      -p, --password TEXT   User password
+      --graphql TEXT        GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT      User token
+    Spotify options: 
+      --username TEXT       Spotify username
+      --client-id TEXT      Spotify client ID
+      --client-secret TEXT  Spotify client secret
+      --token TEXT          Spotify token
+      --cache-path TEXT     Spotify cache path
+      --scopes TEXT         Spotify scopes
+      --redirect-uri TEXT   Spotify redirect URI
+    -h, --help              Show this message and exit.
 
 
 musicbot spotify playlist
@@ -823,14 +851,15 @@ musicbot spotify playlist
     Show playlist
 
   Options:
-    --username TEXT       Spotify username
-    --client-id TEXT      Spotify client ID
-    --client-secret TEXT  Spotify client secret
-    --token TEXT          Spotify token
-    --cache-path TEXT     Spotify cache path
-    --scopes TEXT         Spotify scopes
-    --redirect-uri TEXT   Spotify redirect URI
-    -h, --help            Show this message and exit.
+    Spotify options: 
+      --username TEXT       Spotify username
+      --client-id TEXT      Spotify client ID
+      --client-secret TEXT  Spotify client secret
+      --token TEXT          Spotify token
+      --cache-path TEXT     Spotify cache path
+      --scopes TEXT         Spotify scopes
+      --redirect-uri TEXT   Spotify redirect URI
+    -h, --help              Show this message and exit.
 
 
 musicbot spotify playlists
@@ -842,14 +871,15 @@ musicbot spotify playlists
     List playlists
 
   Options:
-    --username TEXT       Spotify username
-    --client-id TEXT      Spotify client ID
-    --client-secret TEXT  Spotify client secret
-    --token TEXT          Spotify token
-    --cache-path TEXT     Spotify cache path
-    --scopes TEXT         Spotify scopes
-    --redirect-uri TEXT   Spotify redirect URI
-    -h, --help            Show this message and exit.
+    Spotify options: 
+      --username TEXT       Spotify username
+      --client-id TEXT      Spotify client ID
+      --client-secret TEXT  Spotify client secret
+      --token TEXT          Spotify token
+      --cache-path TEXT     Spotify cache path
+      --scopes TEXT         Spotify scopes
+      --redirect-uri TEXT   Spotify redirect URI
+    -h, --help              Show this message and exit.
 
 
 musicbot spotify tracks
@@ -861,15 +891,16 @@ musicbot spotify tracks
     Show tracks
 
   Options:
-    --username TEXT        Spotify username
-    --client-id TEXT       Spotify client ID
-    --client-secret TEXT   Spotify client secret
-    --token TEXT           Spotify token
-    --cache-path TEXT      Spotify cache path
-    --scopes TEXT          Spotify scopes
-    --redirect-uri TEXT    Spotify redirect URI
-    --output [table|json]  Output format  [default: table]
-    -h, --help             Show this message and exit.
+    Spotify options: 
+      --username TEXT       Spotify username
+      --client-id TEXT      Spotify client ID
+      --client-secret TEXT  Spotify client secret
+      --token TEXT          Spotify token
+      --cache-path TEXT     Spotify cache path
+      --scopes TEXT         Spotify scopes
+      --redirect-uri TEXT   Spotify redirect URI
+    --output [table|json]   Output format  [default: table]
+    -h, --help              Show this message and exit.
 
 
 musicbot user
@@ -914,11 +945,12 @@ musicbot user login
     Authenticate user
 
   Options:
-    -e, --email TEXT     User email
-    -p, --password TEXT  User password
-    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -s, --save           Save to config file  [default: False]
-    -h, --help           Show this message and exit.
+    -s, --save             Save to config file  [default: False]
+    User options: 
+      -e, --email TEXT     User email
+      -p, --password TEXT  User password
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -h, --help             Show this message and exit.
 
 
 musicbot user register
@@ -930,13 +962,14 @@ musicbot user register
     Register a new user
 
   Options:
-    -e, --email TEXT     User email
-    -p, --password TEXT  User password
-    --first-name TEXT    User first name
-    --last-name TEXT     User last name
-    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -s, --save           Save to config file  [default: False]
-    -h, --help           Show this message and exit.
+    -s, --save             Save to config file  [default: False]
+    Register options: 
+      -e, --email TEXT     User email
+      -p, --password TEXT  User password
+      --first-name TEXT    User first name
+      --last-name TEXT     User last name
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+    -h, --help             Show this message and exit.
 
 
 musicbot user unregister
@@ -948,11 +981,12 @@ musicbot user unregister
     Remove a user
 
   Options:
-    -e, --email TEXT     User email
-    -p, --password TEXT  User password
-    --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-    -t, --token TEXT     User token
-    -h, --help           Show this message and exit.
+    Auth options: 
+      -e, --email TEXT     User email
+      -p, --password TEXT  User password
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
+    -h, --help             Show this message and exit.
 
 
 musicbot version
