@@ -11,10 +11,41 @@ from click_aliases import ClickAliasedGroup
 
 logger = logging.getLogger(__name__)
 
+
 class ExpandedPath(click.Path):
-    def convert(self, value, *args, **kwargs):
+    def convert(self, value, param, ctx):
         value = os.path.expanduser(value)
-        return super().convert(value, *args, **kwargs)
+        is_dash = self.file_okay and self.allow_dash and value in (b"-", "-")
+        if is_dash:
+            return self.coerce_path_result(value)
+
+        if self.resolve_path:
+            value = os.path.realpath(value)
+
+        real_exists = os.path.exists(value)
+        if self.exists and not real_exists:
+            self.fail(f"{self.path_type} {value} does not exist.", param, ctx)
+
+        if not self.file_okay and os.path.isfile(value):
+            self.fail(f"{self.path_type} {value} is a file.", param, ctx)
+
+        if not self.dir_okay and os.path.isdir(value):
+            self.fail(f"{self.path_type} {value} is a directory.", param, ctx)
+
+        if self.writable and not os.access(value, os.W_OK):
+            pdir = os.path.dirname(value)
+            if not pdir:
+                pdir = '.'
+            if not os.access(pdir, os.W_OK):
+                self.fail(f"{self.path_type} {value} is not writable.", param, ctx)
+
+        if self.readable and not os.access(value, os.R_OK):
+            if not pdir:
+                pdir = '.'
+            if not os.access(pdir, os.R_OK):
+                self.fail(f"{self.path_type} {value} is not readable.", param, ctx)
+
+        return self.coerce_path_result(value)
 
 
 class AdvancedGroup(DYMGroup, ClickAliasedGroup, HelpColorsGroup):

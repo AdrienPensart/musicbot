@@ -17,6 +17,17 @@ def show():
     print(config)
 
 
+@cli.command(help='Write in global config')
+@click.argument('section')
+@click.argument('key')
+@click.argument('value')
+def write(section, key, value):
+    if not config.configfile.has_section(section):
+        config.configfile.add_section(section)
+    config.configfile[section][key] = value
+    config.write()
+
+
 @cli.command('print', help='Print config file')
 def _print():
     for each_section in config.configfile.sections():

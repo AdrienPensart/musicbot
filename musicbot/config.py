@@ -38,17 +38,17 @@ verbosities = {
     'info': logging.INFO,
     'warning': logging.WARNING,
     'error': logging.ERROR,
-    'critical': logging.CRITICAL
+    'critical': logging.CRITICAL,
 }
 
 config_option = [
     optgroup.option(
         '--config', '-c',
         help='Config file path',
-        type=ExpandedPath(),
+        type=ExpandedPath(writable=True, dir_okay=False),
         envvar=MB_CONFIG,
         default=DEFAULT_CONFIG,
-        show_default=True
+        show_default=True,
     )
 ]
 
@@ -56,10 +56,10 @@ log_option = [
     optgroup.option(
         '--log', '-l',
         help='Log file path',
-        type=click.Path(),
+        type=ExpandedPath(writable=True, dir_okay=False),
         envvar=MB_LOG,
         default=DEFAULT_LOG,
-        show_default=True
+        show_default=True,
     )
 ]
 
@@ -70,7 +70,7 @@ info_option = [
         envvar=MB_INFO,
         default=DEFAULT_INFO,
         is_flag=True,
-        show_default=False
+        show_default=False,
     )
 ]
 
@@ -81,7 +81,7 @@ debug_option = [
         envvar=MB_DEBUG,
         default=DEFAULT_DEBUG,
         is_flag=True,
-        show_default=True
+        show_default=True,
     )
 ]
 
@@ -92,7 +92,7 @@ timings_option = [
         envvar=MB_TIMINGS,
         default=DEFAULT_TIMINGS,
         is_flag=True,
-        show_default=True
+        show_default=True,
     )
 ]
 
@@ -103,7 +103,7 @@ verbosity_option = [
         envvar=MB_VERBOSITY,
         default=DEFAULT_VERBOSITY,
         type=click.Choice(verbosities.keys()),
-        show_default=True
+        show_default=True,
     )
 ]
 
@@ -114,7 +114,7 @@ quiet_option = [
         envvar=MB_QUIET,
         default=DEFAULT_QUIET,
         is_flag=True,
-        show_default=True
+        show_default=True,
     )
 ]
 
@@ -127,17 +127,6 @@ options =\
     timings_option +\
     verbosity_option +\
     quiet_option
-
-
-def check_file_writable(fnm):
-    if os.path.exists(fnm):
-        if os.path.isfile(fnm):
-            return os.access(fnm, os.W_OK)
-        return False
-    pdir = os.path.dirname(fnm)
-    if not pdir:
-        pdir = '.'
-    return os.access(pdir, os.W_OK)
 
 
 @attr.s
@@ -154,14 +143,7 @@ class Config:
 
     def set(self, config=None, debug=None, info=None, timings=None, quiet=None, verbosity=None, log=None):
         self.config = config if config is not None else os.getenv(MB_CONFIG, DEFAULT_CONFIG)
-        self.config = os.path.expanduser(self.config)
-        if not check_file_writable(self.config):
-            logger.warning(f'No permission to write to {self.config} for current user {current_user}')
-
         self.log = log if log is not None else os.getenv(MB_LOG, DEFAULT_LOG)
-        if self.log:
-            self.log = os.path.expanduser(self.log)
-
         self.quiet = quiet if quiet is not None else lib.str2bool(os.getenv(MB_QUIET, str(DEFAULT_QUIET)))
         self.debug = debug if debug is not None else lib.str2bool(os.getenv(MB_DEBUG, str(DEFAULT_DEBUG)))
         self.info = info if info is not None else lib.str2bool(os.getenv(MB_INFO, str(DEFAULT_INFO)))
@@ -195,22 +177,19 @@ class Config:
         root_logger.addHandler(handler)
 
         if self.log is not None:
-            if check_file_writable(self.log):
-                fh = logging.FileHandler(self.log)
-                fh.setLevel(logging.DEBUG)
-                logging.getLogger().addHandler(fh)
-            else:
-                logger.warning(f'No permission to write to {self.log} for current user {current_user}')
+            fh = logging.FileHandler(self.log)
+            fh.setLevel(logging.DEBUG)
+            logging.getLogger().addHandler(fh)
         logger.debug(self)
 
     @cached_property
     def configfile(self):
         file = configparser.ConfigParser()
         file.read(self.config)
-        if 'musicbot' not in file:
-            logger.warning(f'[musicbot] section is not present in {self.config}')
-        if 'spotify' not in file:
-            logger.warning(f'spotify section not present in {self.config}')
+        valid_sections = ('musicbot', 'spotify')
+        for section in valid_sections:
+            if section not in file:
+                logger.warning(f'[{section}] section is not present in {self.config}')
         return file
 
     def write(self):

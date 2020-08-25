@@ -76,21 +76,15 @@ graphql_option = [
 
 
 def sane_user(ctx, param, value):  # pylint: disable=unused-argument
-    email = ctx.params['email']
-    ctx.params.pop('email')
-
-    password = ctx.params['password']
-    ctx.params.pop('password')
-
-    graphql = ctx.params['graphql']
-    ctx.params.pop('graphql')
+    kwargs = {}
+    for field in ('email', 'password', 'graphql'):
+        kwargs[field] = ctx.params[field]
+        ctx.params.pop(field)
 
     token = value
     ctx.params['user'] = User(
-        email=email,
-        password=password,
-        graphql=graphql,
         token=token,
+        **kwargs,
     )
     return ctx.params['user']
 

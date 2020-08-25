@@ -5,7 +5,8 @@ import spotipy
 import click
 from prettytable import PrettyTable
 from click_option_group import optgroup
-from musicbot.config import config, check_file_writable, current_user
+from musicbot.config import config
+from .click_helpers import ExpandedPath
 
 logger = logging.getLogger(__name__)
 
@@ -52,35 +53,12 @@ def config_string_spotify(ctx, param, arg_value):  # pylint: disable=unused-argu
 
 
 def sane_spotify(ctx, param, value):  # pylint: disable=unused-argument
-    username = ctx.params['username']
-    ctx.params.pop('username')
+    kwargs = {}
+    for field in ('username', 'client_id', 'client_secret', 'cache_path', 'redirect_uri', 'scopes'):
+        kwargs[field] = ctx.params[field]
+        ctx.params.pop(field)
 
-    client_id = ctx.params['client_id']
-    ctx.params.pop('client_id')
-
-    client_secret = ctx.params['client_secret']
-    ctx.params.pop('client_secret')
-
-    cache_path = ctx.params['cache_path']
-    ctx.params.pop('cache_path')
-    cache_path = os.path.expanduser(cache_path)
-    if not check_file_writable(cache_path):
-        logger.warning(f'No permission to write to {cache_path} for current user {current_user}')
-
-    redirect_uri = ctx.params['redirect_uri']
-    ctx.params.pop('redirect_uri')
-
-    scopes = ctx.params['scopes']
-    ctx.params.pop('scopes')
-
-    ctx.params['spotify'] = Spotify(
-        username=username,
-        client_id=client_id,
-        client_secret=client_secret,
-        cache_path=cache_path,
-        redirect_uri=redirect_uri,
-        scopes=scopes,
-    )
+    ctx.params['spotify'] = Spotify(**kwargs)
     return ctx.params['spotify']
 
 
@@ -90,6 +68,7 @@ cache_path_option = [
         '--cache-path',
         help='Spotify cache path',
         is_eager=True,
+        type=ExpandedPath(writable=True, readable=True, dir_okay=False),
         default=DEFAULT_CACHE_PATH,
         callback=config_string_spotify,
     )

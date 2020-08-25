@@ -92,8 +92,8 @@ Commands
   Options:
     -V, --version                                       Show the version and exit.
     Config options: 
-      -c, --config PATH                                 Config file path  [default: ~/musicbot.ini]
-      -l, --log PATH                                    Log file path
+      -c, --config FILE                                 Config file path  [default: ~/musicbot.ini]
+      -l, --log FILE                                    Log file path
       -i, --info                                        Same as "--verbosity info"
       -d, --debug                                       Be very verbose, same as "--verbosity debug" + hide progress bars  [default: False]
       -t, --timings                                     Set verbosity to info and show execution timings  [default: False]
@@ -836,7 +836,7 @@ musicbot spotify diff
       --client-id TEXT      Spotify client ID
       --client-secret TEXT  Spotify client secret
       --token TEXT          Spotify token
-      --cache-path TEXT     Spotify cache path
+      --cache-path FILE     Spotify cache path
       --scopes TEXT         Spotify scopes
       --redirect-uri TEXT   Spotify redirect URI
     -h, --help              Show this message and exit.
@@ -856,7 +856,7 @@ musicbot spotify playlist
       --client-id TEXT      Spotify client ID
       --client-secret TEXT  Spotify client secret
       --token TEXT          Spotify token
-      --cache-path TEXT     Spotify cache path
+      --cache-path FILE     Spotify cache path
       --scopes TEXT         Spotify scopes
       --redirect-uri TEXT   Spotify redirect URI
     -h, --help              Show this message and exit.
@@ -876,7 +876,7 @@ musicbot spotify playlists
       --client-id TEXT      Spotify client ID
       --client-secret TEXT  Spotify client secret
       --token TEXT          Spotify token
-      --cache-path TEXT     Spotify cache path
+      --cache-path FILE     Spotify cache path
       --scopes TEXT         Spotify scopes
       --redirect-uri TEXT   Spotify redirect URI
     -h, --help              Show this message and exit.
@@ -896,7 +896,7 @@ musicbot spotify tracks
       --client-id TEXT      Spotify client ID
       --client-secret TEXT  Spotify client secret
       --token TEXT          Spotify token
-      --cache-path TEXT     Spotify cache path
+      --cache-path FILE     Spotify cache path
       --scopes TEXT         Spotify scopes
       --redirect-uri TEXT   Spotify redirect URI
     --output [table|json]   Output format  [default: table]
