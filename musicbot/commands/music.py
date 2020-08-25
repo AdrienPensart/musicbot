@@ -3,19 +3,20 @@ import click
 from prettytable import PrettyTable
 from mutagen import MutagenError
 from musicbot import helpers
+from musicbot.click_helpers import AdvancedGroup, add_options
 from musicbot.music.file import File, path_argument, folder_option, options, checks_options
 from musicbot.music.fingerprint import acoustid_api_key_option
 
 logger = logging.getLogger(__name__)
 
 
-@click.group(help='Music file', cls=helpers.GroupWithHelp)
+@click.group(help='Music file', cls=AdvancedGroup)
 def cli():
     pass
 
 
 @cli.command(help='Convert flac music to mp3')
-@helpers.add_options(
+@add_options(
     path_argument +
     folder_option +
     helpers.dry_option
@@ -26,7 +27,7 @@ def flac2mp3(path, folder, dry):
 
 
 @cli.command(help='Print music fingerprint')
-@helpers.add_options(
+@add_options(
     path_argument +
     acoustid_api_key_option
 )
@@ -36,7 +37,7 @@ def fingerprint(path, acoustid_api_key):
 
 
 @cli.command(help='Print music tags')
-@helpers.add_options(
+@add_options(
     path_argument
 )
 def tags(path):
@@ -46,7 +47,7 @@ def tags(path):
 
 
 @cli.command(aliases=['consistency'], help='Check music consistency')
-@helpers.add_options(
+@add_options(
     folder_option +
     path_argument +
     helpers.dry_option +
@@ -67,7 +68,7 @@ def inconsistencies(path, folder, fix, **kwargs):
 
 
 @cli.command(help='Set music title')
-@helpers.add_options(
+@add_options(
     path_argument +
     options
 )

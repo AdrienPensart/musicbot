@@ -4,14 +4,14 @@ import click
 import acoustid
 import youtube_dl
 from humanfriendly import format_timespan
-from musicbot import helpers
+from musicbot.click_helpers import AdvancedGroup, add_options
 from musicbot.music.file import File, path_argument
 from musicbot.music.fingerprint import acoustid_api_key_option
 
 logger = logging.getLogger(__name__)
 
 
-@click.group(help='Youtube tool', cls=helpers.GroupWithHelp)
+@click.group(help='Youtube tool', cls=AdvancedGroup)
 def cli():
     pass
 
@@ -62,7 +62,7 @@ def download(artist, title, path):
 
 
 @cli.command(help='Search a youtube link with artist and title')
-@helpers.add_options(
+@add_options(
     path_argument +
     acoustid_api_key_option
 )
@@ -115,7 +115,7 @@ def find(path, acoustid_api_key):
 
 @cli.command(help='Fingerprint a youtube video')
 @click.argument('url')
-@helpers.add_options(acoustid_api_key_option)
+@add_options(acoustid_api_key_option)
 def fingerprint(url, acoustid_api_key):
     yt_path = "intermediate.mp3"
     ydl_opts = {

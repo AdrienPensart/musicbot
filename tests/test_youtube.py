@@ -1,8 +1,8 @@
 import os
 import pytest
 from musicbot.cli import cli
+from musicbot.click_helpers import run_cli
 from . import fixtures
-from .conftest import run_cli
 
 
 @pytest.mark.runner_setup(mix_stderr=False)

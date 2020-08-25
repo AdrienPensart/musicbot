@@ -2,8 +2,8 @@ import logging
 import pytest
 from musicbot import __version__
 from musicbot.cli import cli
+from musicbot.click_helpers import run_cli
 from musicbot.helpers import strip_colors
-from .conftest import run_cli
 
 logger = logging.getLogger(__name__)
 

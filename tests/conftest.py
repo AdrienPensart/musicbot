@@ -1,9 +1,9 @@
 import socket
 import time
-import traceback
 import logging
 import pytest
-from musicbot.cli import cli, prog_name
+from musicbot.cli import cli
+from musicbot.click_helpers import run_cli
 from musicbot.helpers import genfiles
 from musicbot.user import User, FailedAuthentication
 from . import fixtures
@@ -27,18 +27,6 @@ def wait_for_service(service, timeout=60):
             time.sleep(0.01)
             if time.perf_counter() - start_time >= timeout:
                 raise TimeoutError(f'Waited too long for the port {service.host_port} on host {service.hostname} to start accepting connections.') from ex
-
-
-def run_cli(cli_runner, called_cli, *args):
-    if args:
-        elems = ' '.join(str(elem) for elem in args)
-        logger.debug(f'Invoking : {prog_name} {elems}')
-    result = cli_runner.invoke(called_cli, *args)
-    logger.debug(result.output)
-    if result.exception:
-        traceback.print_exception(*result.exc_info)
-    assert result.exit_code == 0
-    return result.output.rstrip()
 
 
 @pytest.fixture

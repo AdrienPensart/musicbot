@@ -3,32 +3,33 @@ import json
 import click
 from slugify import slugify
 from musicbot import helpers
+from musicbot.click_helpers import AdvancedGroup, add_options
 from musicbot.spotify import spotify_options
 from musicbot.user import auth_options
 
 logger = logging.getLogger(__name__)
 
 
-@click.group(help='Spotify tool', cls=helpers.GroupWithHelp)
+@click.group(help='Spotify tool', cls=AdvancedGroup)
 def cli():
     pass
 
 
 @cli.command(help='List playlists')
-@helpers.add_options(spotify_options)
+@add_options(spotify_options)
 def playlists(spotify):
     spotify.print_playlists()
 
 
 @cli.command(help='Show playlist')
-@helpers.add_options(spotify_options)
+@add_options(spotify_options)
 @click.argument("name")
 def playlist(name, spotify):
     spotify.print_tracks(name)
 
 
 @cli.command(help='Show tracks')
-@helpers.add_options(
+@add_options(
     spotify_options +
     helpers.output_option
 )
@@ -48,7 +49,7 @@ def tracks(spotify, output):
 
 
 @cli.command(help='Diff between local and spotify')
-@helpers.add_options(auth_options + spotify_options)
+@add_options(auth_options + spotify_options)
 def diff(user, spotify):
     spotify_tracks = spotify.tracks()
     spotify_tracks = [

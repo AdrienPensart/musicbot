@@ -7,9 +7,6 @@ import random
 import functools
 import enlighten
 import click
-from click_help_colors import HelpColorsGroup
-from click_didyoumean import DYMGroup
-from click_aliases import ClickAliasedGroup
 from .config import config
 from .lib import seconds_to_human, find_files, filecount
 from .music.file import File, supported_formats
@@ -84,26 +81,6 @@ def random_password(size=8):
     return ''.join(random.choice(alphabet) for i in range(size))
 
 
-class GroupWithHelp(DYMGroup, ClickAliasedGroup, HelpColorsGroup):
-    def __init__(self, *args, **kwargs):
-        kwargs['help_headers_color'] = 'yellow'
-        kwargs['help_options_color'] = 'green'
-        super().__init__(*args, **kwargs)
-
-        @click.command('help')
-        @click.argument('command', required=False)
-        @click.pass_context
-        def _help(ctx, command):
-            '''Print help'''
-            if command:
-                argument = command[0]
-                c = self.get_command(ctx, argument)
-                print(c.get_help(ctx))
-            else:
-                print(ctx.parent.get_help())
-        self.add_command(_help)
-
-
 def timeit(f):
     @functools.wraps(f)
     def wrapper(*args, **params):
@@ -114,14 +91,6 @@ def timeit(f):
             logger.info(f'TIMINGS {f.__name__}: {for_human}')
         return result
     return wrapper
-
-
-def add_options(options):
-    def _add_options(func):
-        for option in reversed(options):
-            func = option(func)
-        return func
-    return _add_options
 
 
 def config_string(ctx, param, value):

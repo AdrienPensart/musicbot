@@ -36,20 +36,20 @@ DEFAULT_CHECKS = [
 path_argument = [
     click.argument(
         'path',
-        type=click.Path(exists=True, dir_okay=False)
+        type=click.Path(exists=True, dir_okay=False),
     ),
 ]
 folder_option = [
     click.option(
         '--folder',
         help="Destination folder",
-        type=click.Path(exists=True, file_okay=False)
+        type=click.Path(exists=True, file_okay=False),
     ),
 ]
 folder_argument = [
     click.argument(
         'folder',
-        type=click.Path(exists=True, file_okay=False)
+        type=click.Path(exists=True, file_okay=False),
     ),
 ]
 checks_options = [
@@ -60,12 +60,12 @@ checks_options = [
         multiple=True,
         default=DEFAULT_CHECKS,
         show_default=True,
-        type=click.Choice(DEFAULT_CHECKS)
+        type=click.Choice(DEFAULT_CHECKS),
     ),
     optgroup.option(
         '--fix',
         help="Fix musics",
-        is_flag=True
+        is_flag=True,
     ),
 ]
 supported_formats = ["mp3", "flac"]

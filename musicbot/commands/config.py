@@ -1,13 +1,13 @@
 import logging
 import click
 from logging_tree import printout
-from musicbot import helpers
+from musicbot.click_helpers import AdvancedGroup
 from musicbot.config import config
 
 logger = logging.getLogger('musicbot')
 
 
-@click.group(hidden=True, help='Config management', cls=helpers.GroupWithHelp)
+@click.group(hidden=True, help='Config management', cls=AdvancedGroup)
 def cli():
     pass
 

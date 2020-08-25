@@ -1,7 +1,7 @@
 import json
 import pytest
 from musicbot.cli import cli
-from .conftest import run_cli
+from musicbot.click_helpers import run_cli
 from . import fixtures
 
 

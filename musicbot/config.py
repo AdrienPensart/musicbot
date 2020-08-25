@@ -8,6 +8,7 @@ import colorlog
 from cached_property import cached_property
 from click_option_group import optgroup
 from . import lib
+from .click_helpers import ExpandedPath
 
 
 logger = logging.getLogger(__name__)
@@ -44,7 +45,7 @@ config_option = [
     optgroup.option(
         '--config', '-c',
         help='Config file path',
-        type=click.Path(),
+        type=ExpandedPath(),
         envvar=MB_CONFIG,
         default=DEFAULT_CONFIG,
         show_default=True

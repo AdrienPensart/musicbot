@@ -2,7 +2,7 @@ ansicon==1.89.0; platform_system == "Windows"
 attrdict==2.0.1
 attrs==20.1.0
 audioread==2.1.8
-blessed==1.17.9
+blessed==1.17.10
 cached-property==1.5.1
 certifi==2020.6.20
 chardet==3.0.4
@@ -11,11 +11,10 @@ click-aliases==1.0.1
 click-completion==0.5.2
 click-didyoumean==0.0.3
 click-help-colors==0.8
-click-man==0.4.1
 click-option-group==0.5.1
 colorama==0.4.3
 colorlog==4.2.1
-enlighten==1.6.1
+enlighten==1.6.2
 feedparser==5.2.1
 flask==1.1.2
 graphql-py==0.7.1

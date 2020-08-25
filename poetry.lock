@@ -113,7 +113,7 @@ description = "Easy, practical library for making terminal apps, by providing an
 name = "blessed"
 optional = false
 python-versions = "*"
-version = "1.17.9"
+version = "1.17.10"
 
 [package.dependencies]
 jinxed = ">=0.5.4"
@@ -234,17 +234,6 @@ click = ">=7.0"
 
 [package.extras]
 dev = ["pytest"]
-
-[[package]]
-category = "main"
-description = "Generate man pages for click based CLI applications"
-name = "click-man"
-optional = false
-python-versions = "*"
-version = "0.4.1"
-
-[package.dependencies]
-click = "*"
 
 [[package]]
 category = "main"
@@ -608,7 +597,7 @@ description = "Enlighten Progress Bar"
 name = "enlighten"
 optional = false
 python-versions = "*"
-version = "1.6.1"
+version = "1.6.2"
 
 [package.dependencies]
 blessed = ">=1.17.7"
@@ -1168,7 +1157,7 @@ description = "Manages Docker containers during your integration tests"
 name = "pytest-docker-compose"
 optional = false
 python-versions = "*"
-version = "3.1.2"
+version = "3.1.3"
 
 [package.dependencies]
 docker-compose = "*"
@@ -1359,7 +1348,7 @@ marker = "python_version < \"3.8\""
 name = "typing-extensions"
 optional = false
 python-versions = "*"
-version = "3.7.4.2"
+version = "3.7.4.3"
 
 [[package]]
 category = "main"
@@ -1481,7 +1470,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "fea9c6e66e2d4c2c8ddcdcfd8ae4335aa9bec5093d1acaaa8807e9a796b59af4"
+content-hash = "554c428555d650dbd70bae0d3e097e44182aa3b73cb12686a7480892c92a0adb"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -1536,8 +1525,8 @@ bcrypt = [
     {file = "bcrypt-3.2.0.tar.gz", hash = "sha256:5b93c1726e50a93a033c36e5ca7fdcd29a5c7395af50a6892f5d9e7c6cfbfb29"},
 ]
 blessed = [
-    {file = "blessed-1.17.9-py2.py3-none-any.whl", hash = "sha256:a9f059d5b2c32ade04eaafddac486db48c5e9a68fb7e181048aad391d33cef1a"},
-    {file = "blessed-1.17.9.tar.gz", hash = "sha256:0d497a5be8a808b7300c00bf8303e7ba9fd11f6063a67bb924a475e5bfa7a9bb"},
+    {file = "blessed-1.17.10-py2.py3-none-any.whl", hash = "sha256:c8532e648cf102b9800b7f2d2b12c87604bf207db3ca268e00554c9dac4cf980"},
+    {file = "blessed-1.17.10.tar.gz", hash = "sha256:58b9464609f54e2eca5f5926db590a5b01fefef882844ce05064f483b8f96c26"},
 ]
 bump2version = [
     {file = "bump2version-1.0.0-py2.py3-none-any.whl", hash = "sha256:477f0e18a0d58e50bb3dbc9af7fcda464fd0ebfc7a6151d8888602d7153171a0"},
@@ -1605,10 +1594,6 @@ click-didyoumean = [
 click-help-colors = [
     {file = "click-help-colors-0.8.tar.gz", hash = "sha256:119e5faf69cfc919c995c5962326ac8fd87f11e56a371af594e3dfd8458f4c6e"},
     {file = "click_help_colors-0.8-py3-none-any.whl", hash = "sha256:0d841a4058ec88c47f93ff6f32547a055f8e0a0273f6bd6cb3e08430f195131d"},
-]
-click-man = [
-    {file = "click-man-0.4.1.tar.gz", hash = "sha256:d255c14ecee52afa915228f7dc87603ddb571c3d7d1a2eb219244e440fa88bbb"},
-    {file = "click_man-0.4.1-py3-none-any.whl", hash = "sha256:bb4ed0cdbded7494ead67b2c805b9170a5ebd5e0a280fed1079d3adece52fa00"},
 ]
 click-option-group = [
     {file = "click-option-group-0.5.1.tar.gz", hash = "sha256:764eb49094dc864e28afbf36c6bb140d09ef714a915c0c5972c982113ed70fab"},
@@ -1762,8 +1747,8 @@ docutils = [
     {file = "docutils-0.16.tar.gz", hash = "sha256:c2de3a60e9e7d07be26b7f2b00ca0309c207e06c100f9cc2a94931fc75a478fc"},
 ]
 enlighten = [
-    {file = "enlighten-1.6.1-py2.py3-none-any.whl", hash = "sha256:f4fbd132f7ebcdac95c1fe7f0f9b968ed16af82eee83934b17aa8bbbcd3b5940"},
-    {file = "enlighten-1.6.1.tar.gz", hash = "sha256:03f01f594e031de947741ae5d415319b3510e5a54fcff08d0721b5d02d4caafa"},
+    {file = "enlighten-1.6.2-py2.py3-none-any.whl", hash = "sha256:e66d9017809a93cd769d2b2bdf2a8c825d09213e92f481d82b0b0b7dad02534b"},
+    {file = "enlighten-1.6.2.tar.gz", hash = "sha256:db00dfc4027a2dad2aaa4bff4b5fd8d8ab8376e175a02d02e156992f08062437"},
 ]
 feedparser = [
     {file = "feedparser-5.2.1.tar.bz2", hash = "sha256:ce875495c90ebd74b179855449040003a1beb40cd13d5f037a0654251e260b02"},
@@ -2062,8 +2047,8 @@ pytest-cov = [
     {file = "pytest_cov-2.10.1-py2.py3-none-any.whl", hash = "sha256:45ec2d5182f89a81fc3eb29e3d1ed3113b9e9a873bcddb2a71faaab066110191"},
 ]
 pytest-docker-compose = [
-    {file = "pytest-docker-compose-3.1.2.tar.gz", hash = "sha256:f0d5c7b7e31458862aca3e5668aa6d32c5e22a177ef77c1898c74d95c6590a79"},
-    {file = "pytest_docker_compose-3.1.2-py3-none-any.whl", hash = "sha256:59462d39df9b5e09f4ddeb46f0d062b77a94dbb8d475e1a48cdea3e46aa6cee5"},
+    {file = "pytest-docker-compose-3.1.3.tar.gz", hash = "sha256:b223344bc21e1e204def2081004355593e55399aa0d5b82b9dca7c97a252e8fc"},
+    {file = "pytest_docker_compose-3.1.3-py3-none-any.whl", hash = "sha256:777ddbbbe790101ccf50913255f7f16cc5a401ea2e383b710b285fb87311438c"},
 ]
 python-dotenv = [
     {file = "python-dotenv-0.13.0.tar.gz", hash = "sha256:3b9909bc96b0edc6b01586e1eed05e71174ef4e04c71da5786370cebea53ad74"},
@@ -2188,9 +2173,9 @@ typed-ast = [
     {file = "typed_ast-1.4.1.tar.gz", hash = "sha256:8c8aaad94455178e3187ab22c8b01a3837f8ee50e09cf31f1ba129eb293ec30b"},
 ]
 typing-extensions = [
-    {file = "typing_extensions-3.7.4.2-py2-none-any.whl", hash = "sha256:f8d2bd89d25bc39dabe7d23df520442fa1d8969b82544370e03d88b5a591c392"},
-    {file = "typing_extensions-3.7.4.2-py3-none-any.whl", hash = "sha256:6e95524d8a547a91e08f404ae485bbb71962de46967e1b71a0cb89af24e761c5"},
-    {file = "typing_extensions-3.7.4.2.tar.gz", hash = "sha256:79ee589a3caca649a9bfd2a8de4709837400dfa00b6cc81962a1e6a1815969ae"},
+    {file = "typing_extensions-3.7.4.3-py2-none-any.whl", hash = "sha256:dafc7639cde7f1b6e1acc0f457842a83e722ccca8eef5270af2d74792619a89f"},
+    {file = "typing_extensions-3.7.4.3-py3-none-any.whl", hash = "sha256:7cb407020f00f7bfc3cb3e7881628838e69d8f3fcab2f64742a5e76b2f841918"},
+    {file = "typing_extensions-3.7.4.3.tar.gz", hash = "sha256:99d4073b617d30288f569d3f13d2bd7548c3a7e4c8de87db09a9d29bb3a4a60c"},
 ]
 urllib3 = [
     {file = "urllib3-1.25.10-py2.py3-none-any.whl", hash = "sha256:e7983572181f5e1522d9c98453462384ee92a0be7fac5f1413a1e35c56cc0461"},

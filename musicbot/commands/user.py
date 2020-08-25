@@ -3,6 +3,7 @@ import json
 import click
 from prettytable import PrettyTable
 from musicbot import helpers
+from musicbot.click_helpers import AdvancedGroup, add_options
 from musicbot.user import User, register_options, auth_options, login_options
 from musicbot.admin import Admin, graphql_admin_option
 from musicbot.config import config
@@ -10,13 +11,13 @@ from musicbot.config import config
 logger = logging.getLogger(__name__)
 
 
-@click.group(help='User management', cls=helpers.GroupWithHelp)
+@click.group(help='User management', cls=AdvancedGroup)
 def cli():
     pass
 
 
 @cli.command('list', help='List users (admin)')
-@helpers.add_options(
+@add_options(
     helpers.output_option +
     graphql_admin_option
 )
@@ -34,7 +35,7 @@ def _list(graphql_admin, output):
 
 
 @cli.command(aliases=['new', 'add', 'create'], help='Register a new user')
-@helpers.add_options(
+@add_options(
     helpers.save_option +
     register_options
 )
@@ -49,14 +50,14 @@ def register(save, **kwargs):
 
 
 @cli.command(aliases=['delete', 'remove'], help='Remove a user')
-@helpers.add_options(auth_options)
+@add_options(auth_options)
 def unregister(**kwargs):
     u = User(**kwargs)
     u.unregister()
 
 
 @cli.command(aliases=['token'], help='Authenticate user')
-@helpers.add_options(
+@add_options(
     helpers.save_option +
     login_options
 )

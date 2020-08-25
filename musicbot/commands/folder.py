@@ -6,6 +6,7 @@ import enlighten
 from prettytable import PrettyTable
 from mutagen import MutagenError
 from musicbot import helpers, lib
+from musicbot.click_helpers import AdvancedGroup, add_options
 from musicbot.exceptions import MusicbotError
 from musicbot.config import config
 from musicbot.music.file import File, folder_option, checks_options
@@ -13,13 +14,13 @@ from musicbot.music.file import File, folder_option, checks_options
 logger = logging.getLogger(__name__)
 
 
-@click.group(help='Manage folders', cls=helpers.GroupWithHelp)
+@click.group(help='Manage folders', cls=AdvancedGroup)
 def cli():
     pass
 
 
 @cli.command(help='List tracks')
-@helpers.add_options(
+@add_options(
     helpers.folders_argument +
     helpers.output_option
 )
@@ -39,7 +40,7 @@ def tracks(folders, output):
 
 
 @cli.command(help='Convert all files in folders to mp3')
-@helpers.add_options(
+@add_options(
     folder_option +
     helpers.folders_argument +
     helpers.concurrency_options +
@@ -69,7 +70,7 @@ def flac2mp3(folders, folder, concurrency, dry):
 
 
 @cli.command(aliases=['consistency'], help='Check music files consistency')
-@helpers.add_options(
+@add_options(
     helpers.folders_argument +
     helpers.dry_option +
     checks_options

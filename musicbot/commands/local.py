@@ -13,6 +13,7 @@ import attr
 from prettytable import PrettyTable
 from mutagen import MutagenError
 from musicbot import helpers, user
+from musicbot.click_helpers import AdvancedGroup, add_options
 from musicbot.lib import bytes_to_human, find_files, all_files, empty_dirs, except_directories
 from musicbot.music import mfilter
 from musicbot.player import play
@@ -24,26 +25,26 @@ from musicbot.music.file import File, checks_options, folder_argument, supported
 logger = logging.getLogger(__name__)
 
 
-@click.group(help='''Local music management''', cls=helpers.GroupWithHelp)
+@click.group(help='''Local music management''', cls=AdvancedGroup)
 def cli():
     pass
 
 
 @cli.command(help='Raw query')
 @click.argument('query')
-@helpers.add_options(user.auth_options)
+@add_options(user.auth_options)
 def execute(user, query):
     print(json.dumps(user._post(query)['data']))
 
 
 @cli.command(help='Load default filters')
-@helpers.add_options(user.auth_options)
+@add_options(user.auth_options)
 def load_filters(user):
     user.load_default_filters()
 
 
 @cli.command(help='List filters')
-@helpers.add_options(
+@add_options(
     helpers.output_option +
     user.auth_options
 )
@@ -59,7 +60,7 @@ def filters(user, output):
 
 
 @cli.command('filter', help='Print a filter')
-@helpers.add_options(
+@add_options(
     helpers.output_option +
     user.auth_options
 )
@@ -73,7 +74,7 @@ def _filter(user, name, output):
 
 
 @cli.command(aliases=['stat'], help='Generate some stats for music collection with filters')
-@helpers.add_options(
+@add_options(
     helpers.output_option +
     user.auth_options +
     mfilter.mfilter_options
@@ -96,7 +97,7 @@ def stats(user, output, music_filter):
 
 
 @cli.command(help='List folders')
-@helpers.add_options(
+@add_options(
     helpers.output_option +
     user.auth_options
 )
@@ -113,7 +114,7 @@ def folders(user, output):
 
 
 @cli.command(help='(re)Load musics')
-@helpers.add_options(
+@add_options(
     helpers.folders_argument +
     user.auth_options
 )
@@ -125,7 +126,7 @@ def scan(user, folders):
 
 
 @cli.command(help='Just list music files')
-@helpers.add_options(
+@add_options(
     helpers.folders_argument +
     user.auth_options
 )
@@ -139,19 +140,19 @@ def find(user, folders):
 
 
 @cli.command(help='Watch files changes in folders')
-@helpers.add_options(user.auth_options)
+@add_options(user.auth_options)
 def watch(user):
     user.watch()
 
 
 @cli.command(help='Clean all musics')
-@helpers.add_options(user.auth_options)
+@add_options(user.auth_options)
 def clean(user):
     user.clean_musics()
 
 
 @cli.command(help='Copy selected musics with filters to destination folder')
-@helpers.add_options(
+@add_options(
     helpers.dry_option +
     user.auth_options +
     mfilter.mfilter_options
@@ -223,7 +224,7 @@ def sync(user, dry, destination, music_filter):
 
 
 @cli.command(help='Generate a new playlist')
-@helpers.add_options(
+@add_options(
     helpers.dry_option +
     helpers.playlist_output_option +
     user.auth_options +
@@ -248,7 +249,7 @@ def playlist(user, output, path, dry, music_filter):
 @cli.command(help='Generate bests playlists with some rules')
 @click.option('--prefix', envvar='MB_PREFIX', help="Append prefix before each path (implies relative)", default='')
 @click.option('--suffix', envvar='MB_SUFFIX', help="Append this suffix to playlist name", default='')
-@helpers.add_options(
+@add_options(
     folder_argument +
     helpers.dry_option +
     user.auth_options +
@@ -282,7 +283,7 @@ def bests(user, dry, folder, prefix, suffix, music_filter):
 
 
 @cli.command(aliases=['play'], help='Music player')
-@helpers.add_options(
+@add_options(
     user.auth_options +
     mfilter.mfilter_options
 )
@@ -295,7 +296,7 @@ def player(user, music_filter):
 
 
 @cli.command(aliases=['consistency'], help='Check music consistency')
-@helpers.add_options(
+@add_options(
     checks_options +
     helpers.dry_option +
     user.auth_options +
