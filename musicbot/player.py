@@ -8,7 +8,7 @@ from prompt_toolkit.layout.containers import HSplit, Window
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit import HTML, print_formatted_text
-from .lib import seconds_to_human
+from musicbot.music.helpers import seconds_to_human
 from .playlist import print_playlist
 
 logger = logging.getLogger(__name__)

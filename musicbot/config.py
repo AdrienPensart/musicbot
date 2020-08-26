@@ -1,5 +1,4 @@
 import os
-import getpass
 import logging
 import configparser
 import attr
@@ -7,31 +6,10 @@ import click
 import colorlog
 from cached_property import cached_property
 from click_option_group import optgroup
-from . import lib
-from .click_helpers import ExpandedPath
+from .click_helpers import ExpandedPath, str2bool
 
 
 logger = logging.getLogger(__name__)
-current_user = getpass.getuser()
-
-MB_CONFIG = 'MB_CONFIG'
-MB_LOG = 'MB_LOG'
-MB_INFO = 'MB_INFO'
-MB_DEBUG = 'MB_DEBUG'
-MB_TIMINGS = 'MB_TIMINGS'
-MB_VERBOSITY = 'MB_VERBOSITY'
-MB_QUIET = 'MB_QUIET'
-MB_COLORS = 'MB_COLORS'
-
-DEFAULT_CONFIG = '~/musicbot.ini'
-DEFAULT_LOG = None
-DEFAULT_VERBOSITY = 'warning'
-DEFAULT_QUIET = False
-DEFAULT_DEBUG = False
-DEFAULT_COLORS = True
-DEFAULT_TIMINGS = False
-DEFAULT_INFO = False
-
 
 verbosities = {
     'debug': logging.DEBUG,
@@ -41,6 +19,8 @@ verbosities = {
     'critical': logging.CRITICAL,
 }
 
+DEFAULT_CONFIG = '~/musicbot.ini'
+MB_CONFIG = 'MB_CONFIG'
 config_option = [
     optgroup.option(
         '--config', '-c',
@@ -52,6 +32,8 @@ config_option = [
     )
 ]
 
+DEFAULT_LOG = None
+MB_LOG = 'MB_LOG'
 log_option = [
     optgroup.option(
         '--log', '-l',
@@ -63,6 +45,8 @@ log_option = [
     )
 ]
 
+DEFAULT_INFO = False
+MB_INFO = 'MB_INFO'
 info_option = [
     optgroup.option(
         '--info', '-i',
@@ -74,6 +58,8 @@ info_option = [
     )
 ]
 
+DEFAULT_DEBUG = False
+MB_DEBUG = 'MB_DEBUG'
 debug_option = [
     optgroup.option(
         '--debug', '-d',
@@ -85,6 +71,8 @@ debug_option = [
     )
 ]
 
+DEFAULT_TIMINGS = False
+MB_TIMINGS = 'MB_TIMINGS'
 timings_option = [
     optgroup.option(
         '--timings', '-t',
@@ -96,6 +84,8 @@ timings_option = [
     )
 ]
 
+DEFAULT_VERBOSITY = 'warning'
+MB_VERBOSITY = 'MB_VERBOSITY'
 verbosity_option = [
     optgroup.option(
         '--verbosity', '-v',
@@ -107,6 +97,8 @@ verbosity_option = [
     )
 ]
 
+DEFAULT_QUIET = False
+MB_QUIET = 'MB_QUIET'
 quiet_option = [
     optgroup.option(
         '--quiet', '-q',
@@ -144,10 +136,10 @@ class Config:
     def set(self, config=None, debug=None, info=None, timings=None, quiet=None, verbosity=None, log=None):
         self.config = config if config is not None else os.getenv(MB_CONFIG, DEFAULT_CONFIG)
         self.log = log if log is not None else os.getenv(MB_LOG, DEFAULT_LOG)
-        self.quiet = quiet if quiet is not None else lib.str2bool(os.getenv(MB_QUIET, str(DEFAULT_QUIET)))
-        self.debug = debug if debug is not None else lib.str2bool(os.getenv(MB_DEBUG, str(DEFAULT_DEBUG)))
-        self.info = info if info is not None else lib.str2bool(os.getenv(MB_INFO, str(DEFAULT_INFO)))
-        self.timings = timings if timings is not None else lib.str2bool(os.getenv(MB_TIMINGS, str(DEFAULT_TIMINGS)))
+        self.quiet = quiet if quiet is not None else str2bool(os.getenv(MB_QUIET, str(DEFAULT_QUIET)))
+        self.debug = debug if debug is not None else str2bool(os.getenv(MB_DEBUG, str(DEFAULT_DEBUG)))
+        self.info = info if info is not None else str2bool(os.getenv(MB_INFO, str(DEFAULT_INFO)))
+        self.timings = timings if timings is not None else str2bool(os.getenv(MB_TIMINGS, str(DEFAULT_TIMINGS)))
         self.verbosity = verbosity if verbosity is not None else os.getenv(MB_VERBOSITY, DEFAULT_VERBOSITY)
 
         if self.timings or self.info:

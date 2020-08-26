@@ -14,12 +14,12 @@ from prettytable import PrettyTable
 from mutagen import MutagenError
 from musicbot import helpers, user
 from musicbot.click_helpers import AdvancedGroup, add_options
-from musicbot.lib import bytes_to_human, find_files, all_files, empty_dirs, except_directories
 from musicbot.music import mfilter
 from musicbot.player import play
 from musicbot.playlist import print_playlist
 from musicbot.config import config
 from musicbot.music.file import File, checks_options, folder_argument, supported_formats
+from musicbot.music.helpers import bytes_to_human, find_files, all_files, empty_dirs, except_directories
 
 
 logger = logging.getLogger(__name__)

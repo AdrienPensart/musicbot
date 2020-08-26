@@ -5,11 +5,12 @@ import click
 import enlighten
 from prettytable import PrettyTable
 from mutagen import MutagenError
-from musicbot import helpers, lib
+from musicbot import helpers
 from musicbot.click_helpers import AdvancedGroup, add_options
 from musicbot.exceptions import MusicbotError
 from musicbot.config import config
 from musicbot.music.file import File, folder_option, checks_options
+from musicbot.music.helpers import find_files
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +48,7 @@ def tracks(folders, output):
     helpers.dry_option
 )
 def flac2mp3(folders, folder, concurrency, dry):
-    flac_files = list(lib.find_files(folders, ['flac']))
+    flac_files = list(find_files(folders, ['flac']))
     if not flac_files:
         logger.warning(f"No flac files detected in {folders}")
         return

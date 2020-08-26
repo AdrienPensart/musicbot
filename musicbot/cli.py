@@ -7,8 +7,8 @@ from click.formatting import HelpFormatter
 from click_help_colors import version_option
 from mutagen import MutagenError
 from attrdict import AttrDict
-from musicbot import lib, config, exceptions, backtrace
-from musicbot import __version__
+from musicbot import config, exceptions, backtrace, __version__
+from musicbot.music.helpers import raise_limits
 from musicbot.click_helpers import AdvancedGroup, add_options, completion
 from musicbot.commands.config import cli as config_cli
 from musicbot.commands.folder import cli as folder_cli
@@ -60,6 +60,7 @@ cli.add_command(youtube_cli, 'youtube')
 cli.add_command(user_cli, 'user')
 cli.add_command(completion, 'completion')
 
+# hacky aliases
 cli._commands['music'] = ['file']
 cli._aliases['file'] = 'music'
 
@@ -83,5 +84,5 @@ def main(**kwargs):
 
 
 if __name__ == '__main__':
-    lib.raise_limits()
+    raise_limits()
     main()

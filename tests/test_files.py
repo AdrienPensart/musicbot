@@ -1,5 +1,5 @@
 import logging
-from musicbot import lib
+from musicbot.music.helpers import duration_to_seconds
 from musicbot.music import file
 from . import fixtures
 
@@ -38,10 +38,10 @@ def test_mp3_tags():
 
 
 def test_duration():
-    assert lib.duration_to_seconds("12s") == 12
-    assert lib.duration_to_seconds("12m") == 60 * 12
-    assert lib.duration_to_seconds("12h") == 60 * 60 * 12
+    assert duration_to_seconds("12s") == 12
+    assert duration_to_seconds("12m") == 60 * 12
+    assert duration_to_seconds("12h") == 60 * 60 * 12
 
 
 # def test_raise_limits():
-#     assert lib.raise_limits() is True
+#     assert raise_limits() is True

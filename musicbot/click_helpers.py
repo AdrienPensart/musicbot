@@ -12,6 +12,15 @@ from click_aliases import ClickAliasedGroup
 logger = logging.getLogger(__name__)
 
 
+def str2bool(val):
+    val = val.lower()
+    if val in ('y', 'yes', 't', 'true', 'on', '1'):
+        return 1
+    if val in ('n', 'no', 'f', 'false', 'off', '0'):
+        return 0
+    raise ValueError(f"invalid truth value {val}")
+
+
 class ExpandedPath(click.Path):
     def convert(self, value, param, ctx):
         value = os.path.expanduser(value)
@@ -165,3 +174,10 @@ def custom_startswith(string, incomplete):
 
 click_completion.core.startswith = custom_startswith
 click_completion.init()
+
+
+# def test_str2bool():
+#     assert str2bool('Y')
+#     assert not str2bool('N')
+#     with pytest.raises(Exception):
+#         str2bool('whatever')

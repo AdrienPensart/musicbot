@@ -1,7 +1,6 @@
 import os
 import platform
 import re
-import sys
 import logging
 import humanfriendly
 
@@ -10,15 +9,6 @@ logger = logging.getLogger(__name__)
 output_types = ["list", "json"]
 except_directories = ['.Spotlight-V100', '.zfs', 'Android', 'LOST.DIR']
 default_output_type = 'json'
-
-
-def str2bool(val):
-    val = val.lower()
-    if val in ('y', 'yes', 't', 'true', 'on', '1'):
-        return 1
-    if val in ('n', 'no', 'f', 'false', 'off', '0'):
-        return 0
-    raise ValueError(f"invalid truth value {val}")
 
 
 def bytes_to_human(b):
@@ -42,13 +32,9 @@ def empty_dirs(root_dir, recursive=True):
                     break
         else:
             all_subs_empty = (not dirs)
-        if all_subs_empty and is_empty(files):
+        if all_subs_empty and not files:
             dirs_list.append(root)
             yield root
-
-
-def is_empty(files):
-    return len(files) == 0
 
 
 def raise_limits():
@@ -64,15 +50,6 @@ def raise_limits():
     except (ValueError, OSError) as e:
         logger.critical(f'You may need to check ulimit parameter: {e}')
         return False
-
-
-def restart():
-    python = sys.executable
-    print(f'Restarting myself: {python} {sys.argv}')
-    # only works on linux, not windows with WSL
-    # os.execl(python, python, * sys.argv)
-    # permit to exit from a thread
-    os._exit(0)
 
 
 def find_files(directories, supported_formats):

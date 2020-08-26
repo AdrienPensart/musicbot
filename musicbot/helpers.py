@@ -8,8 +8,8 @@ import functools
 import enlighten
 import click
 from .config import config
-from .lib import seconds_to_human, find_files, filecount
 from .music.file import File, supported_formats
+from .music.helpers import seconds_to_human, find_files, filecount
 
 logger = logging.getLogger(__name__)
 
