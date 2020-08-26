@@ -2,8 +2,9 @@ import logging
 import click
 from prettytable import PrettyTable
 from mutagen import MutagenError
+from click_skeleton import AdvancedGroup, add_options
+
 from musicbot import helpers
-from musicbot.click_helpers import AdvancedGroup, add_options
 from musicbot.music.file import File, path_argument, folder_option, options, checks_options
 from musicbot.music.fingerprint import acoustid_api_key_option
 

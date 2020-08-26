@@ -20,6 +20,7 @@ click-completion==0.5.2
 click-didyoumean==0.0.3
 click-help-colors==0.8
 click-option-group==0.5.1
+click-skeleton==0.2.1
 colorama==0.4.3
 colorlog==4.2.1
 coverage==5.2.1

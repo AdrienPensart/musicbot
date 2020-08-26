@@ -2,8 +2,9 @@ import logging
 import json
 import click
 from slugify import slugify
+from click_skeleton import AdvancedGroup, add_options
+
 from musicbot import helpers
-from musicbot.click_helpers import AdvancedGroup, add_options
 from musicbot.spotify import spotify_options
 from musicbot.user import auth_options
 

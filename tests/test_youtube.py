@@ -1,7 +1,7 @@
 import os
 import pytest
+from click_skeleton import run_cli
 from musicbot.cli import cli
-from musicbot.click_helpers import run_cli
 from . import fixtures
 
 

@@ -4,7 +4,8 @@ import click
 import acoustid
 import youtube_dl
 from humanfriendly import format_timespan
-from musicbot.click_helpers import AdvancedGroup, add_options
+from click_skeleton import AdvancedGroup, add_options
+
 from musicbot.music.file import File, path_argument
 from musicbot.music.fingerprint import acoustid_api_key_option
 

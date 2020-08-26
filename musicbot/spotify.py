@@ -5,8 +5,9 @@ import spotipy
 import click
 from prettytable import PrettyTable
 from click_option_group import optgroup
+from click_skeleton import ExpandedPath
+
 from musicbot.config import config
-from .click_helpers import ExpandedPath
 
 logger = logging.getLogger(__name__)
 

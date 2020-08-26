@@ -12,8 +12,9 @@ import enlighten
 import attr
 from prettytable import PrettyTable
 from mutagen import MutagenError
+from click_skeleton import AdvancedGroup, add_options
+
 from musicbot import helpers, user
-from musicbot.click_helpers import AdvancedGroup, add_options
 from musicbot.music import mfilter
 from musicbot.player import play
 from musicbot.playlist import print_playlist

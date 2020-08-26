@@ -3,13 +3,17 @@ import logging
 import click
 import requests
 import spotipy
-from click.formatting import HelpFormatter
-from click_help_colors import version_option
+
 from mutagen import MutagenError
 from attrdict import AttrDict
-from musicbot import config, exceptions, backtrace, __version__
+
+from click.formatting import HelpFormatter
+from click_help_colors import version_option
+from click_skeleton import AdvancedGroup, add_options, backtrace
+from click_skeleton.completion import completion
+
+from musicbot import config, exceptions, __version__
 from musicbot.music.helpers import raise_limits
-from musicbot.click_helpers import AdvancedGroup, add_options, completion
 from musicbot.commands.config import cli as config_cli
 from musicbot.commands.folder import cli as folder_cli
 from musicbot.commands.local import cli as local_cli

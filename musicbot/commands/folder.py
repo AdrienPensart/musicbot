@@ -5,8 +5,9 @@ import click
 import enlighten
 from prettytable import PrettyTable
 from mutagen import MutagenError
+from click_skeleton import AdvancedGroup, add_options
+
 from musicbot import helpers
-from musicbot.click_helpers import AdvancedGroup, add_options
 from musicbot.exceptions import MusicbotError
 from musicbot.config import config
 from musicbot.music.file import File, folder_option, checks_options

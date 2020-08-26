@@ -2,8 +2,9 @@ import logging
 import json
 import click
 from prettytable import PrettyTable
+from click_skeleton import AdvancedGroup, add_options
+
 from musicbot import helpers
-from musicbot.click_helpers import AdvancedGroup, add_options
 from musicbot.user import User, register_options, auth_options, login_options
 from musicbot.admin import Admin, graphql_admin_option
 from musicbot.config import config

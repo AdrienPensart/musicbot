@@ -6,7 +6,8 @@ import click
 import colorlog
 from cached_property import cached_property
 from click_option_group import optgroup
-from .click_helpers import ExpandedPath, str2bool
+from click_skeleton import ExpandedPath
+from click_skeleton.helpers import str2bool
 
 
 logger = logging.getLogger(__name__)

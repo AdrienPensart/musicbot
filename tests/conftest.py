@@ -2,8 +2,9 @@ import socket
 import time
 import logging
 import pytest
+from click_skeleton import run_cli
+
 from musicbot.cli import cli
-from musicbot.click_helpers import run_cli
 from musicbot.helpers import genfiles
 from musicbot.user import User, FailedAuthentication
 from . import fixtures
