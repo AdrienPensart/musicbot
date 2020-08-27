@@ -35,3 +35,8 @@ def test_config(cli_runner):
     run_cli(cli_runner, cli, ['config', 'show'])
     run_cli(cli_runner, cli, ['config', 'print'])
     run_cli(cli_runner, cli, ['config', 'logging'])
+
+
+@pytest.mark.runner_setup(mix_stderr=False)
+def test_completion_show(cli_runner):
+    run_cli(cli_runner, cli, ["completion", "show", "zsh"])

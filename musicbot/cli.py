@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import logging
+from packaging import version
+
 import click
 import requests
 import spotipy
@@ -7,7 +9,6 @@ import spotipy
 from mutagen import MutagenError
 from attrdict import AttrDict
 
-from click.formatting import HelpFormatter
 from click_help_colors import version_option
 from click_skeleton import AdvancedGroup, add_options, backtrace
 from click_skeleton.completion import completion
@@ -25,7 +26,8 @@ from musicbot.commands.youtube import cli as youtube_cli
 prog_name = "musicbot"
 logger = logging.getLogger('musicbot')
 # little hacky but prevent click from rewraping
-HelpFormatter.write_dl.__defaults__ = (50, 2)
+click.formatting.HelpFormatter.write_dl.__defaults__ = (50, 2)
+
 backtrace.hook(reverse=False, align=True, strip_path=False, enable_on_envvar_only=False, on_tty=False, conservative=False, styles={})
 CONTEXT_SETTINGS = {
     'max_content_width': 140,
@@ -68,13 +70,17 @@ cli.add_command(completion, 'completion')
 cli._commands['music'] = ['file']
 cli._aliases['file'] = 'music'
 
-@cli.command(short_help='Print version')
-def version():
+@cli.command('version', short_help='Print version')
+def _version():
     '''Print version
 
        Equivalent : -V
     '''
     click.echo(f"{click.style(prog_name, fg='yellow')}, version {click.style(__version__, fg='green')}")
+    response = requests.get(f'https://pypi.org/pypi/{prog_name}/json')
+    latest_version = response.json()['info']['version']
+    if version.parse(latest_version) > version.parse(__version__):
+        logger.warning(f"A new {prog_name} version is available on PyPI : {latest_version}")
 
 
 def main(**kwargs):
