@@ -1,4 +1,5 @@
 import time
+import sys
 import re
 import os
 import logging
@@ -145,7 +146,7 @@ def config_list(ctx, param, value):
 def genfiles(folders):
     directories = [os.path.abspath(f) for f in folders]
     enabled = directories and not config.quiet
-    with enlighten.Manager(enabled=enabled) as manager:
+    with enlighten.Manager(stream=sys.stderr, enabled=enabled) as manager:
         count = 0
         with manager.counter(total=len(directories), desc=f"Music counting {folders}") as pbar:
             for directory in directories:
@@ -172,5 +173,10 @@ def genfiles(folders):
     return files
 
 folders_argument = [
-    click.argument('folders', nargs=-1, callback=config_list, type=click.Path(exists=True, file_okay=False))
+    click.argument(
+        'folders',
+        nargs=-1,
+        callback=config_list,
+        type=click.Path(exists=True, file_okay=False),
+    )
 ]

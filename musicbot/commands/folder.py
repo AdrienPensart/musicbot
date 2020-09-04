@@ -1,4 +1,5 @@
 import logging
+import sys
 import json
 import concurrent.futures as cf
 import click
@@ -10,7 +11,7 @@ from click_skeleton import AdvancedGroup, add_options
 from musicbot import helpers
 from musicbot.exceptions import MusicbotError
 from musicbot.config import config
-from musicbot.music.file import File, folder_option, checks_options
+from musicbot.music.file import File, folder_option, checks_options, supported_formats
 from musicbot.music.helpers import find_files
 
 logger = logging.getLogger(__name__)
@@ -19,6 +20,14 @@ logger = logging.getLogger(__name__)
 @click.group(help='Manage folders', cls=AdvancedGroup)
 def cli():
     pass
+
+
+@cli.command(help='Just list music files')
+@add_options(helpers.folders_argument)
+def find(folders):
+    files = find_files(folders, supported_formats)
+    for f in files:
+        print(f[1])
 
 
 @cli.command(help='List tracks')
@@ -55,7 +64,7 @@ def flac2mp3(folders, folder, concurrency, dry):
         return
 
     enabled = not config.quiet
-    with enlighten.Manager(enabled=enabled) as manager:
+    with enlighten.Manager(stream=sys.stderr, enabled=enabled) as manager:
         with manager.counter(total=len(flac_files), desc="converting musics") as pbar:
             with cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
                 def convert(flac_path):

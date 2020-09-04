@@ -6,6 +6,13 @@ from . import fixtures
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
+def test_local_count(cli_runner, common_args, user_musics):  # pylint: disable=unused-argument
+    local_count_str = run_cli(cli_runner, cli, ['local', 'count', *common_args])
+    local_count = int(local_count_str)
+    assert local_count == 5
+
+
+@pytest.mark.runner_setup(mix_stderr=False)
 def test_local_sync(cli_runner, common_args, user_musics):  # pylint: disable=unused-argument
     run_cli(cli_runner, cli, ['local', 'sync', *common_args, '/tmp', '--dry'])
 
@@ -30,12 +37,6 @@ def test_local_stats(cli_runner, common_args, user_musics):  # pylint: disable=u
 @pytest.mark.runner_setup(mix_stderr=False)
 def test_local_player(cli_runner, common_args, user_musics):  # pylint: disable=unused-argument
     run_cli(cli_runner, cli, ['local', 'player', *common_args])
-
-
-@pytest.mark.runner_setup(mix_stderr=False)
-def test_local_find(cli_runner, common_args, user_musics):  # pylint: disable=unused-argument
-    musics = run_cli(cli_runner, cli, ['local', 'find', *common_args])
-    assert len(musics.split("\n")) == 5
 
 
 @pytest.mark.runner_setup(mix_stderr=False)

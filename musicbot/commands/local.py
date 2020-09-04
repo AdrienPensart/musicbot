@@ -1,5 +1,6 @@
 import logging
 import io
+import sys
 import shutil
 import os
 import codecs
@@ -19,8 +20,8 @@ from musicbot.music import mfilter
 from musicbot.player import play
 from musicbot.playlist import print_playlist
 from musicbot.config import config
-from musicbot.music.file import File, checks_options, folder_argument, supported_formats
-from musicbot.music.helpers import bytes_to_human, find_files, all_files, empty_dirs, except_directories
+from musicbot.music.file import File, checks_options, folder_argument
+from musicbot.music.helpers import bytes_to_human, all_files, empty_dirs, except_directories
 
 
 logger = logging.getLogger(__name__)
@@ -29,6 +30,20 @@ logger = logging.getLogger(__name__)
 @click.group(help='''Local music management''', cls=AdvancedGroup)
 def cli():
     pass
+
+
+@cli.command(help='Count musics')
+@add_options(user.auth_options)
+def count(user):
+    query = '''
+    {
+        rawMusics
+        {
+            totalCount
+        }
+    }
+    '''
+    print(json.dumps(user._post(query)['data']['rawMusics']['totalCount']))
 
 
 @cli.command(help='Raw query')
@@ -126,20 +141,6 @@ def scan(user, folders):
     user.bulk_insert(files)
 
 
-@cli.command(help='Just list music files')
-@add_options(
-    helpers.folders_argument +
-    user.auth_options
-)
-def find(user, folders):
-    if not folders:
-        folders = user.folders
-
-    files = find_files(folders, supported_formats)
-    for f in files:
-        print(f[1])
-
-
 @cli.command(help='Watch files changes in folders')
 @add_options(user.auth_options)
 def watch(user):
@@ -173,7 +174,7 @@ def sync(user, dry, destination, music_filter):
     sources = {m['path'][len(m['folder']) + 1:]: m['path'] for m in musics}
     logger.info(f"Sources : {len(sources)}")
     to_delete = set(destinations.keys()) - set(sources.keys())
-    with enlighten.Manager() as manager:
+    with enlighten.Manager(stream=sys.stderr) as manager:
         logger.info(f"To delete: {len(to_delete)}")
         enabled = to_delete and not config.quiet
         with manager.counter(total=len(to_delete), enabled=enabled) as pbar:
@@ -263,7 +264,7 @@ def bests(user, dry, folder, prefix, suffix, music_filter):
             prefix += '/'
     playlists = user.bests(music_filter)
     enabled = playlists and not config.quiet
-    with enlighten.Manager(enabled=enabled) as manager:
+    with enlighten.Manager(stream=sys.stderr, enabled=enabled) as manager:
         with manager.counter(total=len(playlists)) as pbar:
             for p in playlists:
                 try:

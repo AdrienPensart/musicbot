@@ -170,10 +170,23 @@ musicbot folder
     -h, --help  Show this message and exit.
 
   Commands:
+    find                           Just list music files
     flac2mp3                       Convert all files in folders to mp3
     help                           Print help
     inconsistencies (consistency)  Check music files consistency
     tracks                         List tracks
+
+
+musicbot folder find
+********************
+.. code-block::
+
+  Usage: musicbot folder find [OPTIONS] [FOLDERS]...
+
+    Just list music files
+
+  Options:
+    -h, --help  Show this message and exit.
 
 
 musicbot folder flac2mp3
@@ -249,10 +262,10 @@ musicbot local
   Commands:
     bests                          Generate bests playlists with some rules
     clean                          Clean all musics
+    count                          Count musics
     execute                        Raw query
     filter                         Print a filter
     filters                        List filters
-    find                           Just list music files
     folders                        List folders
     help                           Print help
     inconsistencies (consistency)  Check music consistency
@@ -329,6 +342,23 @@ musicbot local clean
     -h, --help             Show this message and exit.
 
 
+musicbot local count
+********************
+.. code-block::
+
+  Usage: musicbot local count [OPTIONS]
+
+    Count musics
+
+  Options:
+    Auth options: 
+      -e, --email TEXT     User email
+      -p, --password TEXT  User password
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
+    -h, --help             Show this message and exit.
+
+
 musicbot local execute
 **********************
 .. code-block::
@@ -374,23 +404,6 @@ musicbot local filters
 
   Options:
     --output [table|json]  Output format  [default: table]
-    Auth options: 
-      -e, --email TEXT     User email
-      -p, --password TEXT  User password
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT     User token
-    -h, --help             Show this message and exit.
-
-
-musicbot local find
-*******************
-.. code-block::
-
-  Usage: musicbot local find [OPTIONS] [FOLDERS]...
-
-    Just list music files
-
-  Options:
     Auth options: 
       -e, --email TEXT     User email
       -p, --password TEXT  User password

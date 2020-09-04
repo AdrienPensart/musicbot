@@ -2,6 +2,7 @@ import base64
 import json
 import logging
 import functools
+import sys
 import click
 import enlighten
 import requests
@@ -278,7 +279,7 @@ class User(GraphQL):
             logger.info("no musics to insert")
             return None
         if config.debug:
-            with enlighten.Manager() as manager:
+            with enlighten.Manager(stream=sys.stderr) as manager:
                 with manager.counter(total=len(musics), desc="inserting music one by one") as pbar:
                     for music in musics:
                         logger.debug(f"inserting {music}")

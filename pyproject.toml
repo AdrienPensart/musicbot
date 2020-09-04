@@ -54,7 +54,7 @@ pylint = "^2.6.0"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--cov-report term-missing --durations=0 --cov musicbot --docker-compose-no-build -x --use-running-containers "
+addopts = "--cov-report term-missing --durations=0 --cov musicbot --docker-compose-no-build -x --use-running-containers tests/test_local.py::test_local_count"
 
 [tool.pylint.master]
 jobs = 4
