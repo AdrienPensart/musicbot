@@ -11,7 +11,7 @@ services:
       POSTGRES_DB: musicbot
     restart: always
     ports:
-      - 5432:5432
+      - 127.0.0.1:5432:5432
     volumes:
       - /home/postgres-data:/var/lib/postgresql/data
 
@@ -28,7 +28,7 @@ services:
     restart: always
     stop_signal: SIGKILL
     ports:
-      - 5000:5000
+      - 127.0.0.1:5000:5000
     depends_on:
       - db
     environment:
@@ -62,7 +62,7 @@ services:
     depends_on:
       - db
     ports:
-      - 5001:5001
+      - 127.0.0.1:5001:5001
     environment:
       DEBUG: postgraphile:postgres:notice
     command: [

@@ -5,13 +5,12 @@ import functools
 import sys
 import click
 import enlighten
-import requests
 from click_option_group import optgroup
 from . import helpers
 from .graphql import GraphQL
 from .config import config
 from .helpers import config_string
-from .exceptions import FailedAuthentication
+from .exceptions import MusicbotError, FailedAuthentication, FailedRegistration
 from .music import file, mfilter
 
 logger = logging.getLogger(__name__)
@@ -24,7 +23,7 @@ email_option = [
         help='User email',
         default=DEFAULT_EMAIL,
         is_eager=True,
-        callback=config_string
+        callback=config_string,
     )
 ]
 
@@ -35,7 +34,7 @@ password_option = [
         help='User password',
         default=DEFAULT_PASSWORD,
         is_eager=True,
-        callback=config_string
+        callback=config_string,
     )
 ]
 
@@ -47,7 +46,7 @@ first_name_option = [
         default=DEFAULT_FIRST_NAME,
         is_eager=True,
         callback=config_string,
-        show_default=True
+        show_default=True,
     )
 ]
 
@@ -59,7 +58,15 @@ last_name_option = [
         default=DEFAULT_FIRST_NAME,
         is_eager=True,
         callback=config_string,
-        show_default=True
+        show_default=True,
+    )
+]
+
+DEFAULT_TOKEN = None
+token_option = [
+    optgroup.option(
+        '--token', '-t',
+        help='User token',
     )
 ]
 
@@ -71,90 +78,91 @@ graphql_option = [
         default=DEFAULT_GRAPHQL,
         is_eager=True,
         callback=config_string,
-        show_default=True
+        show_default=True,
     )
 ]
 
 
 def sane_user(ctx, param, value):  # pylint: disable=unused-argument
     kwargs = {}
-    for field in ('email', 'password', 'graphql'):
-        kwargs[field] = ctx.params[field]
-        ctx.params.pop(field)
-
-    token = value
-    ctx.params['user'] = User(
-        token=token,
-        **kwargs,
-    )
+    for field in ('token', 'email', 'password', 'graphql'):
+        kwargs[field] = ctx.params.get(field, None)
+        ctx.params.pop(field, None)
+    ctx.params['user'] = User(**kwargs)
     return ctx.params['user']
 
 
-DEFAULT_TOKEN = None
-token_option = [
+DEFAULT_FILTER = None
+user_option = [
     optgroup.option(
-        '--token', '-t',
-        help='User token',
+        '--user',
+        help='Music Filter',
         expose_value=False,
-        callback=sane_user
+        callback=sane_user,
+        hidden=True,
     )
 ]
 
 register_options =\
     [optgroup.group('Register options')] +\
+    graphql_option +\
     email_option +\
     password_option +\
     first_name_option +\
-    last_name_option +\
-    graphql_option
+    last_name_option
 
 login_options =\
     [optgroup.group('User options')] +\
+    graphql_option +\
     email_option +\
     password_option +\
-    graphql_option
+    user_option
 
 auth_options =\
     [optgroup.group('Auth options')] +\
+    graphql_option +\
     email_option +\
     password_option +\
-    graphql_option +\
-    token_option
+    token_option +\
+    user_option
 
 
 class User(GraphQL):
     @helpers.timeit
-    def __init__(self, graphql=None, email=None, password=None, token=None):
-        self.graphql = graphql if graphql is not None else DEFAULT_GRAPHQL
+    def __init__(self, graphql, email=None, password=None, token=None):
         self.email = email
         self.password = password
         self.token = token
         self.authenticated = False
 
+        GraphQL.__init__(self, graphql)
+
         if self.token:
             logger.debug(f"using token : {self.token}")
+            self.headers = {"Authorization": f"Bearer {self.token}"}
         elif self.email and self.password:
-            query = f"""
-            mutation
-            {{
-                authenticate(input: {{email: "{self.email}", password: "{self.password}"}})
-                {{
-                    jwtToken
-                }}
-            }}"""
-            self.headers = None
-
-            response = self._post(query, failure=FailedAuthentication(f"Authentication failed for email {self.email}"))
-            try:
-                self.token = response['data']['authenticate']['jwtToken']
-            except KeyError as e:
-                raise FailedAuthentication(f"Invalid response received : {response}") from e
-            if not self.token:
-                raise FailedAuthentication(f"Invalid token received : {self.token}")
+            self._authenticate()
         else:
             raise FailedAuthentication("No credentials or token provided")
         self.authenticated = True
-        GraphQL.__init__(self, graphql=graphql, headers={"Authorization": f"Bearer {self.token}"})
+
+    def _authenticate(self):
+        query = f"""
+        mutation
+        {{
+            authenticate(input: {{email: "{self.email}", password: "{self.password}"}})
+            {{
+                jwtToken
+            }}
+        }}"""
+        try:
+            response = self.post(query)
+            self.token = response['data']['authenticate']['jwtToken']
+            self.headers = {"Authorization": f"Bearer {self.token}"}
+        except MusicbotError as e:
+            raise FailedAuthentication(f"Authentication failed for email {self.email}") from e
+        except KeyError as e:
+            raise FailedAuthentication(f"Invalid response received : {response}") from e
 
     @classmethod
     @functools.lru_cache(maxsize=None)
@@ -184,7 +192,7 @@ class User(GraphQL):
             no_live:           createFilter(input: {filter: {name: "no live",           noKeywords: ["live"]                                           }}){clientMutationId}
             only_live:         createFilter(input: {filter: {name: "only live",         keywords:   ["live"]                                           }}){clientMutationId}
         }"""
-        return self._post(query)
+        return self.post(query)
 
     @helpers.timeit
     def playlist(self, mf=None):
@@ -193,7 +201,7 @@ class User(GraphQL):
         {{
             playlist({mf.to_graphql()})
         }}"""
-        return self._post(query)['data']['playlist']
+        return self.post(query)['data']['playlist']
 
     @helpers.timeit
     def bests(self, mf=None):
@@ -209,7 +217,7 @@ class User(GraphQL):
                 }}
             }}
         }}"""
-        return self._post(query)['data']['bests']['nodes']
+        return self.post(query)['data']['bests']['nodes']
 
     @helpers.timeit
     def do_filter(self, mf=None):
@@ -241,7 +249,7 @@ class User(GraphQL):
                 }}
             }}
         }}"""
-        return self._post(query)['data']['doFilter']['nodes']
+        return self.post(query)['data']['doFilter']['nodes']
 
     @helpers.timeit
     def do_stat(self, mf=None):
@@ -259,7 +267,7 @@ class User(GraphQL):
               duration
             }}
         }}"""
-        return self._post(query)['data']['doStat']
+        return self.post(query)['data']['doStat']
 
     @helpers.timeit
     def upsert_music(self, music):
@@ -271,7 +279,7 @@ class User(GraphQL):
                 clientMutationId
             }}
         }}"""
-        return self._post(query)
+        return self.post(query)
 
     @helpers.timeit
     def bulk_insert(self, musics):
@@ -298,7 +306,7 @@ class User(GraphQL):
                 clientMutationId
             }}
         }}'''
-        return self._post(query)
+        return self.post(query)
 
     @property
     @functools.lru_cache(maxsize=None)
@@ -308,7 +316,7 @@ class User(GraphQL):
         {
             foldersList
         }"""
-        return self._post(query)['data']['foldersList']
+        return self.post(query)['data']['foldersList']
 
     @property
     @functools.lru_cache(maxsize=None)
@@ -328,7 +336,7 @@ class User(GraphQL):
             }
           }
         }"""
-        return self._post(query)['data']['artistsTreeList']
+        return self.post(query)['data']['artistsTreeList']
 
     @property
     @functools.lru_cache(maxsize=None)
@@ -340,7 +348,7 @@ class User(GraphQL):
             name
           }
         }"""
-        return self._post(query)['data']['genresTreeList']
+        return self.post(query)['data']['genresTreeList']
 
     @functools.lru_cache(maxsize=None)
     @helpers.timeit
@@ -355,7 +363,7 @@ class User(GraphQL):
                 {filter_members}
             }}
         }}"""
-        return self._post(query)['data']['filtersList'][0]
+        return self.post(query)['data']['filtersList'][0]
 
     @property
     @functools.lru_cache(maxsize=None)
@@ -371,7 +379,7 @@ class User(GraphQL):
                 {filter_members}
             }}
         }}"""
-        return self._post(query)['data']['filtersList']
+        return self.post(query)['data']['filtersList']
 
     def watch(self):
         from watchdog.observers import Observer
@@ -424,7 +432,7 @@ class User(GraphQL):
 
     @classmethod
     @helpers.timeit
-    def register(cls, graphql=None, first_name=None, last_name=None, email=None, password=None):
+    def register(cls, graphql, first_name=None, last_name=None, email=None, password=None):
         first_name = first_name if first_name is not None else DEFAULT_FIRST_NAME
         last_name = last_name if last_name is not None else DEFAULT_LAST_NAME
         email = email if email is not None else DEFAULT_EMAIL
@@ -443,16 +451,17 @@ class User(GraphQL):
                 clientMutationId
             }}
         }}"""
-        logger.debug(query)
-        response = requests.post(graphql, json={'query': query})
-        json_response = response.json()
-        logger.debug(json_response)
-        if response.status_code != 200:
-            raise FailedAuthentication(f"Cannot create user: {email}")
-        if 'errors' in json_response and json_response['errors']:
-            errors = [e['message'] for e in json_response['errors']]
-            raise FailedAuthentication(f"Cannot create user: {errors}")
-        return User(graphql, email, password)
+
+        try:
+            graphql_register = GraphQL(graphql=graphql)
+            graphql_register.post(query)
+        except MusicbotError as e:
+            raise FailedRegistration(f"Registration failed for {first_name} | {last_name} | {email} | {password}") from e
+        return User(
+            graphql=graphql,
+            email=email,
+            password=password
+        )
 
     @helpers.timeit
     def unregister(self):
@@ -464,9 +473,12 @@ class User(GraphQL):
                 clientMutationId
             }
         }"""
-        result = self._post(query, failure=FailedAuthentication(f"Cannot delete user {self.email}"))
-        self.authenticated = False
-        return result
+        try:
+            result = self.post(query)
+            self.authenticated = False
+            return result
+        except MusicbotError as e:
+            raise FailedAuthentication(f"Cannot delete user {self.email}") from e
 
     @helpers.timeit
     def delete_music(self, path):
@@ -478,7 +490,7 @@ class User(GraphQL):
                 clientMutationId
             }}
         }}"""
-        return self._post(query)
+        return self.post(query)
 
     @helpers.timeit
     def clean_musics(self):
@@ -490,4 +502,4 @@ class User(GraphQL):
                 clientMutationId
             }
         }"""
-        return self._post(query)
+        return self.post(query)

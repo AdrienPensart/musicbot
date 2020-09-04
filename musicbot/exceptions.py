@@ -6,6 +6,10 @@ class MusicbotConfigError(MusicbotError):
     pass
 
 
+class FailedRegistration(MusicbotError):
+    pass
+
+
 class FailedAuthentication(MusicbotError):
     pass
 

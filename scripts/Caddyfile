@@ -1,0 +1,20 @@
+:80 {
+    log {
+        output file /var/log/musicbot.log
+    }
+    route {
+        reverse_proxy /* 127.0.0.1:5000
+    }
+}
+
+:81 {
+    log {
+        output file /var/log/musicbot_admin.log
+    }
+    route {
+        basicauth /* {
+            musicbot_admin JDJhJDEwJDBoWXIxNVBiNDZmeDlpWEtwNFY1dnV4Z2dwNVlDOFR0T2J4cS84NzNaMVF6dlloTTVqVktH
+        }
+        reverse_proxy /* 127.0.0.1:5001
+    }
+}

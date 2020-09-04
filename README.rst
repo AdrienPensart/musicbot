@@ -291,9 +291,9 @@ musicbot local bests
     --suffix TEXT             Append this suffix to playlist name
     --dry                     Take no real action  [default: False]
     Auth options: 
+      --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -e, --email TEXT        User email
       -p, --password TEXT     User password
-      --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT        User token
     Filter options: 
       --name TEXT             Filter name
@@ -335,9 +335,9 @@ musicbot local clean
 
   Options:
     Auth options: 
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 
@@ -352,9 +352,9 @@ musicbot local count
 
   Options:
     Auth options: 
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 
@@ -369,9 +369,9 @@ musicbot local execute
 
   Options:
     Auth options: 
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 
@@ -387,9 +387,9 @@ musicbot local filter
   Options:
     --output [table|json]  Output format  [default: table]
     Auth options: 
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 
@@ -405,9 +405,9 @@ musicbot local filters
   Options:
     --output [table|json]  Output format  [default: table]
     Auth options: 
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 
@@ -423,9 +423,9 @@ musicbot local folders
   Options:
     --output [table|json]  Output format  [default: table]
     Auth options: 
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 
@@ -447,9 +447,9 @@ musicbot local inconsistencies
       --fix                                             Fix musics
     --dry                                               Take no real action  [default: False]
     Auth options: 
+      --graphql TEXT                                    GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -e, --email TEXT                                  User email
       -p, --password TEXT                               User password
-      --graphql TEXT                                    GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT                                  User token
     Filter options: 
       --name TEXT                                       Filter name
@@ -491,9 +491,9 @@ musicbot local load-filters
 
   Options:
     Auth options: 
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 
@@ -508,9 +508,9 @@ musicbot local player
 
   Options:
     Auth options: 
+      --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -e, --email TEXT        User email
       -p, --password TEXT     User password
-      --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT        User token
     Filter options: 
       --name TEXT             Filter name
@@ -554,9 +554,9 @@ musicbot local playlist
     --dry                      Take no real action  [default: False]
     --output [json|m3u|table]  Output format  [default: table]
     Auth options: 
+      --graphql TEXT           GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -e, --email TEXT         User email
       -p, --password TEXT      User password
-      --graphql TEXT           GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT         User token
     Filter options: 
       --name TEXT              Filter name
@@ -598,9 +598,9 @@ musicbot local scan
 
   Options:
     Auth options: 
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 
@@ -616,9 +616,9 @@ musicbot local stats
   Options:
     --output [table|json]     Output format  [default: table]
     Auth options: 
+      --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -e, --email TEXT        User email
       -p, --password TEXT     User password
-      --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT        User token
     Filter options: 
       --name TEXT             Filter name
@@ -661,9 +661,9 @@ musicbot local sync
   Options:
     --dry                     Take no real action  [default: False]
     Auth options: 
+      --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -e, --email TEXT        User email
       -p, --password TEXT     User password
-      --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT        User token
     Filter options: 
       --name TEXT             Filter name
@@ -705,9 +705,9 @@ musicbot local watch
 
   Options:
     Auth options: 
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 
@@ -840,9 +840,9 @@ musicbot spotify diff
 
   Options:
     Auth options: 
+      --graphql TEXT        GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -e, --email TEXT      User email
       -p, --password TEXT   User password
-      --graphql TEXT        GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT      User token
     Spotify options: 
       --username TEXT       Spotify username
@@ -944,9 +944,12 @@ musicbot user list
     List users (admin)
 
   Options:
-    --output [table|json]  Output format  [default: table]
-    --graphql-admin TEXT   GraphQL endpoint  [default: http://127.0.0.1:5001/graphql]
-    -h, --help             Show this message and exit.
+    --output [table|json]            Output format  [default: table]
+    Admin options: 
+      --graphql-admin TEXT           GraphQL endpoint  [default: http://127.0.0.1:5001/graphql]
+      --graphql-admin-user TEXT      GraphQL admin user (basic auth)
+      --graphql-admin-password TEXT  GraphQL admin password (basic auth)
+    -h, --help                       Show this message and exit.
 
 
 musicbot user login
@@ -960,9 +963,9 @@ musicbot user login
   Options:
     -s, --save             Save to config file  [default: False]
     User options: 
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
     -h, --help             Show this message and exit.
 
 
@@ -977,11 +980,11 @@ musicbot user register
   Options:
     -s, --save             Save to config file  [default: False]
     Register options: 
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -e, --email TEXT     User email
       -p, --password TEXT  User password
       --first-name TEXT    User first name
       --last-name TEXT     User last name
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
     -h, --help             Show this message and exit.
 
 
@@ -995,9 +998,9 @@ musicbot user unregister
 
   Options:
     Auth options: 
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 

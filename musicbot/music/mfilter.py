@@ -332,6 +332,7 @@ options = [
     ),
 ]
 
+
 def sane_filter(ctx, param, value):  # pylint: disable=unused-argument
     kwargs = {}
     for field in attr.fields_dict(Filter):

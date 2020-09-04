@@ -38,6 +38,7 @@ CONTEXT_SETTINGS = {
 
 
 @click.group(
+    prog_name,
     cls=AdvancedGroup,
     context_settings=CONTEXT_SETTINGS,
 )
@@ -69,6 +70,7 @@ cli.add_command(completion, 'completion')
 # hacky aliases
 cli._commands['music'] = ['file']
 cli._aliases['file'] = 'music'
+
 
 @cli.command('version', short_help='Print version')
 def _version():

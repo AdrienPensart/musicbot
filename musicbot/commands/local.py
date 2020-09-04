@@ -43,14 +43,14 @@ def count(user):
         }
     }
     '''
-    print(json.dumps(user._post(query)['data']['rawMusics']['totalCount']))
+    print(json.dumps(user.post(query)['data']['rawMusics']['totalCount']))
 
 
 @cli.command(help='Raw query')
 @click.argument('query')
 @add_options(user.auth_options)
 def execute(user, query):
-    print(json.dumps(user._post(query)['data']))
+    print(json.dumps(user.post(query)['data']))
 
 
 @cli.command(help='Load default filters')

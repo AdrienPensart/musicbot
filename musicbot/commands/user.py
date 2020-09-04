@@ -6,7 +6,7 @@ from click_skeleton import AdvancedGroup, add_options
 
 from musicbot import helpers
 from musicbot.user import User, register_options, auth_options, login_options
-from musicbot.admin import Admin, graphql_admin_option
+from musicbot.admin import Admin, admin_options
 from musicbot.config import config
 
 logger = logging.getLogger(__name__)
@@ -20,10 +20,10 @@ def cli():
 @cli.command('list', help='List users (admin)')
 @add_options(
     helpers.output_option +
-    graphql_admin_option
+    admin_options
 )
-def _list(graphql_admin, output):
-    a = Admin(graphql=graphql_admin)
+def _list(graphql_admin, output, **kwargs):
+    a = Admin(graphql=graphql_admin, **kwargs)
     users = a.users()
     if output == 'table':
         pt = PrettyTable()
@@ -52,9 +52,8 @@ def register(save, **kwargs):
 
 @cli.command(aliases=['delete', 'remove'], help='Remove a user')
 @add_options(auth_options)
-def unregister(**kwargs):
-    u = User(**kwargs)
-    u.unregister()
+def unregister(user):
+    user.unregister()
 
 
 @cli.command(aliases=['token'], help='Authenticate user')
@@ -62,10 +61,9 @@ def unregister(**kwargs):
     helpers.save_option +
     login_options
 )
-def login(save, **kwargs):
-    u = User(**kwargs)
-    print(u.token)
-    if u.token and save:
+def login(user, save):
+    print(user.token)
+    if user.token and save:
         logger.info("saving user infos")
-        config.configfile['musicbot']['token'] = u.token
+        config.configfile['musicbot']['token'] = user.token
         config.write()
