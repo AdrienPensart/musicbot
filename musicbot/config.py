@@ -122,17 +122,16 @@ options =\
     quiet_option
 
 
-@attr.s
+@attr.s(auto_attribs=True)
 class Config:
-    log = attr.ib(default=DEFAULT_LOG)
-    quiet = attr.ib(default=DEFAULT_QUIET)
-    debug = attr.ib(default=DEFAULT_DEBUG)
-    info = attr.ib(default=DEFAULT_INFO)
-    timings = attr.ib(default=DEFAULT_TIMINGS)
-    verbosity = attr.ib(default=DEFAULT_VERBOSITY)
-    config = attr.ib(default=DEFAULT_CONFIG)
-    level = attr.ib(default=verbosities[DEFAULT_VERBOSITY])
-    fmt = attr.ib(default='%(log_color)s%(name)s | %(asctime)s | %(levelname)s | %(message)s', repr=False)
+    log: str = DEFAULT_LOG
+    quiet: bool = DEFAULT_QUIET
+    debug: bool = DEFAULT_DEBUG
+    info: bool = DEFAULT_INFO
+    timings: bool = DEFAULT_TIMINGS
+    verbosity: str = DEFAULT_VERBOSITY
+    config: str = DEFAULT_CONFIG
+    level: int = verbosities[DEFAULT_VERBOSITY]
 
     def set(self, config=None, debug=None, info=None, timings=None, quiet=None, verbosity=None, log=None):
         self.config = config if config is not None else os.getenv(MB_CONFIG, DEFAULT_CONFIG)
@@ -157,7 +156,7 @@ class Config:
         handler.setLevel(self.level)
         handler.setFormatter(
             colorlog.ColoredFormatter(
-                self.fmt,
+                fmt='%(log_color)s%(name)s | %(asctime)s | %(levelname)s | %(message)s',
                 datefmt='%Y-%d-%d %H:%M:%S',
                 log_colors={
                     'DEBUG': 'cyan',
