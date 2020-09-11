@@ -1,8 +1,7 @@
 import sys
 import os
 import logging
-import string
-import random
+from typing import Collection, Iterable
 import enlighten
 import click
 from .config import config
@@ -63,16 +62,6 @@ playlist_output_option = [
     )
 ]
 
-Red = "\033[0;31;40m"
-Green = "\033[0;32;40m"
-Yellow = "\033[0;33;40m"
-Reset = "\033[0m"
-
-
-def random_password(size=8) -> str:
-    alphabet = string.ascii_letters + string.digits
-    return ''.join(random.choice(alphabet) for i in range(size))
-
 
 def config_string(ctx, param, value):
     arg_value = value
@@ -123,9 +112,9 @@ def config_list(ctx, param, value):
 
 
 @config.timeit
-def genfiles(folders):
+def genfiles(folders: Iterable[str]) -> Collection[File]:
     directories = [os.path.abspath(f) for f in folders]
-    enabled = directories and not config.quiet
+    enabled = len(directories) and not config.quiet
     with enlighten.Manager(stream=sys.stderr, enabled=enabled) as manager:
         count = 0
         with manager.counter(total=len(directories), desc=f"Music counting {folders}") as pbar:

@@ -1,3 +1,4 @@
+import requests
 from click_option_group import optgroup
 from .config import config
 from .graphql import GraphQL
@@ -46,12 +47,13 @@ admin_options =\
 
 class Admin(GraphQL):
     @config.timeit
-    def __init__(self, graphql=None, graphql_admin_user=None, graphql_admin_password=None):
+    def __init__(self, graphql, graphql_admin_user, graphql_admin_password):
+        self.user = graphql_admin_user
+        self.password = graphql_admin_password
         GraphQL.__init__(
             self,
             graphql=graphql,
-            user=graphql_admin_user,
-            password=graphql_admin_password,
+            authorization=requests.auth._basic_auth_str(self.user, self.password)
         )
 
     @config.timeit

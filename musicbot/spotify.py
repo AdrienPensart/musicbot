@@ -1,6 +1,7 @@
 import logging
 import os
 import itertools
+from typing import List, Any
 import spotipy
 import click
 from prettytable import PrettyTable
@@ -143,7 +144,7 @@ spotify_options =\
 
 
 class Spotify:
-    def __init__(self, username, client_id, client_secret, cache_path, scopes, redirect_uri):
+    def __init__(self, username: str, client_id: str, client_secret: str, cache_path: str, scopes: str, redirect_uri: str):
         self.scopes = scopes
         self.redirect_uri = redirect_uri
         self.cache_path = cache_path
@@ -163,7 +164,7 @@ class Spotify:
     def __repr__(self):
         return f'token: {self.token} | username: {self.username} | client_id: {self.client_id} | client_secret: {self.client_secret} | cache: {self.cache_path} | redirect uri: {self.redirect_uri} | scopes: {self.scopes}'
 
-    def tracks(self):
+    def tracks(self) -> List[Any]:
         offset = 0
         limit = 50
         objects = []
@@ -177,7 +178,7 @@ class Spotify:
                 break
         return list(itertools.chain(*objects))
 
-    def playlists(self):
+    def playlists(self) -> List[Any]:
         offset = 0
         limit = 50
         objects = []
@@ -192,7 +193,7 @@ class Spotify:
         logger.debug(f"length: {offset}")
         return list(itertools.chain(*objects))
 
-    def playlist(self, name):
+    def playlist(self, name: str) -> List[Any]:
         playlists = self.playlists()
         for p in playlists:
             if p['name'] == name:

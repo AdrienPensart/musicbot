@@ -13,7 +13,7 @@ click-completion==0.5.2
 click-didyoumean==0.0.3
 click-help-colors==0.8
 click-option-group==0.5.1
-click-skeleton==0.2.6
+click-skeleton==0.2.7
 colorama==0.4.3
 colorlog==4.2.1
 enlighten==1.6.2
@@ -44,7 +44,6 @@ prompt-toolkit==3.0.7
 psycopg2-binary==2.8.6
 py==1.9.0
 pyacoustid==1.2.0
-pydantic==1.6.1
 pydub==0.24.1
 pyparsing==2.4.7
 pyreadline==2.1; sys_platform == "win32"

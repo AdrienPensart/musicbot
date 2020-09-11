@@ -2,7 +2,7 @@ import logging
 import pathlib
 import json
 import os
-from typing import Optional, List, Dict, Iterable
+from typing import Optional, List, Dict, Iterable, Iterator
 from collections import OrderedDict
 import click
 import mutagen
@@ -10,6 +10,7 @@ from pydub import AudioSegment
 from mutagen import MutagenError
 from mutagen.id3 import TXXX, TRCK, TIT2, TALB, TPE1, TCON, COMM
 from click_option_group import optgroup
+from .helpers import ensure, mysplit
 
 
 logger = logging.getLogger(__name__)
@@ -89,22 +90,6 @@ checks_options = [
 supported_formats = ["mp3", "flac"]
 
 
-def mysplit(s, delim=',') -> List[str]:
-    if isinstance(s, list):
-        return s
-    if s is None:
-        return []
-    if isinstance(s, str):
-        return [x for x in s.split(delim) if x]
-    raise ValueError(s)
-
-
-def ensure(path) -> str:
-    p = pathlib.Path(path)
-    p.parent.mkdir(parents=True, exist_ok=True)
-    return str(p)
-
-
 # pylint: disable-msg=unsupported-membership-test
 # pylint: disable-msg=unsubscriptable-object
 # pylint: disable-msg=unsupported-assignment-operation
@@ -142,7 +127,7 @@ class File:
     def __repr__(self) -> str:
         return self.path
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator:
         yield from self.ordered_dict().items()
 
     def close(self):

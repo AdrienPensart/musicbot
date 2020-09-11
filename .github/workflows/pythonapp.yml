@@ -20,6 +20,9 @@ jobs:
         run: |
           pylint musicbot tests
           rst-lint README.rst
+      - name: Static type checking
+        run: |
+          pytype musicbot -j auto -k
       - name: Test with pytest
         env:
           MB_SPOTIFY_CACHE: ${{ secrets.MB_SPOTIFY_CACHE }}

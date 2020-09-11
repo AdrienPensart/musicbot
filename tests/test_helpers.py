@@ -1,14 +1,9 @@
 import logging
-from musicbot import helpers
 from musicbot.music.file import supported_formats
 from musicbot.music.helpers import find_files
 from . import fixtures
 
 logger = logging.getLogger(__name__)
-
-
-def test_password():
-    assert helpers.random_password() != helpers.random_password()
 
 
 def test_finding_files():

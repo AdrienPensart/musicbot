@@ -19,6 +19,9 @@ git add setup.py poetry.lock requirements.txt requirements-dev.txt
 echo "linting..."
 poetry run pylint musicbot tests
 
+echo "type checking..."
+poetry run pytype musicbot -j auto -k
+
 kernel=`uname -r`
 case "$kernel" in
 *microsoft*) echo "No unit testing because docker not available" ;;

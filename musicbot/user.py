@@ -3,7 +3,7 @@ import json
 import logging
 import functools
 import sys
-import click
+from typing import Collection, Optional
 import enlighten
 from click_option_group import optgroup
 from .graphql import GraphQL
@@ -82,60 +82,14 @@ graphql_option = [
 ]
 
 
-def sane_user(ctx, param, value):  # pylint: disable=unused-argument
-    kwargs = {}
-    for field in ('token', 'email', 'password', 'graphql'):
-        kwargs[field] = ctx.params.get(field, None)
-        ctx.params.pop(field, None)
-    ctx.params['user'] = User(**kwargs)
-    return ctx.params['user']
-
-
-DEFAULT_FILTER = None
-user_option = [
-    optgroup.option(
-        '--user',
-        help='Music Filter',
-        expose_value=False,
-        callback=sane_user,
-        hidden=True,
-    )
-]
-
-register_options =\
-    [optgroup.group('Register options')] +\
-    graphql_option +\
-    email_option +\
-    password_option +\
-    first_name_option +\
-    last_name_option
-
-login_options =\
-    [optgroup.group('User options')] +\
-    graphql_option +\
-    email_option +\
-    password_option +\
-    user_option
-
-auth_options =\
-    [optgroup.group('Auth options')] +\
-    graphql_option +\
-    email_option +\
-    password_option +\
-    token_option +\
-    user_option
-
-
 class User(GraphQL):
     @config.timeit
-    def __init__(self, graphql, email=None, password=None, token=None):
+    def __init__(self, graphql: str, email: Optional[str] = None, password: Optional[str] = None, token: Optional[str] = None):
         self.authenticated = False
-        GraphQL.__init__(self, graphql)
 
         if token:
             self.token = token
             logger.debug(f"using token : {self.token}")
-            self.headers = {"Authorization": f"Bearer {self.token}"}
         elif email and password:
             query = f"""
             mutation
@@ -147,17 +101,18 @@ class User(GraphQL):
             }}"""
             response = None
             try:
-                response = self.post(query)
+                graphql_auth = GraphQL(graphql=graphql)
+                response = graphql_auth.post(query)
                 self.token = response['data']['authenticate']['jwtToken']
                 self.email = email
                 self.password = password
-                self.headers = {"Authorization": f"Bearer {self.token}"}
             except MusicbotError as e:
                 raise FailedAuthentication(f"Authentication failed for email {email}") from e
             except KeyError as e:
                 raise FailedAuthentication(f"Invalid response received : {response}") from e
         else:
             raise FailedAuthentication("No credentials or token provided")
+        GraphQL.__init__(self, graphql, authorization=f"Bearer {self.token}")
         self.authenticated = True
 
     @classmethod
@@ -191,7 +146,7 @@ class User(GraphQL):
         return self.post(query)
 
     @config.timeit
-    def playlist(self, mf=None):
+    def playlist(self, mf: Optional[mfilter.Filter] = None):
         mf = mf if mf is not None else mfilter.Filter()
         query = f"""
         {{
@@ -200,7 +155,7 @@ class User(GraphQL):
         return self.post(query)['data']['playlist']
 
     @config.timeit
-    def bests(self, mf=None):
+    def bests(self, mf: Optional[mfilter.Filter] = None):
         mf = mf if mf is not None else mfilter.Filter()
         query = f"""
         {{
@@ -216,7 +171,7 @@ class User(GraphQL):
         return self.post(query)['data']['bests']['nodes']
 
     @config.timeit
-    def do_filter(self, mf=None):
+    def do_filter(self, mf: Optional[mfilter.Filter] = None):
         mf = mf if mf is not None else mfilter.Filter()
         if mf.name:
             kwargs = self.filter(mf.name)
@@ -248,7 +203,7 @@ class User(GraphQL):
         return self.post(query)['data']['doFilter']['nodes']
 
     @config.timeit
-    def do_stat(self, mf=None):
+    def do_stat(self, mf: Optional[mfilter.Filter] = None):
         mf = mf if mf is not None else mfilter.Filter()
         query = f"""
         {{
@@ -266,7 +221,7 @@ class User(GraphQL):
         return self.post(query)['data']['doStat']
 
     @config.timeit
-    def upsert_music(self, music):
+    def upsert_music(self, music: file.File):
         query = f"""
         mutation
         {{
@@ -278,7 +233,7 @@ class User(GraphQL):
         return self.post(query)
 
     @config.timeit
-    def bulk_insert(self, musics):
+    def bulk_insert(self, musics: Collection[file.File]):
         if not musics:
             logger.info("no musics to insert")
             return None
@@ -348,7 +303,7 @@ class User(GraphQL):
 
     @functools.lru_cache(maxsize=None)
     @config.timeit
-    def filter(self, name):
+    def filter(self, name: str):
         default_filter = mfilter.Filter()
         filter_members = ','.join(default_filter.ordered_dict().keys())
         query = f"""
@@ -405,7 +360,7 @@ class User(GraphQL):
                 self.user.delete_music(event.src_path)
                 self.update_music(event.dest_path)
 
-            def update_music(self, path):
+            def update_music(self, path: str):
                 for folder in self.user.folders:
                     if path.startswith(folder) and path.endswith(tuple(file.supported_formats)):
                         logger.debug(f'Creating/modifying DB for: {path}')
@@ -428,17 +383,7 @@ class User(GraphQL):
 
     @classmethod
     @config.timeit
-    def register(cls, graphql, first_name=None, last_name=None, email=None, password=None):
-        first_name = first_name if first_name is not None else DEFAULT_FIRST_NAME
-        last_name = last_name if last_name is not None else DEFAULT_LAST_NAME
-        email = email if email is not None else DEFAULT_EMAIL
-        password = password if password is not None else DEFAULT_PASSWORD
-
-        if email is None:
-            raise click.BadParameter('Missing value for email')
-        if password is None:
-            raise click.BadParameter('Missing value for password')
-
+    def register(cls, graphql: str, email: str, password: str, first_name: str, last_name: str):
         query = f"""
         mutation
         {{
@@ -477,7 +422,7 @@ class User(GraphQL):
             raise FailedAuthentication(f"Cannot delete user {self.email}") from e
 
     @config.timeit
-    def delete_music(self, path):
+    def delete_music(self, path: str):
         query = f"""
         mutation
         {{
@@ -499,3 +444,48 @@ class User(GraphQL):
             }
         }"""
         return self.post(query)
+
+
+def sane_user(ctx, param, value) -> User:  # pylint: disable=unused-argument
+    kwargs = {}
+    for field in ('token', 'email', 'password', 'graphql'):
+        kwargs[field] = ctx.params.get(field, None)
+        ctx.params.pop(field, None)
+    ctx.params['user'] = User(**kwargs)
+    return ctx.params['user']
+
+
+DEFAULT_FILTER = None
+user_option = [
+    optgroup.option(
+        '--user',
+        help='Music Filter',
+        expose_value=False,
+        callback=sane_user,
+        hidden=True,
+    )
+]
+
+
+register_options =\
+    [optgroup.group('Register options')] +\
+    graphql_option +\
+    email_option +\
+    password_option +\
+    first_name_option +\
+    last_name_option
+
+login_options =\
+    [optgroup.group('User options')] +\
+    graphql_option +\
+    email_option +\
+    password_option +\
+    user_option
+
+auth_options =\
+    [optgroup.group('Auth options')] +\
+    graphql_option +\
+    email_option +\
+    password_option +\
+    token_option +\
+    user_option

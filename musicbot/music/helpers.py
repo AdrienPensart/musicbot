@@ -1,7 +1,8 @@
 import os
+import pathlib
 import typing
-import re
 import logging
+from typing import List, Iterable
 import humanfriendly
 
 logger = logging.getLogger(__name__)
@@ -11,11 +12,27 @@ except_directories = ['.Spotlight-V100', '.zfs', 'Android', 'LOST.DIR']
 default_output_type = 'json'
 
 
-def bytes_to_human(b) -> str:
+def mysplit(s: str, delim: str = ',') -> List[str]:
+    if isinstance(s, list):
+        return s
+    if s is None:
+        return []
+    if isinstance(s, str):
+        return [x for x in s.split(delim) if x]
+    raise ValueError(s)
+
+
+def ensure(path: str) -> str:
+    p = pathlib.Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    return str(p)
+
+
+def bytes_to_human(b: int) -> str:
     return humanfriendly.format_size(b)
 
 
-def empty_dirs(root_dir, recursive=True) -> typing.Iterator[str]:
+def empty_dirs(root_dir: str, recursive: bool = True) -> typing.Iterator[str]:
     dirs_list = []
     for root, dirs, files in os.walk(root_dir, topdown=False):
         if recursive:
@@ -32,7 +49,7 @@ def empty_dirs(root_dir, recursive=True) -> typing.Iterator[str]:
             yield root
 
 
-def find_files(directories, supported_formats) -> typing.Iterator[typing.Tuple[str, str]]:
+def find_files(directories: Iterable[str], supported_formats: Iterable[str]) -> typing.Iterator[typing.Tuple[str, str]]:
     directories = [os.path.abspath(d) for d in directories]
     for directory in directories:
         for root, _, files in os.walk(directory):
@@ -44,7 +61,7 @@ def find_files(directories, supported_formats) -> typing.Iterator[typing.Tuple[s
                     yield (directory, filename)
 
 
-def scantree(path, supported_formats) -> typing.Iterator[os.DirEntry]:
+def scantree(path: str, supported_formats: Iterable[str]) -> typing.Iterator[os.DirEntry]:
     try:
         if '/.' in path:
             return
@@ -58,43 +75,17 @@ def scantree(path, supported_formats) -> typing.Iterator[os.DirEntry]:
         logger.error(e)
 
 
-def filecount(path, supported_formats) -> int:
+def filecount(path: str, supported_formats: Iterable[str]) -> int:
     return len(list(scantree(path, supported_formats)))
 
 
-def all_files(directory) -> str:
+def all_files(directory: str) -> Iterable[str]:
     for root, _, files in os.walk(directory):
         if any(e in root for e in except_directories):
             logger.debug(f"Invalid path {root}")
             continue
         for basename in files:
             yield os.path.join(root, basename)
-
-
-def first(iterable, default=None) -> typing.Any:
-    if iterable:
-        if isinstance(iterable, str):
-            return iterable
-        for item in iterable:
-            return item
-    return default
-
-
-def num(s) -> typing.Union[int, float]:
-    try:
-        return int(s)
-    except ValueError:
-        return float(s)
-
-
-def duration_to_seconds(duration) -> int:
-    if re.match(r'\d+s', duration):
-        return int(duration[:-1])
-    if re.match(r'\d+m', duration):
-        return int(duration[:-1]) * 60
-    if re.match(r'\d+h', duration):
-        return int(duration[:-1]) * 3600
-    raise ValueError(f"bad duration {duration}")
 
 
 default_checks = [

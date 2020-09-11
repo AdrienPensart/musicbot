@@ -1,5 +1,4 @@
 import logging
-from musicbot.music.helpers import duration_to_seconds
 from musicbot.music import file
 from . import fixtures
 
@@ -35,13 +34,3 @@ def test_mp3_tags():
 
     # from musicbot.music import youtube
     # assert youtube.search(m.artist, m.title, 258) == 'https://www.youtube.com/watch?v=JyjQFMksvaM'
-
-
-def test_duration():
-    assert duration_to_seconds("12s") == 12
-    assert duration_to_seconds("12m") == 60 * 12
-    assert duration_to_seconds("12h") == 60 * 60 * 12
-
-
-# def test_raise_limits():
-#     assert raise_limits() is True

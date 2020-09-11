@@ -1,6 +1,6 @@
 import sys
 from prettytable import PrettyTable
-from musicbot.helpers import Green, Reset
+from click_skeleton.helpers import Green, Reset
 
 
 def print_playlist(tracks, file=None, current_title=None, current_album=None, current_artist=None):
