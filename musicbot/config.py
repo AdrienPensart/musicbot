@@ -1,5 +1,8 @@
 import os
+import time
+import inspect
 import logging
+import functools
 import configparser
 import attr
 import click
@@ -7,7 +10,7 @@ import colorlog
 from cached_property import cached_property
 from click_option_group import optgroup
 from click_skeleton import ExpandedPath
-from click_skeleton.helpers import str2bool
+from click_skeleton.helpers import str2bool, seconds_to_human
 
 
 logger = logging.getLogger(__name__)
@@ -133,7 +136,7 @@ class Config:
     config: str = DEFAULT_CONFIG
     level: int = verbosities[DEFAULT_VERBOSITY]
 
-    def set(self, config=None, debug=None, info=None, timings=None, quiet=None, verbosity=None, log=None):
+    def set(self, config=None, debug=None, info=None, timings=None, quiet=None, verbosity=None, log=None) -> None:
         self.config = config if config is not None else os.getenv(MB_CONFIG, DEFAULT_CONFIG)
         self.log = log if log is not None else os.getenv(MB_LOG, DEFAULT_LOG)
         self.quiet = quiet if quiet is not None else str2bool(os.getenv(MB_QUIET, str(DEFAULT_QUIET)))
@@ -175,7 +178,7 @@ class Config:
         logger.debug(self)
 
     @cached_property
-    def configfile(self):
+    def configfile(self) -> configparser.ConfigParser:
         file = configparser.ConfigParser()
         file.read(self.config)
         valid_sections = ('musicbot', 'spotify')
@@ -187,6 +190,57 @@ class Config:
     def write(self):
         with open(self.config, 'w') as output_config:
             self.configfile.write(output_config)
+
+    def timeit(self, *wrapper_args, **wrapper_kwargs):
+        func = None
+        if len(wrapper_args) == 1 and callable(wrapper_args[0]):
+            func = wrapper_args[0]
+        if func:
+            always = False
+            on_success = False
+            on_config = True
+        else:
+            always = wrapper_kwargs.get('always', False)
+            on_success = wrapper_kwargs.get('on_success', False)
+            on_config = wrapper_kwargs.get('on_config', True)
+
+        def real_timeit(func):
+            @functools.wraps(func)
+            def wrapper(*args, **kwargs):
+                start = time.time()
+                result = func(*args, **kwargs)
+                for_human = seconds_to_human(time.time() - start)
+
+                if self.info or self.debug:
+                    args_values = []
+                    argspec = inspect.getfullargspec(func)
+                    # go through each position based argument
+                    counter = 0
+                    if argspec.args and type(argspec.args is list):
+                        for arg in args:
+                            # when you run past the formal positional arguments
+                            try:
+                                args_values.append(str(argspec.args[counter]) + " = " + str(arg))
+                                counter += 1
+                            except IndexError:
+                                # then fallback to using the positional varargs name
+                                if argspec.varargs:
+                                    varargsname = argspec.varargs
+                                    args_values.append("*" + varargsname + " = " + str(arg))
+
+                    # finally show the named varargs
+                    for k, v in kwargs.items():
+                        args_values.append(k + " = " + str(v))
+
+                    args_values_str = '|'.join(args_values)
+                    timing = f'(timings) {func.__module__}.{func.__qualname__} ({args_values_str}): {for_human} | result = {result}'
+                else:
+                    timing = f'(timings) {func.__module__}.{func.__qualname__} : {for_human}'
+                if always or (on_success and result) or (on_config and self.timings):
+                    click.secho(timing, fg="magenta", bold=True)
+                return result
+            return wrapper
+        return real_timeit(func) if func else real_timeit
 
 
 config = Config()

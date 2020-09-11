@@ -1,5 +1,5 @@
 import os
-import platform
+import typing
 import re
 import logging
 import humanfriendly
@@ -11,16 +11,11 @@ except_directories = ['.Spotlight-V100', '.zfs', 'Android', 'LOST.DIR']
 default_output_type = 'json'
 
 
-def bytes_to_human(b):
+def bytes_to_human(b) -> str:
     return humanfriendly.format_size(b)
 
 
-def seconds_to_human(s):
-    import datetime
-    return str(datetime.timedelta(seconds=s))
-
-
-def empty_dirs(root_dir, recursive=True):
+def empty_dirs(root_dir, recursive=True) -> typing.Iterator[str]:
     dirs_list = []
     for root, dirs, files in os.walk(root_dir, topdown=False):
         if recursive:
@@ -37,22 +32,7 @@ def empty_dirs(root_dir, recursive=True):
             yield root
 
 
-def raise_limits():
-    if platform.system() == 'Windows':
-        logger.debug('Cannot raise system limits on Windows')
-        return False
-    import resource  # pylint: disable=import-error
-    try:
-        soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
-        logger.info(f"Current limits, soft and hard : {soft} {hard}", soft, hard)
-        resource.setrlimit(resource.RLIMIT_NOFILE, (hard, hard))
-        return True
-    except (ValueError, OSError) as e:
-        logger.critical(f'You may need to check ulimit parameter: {e}')
-        return False
-
-
-def find_files(directories, supported_formats):
+def find_files(directories, supported_formats) -> typing.Iterator[typing.Tuple[str, str]]:
     directories = [os.path.abspath(d) for d in directories]
     for directory in directories:
         for root, _, files in os.walk(directory):
@@ -64,7 +44,7 @@ def find_files(directories, supported_formats):
                     yield (directory, filename)
 
 
-def scantree(path, supported_formats):
+def scantree(path, supported_formats) -> typing.Iterator[os.DirEntry]:
     try:
         if '/.' in path:
             return
@@ -78,11 +58,11 @@ def scantree(path, supported_formats):
         logger.error(e)
 
 
-def filecount(path, supported_formats):
+def filecount(path, supported_formats) -> int:
     return len(list(scantree(path, supported_formats)))
 
 
-def all_files(directory):
+def all_files(directory) -> str:
     for root, _, files in os.walk(directory):
         if any(e in root for e in except_directories):
             logger.debug(f"Invalid path {root}")
@@ -91,7 +71,7 @@ def all_files(directory):
             yield os.path.join(root, basename)
 
 
-def first(iterable, default=None):
+def first(iterable, default=None) -> typing.Any:
     if iterable:
         if isinstance(iterable, str):
             return iterable
@@ -100,14 +80,14 @@ def first(iterable, default=None):
     return default
 
 
-def num(s):
+def num(s) -> typing.Union[int, float]:
     try:
         return int(s)
     except ValueError:
         return float(s)
 
 
-def duration_to_seconds(duration):
+def duration_to_seconds(duration) -> int:
     if re.match(r'\d+s', duration):
         return int(duration[:-1])
     if re.match(r'\d+m', duration):
@@ -115,11 +95,6 @@ def duration_to_seconds(duration):
     if re.match(r'\d+h', duration):
         return int(duration[:-1]) * 3600
     raise ValueError(f"bad duration {duration}")
-
-
-def seconds_to_str(duration):
-    import datetime
-    return str(datetime.timedelta(seconds=duration))
 
 
 default_checks = [

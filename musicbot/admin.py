@@ -1,5 +1,5 @@
 from click_option_group import optgroup
-from . import helpers
+from .config import config
 from .graphql import GraphQL
 from .helpers import config_string
 
@@ -45,7 +45,7 @@ admin_options =\
 
 
 class Admin(GraphQL):
-    @helpers.timeit
+    @config.timeit
     def __init__(self, graphql=None, graphql_admin_user=None, graphql_admin_password=None):
         GraphQL.__init__(
             self,
@@ -54,7 +54,7 @@ class Admin(GraphQL):
             password=graphql_admin_password,
         )
 
-    @helpers.timeit
+    @config.timeit
     def users(self):
         query = """{
             accountsList {

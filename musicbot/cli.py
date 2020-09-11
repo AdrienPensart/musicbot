@@ -12,9 +12,9 @@ from attrdict import AttrDict
 from click_help_colors import version_option
 from click_skeleton import AdvancedGroup, add_options, backtrace
 from click_skeleton.completion import completion
+from click_skeleton.helpers import raise_limits
 
 from musicbot import config, exceptions, __version__
-from musicbot.music.helpers import raise_limits
 from musicbot.commands.config import cli as config_cli
 from musicbot.commands.folder import cli as folder_cli
 from musicbot.commands.local import cli as local_cli
@@ -68,8 +68,8 @@ cli.add_command(user_cli, 'user')
 cli.add_command(completion, 'completion')
 
 # hacky aliases
-cli._commands['music'] = ['file']
-cli._aliases['file'] = 'music'
+cli._commands['music'] = ['file']  # pytype: disable=attribute-error
+cli._aliases['file'] = 'music'  # pytype: disable=attribute-error
 
 
 @cli.command('version', short_help='Print version')

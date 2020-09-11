@@ -1,4 +1,5 @@
 import logging
+import typing
 import json
 from collections import OrderedDict
 import attr
@@ -10,11 +11,11 @@ logger = logging.getLogger(__name__)
 rating_choices = [x * 0.5 for x in range(0, 11)]
 
 
-def sane_rating(ctx, param, value):
+def sane_rating(ctx, param, value) -> float:
     if value is not None and value in rating_choices:
         ctx.params[param.name] = value
         return ctx.params[param.name]
-    return None
+    return float('nan')
 
 
 min_int = 0
@@ -104,19 +105,19 @@ class Filter:
     def __repr__(self):
         return json.dumps(self.ordered_dict())
 
-    def diff(self):
+    def diff(self) -> typing.Dict:
         '''Print only differences with default filter'''
         myself = vars(self)
         default = vars(Filter())
         return {k: myself[k] for k in myself if default[k] != myself[k] and k != 'name'}
 
-    def common(self):
+    def common(self) -> typing.Dict:
         '''Print common values with default filter'''
         myself = vars(self)
         default = vars(Filter())
         return {k: myself[k] for k in myself if default[k] == myself[k] and k != 'name'}
 
-    def ordered_dict(self):
+    def ordered_dict(self) -> typing.OrderedDict:
         return OrderedDict(
             [
                 ('minDuration', self.min_duration),
@@ -147,7 +148,7 @@ class Filter:
             ]
         )
 
-    def to_graphql(self):
+    def to_graphql(self) -> str:
         return ", ".join([f'{k}: {json.dumps(v)}' for k, v in self.ordered_dict().items()])
 
 
@@ -333,7 +334,7 @@ options = [
 ]
 
 
-def sane_filter(ctx, param, value):  # pylint: disable=unused-argument
+def sane_filter(ctx, param, value) -> Filter:  # pylint: disable=unused-argument
     kwargs = {}
     for field in attr.fields_dict(Filter):
         kwargs[field] = ctx.params[field]

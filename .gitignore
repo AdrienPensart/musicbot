@@ -1,4 +1,5 @@
 env*
+.pytype
 *.swp
 *.pyc
 doc/html

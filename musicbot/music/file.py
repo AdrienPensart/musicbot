@@ -1,8 +1,9 @@
 import logging
 import pathlib
 import json
-import copy
 import os
+import typing
+from collections import OrderedDict
 import click
 import mutagen
 from pydub import AudioSegment
@@ -12,16 +13,33 @@ from click_option_group import optgroup
 
 
 logger = logging.getLogger(__name__)
-options = [
-    optgroup.group('Music options'),
-    optgroup.option('--keywords', help='Keywords', default=None),
-    optgroup.option('--artist', help='Artist', default=None),
-    optgroup.option('--album', help='Album', default=None),
-    optgroup.option('--title', help='Title', default=None),
-    optgroup.option('--genre', help='Genre', default=None),
-    optgroup.option('--number', help='Track number', default=None),
-    optgroup.option('--rating', help='Rating', default=None),
+
+music_options_group = [optgroup.group('Music options')]
+keywords_option = [optgroup.option('--keywords', help='Keywords', multiple=True)]
+artist_option = [optgroup.option('--artist', help='Artist', default=None)]
+album_option = [optgroup.option('--album', help='Album', default=None)]
+title_option = [optgroup.option('--title', help='Title', default=None)]
+genre_option = [optgroup.option('--genre', help='Genre', default=None)]
+number_option = [optgroup.option('--number', help='Track number', default=None)]
+rating_option = [optgroup.option('--rating', help='Rating', default=None)]
+
+keywords_argument = [
+    click.argument(
+        'keywords',
+        nargs=-1,
+    ),
 ]
+
+options =\
+    music_options_group +\
+    keywords_option +\
+    artist_option +\
+    album_option +\
+    title_option +\
+    genre_option +\
+    number_option +\
+    rating_option
+
 DEFAULT_CHECKS = [
     'no-title',
     'no-artist',
@@ -71,7 +89,7 @@ checks_options = [
 supported_formats = ["mp3", "flac"]
 
 
-def mysplit(s, delim=','):
+def mysplit(s, delim=',') -> typing.List[str]:
     if isinstance(s, list):
         return s
     if s is None:
@@ -81,7 +99,7 @@ def mysplit(s, delim=','):
     raise ValueError(s)
 
 
-def ensure(path):
+def ensure(path) -> str:
     p = pathlib.Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
     return str(p)
@@ -121,35 +139,38 @@ class File:
             logger.info(f"invalid-path, '{self.path}' should be '{self.canonic_path}'")
             self.inconsistencies.append("invalid-path")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.path
 
-    def close(self):
-        self.handle.close()
+    def __iter__(self):
+        yield from self.ordered_dict().items()
 
-    def to_mp3(self, folder=None, dry=None):
+    def close(self):
+        return self.handle.close()
+
+    def to_mp3(self, folder=None, dry=None) -> bool:
         dry = dry if dry is not None else False
         folder = folder if folder is not None else self.folder
 
         if self.extension != '.flac':
             logger.error(f"{self} is not a flac file")
-            return
+            return False
         if 'invalid-path' in self.inconsistencies:
             logger.error(f"{self} does not have a canonic path like : {self.canonic_artist_album_filename}")
-            return
+            return False
 
         mp3_path = os.path.join(folder, self.artist, self.album, self.canonic_title + '.mp3')
         if os.path.exists(mp3_path):
             logger.info(f"{mp3_path} already exists, not overwriting")
-            return
+            return False
         logger.debug(f"{self} convert destination : {mp3_path}")
         if not dry:
             ensure(mp3_path)
             flac_audio = AudioSegment.from_file(self.path, "flac")
             flac_audio.export(mp3_path, format="mp3")
+        return True
 
-    def ordered_dict(self):
-        from collections import OrderedDict
+    def ordered_dict(self) -> typing.OrderedDict:
         return OrderedDict(
             [
                 ('title', self.title),
@@ -164,7 +185,7 @@ class File:
                 ('rating', self.rating),
                 ('duration', self.duration),
                 ('size', self.size),
-                ('keywords', mysplit(self.keywords, ' '))
+                ('keywords', self.keywords),
             ]
         )
 
@@ -172,32 +193,29 @@ class File:
     def extension(self):
         return pathlib.Path(self.path).suffix
 
-    def __iter__(self):
-        yield from self.ordered_dict().items()
-
-    def to_dict(self):
+    def to_dict(self) -> typing.Dict:
         return dict(self.ordered_dict())
 
-    def to_graphql(self):
+    def to_graphql(self) -> str:
         return ", ".join([f'{k}: {json.dumps(v)}' for k, v in self.ordered_dict().items()])
 
-    def to_json(self):
+    def to_json(self) -> str:
         return json.dumps(self.ordered_dict())
 
     @property
-    def canonic_path(self):
+    def canonic_path(self) -> str:
         return str(pathlib.PurePath(self.folder, self.canonic_artist_album_filename))
 
     @property
-    def canonic_artist_album_filename(self):
+    def canonic_artist_album_filename(self) -> str:
         return str(pathlib.PurePath(self.artist, self.album, self.canonic_filename))
 
     @property
-    def filename(self):
+    def filename(self) -> str:
         return os.path.basename(self.path)
 
     @property
-    def canonic_filename(self):
+    def canonic_filename(self) -> str:
         return f"{self.canonic_title}{self.extension}"
 
     def _get_first(self, tag, default=''):
@@ -208,15 +226,15 @@ class File:
         return default
 
     @property
-    def duration(self):
+    def duration(self) -> int:
         return int(self.handle.info.length)
 
     @property
-    def size(self):
+    def size(self) -> int:
         return os.path.getsize(self.path)
 
     @property
-    def title(self):
+    def title(self) -> str:
         if self.extension == '.flac':
             return self._get_first('title')
         return self._get_first('TIT2')
@@ -229,11 +247,11 @@ class File:
             self.handle.tags.add(TIT2(text=title))
 
     @property
-    def canonic_title(self):
+    def canonic_title(self) -> str:
         return f"{str(self.number).zfill(2)} - {self.title}"
 
     @property
-    def album(self):
+    def album(self) -> str:
         if self.extension == '.flac':
             return self._get_first('album')
         return self._get_first('TALB')
@@ -246,7 +264,7 @@ class File:
             self.handle.tags.add(TALB(text=album))
 
     @property
-    def artist(self):
+    def artist(self) -> str:
         if self.extension == '.flac':
             return self._get_first('artist')
         return self._get_first('TPE1')
@@ -259,7 +277,7 @@ class File:
             self.handle.tags.add(TPE1(text=artist))
 
     @property
-    def genre(self):
+    def genre(self) -> str:
         if self.extension == '.flac':
             return self._get_first('genre')
         return self._get_first('TCON')
@@ -272,7 +290,7 @@ class File:
             self.handle.tags.add(TCON(text=genre))
 
     @property
-    def rating(self):
+    def rating(self) -> float:
         if self.extension == '.flac':
             s = self._get_first('fmps_rating')
         else:
@@ -293,7 +311,7 @@ class File:
             self.handle.tags.add(TXXX(desc='FMPS_Rating', text=str(rating)))
 
     @property
-    def _comment(self):
+    def _comment(self) -> str:
         return self._get_first('COMM:ID3v1 Comment:eng')
 
     @_comment.setter
@@ -301,7 +319,7 @@ class File:
         self.handle.tags.add(COMM(desc='ID3v1 Comment:eng', text=str(comment)))
 
     @property
-    def _description(self):
+    def _description(self) -> str:
         return self._get_first('description')
 
     @_description.setter
@@ -309,7 +327,7 @@ class File:
         self.handle.tags['description'] = description
 
     @property
-    def number(self):
+    def number(self) -> int:
         if self.extension == '.flac':
             s = self._get_first('tracknumber')
         else:
@@ -335,61 +353,73 @@ class File:
             self.handle.tags.add(TRCK(text=str(number)))
 
     @property
-    def keywords(self):
+    def keywords(self) -> typing.List[str]:
         if self.extension == '.mp3':
-            return self._comment
+            return mysplit(self._comment, ' ')
         if self.extension == '.flac':
             if self._comment and not self._description:
-                self.description = self._comment
-            return self._description
-        return ''
+                logger.warning(f'{self} : fixing flac keywords with mp3 comment')
+                self._description = self._comment
+            return mysplit(self._description, ' ')
+        return []
 
     @keywords.setter
     def keywords(self, keywords):
-        if self.extension == '.flac':
-            self.description = keywords
-        elif self.extension == '.mp3':
-            self._comment = keywords
+        if self.extension == '.mp3':
+            logger.info(f'{self} : mp3 {keywords}')
+            self._comment = ' '.join(keywords)
+        elif self.extension == '.flac':
+            logger.info(f'{self} : flac {keywords}')
+            self._description = ' '.join(keywords)
+        else:
+            logger.error(f'{self} : unknown extension {self.extension}')
 
-    def add_keywords(self, keywords):
-        tags = copy.deepcopy(self.keywords)
+    def add_keywords(self, keywords, dry=None) -> bool:
+        dry = dry if dry is not None else False
+        tags = self.keywords
         for k in keywords:
             if k not in tags:
+                logger.info(f'{self} : new keyword {k}')
                 tags.append(k)
         if set(self.keywords) != set(tags):
             self.keywords = tags
-            self.save()
-            return True
+            print(self.keywords)
+            print(tags)
+            logger.info(f'{self} : new keywords {self.keywords}')
+            return self.save(dry)
         return False
 
-    def delete_keywords(self, keywords):
-        tags = copy.deepcopy(self.keywords)
+    def delete_keywords(self, keywords, dry=None) -> bool:
+        dry = dry if dry is not None else False
+        tags = self.keywords
         for k in keywords:
             if k in tags:
+                logger.info(f'{self} : new keyword {k}')
                 tags.remove(k)
         if set(self.keywords) != set(tags):
             self.keywords = tags
-            self.save()
-            return True
+            logger.info(f'{self} : new keywords {self.keywords}')
+            return self.save(dry)
         return False
 
     @property
-    def youtube(self):
+    def youtube(self) -> str:
         return self.youtube_link
 
     @property
-    def spotify(self):
+    def spotify(self) -> str:
         return self.spotify_link
 
-    def fingerprint(self, api_key):
+    def fingerprint(self, api_key) -> str:
         import acoustid
         ids = acoustid.match(api_key, self.path)
         for score, recording_id, title, artist in ids:
-            logger.info(f"score : {score} | recording_id : {recording_id} | title : {title} | artist : {artist}")
+            logger.info(f"{self} score : {score} | recording_id : {recording_id} | title : {title} | artist : {artist}")
             return recording_id
-        return None
+        logger.info(f'{self} : fingerprint cannot be detected')
+        return ''
 
-    def fix(self, checks=None, dry=None):
+    def fix(self, checks=None, dry=None) -> bool:
         checks = checks if checks is not None else DEFAULT_CHECKS
         dry = dry if dry is not None else False
         if 'no-rating' in checks:
@@ -417,11 +447,14 @@ class File:
                 self.path = self.canonic_path
                 self.handle = mutagen.File(self.path)
                 self.inconsistencies.remove('invalid-path')
-        if not dry:
-            self.save()
+        return self.save(dry)
 
-    def save(self):
+    def save(self, dry=None) -> bool:
+        dry = dry if dry is not None else False
         try:
-            self.handle.save()
+            if not dry:
+                self.handle.save()
+            return True
         except MutagenError as e:
             logger.error(e)
+        return False

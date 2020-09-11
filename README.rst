@@ -724,12 +724,40 @@ musicbot music
     -h, --help  Show this message and exit.
 
   Commands:
+    add-keywords                   Add keywords to music
+    delete-keywords                Delete keywords to music
     fingerprint                    Print music fingerprint
     flac2mp3                       Convert flac music to mp3
     help                           Print help
     inconsistencies (consistency)  Check music consistency
     set-tags                       Set music title
     tags                           Print music tags
+
+
+musicbot music add-keywords
+***************************
+.. code-block::
+
+  Usage: musicbot music add-keywords [OPTIONS] PATH [KEYWORDS]...
+
+    Add keywords to music
+
+  Options:
+    --dry       Take no real action  [default: False]
+    -h, --help  Show this message and exit.
+
+
+musicbot music delete-keywords
+******************************
+.. code-block::
+
+  Usage: musicbot music delete-keywords [OPTIONS] PATH [KEYWORDS]...
+
+    Delete keywords to music
+
+  Options:
+    --dry       Take no real action  [default: False]
+    -h, --help  Show this message and exit.
 
 
 musicbot music fingerprint
@@ -788,6 +816,7 @@ musicbot music set-tags
     Set music title
 
   Options:
+    --dry              Take no real action  [default: False]
     Music options: 
       --keywords TEXT  Keywords
       --artist TEXT    Artist

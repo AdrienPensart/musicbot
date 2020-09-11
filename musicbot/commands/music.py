@@ -5,7 +5,7 @@ from mutagen import MutagenError
 from click_skeleton import AdvancedGroup, add_options
 
 from musicbot import helpers
-from musicbot.music.file import File, path_argument, folder_option, options, checks_options
+from musicbot.music.file import File, keywords_argument, path_argument, folder_option, options, checks_options
 from musicbot.music.fingerprint import acoustid_api_key_option
 
 logger = logging.getLogger(__name__)
@@ -71,9 +71,10 @@ def inconsistencies(path, folder, fix, **kwargs):
 @cli.command(help='Set music title')
 @add_options(
     path_argument +
+    helpers.dry_option +
     options
 )
-def set_tags(path, title, artist, album, genre, keywords, rating, number):
+def set_tags(path, title, artist, album, genre, keywords, rating, number, dry):
     f = File(path)
     if title:
         f.title = title
@@ -89,4 +90,26 @@ def set_tags(path, title, artist, album, genre, keywords, rating, number):
         f.rating = rating
     if number:
         f.number = number
-    f.save()
+    f.save(dry)
+
+
+@cli.command(help='Add keywords to music')
+@add_options(
+    helpers.dry_option +
+    path_argument +
+    keywords_argument
+)
+def add_keywords(path, keywords, dry):
+    f = File(path)
+    f.add_keywords(keywords, dry)
+
+
+@cli.command(help='Delete keywords to music')
+@add_options(
+    helpers.dry_option +
+    path_argument +
+    keywords_argument
+)
+def delete_keywords(path, keywords, dry):
+    f = File(path)
+    f.delete_keywords(keywords, dry)

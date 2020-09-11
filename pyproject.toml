@@ -10,7 +10,7 @@ readme = "README.rst"
 musicbot = 'musicbot.cli:main'
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = ">=3.7,<3.9"
 isort = {version = "^4.3",extras = ["pyproject"]}
 attrdict = "^2.0"
 isodate = "^0.6.0"
@@ -36,7 +36,7 @@ python-dotenv = "^0.13.0"
 colorlog = "^4.1.0"
 enlighten = "^1.6.1"
 attrs = "^20.1.0"
-click-skeleton = "^0.2.3"
+click-skeleton = "^0.2.6"
 requests = "^2.24.0"
 
 [tool.poetry.dev-dependencies]
@@ -50,6 +50,7 @@ Pygments = "^2.6.1"
 bump2version = "^1.0.0"
 pytest = "^6.0.1"
 pylint = "^2.6.0"
+pytype = "^2020.8.28"
 
 [tool.pytest.ini_options]
 minversion = "6.0"

@@ -72,7 +72,7 @@ def flac2mp3(folders, folder, concurrency, dry):
                         f = File(flac_path)
                         f.to_mp3(folder, dry)
                     except MusicbotError as e:
-                        logger(e)
+                        logger.error(e)
                     finally:
                         pbar.update()
                 executor.shutdown = lambda wait: None

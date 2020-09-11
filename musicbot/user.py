@@ -6,7 +6,6 @@ import sys
 import click
 import enlighten
 from click_option_group import optgroup
-from . import helpers
 from .graphql import GraphQL
 from .config import config
 from .helpers import config_string
@@ -128,50 +127,49 @@ auth_options =\
 
 
 class User(GraphQL):
-    @helpers.timeit
+    @config.timeit
     def __init__(self, graphql, email=None, password=None, token=None):
-        self.email = email
-        self.password = password
         self.token = token
         self.authenticated = False
 
         GraphQL.__init__(self, graphql)
 
-        if self.token:
+        if token:
+            self.token = token
             logger.debug(f"using token : {self.token}")
             self.headers = {"Authorization": f"Bearer {self.token}"}
-        elif self.email and self.password:
-            self._authenticate()
+        elif email and password:
+            query = f"""
+            mutation
+            {{
+                authenticate(input: {{email: "{email}", password: "{password}"}})
+                {{
+                    jwtToken
+                }}
+            }}"""
+            response = None
+            try:
+                response = self.post(query)
+                self.token = response['data']['authenticate']['jwtToken']
+                self.email = email
+                self.password = password
+                self.headers = {"Authorization": f"Bearer {self.token}"}
+            except MusicbotError as e:
+                raise FailedAuthentication(f"Authentication failed for email {self.email}") from e
+            except KeyError as e:
+                raise FailedAuthentication(f"Invalid response received : {response}") from e
         else:
             raise FailedAuthentication("No credentials or token provided")
         self.authenticated = True
 
-    def _authenticate(self):
-        query = f"""
-        mutation
-        {{
-            authenticate(input: {{email: "{self.email}", password: "{self.password}"}})
-            {{
-                jwtToken
-            }}
-        }}"""
-        try:
-            response = self.post(query)
-            self.token = response['data']['authenticate']['jwtToken']
-            self.headers = {"Authorization": f"Bearer {self.token}"}
-        except MusicbotError as e:
-            raise FailedAuthentication(f"Authentication failed for email {self.email}") from e
-        except KeyError as e:
-            raise FailedAuthentication(f"Invalid response received : {response}") from e
-
     @classmethod
     @functools.lru_cache(maxsize=None)
-    @helpers.timeit
+    @config.timeit
     def new(cls, **kwargs):
         self = User(**kwargs)
         return self
 
-    @helpers.timeit
+    @config.timeit
     def load_default_filters(self):
         query = """
         mutation
@@ -194,7 +192,7 @@ class User(GraphQL):
         }"""
         return self.post(query)
 
-    @helpers.timeit
+    @config.timeit
     def playlist(self, mf=None):
         mf = mf if mf is not None else mfilter.Filter()
         query = f"""
@@ -203,7 +201,7 @@ class User(GraphQL):
         }}"""
         return self.post(query)['data']['playlist']
 
-    @helpers.timeit
+    @config.timeit
     def bests(self, mf=None):
         mf = mf if mf is not None else mfilter.Filter()
         query = f"""
@@ -219,7 +217,7 @@ class User(GraphQL):
         }}"""
         return self.post(query)['data']['bests']['nodes']
 
-    @helpers.timeit
+    @config.timeit
     def do_filter(self, mf=None):
         mf = mf if mf is not None else mfilter.Filter()
         if mf.name:
@@ -251,7 +249,7 @@ class User(GraphQL):
         }}"""
         return self.post(query)['data']['doFilter']['nodes']
 
-    @helpers.timeit
+    @config.timeit
     def do_stat(self, mf=None):
         mf = mf if mf is not None else mfilter.Filter()
         query = f"""
@@ -269,7 +267,7 @@ class User(GraphQL):
         }}"""
         return self.post(query)['data']['doStat']
 
-    @helpers.timeit
+    @config.timeit
     def upsert_music(self, music):
         query = f"""
         mutation
@@ -281,7 +279,7 @@ class User(GraphQL):
         }}"""
         return self.post(query)
 
-    @helpers.timeit
+    @config.timeit
     def bulk_insert(self, musics):
         if not musics:
             logger.info("no musics to insert")
@@ -310,7 +308,7 @@ class User(GraphQL):
 
     @property
     @functools.lru_cache(maxsize=None)
-    @helpers.timeit
+    @config.timeit
     def folders(self):
         query = """
         {
@@ -320,7 +318,7 @@ class User(GraphQL):
 
     @property
     @functools.lru_cache(maxsize=None)
-    @helpers.timeit
+    @config.timeit
     def artists(self):
         query = """
         {
@@ -340,7 +338,7 @@ class User(GraphQL):
 
     @property
     @functools.lru_cache(maxsize=None)
-    @helpers.timeit
+    @config.timeit
     def genres(self):
         query = """
         {
@@ -351,7 +349,7 @@ class User(GraphQL):
         return self.post(query)['data']['genresTreeList']
 
     @functools.lru_cache(maxsize=None)
-    @helpers.timeit
+    @config.timeit
     def filter(self, name):
         default_filter = mfilter.Filter()
         filter_members = ','.join(default_filter.ordered_dict().keys())
@@ -367,7 +365,7 @@ class User(GraphQL):
 
     @property
     @functools.lru_cache(maxsize=None)
-    @helpers.timeit
+    @config.timeit
     def filters(self):
         default_filter = mfilter.Filter()
         filter_members = ','.join(default_filter.ordered_dict().keys())
@@ -431,7 +429,7 @@ class User(GraphQL):
         observer.join()
 
     @classmethod
-    @helpers.timeit
+    @config.timeit
     def register(cls, graphql, first_name=None, last_name=None, email=None, password=None):
         first_name = first_name if first_name is not None else DEFAULT_FIRST_NAME
         last_name = last_name if last_name is not None else DEFAULT_LAST_NAME
@@ -463,7 +461,7 @@ class User(GraphQL):
             password=password
         )
 
-    @helpers.timeit
+    @config.timeit
     def unregister(self):
         query = """
         mutation
@@ -480,7 +478,7 @@ class User(GraphQL):
         except MusicbotError as e:
             raise FailedAuthentication(f"Cannot delete user {self.email}") from e
 
-    @helpers.timeit
+    @config.timeit
     def delete_music(self, path):
         query = f"""
         mutation
@@ -492,7 +490,7 @@ class User(GraphQL):
         }}"""
         return self.post(query)
 
-    @helpers.timeit
+    @config.timeit
     def clean_musics(self):
         query = """
         mutation

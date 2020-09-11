@@ -1,9 +1,10 @@
 import logging
 import pytest
 from click_skeleton import run_cli
+from click_skeleton.helpers import strip_colors
+
 from musicbot import __version__
 from musicbot.cli import cli
-from musicbot.helpers import strip_colors
 
 logger = logging.getLogger(__name__)
 

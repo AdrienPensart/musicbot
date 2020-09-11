@@ -19,3 +19,15 @@ def test_music_tags(cli_runner):
 def test_music_check_consistency(cli_runner):
     run_cli(cli_runner, cli, ['music', 'consistency', fixtures.one_flac])
     run_cli(cli_runner, cli, ['music', 'consistency', fixtures.one_mp3])
+
+
+@pytest.mark.runner_setup(mix_stderr=False)
+def test_music_add_keywords(cli_runner):
+    run_cli(cli_runner, cli, ['music', 'add-keywords', fixtures.one_flac, 'test', '--dry'])
+    run_cli(cli_runner, cli, ['music', 'add-keywords', fixtures.one_mp3, 'test', '--dry'])
+
+
+@pytest.mark.runner_setup(mix_stderr=False)
+def test_music_delete_keywords(cli_runner):
+    run_cli(cli_runner, cli, ['music', 'delete-keywords', fixtures.one_flac, 'test', '--dry'])
+    run_cli(cli_runner, cli, ['music', 'delete-keywords', fixtures.one_mp3, 'test', '--dry'])
