@@ -129,9 +129,7 @@ auth_options =\
 class User(GraphQL):
     @config.timeit
     def __init__(self, graphql, email=None, password=None, token=None):
-        self.token = token
         self.authenticated = False
-
         GraphQL.__init__(self, graphql)
 
         if token:
@@ -155,7 +153,7 @@ class User(GraphQL):
                 self.password = password
                 self.headers = {"Authorization": f"Bearer {self.token}"}
             except MusicbotError as e:
-                raise FailedAuthentication(f"Authentication failed for email {self.email}") from e
+                raise FailedAuthentication(f"Authentication failed for email {email}") from e
             except KeyError as e:
                 raise FailedAuthentication(f"Invalid response received : {response}") from e
         else:

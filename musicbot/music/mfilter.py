@@ -1,6 +1,7 @@
 import logging
 import typing
 import json
+from typing import List
 from collections import OrderedDict
 import attr
 from click_option_group import optgroup
@@ -50,40 +51,44 @@ default_albums = []
 default_no_albums = []
 
 
-@attr.s(frozen=True)
+@attr.s(auto_attribs=True, frozen=True)
 class Filter:
-    name = attr.ib(default=default_name)
-    relative = attr.ib(default=default_relative)
-    shuffle = attr.ib(default=default_shuffle)
-    youtubes = attr.ib(default=default_youtubes)
-    no_youtubes = attr.ib(default=default_no_youtubes)
-    spotifys = attr.ib(default=default_spotifys)
-    no_spotifys = attr.ib(default=default_no_spotifys)
-    formats = attr.ib(default=default_formats)
-    no_formats = attr.ib(default=default_no_formats)
-    limit = attr.ib(default=default_limit)
-    genres = attr.ib(default=default_genres)
-    no_genres = attr.ib(default=default_no_genres)
-    genres = attr.ib(default=default_genres)
-    no_genres = attr.ib(default=default_no_genres)
-    min_duration = attr.ib(default=default_min_duration)
-    max_duration = attr.ib(default=default_max_duration)
-    min_size = attr.ib(default=default_min_size)
-    max_size = attr.ib(default=default_max_size)
-    min_rating = attr.ib(default=default_min_rating, validator=attr.validators.in_(rating_choices))
-    max_rating = attr.ib(default=default_max_rating, validator=attr.validators.in_(rating_choices))
-    keywords = attr.ib(default=default_keywords)
-    no_keywords = attr.ib(default=default_no_keywords)
-    artists = attr.ib(default=default_artists)
-    no_artists = attr.ib(default=default_no_artists)
-    titles = attr.ib(default=default_titles)
-    no_titles = attr.ib(default=default_no_titles)
-    albums = attr.ib(default=default_albums)
-    no_albums = attr.ib(default=default_no_albums)
+    name: str = default_name
+    relative: bool = default_relative
+    shuffle: bool = default_shuffle
+    min_duration: int = default_min_duration
+    max_duration: int = default_max_duration
+    min_size: int = default_min_size
+    max_size: int = default_max_size
+    min_rating: float = default_min_rating
+    max_rating: float = default_max_rating
+    youtubes: List[str] = default_youtubes
+    no_youtubes: List[str] = default_no_youtubes
+    spotifys: List[str] = default_spotifys
+    no_spotifys: List[str] = default_no_spotifys
+    formats: List[str] = default_formats
+    no_formats: List[str] = default_no_formats
+    limit: int = default_limit
+    genres: List[str] = default_genres
+    no_genres: List[str] = default_no_genres
+    keywords: List[str] = default_keywords
+    no_keywords: List[str] = default_no_keywords
+    artists: List[str] = default_artists
+    no_artists: List[str] = default_no_artists
+    titles: List[str] = default_titles
+    no_titles: List[str] = default_no_titles
+    albums: List[str] = default_albums
+    no_albums: List[str] = default_no_albums
 
     def __attrs_post_init__(self):
         if self.min_size > self.max_size:
             raise ValueError(f"Invalid minimum ({self.min_rating}) or maximum ({self.max_rating}) size")
+
+        if self.min_rating not in rating_choices:
+            raise ValueError(f"Invalid minimum rating {self.min_rating}, it should be one of {rating_choices}")
+
+        if self.max_rating not in rating_choices:
+            raise ValueError(f"Invalid maximum rating {self.max_rating}, it should be one of {rating_choices}")
 
         if self.min_rating > self.max_rating:
             raise ValueError(f"Invalid minimum ({self.min_rating}) or maximum ({self.max_rating}) rating")

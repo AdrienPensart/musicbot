@@ -89,6 +89,7 @@ ptyprocess==0.6.0
 py==1.9.0
 pyacoustid==1.2.0
 pycparser==2.20
+pydantic==1.6.1
 pydub==0.24.1
 pygments==2.6.1
 pylint==2.6.0
