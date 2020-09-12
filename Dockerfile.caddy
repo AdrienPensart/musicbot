@@ -1,0 +1,3 @@
+FROM caddy:2
+
+ADD ./scripts/Caddyfile /etc/caddy/Caddyfile

@@ -3,7 +3,7 @@
         output file /var/log/musicbot.log
     }
     route {
-        reverse_proxy /* 127.0.0.1:5000
+        reverse_proxy /* postgraphile_public:5000
     }
 }
 
@@ -15,6 +15,6 @@
         basicauth /* {
             musicbot_admin JDJhJDEwJDBoWXIxNVBiNDZmeDlpWEtwNFY1dnV4Z2dwNVlDOFR0T2J4cS84NzNaMVF6dlloTTVqVktH
         }
-        reverse_proxy /* 127.0.0.1:5001
+        reverse_proxy /* postgraphile_private:5001
     }
 }

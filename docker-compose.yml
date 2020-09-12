@@ -82,3 +82,16 @@ services:
       "--simple-collections", "both",
       "--append-plugins", "postgraphile-plugin-connection-filter,@graphile-contrib/pg-simplify-inflector"
     ]
+
+  reverse_proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile.caddy
+    restart: always
+    stop_signal: SIGKILL
+    depends_on:
+      - postgraphile_public
+      - postgraphile_private
+    ports:
+      - 80:80
+      - 81:81
