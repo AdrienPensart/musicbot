@@ -1,5 +1,5 @@
 import requests
-from click_option_group import optgroup
+from click_option_group import optgroup  # type: ignore
 from .config import config
 from .graphql import GraphQL
 from .helpers import config_string

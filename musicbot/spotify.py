@@ -2,11 +2,10 @@ import logging
 import os
 import itertools
 from typing import List, Any
-import spotipy
+import spotipy  # type: ignore
 import click
-from click_option_group import optgroup
-from click_skeleton import ExpandedPath
-
+from click_option_group import optgroup  # type: ignore
+from click_skeleton import ExpandedPath  # type: ignore
 from musicbot.config import config
 
 logger = logging.getLogger(__name__)

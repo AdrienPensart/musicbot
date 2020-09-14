@@ -1,10 +1,10 @@
 import logging
 import typing
 import json
-from typing import List
+from typing import List, Optional
 from collections import OrderedDict
 import attr
-from click_option_group import optgroup
+from click_option_group import optgroup  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -22,38 +22,38 @@ def sane_rating(ctx, param, value) -> float:
 min_int = 0
 max_int = 2147483647
 
-default_name = None
+default_name: Optional[str] = None
 default_filter = None
 default_relative = False
 default_shuffle = False
-default_youtubes = []
-default_no_youtubes = []
-default_spotifys = []
-default_no_spotifys = []
-default_formats = []
-default_no_formats = []
-default_genres = []
-default_no_genres = []
-default_limit = max_int
-default_min_duration = min_int
-default_max_duration = max_int
-default_min_size = min_int
-default_max_size = max_int
+default_youtubes: List[str] = []
+default_no_youtubes: List[str] = []
+default_spotifys: List[str] = []
+default_no_spotifys: List[str] = []
+default_formats: List[str] = []
+default_no_formats: List[str] = []
+default_genres: List[str] = []
+default_no_genres: List[str] = []
+default_limit: int = max_int
+default_min_duration: int = min_int
+default_max_duration: int = max_int
+default_min_size: int = min_int
+default_max_size: int = max_int
 default_min_rating = min(rating_choices)
 default_max_rating = max(rating_choices)
-default_keywords = []
-default_no_keywords = []
-default_artists = []
-default_no_artists = []
-default_titles = []
-default_no_titles = []
-default_albums = []
-default_no_albums = []
+default_keywords: List[str] = []
+default_no_keywords: List[str] = []
+default_artists: List[str] = []
+default_no_artists: List[str] = []
+default_titles: List[str] = []
+default_no_titles: List[str] = []
+default_albums: List[str] = []
+default_no_albums: List[str] = []
 
 
 @attr.s(auto_attribs=True, frozen=True)
 class Filter:
-    name: str = default_name
+    name: Optional[str] = default_name
     relative: bool = default_relative
     shuffle: bool = default_shuffle
     min_duration: int = default_min_duration
@@ -122,7 +122,7 @@ class Filter:
         default = vars(Filter())
         return {k: myself[k] for k in myself if default[k] == myself[k] and k != 'name'}
 
-    def ordered_dict(self) -> typing.OrderedDict:
+    def ordered_dict(self) -> OrderedDict:
         return OrderedDict(
             [
                 ('minDuration', self.min_duration),

@@ -3,7 +3,7 @@ import pathlib
 import typing
 import logging
 from typing import List, Iterable
-import humanfriendly
+import humanfriendly  # type: ignore
 
 logger = logging.getLogger(__name__)
 

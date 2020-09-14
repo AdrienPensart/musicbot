@@ -8,7 +8,7 @@ from prompt_toolkit.layout.containers import HSplit, Window
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit import HTML, print_formatted_text
-from click_skeleton.helpers import seconds_to_human
+from click_skeleton.helpers import seconds_to_human  # type: ignore
 from .playlist import print_playlist
 
 logger = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ def play(tracks):
     try:
         if platform.system() == 'Windows':
             os.add_dll_directory(r'C:\Program Files\VideoLAN\VLC')  # pytype: disable=module-attr
-        import vlc
+        import vlc  # type: ignore
         instance = vlc.Instance()
         if not instance:
             logger.critical('Unable to start VLC instance')

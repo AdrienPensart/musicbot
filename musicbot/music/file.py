@@ -5,11 +5,10 @@ import os
 from typing import Optional, List, Dict, Iterable, Iterator
 from collections import OrderedDict
 import click
-import mutagen
-from pydub import AudioSegment
-from mutagen import MutagenError
-from mutagen.id3 import TXXX, TRCK, TIT2, TALB, TPE1, TCON, COMM
-from click_option_group import optgroup
+import acoustid  # type: ignore
+import mutagen  # type: ignore
+from pydub import AudioSegment  # type: ignore
+from click_option_group import optgroup  # type: ignore
 from .helpers import ensure, mysplit
 
 
@@ -229,7 +228,7 @@ class File:
         if self.extension == '.flac':
             self.handle.tags['title'] = title
         else:
-            self.handle.tags.add(TIT2(text=title))
+            self.handle.tags.add(mutagen.id3.TIT2(text=title))
 
     @property
     def canonic_title(self) -> str:
@@ -246,7 +245,7 @@ class File:
         if self.extension == '.flac':
             self.handle.tags['album'] = album
         else:
-            self.handle.tags.add(TALB(text=album))
+            self.handle.tags.add(mutagen.id3.TALB(text=album))
 
     @property
     def artist(self) -> str:
@@ -259,7 +258,7 @@ class File:
         if self.extension == '.flac':
             self.handle.tags['artist'] = artist
         else:
-            self.handle.tags.add(TPE1(text=artist))
+            self.handle.tags.add(mutagen.id3.TPE1(text=artist))
 
     @property
     def genre(self) -> str:
@@ -272,7 +271,7 @@ class File:
         if self.extension == '.flac':
             self.handle.tags['genre'] = genre
         else:
-            self.handle.tags.add(TCON(text=genre))
+            self.handle.tags.add(mutagen.id3.TCON(text=genre))
 
     @property
     def rating(self) -> float:
@@ -293,7 +292,7 @@ class File:
         if self.extension == '.flac':
             self.handle['fmps_rating'] = str(rating)
         else:
-            self.handle.tags.add(TXXX(desc='FMPS_Rating', text=str(rating)))
+            self.handle.tags.add(mutagen.id3.TXXX(desc='FMPS_Rating', text=str(rating)))
 
     @property
     def _comment(self) -> str:
@@ -301,7 +300,7 @@ class File:
 
     @_comment.setter
     def _comment(self, comment):
-        self.handle.tags.add(COMM(desc='ID3v1 Comment:eng', text=str(comment)))
+        self.handle.tags.add(mutagen.id3.COMM(desc='ID3v1 Comment:eng', text=str(comment)))
 
     @property
     def _description(self) -> str:
@@ -335,7 +334,7 @@ class File:
         if self.extension == '.flac':
             self.handle.tags['tracknumber'] = str(number)
         else:
-            self.handle.tags.add(TRCK(text=str(number)))
+            self.handle.tags.add(mutagen.id3.TRCK(text=str(number)))
 
     @property
     def keywords(self) -> List[str]:
@@ -396,7 +395,6 @@ class File:
         return self.spotify_link
 
     def fingerprint(self, api_key: str) -> str:
-        import acoustid
         ids = acoustid.match(api_key, self.path)
         for score, recording_id, title, artist in ids:
             logger.info(f"{self} score : {score} | recording_id : {recording_id} | title : {title} | artist : {artist}")
@@ -440,6 +438,6 @@ class File:
             if not dry:
                 self.handle.save()
             return True
-        except MutagenError as e:
+        except mutagen.MutagenError as e:
             logger.error(e)
         return False

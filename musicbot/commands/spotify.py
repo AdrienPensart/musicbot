@@ -5,11 +5,11 @@ import json
 import shutil
 import collections
 import click
-import jellyfish
-from prettytable import PrettyTable
-from slugify import slugify
-from click_skeleton import AdvancedGroup, add_options
-from click_skeleton.helpers import Green, Reset
+import jellyfish  # type: ignore
+from prettytable import PrettyTable  # type: ignore
+from slugify import slugify  # type: ignore
+from click_skeleton import AdvancedGroup, add_options  # type: ignore
+from click_skeleton.helpers import Green, Reset  # type: ignore
 
 from musicbot import helpers
 from musicbot.spotify import spotify_options

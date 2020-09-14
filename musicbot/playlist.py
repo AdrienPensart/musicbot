@@ -1,6 +1,6 @@
 import sys
-from prettytable import PrettyTable
-from click_skeleton.helpers import Green, Reset
+from prettytable import PrettyTable  # type: ignore
+from click_skeleton.helpers import Green, Reset  # type: ignore
 
 
 def print_playlist(tracks, file=None, current_title=None, current_album=None, current_artist=None):

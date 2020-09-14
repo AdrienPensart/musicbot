@@ -3,9 +3,9 @@ import json
 import logging
 import functools
 import sys
-from typing import Collection, Optional
-import enlighten
-from click_option_group import optgroup
+from typing import List, Collection, Optional
+import enlighten  # type: ignore
+from click_option_group import optgroup  # type: ignore
 from .graphql import GraphQL
 from .config import config
 from .helpers import config_string
@@ -259,20 +259,31 @@ class User(GraphQL):
         }}'''
         return self.post(query)
 
-    @property
     @functools.lru_cache(maxsize=None)
     @config.timeit
-    def folders(self):
+    def folders(self) -> List[str]:
         query = """
         {
             foldersList
         }"""
         return self.post(query)['data']['foldersList']
 
-    @property
     @functools.lru_cache(maxsize=None)
     @config.timeit
-    def artists(self):
+    def count(self) -> int:
+        query = '''
+        {
+            rawMusics
+            {
+                totalCount
+            }
+        }
+        '''
+        return self.post(query)['data']['rawMusics']['totalCount']
+
+    @functools.lru_cache(maxsize=None)
+    @config.timeit
+    def artists(self) -> List[str]:
         query = """
         {
           artistsTreeList {
@@ -289,10 +300,9 @@ class User(GraphQL):
         }"""
         return self.post(query)['data']['artistsTreeList']
 
-    @property
     @functools.lru_cache(maxsize=None)
     @config.timeit
-    def genres(self):
+    def genres(self) -> List[str]:
         query = """
         {
           genresTreeList {
@@ -316,7 +326,6 @@ class User(GraphQL):
         }}"""
         return self.post(query)['data']['filtersList'][0]
 
-    @property
     @functools.lru_cache(maxsize=None)
     @config.timeit
     def filters(self):
@@ -333,8 +342,8 @@ class User(GraphQL):
         return self.post(query)['data']['filtersList']
 
     def watch(self):
-        from watchdog.observers import Observer
-        from watchdog.events import PatternMatchingEventHandler
+        from watchdog.observers import Observer  # type: ignore
+        from watchdog.events import PatternMatchingEventHandler  # type: ignore
         import time
 
         class MusicWatcherHandler(PatternMatchingEventHandler):
@@ -361,17 +370,17 @@ class User(GraphQL):
                 self.update_music(event.dest_path)
 
             def update_music(self, path: str):
-                for folder in self.user.folders:
+                for folder in self.user.folders():
                     if path.startswith(folder) and path.endswith(tuple(file.supported_formats)):
                         logger.debug(f'Creating/modifying DB for: {path}')
                         f = file.File(path, folder)
                         self.user.upsert_music(f)
                         return
 
-        logger.info(f'Watching: {self.folders}')
+        logger.info(f'Watching: {self.folders()}')
         event_handler = MusicWatcherHandler(self)
         observer = Observer()
-        for f in self.folders:
+        for f in self.folders():
             observer.schedule(event_handler, f, recursive=True)
         observer.start()
         try:

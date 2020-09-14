@@ -1,8 +1,8 @@
 import logging
 import json
 import click
-from prettytable import PrettyTable
-from click_skeleton import AdvancedGroup, add_options
+from prettytable import PrettyTable  # type: ignore
+from click_skeleton import AdvancedGroup, add_options  # type: ignore
 
 from musicbot import helpers
 from musicbot.user import User, register_options, auth_options, login_options

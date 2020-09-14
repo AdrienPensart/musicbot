@@ -1,8 +1,8 @@
 import logging
 import click
-from prettytable import PrettyTable
-from mutagen import MutagenError
-from click_skeleton import AdvancedGroup, add_options
+from prettytable import PrettyTable  # type: ignore
+from mutagen import MutagenError  # type: ignore
+from click_skeleton import AdvancedGroup, add_options  # type: ignore
 
 from musicbot import helpers
 from musicbot.music.file import File, keywords_argument, path_argument, folder_option, options, checks_options

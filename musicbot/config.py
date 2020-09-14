@@ -4,12 +4,13 @@ import inspect
 import logging
 import functools
 import configparser
+from typing import Optional
 import attr
 import click
-import colorlog
-from click_option_group import optgroup
-from click_skeleton import ExpandedPath
-from click_skeleton.helpers import str2bool, seconds_to_human
+import colorlog  # type: ignore
+from click_option_group import optgroup  # type: ignore
+from click_skeleton import ExpandedPath  # type: ignore
+from click_skeleton.helpers import str2bool, seconds_to_human  # type: ignore
 
 
 logger = logging.getLogger(__name__)
@@ -35,7 +36,7 @@ config_option = [
     )
 ]
 
-DEFAULT_LOG = None
+DEFAULT_LOG: Optional[str] = None
 MB_LOG = 'MB_LOG'
 log_option = [
     optgroup.option(
@@ -126,7 +127,7 @@ options =\
 
 @attr.s(auto_attribs=True)
 class Config:
-    log: str = DEFAULT_LOG
+    log: Optional[str] = DEFAULT_LOG
     quiet: bool = DEFAULT_QUIET
     debug: bool = DEFAULT_DEBUG
     info: bool = DEFAULT_INFO

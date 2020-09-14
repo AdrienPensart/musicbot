@@ -8,11 +8,11 @@ import json
 import datetime
 import textwrap
 import click
-import enlighten
+import enlighten  # type: ignore
 import attr
-from prettytable import PrettyTable
-from mutagen import MutagenError
-from click_skeleton import AdvancedGroup, add_options
+import mutagen  # type: ignore
+from prettytable import PrettyTable  # type: ignore
+from click_skeleton import AdvancedGroup, add_options  # type: ignore
 
 from musicbot import helpers, user
 from musicbot.player import play
@@ -34,15 +34,7 @@ def cli():
 @cli.command(help='Count musics')
 @add_options(user.auth_options)
 def count(user):
-    query = '''
-    {
-        rawMusics
-        {
-            totalCount
-        }
-    }
-    '''
-    print(json.dumps(user.post(query)['data']['rawMusics']['totalCount']))
+    print(user.count())
 
 
 @cli.command(help='Raw query')
@@ -117,7 +109,7 @@ def stats(user, output, music_filter):
     user.auth_options
 )
 def folders(user, output):
-    _folders = user.folders
+    _folders = user.folders()
     if output == 'json':
         print(json.dumps(_folders))
     elif output == 'table':
@@ -135,7 +127,7 @@ def folders(user, output):
 )
 def scan(user, folders):
     if not folders:
-        folders = user.folders
+        folders = user.folders()
     files = helpers.genfiles(folders)
     user.bulk_insert(files)
 
@@ -163,7 +155,7 @@ def clean(user, yes):
 )
 def rescan(user, folders):
     if not folders:
-        folders = user.folders
+        folders = user.folders()
     files = helpers.genfiles(folders)
     user.clean_musics()
     user.bulk_insert(files)
@@ -331,6 +323,6 @@ def inconsistencies(user, dry, fix, checks, music_filter):
                 m.fix(dry=dry, checks=checks)
             if m.inconsistencies:
                 pt.add_row([m.folder, m.path, ', '.join(m.inconsistencies)])
-        except (OSError, MutagenError):
+        except (OSError, mutagen.MutagenError):
             pt.add_row([t['folder'], t['path'], "could not open file"])
     print(pt)

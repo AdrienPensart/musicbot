@@ -2,7 +2,7 @@ import sys
 import os
 import logging
 from typing import Collection, Iterable
-import enlighten
+import enlighten  # type: ignore
 import click
 from .config import config
 from .music.file import File, supported_formats

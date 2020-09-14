@@ -4,15 +4,14 @@ from packaging import version
 
 import click
 import requests
-import spotipy
+import spotipy  # type: ignore
+import mutagen  # type: ignore
+import attrdict  # type: ignore
 
-from mutagen import MutagenError
-from attrdict import AttrDict
-
-from click_help_colors import version_option
-from click_skeleton import AdvancedGroup, add_options, backtrace
-from click_skeleton.completion import completion
-from click_skeleton.helpers import raise_limits
+from click_help_colors import version_option  # type: ignore
+from click_skeleton import AdvancedGroup, add_options, backtrace  # type: ignore
+from click_skeleton.completion import completion  # type: ignore
+from click_skeleton.helpers import raise_limits  # type: ignore
 
 from musicbot import config, exceptions, __version__
 from musicbot.commands.config import cli as config_cli
@@ -53,7 +52,7 @@ CONTEXT_SETTINGS = {
 @click.pass_context
 def cli(ctx, **kwargs):
     """Music swiss knife, new gen."""
-    ctx.obj = AttrDict
+    ctx.obj = attrdict.AttrDict
     config.config.set(**kwargs)
     ctx.obj.config = config.config
 
@@ -88,7 +87,7 @@ def _version():
 def main(**kwargs):
     try:
         return cli.main(prog_name=prog_name, **kwargs)
-    except (MutagenError, exceptions.MusicbotError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError) as e:
+    except (mutagen.MutagenError, exceptions.MusicbotError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError) as e:
         if config.config.debug:
             logger.exception(e)
         else:

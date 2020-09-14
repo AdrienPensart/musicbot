@@ -3,10 +3,10 @@ import sys
 import json
 import concurrent.futures as cf
 import click
-import enlighten
-from prettytable import PrettyTable
-from mutagen import MutagenError
-from click_skeleton import AdvancedGroup, add_options
+import enlighten  # type: ignore
+import mutagen  # type: ignore
+from prettytable import PrettyTable  # type: ignore
+from click_skeleton import AdvancedGroup, add_options  # type: ignore
 
 from musicbot import helpers
 from musicbot.exceptions import MusicbotError
@@ -96,6 +96,6 @@ def inconsistencies(folders, fix, **kwargs):
                 m.fix(**kwargs)
             if m.inconsistencies:
                 pt.add_row([m.folder, m.path, ', '.join(m.inconsistencies)])
-        except (OSError, MutagenError):
+        except (OSError, mutagen.MutagenError):
             pt.add_row([m.folder, m.path, "could not open file"])
     print(pt)
