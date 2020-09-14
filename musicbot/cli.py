@@ -25,7 +25,7 @@ from musicbot.commands.youtube import cli as youtube_cli
 prog_name = "musicbot"
 logger = logging.getLogger('musicbot')
 # little hacky but prevent click from rewraping
-click.formatting.HelpFormatter.write_dl.__defaults__ = (50, 2)
+click.formatting.HelpFormatter.write_dl.__defaults__ = (50, 2)  # type: ignore
 
 backtrace.hook(reverse=False, align=True, strip_path=False, enable_on_envvar_only=False, on_tty=False, conservative=False, styles={})
 CONTEXT_SETTINGS = {
@@ -67,8 +67,10 @@ cli.add_command(user_cli, 'user')
 cli.add_command(completion, 'completion')
 
 # hacky aliases
-cli._commands['music'] = ['file']  # pytype: disable=attribute-error
-cli._aliases['file'] = 'music'  # pytype: disable=attribute-error
+# pytype: disable=attribute-error
+cli._commands['music'] = ['file']  # type: ignore
+# pytype: disable=attribute-error
+cli._aliases['file'] = 'music'  # type: ignore
 
 
 @cli.command('version', short_help='Print version')
