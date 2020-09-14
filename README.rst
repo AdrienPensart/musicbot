@@ -272,7 +272,8 @@ musicbot local
     load-filters                   Load default filters
     player (play)                  Music player
     playlist                       Generate a new playlist
-    scan                           (re)Load musics
+    rescan                         Clean and load musics
+    scan                           Load musics
     stats (stat)                   Generate some stats for music collection with filters
     sync                           Copy selected musics with filters to destination folder
     watch                          Watch files changes in folders
@@ -339,6 +340,7 @@ musicbot local clean
       -e, --email TEXT     User email
       -p, --password TEXT  User password
       -t, --token TEXT     User token
+    -y, --yes              Confirm action
     -h, --help             Show this message and exit.
 
 
@@ -588,13 +590,30 @@ musicbot local playlist
     -h, --help                 Show this message and exit.
 
 
+musicbot local rescan
+*********************
+.. code-block::
+
+  Usage: musicbot local rescan [OPTIONS] [FOLDERS]...
+
+    Clean and load musics
+
+  Options:
+    Auth options: 
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -e, --email TEXT     User email
+      -p, --password TEXT  User password
+      -t, --token TEXT     User token
+    -h, --help             Show this message and exit.
+
+
 musicbot local scan
 *******************
 .. code-block::
 
   Usage: musicbot local scan [OPTIONS] [FOLDERS]...
 
-    (re)Load musics
+    Load musics
 
   Options:
     Auth options: 
@@ -869,19 +888,22 @@ musicbot spotify diff
 
   Options:
     Auth options: 
-      --graphql TEXT        GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -e, --email TEXT      User email
-      -p, --password TEXT   User password
-      -t, --token TEXT      User token
+      --graphql TEXT             GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -e, --email TEXT           User email
+      -p, --password TEXT        User password
+      -t, --token TEXT           User token
     Spotify options: 
-      --username TEXT       Spotify username
-      --client-id TEXT      Spotify client ID
-      --client-secret TEXT  Spotify client secret
-      --token TEXT          Spotify token
-      --cache-path FILE     Spotify cache path
-      --scopes TEXT         Spotify scopes
-      --redirect-uri TEXT   Spotify redirect URI
-    -h, --help              Show this message and exit.
+      --username TEXT            Spotify username
+      --client-id TEXT           Spotify client ID
+      --client-secret TEXT       Spotify client secret
+      --token TEXT               Spotify token
+      --cache-path FILE          Spotify cache path
+      --scopes TEXT              Spotify scopes
+      --redirect-uri TEXT        Spotify redirect URI
+    --output [table|json]        Output format  [default: table]
+    --min-threshold FLOAT RANGE  Minimum distance threshold
+    --max-threshold FLOAT RANGE  Maximum distance threshold
+    -h, --help                   Show this message and exit.
 
 
 musicbot spotify playlist
@@ -901,6 +923,7 @@ musicbot spotify playlist
       --cache-path FILE     Spotify cache path
       --scopes TEXT         Spotify scopes
       --redirect-uri TEXT   Spotify redirect URI
+    --output [table|json]   Output format  [default: table]
     -h, --help              Show this message and exit.
 
 

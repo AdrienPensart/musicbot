@@ -4,13 +4,10 @@ from click_skeleton.helpers import Green, Reset
 
 
 def print_playlist(tracks, file=None, current_title=None, current_album=None, current_artist=None):
+    if not tracks:
+        return
     file = file if file is not None else sys.stdout
-    pt = PrettyTable()
-    pt.field_names = [
-        "Title",
-        "Album",
-        "Artist",
-    ]
+    pt = PrettyTable(["Title", "Album", "Artist"])
     for t in tracks:
         title = (Green + t['title'] + Reset) if t['title'] == current_title else t['title']
         album = (Green + t['album'] + Reset) if t['album'] == current_album else t['album']

@@ -7,7 +7,6 @@ import configparser
 import attr
 import click
 import colorlog
-from cached_property import cached_property
 from click_option_group import optgroup
 from click_skeleton import ExpandedPath
 from click_skeleton.helpers import str2bool, seconds_to_human
@@ -177,7 +176,7 @@ class Config:
             logging.getLogger().addHandler(fh)
         logger.debug(self)
 
-    @cached_property
+    @functools.cached_property
     def configfile(self) -> configparser.ConfigParser:
         file = configparser.ConfigParser()
         file.read(self.config)

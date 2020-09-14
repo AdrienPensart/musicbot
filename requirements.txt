@@ -4,7 +4,6 @@ attrdict==2.0.1
 attrs==20.2.0
 audioread==2.1.8
 blessed==1.17.10
-cached-property==1.5.1
 certifi==2020.6.20
 chardet==3.0.4
 click==7.1.2
@@ -17,39 +16,31 @@ click-skeleton==0.2.7
 colorama==0.4.3
 colorlog==4.2.1
 enlighten==1.6.2
-feedparser==5.2.1
-flask==1.1.2
 graphql-py==0.7.1
 humanfriendly==8.2
 idna==2.10
-importlib-metadata==1.7.0; python_version < "3.8"
 iniconfig==1.0.1
-isodate==0.6.0
-isort==4.3.21
-itsdangerous==1.1.0
+jellyfish==0.8.2
 jinja2==2.11.2
 jinxed==1.0.1; platform_system == "Windows"
 logging-tree==1.8.1
 markupsafe==1.1.1
 more-itertools==8.5.0
-mps-youtube==0.2.8
 mutagen==1.45.1
 packaging==20.4
-pafy==0.5.5
 pathtools==0.1.2
 pluggy==0.13.1
 ply==3.11
 prettytable==0.7.2
 prompt-toolkit==3.0.7
-psycopg2-binary==2.8.6
 py==1.9.0
 pyacoustid==1.2.0
 pydub==0.24.1
 pyparsing==2.4.7
 pyreadline==2.1; sys_platform == "win32"
+pyrsistent==0.17.2
 pytest==6.0.2
 pytest-click==1.0.2
-python-dotenv==0.13.0
 python-slugify==4.0.1
 python-vlc==3.0.11115
 requests==2.24.0
@@ -61,6 +52,4 @@ toml==0.10.1
 urllib3==1.25.10
 watchdog==0.10.3
 wcwidth==0.2.5
-werkzeug==1.0.1
-youtube-dl==2020.9.6
-zipp==3.1.0; python_version < "3.8"
+youtube-dl==2020.9.14

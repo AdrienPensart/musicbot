@@ -6,8 +6,7 @@ import os
 import codecs
 import json
 import datetime
-from shutil import copyfile
-from textwrap import indent
+import textwrap
 import click
 import enlighten
 import attr
@@ -129,7 +128,7 @@ def folders(user, output):
         print(pt)
 
 
-@cli.command(help='(re)Load musics')
+@cli.command(help='Load musics')
 @add_options(
     helpers.folders_argument +
     user.auth_options
@@ -148,9 +147,26 @@ def watch(user):
 
 
 @cli.command(help='Clean all musics')
-@add_options(user.auth_options)
-def clean(user):
+@add_options(
+    user.auth_options +
+    helpers.yes_option
+)
+def clean(user, yes):
+    if yes or click.confirm("Are you sure to delete all musics from DB?"):
+        user.clean_musics()
+
+
+@cli.command(help='Clean and load musics')
+@add_options(
+    helpers.folders_argument +
+    user.auth_options
+)
+def rescan(user, folders):
+    if not folders:
+        folders = user.folders
+    files = helpers.genfiles(folders)
     user.clean_musics()
+    user.bulk_insert(files)
 
 
 @cli.command(help='Copy selected musics with filters to destination folder')
@@ -203,7 +219,7 @@ def sync(user, dry, destination, music_filter):
                     if not dry:
                         logger.info(f"Copying {sources[c]} to {final_destination}")
                         os.makedirs(os.path.dirname(final_destination), exist_ok=True)
-                        copyfile(sources[c], final_destination)
+                        shutil.copyfile(sources[c], final_destination)
                     else:
                         logger.info(f"[DRY-RUN] False Copying {sources[c]} to {final_destination}")
                 except KeyboardInterrupt:
@@ -270,7 +286,7 @@ def bests(user, dry, folder, prefix, suffix, music_filter):
                 try:
                     playlist_filepath = os.path.join(folder, p['name'] + suffix + '.m3u')
                     pbar.desc = f"Best playlist {prefix} {suffix}: {os.path.basename(playlist_filepath)}"
-                    content = indent(p['content'], prefix, lambda line: line != '#EXTM3U\n')
+                    content = textwrap.indent(p['content'], prefix, lambda line: line != '#EXTM3U\n')
                     if not dry:
                         try:
                             with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:

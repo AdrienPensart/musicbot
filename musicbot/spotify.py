@@ -4,7 +4,6 @@ import itertools
 from typing import List, Any
 import spotipy
 import click
-from prettytable import PrettyTable
 from click_option_group import optgroup
 from click_skeleton import ExpandedPath
 
@@ -206,17 +205,3 @@ class Spotify:
                     tracks.append(new_tracks['tracks']['items'])
                 return list(itertools.chain(*tracks))
         return []
-
-    def print_tracks(self):
-        pt = PrettyTable()
-        pt.field_names = ["Track", "Artist", "Album"]
-        for t in self.tracks():
-            pt.add_row([t['track']['name'], t['track']['artists'][0]['name'], t['track']['album']['name']])
-        print(pt)
-
-    def print_playlists(self):
-        pt = PrettyTable()
-        pt.field_names = ["Name", "Size"]
-        for p in self.playlists():
-            pt.add_row([p['name'], p['tracks']['total']])
-        print(pt)

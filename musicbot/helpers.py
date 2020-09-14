@@ -31,6 +31,16 @@ dry_option = [
     )
 ]
 
+DEFAULT_YES = False
+yes_option = [
+    click.option(
+        '-y', '--yes',
+        help='Confirm action',
+        default=DEFAULT_YES,
+        is_flag=True,
+    )
+]
+
 DEFAULT_SAVE = False
 save_option = [
     click.option(
@@ -52,11 +62,13 @@ output_option = [
         type=click.Choice(['table', 'json'])
     )
 ]
+
+DEFAULT_MB_PLAYLIST_OUTPUT = 'table'
 playlist_output_option = [
     click.option(
         '--output',
         help='Output format',
-        default=DEFAULT_MB_OUTPUT,
+        default=DEFAULT_MB_PLAYLIST_OUTPUT,
         show_default=True,
         type=click.Choice(['json', 'm3u', 'table'])
     )
