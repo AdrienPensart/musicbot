@@ -57,11 +57,11 @@ def load_filters(user):
 )
 def filters(user, output):
     if output == 'json':
-        print(json.dumps(user.filters))
+        print(json.dumps(user.filters()))
     elif output == 'table':
         pt = PrettyTable()
         pt.field_names = ["Name", "Keywords", "No keywords", "Min rating", "Max rating"]
-        for f in user.filters:
+        for f in user.filters():
             pt.add_row([f['name'], f['keywords'], f['noKeywords'], f['minRating'], f['maxRating']])
         print(pt)
 

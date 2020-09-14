@@ -1,6 +1,6 @@
 import logging
 import pytest
-from click_skeleton import run_cli
+from click_skeleton import run_cli  # type: ignore
 from musicbot.cli import cli
 
 logger = logging.getLogger(__name__)

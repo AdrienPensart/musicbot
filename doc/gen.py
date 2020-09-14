@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from click_skeleton.doc import gen_doc
+from click_skeleton.doc import gen_doc  # type: ignore
 from musicbot.cli import cli, CONTEXT_SETTINGS, prog_name
 
 

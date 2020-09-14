@@ -2,7 +2,7 @@ import socket
 import time
 import logging
 import pytest
-from click_skeleton import run_cli
+from click_skeleton import run_cli  # type: ignore
 
 from musicbot.cli import cli
 from musicbot.helpers import genfiles
