@@ -9,7 +9,8 @@ import acoustid  # type: ignore
 import mutagen  # type: ignore
 from pydub import AudioSegment  # type: ignore
 from click_option_group import optgroup  # type: ignore
-from .helpers import ensure, mysplit
+from click_skeleton.helpers import mysplit
+from .helpers import ensure
 
 
 logger = logging.getLogger(__name__)

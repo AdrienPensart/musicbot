@@ -12,16 +12,6 @@ except_directories = ['.Spotlight-V100', '.zfs', 'Android', 'LOST.DIR']
 default_output_type = 'json'
 
 
-def mysplit(s: str, delim: str = ',') -> List[str]:
-    if isinstance(s, list):
-        return s
-    if s is None:
-        return []
-    if isinstance(s, str):
-        return [x for x in s.split(delim) if x]
-    raise ValueError(s)
-
-
 def ensure(path: str) -> str:
     p = pathlib.Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
