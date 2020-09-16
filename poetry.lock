@@ -253,7 +253,7 @@ description = "Click app skeleton"
 name = "click-skeleton"
 optional = false
 python-versions = ">=3.6,<4.0"
-version = "0.2.9"
+version = "0.3.0"
 
 [package.dependencies]
 click = ">=7.1.2,<8.0.0"
@@ -1440,6 +1440,7 @@ version = "2020.9.14"
 
 [metadata]
 content-hash = "dfe30113e7feac6afd799b6a5fafb1bfc9e6fb15aab80ab7f1e459b0f12944f9"
+lock-version = "1.0"
 python-versions = "<3.9,>=3.8"
 
 [metadata.files]
@@ -1577,8 +1578,8 @@ click-option-group = [
     {file = "click_option_group-0.5.1-py3-none-any.whl", hash = "sha256:b363552b81f3bc9bef2402837b08865d186bd97c2311768f7d52aaf896e384a6"},
 ]
 click-skeleton = [
-    {file = "click-skeleton-0.2.9.tar.gz", hash = "sha256:93ed2266784a6a2b2b4c563273d3d52f6b2f3b614b3c6cdca636fa8f847eee0f"},
-    {file = "click_skeleton-0.2.9-py3-none-any.whl", hash = "sha256:2678a6cc5b893a1ef5c16c68e3de719eff51117d23903ffffd8f7ab29058066f"},
+    {file = "click-skeleton-0.3.0.tar.gz", hash = "sha256:82ae5b469d920c2ac2d84cb90dfb09c29e135be9ca6e9d380808e9d8709ee901"},
+    {file = "click_skeleton-0.3.0-py3-none-any.whl", hash = "sha256:8669ac75d214642df33d7a0c42d95b474084caf6a65b9f3e781c1be9772757a6"},
 ]
 colorama = [
     {file = "colorama-0.4.3-py2.py3-none-any.whl", hash = "sha256:7d73d2a99753107a36ac6b455ee49046802e59d9d076ef8e47b61499fa29afff"},
