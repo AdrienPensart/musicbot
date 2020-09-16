@@ -1,8 +1,7 @@
 import os
 import pathlib
-import typing
 import logging
-from typing import List, Iterable
+from typing import Iterator, Iterable, Tuple
 import humanfriendly  # type: ignore
 
 logger = logging.getLogger(__name__)
@@ -22,7 +21,7 @@ def bytes_to_human(b: int) -> str:
     return humanfriendly.format_size(b)
 
 
-def empty_dirs(root_dir: str, recursive: bool = True) -> typing.Iterator[str]:
+def empty_dirs(root_dir: str, recursive: bool = True) -> Iterator[str]:
     dirs_list = []
     for root, dirs, files in os.walk(root_dir, topdown=False):
         if recursive:
@@ -39,7 +38,7 @@ def empty_dirs(root_dir: str, recursive: bool = True) -> typing.Iterator[str]:
             yield root
 
 
-def find_files(directories: Iterable[str], supported_formats: Iterable[str]) -> typing.Iterator[typing.Tuple[str, str]]:
+def find_files(directories: Iterable[str], supported_formats: Iterable[str]) -> Iterator[Tuple[str, str]]:
     directories = [os.path.abspath(d) for d in directories]
     for directory in directories:
         for root, _, files in os.walk(directory):
@@ -51,7 +50,7 @@ def find_files(directories: Iterable[str], supported_formats: Iterable[str]) -> 
                     yield (directory, filename)
 
 
-def scantree(path: str, supported_formats: Iterable[str]) -> typing.Iterator[os.DirEntry]:
+def scantree(path: str, supported_formats: Iterable[str]) -> Iterator[os.DirEntry]:
     try:
         if '/.' in path:
             return

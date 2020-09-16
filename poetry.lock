@@ -253,7 +253,7 @@ description = "Click app skeleton"
 name = "click-skeleton"
 optional = false
 python-versions = ">=3.6,<4.0"
-version = "0.3.0"
+version = "0.3.1"
 
 [package.dependencies]
 click = ">=7.1.2,<8.0.0"
@@ -563,7 +563,7 @@ description = "Multi-container orchestration for Docker"
 name = "docker-compose"
 optional = false
 python-versions = ">=3.4"
-version = "1.27.2"
+version = "1.27.3"
 
 [package.dependencies]
 PyYAML = ">=3.10,<6"
@@ -1439,7 +1439,7 @@ python-versions = "*"
 version = "2020.9.14"
 
 [metadata]
-content-hash = "dfe30113e7feac6afd799b6a5fafb1bfc9e6fb15aab80ab7f1e459b0f12944f9"
+content-hash = "9d7237c43f4445ad4abcadde8af99829813bc0aa3c055976584df756df7ef3a4"
 lock-version = "1.0"
 python-versions = "<3.9,>=3.8"
 
@@ -1578,8 +1578,8 @@ click-option-group = [
     {file = "click_option_group-0.5.1-py3-none-any.whl", hash = "sha256:b363552b81f3bc9bef2402837b08865d186bd97c2311768f7d52aaf896e384a6"},
 ]
 click-skeleton = [
-    {file = "click-skeleton-0.3.0.tar.gz", hash = "sha256:82ae5b469d920c2ac2d84cb90dfb09c29e135be9ca6e9d380808e9d8709ee901"},
-    {file = "click_skeleton-0.3.0-py3-none-any.whl", hash = "sha256:8669ac75d214642df33d7a0c42d95b474084caf6a65b9f3e781c1be9772757a6"},
+    {file = "click-skeleton-0.3.1.tar.gz", hash = "sha256:4977598835a622a52242e5a4741623b67014df6ef7e30e275368b494e49ec71b"},
+    {file = "click_skeleton-0.3.1-py3-none-any.whl", hash = "sha256:649fc1bdd7811840d801b0c5ec49b5f8413e94f7b677c6b94876bdcb16bf8612"},
 ]
 colorama = [
     {file = "colorama-0.4.3-py2.py3-none-any.whl", hash = "sha256:7d73d2a99753107a36ac6b455ee49046802e59d9d076ef8e47b61499fa29afff"},
@@ -1722,8 +1722,8 @@ docker = [
     {file = "docker-4.3.1.tar.gz", hash = "sha256:bad94b8dd001a8a4af19ce4becc17f41b09f228173ffe6a4e0355389eef142f2"},
 ]
 docker-compose = [
-    {file = "docker-compose-1.27.2.tar.gz", hash = "sha256:4675242b1bc3fc5b3a8ae367d34012e250ba413fd2815e365541104086488971"},
-    {file = "docker_compose-1.27.2-py2.py3-none-any.whl", hash = "sha256:bc5430f5ba1eaa951382d077938551667c7570ba710c06bac3672a40a60f60e2"},
+    {file = "docker-compose-1.27.3.tar.gz", hash = "sha256:401838bb36e8b1e255fdf22fe6991508193c09d09f57dc923b66d3f2fa663133"},
+    {file = "docker_compose-1.27.3-py2.py3-none-any.whl", hash = "sha256:e97a60ab2f7793641777809c7c8ae1433329ae5f2204b8628b524214729620c7"},
 ]
 dockerpty = [
     {file = "dockerpty-0.4.1.tar.gz", hash = "sha256:69a9d69d573a0daa31bcd1c0774eeed5c15c295fe719c61aca550ed1393156ce"},

@@ -12,7 +12,6 @@ musicbot = 'musicbot.cli:main'
 [tool.poetry.dependencies]
 python = "<3.9,>=3.8"
 pyrsistent = "0.17.2"
-click-skeleton = ">=0.2.7"
 attrdict = "^2.0"
 logging-tree = "^1.8"
 pyacoustid = "^1.1"
@@ -32,6 +31,7 @@ enlighten = "^1.6.1"
 attrs = "^20.1.0"
 requests = "^2.24.0"
 jellyfish = "^0.8.2"
+click-skeleton = "^0.3.1"
 
 [tool.poetry.dev-dependencies]
 pytest-cov = "^2.6"
