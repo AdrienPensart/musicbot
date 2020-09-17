@@ -15,6 +15,9 @@ from click_skeleton.helpers import str2bool, seconds_to_human  # type: ignore
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_CHECK_VERSION = False
+MB_CHECK_VERSION = 'MB_CHECK_VERSION'
+
 verbosities = {
     'debug': logging.DEBUG,
     'info': logging.INFO,
@@ -128,6 +131,7 @@ options =\
 @attr.s(auto_attribs=True)
 class Config:
     log: Optional[str] = DEFAULT_LOG
+    check_version: bool = DEFAULT_CHECK_VERSION
     quiet: bool = DEFAULT_QUIET
     debug: bool = DEFAULT_DEBUG
     info: bool = DEFAULT_INFO
@@ -135,6 +139,9 @@ class Config:
     verbosity: str = DEFAULT_VERBOSITY
     config: str = DEFAULT_CONFIG
     level: int = verbosities[DEFAULT_VERBOSITY]
+
+    def __attrs_post_init__(self):
+        self.check_version = str2bool(os.getenv(MB_CHECK_VERSION, 'true'))
 
     def set(self, config=None, debug=None, info=None, timings=None, quiet=None, verbosity=None, log=None) -> None:
         self.config = config if config is not None else os.getenv(MB_CONFIG, DEFAULT_CONFIG)

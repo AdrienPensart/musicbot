@@ -32,6 +32,7 @@ attrs = "^20.1.0"
 requests = "^2.24.0"
 jellyfish = "^0.8.2"
 click-skeleton = "^0.3.1"
+semver = "^2.10.2"
 
 [tool.poetry.dev-dependencies]
 pytest-cov = "^2.6"

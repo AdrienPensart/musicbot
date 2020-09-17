@@ -13,7 +13,8 @@ from click_skeleton import AdvancedGroup, add_options, backtrace  # type: ignore
 from click_skeleton.completion import completion  # type: ignore
 from click_skeleton.helpers import raise_limits  # type: ignore
 
-from musicbot import config, exceptions, __version__
+from musicbot import config, exceptions, version_checker, __version__
+from musicbot.config import config as config_obj
 from musicbot.commands.config import cli as config_cli
 from musicbot.commands.folder import cli as folder_cli
 from musicbot.commands.local import cli as local_cli
@@ -53,8 +54,8 @@ CONTEXT_SETTINGS = {
 def cli(ctx, **kwargs):
     """Music swiss knife, new gen."""
     ctx.obj = attrdict.AttrDict
-    config.config.set(**kwargs)
-    ctx.obj.config = config.config
+    config_obj.set(**kwargs)
+    ctx.obj.config = config_obj
 
 
 cli.add_command(config_cli, 'config')
@@ -87,13 +88,24 @@ def _version():
 
 
 def main(**kwargs):
+    version_check = version_checker.VersionCheckerThread(
+        prog_name=prog_name,
+        current_version=__version__,
+        domain='pypi.ovh.net',
+        autostart=config_obj.check_version,
+    )
     try:
         return cli.main(prog_name=prog_name, **kwargs)
     except (mutagen.MutagenError, exceptions.MusicbotError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError) as e:
-        if config.config.debug:
+        if config_obj.debug:
             logger.exception(e)
         else:
             raise
+    finally:
+        if version_check.is_alive():
+            version_check.join()
+            if version_check.new_version_warning:
+                click.echo(version_check.new_version_warning, err=True)
 
 
 if __name__ == '__main__':
