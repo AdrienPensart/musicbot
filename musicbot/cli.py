@@ -9,11 +9,11 @@ import mutagen  # type: ignore
 import attrdict  # type: ignore
 
 from click_help_colors import version_option  # type: ignore
-from click_skeleton import AdvancedGroup, add_options, backtrace  # type: ignore
+from click_skeleton import AdvancedGroup, add_options, backtrace, version_checker  # type: ignore
 from click_skeleton.completion import completion  # type: ignore
 from click_skeleton.helpers import raise_limits  # type: ignore
 
-from musicbot import config, exceptions, version_checker, __version__
+from musicbot import config, exceptions, __version__
 from musicbot.config import config as config_obj
 from musicbot.commands.config import cli as config_cli
 from musicbot.commands.folder import cli as folder_cli
@@ -91,7 +91,6 @@ def main(**kwargs):
     version_check = version_checker.VersionCheckerThread(
         prog_name=prog_name,
         current_version=__version__,
-        domain='pypi.ovh.net',
         autostart=config_obj.check_version,
     )
     try:

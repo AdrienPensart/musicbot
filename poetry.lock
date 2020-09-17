@@ -253,7 +253,7 @@ description = "Click app skeleton"
 name = "click-skeleton"
 optional = false
 python-versions = ">=3.6,<4.0"
-version = "0.3.1"
+version = "0.3.3"
 
 [package.dependencies]
 click = ">=7.1.2,<8.0.0"
@@ -265,6 +265,8 @@ click-option-group = ">=0.5.1,<0.6.0"
 colorama = ">=0.4.3,<0.5.0"
 pytest = ">=6.0.1,<7.0.0"
 pytest-click = ">=1.0.2,<2.0.0"
+requests = ">=2.24.0,<3.0.0"
+semver = ">=2.10.2,<3.0.0"
 
 [[package]]
 category = "main"
@@ -1027,7 +1029,7 @@ description = "Pygments is a syntax highlighting package written in Python."
 name = "pygments"
 optional = false
 python-versions = ">=3.5"
-version = "2.7.0"
+version = "2.7.1"
 
 [[package]]
 category = "dev"
@@ -1186,7 +1188,7 @@ description = "Python type inferencer"
 name = "pytype"
 optional = false
 python-versions = "<3.9,>=3.5"
-version = "2020.9.14"
+version = "2020.9.16"
 
 [package.dependencies]
 attrs = "*"
@@ -1298,7 +1300,7 @@ description = "A light weight Python library for the Spotify Web API"
 name = "spotipy"
 optional = false
 python-versions = "*"
-version = "2.15.0"
+version = "2.16.0"
 
 [package.dependencies]
 requests = ">=2.20.0"
@@ -1447,7 +1449,7 @@ python-versions = "*"
 version = "2020.9.14"
 
 [metadata]
-content-hash = "b5ae4761103921c4819bca5d905113758bff4544b0651859399b7624503aed34"
+content-hash = "2c1f40f909d907101f7ba75d28be42218cd4552e8b555d890e7dbb8efe66bb40"
 lock-version = "1.0"
 python-versions = "<3.9,>=3.8"
 
@@ -1586,8 +1588,8 @@ click-option-group = [
     {file = "click_option_group-0.5.1-py3-none-any.whl", hash = "sha256:b363552b81f3bc9bef2402837b08865d186bd97c2311768f7d52aaf896e384a6"},
 ]
 click-skeleton = [
-    {file = "click-skeleton-0.3.1.tar.gz", hash = "sha256:4977598835a622a52242e5a4741623b67014df6ef7e30e275368b494e49ec71b"},
-    {file = "click_skeleton-0.3.1-py3-none-any.whl", hash = "sha256:649fc1bdd7811840d801b0c5ec49b5f8413e94f7b677c6b94876bdcb16bf8612"},
+    {file = "click-skeleton-0.3.3.tar.gz", hash = "sha256:c0d3c945256adea43ca012d964a26ea7572bdd07f23e830b8c71071643d76136"},
+    {file = "click_skeleton-0.3.3-py3-none-any.whl", hash = "sha256:322e383e1413a44d0c1e6864cf64c4e4777638c77646076062c571203e9170d8"},
 ]
 colorama = [
     {file = "colorama-0.4.3-py2.py3-none-any.whl", hash = "sha256:7d73d2a99753107a36ac6b455ee49046802e59d9d076ef8e47b61499fa29afff"},
@@ -1981,8 +1983,8 @@ pydub = [
     {file = "pydub-0.24.1.tar.gz", hash = "sha256:630c68bfff9bb27cbc5e1f02923f717c3bc5f4d73fd685fda08b6ce90f76dc69"},
 ]
 pygments = [
-    {file = "Pygments-2.7.0-py3-none-any.whl", hash = "sha256:2df50d16b45b977217e02cba6c8422aaddb859f3d0570a88e09b00eafae89c6e"},
-    {file = "Pygments-2.7.0.tar.gz", hash = "sha256:2594e8fdb06fef91552f86f4fd3a244d148ab24b66042036e64f29a291515048"},
+    {file = "Pygments-2.7.1-py3-none-any.whl", hash = "sha256:307543fe65c0947b126e83dd5a61bd8acbd84abec11f43caebaf5534cbc17998"},
+    {file = "Pygments-2.7.1.tar.gz", hash = "sha256:926c3f319eda178d1bd90851e4317e6d8cdb5e292a3386aac9bd75eca29cf9c7"},
 ]
 pylint = [
     {file = "pylint-2.6.0-py3-none-any.whl", hash = "sha256:bfe68f020f8a0fece830a22dd4d5dddb4ecc6137db04face4c3420a46a52239f"},
@@ -2048,13 +2050,13 @@ python-vlc = [
     {file = "python_vlc-3.0.11115-py3-none-any.whl", hash = "sha256:508bc5b4b4fd72b4e23c926795bdcd38c7c1c08a4dd6b8cc87b0abd1d7118aa1"},
 ]
 pytype = [
-    {file = "pytype-2020.9.14-cp35-cp35m-macosx_10_14_x86_64.whl", hash = "sha256:ecd07c4140cefb2331c14d4fbe924a9268b8f4df6dae2f8182aa7b2e028eb2ee"},
-    {file = "pytype-2020.9.14-cp35-cp35m-manylinux2014_x86_64.whl", hash = "sha256:e9c61334f2afcef331b4eaca2a37ffec600cd57bfa733b3f63c36d9dd2d3d265"},
-    {file = "pytype-2020.9.14-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:2305f4d83f3f6bd61b2780192b0b022af5d836e8857c391c5c745becbea67604"},
-    {file = "pytype-2020.9.14-cp36-cp36m-manylinux2014_x86_64.whl", hash = "sha256:a985867023372fabbfae4ee74de8970f927ef658406a460c41dc38ad4cec5d0c"},
-    {file = "pytype-2020.9.14-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:31f6fb911cad61495f99de7a079ab66a7711e18719dfcadb07609f06a1aeaa9e"},
-    {file = "pytype-2020.9.14-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:bcf870414844c2855ab741669fdcebb7fd3b4cb7738b75402c89b4b4312ab8d8"},
-    {file = "pytype-2020.9.14.tar.gz", hash = "sha256:24be093534a71014d5c1a9cfc7220bb9273e7d2cda95cea28128c5515ae8a69a"},
+    {file = "pytype-2020.9.16-cp35-cp35m-macosx_10_14_x86_64.whl", hash = "sha256:fc4d926455698d095e15dc7788de1689d1c75ed58d21f24769b25349e45a8c5c"},
+    {file = "pytype-2020.9.16-cp35-cp35m-manylinux2014_x86_64.whl", hash = "sha256:570a3bf93f57df18c8ee10de4ba33ff3e8df6a7ad0f145d23745e2d1abbb8589"},
+    {file = "pytype-2020.9.16-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:73445b423f3f29decf42043a55b126ff3bdcfd0cc1e5bd4f585f2cee305daab3"},
+    {file = "pytype-2020.9.16-cp36-cp36m-manylinux2014_x86_64.whl", hash = "sha256:4bb4dce07e94c1a14179a277b90ec37f92d590c2a6ee3ce6406e143947482aed"},
+    {file = "pytype-2020.9.16-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:7beb4dd9cc62df6a3caa4e8fc144e2b5465f6e6c148e0fce7995ac1fffcf61fa"},
+    {file = "pytype-2020.9.16-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:3a72921e746609dfa659475d34bf99a31f03be647d9d4e5e44fd8a45db1d64dd"},
+    {file = "pytype-2020.9.16.tar.gz", hash = "sha256:5306288b9e30a6ff11f93eb3d53355ed0bd47125231913627cac06de5457f673"},
 ]
 pywin32 = [
     {file = "pywin32-227-cp27-cp27m-win32.whl", hash = "sha256:371fcc39416d736401f0274dd64c2302728c9e034808e37381b5e1b22be4a6b0"},
@@ -2131,9 +2133,9 @@ six = [
     {file = "six-1.15.0.tar.gz", hash = "sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"},
 ]
 spotipy = [
-    {file = "spotipy-2.15.0-py2-none-any.whl", hash = "sha256:713082ec298b478722e4bb8b42d1c1a6a9dcb46a21e12b7e5fe1d3c5013dae9e"},
-    {file = "spotipy-2.15.0-py3-none-any.whl", hash = "sha256:6ccbf3f99e2ecefa67b4a6b19b1e8f66c3562bd22a4a1ed350b674de8b1b3c4b"},
-    {file = "spotipy-2.15.0.tar.gz", hash = "sha256:f972e4a92cbe06584ab092b1198d082ee666264819a07b6742abbca6fb4722b6"},
+    {file = "spotipy-2.16.0-py2-none-any.whl", hash = "sha256:800330badc1b953417dace1532a586220d35b2240eb2e538e883e19e6bf1b53d"},
+    {file = "spotipy-2.16.0-py3-none-any.whl", hash = "sha256:9d07b8948c30d8a338805440797263749ccad07c22009f9b3112aa2bcb2ebcea"},
+    {file = "spotipy-2.16.0.tar.gz", hash = "sha256:315eadd1248053ed336b4d3adbf2e3c32895fdbb0cfcd170542c848c8fd45649"},
 ]
 text-unidecode = [
     {file = "text-unidecode-1.3.tar.gz", hash = "sha256:bad6603bb14d279193107714b288be206cac565dfa49aa5b105294dd5c4aab93"},
