@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# pytype: disable=attribute-error
 import logging
 from packaging import version
 
@@ -68,9 +69,7 @@ cli.add_command(user_cli, 'user')
 cli.add_command(completion, 'completion')
 
 # hacky aliases
-# pytype: disable=attribute-error
 cli._commands['music'] = ['file']  # type: ignore
-# pytype: disable=attribute-error
 cli._aliases['file'] = 'music'  # type: ignore
 
 

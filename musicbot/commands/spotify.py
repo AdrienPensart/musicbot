@@ -8,8 +8,8 @@ import click
 import jellyfish  # type: ignore
 from prettytable import PrettyTable  # type: ignore
 from slugify import slugify  # type: ignore
+from colorama import Fore  # type: ignore
 from click_skeleton import AdvancedGroup, add_options  # type: ignore
-from click_skeleton.helpers import Green, Reset  # type: ignore
 
 from musicbot import helpers
 from musicbot.spotify import spotify_options
@@ -54,9 +54,9 @@ def print_distances(distances):
         lt = distance['local_track']
         d = distance['distance']
         pt.add_row([
-            f"{Green}Spotify : {stitle}{Reset}\nLocal : {lt['title']}",
-            f"{Green}Spotify : {sartist}{Reset}\n Local : {lt['artist']}",
-            f"{Green}Spotify : {salbum}{Reset}\nLocal : {lt['album']}",
+            f"{Fore.GREEN}Spotify : {stitle}{Fore.RESET}\nLocal : {lt['title']}",
+            f"{Fore.GREEN}Spotify : {sartist}{Fore.RESET}\n Local : {lt['artist']}",
+            f"{Fore.GREEN}Spotify : {salbum}{Fore.RESET}\nLocal : {lt['album']}",
             d,
         ])
     print(pt)
