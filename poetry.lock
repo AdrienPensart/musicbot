@@ -252,8 +252,8 @@ category = "main"
 description = "Click app skeleton"
 name = "click-skeleton"
 optional = false
-python-versions = ">=3.6,<4.0"
-version = "0.3.5"
+python-versions = ">=3.6,<3.9"
+version = "0.4.2"
 
 [package.dependencies]
 click = ">=7.1.2,<8.0.0"
@@ -1446,10 +1446,10 @@ description = "YouTube video downloader"
 name = "youtube-dl"
 optional = false
 python-versions = "*"
-version = "2020.9.14"
+version = "2020.9.20"
 
 [metadata]
-content-hash = "694fc908a457a0cadda0da0863212debf781f7f6278d4e9d3791070d96c6cf4c"
+content-hash = "f55b0d003178f660a73d36c56b47ed2d513fe86b7c5422ac0760b6d5706f90ab"
 lock-version = "1.0"
 python-versions = "<3.9,>=3.8"
 
@@ -1588,8 +1588,8 @@ click-option-group = [
     {file = "click_option_group-0.5.1-py3-none-any.whl", hash = "sha256:b363552b81f3bc9bef2402837b08865d186bd97c2311768f7d52aaf896e384a6"},
 ]
 click-skeleton = [
-    {file = "click-skeleton-0.3.5.tar.gz", hash = "sha256:70ce3abfe4258d85afb80a8936d8e8ee19f05fa68b830bf49389125e577c416c"},
-    {file = "click_skeleton-0.3.5-py3-none-any.whl", hash = "sha256:d5fe1b34fe1a8e334f32d36e281249a3259a5da101c1d2dc84a447e68ec0b87b"},
+    {file = "click-skeleton-0.4.2.tar.gz", hash = "sha256:5601965e66b10efe626da6e54e3a1843ae26702a671b8a018a89912744fb1e5f"},
+    {file = "click_skeleton-0.4.2-py3-none-any.whl", hash = "sha256:3ad93bf8802a709a6e360d0221232868918e4132ae3a4efcd862c7f1def34e8b"},
 ]
 colorama = [
     {file = "colorama-0.4.3-py2.py3-none-any.whl", hash = "sha256:7d73d2a99753107a36ac6b455ee49046802e59d9d076ef8e47b61499fa29afff"},
@@ -2227,6 +2227,6 @@ yaspin = [
     {file = "yaspin-1.0.0.tar.gz", hash = "sha256:97f4a08af09f14890cb7bad584327182716a758728bfd12ad73176e6955661da"},
 ]
 youtube-dl = [
-    {file = "youtube_dl-2020.9.14-py2.py3-none-any.whl", hash = "sha256:118094942d762287db39664c4e8198abcdde68581a2214e96d1ec58f2753bd82"},
-    {file = "youtube_dl-2020.9.14.tar.gz", hash = "sha256:fdd7e328c6f23e83f331490293dc8fb4d4ca07eaf22b895d51021541abcc4236"},
+    {file = "youtube_dl-2020.9.20-py2.py3-none-any.whl", hash = "sha256:012de159061570a6107e2da9a24d9ce628f045604471192f4b66236a6915a1f8"},
+    {file = "youtube_dl-2020.9.20.tar.gz", hash = "sha256:67fb9bfa30f5b8f06227c478a8a6ed04af1f97ad4e81dd7e2ce518df3e275391"},
 ]

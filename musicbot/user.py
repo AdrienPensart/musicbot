@@ -1,11 +1,14 @@
+import logging
+import time
 import base64
 import json
-import logging
 import functools
 import sys
-from typing import List, Collection, Optional
+from typing import Any, Collection, Optional
+import click
 import enlighten  # type: ignore
 from click_option_group import optgroup  # type: ignore
+from watchdog.observers import Observer  # type: ignore
 from .graphql import GraphQL
 from .config import config
 from .helpers import config_string
@@ -83,8 +86,7 @@ graphql_option = [
 
 
 class User(GraphQL):
-    @config.timeit
-    def __init__(self, graphql: str, email: Optional[str] = None, password: Optional[str] = None, token: Optional[str] = None):
+    def __init__(self, graphql: str, email: Optional[str] = None, password: Optional[str] = None, token: Optional[str] = None) -> None:
         self.authenticated = False
 
         if token:
@@ -115,15 +117,8 @@ class User(GraphQL):
         GraphQL.__init__(self, graphql, authorization=f"Bearer {self.token}")
         self.authenticated = True
 
-    @classmethod
-    @functools.lru_cache(maxsize=None)
     @config.timeit
-    def new(cls, **kwargs):
-        self = User(**kwargs)
-        return self
-
-    @config.timeit
-    def load_default_filters(self):
+    def load_default_filters(self) -> Any:
         query = """
         mutation
         {
@@ -146,7 +141,7 @@ class User(GraphQL):
         return self.post(query)
 
     @config.timeit
-    def playlist(self, mf: Optional[mfilter.Filter] = None):
+    def playlist(self, mf: Optional[mfilter.Filter] = None) -> Any:
         mf = mf if mf is not None else mfilter.Filter()
         query = f"""
         {{
@@ -155,7 +150,7 @@ class User(GraphQL):
         return self.post(query)['data']['playlist']
 
     @config.timeit
-    def bests(self, mf: Optional[mfilter.Filter] = None):
+    def bests(self, mf: Optional[mfilter.Filter] = None) -> Any:
         mf = mf if mf is not None else mfilter.Filter()
         query = f"""
         {{
@@ -171,7 +166,7 @@ class User(GraphQL):
         return self.post(query)['data']['bests']['nodes']
 
     @config.timeit
-    def do_filter(self, mf: Optional[mfilter.Filter] = None):
+    def do_filter(self, mf: Optional[mfilter.Filter] = None) -> Any:
         mf = mf if mf is not None else mfilter.Filter()
         if mf.name:
             kwargs = self.filter(mf.name)
@@ -203,7 +198,7 @@ class User(GraphQL):
         return self.post(query)['data']['doFilter']['nodes']
 
     @config.timeit
-    def do_stat(self, mf: Optional[mfilter.Filter] = None):
+    def do_stat(self, mf: Optional[mfilter.Filter] = None) -> Any:
         mf = mf if mf is not None else mfilter.Filter()
         query = f"""
         {{
@@ -221,7 +216,7 @@ class User(GraphQL):
         return self.post(query)['data']['doStat']
 
     @config.timeit
-    def upsert_music(self, music: file.File):
+    def upsert_music(self, music: file.File) -> Any:
         query = f"""
         mutation
         {{
@@ -233,7 +228,7 @@ class User(GraphQL):
         return self.post(query)
 
     @config.timeit
-    def bulk_insert(self, musics: Collection[file.File]):
+    def bulk_insert(self, musics: Collection[file.File]) -> Any:
         if not musics:
             logger.info("no musics to insert")
             return None
@@ -246,7 +241,7 @@ class User(GraphQL):
                         pbar.update()
             return None
 
-        j = json.dumps([m.to_dict() for m in musics])
+        j = json.dumps([m.as_dict() for m in musics])
         b64 = j.encode('utf-8')
         data = base64.b64encode(b64)
         query = f'''
@@ -261,7 +256,7 @@ class User(GraphQL):
 
     @functools.lru_cache(maxsize=None)
     @config.timeit
-    def folders(self) -> List[str]:
+    def folders(self) -> Any:
         query = """
         {
             foldersList
@@ -279,11 +274,11 @@ class User(GraphQL):
             }
         }
         '''
-        return self.post(query)['data']['rawMusics']['totalCount']
+        return int(self.post(query)['data']['rawMusics']['totalCount'])
 
     @functools.lru_cache(maxsize=None)
     @config.timeit
-    def artists(self) -> List[str]:
+    def artists(self) -> Any:
         query = """
         {
           artistsTreeList {
@@ -302,7 +297,7 @@ class User(GraphQL):
 
     @functools.lru_cache(maxsize=None)
     @config.timeit
-    def genres(self) -> List[str]:
+    def genres(self) -> Any:
         query = """
         {
           genresTreeList {
@@ -313,9 +308,9 @@ class User(GraphQL):
 
     @functools.lru_cache(maxsize=None)
     @config.timeit
-    def filter(self, name: str):
+    def filter(self, name: str) -> Any:
         default_filter = mfilter.Filter()
-        filter_members = ','.join(default_filter.ordered_dict().keys())
+        filter_members = ','.join(default_filter.as_dict().keys())
         query = f"""
         {{
             filtersList(filter: {{name: {{equalTo: "{name}"}}}})
@@ -328,9 +323,9 @@ class User(GraphQL):
 
     @functools.lru_cache(maxsize=None)
     @config.timeit
-    def filters(self):
+    def filters(self) -> Any:
         default_filter = mfilter.Filter()
-        filter_members = ','.join(default_filter.ordered_dict().keys())
+        filter_members = ','.join(default_filter.as_dict().keys())
         query = f"""
         {{
             filtersList
@@ -341,44 +336,10 @@ class User(GraphQL):
         }}"""
         return self.post(query)['data']['filtersList']
 
-    def watch(self):
-        from watchdog.observers import Observer  # type: ignore
-        from watchdog.events import PatternMatchingEventHandler  # type: ignore
-        import time
-
-        class MusicWatcherHandler(PatternMatchingEventHandler):
-            patterns = []
-
-            def __init__(self, user):
-                super().__init__()
-                self.user = user
-                MusicWatcherHandler.patterns = ['*.' + f for f in file.supported_formats]
-
-            def on_modified(self, event):
-                self.update_music(event.src_path)
-
-            def on_created(self, event):
-                self.update_music(event.src_path)
-
-            def on_deleted(self, event):
-                logger.debug(f'Deleting entry in DB for: {event.src_path} {event.event_type}')
-                self.user.delete_music(event.src_path)
-
-            def on_moved(self, event):
-                logger.debug(f'Moving entry in DB for: {event.src_path} {event.event_type}')
-                self.user.delete_music(event.src_path)
-                self.update_music(event.dest_path)
-
-            def update_music(self, path: str):
-                for folder in self.user.folders():
-                    if path.startswith(folder) and path.endswith(tuple(file.supported_formats)):
-                        logger.debug(f'Creating/modifying DB for: {path}')
-                        f = file.File(path, folder)
-                        self.user.upsert_music(f)
-                        return
-
+    def watch(self) -> None:
+        from .watcher import MusicWatcherHandler
         logger.info(f'Watching: {self.folders()}')
-        event_handler = MusicWatcherHandler(self)
+        event_handler = MusicWatcherHandler(user=self)
         observer = Observer()
         for f in self.folders():
             observer.schedule(event_handler, f, recursive=True)
@@ -392,7 +353,7 @@ class User(GraphQL):
 
     @classmethod
     @config.timeit
-    def register(cls, graphql: str, email: str, password: str, first_name: str, last_name: str):
+    def register(cls, graphql: str, email: str, password: str, first_name: str, last_name: str) -> "User":
         query = f"""
         mutation
         {{
@@ -414,7 +375,7 @@ class User(GraphQL):
         )
 
     @config.timeit
-    def unregister(self):
+    def unregister(self) -> Any:
         query = """
         mutation
         {
@@ -431,7 +392,7 @@ class User(GraphQL):
             raise FailedAuthentication(f"Cannot delete user {self.email}") from e
 
     @config.timeit
-    def delete_music(self, path: str):
+    def delete_music(self, path: str) -> Any:
         query = f"""
         mutation
         {{
@@ -443,7 +404,7 @@ class User(GraphQL):
         return self.post(query)
 
     @config.timeit
-    def clean_musics(self):
+    def clean_musics(self) -> Any:
         query = """
         mutation
         {
@@ -455,13 +416,14 @@ class User(GraphQL):
         return self.post(query)
 
 
-def sane_user(ctx, param, value) -> User:  # pylint: disable=unused-argument
+def sane_user(ctx: click.Context, param: Any, value: Any) -> User:  # pylint: disable=unused-argument
     kwargs = {}
     for field in ('token', 'email', 'password', 'graphql'):
         kwargs[field] = ctx.params.get(field, None)
         ctx.params.pop(field, None)
-    ctx.params['user'] = User(**kwargs)
-    return ctx.params['user']
+    user = User(**kwargs)
+    ctx.params['user'] = user
+    return user
 
 
 DEFAULT_FILTER = None
@@ -474,7 +436,6 @@ user_option = [
         hidden=True,
     )
 ]
-
 
 register_options =\
     [optgroup.group('Register options')] +\

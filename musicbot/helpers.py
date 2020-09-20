@@ -1,9 +1,10 @@
 import sys
 import os
 import logging
-from typing import Collection, Iterable
+from typing import Any, Collection, Iterable
 import enlighten  # type: ignore
 import click
+from click_skeleton.helpers import mysplit
 from .config import config
 from .music.file import File, supported_formats
 from .music.helpers import find_files, filecount
@@ -75,7 +76,7 @@ playlist_output_option = [
 ]
 
 
-def config_string(ctx, param, value):
+def config_string(ctx: click.Context, param: Any, value: Any) -> Any:
     arg_value = value
     logger.info(f"{param.name} : try loading with value : {value}")
 
@@ -95,32 +96,31 @@ def config_string(ctx, param, value):
         raise click.BadParameter(f'missing arg or config {param.name} in {config.config}', ctx, param.name, param.name)
     logger.info(f"{param.name} : final value {value}")
     ctx.params[param.name] = value
-    return ctx.params[param.name]
+    return value
 
 
-def config_list(ctx, param, value):
+def config_list(ctx: click.Context, param: Any, value: Any) -> Any:
     arg_value = value
     logger.info(f"{param.name} : try loading with value : {value}")
 
     config_value = config.configfile.get('musicbot', param.name, fallback=None)
-    if config_value is not None:
-        config_value = tuple(config_value.split(','))
-    logger.info(f"{param.name} : try loading with config key : {config_value}")
+    list_value = tuple(mysplit(config_value, ',')) if config_value is not None else []
+    logger.info(f"{param.name} : try loading with config key : {list_value}")
 
     if arg_value:
         value = arg_value
 
-    if config_value:
+    if list_value:
         if not value or value == param.default:
-            value = config_value
-        elif arg_value and arg_value != config_value:
-            logger.warning(f"{param.name} : config value {config_value} is not sync with arg value {arg_value}")
+            value = list_value
+        elif arg_value and arg_value != list_value:
+            logger.warning(f"{param.name} : config value {list_value} is not sync with arg value {arg_value}")
 
     if not value and param.required:
         raise click.BadParameter(f'missing arg or config {param.name} in {config.config}', ctx, param.name, param.name)
     logger.info(f"{param.name} : final value {value}")
     ctx.params[param.name] = value
-    return ctx.params[param.name]
+    return value
 
 
 @config.timeit

@@ -20,7 +20,7 @@ click-completion==0.5.2
 click-didyoumean==0.0.3
 click-help-colors==0.8
 click-option-group==0.5.1
-click-skeleton==0.3.5
+click-skeleton==0.4.2
 colorama==0.4.3
 colorlog==4.2.1
 coverage==5.3
@@ -123,4 +123,4 @@ websocket-client==0.57.0
 wrapt==1.12.1
 yarl==1.5.1
 yaspin==1.0.0
-youtube-dl==2020.9.14
+youtube-dl==2020.9.20

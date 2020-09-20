@@ -4,13 +4,14 @@ import inspect
 import logging
 import functools
 import configparser
-from typing import Optional
+from os import PathLike
+from typing import Union, Optional, Any
 import attr
 import click
 import colorlog  # type: ignore
 from click_option_group import optgroup  # type: ignore
-from click_skeleton import ExpandedPath  # type: ignore
-from click_skeleton.helpers import str2bool, seconds_to_human  # type: ignore
+from click_skeleton import ExpandedPath
+from click_skeleton.helpers import str2bool, seconds_to_human
 
 
 logger = logging.getLogger(__name__)
@@ -18,7 +19,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_CHECK_VERSION = False
 MB_CHECK_VERSION = 'MB_CHECK_VERSION'
 
-verbosities = {
+VERBOSITIES = {
     'debug': logging.DEBUG,
     'info': logging.INFO,
     'warning': logging.WARNING,
@@ -39,7 +40,7 @@ config_option = [
     )
 ]
 
-DEFAULT_LOG: Optional[str] = None
+DEFAULT_LOG = ''
 MB_LOG = 'MB_LOG'
 log_option = [
     optgroup.option(
@@ -48,7 +49,6 @@ log_option = [
         type=ExpandedPath(writable=True, dir_okay=False),
         envvar=MB_LOG,
         default=DEFAULT_LOG,
-        show_default=True,
     )
 ]
 
@@ -99,7 +99,7 @@ verbosity_option = [
         help='Verbosity levels',
         envvar=MB_VERBOSITY,
         default=DEFAULT_VERBOSITY,
-        type=click.Choice(verbosities.keys()),
+        type=click.Choice(VERBOSITIES.keys()),
         show_default=True,
     )
 ]
@@ -130,7 +130,7 @@ options =\
 
 @attr.s(auto_attribs=True)
 class Config:
-    log: Optional[str] = DEFAULT_LOG
+    log: Optional[Union[str, PathLike]] = DEFAULT_LOG
     check_version: bool = DEFAULT_CHECK_VERSION
     quiet: bool = DEFAULT_QUIET
     debug: bool = DEFAULT_DEBUG
@@ -138,19 +138,28 @@ class Config:
     timings: bool = DEFAULT_TIMINGS
     verbosity: str = DEFAULT_VERBOSITY
     config: str = DEFAULT_CONFIG
-    level: int = verbosities[DEFAULT_VERBOSITY]
+    level: int = VERBOSITIES[DEFAULT_VERBOSITY]
 
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
         self.check_version = str2bool(os.getenv(MB_CHECK_VERSION, 'true'))
 
-    def set(self, config=None, debug=None, info=None, timings=None, quiet=None, verbosity=None, log=None) -> None:
-        self.config = config if config is not None else os.getenv(MB_CONFIG, DEFAULT_CONFIG)
-        self.log = log if log is not None else os.getenv(MB_LOG, DEFAULT_LOG)
-        self.quiet = quiet if quiet is not None else str2bool(os.getenv(MB_QUIET, str(DEFAULT_QUIET)))
-        self.debug = debug if debug is not None else str2bool(os.getenv(MB_DEBUG, str(DEFAULT_DEBUG)))
-        self.info = info if info is not None else str2bool(os.getenv(MB_INFO, str(DEFAULT_INFO)))
-        self.timings = timings if timings is not None else str2bool(os.getenv(MB_TIMINGS, str(DEFAULT_TIMINGS)))
-        self.verbosity = verbosity if verbosity is not None else os.getenv(MB_VERBOSITY, DEFAULT_VERBOSITY)
+    def set(
+        self,
+        config: Optional[str] = None,
+        debug: Optional[bool] = None,
+        info: Optional[bool] = None,
+        timings: Optional[bool] = None,
+        quiet: Optional[bool] = None,
+        verbosity: Optional[str] = None,
+        log: Optional[Union[str, PathLike]] = None,
+    ) -> None:
+        self.config = config if config is not None else os.environ.get(MB_CONFIG, DEFAULT_CONFIG)
+        self.quiet = quiet if quiet is not None else str2bool(os.environ.get(MB_QUIET, str(DEFAULT_QUIET)))
+        self.debug = debug if debug is not None else str2bool(os.environ.get(MB_DEBUG, str(DEFAULT_DEBUG)))
+        self.info = info if info is not None else str2bool(os.environ.get(MB_INFO, str(DEFAULT_INFO)))
+        self.timings = timings if timings is not None else str2bool(os.environ.get(MB_TIMINGS, str(DEFAULT_TIMINGS)))
+        self.verbosity = verbosity if verbosity is not None else os.environ.get(MB_VERBOSITY, DEFAULT_VERBOSITY)
+        self.log = (log if log is not None else os.environ.get(MB_LOG, DEFAULT_LOG)) or None
 
         if self.timings or self.info:
             self.verbosity = 'info'
@@ -159,7 +168,7 @@ class Config:
             self.verbosity = 'debug'
             self.quiet = True
 
-        self.level = verbosities[self.verbosity]
+        self.level = VERBOSITIES[self.verbosity]
         root_logger = logging.getLogger()
         root_logger.setLevel(self.level)
         handler = logging.StreamHandler()
@@ -178,11 +187,11 @@ class Config:
         )
         root_logger.addHandler(handler)
 
-        if self.log is not None:
+        if self.log:
             fh = logging.FileHandler(self.log)
             fh.setLevel(logging.DEBUG)
             logging.getLogger().addHandler(fh)
-        logger.debug(self)
+            logger.debug(self)
 
     @functools.cached_property
     def configfile(self) -> configparser.ConfigParser:
@@ -194,11 +203,11 @@ class Config:
                 logger.warning(f'[{section}] section is not present in {self.config}')
         return file
 
-    def write(self):
+    def write(self) -> None:
         with open(self.config, 'w') as output_config:
             self.configfile.write(output_config)
 
-    def timeit(self, *wrapper_args, **wrapper_kwargs):
+    def timeit(self, *wrapper_args: Any, **wrapper_kwargs: Any) -> Any:
         func = None
         if len(wrapper_args) == 1 and callable(wrapper_args[0]):
             func = wrapper_args[0]
@@ -211,9 +220,9 @@ class Config:
             on_success = wrapper_kwargs.get('on_success', False)
             on_config = wrapper_kwargs.get('on_config', True)
 
-        def real_timeit(func):
+        def real_timeit(func: Any) -> Any:
             @functools.wraps(func)
-            def wrapper(*args, **kwargs):
+            def wrapper(*args: Any, **kwargs: Any) -> Any:
                 start = time.time()
                 result = func(*args, **kwargs)
                 for_human = seconds_to_human(time.time() - start)
@@ -223,7 +232,7 @@ class Config:
                     argspec = inspect.getfullargspec(func)
                     # go through each position based argument
                     counter = 0
-                    if argspec.args and type(argspec.args is list):
+                    if argspec.args and isinstance(argspec.args, list):
                         for arg in args:
                             # when you run past the formal positional arguments
                             try:

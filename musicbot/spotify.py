@@ -5,13 +5,13 @@ from typing import List, Any
 import spotipy  # type: ignore
 import click
 from click_option_group import optgroup  # type: ignore
-from click_skeleton import ExpandedPath  # type: ignore
+from click_skeleton import ExpandedPath
 from musicbot.config import config
 
 logger = logging.getLogger(__name__)
 
 
-def config_string_spotify(ctx, param, arg_value):  # pylint: disable=unused-argument
+def config_string_spotify(ctx, param, arg_value):
     name = param.name
     value = None
 

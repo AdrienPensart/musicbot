@@ -1,6 +1,6 @@
 import logging
 import json
-from typing import Optional
+from typing import Any, Optional
 import requests
 from musicbot.exceptions import FailedRequest, FailedAuthentication
 
@@ -8,11 +8,11 @@ logger = logging.getLogger(__name__)
 
 
 class GraphQL:
-    def __init__(self, graphql: str, authorization: Optional[str] = None):
+    def __init__(self, graphql: str, authorization: Optional[str] = None) -> None:
         self.graphql = graphql
         self._headers = {'Authorization': authorization} if authorization else {}
 
-    def post(self, query: str):
+    def post(self, query: str) -> Any:
         response = requests.post(
             self.graphql,
             headers=self._headers,

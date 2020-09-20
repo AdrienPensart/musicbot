@@ -12,7 +12,7 @@ import enlighten  # type: ignore
 import attr
 import mutagen  # type: ignore
 from prettytable import PrettyTable  # type: ignore
-from click_skeleton import AdvancedGroup, add_options  # type: ignore
+from click_skeleton import AdvancedGroup, add_options
 
 from musicbot import helpers, user
 from musicbot.player import play

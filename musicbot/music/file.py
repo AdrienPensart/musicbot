@@ -2,14 +2,13 @@ import logging
 import pathlib
 import json
 import os
-from typing import Optional, List, Dict, Iterable, Iterator
-from collections import OrderedDict
+from typing import Any, Optional, List, Dict, Iterable, Iterator
 import click
 import acoustid  # type: ignore
 import mutagen  # type: ignore
 from pydub import AudioSegment  # type: ignore
 from click_option_group import optgroup  # type: ignore
-from click_skeleton.helpers import mysplit  # type: ignore
+from click_skeleton.helpers import mysplit
 from .helpers import ensure
 
 
@@ -127,11 +126,11 @@ class File:
     def __repr__(self) -> str:
         return self.path
 
-    def __iter__(self) -> Iterator:
-        yield from self.ordered_dict().items()
+    def __iter__(self) -> Iterator[Any]:
+        yield from self.as_dict().items()
 
-    def close(self):
-        return self.handle.close()
+    def close(self) -> None:
+        self.handle.close()
 
     def to_mp3(self, folder: Optional[str] = None, dry: Optional[bool] = None) -> bool:
         dry = dry if dry is not None else False
@@ -155,37 +154,32 @@ class File:
             flac_audio.export(mp3_path, format="mp3")
         return True
 
-    def ordered_dict(self) -> OrderedDict:
-        return OrderedDict(
-            [
-                ('title', self.title),
-                ('album', self.album),
-                ('genre', self.genre),
-                ('artist', self.artist),
-                ('folder', self.folder),
-                ('youtube', self.youtube),
-                ('spotify', self.spotify),
-                ('number', self.number),
-                ('path', self.path),
-                ('rating', self.rating),
-                ('duration', self.duration),
-                ('size', self.size),
-                ('keywords', self.keywords),
-            ]
-        )
+    def as_dict(self) -> Dict[str, Any]:  # pylint: disable=unsubscriptable-object
+        return {
+            'title': self.title,
+            'album': self.album,
+            'genre': self.genre,
+            'artist': self.artist,
+            'folder': self.folder,
+            'youtube': self.youtube,
+            'spotify': self.spotify,
+            'number': self.number,
+            'path': self.path,
+            'rating': self.rating,
+            'duration': self.duration,
+            'size': self.size,
+            'keywords': self.keywords,
+        }
 
     @property
-    def extension(self):
+    def extension(self) -> str:
         return pathlib.Path(self.path).suffix
 
-    def to_dict(self) -> Dict:
-        return dict(self.ordered_dict())
-
     def to_graphql(self) -> str:
-        return ", ".join([f'{k}: {json.dumps(v)}' for k, v in self.ordered_dict().items()])
+        return ", ".join([f'{k}: {json.dumps(v)}' for k, v in self.as_dict().items()])
 
     def to_json(self) -> str:
-        return json.dumps(self.ordered_dict())
+        return json.dumps(self.as_dict())
 
     @property
     def canonic_path(self) -> str:
@@ -203,7 +197,7 @@ class File:
     def canonic_filename(self) -> str:
         return f"{self.canonic_title}{self.extension}"
 
-    def _get_first(self, tag, default=''):
+    def _get_first(self, tag: str, default: str = '') -> str:
         if tag not in self.handle:
             return default
         for item in self.handle[tag]:
@@ -225,7 +219,7 @@ class File:
         return self._get_first('TIT2')
 
     @title.setter
-    def title(self, title: str):
+    def title(self, title: str) -> None:
         if self.extension == '.flac':
             self.handle.tags['title'] = title
         else:
@@ -242,7 +236,7 @@ class File:
         return self._get_first('TALB')
 
     @album.setter
-    def album(self, album: str):
+    def album(self, album: str) -> None:
         if self.extension == '.flac':
             self.handle.tags['album'] = album
         else:
@@ -255,7 +249,7 @@ class File:
         return self._get_first('TPE1')
 
     @artist.setter
-    def artist(self, artist: str):
+    def artist(self, artist: str) -> None:
         if self.extension == '.flac':
             self.handle.tags['artist'] = artist
         else:
@@ -268,7 +262,7 @@ class File:
         return self._get_first('TCON')
 
     @genre.setter
-    def genre(self, genre: str):
+    def genre(self, genre: str) -> None:
         if self.extension == '.flac':
             self.handle.tags['genre'] = genre
         else:
@@ -289,7 +283,7 @@ class File:
             return -1
 
     @rating.setter
-    def rating(self, rating: float):
+    def rating(self, rating: float) -> None:
         if self.extension == '.flac':
             self.handle['fmps_rating'] = str(rating)
         else:
@@ -300,7 +294,7 @@ class File:
         return self._get_first('COMM:ID3v1 Comment:eng')
 
     @_comment.setter
-    def _comment(self, comment):
+    def _comment(self, comment: str) -> None:
         self.handle.tags.add(mutagen.id3.COMM(desc='ID3v1 Comment:eng', text=str(comment)))
 
     @property
@@ -308,7 +302,7 @@ class File:
         return self._get_first('description')
 
     @_description.setter
-    def _description(self, description: str):
+    def _description(self, description: str) -> None:
         self.handle.tags['description'] = description
 
     @property
@@ -331,7 +325,7 @@ class File:
             return -1
 
     @number.setter
-    def number(self, number: int):
+    def number(self, number: int) -> None:
         if self.extension == '.flac':
             self.handle.tags['tracknumber'] = str(number)
         else:
@@ -349,7 +343,7 @@ class File:
         return []
 
     @keywords.setter
-    def keywords(self, keywords: Iterable[str]):
+    def keywords(self, keywords: Iterable[str]) -> None:
         if self.extension == '.mp3':
             logger.info(f'{self} : mp3 {keywords}')
             self._comment = ' '.join(keywords)
@@ -399,7 +393,7 @@ class File:
         ids = acoustid.match(api_key, self.path)
         for score, recording_id, title, artist in ids:
             logger.info(f"{self} score : {score} | recording_id : {recording_id} | title : {title} | artist : {artist}")
-            return recording_id
+            return str(recording_id)
         logger.info(f'{self} : fingerprint cannot be detected')
         return ''
 

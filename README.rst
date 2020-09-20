@@ -240,7 +240,7 @@ musicbot help
 *************
 .. code-block::
 
-  Usage: musicbot help [OPTIONS] [COMMAND]
+  Usage: musicbot help [OPTIONS] [COMMAND]...
 
     Print help
 

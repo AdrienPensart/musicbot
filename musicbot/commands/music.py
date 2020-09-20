@@ -2,7 +2,7 @@ import logging
 import click
 from prettytable import PrettyTable  # type: ignore
 from mutagen import MutagenError  # type: ignore
-from click_skeleton import AdvancedGroup, add_options  # type: ignore
+from click_skeleton import AdvancedGroup, add_options
 
 from musicbot import helpers
 from musicbot.music.file import File, keywords_argument, path_argument, folder_option, options, checks_options
@@ -44,7 +44,7 @@ def fingerprint(path, acoustid_api_key):
 def tags(path):
     f = File(path)
     logger.info(f.handle.tags.keys())
-    print(f.ordered_dict())
+    print(f.as_dict())
 
 
 @cli.command(aliases=['consistency'], help='Check music consistency')

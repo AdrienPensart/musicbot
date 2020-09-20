@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # pytype: disable=attribute-error
 import logging
-from packaging import version
-
 import click
 import requests
 import spotipy  # type: ignore
@@ -10,9 +8,9 @@ import mutagen  # type: ignore
 import attrdict  # type: ignore
 
 from click_help_colors import version_option  # type: ignore
-from click_skeleton import AdvancedGroup, add_options, backtrace, version_checker  # type: ignore
-from click_skeleton.completion import completion  # type: ignore
-from click_skeleton.helpers import raise_limits  # type: ignore
+from click_skeleton import AdvancedGroup, add_options, backtrace, version_checker
+from click_skeleton.completion import completion
+from click_skeleton.helpers import raise_limits
 
 from musicbot import config, exceptions, __version__
 from musicbot.config import config as config_obj
@@ -80,10 +78,6 @@ def _version():
        Equivalent : -V
     '''
     click.echo(f"{click.style(prog_name, fg='yellow')}, version {click.style(__version__, fg='green')}")
-    response = requests.get(f'https://pypi.org/pypi/{prog_name}/json')
-    latest_version = response.json()['info']['version']
-    if version.parse(latest_version) > version.parse(__version__):
-        logger.warning(f"A new {prog_name} version is available on PyPI : {latest_version}")
 
 
 def main(**kwargs):

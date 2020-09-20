@@ -6,7 +6,7 @@ import click
 import enlighten  # type: ignore
 import mutagen  # type: ignore
 from prettytable import PrettyTable  # type: ignore
-from click_skeleton import AdvancedGroup, add_options  # type: ignore
+from click_skeleton import AdvancedGroup, add_options
 
 from musicbot import helpers
 from musicbot.exceptions import MusicbotError

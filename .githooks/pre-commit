@@ -19,8 +19,11 @@ git add setup.py poetry.lock requirements.txt requirements-dev.txt
 echo "linting..."
 poetry run pylint musicbot tests
 
-echo "type checking..."
-poetry run pytype musicbot -j auto -k
+echo "mypy type checking..."
+poetry run mypy musicbot tests doc
+
+echo "pytype type checking..."
+poetry run pytype musicbot tests doc -j auto -k
 
 kernel=`uname -r`
 case "$kernel" in

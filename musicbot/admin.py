@@ -1,3 +1,4 @@
+from typing import Any
 import requests
 from click_option_group import optgroup  # type: ignore
 from .config import config
@@ -47,7 +48,7 @@ admin_options =\
 
 class Admin(GraphQL):
     @config.timeit
-    def __init__(self, graphql, graphql_admin_user, graphql_admin_password):
+    def __init__(self, graphql: str, graphql_admin_user: str, graphql_admin_password: str) -> None:
         self.user = graphql_admin_user
         self.password = graphql_admin_password
         GraphQL.__init__(
@@ -57,7 +58,7 @@ class Admin(GraphQL):
         )
 
     @config.timeit
-    def users(self):
+    def users(self) -> Any:
         query = """{
             accountsList {
                 user {

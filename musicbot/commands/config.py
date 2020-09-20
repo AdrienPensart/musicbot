@@ -1,7 +1,7 @@
 import logging
 import click
 from logging_tree import printout  # type: ignore
-from click_skeleton import AdvancedGroup  # type: ignore
+from click_skeleton import AdvancedGroup
 from musicbot.config import config
 
 logger = logging.getLogger('musicbot')

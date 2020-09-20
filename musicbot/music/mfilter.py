@@ -1,9 +1,8 @@
 import logging
-import typing
 import json
-from typing import List, Optional
-from collections import OrderedDict
+from typing import Any, Dict, List, Optional
 import attr
+import click
 from click_option_group import optgroup  # type: ignore
 
 logger = logging.getLogger(__name__)
@@ -12,10 +11,10 @@ logger = logging.getLogger(__name__)
 rating_choices = [x * 0.5 for x in range(0, 11)]
 
 
-def sane_rating(ctx, param, value) -> float:
+def sane_rating(ctx: click.Context, param: click.ParamType, value: float) -> float:
     if value is not None and value in rating_choices:
         ctx.params[param.name] = value
-        return ctx.params[param.name]
+        return value
     return float('nan')
 
 
@@ -80,7 +79,7 @@ class Filter:
     albums: List[str] = default_albums
     no_albums: List[str] = default_no_albums
 
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
         if self.min_size > self.max_size:
             raise ValueError(f"Invalid minimum ({self.min_rating}) or maximum ({self.max_rating}) size")
 
@@ -107,54 +106,52 @@ class Filter:
             raise ValueError(f"You can't have duplicates value in filters {self}")
         logger.debug(f'Filter: {self}')
 
-    def __repr__(self):
-        return json.dumps(self.ordered_dict())
+    def __repr__(self) -> str:
+        return json.dumps(self.as_dict())
 
-    def diff(self) -> typing.Dict:
+    def diff(self) -> Dict[str, Any]:
         '''Print only differences with default filter'''
         myself = vars(self)
         default = vars(Filter())
         return {k: myself[k] for k in myself if default[k] != myself[k] and k != 'name'}
 
-    def common(self) -> typing.Dict:
+    def common(self) -> Dict[str, Any]:
         '''Print common values with default filter'''
         myself = vars(self)
         default = vars(Filter())
         return {k: myself[k] for k in myself if default[k] == myself[k] and k != 'name'}
 
-    def ordered_dict(self) -> OrderedDict:
-        return OrderedDict(
-            [
-                ('minDuration', self.min_duration),
-                ('maxDuration', self.max_duration),
-                ('minSize', self.min_size),
-                ('maxSize', self.max_size),
-                ('minRating', self.min_rating),
-                ('maxRating', self.max_rating),
-                ('artists', self.artists),
-                ('noArtists', self.no_artists),
-                ('albums', self.albums),
-                ('noAlbums', self.no_albums),
-                ('titles', self.titles),
-                ('noTitles', self.no_titles),
-                ('genres', self.genres),
-                ('noGenres', self.no_genres),
-                ('formats', self.formats),
-                ('noFormats', self.no_formats),
-                ('keywords', self.keywords),
-                ('noKeywords', self.no_keywords),
-                ('shuffle', self.shuffle),
-                ('relative', self.relative),
-                ('limit', self.limit),
-                ('youtubes', self.youtubes),
-                ('noYoutubes', self.no_youtubes),
-                ('spotifys', self.spotifys),
-                ('noSpotifys', self.no_spotifys)
-            ]
-        )
+    def as_dict(self) -> Dict[str, Any]:  # pylint: disable=unsubscriptable-object
+        return {
+            'minDuration': self.min_duration,
+            'maxDuration': self.max_duration,
+            'minSize': self.min_size,
+            'maxSize': self.max_size,
+            'minRating': self.min_rating,
+            'maxRating': self.max_rating,
+            'artists': self.artists,
+            'noArtists': self.no_artists,
+            'albums': self.albums,
+            'noAlbums': self.no_albums,
+            'titles': self.titles,
+            'noTitles': self.no_titles,
+            'genres': self.genres,
+            'noGenres': self.no_genres,
+            'formats': self.formats,
+            'noFormats': self.no_formats,
+            'keywords': self.keywords,
+            'noKeywords': self.no_keywords,
+            'shuffle': self.shuffle,
+            'relative': self.relative,
+            'limit': self.limit,
+            'youtubes': self.youtubes,
+            'noYoutubes': self.no_youtubes,
+            'spotifys': self.spotifys,
+            'noSpotifys': self.no_spotifys,
+        }
 
     def to_graphql(self) -> str:
-        return ", ".join([f'{k}: {json.dumps(v)}' for k, v in self.ordered_dict().items()])
+        return ", ".join([f'{k}: {json.dumps(v)}' for k, v in self.as_dict().items()])
 
 
 options = [
@@ -339,14 +336,15 @@ options = [
 ]
 
 
-def sane_filter(ctx, param, value) -> Filter:  # pylint: disable=unused-argument
+def sane_filter(ctx: click.Context, param: click.ParamType, value: Any) -> Filter:  # pylint: disable=unused-argument
     kwargs = {}
     for field in attr.fields_dict(Filter):
         kwargs[field] = ctx.params[field]
         ctx.params.pop(field)
 
-    ctx.params['music_filter'] = Filter(**kwargs)
-    return ctx.params['music_filter']
+    myfilter = Filter(**kwargs)
+    ctx.params['music_filter'] = myfilter
+    return myfilter
 
 
 DEFAULT_FILTER = None

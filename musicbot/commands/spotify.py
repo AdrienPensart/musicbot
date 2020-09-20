@@ -9,7 +9,7 @@ import jellyfish  # type: ignore
 from prettytable import PrettyTable  # type: ignore
 from slugify import slugify  # type: ignore
 from colorama import Fore  # type: ignore
-from click_skeleton import AdvancedGroup, add_options  # type: ignore
+from click_skeleton import AdvancedGroup, add_options
 
 from musicbot import helpers
 from musicbot.spotify import spotify_options
