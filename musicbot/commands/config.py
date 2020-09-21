@@ -37,7 +37,6 @@ def _print():
         print()
 
 
-
 @cli.command('logging', help='Print logging config')
 def _logging():
     printout()

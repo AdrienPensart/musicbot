@@ -16,13 +16,16 @@ echo "setup.py generation..."
 poetry run dephell convert
 git add setup.py poetry.lock requirements.txt requirements-dev.txt
 
-echo "linting..."
-poetry run pylint musicbot tests
+echo "linting : pylint..."
+poetry run pylint musicbot tests doc
 
-echo "mypy type checking..."
+echo "linting : flake8..."
+poetry run flake8 musicbot tests doc
+
+echo "static type checking : mypy..."
 poetry run mypy musicbot tests doc
 
-echo "pytype type checking..."
+echo "static type checking : checking..."
 poetry run pytype musicbot tests doc -j auto -k
 
 kernel=`uname -r`

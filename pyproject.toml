@@ -12,7 +12,6 @@ musicbot = 'musicbot.cli:main'
 [tool.poetry.dependencies]
 python = "<3.9,>=3.8"
 pyrsistent = "0.17.2"
-attrdict = "^2.0"
 logging-tree = "^1.8"
 pyacoustid = "^1.1"
 python-vlc = "^3.0"
@@ -31,7 +30,7 @@ enlighten = "^1.6.1"
 attrs = "^20.1.0"
 requests = "^2.24.0"
 jellyfish = "^0.8.2"
-click-skeleton = "^0.4.1"
+click-skeleton = "^0.5.1"
 
 [tool.poetry.dev-dependencies]
 pytest-cov = "^2.6"
@@ -45,6 +44,7 @@ pylint = "^2.6.0"
 pytype = "^2020.8.28"
 Pygments = "^2.7.0"
 mypy = "^0.782"
+flake8 = "^3.8.3"
 
 [tool.pytest.ini_options]
 minversion = "6.0"

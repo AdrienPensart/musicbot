@@ -9,7 +9,7 @@ from typing import Union, Optional, Any
 import attr
 import click
 import colorlog  # type: ignore
-from click_option_group import optgroup  # type: ignore
+from click_option_group import optgroup, MutuallyExclusiveOptionGroup  # type: ignore
 from click_skeleton import ExpandedPath
 from click_skeleton.helpers import str2bool, seconds_to_human
 
@@ -52,29 +52,63 @@ log_option = [
     )
 ]
 
-DEFAULT_INFO = False
-MB_INFO = 'MB_INFO'
-info_option = [
-    optgroup.option(
-        '--info', '-i',
-        help='Same as "--verbosity info"',
-        envvar=MB_INFO,
-        default=DEFAULT_INFO,
-        is_flag=True,
-        show_default=False,
-    )
-]
-
 DEFAULT_DEBUG = False
 MB_DEBUG = 'MB_DEBUG'
 debug_option = [
     optgroup.option(
-        '--debug', '-d',
-        help='Be very verbose, same as "--verbosity debug" + hide progress bars',
+        '--debug',
+        help='Same as "--verbosity debug"',
         envvar=MB_DEBUG,
         default=DEFAULT_DEBUG,
         is_flag=True,
-        show_default=True,
+    )
+]
+
+DEFAULT_INFO = False
+MB_INFO = 'MB_INFO'
+info_option = [
+    optgroup.option(
+        '--info',
+        help='Same as "--verbosity info"',
+        envvar=MB_INFO,
+        default=DEFAULT_INFO,
+        is_flag=True,
+    )
+]
+
+DEFAULT_WARNING = False
+MB_WARNING = 'MB_WARNING'
+warning_option = [
+    optgroup.option(
+        '--warning',
+        help='Same as "--verbosity warning"',
+        envvar=MB_WARNING,
+        default=DEFAULT_WARNING,
+        is_flag=True,
+    )
+]
+
+DEFAULT_ERROR = False
+MB_ERROR = 'MB_ERROR'
+error_option = [
+    optgroup.option(
+        '--error',
+        help='Same as "--verbosity error"',
+        envvar=MB_ERROR,
+        default=DEFAULT_ERROR,
+        is_flag=True,
+    )
+]
+
+DEFAULT_CRITICAL = False
+MB_CRITICAL = 'MB_CRITICAL'
+critical_option = [
+    optgroup.option(
+        '--critical',
+        help='Same as "--verbosity critical"',
+        envvar=MB_CRITICAL,
+        default=DEFAULT_CRITICAL,
+        is_flag=True,
     )
 ]
 
@@ -95,8 +129,8 @@ DEFAULT_VERBOSITY = 'warning'
 MB_VERBOSITY = 'MB_VERBOSITY'
 verbosity_option = [
     optgroup.option(
-        '--verbosity', '-v',
-        help='Verbosity levels',
+        '--verbosity',
+        help='Set verbosity level',
         envvar=MB_VERBOSITY,
         default=DEFAULT_VERBOSITY,
         type=click.Choice(VERBOSITIES.keys()),
@@ -118,14 +152,18 @@ quiet_option = [
 ]
 
 options =\
-    [optgroup.group('Config options')] +\
+    [optgroup.group('Global options')] +\
     config_option +\
     log_option +\
-    info_option +\
-    debug_option +\
+    quiet_option +\
     timings_option +\
-    verbosity_option +\
-    quiet_option
+    [optgroup('Verbosity', cls=MutuallyExclusiveOptionGroup)] +\
+    debug_option +\
+    info_option +\
+    warning_option +\
+    error_option +\
+    critical_option +\
+    verbosity_option
 
 
 @attr.s(auto_attribs=True)
@@ -135,6 +173,9 @@ class Config:
     quiet: bool = DEFAULT_QUIET
     debug: bool = DEFAULT_DEBUG
     info: bool = DEFAULT_INFO
+    warning: bool = DEFAULT_WARNING
+    error: bool = DEFAULT_ERROR
+    critical: bool = DEFAULT_CRITICAL
     timings: bool = DEFAULT_TIMINGS
     verbosity: str = DEFAULT_VERBOSITY
     config: str = DEFAULT_CONFIG
@@ -148,6 +189,9 @@ class Config:
         config: Optional[str] = None,
         debug: Optional[bool] = None,
         info: Optional[bool] = None,
+        warning: Optional[bool] = None,
+        error: Optional[bool] = None,
+        critical: Optional[bool] = None,
         timings: Optional[bool] = None,
         quiet: Optional[bool] = None,
         verbosity: Optional[str] = None,
@@ -157,18 +201,25 @@ class Config:
         self.quiet = quiet if quiet is not None else str2bool(os.environ.get(MB_QUIET, str(DEFAULT_QUIET)))
         self.debug = debug if debug is not None else str2bool(os.environ.get(MB_DEBUG, str(DEFAULT_DEBUG)))
         self.info = info if info is not None else str2bool(os.environ.get(MB_INFO, str(DEFAULT_INFO)))
+        self.warning = warning if warning is not None else str2bool(os.environ.get(MB_WARNING, str(DEFAULT_WARNING)))
+        self.error = error if error is not None else str2bool(os.environ.get(MB_ERROR, str(DEFAULT_ERROR)))
+        self.critical = critical if critical is not None else str2bool(os.environ.get(MB_CRITICAL, str(DEFAULT_CRITICAL)))
         self.timings = timings if timings is not None else str2bool(os.environ.get(MB_TIMINGS, str(DEFAULT_TIMINGS)))
         self.verbosity = verbosity if verbosity is not None else os.environ.get(MB_VERBOSITY, DEFAULT_VERBOSITY)
         self.log = (log if log is not None else os.environ.get(MB_LOG, DEFAULT_LOG)) or None
 
-        if self.timings or self.info:
-            self.verbosity = 'info'
-            self.quiet = True
         if self.debug:
             self.verbosity = 'debug'
-            self.quiet = True
+        if self.info:
+            self.verbosity = 'info'
+        if self.warning:
+            self.verbosity = 'warning'
+        if self.error:
+            self.verbosity = 'error'
+        if self.critical:
+            self.verbosity = 'critical'
 
-        self.level = VERBOSITIES[self.verbosity]
+        self.level = VERBOSITIES.get(self.verbosity, logging.WARNING)
         root_logger = logging.getLogger()
         root_logger.setLevel(self.level)
         handler = logging.StreamHandler()
@@ -182,7 +233,8 @@ class Config:
                     'INFO': 'green',
                     'WARNING': 'yellow',
                     'ERROR': 'red',
-                    'CRITICAL': 'red,bg_white'},
+                    'CRITICAL': 'red,bg_white',
+                },
             )
         )
         root_logger.addHandler(handler)
@@ -223,9 +275,10 @@ class Config:
         def real_timeit(func: Any) -> Any:
             @functools.wraps(func)
             def wrapper(*args: Any, **kwargs: Any) -> Any:
-                start = time.time()
+                start = int(time.time())
                 result = func(*args, **kwargs)
-                for_human = seconds_to_human(time.time() - start)
+                end = int(time.time())
+                for_human = seconds_to_human(end - start)
 
                 if self.info or self.debug:
                     args_values = []
@@ -253,7 +306,7 @@ class Config:
                 else:
                     timing = f'(timings) {func.__module__}.{func.__qualname__} : {for_human}'
                 if always or (on_success and result) or (on_config and self.timings):
-                    click.secho(timing, fg="magenta", bold=True)
+                    click.secho(timing, fg="magenta", bold=True, err=True)
                 return result
             return wrapper
         return real_timeit(func) if func else real_timeit

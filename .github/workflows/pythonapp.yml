@@ -16,10 +16,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libtag1-dev postgresql-server-dev-all ffmpeg vlc
           pip install -r requirements-dev.txt
-      - name: Linting
+      - name: restructured text Linting
         run: |
-          pylint musicbot tests
           rst-lint README.rst
+      - name: Pylint Linting
+        run: |
+          pylint musicbot tests doc
+      - name: Flake8 Linting
+        run: |
+          flake8 musicbot tests doc
       - name: MyPy Static type checking
         run: |
           mypy musicbot tests doc

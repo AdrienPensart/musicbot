@@ -90,17 +90,20 @@ Commands
     Music swiss knife, new gen.
 
   Options:
-    -V, --version                                       Show the version and exit.
-    Config options: 
-      -c, --config FILE                                 Config file path  [default: ~/musicbot.ini]
-      -l, --log FILE                                    Log file path
-      -i, --info                                        Same as "--verbosity info"
-      -d, --debug                                       Be very verbose, same as "--verbosity debug" + hide progress bars  [default: False]
-      -t, --timings                                     Set verbosity to info and show execution timings  [default: False]
-      -v, --verbosity [debug|info|warning|error|critical]
-                                                        Verbosity levels  [default: warning]
-      -q, --quiet                                       Disable progress bars  [default: False]
-    -h, --help                                          Show this message and exit.
+    Global options: 
+      -c, --config FILE                                Config file path  [default: ~/musicbot.ini]
+      -l, --log FILE                                   Log file path
+      -q, --quiet                                      Disable progress bars  [default: False]
+      -t, --timings                                    Set verbosity to info and show execution timings  [default: False]
+    Verbosity: [mutually_exclusive]
+      --debug                                          Same as "--verbosity debug"
+      --info                                           Same as "--verbosity info"
+      --warning                                        Same as "--verbosity warning"
+      --error                                          Same as "--verbosity error"
+      --critical                                       Same as "--verbosity critical"
+      --verbosity [debug|info|warning|error|critical]  Set verbosity level  [default: warning]
+    -V, --version                                      Show the version and exit.
+    -h, --help                                         Show this message and exit.
 
   Commands:
     completion    Shell completion
@@ -120,15 +123,15 @@ musicbot completion
 
   Usage: musicbot completion [OPTIONS] COMMAND [ARGS]...
 
-    Shell completion
+    Shell completion subcommand
 
   Options:
     -h, --help  Show this message and exit.
 
   Commands:
-    help     Print help
-    install  Install the click-completion-command completion
-    show     Show the click-completion-command completion code
+    help                   Print help
+    install                Install the click-completion-command completion
+    show (generate,print)  Show the click-completion-command completion code
 
 
 musicbot completion install
@@ -137,11 +140,11 @@ musicbot completion install
 
   Usage: musicbot completion install [OPTIONS] [[bash|fish|zsh|powershell]] [PATH]
 
-    Install the click-completion-command completion
+    Auto install shell completion code in your rc file
 
   Options:
-    --append / --overwrite                          Append the completion code to the file
     -i, --case-insensitive / --no-case-insensitive  Case insensitive completion
+    --append / --overwrite                          Append the completion code to the file
     -h, --help                                      Show this message and exit.
 
 
@@ -151,7 +154,7 @@ musicbot completion show
 
   Usage: musicbot completion show [OPTIONS] [[bash|fish|zsh|powershell]]
 
-    Show the click-completion-command completion code
+    Generate shell code to enable completion
 
   Options:
     -i, --case-insensitive / --no-case-insensitive  Case insensitive completion
