@@ -24,7 +24,7 @@ if os.path.exists(readme_path):
 setup(
     long_description=readme,
     name='musicbot',
-    version='0.7.0',
+    version='0.7.1',
     description='Music swiss army knife',
     python_requires='<3.9,>=3.8',
     author='Adrien Pensart',
