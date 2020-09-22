@@ -9,11 +9,11 @@ import click
 import enlighten  # type: ignore
 from click_option_group import optgroup  # type: ignore
 from watchdog.observers import Observer  # type: ignore
-from .graphql import GraphQL
-from .config import config
-from .helpers import config_string
-from .exceptions import MusicbotError, FailedAuthentication, FailedRegistration
-from .music import file, mfilter
+from musicbot.graphql import GraphQL
+from musicbot.config import config
+from musicbot.helpers import config_string
+from musicbot.exceptions import MusicbotError, FailedAuthentication, FailedRegistration
+from musicbot.music import file, mfilter
 
 logger = logging.getLogger(__name__)
 

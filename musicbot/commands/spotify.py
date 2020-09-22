@@ -12,6 +12,7 @@ from colorama import Fore  # type: ignore
 from click_skeleton import AdvancedGroup, add_options
 
 from musicbot import helpers
+from musicbot.cli import main_cli
 from musicbot.spotify import spotify_options
 from musicbot.user import auth_options
 
@@ -78,18 +79,18 @@ def output_tracks(output: str, tracks):
         dump_tracks(tracks)
 
 
-@click.group(help='Spotify tool', cls=AdvancedGroup)
-def cli():
+@main_cli.group('spotify', help='Spotify tool', cls=AdvancedGroup)
+def spotify_cli():
     pass
 
 
-@cli.command(help='List playlists')
+@spotify_cli.command(help='List playlists')
 @add_options(spotify_options)
 def playlists(spotify):
     print_playlists_table(spotify.playlists())
 
 
-@cli.command(help='Show playlist')
+@spotify_cli.command(help='Show playlist')
 @add_options(
     spotify_options +
     helpers.output_option
@@ -100,7 +101,7 @@ def playlist(name, spotify, output):
     output_tracks(output, tracks)
 
 
-@cli.command(help='Show tracks')
+@spotify_cli.command(help='Show tracks')
 @add_options(
     spotify_options +
     helpers.output_option
@@ -110,7 +111,7 @@ def tracks(spotify, output):
     output_tracks(output, tracks)
 
 
-@cli.command(help='Diff between local and spotify')
+@spotify_cli.command(help='Diff between local and spotify')
 @add_options(
     auth_options +
     spotify_options +
@@ -145,7 +146,7 @@ def diff(user, spotify, output, min_threshold, max_threshold):
     distances_tracks = []
     for spotify_slug, spotify_track in spotify_slug_tracks.items():
         distances = {
-            local_slug: jellyfish.jaro_distance(spotify_slug, local_slug)
+            local_slug: jellyfish.jaro_similarity(spotify_slug, local_slug)
             for local_slug in local_tracks
         }
         closest_local_track = max(distances.items(), key=operator.itemgetter(1))

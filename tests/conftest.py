@@ -2,9 +2,8 @@ import socket
 import time
 import logging
 import pytest
-from click_skeleton import run_cli  # type: ignore
-
-from musicbot.cli import cli
+from click_skeleton.testing import run_cli
+from musicbot.cli import main_cli
 from musicbot.helpers import genfiles
 from musicbot.user import User, FailedAuthentication
 from . import fixtures
@@ -65,7 +64,7 @@ def user_unregister(postgraphile_public):
 
 @pytest.yield_fixture
 def user_token(cli_runner, postgraphile_public, user_unregister):  # pylint: disable=unused-argument
-    run_cli(cli_runner, cli, [
+    run_cli(cli_runner, main_cli, [
         'user', 'register',
         '--graphql', postgraphile_public,
         '--email', fixtures.email,
@@ -73,7 +72,7 @@ def user_token(cli_runner, postgraphile_public, user_unregister):  # pylint: dis
         '--first-name', fixtures.first_name,
         '--last-name', fixtures.last_name
     ])
-    token = run_cli(cli_runner, cli, [
+    token = run_cli(cli_runner, main_cli, [
         'user', 'token',
         '--graphql', postgraphile_public,
         '--email', fixtures.email,
@@ -120,4 +119,4 @@ def common_args(user_token, postgraphile_public):
 
 @pytest.fixture
 def user_musics(cli_runner, common_args):
-    run_cli(cli_runner, cli, ['local', 'scan', *common_args, *fixtures.folders])
+    run_cli(cli_runner, main_cli, ['local', 'scan', *common_args, *fixtures.folders])

@@ -5,9 +5,9 @@ from typing import Any, Collection, Iterable
 import enlighten  # type: ignore
 import click
 from click_skeleton.helpers import mysplit
-from .config import config
-from .music.file import File, supported_formats
-from .music.helpers import find_files, filecount
+from musicbot.config import config
+from musicbot.music.file import File, supported_formats
+from musicbot.music.helpers import find_files, filecount
 
 logger = logging.getLogger(__name__)
 

@@ -1,9 +1,9 @@
 from typing import Any
 import requests
 from click_option_group import optgroup  # type: ignore
-from .config import config
-from .graphql import GraphQL
-from .helpers import config_string
+from musicbot.config import config
+from musicbot.graphql import GraphQL
+from musicbot.helpers import config_string
 
 
 DEFAULT_GRAPHQL_ADMIN = 'http://127.0.0.1:5001/graphql'

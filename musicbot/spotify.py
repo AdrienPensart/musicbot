@@ -149,7 +149,8 @@ class Spotify:
         self.username = username
         self.client_id = client_id
         self.client_secret = client_secret
-        self.token = spotipy.util.prompt_for_user_token(
+
+        self.auth_manager = spotipy.oauth2.SpotifyOAuth(
             client_id=self.client_id,
             client_secret=self.client_secret,
             username=self.username,
@@ -157,7 +158,20 @@ class Spotify:
             redirect_uri=self.redirect_uri,
             scope=self.scopes,
         )
-        self.sp = spotipy.Spotify(auth=self.token)
+        self.sp = spotipy.Spotify(auth_manager=self.auth_manager)
+        # self.token = spotipy.util.prompt_for_user_token(
+        #     client_id=self.client_id,
+        #     client_secret=self.client_secret,
+        #     username=self.username,
+        #     cache_path=self.cache_path,
+        #     redirect_uri=self.redirect_uri,
+        #     scope=self.scopes,
+        # )
+        # self.sp = spotipy.Spotify(auth=self.token)
+
+    @property
+    def token(self):
+        return self.auth_manager.get_cached_token()
 
     def __repr__(self):
         return f'token: {self.token} | username: {self.username} | client_id: {self.client_id} | client_secret: {self.client_secret} | cache: {self.cache_path} | redirect uri: {self.redirect_uri} | scopes: {self.scopes}'

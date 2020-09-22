@@ -1,7 +1,7 @@
 import logging
 from watchdog.events import FileSystemEvent, PatternMatchingEventHandler  # type: ignore
-from .music import file
-from .user import User
+from musicbot.music import file
+from musicbot.user import User
 
 logger = logging.getLogger(__name__)
 
