@@ -3,7 +3,6 @@ ansicon==1.89.0; platform_system == "Windows"
 astroid==2.4.2
 async-timeout==3.0.1
 atomicwrites==1.4.0; sys_platform == "win32"
-attrdict==2.0.1
 attrs==20.2.0
 audioread==2.1.8
 bcrypt==3.2.0
@@ -20,7 +19,7 @@ click-completion==0.5.2
 click-didyoumean==0.0.3
 click-help-colors==0.8
 click-option-group==0.5.1
-click-skeleton==0.7.0
+click-skeleton==0.7.1
 colorama==0.4.3
 colorlog==4.2.1
 coverage==5.3
@@ -98,6 +97,7 @@ pytest==6.0.2
 pytest-click==1.0.2
 pytest-cov==2.10.1
 pytest-docker-compose==3.2.0
+python-box==5.1.1
 python-dotenv==0.14.0
 python-slugify==4.0.1
 python-vlc==3.0.11115

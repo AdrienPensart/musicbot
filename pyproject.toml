@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "musicbot"
-version = "0.7.3"
+version = "0.7.4"
 description = "Music swiss army knife"
 authors = ["Adrien Pensart <crunchengine@gmail.com>"]
 license = "MIT"
@@ -30,7 +30,7 @@ enlighten = "^1.6.1"
 attrs = "^20.1.0"
 requests = "^2.24.0"
 jellyfish = "^0.8.2"
-click-skeleton = "^0.7.0"
+click-skeleton = "^0.7.1"
 
 [tool.poetry.dev-dependencies]
 pytest-cov = "^2.6"
