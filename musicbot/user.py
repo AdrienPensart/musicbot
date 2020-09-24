@@ -368,7 +368,7 @@ class User(GraphQL):
             graphql_register.post(query)
         except MusicbotError as e:
             raise FailedRegistration(f"Registration failed for {first_name} | {last_name} | {email} | {password}") from e
-        return User(
+        return cls(
             graphql=graphql,
             email=email,
             password=password

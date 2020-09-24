@@ -1,5 +1,5 @@
-ansicon==1.89.0; platform_system == "Windows"
-atomicwrites==1.4.0; sys_platform == "win32"
+ansicon==1.89.0
+atomicwrites==1.4.0
 attrs==20.2.0
 audioread==2.1.8
 blessed==1.17.10
@@ -11,7 +11,7 @@ click-completion==0.5.2
 click-didyoumean==0.0.3
 click-help-colors==0.8
 click-option-group==0.5.1
-click-skeleton==0.7.1
+click-skeleton==0.7.6
 colorama==0.4.3
 colorlog==4.2.1
 enlighten==1.6.2
@@ -21,10 +21,11 @@ idna==2.10
 iniconfig==1.0.1
 jellyfish==0.8.2
 jinja2==2.11.2
-jinxed==1.0.1; platform_system == "Windows"
+jinxed==1.0.1
 logging-tree==1.8.1
 markupsafe==1.1.1
 more-itertools==8.5.0
+munch==2.5.0
 mutagen==1.45.1
 packaging==20.4
 pathtools==0.1.2
@@ -36,11 +37,10 @@ py==1.9.0
 pyacoustid==1.2.0
 pydub==0.24.1
 pyparsing==2.4.7
-pyreadline==2.1; sys_platform == "win32"
+pyreadline==2.1
 pyrsistent==0.17.2
 pytest==6.0.2
 pytest-click==1.0.2
-python-box==5.1.1
 python-slugify==4.0.1
 python-vlc==3.0.11115
 requests==2.24.0

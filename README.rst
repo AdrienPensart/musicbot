@@ -1066,9 +1066,7 @@ musicbot version
 
   Usage: musicbot version [OPTIONS]
 
-    Print version
-
-    Equivalent : -V
+    Print version, equivalent to -V and --version
 
   Options:
     -h, --help  Show this message and exit.

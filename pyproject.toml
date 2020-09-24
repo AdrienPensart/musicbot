@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "musicbot"
-version = "0.7.4"
+version = "0.7.5"
 description = "Music swiss army knife"
 authors = ["Adrien Pensart <crunchengine@gmail.com>"]
 license = "MIT"
@@ -48,7 +48,7 @@ flake8 = "^3.8.3"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--cov-report term-missing --durations=0 --cov musicbot --docker-compose-no-build -x --use-running-containers "
+addopts = "--cov-report term-missing --durations=0 --cov musicbot --docker-compose-no-build -v -x --use-running-containers "
 
 [tool.pylint.master]
 jobs = 4
