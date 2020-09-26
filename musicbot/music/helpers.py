@@ -2,7 +2,7 @@ import pathlib
 import logging
 from os import scandir, walk, path, DirEntry
 from typing import Iterator, Iterable, Tuple
-import humanfriendly  # type: ignore
+import humanize  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ def ensure(path: str) -> str:
 
 
 def bytes_to_human(b: int) -> str:
-    return str(humanfriendly.format_size(b))
+    return str(humanize.naturalsize(b))
 
 
 def empty_dirs(root_dir: str, recursive: bool = True) -> Iterator[str]:

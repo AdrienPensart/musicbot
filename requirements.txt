@@ -11,12 +11,12 @@ click-completion==0.5.2
 click-didyoumean==0.0.3
 click-help-colors==0.8
 click-option-group==0.5.1
-click-skeleton==0.7.6
+click-skeleton==0.7.7
 colorama==0.4.3
 colorlog==4.2.1
 enlighten==1.6.2
 graphql-py==0.7.1
-humanfriendly==8.2
+humanize==2.6.0
 idna==2.10
 iniconfig==1.0.1
 jellyfish==0.8.2
@@ -37,8 +37,6 @@ py==1.9.0
 pyacoustid==1.2.0
 pydub==0.24.1
 pyparsing==2.4.7
-pyreadline==2.1
-pyrsistent==0.17.2
 pytest==6.0.2
 pytest-click==1.0.2
 python-slugify==4.0.1

@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 import requests
 from click_option_group import optgroup  # type: ignore
 from musicbot.config import config
@@ -48,13 +48,22 @@ admin_options =\
 
 class Admin(GraphQL):
     @config.timeit
-    def __init__(self, graphql: str, graphql_admin_user: str, graphql_admin_password: str) -> None:
+    def __init__(
+        self,
+        graphql: str = DEFAULT_GRAPHQL_ADMIN,
+        graphql_admin_user: Optional[str] = DEFAULT_GRAPHQL_ADMIN_USER,
+        graphql_admin_password: Optional[str] = DEFAULT_GRAPHQL_ADMIN_PASSWORD
+    ) -> None:
         self.user = graphql_admin_user
         self.password = graphql_admin_password
+        authorization = None
+        if self.user and self.password:
+            authorization = requests.auth._basic_auth_str(self.user, self.password)
+
         GraphQL.__init__(
             self,
             graphql=graphql,
-            authorization=requests.auth._basic_auth_str(self.user, self.password)
+            authorization=authorization
         )
 
     @config.timeit

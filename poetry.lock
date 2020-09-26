@@ -233,7 +233,7 @@ tests = ["coverage (<6)", "pytest", "pytest-cov", "coveralls"]
 
 [[package]]
 name = "click-skeleton"
-version = "0.7.6"
+version = "0.7.7"
 description = "Click app skeleton"
 category = "main"
 optional = false
@@ -626,33 +626,15 @@ python-versions = "*"
 ply = ">=3.6"
 
 [[package]]
-name = "html5lib"
-version = "1.1"
-description = "HTML parser based on the WHATWG HTML specification"
-category = "dev"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-
-[package.dependencies]
-six = ">=1.9"
-webencodings = "*"
-
-[package.extras]
-all = ["genshi", "chardet (>=2.2)", "lxml"]
-chardet = ["chardet (>=2.2)"]
-genshi = ["genshi"]
-lxml = ["lxml"]
-
-[[package]]
-name = "humanfriendly"
-version = "8.2"
-description = "Human friendly output for text interfaces using Python"
+name = "humanize"
+version = "2.6.0"
+description = "Python humanize utilities"
 category = "main"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+python-versions = ">=3.5"
 
-[package.dependencies]
-pyreadline = {version = "*", markers = "sys_platform == \"win32\""}
+[package.extras]
+tests = ["freezegun", "pytest", "pytest-cov"]
 
 [[package]]
 name = "idna"
@@ -1088,18 +1070,10 @@ optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
-name = "pyreadline"
-version = "2.1"
-description = "A python implmementation of GNU readline."
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "pyrsistent"
-version = "0.17.2"
+version = "0.17.3"
 description = "Persistent/Functional/Immutable data structures"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.5"
 
@@ -1200,7 +1174,7 @@ python-versions = "*"
 
 [[package]]
 name = "pytype"
-version = "2020.9.16"
+version = "2020.9.24"
 description = "Python type inferencer"
 category = "dev"
 optional = false
@@ -1406,14 +1380,6 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "webencodings"
-version = "0.5.1"
-description = "Character encoding aliases for legacy web content"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "websocket-client"
 version = "0.57.0"
 description = "WebSocket client for Python. hybi13 is supported."
@@ -1463,7 +1429,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "<3.9,>=3.8"
-content-hash = "039004369cbcf2cdf259766196ed7fc5657cea1cfc82f3be81ff47f41d8f625b"
+content-hash = "662f374730ceb60f9c0b5f6f1b2378ef3f9b9e26cc67ce3d28191e45603950b5"
 
 [metadata.files]
 aiohttp = [
@@ -1596,8 +1562,8 @@ click-option-group = [
     {file = "click_option_group-0.5.1-py3-none-any.whl", hash = "sha256:b363552b81f3bc9bef2402837b08865d186bd97c2311768f7d52aaf896e384a6"},
 ]
 click-skeleton = [
-    {file = "click-skeleton-0.7.6.tar.gz", hash = "sha256:adeddc5f8b4a6461745cb03d27afa12f8177cfb32ec5d2b52029ec33e56ec9a5"},
-    {file = "click_skeleton-0.7.6-py3-none-any.whl", hash = "sha256:81ecc998bf3a2c1a98cafb0e25d61c5972d614cf3674ad8bd5fdc784f178edb2"},
+    {file = "click-skeleton-0.7.7.tar.gz", hash = "sha256:eb84a19ecec1898d7c7ccaf49f5b2ce10936d583d46fd6e3668461fe8f1c6a7b"},
+    {file = "click_skeleton-0.7.7-py3-none-any.whl", hash = "sha256:d63ba85e3cee5909a8df065ba19827c9d538020fc174c37c29642bbfc2936286"},
 ]
 colorama = [
     {file = "colorama-0.4.3-py2.py3-none-any.whl", hash = "sha256:7d73d2a99753107a36ac6b455ee49046802e59d9d076ef8e47b61499fa29afff"},
@@ -1764,13 +1730,9 @@ flake8 = [
 graphql-py = [
     {file = "graphql-py-0.7.1.tar.gz", hash = "sha256:1279f3fbc30b154ef9c46850bdc15be13d845a01ba68d516a8a4088ba66a710b"},
 ]
-html5lib = [
-    {file = "html5lib-1.1-py2.py3-none-any.whl", hash = "sha256:0d78f8fde1c230e99fe37986a60526d7049ed4bf8a9fadbad5f00e22e58e041d"},
-    {file = "html5lib-1.1.tar.gz", hash = "sha256:b2e5b40261e20f354d198eae92afc10d750afb487ed5e50f9c4eaf07c184146f"},
-]
-humanfriendly = [
-    {file = "humanfriendly-8.2-py2.py3-none-any.whl", hash = "sha256:e78960b31198511f45fd455534ae7645a6207d33e512d2e842c766d15d9c8080"},
-    {file = "humanfriendly-8.2.tar.gz", hash = "sha256:bf52ec91244819c780341a3438d5d7b09f431d3f113a475147ac9b7b167a3d12"},
+humanize = [
+    {file = "humanize-2.6.0-py3-none-any.whl", hash = "sha256:fd5b32945687443d5b8bc1e02fad027da1d293a9e963b3450122ad98ef534f21"},
+    {file = "humanize-2.6.0.tar.gz", hash = "sha256:8ee358ea6c23de896b9d1925ebe6a8504bb2ba7e98d5ccf4d07ab7f3b28f3819"},
 ]
 idna = [
     {file = "idna-2.10-py2.py3-none-any.whl", hash = "sha256:b97d804b1e9b523befed77c48dacec60e6dcb0b5391d57af6a65a312a90648c0"},
@@ -2038,13 +2000,8 @@ pyparsing = [
     {file = "pyparsing-2.4.7-py2.py3-none-any.whl", hash = "sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b"},
     {file = "pyparsing-2.4.7.tar.gz", hash = "sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1"},
 ]
-pyreadline = [
-    {file = "pyreadline-2.1.win-amd64.exe", hash = "sha256:9ce5fa65b8992dfa373bddc5b6e0864ead8f291c94fbfec05fbd5c836162e67b"},
-    {file = "pyreadline-2.1.win32.exe", hash = "sha256:65540c21bfe14405a3a77e4c085ecfce88724743a4ead47c66b84defcf82c32e"},
-    {file = "pyreadline-2.1.zip", hash = "sha256:4530592fc2e85b25b1a9f79664433da09237c1a270e4d78ea5aa3a2c7229e2d1"},
-]
 pyrsistent = [
-    {file = "pyrsistent-0.17.2.tar.gz", hash = "sha256:27515d2d5db0629c7dadf6fbe76973eb56f098c1b01d36de42eb69220d2c19e4"},
+    {file = "pyrsistent-0.17.3.tar.gz", hash = "sha256:2e636185d9eb976a18a8a8e96efce62f2905fea90041958d8cc2a189756ebf3e"},
 ]
 pytest = [
     {file = "pytest-6.0.2-py3-none-any.whl", hash = "sha256:0e37f61339c4578776e090c3b8f6b16ce4db333889d65d0efb305243ec544b40"},
@@ -2074,13 +2031,15 @@ python-vlc = [
     {file = "python_vlc-3.0.11115-py3-none-any.whl", hash = "sha256:508bc5b4b4fd72b4e23c926795bdcd38c7c1c08a4dd6b8cc87b0abd1d7118aa1"},
 ]
 pytype = [
-    {file = "pytype-2020.9.16-cp35-cp35m-macosx_10_14_x86_64.whl", hash = "sha256:fc4d926455698d095e15dc7788de1689d1c75ed58d21f24769b25349e45a8c5c"},
-    {file = "pytype-2020.9.16-cp35-cp35m-manylinux2014_x86_64.whl", hash = "sha256:570a3bf93f57df18c8ee10de4ba33ff3e8df6a7ad0f145d23745e2d1abbb8589"},
-    {file = "pytype-2020.9.16-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:73445b423f3f29decf42043a55b126ff3bdcfd0cc1e5bd4f585f2cee305daab3"},
-    {file = "pytype-2020.9.16-cp36-cp36m-manylinux2014_x86_64.whl", hash = "sha256:4bb4dce07e94c1a14179a277b90ec37f92d590c2a6ee3ce6406e143947482aed"},
-    {file = "pytype-2020.9.16-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:7beb4dd9cc62df6a3caa4e8fc144e2b5465f6e6c148e0fce7995ac1fffcf61fa"},
-    {file = "pytype-2020.9.16-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:3a72921e746609dfa659475d34bf99a31f03be647d9d4e5e44fd8a45db1d64dd"},
-    {file = "pytype-2020.9.16.tar.gz", hash = "sha256:5306288b9e30a6ff11f93eb3d53355ed0bd47125231913627cac06de5457f673"},
+    {file = "pytype-2020.9.24-cp35-cp35m-macosx_10_14_x86_64.whl", hash = "sha256:de1e8be7623c3a52aa76bb0fe627ade03fba7d41481b3705a42b421bc20f4948"},
+    {file = "pytype-2020.9.24-cp35-cp35m-manylinux2014_x86_64.whl", hash = "sha256:e679d521c9d3ed2c42c62d8d15ab7b333d11c9d0b0f6a17ea43508a9ef8788f1"},
+    {file = "pytype-2020.9.24-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:b69b1684ad658ddb21f33a37871c0ea71a8adaf7a2e66b57091ab8b7c8ab94f3"},
+    {file = "pytype-2020.9.24-cp36-cp36m-manylinux2014_x86_64.whl", hash = "sha256:cbd0d4ecd610781b6fb11105a0a2781eea8025403ed186ed43eb8d1b853ea952"},
+    {file = "pytype-2020.9.24-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:6e3f6044211b58bcf5f71087cdfc704a0f66fc84e26cde2642836d342c163702"},
+    {file = "pytype-2020.9.24-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:513a3a11718632e5fa44a866a488f9e09aaf0be0460e8cbecddb15631ecd3542"},
+    {file = "pytype-2020.9.24-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:928c2fba3b9102fd279b6dfb632f5baca7917e80c57cf8b9eb25369f8c62317c"},
+    {file = "pytype-2020.9.24-cp38-cp38-manylinux2014_x86_64.whl", hash = "sha256:4948600946302ed929943ba7d2cf93e6d5bfa1e45232187d76fb119e86b92a1b"},
+    {file = "pytype-2020.9.24.tar.gz", hash = "sha256:438583c645fce1945606e9c16e6b2cce2cf16b31375080c9ef8bc7f5f036e7be"},
 ]
 pywin32 = [
     {file = "pywin32-227-cp27-cp27m-win32.whl", hash = "sha256:371fcc39416d736401f0274dd64c2302728c9e034808e37381b5e1b22be4a6b0"},
@@ -2215,10 +2174,6 @@ watchdog = [
 wcwidth = [
     {file = "wcwidth-0.2.5-py2.py3-none-any.whl", hash = "sha256:beb4802a9cebb9144e99086eff703a642a13d6a0052920003a230f3294bbe784"},
     {file = "wcwidth-0.2.5.tar.gz", hash = "sha256:c4d647b99872929fdb7bdcaa4fbe7f01413ed3d98077df798530e5b04f116c83"},
-]
-webencodings = [
-    {file = "webencodings-0.5.1-py2.py3-none-any.whl", hash = "sha256:a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78"},
-    {file = "webencodings-0.5.1.tar.gz", hash = "sha256:b36a1c245f2d304965eb4e0a82848379241dc04b865afcc4aab16748587e1923"},
 ]
 websocket-client = [
     {file = "websocket_client-0.57.0-py2.py3-none-any.whl", hash = "sha256:0fc45c961324d79c781bab301359d5a1b00b13ad1b10415a4780229ef71a5549"},

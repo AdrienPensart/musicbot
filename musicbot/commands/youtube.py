@@ -3,7 +3,7 @@ import logging
 import click
 import acoustid  # type: ignore
 import youtube_dl  # type: ignore
-import humanfriendly  # type: ignore
+import humanize  # type: ignore
 from click_skeleton import AdvancedGroup, add_options
 
 from musicbot.cli import main_cli
@@ -73,7 +73,7 @@ def find(path, acoustid_api_key):
     yt_path = f"{f.artist} - {f.title}.mp3"
     try:
         file_id = f.fingerprint(acoustid_api_key)
-        print(f'Searching for artist {f.artist} and title {f.title} and duration {humanfriendly.format_timespan(f.duration)}')
+        print(f'Searching for artist {f.artist} and title {f.title} and duration {humanize.naturaltime(f.duration)}')
         ydl_opts = {
             'format': 'bestaudio/best',
             'quiet': True,

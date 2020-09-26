@@ -19,7 +19,7 @@ click-completion==0.5.2
 click-didyoumean==0.0.3
 click-help-colors==0.8
 click-option-group==0.5.1
-click-skeleton==0.7.6
+click-skeleton==0.7.7
 colorama==0.4.3
 colorlog==4.2.1
 coverage==5.3
@@ -49,8 +49,7 @@ docutils==0.16
 enlighten==1.6.2
 flake8==3.8.3
 graphql-py==0.7.1
-html5lib==1.1
-humanfriendly==8.2
+humanize==2.6.0
 idna==2.10
 importlab==0.5.1
 iniconfig==1.0.1
@@ -92,8 +91,7 @@ pygments==2.7.1
 pylint==2.6.0
 pynacl==1.4.0
 pyparsing==2.4.7
-pyreadline==2.1
-pyrsistent==0.17.2
+pyrsistent==0.17.3
 pytest==6.0.2
 pytest-click==1.0.2
 pytest-cov==2.10.1
@@ -101,7 +99,7 @@ pytest-docker-compose==3.2.0
 python-dotenv==0.14.0
 python-slugify==4.0.1
 python-vlc==3.0.11115
-pytype==2020.9.16
+pytype==2020.9.24
 pywin32==227
 pyyaml==5.3.1
 requests==2.24.0
@@ -121,7 +119,6 @@ typing-extensions==3.7.4.3
 urllib3==1.25.10
 watchdog==0.10.3
 wcwidth==0.2.5
-webencodings==0.5.1
 websocket-client==0.57.0
 wrapt==1.12.1
 yarl==1.6.0
