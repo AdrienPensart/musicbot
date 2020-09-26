@@ -25,7 +25,16 @@ def play(tracks: Iterable[Dict[str, str]]) -> None:
         if platform.system() == 'Windows':
             os.add_dll_directory(r'C:\Program Files\VideoLAN\VLC')  # type: ignore
         import vlc  # type: ignore
-        instance = vlc.Instance()
+        instance = vlc.Instance("--vout=dummy")
+        devices = instance.audio_output_enumerate_devices()
+        if not devices:
+            logger.error('no audio output')
+            return
+
+        if all([device['name'] != 'pulse' for device in devices]):
+            logger.error('pulse audio is not available')
+            return
+
         if not instance:
             logger.critical('Unable to start VLC instance')
             return
@@ -113,6 +122,5 @@ def play(tracks: Iterable[Dict[str, str]]) -> None:
         layout = Layout(root_container)
         app: Any = Application(layout=layout, key_bindings=bindings)
         app.run()
-    except NameError:
-        version = vlc.libvlc_get_version()
-        logger.critical(f"Your VLC version may be outdated: {version}")
+    except Exception as e:  # pylint:disable=broad-except
+        logger.exception(e)
