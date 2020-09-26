@@ -12,7 +12,7 @@ rating_choices = [x * 0.5 for x in range(0, 11)]
 
 
 def sane_rating(ctx: click.Context, param: click.ParamType, value: float) -> float:
-    if value is not None and value in rating_choices:
+    if value in rating_choices:
         ctx.params[param.name] = value
         return value
     return float('nan')
@@ -22,7 +22,6 @@ min_int = 0
 max_int = 2147483647
 
 default_name: Optional[str] = None
-default_filter = None
 default_relative = False
 default_shuffle = False
 default_youtubes: List[str] = []
@@ -347,17 +346,16 @@ def sane_filter(ctx: click.Context, param: click.ParamType, value: Any) -> Filte
     return myfilter
 
 
-DEFAULT_FILTER = None
-mfilter_option = [
-    optgroup.option(
-        '--music-filter',
-        help='Music Filter',
-        expose_value=False,
-        callback=sane_filter,
-        hidden=True,
-    )
+mfilter_option = optgroup.option(
+    '--music-filter',
+    help='Music Filter',
+    expose_value=False,
+    callback=sane_filter,
+    hidden=True,
+)
+
+mfilter_options = [
+    optgroup.group('Filter options'),
+    mfilter_option,
+    options,
 ]
-mfilter_options =\
-    [optgroup.group('Filter options')] +\
-    mfilter_option +\
-    options

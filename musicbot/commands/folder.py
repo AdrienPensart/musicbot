@@ -32,8 +32,8 @@ def find(folders):
 
 @folder_cli.command(help='List tracks')
 @add_options(
-    helpers.folders_argument +
-    helpers.output_option
+    helpers.folders_argument,
+    helpers.output_option,
 )
 def tracks(folders, output):
     tracks = helpers.genfiles(folders)
@@ -52,10 +52,10 @@ def tracks(folders, output):
 
 @folder_cli.command(help='Convert all files in folders to mp3')
 @add_options(
-    folder_option +
-    helpers.folders_argument +
-    helpers.concurrency_options +
-    helpers.dry_option
+    folder_option,
+    helpers.folders_argument,
+    helpers.concurrency_options,
+    helpers.dry_option,
 )
 def flac2mp3(folders, folder, concurrency, dry):
     flac_files = list(find_files(folders, ['flac']))
@@ -73,18 +73,20 @@ def flac2mp3(folders, folder, concurrency, dry):
                         f.to_mp3(folder, dry)
                     except MusicbotError as e:
                         logger.error(e)
+                    except KeyboardInterrupt as e:
+                        logger.warning(f'interrupted: {e}')
+                        raise
                     finally:
                         pbar.update()
-                executor.shutdown = lambda wait: None
                 futures = [executor.submit(convert, flac_path[1]) for flac_path in flac_files]
                 cf.wait(futures)
 
 
 @folder_cli.command(aliases=['consistency'], help='Check music files consistency')
 @add_options(
-    helpers.folders_argument +
-    helpers.dry_option +
-    checks_options
+    helpers.folders_argument,
+    helpers.dry_option,
+    checks_options,
 )
 def inconsistencies(folders, fix, **kwargs):
     musics = helpers.genfiles(folders)

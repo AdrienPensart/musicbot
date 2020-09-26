@@ -63,82 +63,71 @@ def sane_spotify(ctx, param, value):  # pylint: disable=unused-argument
 
 
 DEFAULT_CACHE_PATH = '~/.spotify_cache'
-cache_path_option = [
-    optgroup.option(
-        '--cache-path',
-        help='Spotify cache path',
-        is_eager=True,
-        type=ExpandedPath(writable=True, readable=True, dir_okay=False),
-        default=DEFAULT_CACHE_PATH,
-        callback=config_string_spotify,
-    )
-]
+cache_path_option = optgroup.option(
+    '--cache-path',
+    help='Spotify cache path',
+    is_eager=True,
+    type=ExpandedPath(writable=True, readable=True, dir_okay=False),
+    default=DEFAULT_CACHE_PATH,
+    callback=config_string_spotify,
+)
 
 DEFAULT_SCOPES = 'user-library-read,user-follow-read,user-top-read,playlist-read-private,user-modify-playback-state,user-read-currently-playing,user-read-playback-state'
-scopes_option = [
-    optgroup.option(
-        '--scopes',
-        help='Spotify scopes',
-        is_eager=True,
-        default=DEFAULT_SCOPES,
-        callback=config_string_spotify,
-    )
-]
+scopes_option = optgroup.option(
+    '--scopes',
+    help='Spotify scopes',
+    is_eager=True,
+    default=DEFAULT_SCOPES,
+    callback=config_string_spotify,
+)
 
 DEFAULT_REDIRECT_URI = 'http://localhost:8888/spotify/callback'
-redirect_uri_option = [
-    optgroup.option(
-        '--redirect-uri',
-        help='Spotify redirect URI',
-        is_eager=True,
-        default=DEFAULT_REDIRECT_URI,
-        callback=config_string_spotify,
-    )
-]
+redirect_uri_option = optgroup.option(
+    '--redirect-uri',
+    help='Spotify redirect URI',
+    is_eager=True,
+    default=DEFAULT_REDIRECT_URI,
+    callback=config_string_spotify,
+)
 
-username_option = [
-    optgroup.option(
-        '--username',
-        help='Spotify username',
-        is_eager=True,
-        callback=config_string_spotify,
-    )
-]
-client_id_option = [
-    optgroup.option(
-        '--client-id',
-        help='Spotify client ID',
-        is_eager=True,
-        callback=config_string_spotify,
-    )
-]
-client_secret_option = [
-    optgroup.option(
-        '--client-secret',
-        help='Spotify client secret',
-        is_eager=True,
-        callback=config_string_spotify,
-    )
-]
+username_option = optgroup.option(
+    '--username',
+    help='Spotify username',
+    is_eager=True,
+    callback=config_string_spotify,
+)
 
-token_option = [
-    optgroup.option(
-        '--token',
-        help='Spotify token',
-        expose_value=False,
-        callback=sane_spotify,
-    )
-]
+client_id_option = optgroup.option(
+    '--client-id',
+    help='Spotify client ID',
+    is_eager=True,
+    callback=config_string_spotify,
+)
 
-spotify_options =\
-    [optgroup.group('Spotify options')] +\
-    username_option +\
-    client_id_option +\
-    client_secret_option +\
-    token_option +\
-    cache_path_option +\
-    scopes_option +\
-    redirect_uri_option
+client_secret_option = optgroup.option(
+    '--client-secret',
+    help='Spotify client secret',
+    is_eager=True,
+    callback=config_string_spotify,
+)
+
+token_option = optgroup.option(
+    '--token',
+    help='Spotify token',
+    expose_value=False,
+    callback=sane_spotify,
+)
+
+spotify_options = [
+    optgroup.group('Spotify options'),
+    username_option,
+    client_id_option,
+    client_secret_option,
+    token_option,
+    cache_path_option,
+    scopes_option,
+    redirect_uri_option,
+]
 
 
 class Spotify:

@@ -5,7 +5,8 @@ import pytest
 from click_skeleton.testing import run_cli
 from musicbot.cli import main_cli
 from musicbot.helpers import genfiles
-from musicbot.user import User, FailedAuthentication
+from musicbot.user import User
+from musicbot.exceptions import FailedAuthentication
 from . import fixtures
 
 logger = logging.getLogger(__name__)

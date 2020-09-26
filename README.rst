@@ -1002,6 +1002,7 @@ musicbot user list
     --output [table|json]            Output format  [default: table]
     Admin options: 
       --graphql-admin TEXT           GraphQL endpoint  [default: http://127.0.0.1:5001/graphql]
+    Basic auth: [all_or_none]
       --graphql-admin-user TEXT      GraphQL admin user (basic auth)
       --graphql-admin-password TEXT  GraphQL admin password (basic auth)
     -h, --help                       Show this message and exit.

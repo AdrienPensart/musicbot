@@ -92,8 +92,8 @@ def playlists(spotify):
 
 @spotify_cli.command(help='Show playlist')
 @add_options(
-    spotify_options +
-    helpers.output_option
+    spotify_options,
+    helpers.output_option,
 )
 @click.argument("name")
 def playlist(name, spotify, output):
@@ -103,8 +103,8 @@ def playlist(name, spotify, output):
 
 @spotify_cli.command(help='Show tracks')
 @add_options(
-    spotify_options +
-    helpers.output_option
+    spotify_options,
+    helpers.output_option,
 )
 def tracks(spotify, output):
     tracks = spotify.tracks()
@@ -113,9 +113,9 @@ def tracks(spotify, output):
 
 @spotify_cli.command(help='Diff between local and spotify')
 @add_options(
-    auth_options +
-    spotify_options +
-    helpers.output_option
+    auth_options,
+    spotify_options,
+    helpers.output_option,
 )
 @click.option('--min-threshold', help='Minimum distance threshold', type=click.FloatRange(0.0, 1.0), default=0.9)
 @click.option('--max-threshold', help='Maximum distance threshold', type=click.FloatRange(0.0, 1.0), default=1.0)

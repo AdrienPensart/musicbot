@@ -65,8 +65,8 @@ def download(artist, title, path):
 
 @youtube_cli.command(help='Search a youtube link with artist and title')
 @add_options(
-    path_argument +
-    acoustid_api_key_option
+    path_argument,
+    acoustid_api_key_option,
 )
 def find(path, acoustid_api_key):
     f = File(path)

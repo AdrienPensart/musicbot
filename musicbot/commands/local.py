@@ -53,8 +53,8 @@ def load_filters(user):
 
 @local_cli.command(help='List filters')
 @add_options(
-    helpers.output_option +
-    user.auth_options
+    helpers.output_option,
+    user.auth_options,
 )
 def filters(user, output):
     if output == 'json':
@@ -69,8 +69,8 @@ def filters(user, output):
 
 @local_cli.command('filter', help='Print a filter')
 @add_options(
-    helpers.output_option +
-    user.auth_options
+    helpers.output_option,
+    user.auth_options,
 )
 @click.argument('name')
 def _filter(user, name, output):
@@ -83,9 +83,9 @@ def _filter(user, name, output):
 
 @local_cli.command(aliases=['stat'], help='Generate some stats for music collection with filters')
 @add_options(
-    helpers.output_option +
-    user.auth_options +
-    mfilter.mfilter_options
+    helpers.output_option,
+    user.auth_options,
+    mfilter.mfilter_options,
 )
 def stats(user, output, music_filter):
     stats = user.do_stat(music_filter)
@@ -106,8 +106,8 @@ def stats(user, output, music_filter):
 
 @local_cli.command(help='List folders')
 @add_options(
-    helpers.output_option +
-    user.auth_options
+    helpers.output_option,
+    user.auth_options,
 )
 def folders(user, output):
     _folders = user.folders()
@@ -123,8 +123,8 @@ def folders(user, output):
 
 @local_cli.command(help='Load musics')
 @add_options(
-    helpers.folders_argument +
-    user.auth_options
+    helpers.folders_argument,
+    user.auth_options,
 )
 def scan(user, folders):
     if not folders:
@@ -141,8 +141,8 @@ def watch(user):
 
 @local_cli.command(help='Clean all musics')
 @add_options(
-    user.auth_options +
-    helpers.yes_option
+    user.auth_options,
+    helpers.yes_option,
 )
 def clean(user, yes):
     if yes or click.confirm("Are you sure to delete all musics from DB?"):
@@ -151,8 +151,8 @@ def clean(user, yes):
 
 @local_cli.command(help='Clean and load musics')
 @add_options(
-    helpers.folders_argument +
-    user.auth_options
+    helpers.folders_argument,
+    user.auth_options,
 )
 def rescan(user, folders):
     if not folders:
@@ -164,9 +164,9 @@ def rescan(user, folders):
 
 @local_cli.command(help='Copy selected musics with filters to destination folder')
 @add_options(
-    helpers.dry_option +
-    user.auth_options +
-    mfilter.mfilter_options
+    helpers.dry_option,
+    user.auth_options,
+    mfilter.mfilter_options,
 )
 @click.argument('destination')
 def sync(user, dry, destination, music_filter):
@@ -236,10 +236,10 @@ def sync(user, dry, destination, music_filter):
 
 @local_cli.command(help='Generate a new playlist')
 @add_options(
-    helpers.dry_option +
-    helpers.playlist_output_option +
-    user.auth_options +
-    mfilter.mfilter_options
+    helpers.dry_option,
+    helpers.playlist_output_option,
+    user.auth_options,
+    mfilter.mfilter_options,
 )
 @click.argument('path', type=click.File('w'), default='-')
 def playlist(user, output, path, dry, music_filter):
@@ -261,10 +261,10 @@ def playlist(user, output, path, dry, music_filter):
 @click.option('--prefix', envvar='MB_PREFIX', help="Append prefix before each path (implies relative)", default='')
 @click.option('--suffix', envvar='MB_SUFFIX', help="Append this suffix to playlist name", default='')
 @add_options(
-    folder_argument +
-    helpers.dry_option +
-    user.auth_options +
-    mfilter.mfilter_options
+    folder_argument,
+    helpers.dry_option,
+    user.auth_options,
+    mfilter.mfilter_options,
 )
 def bests(user, dry, folder, prefix, suffix, music_filter):
     if prefix:
@@ -295,8 +295,8 @@ def bests(user, dry, folder, prefix, suffix, music_filter):
 
 @local_cli.command(aliases=['play'], help='Music player')
 @add_options(
-    user.auth_options +
-    mfilter.mfilter_options
+    user.auth_options,
+    mfilter.mfilter_options,
 )
 def player(user, music_filter):
     try:
@@ -308,10 +308,10 @@ def player(user, music_filter):
 
 @local_cli.command(aliases=['consistency'], help='Check music consistency')
 @add_options(
-    checks_options +
-    helpers.dry_option +
-    user.auth_options +
-    mfilter.mfilter_options
+    checks_options,
+    helpers.dry_option,
+    user.auth_options,
+    mfilter.mfilter_options,
 )
 def inconsistencies(user, dry, fix, checks, music_filter):
     tracks = user.do_filter(music_filter)

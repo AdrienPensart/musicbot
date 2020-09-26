@@ -14,31 +14,30 @@ from .helpers import ensure
 
 logger = logging.getLogger(__name__)
 
-music_options_group = [optgroup.group('Music options')]
-keywords_option = [optgroup.option('--keywords', help='Keywords', multiple=True)]
-artist_option = [optgroup.option('--artist', help='Artist', default=None)]
-album_option = [optgroup.option('--album', help='Album', default=None)]
-title_option = [optgroup.option('--title', help='Title', default=None)]
-genre_option = [optgroup.option('--genre', help='Genre', default=None)]
-number_option = [optgroup.option('--number', help='Track number', default=None)]
-rating_option = [optgroup.option('--rating', help='Rating', default=None)]
+music_options_group = optgroup.group('Music options')
+keywords_option = optgroup.option('--keywords', help='Keywords', multiple=True)
+artist_option = optgroup.option('--artist', help='Artist', default=None)
+album_option = optgroup.option('--album', help='Album', default=None)
+title_option = optgroup.option('--title', help='Title', default=None)
+genre_option = optgroup.option('--genre', help='Genre', default=None)
+number_option = optgroup.option('--number', help='Track number', default=None)
+rating_option = optgroup.option('--rating', help='Rating', default=None)
 
-keywords_argument = [
-    click.argument(
-        'keywords',
-        nargs=-1,
-    ),
+keywords_argument = click.argument(
+    'keywords',
+    nargs=-1,
+)
+
+options = [
+    music_options_group,
+    keywords_option,
+    artist_option,
+    album_option,
+    title_option,
+    genre_option,
+    number_option,
+    rating_option,
 ]
-
-options =\
-    music_options_group +\
-    keywords_option +\
-    artist_option +\
-    album_option +\
-    title_option +\
-    genre_option +\
-    number_option +\
-    rating_option
 
 DEFAULT_CHECKS = [
     'no-title',
@@ -51,25 +50,22 @@ DEFAULT_CHECKS = [
     'invalid-comment',
     'invalid-path',
 ]
-path_argument = [
-    click.argument(
-        'path',
-        type=click.Path(exists=True, dir_okay=False),
-    ),
-]
-folder_option = [
-    click.option(
-        '--folder',
-        help="Destination folder",
-        type=click.Path(exists=True, file_okay=False),
-    ),
-]
-folder_argument = [
-    click.argument(
-        'folder',
-        type=click.Path(exists=True, file_okay=False),
-    ),
-]
+path_argument = click.argument(
+    'path',
+    type=click.Path(exists=True, dir_okay=False),
+)
+
+folder_option = click.option(
+    '--folder',
+    help="Destination folder",
+    type=click.Path(exists=True, file_okay=False),
+)
+
+folder_argument = click.argument(
+    'folder',
+    type=click.Path(exists=True, file_okay=False),
+)
+
 checks_options = [
     optgroup.group('Check options'),
     optgroup.option(

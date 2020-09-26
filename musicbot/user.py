@@ -18,71 +18,59 @@ from musicbot.music import file, mfilter
 logger = logging.getLogger(__name__)
 
 
-DEFAULT_EMAIL = None
-email_option = [
-    optgroup.option(
-        '--email', '-e',
-        help='User email',
-        default=DEFAULT_EMAIL,
-        is_eager=True,
-        callback=config_string,
-    )
-]
+DEFAULT_EMAIL: Optional[str] = None
+email_option = optgroup.option(
+    '--email', '-e',
+    help='User email',
+    default=DEFAULT_EMAIL,
+    is_eager=True,
+    callback=config_string,
+)
 
-DEFAULT_PASSWORD = None
-password_option = [
-    optgroup.option(
-        '--password', '-p',
-        help='User password',
-        default=DEFAULT_PASSWORD,
-        is_eager=True,
-        callback=config_string,
-    )
-]
+DEFAULT_PASSWORD: Optional[str] = None
+password_option = optgroup.option(
+    '--password', '-p',
+    help='User password',
+    default=DEFAULT_PASSWORD,
+    is_eager=True,
+    callback=config_string,
+)
 
-DEFAULT_FIRST_NAME = None
-first_name_option = [
-    optgroup.option(
-        '--first-name',
-        help='User first name',
-        default=DEFAULT_FIRST_NAME,
-        is_eager=True,
-        callback=config_string,
-        show_default=True,
-    )
-]
+DEFAULT_FIRST_NAME: Optional[str] = None
+first_name_option = optgroup.option(
+    '--first-name',
+    help='User first name',
+    default=DEFAULT_FIRST_NAME,
+    is_eager=True,
+    callback=config_string,
+    show_default=True,
+)
 
-DEFAULT_LAST_NAME = None
-last_name_option = [
-    optgroup.option(
-        '--last-name',
-        help='User last name',
-        default=DEFAULT_FIRST_NAME,
-        is_eager=True,
-        callback=config_string,
-        show_default=True,
-    )
-]
+DEFAULT_LAST_NAME: Optional[str] = None
+last_name_option = optgroup.option(
+    '--last-name',
+    help='User last name',
+    default=DEFAULT_FIRST_NAME,
+    is_eager=True,
+    callback=config_string,
+    show_default=True,
+)
 
-DEFAULT_TOKEN = None
-token_option = [
-    optgroup.option(
-        '--token', '-t',
-        help='User token',
-    )
-]
+DEFAULT_TOKEN: Optional[str] = None
+token_option = optgroup.option(
+    '--token', '-t',
+    help='User token',
+)
 
 DEFAULT_GRAPHQL = 'http://127.0.0.1:5000/graphql'
-graphql_option = [
-    optgroup.option(
-        '--graphql',
-        help='GraphQL endpoint',
-        default=DEFAULT_GRAPHQL,
-        is_eager=True,
-        callback=config_string,
-        show_default=True,
-    )
-]
+graphql_option = optgroup.option(
+    '--graphql',
+    help='GraphQL endpoint',
+    default=DEFAULT_GRAPHQL,
+    is_eager=True,
+    callback=config_string,
+    show_default=True,
+)
 
 
 class User(GraphQL):
@@ -426,36 +414,36 @@ def sane_user(ctx: click.Context, param: Any, value: Any) -> User:  # pylint: di
     return user
 
 
-DEFAULT_FILTER = None
-user_option = [
-    optgroup.option(
-        '--user',
-        help='Music Filter',
-        expose_value=False,
-        callback=sane_user,
-        hidden=True,
-    )
+user_option = optgroup.option(
+    '--user',
+    help='Music Filter',
+    expose_value=False,
+    callback=sane_user,
+    hidden=True,
+)
+
+register_options = [
+    optgroup.group('Register options'),
+    graphql_option,
+    email_option,
+    password_option,
+    first_name_option,
+    last_name_option,
 ]
 
-register_options =\
-    [optgroup.group('Register options')] +\
-    graphql_option +\
-    email_option +\
-    password_option +\
-    first_name_option +\
-    last_name_option
+login_options = [
+    optgroup.group('User options'),
+    graphql_option,
+    email_option,
+    password_option,
+    user_option,
+]
 
-login_options =\
-    [optgroup.group('User options')] +\
-    graphql_option +\
-    email_option +\
-    password_option +\
-    user_option
-
-auth_options =\
-    [optgroup.group('Auth options')] +\
-    graphql_option +\
-    email_option +\
-    password_option +\
-    token_option +\
-    user_option
+auth_options = [
+    optgroup.group('Auth options'),
+    graphql_option,
+    email_option,
+    password_option,
+    token_option,
+    user_option,
+]

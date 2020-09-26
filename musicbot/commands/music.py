@@ -18,9 +18,9 @@ def music_cli():
 
 @music_cli.command(help='Convert flac music to mp3')
 @add_options(
-    path_argument +
-    folder_option +
-    helpers.dry_option
+    path_argument,
+    folder_option,
+    helpers.dry_option,
 )
 def flac2mp3(path, folder, dry):
     f = File(path)
@@ -29,8 +29,8 @@ def flac2mp3(path, folder, dry):
 
 @music_cli.command(help='Print music fingerprint')
 @add_options(
-    path_argument +
-    acoustid_api_key_option
+    path_argument,
+    acoustid_api_key_option,
 )
 def fingerprint(path, acoustid_api_key):
     f = File(path)
@@ -49,10 +49,10 @@ def tags(path):
 
 @music_cli.command(aliases=['consistency'], help='Check music consistency')
 @add_options(
-    folder_option +
-    path_argument +
-    helpers.dry_option +
-    checks_options
+    folder_option,
+    path_argument,
+    helpers.dry_option,
+    checks_options,
 )
 def inconsistencies(path, folder, fix, **kwargs):
     m = File(path, folder)
@@ -70,9 +70,9 @@ def inconsistencies(path, folder, fix, **kwargs):
 
 @music_cli.command(help='Set music title')
 @add_options(
-    path_argument +
-    helpers.dry_option +
-    options
+    path_argument,
+    helpers.dry_option,
+    options,
 )
 def set_tags(path, title, artist, album, genre, keywords, rating, number, dry):
     f = File(path)
@@ -95,9 +95,9 @@ def set_tags(path, title, artist, album, genre, keywords, rating, number, dry):
 
 @music_cli.command(help='Add keywords to music')
 @add_options(
-    helpers.dry_option +
-    path_argument +
-    keywords_argument
+    helpers.dry_option,
+    path_argument,
+    keywords_argument,
 )
 def add_keywords(path, keywords, dry):
     f = File(path)
@@ -106,9 +106,9 @@ def add_keywords(path, keywords, dry):
 
 @music_cli.command(help='Delete keywords to music')
 @add_options(
-    helpers.dry_option +
-    path_argument +
-    keywords_argument
+    helpers.dry_option,
+    path_argument,
+    keywords_argument,
 )
 def delete_keywords(path, keywords, dry):
     f = File(path)

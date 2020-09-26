@@ -6,7 +6,7 @@ from musicbot.user import User
 logger = logging.getLogger(__name__)
 
 
-class MusicWatcherHandler(PatternMatchingEventHandler):  # type: ignore
+class MusicWatcherHandler(PatternMatchingEventHandler):
     def __init__(self, user: User) -> None:
         PatternMatchingEventHandler.__init__(
             self,
