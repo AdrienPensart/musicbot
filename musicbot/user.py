@@ -82,9 +82,17 @@ class User:
             }
         }"""
         try:
-            return self.api.post(query)
+            return self.execute(query)
         except MusicbotError as e:
             raise FailedAuthentication(f"Cannot delete user : {e}") from e
+
+    @config.timeit
+    def execute(self, query):
+        return self.api.post(query)
+
+    @config.timeit
+    def fetch(self, query):
+        return self.api.post(query)['data']
 
     @config.timeit
     def load_default_filters(self) -> Any:
@@ -107,7 +115,7 @@ class User:
             no_live:           createFilter(input: {filter: {name: "no live",           noKeywords: ["live"]                                           }}){clientMutationId}
             only_live:         createFilter(input: {filter: {name: "only live",         keywords:   ["live"]                                           }}){clientMutationId}
         }"""
-        return self.api.post(query)
+        return self.execute(query)
 
     @config.timeit
     def playlist(self, mf: Optional[MusicFilter] = None) -> Any:
@@ -116,7 +124,7 @@ class User:
         {{
             playlist({mf.to_graphql()})
         }}"""
-        return self.api.post(query)['data']['playlist']
+        return self.fetch(query)['playlist']
 
     @config.timeit
     def bests(self, mf: Optional[MusicFilter] = None) -> Any:
@@ -132,7 +140,7 @@ class User:
                 }}
             }}
         }}"""
-        return self.api.post(query)['data']['bests']['nodes']
+        return self.fetch(query)['bests']['nodes']
 
     @config.timeit
     def do_filter(self, mf: Optional[MusicFilter] = None) -> List[Any]:
@@ -164,7 +172,7 @@ class User:
                 }}
             }}
         }}"""
-        return self.api.post(query)['data']['doFilter']['nodes']
+        return self.fetch(query)['doFilter']['nodes']
 
     @config.timeit
     def do_stat(self, mf: Optional[MusicFilter] = None) -> Any:
@@ -182,7 +190,7 @@ class User:
               duration
             }}
         }}"""
-        return self.api.post(query)['data']['doStat']
+        return self.fetch(query)['doStat']
 
     @config.timeit
     def upsert_music(self, music: file.File) -> Any:
@@ -194,7 +202,7 @@ class User:
                 clientMutationId
             }}
         }}"""
-        return self.api.post(query)
+        return self.execute(query)
 
     @config.timeit
     def bulk_insert(self, musics: Collection[file.File]) -> Any:
@@ -221,7 +229,7 @@ class User:
                 clientMutationId
             }}
         }}'''
-        return self.api.post(query)
+        return self.execute(query)
 
     @functools.lru_cache(maxsize=None)
     @config.timeit
@@ -230,7 +238,7 @@ class User:
         {
             foldersList
         }"""
-        return self.api.post(query)['data']['foldersList']
+        return self.fetch(query)['foldersList']
 
     @functools.lru_cache(maxsize=None)
     @config.timeit
@@ -243,7 +251,7 @@ class User:
             }
         }
         '''
-        return int(self.api.post(query)['data']['rawMusics']['totalCount'])
+        return int(self.fetch(query)['rawMusics']['totalCount'])
 
     @functools.lru_cache(maxsize=None)
     @config.timeit
@@ -262,7 +270,7 @@ class User:
             }
           }
         }"""
-        return self.api.post(query)['data']['artistsTreeList']
+        return self.fetch(query)['artistsTreeList']
 
     @functools.lru_cache(maxsize=None)
     @config.timeit
@@ -273,7 +281,7 @@ class User:
             name
           }
         }"""
-        return self.api.post(query)['data']['genresTreeList']
+        return self.fetch(query)['genresTreeList']
 
     @functools.lru_cache(maxsize=None)
     @config.timeit
@@ -288,7 +296,7 @@ class User:
                 {filter_members}
             }}
         }}"""
-        return self.api.post(query)['data']['filtersList'][0]
+        return self.fetch(query)['filtersList'][0]
 
     @functools.lru_cache(maxsize=None)
     @config.timeit
@@ -303,7 +311,7 @@ class User:
                 {filter_members}
             }}
         }}"""
-        return self.api.post(query)['data']['filtersList']
+        return self.fetch(query)['filtersList']
 
     def watch(self) -> None:
         from .watcher import MusicWatcherHandler
@@ -330,7 +338,7 @@ class User:
                 clientMutationId
             }}
         }}"""
-        return self.api.post(query)
+        return self.execute(query)
 
     @config.timeit
     def clean_musics(self) -> Any:
@@ -342,4 +350,4 @@ class User:
                 clientMutationId
             }
         }"""
-        return self.api.post(query)
+        return self.execute(query)

@@ -41,7 +41,7 @@ def count(user):
 @click.argument('query')
 @add_options(user_options.auth_options)
 def execute(user, query):
-    print(json.dumps(user.post(query)['data']))
+    print(json.dumps(user.fetch(query)))
 
 
 @cli.command(help='Load default filters')
