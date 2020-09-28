@@ -3,18 +3,30 @@ import click
 from click_option_group import optgroup  # type: ignore
 from musicbot import defaults
 from musicbot.user import User
+from musicbot.exceptions import FailedAuthentication
 from musicbot.helpers import config_string
 
 
-def sane_user(ctx: click.Context, param: Any, value: Any) -> User:  # pylint: disable=unused-argument
-    kwargs = {}
-    for field in ('token', 'email', 'password', 'graphql'):
-        kwargs[field] = ctx.params.get(field, None)
-        ctx.params.pop(field, None)
-    user = User(**kwargs)
+def sane_user(ctx: click.Context, param: Any, value: Any) -> User:  # pylint:disable=unused-argument
+    graphql = ctx.params.pop('graphql')
+    email = ctx.params.pop('email')
+    password = ctx.params.pop('password')
+    if value:
+        user = User.from_token(graphql=graphql, token=value)
+    elif email and password:
+        user = User.from_auth(graphql=graphql, email=email, password=password)
+    else:
+        raise FailedAuthentication("Either token or email/password must be given")
     ctx.params['user'] = user
     return user
 
+
+token_option = optgroup.option(
+    '--token', '-t',
+    help='User token',
+    expose_value=False,
+    callback=sane_user,
+)
 
 email_option = optgroup.option(
     '--email', '-e',
@@ -50,12 +62,6 @@ last_name_option = optgroup.option(
     show_default=True,
 )
 
-token_option = optgroup.option(
-    '--token', '-t',
-    help='User token',
-    is_eager=True,
-)
-
 graphql_option = optgroup.option(
     '--graphql',
     help='GraphQL endpoint',
@@ -63,14 +69,6 @@ graphql_option = optgroup.option(
     is_eager=True,
     callback=config_string,
     show_default=True,
-)
-
-user_option = click.option(
-    '--user',
-    help='Music Filter',
-    expose_value=False,
-    callback=sane_user,
-    hidden=True,
 )
 
 register_options = [
@@ -83,15 +81,13 @@ register_options = [
 ]
 
 login_options = [
-    optgroup.group('User options'),
+    optgroup.group('Login options'),
     graphql_option,
     email_option,
     password_option,
-    user_option,
 ]
 
 auth_options = [
-    user_option,
     optgroup.group('Auth options'),
     graphql_option,
     token_option,

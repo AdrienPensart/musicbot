@@ -1018,7 +1018,7 @@ musicbot user login
 
   Options:
     -s, --save             Save to config file  [default: False]
-    User options: 
+    Login options: 
       --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -e, --email TEXT     User email
       -p, --password TEXT  User password

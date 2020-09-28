@@ -59,10 +59,10 @@ def postgraphile_private(db, function_scoped_container_getter):  # pylint: disab
 @pytest.yield_fixture
 def user_unregister(postgraphile_public):
     try:
-        user = User(graphql=postgraphile_public, email=fixtures.email, password=fixtures.password)
+        user = User.from_auth(graphql=postgraphile_public, email=fixtures.email, password=fixtures.password)
         user.unregister()
-    except FailedAuthentication:
-        pass
+    except FailedAuthentication as e:
+        logger.warning(f"Test user did not exist : {e}")
 
 
 @pytest.yield_fixture
@@ -97,15 +97,12 @@ def files() -> Collection[File]:
 @pytest.yield_fixture
 def user_sample(files, user_unregister, postgraphile_public):  # pylint: disable=unused-argument
     u = User.register(graphql=postgraphile_public, first_name=fixtures.first_name, last_name=fixtures.last_name, email=fixtures.email, password=fixtures.password)
-    assert u.authenticated
-
     u.bulk_insert(files)
     for f in files:
         u.upsert_music(f)
 
     yield u
     u.unregister()
-    assert not u.authenticated
 
 
 @pytest.fixture

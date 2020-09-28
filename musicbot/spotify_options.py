@@ -55,7 +55,6 @@ def sane_spotify(ctx, param, value):
     spotify_params = {}
     ctx.params[param.name] = value
     for field in attr.fields_dict(Spotify):
-        print(field)
         spotify_params[field] = ctx.params[field]
         ctx.params.pop(field)
     ctx.params['spotify'] = Spotify(**spotify_params)

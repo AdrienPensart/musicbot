@@ -25,8 +25,8 @@ def cli():
     admin_options,
 )
 def _list(graphql_admin, output, **kwargs):
-    a = Admin(graphql=graphql_admin, **kwargs)
-    users = a.users()
+    admin = Admin.from_auth(graphql=graphql_admin, **kwargs)
+    users = admin.users()
     if output == 'table':
         pt = PrettyTable()
         pt.field_names = ["Email", "Firstname", "Lastname", "Created at", "Updated at"]
@@ -42,16 +42,16 @@ def _list(graphql_admin, output, **kwargs):
     helpers.save_option,
     register_options,
 )
-def register(save, **kwargs):
-    u = User.register(**kwargs)
-    if not u.token:
+def register(save, email, password, **kwargs):
+    user = User.register(email=email, password=password, **kwargs)
+    if not user.token:
         logger.error('register failed')
         return
     if save:
         logger.info("saving user infos")
-        config.configfile['musicbot']['email'] = u.email
-        config.configfile['musicbot']['password'] = u.password
-        config.configfile['musicbot']['token'] = u.token
+        config.configfile['musicbot']['email'] = email
+        config.configfile['musicbot']['password'] = password
+        config.configfile['musicbot']['token'] = user.token
         config.write()
 
 
@@ -66,9 +66,10 @@ def unregister(user):
     helpers.save_option,
     login_options,
 )
-def login(user, save):
+def login(save, **kwargs):
+    user = User.from_auth(**kwargs)
     print(user.token)
-    if user.token and save:
+    if save:
         logger.info("saving user infos")
         config.configfile['musicbot']['token'] = user.token
         config.write()

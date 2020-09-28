@@ -1,34 +1,36 @@
 import logging
 import json
-from typing import Any, Optional
+from typing import Optional, Any
 import requests
+import attr
 from musicbot.exceptions import FailedRequest, FailedAuthentication
 
 logger = logging.getLogger(__name__)
 
 
+@attr.s(auto_attribs=True, frozen=True)
 class GraphQL:
-    def __init__(self, graphql: str, authorization: Optional[str] = None) -> None:
-        self.graphql = graphql
-        self._headers = {'Authorization': authorization} if authorization else {}
+    graphql: str
+    authorization: Optional[str] = None
 
     def post(self, query: str) -> Any:
+        headers = {'Authorization': self.authorization} if self.authorization else {}
         response = requests.post(
             self.graphql,
-            headers=self._headers,
+            headers=headers,
             json={'query': query},
         )
         logger.debug(response)
         if response.status_code == 401:
-            raise FailedAuthentication(f"Authentication failed: {response.text} | {self._headers}")
+            raise FailedAuthentication(f"Authentication failed: {response.text} | {headers}")
 
         try:
             json_response = response.json()
         except json.JSONDecodeError as e:
-            raise FailedRequest(f"Query failed : {query} | {self._headers}") from e
+            raise FailedRequest(f"Query failed : {query} | {headers}") from e
 
         logger.debug(json_response)
         if 'errors' in json_response and json_response['errors']:
             errors = [e['message'] for e in json_response['errors']]
-            raise FailedRequest(f"Query failed: {query} | {errors} | {self._headers}")
+            raise FailedRequest(f"Query failed: {query} | {errors} | {headers}")
         return json_response
