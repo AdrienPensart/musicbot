@@ -37,7 +37,7 @@ def count(user):
     print(user.count())
 
 
-@cli.command(help='Raw query')
+@cli.command(help='Raw query', aliases=['query', 'fetch'])
 @click.argument('query')
 @add_options(user_options.auth_options)
 def execute(user, query):

@@ -6,6 +6,15 @@ from . import fixtures
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
+def test_local_query(cli_runner, common_args, user_musics):  # pylint: disable=unused-argument
+    run_cli(cli_runner, main_cli, [
+        'local', 'query',
+        *common_args,
+        '{doFilterList(minRating: 5.0, artists: ["Buckethead"]){keywords}}',
+    ])
+
+
+@pytest.mark.runner_setup(mix_stderr=False)
 def test_local_count(cli_runner, common_args, user_musics):  # pylint: disable=unused-argument
     local_count_str = run_cli(cli_runner, main_cli, ['local', 'count', *common_args])
     local_count = int(local_count_str)

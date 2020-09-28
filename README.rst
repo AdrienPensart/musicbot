@@ -266,7 +266,7 @@ musicbot local
     bests                          Generate bests playlists with some rules
     clean                          Clean all musics
     count                          Count musics
-    execute                        Raw query
+    execute (fetch,query)          Raw query
     filter                         Print a filter
     filters                        List filters
     folders                        List folders
