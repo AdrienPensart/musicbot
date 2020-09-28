@@ -19,7 +19,7 @@ click-completion==0.5.2
 click-didyoumean==0.0.3
 click-help-colors==0.8
 click-option-group==0.5.1
-click-skeleton==0.7.7
+click-skeleton==0.7.9
 colorama==0.4.3
 colorlog==4.2.1
 coverage==5.3
@@ -64,7 +64,6 @@ m2r==0.2.1
 markupsafe==1.1.1
 mccabe==0.6.1
 mistune==0.8.4
-more-itertools==8.5.0
 multidict==4.7.6
 munch==2.5.0
 mutagen==1.45.1
@@ -92,7 +91,7 @@ pylint==2.6.0
 pynacl==1.4.0
 pyparsing==2.4.7
 pyrsistent==0.17.3
-pytest==6.0.2
+pytest==6.1.0
 pytest-click==1.0.2
 pytest-cov==2.10.1
 pytest-docker-compose==3.2.0

@@ -11,7 +11,7 @@ click-completion==0.5.2
 click-didyoumean==0.0.3
 click-help-colors==0.8
 click-option-group==0.5.1
-click-skeleton==0.7.7
+click-skeleton==0.7.9
 colorama==0.4.3
 colorlog==4.2.1
 enlighten==1.6.2
@@ -24,7 +24,6 @@ jinja2==2.11.2
 jinxed==1.0.1
 logging-tree==1.8.1
 markupsafe==1.1.1
-more-itertools==8.5.0
 munch==2.5.0
 mutagen==1.45.1
 packaging==20.4
@@ -37,7 +36,7 @@ py==1.9.0
 pyacoustid==1.2.0
 pydub==0.24.1
 pyparsing==2.4.7
-pytest==6.0.2
+pytest==6.1.0
 pytest-click==1.0.2
 python-slugify==4.0.1
 python-vlc==3.0.11115

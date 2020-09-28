@@ -25,15 +25,13 @@ backtrace.hook(
 
 def main(**kwargs):
     helpers.raise_limits()
-    from musicbot import commands
-    logger.debug(f"Imported commands: {commands.modules}")
     version_check = version_checker.VersionCheckerThread(
         prog_name=PROG_NAME,
         current_version=__version__,
         autostart=config_obj.check_version,
     )
     try:
-        exit_code = main_cli.main(**kwargs)
+        exit_code = main_cli.main(prog_name=PROG_NAME, **kwargs)
         version_check.print()
         return exit_code
     except (mutagen.MutagenError, exceptions.MusicbotError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError) as e:

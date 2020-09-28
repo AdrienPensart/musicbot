@@ -2,22 +2,10 @@ import logging
 import json
 from typing import Any, Dict, List, Optional
 import attr
-import click
-from click_option_group import optgroup  # type: ignore
 
 logger = logging.getLogger(__name__)
 
-
 rating_choices = [x * 0.5 for x in range(0, 11)]
-
-
-def sane_rating(ctx: click.Context, param: click.ParamType, value: float) -> float:
-    if value in rating_choices:
-        ctx.params[param.name] = value
-        return value
-    return float('nan')
-
-
 min_int = 0
 max_int = 2147483647
 
@@ -50,7 +38,7 @@ default_no_albums: List[str] = []
 
 
 @attr.s(auto_attribs=True, frozen=True)
-class Filter:
+class MusicFilter:
     name: Optional[str] = default_name
     relative: bool = default_relative
     shuffle: bool = default_shuffle
@@ -111,13 +99,13 @@ class Filter:
     def diff(self) -> Dict[str, Any]:
         '''Print only differences with default filter'''
         myself = vars(self)
-        default = vars(Filter())
+        default = vars(MusicFilter())
         return {k: myself[k] for k in myself if default[k] != myself[k] and k != 'name'}
 
     def common(self) -> Dict[str, Any]:
         '''Print common values with default filter'''
         myself = vars(self)
-        default = vars(Filter())
+        default = vars(MusicFilter())
         return {k: myself[k] for k in myself if default[k] == myself[k] and k != 'name'}
 
     def as_dict(self) -> Dict[str, Any]:  # pylint: disable=unsubscriptable-object
@@ -151,211 +139,3 @@ class Filter:
 
     def to_graphql(self) -> str:
         return ", ".join([f'{k}: {json.dumps(v)}' for k, v in self.as_dict().items()])
-
-
-options = [
-    optgroup.option(
-        '--name',
-        help='Filter name',
-        default=default_name,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--limit',
-        help='Fetch a maximum limit of music',
-        default=default_limit,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--youtubes',
-        help='Select musics with a youtube link',
-        multiple=True,
-        default=default_youtubes,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--no-youtubes',
-        help='Select musics without youtube link',
-        multiple=True,
-        default=default_no_youtubes,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--spotifys',
-        help='Select musics with a spotifys link',
-        multiple=True,
-        default=default_youtubes,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--no-spotifys',
-        help='Select musics without spotifys link',
-        multiple=True,
-        default=default_no_youtubes,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--formats',
-        help='Select musics with file format',
-        multiple=True,
-        default=default_formats,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--no-formats',
-        help='Filter musics without format',
-        multiple=True,
-        default=default_no_formats,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--keywords',
-        help='Select musics with keywords',
-        multiple=True,
-        default=default_keywords,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--no-keywords',
-        help='Filter musics without keywords',
-        multiple=True,
-        default=default_no_keywords,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--artists',
-        help='Select musics with artists',
-        multiple=True,
-        default=default_artists,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--no-artists',
-        help='Filter musics without artists',
-        multiple=True,
-        default=default_no_artists,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--albums',
-        help='Select musics with albums',
-        multiple=True,
-        default=default_albums,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--no-albums',
-        help='Filter musics without albums',
-        multiple=True,
-        default=default_no_albums,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--titles',
-        help='Select musics with titles',
-        multiple=True,
-        default=default_titles,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--no-titles',
-        help='Filter musics without titless',
-        multiple=True,
-        default=default_no_titles,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--genres',
-        help='Select musics with genres',
-        multiple=True,
-        default=default_genres,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--no-genres',
-        help='Filter musics without genres',
-        multiple=True,
-        default=default_no_genres,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--min-duration',
-        help='Minimum duration filter (hours:minutes:seconds)',
-        default=default_min_duration,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--max-duration',
-        help='Maximum duration filter (hours:minutes:seconds))',
-        default=default_max_duration,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--min-size',
-        help='Minimum file size filter (in bytes)',
-        default=default_min_size,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--max-size',
-        help='Maximum file size filter (in bytes)',
-        default=default_max_size,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--min-rating',
-        help='Minimum rating',
-        default=default_min_rating,
-        show_default=True,
-        callback=sane_rating,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--max-rating',
-        help='Maximum rating',
-        default=default_max_rating,
-        show_default=True,
-        callback=sane_rating,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--relative',
-        help='Generate relatives paths',
-        default=default_relative,
-        is_flag=True,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--shuffle',
-        help='Randomize selection',
-        default=default_shuffle,
-        is_flag=True,
-        is_eager=True,
-    ),
-]
-
-
-def sane_filter(ctx: click.Context, param: click.ParamType, value: Any) -> Filter:  # pylint: disable=unused-argument
-    kwargs = {}
-    for field in attr.fields_dict(Filter):
-        kwargs[field] = ctx.params[field]
-        ctx.params.pop(field)
-
-    myfilter = Filter(**kwargs)
-    ctx.params['music_filter'] = myfilter
-    return myfilter
-
-
-mfilter_option = optgroup.option(
-    '--music-filter',
-    help='Music Filter',
-    expose_value=False,
-    callback=sane_filter,
-    hidden=True,
-)
-
-mfilter_options = [
-    optgroup.group('Filter options'),
-    mfilter_option,
-    options,
-]

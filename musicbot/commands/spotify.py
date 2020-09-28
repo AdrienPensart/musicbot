@@ -11,10 +11,8 @@ from slugify import slugify  # type: ignore
 from colorama import Fore  # type: ignore
 from click_skeleton import AdvancedGroup, add_options
 
-from musicbot import helpers
-from musicbot.cli import main_cli
-from musicbot.spotify import spotify_options
-from musicbot.user import auth_options
+from musicbot import helpers, spotify_options
+from musicbot.user_options import auth_options
 
 logger = logging.getLogger(__name__)
 
@@ -79,20 +77,20 @@ def output_tracks(output: str, tracks):
         dump_tracks(tracks)
 
 
-@main_cli.group('spotify', help='Spotify tool', cls=AdvancedGroup)
-def spotify_cli():
+@click.group('spotify', help='Spotify tool', cls=AdvancedGroup)
+def cli():
     pass
 
 
-@spotify_cli.command(help='List playlists')
-@add_options(spotify_options)
+@cli.command(help='List playlists')
+@add_options(spotify_options.options)
 def playlists(spotify):
     print_playlists_table(spotify.playlists())
 
 
-@spotify_cli.command(help='Show playlist')
+@cli.command(help='Show playlist')
 @add_options(
-    spotify_options,
+    spotify_options.options,
     helpers.output_option,
 )
 @click.argument("name")
@@ -101,9 +99,9 @@ def playlist(name, spotify, output):
     output_tracks(output, tracks)
 
 
-@spotify_cli.command(help='Show tracks')
+@cli.command(help='Show tracks')
 @add_options(
-    spotify_options,
+    spotify_options.options,
     helpers.output_option,
 )
 def tracks(spotify, output):
@@ -111,10 +109,10 @@ def tracks(spotify, output):
     output_tracks(output, tracks)
 
 
-@spotify_cli.command(help='Diff between local and spotify')
+@cli.command(help='Diff between local and spotify')
 @add_options(
     auth_options,
-    spotify_options,
+    spotify_options.options,
     helpers.output_option,
 )
 @click.option('--min-threshold', help='Minimum distance threshold', type=click.FloatRange(0.0, 1.0), default=0.9)

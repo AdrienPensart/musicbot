@@ -1,11 +1,13 @@
 import socket
 import time
 import logging
+from typing import Collection
 import pytest
 from click_skeleton.testing import run_cli
 from musicbot.cli import main_cli
 from musicbot.helpers import genfiles
 from musicbot.user import User
+from musicbot.music.file import File
 from musicbot.exceptions import FailedAuthentication
 from . import fixtures
 
@@ -85,7 +87,7 @@ def user_token(cli_runner, postgraphile_public, user_unregister):  # pylint: dis
 
 
 @pytest.fixture
-def files():
+def files() -> Collection[File]:
     files = genfiles(fixtures.folders)
     files = list(files)
     assert len(files) == 5
@@ -107,9 +109,11 @@ def user_sample(files, user_unregister, postgraphile_public):  # pylint: disable
 
 
 @pytest.fixture
-def musics(user_sample):
+def musics(user_sample, files):
     musics = user_sample.do_filter()
-    assert len(musics) == len(files)
+    len_musics = len(musics)
+    len_files = len(files)
+    assert len_musics == len_files
     return musics
 
 

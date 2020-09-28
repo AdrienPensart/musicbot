@@ -296,9 +296,9 @@ musicbot local bests
     --dry                     Take no real action  [default: False]
     Auth options: 
       --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT        User token
       -e, --email TEXT        User email
       -p, --password TEXT     User password
-      -t, --token TEXT        User token
     Filter options: 
       --name TEXT             Filter name
       --limit INTEGER         Fetch a maximum limit of music
@@ -340,9 +340,9 @@ musicbot local clean
   Options:
     Auth options: 
       --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-      -t, --token TEXT     User token
     -y, --yes              Confirm action
     -h, --help             Show this message and exit.
 
@@ -358,9 +358,9 @@ musicbot local count
   Options:
     Auth options: 
       --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-      -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 
 
@@ -375,9 +375,9 @@ musicbot local execute
   Options:
     Auth options: 
       --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-      -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 
 
@@ -393,9 +393,9 @@ musicbot local filter
     --output [table|json]  Output format  [default: table]
     Auth options: 
       --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-      -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 
 
@@ -411,9 +411,9 @@ musicbot local filters
     --output [table|json]  Output format  [default: table]
     Auth options: 
       --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-      -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 
 
@@ -429,9 +429,9 @@ musicbot local folders
     --output [table|json]  Output format  [default: table]
     Auth options: 
       --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-      -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 
 
@@ -453,9 +453,9 @@ musicbot local inconsistencies
     --dry                                               Take no real action  [default: False]
     Auth options: 
       --graphql TEXT                                    GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT                                  User token
       -e, --email TEXT                                  User email
       -p, --password TEXT                               User password
-      -t, --token TEXT                                  User token
     Filter options: 
       --name TEXT                                       Filter name
       --limit INTEGER                                   Fetch a maximum limit of music
@@ -497,9 +497,9 @@ musicbot local load-filters
   Options:
     Auth options: 
       --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-      -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 
 
@@ -514,9 +514,9 @@ musicbot local player
   Options:
     Auth options: 
       --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT        User token
       -e, --email TEXT        User email
       -p, --password TEXT     User password
-      -t, --token TEXT        User token
     Filter options: 
       --name TEXT             Filter name
       --limit INTEGER         Fetch a maximum limit of music
@@ -560,9 +560,9 @@ musicbot local playlist
     --output [json|m3u|table]  Output format  [default: table]
     Auth options: 
       --graphql TEXT           GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT         User token
       -e, --email TEXT         User email
       -p, --password TEXT      User password
-      -t, --token TEXT         User token
     Filter options: 
       --name TEXT              Filter name
       --limit INTEGER          Fetch a maximum limit of music
@@ -604,9 +604,9 @@ musicbot local rescan
   Options:
     Auth options: 
       --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-      -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 
 
@@ -621,9 +621,9 @@ musicbot local scan
   Options:
     Auth options: 
       --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-      -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 
 
@@ -639,9 +639,9 @@ musicbot local stats
     --output [table|json]     Output format  [default: table]
     Auth options: 
       --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT        User token
       -e, --email TEXT        User email
       -p, --password TEXT     User password
-      -t, --token TEXT        User token
     Filter options: 
       --name TEXT             Filter name
       --limit INTEGER         Fetch a maximum limit of music
@@ -684,9 +684,9 @@ musicbot local sync
     --dry                     Take no real action  [default: False]
     Auth options: 
       --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT        User token
       -e, --email TEXT        User email
       -p, --password TEXT     User password
-      -t, --token TEXT        User token
     Filter options: 
       --name TEXT             Filter name
       --limit INTEGER         Fetch a maximum limit of music
@@ -728,9 +728,9 @@ musicbot local watch
   Options:
     Auth options: 
       --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-      -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 
 
@@ -892,16 +892,16 @@ musicbot spotify diff
   Options:
     Auth options: 
       --graphql TEXT             GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT           User token
       -e, --email TEXT           User email
       -p, --password TEXT        User password
-      -t, --token TEXT           User token
     Spotify options: 
       --username TEXT            Spotify username
       --client-id TEXT           Spotify client ID
       --client-secret TEXT       Spotify client secret
       --token TEXT               Spotify token
       --cache-path FILE          Spotify cache path
-      --scopes TEXT              Spotify scopes
+      --scope TEXT               Spotify OAuth scope
       --redirect-uri TEXT        Spotify redirect URI
     --output [table|json]        Output format  [default: table]
     --min-threshold FLOAT RANGE  Minimum distance threshold
@@ -924,7 +924,7 @@ musicbot spotify playlist
       --client-secret TEXT  Spotify client secret
       --token TEXT          Spotify token
       --cache-path FILE     Spotify cache path
-      --scopes TEXT         Spotify scopes
+      --scope TEXT          Spotify OAuth scope
       --redirect-uri TEXT   Spotify redirect URI
     --output [table|json]   Output format  [default: table]
     -h, --help              Show this message and exit.
@@ -945,7 +945,7 @@ musicbot spotify playlists
       --client-secret TEXT  Spotify client secret
       --token TEXT          Spotify token
       --cache-path FILE     Spotify cache path
-      --scopes TEXT         Spotify scopes
+      --scope TEXT          Spotify OAuth scope
       --redirect-uri TEXT   Spotify redirect URI
     -h, --help              Show this message and exit.
 
@@ -965,7 +965,7 @@ musicbot spotify tracks
       --client-secret TEXT  Spotify client secret
       --token TEXT          Spotify token
       --cache-path FILE     Spotify cache path
-      --scopes TEXT         Spotify scopes
+      --scope TEXT          Spotify OAuth scope
       --redirect-uri TEXT   Spotify redirect URI
     --output [table|json]   Output format  [default: table]
     -h, --help              Show this message and exit.
@@ -1055,9 +1055,9 @@ musicbot user unregister
   Options:
     Auth options: 
       --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-      -t, --token TEXT     User token
     -h, --help             Show this message and exit.
 
 

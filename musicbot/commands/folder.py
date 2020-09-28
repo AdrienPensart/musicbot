@@ -2,13 +2,13 @@ import logging
 import sys
 import json
 import concurrent.futures as cf
+import click
 import enlighten  # type: ignore
 import mutagen  # type: ignore
 from prettytable import PrettyTable  # type: ignore
 from click_skeleton import AdvancedGroup, add_options
 
 from musicbot import helpers
-from musicbot.cli import main_cli
 from musicbot.exceptions import MusicbotError
 from musicbot.config import config
 from musicbot.music.file import File, folder_option, checks_options, supported_formats
@@ -17,12 +17,12 @@ from musicbot.music.helpers import find_files
 logger = logging.getLogger(__name__)
 
 
-@main_cli.group('folder', help='Manage folders', cls=AdvancedGroup)
-def folder_cli():
+@click.group('folder', help='Manage folders', cls=AdvancedGroup)
+def cli():
     pass
 
 
-@folder_cli.command(help='Just list music files')
+@cli.command(help='Just list music files')
 @add_options(helpers.folders_argument)
 def find(folders):
     files = find_files(folders, supported_formats)
@@ -30,7 +30,7 @@ def find(folders):
         print(f[1])
 
 
-@folder_cli.command(help='List tracks')
+@cli.command(help='List tracks')
 @add_options(
     helpers.folders_argument,
     helpers.output_option,
@@ -50,7 +50,7 @@ def tracks(folders, output):
         raise NotImplementedError
 
 
-@folder_cli.command(help='Convert all files in folders to mp3')
+@cli.command(help='Convert all files in folders to mp3')
 @add_options(
     folder_option,
     helpers.folders_argument,
@@ -82,7 +82,7 @@ def flac2mp3(folders, folder, concurrency, dry):
                 cf.wait(futures)
 
 
-@folder_cli.command(aliases=['consistency'], help='Check music files consistency')
+@cli.command(aliases=['consistency'], help='Check music files consistency')
 @add_options(
     helpers.folders_argument,
     helpers.dry_option,

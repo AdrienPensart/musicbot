@@ -2,7 +2,7 @@ import logging
 from prettytable import PrettyTable  # type: ignore
 from mutagen import MutagenError  # type: ignore
 from click_skeleton import AdvancedGroup, add_options
-from musicbot.cli import main_cli
+import click
 
 from musicbot import helpers
 from musicbot.music.file import File, keywords_argument, path_argument, folder_option, options, checks_options
@@ -11,12 +11,12 @@ from musicbot.music.fingerprint import acoustid_api_key_option
 logger = logging.getLogger(__name__)
 
 
-@main_cli.group('music', help='Music file', cls=AdvancedGroup, aliases=['file'])
-def music_cli():
+@click.group('music', help='Music file', cls=AdvancedGroup, aliases=['file'])
+def cli():
     pass
 
 
-@music_cli.command(help='Convert flac music to mp3')
+@cli.command(help='Convert flac music to mp3')
 @add_options(
     path_argument,
     folder_option,
@@ -27,7 +27,7 @@ def flac2mp3(path, folder, dry):
     f.to_mp3(folder, dry)
 
 
-@music_cli.command(help='Print music fingerprint')
+@cli.command(help='Print music fingerprint')
 @add_options(
     path_argument,
     acoustid_api_key_option,
@@ -37,7 +37,7 @@ def fingerprint(path, acoustid_api_key):
     print(f.fingerprint(acoustid_api_key))
 
 
-@music_cli.command(help='Print music tags')
+@cli.command(help='Print music tags')
 @add_options(
     path_argument
 )
@@ -47,7 +47,7 @@ def tags(path):
     print(f.as_dict())
 
 
-@music_cli.command(aliases=['consistency'], help='Check music consistency')
+@cli.command(aliases=['consistency'], help='Check music consistency')
 @add_options(
     folder_option,
     path_argument,
@@ -68,7 +68,7 @@ def inconsistencies(path, folder, fix, **kwargs):
     print(pt)
 
 
-@music_cli.command(help='Set music title')
+@cli.command(help='Set music title')
 @add_options(
     path_argument,
     helpers.dry_option,
@@ -93,7 +93,7 @@ def set_tags(path, title, artist, album, genre, keywords, rating, number, dry):
     f.save(dry)
 
 
-@music_cli.command(help='Add keywords to music')
+@cli.command(help='Add keywords to music')
 @add_options(
     helpers.dry_option,
     path_argument,
@@ -104,7 +104,7 @@ def add_keywords(path, keywords, dry):
     f.add_keywords(keywords, dry)
 
 
-@music_cli.command(help='Delete keywords to music')
+@cli.command(help='Delete keywords to music')
 @add_options(
     helpers.dry_option,
     path_argument,

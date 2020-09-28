@@ -4,73 +4,16 @@ import base64
 import json
 import functools
 import sys
-from typing import Any, Collection, Optional
-import click
+from typing import Any, List, Collection, Optional
 import enlighten  # type: ignore
-from click_option_group import optgroup  # type: ignore
 from watchdog.observers import Observer  # type: ignore
 from musicbot.graphql import GraphQL
 from musicbot.config import config
-from musicbot.helpers import config_string
 from musicbot.exceptions import MusicbotError, FailedAuthentication, FailedRegistration
-from musicbot.music import file, mfilter
+from musicbot.music import file
+from musicbot.music.music_filter import MusicFilter
 
 logger = logging.getLogger(__name__)
-
-
-DEFAULT_EMAIL: Optional[str] = None
-email_option = optgroup.option(
-    '--email', '-e',
-    help='User email',
-    default=DEFAULT_EMAIL,
-    is_eager=True,
-    callback=config_string,
-)
-
-DEFAULT_PASSWORD: Optional[str] = None
-password_option = optgroup.option(
-    '--password', '-p',
-    help='User password',
-    default=DEFAULT_PASSWORD,
-    is_eager=True,
-    callback=config_string,
-)
-
-DEFAULT_FIRST_NAME: Optional[str] = None
-first_name_option = optgroup.option(
-    '--first-name',
-    help='User first name',
-    default=DEFAULT_FIRST_NAME,
-    is_eager=True,
-    callback=config_string,
-    show_default=True,
-)
-
-DEFAULT_LAST_NAME: Optional[str] = None
-last_name_option = optgroup.option(
-    '--last-name',
-    help='User last name',
-    default=DEFAULT_FIRST_NAME,
-    is_eager=True,
-    callback=config_string,
-    show_default=True,
-)
-
-DEFAULT_TOKEN: Optional[str] = None
-token_option = optgroup.option(
-    '--token', '-t',
-    help='User token',
-)
-
-DEFAULT_GRAPHQL = 'http://127.0.0.1:5000/graphql'
-graphql_option = optgroup.option(
-    '--graphql',
-    help='GraphQL endpoint',
-    default=DEFAULT_GRAPHQL,
-    is_eager=True,
-    callback=config_string,
-    show_default=True,
-)
 
 
 class User(GraphQL):
@@ -129,8 +72,8 @@ class User(GraphQL):
         return self.post(query)
 
     @config.timeit
-    def playlist(self, mf: Optional[mfilter.Filter] = None) -> Any:
-        mf = mf if mf is not None else mfilter.Filter()
+    def playlist(self, mf: Optional[MusicFilter] = None) -> Any:
+        mf = mf if mf is not None else MusicFilter()
         query = f"""
         {{
             playlist({mf.to_graphql()})
@@ -138,8 +81,8 @@ class User(GraphQL):
         return self.post(query)['data']['playlist']
 
     @config.timeit
-    def bests(self, mf: Optional[mfilter.Filter] = None) -> Any:
-        mf = mf if mf is not None else mfilter.Filter()
+    def bests(self, mf: Optional[MusicFilter] = None) -> Any:
+        mf = mf if mf is not None else MusicFilter()
         query = f"""
         {{
             bests({mf.to_graphql()})
@@ -154,12 +97,12 @@ class User(GraphQL):
         return self.post(query)['data']['bests']['nodes']
 
     @config.timeit
-    def do_filter(self, mf: Optional[mfilter.Filter] = None) -> Any:
-        mf = mf if mf is not None else mfilter.Filter()
+    def do_filter(self, mf: Optional[MusicFilter] = None) -> List[Any]:
+        mf = mf if mf is not None else MusicFilter()
         if mf.name:
             kwargs = self.filter(mf.name)
             print(kwargs)
-            mf = mfilter.Filter(**kwargs)
+            mf = MusicFilter(**kwargs)
 
         query = f"""
         {{
@@ -186,8 +129,8 @@ class User(GraphQL):
         return self.post(query)['data']['doFilter']['nodes']
 
     @config.timeit
-    def do_stat(self, mf: Optional[mfilter.Filter] = None) -> Any:
-        mf = mf if mf is not None else mfilter.Filter()
+    def do_stat(self, mf: Optional[MusicFilter] = None) -> Any:
+        mf = mf if mf is not None else MusicFilter()
         query = f"""
         {{
             doStat({mf.to_graphql()})
@@ -297,7 +240,7 @@ class User(GraphQL):
     @functools.lru_cache(maxsize=None)
     @config.timeit
     def filter(self, name: str) -> Any:
-        default_filter = mfilter.Filter()
+        default_filter = MusicFilter()
         filter_members = ','.join(default_filter.as_dict().keys())
         query = f"""
         {{
@@ -312,7 +255,7 @@ class User(GraphQL):
     @functools.lru_cache(maxsize=None)
     @config.timeit
     def filters(self) -> Any:
-        default_filter = mfilter.Filter()
+        default_filter = MusicFilter()
         filter_members = ','.join(default_filter.as_dict().keys())
         query = f"""
         {{
@@ -402,48 +345,3 @@ class User(GraphQL):
             }
         }"""
         return self.post(query)
-
-
-def sane_user(ctx: click.Context, param: Any, value: Any) -> User:  # pylint: disable=unused-argument
-    kwargs = {}
-    for field in ('token', 'email', 'password', 'graphql'):
-        kwargs[field] = ctx.params.get(field, None)
-        ctx.params.pop(field, None)
-    user = User(**kwargs)
-    ctx.params['user'] = user
-    return user
-
-
-user_option = optgroup.option(
-    '--user',
-    help='Music Filter',
-    expose_value=False,
-    callback=sane_user,
-    hidden=True,
-)
-
-register_options = [
-    optgroup.group('Register options'),
-    graphql_option,
-    email_option,
-    password_option,
-    first_name_option,
-    last_name_option,
-]
-
-login_options = [
-    optgroup.group('User options'),
-    graphql_option,
-    email_option,
-    password_option,
-    user_option,
-]
-
-auth_options = [
-    optgroup.group('Auth options'),
-    graphql_option,
-    email_option,
-    password_option,
-    token_option,
-    user_option,
-]
