@@ -17,14 +17,12 @@ create table if not exists musicbot_public.raw_music
     keywords   text[] default '{}',
     created_at timestamp with time zone default now(),
     updated_at timestamp with time zone default now(),
-    --unique(path, user_id)
     unique(path, user_id) deferrable
-    --unique(path, user_id) initially deferred
 );
 
---create index if not exists path_idx on musicbot_public.raw_music (path);
+comment on table musicbot_public.raw_music is E'@omit delete';
+
 create index if not exists raw_music_user_idx on musicbot_public.raw_music (user_id);
---create index if not exists path_user_idx on musicbot_public.raw_music (path, user_id);
 
 alter table if exists musicbot_public.raw_music enable row level security;
 alter table if exists musicbot_public.raw_music force row level security;
@@ -51,10 +49,6 @@ create or replace function musicbot_public.bulk_insert(data text)
 returns void as
 $$
 begin
-    -- TODO: no need this when postgresql 11.3 will be out
-    if data = 'W10=' then
-        return;
-    end if;
     set constraints musicbot_public.raw_music_path_user_id_key deferred;
     with records as (
         select title, album, genre, artist, folder, youtube, spotify, number, path, rating, duration, size, keywords

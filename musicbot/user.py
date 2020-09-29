@@ -92,6 +92,7 @@ class User:
 
     @config.timeit
     def fetch(self, query):
+        logger.debug(query)
         return self.api.post(query)['data']
 
     @config.timeit
@@ -146,7 +147,7 @@ class User:
     def do_filter(self, mf: Optional[MusicFilter] = None) -> List[Any]:
         mf = mf if mf is not None else MusicFilter()
         if mf.name:
-            kwargs = self.filter(mf.name)
+            kwargs = self.get_filter(mf.name)
             print(kwargs)
             mf = MusicFilter(**kwargs)
 
@@ -242,7 +243,7 @@ class User:
 
     @functools.lru_cache(maxsize=None)
     @config.timeit
-    def count(self) -> int:
+    def count_musics(self) -> int:
         query = '''
         {
             rawMusics
@@ -252,6 +253,19 @@ class User:
         }
         '''
         return int(self.fetch(query)['rawMusics']['totalCount'])
+
+    @functools.lru_cache(maxsize=None)
+    @config.timeit
+    def count_filters(self) -> int:
+        query = '''
+        {
+            filters
+            {
+                totalCount
+            }
+        }
+        '''
+        return int(self.fetch(query)['filters']['totalCount'])
 
     @functools.lru_cache(maxsize=None)
     @config.timeit
@@ -285,22 +299,24 @@ class User:
 
     @functools.lru_cache(maxsize=None)
     @config.timeit
-    def filter(self, name: str) -> Any:
+    def get_filter(self, name: str) -> Any:
         default_filter = MusicFilter()
         filter_members = ','.join(default_filter.as_dict().keys())
         query = f"""
         {{
-            filtersList(filter: {{name: {{equalTo: "{name}"}}}})
+            filters(condition: {{name: "{name}"}})
             {{
-                name,
-                {filter_members}
+                nodes {{
+                    name,
+                    {filter_members}
+                }}
             }}
         }}"""
-        return self.fetch(query)['filtersList'][0]
+        return self.fetch(query)['filters']['nodes'][0]
 
     @functools.lru_cache(maxsize=None)
     @config.timeit
-    def filters(self) -> Any:
+    def list_filters(self) -> Any:
         default_filter = MusicFilter()
         filter_members = ','.join(default_filter.as_dict().keys())
         query = f"""
@@ -327,6 +343,18 @@ class User:
         except KeyboardInterrupt:
             observer.stop()
         observer.join()
+
+    @config.timeit
+    def delete_filter(self, name: str) -> Any:
+        query = f"""
+        mutation
+        {{
+            deleteFilter(input: {{name: "{name}"}})
+            {{
+                clientMutationId
+            }}
+        }}"""
+        return self.execute(query)
 
     @config.timeit
     def delete_music(self, path: str) -> Any:

@@ -1,13 +1,10 @@
 import socket
 import time
 import logging
-from typing import Collection
 import pytest
 from click_skeleton.testing import run_cli
 from musicbot.cli import main_cli
-from musicbot.helpers import genfiles
 from musicbot.user import User
-from musicbot.music.file import File
 from musicbot.exceptions import FailedAuthentication
 from . import fixtures
 
@@ -87,38 +84,15 @@ def user_token(cli_runner, postgraphile_public, user_unregister):  # pylint: dis
 
 
 @pytest.fixture
-def files() -> Collection[File]:
-    files = genfiles(fixtures.folders)
-    files = list(files)
-    assert len(files) == 5
-    return files
-
-
-@pytest.yield_fixture
-def user_sample(files, user_unregister, postgraphile_public):  # pylint: disable=unused-argument
-    u = User.register(graphql=postgraphile_public, first_name=fixtures.first_name, last_name=fixtures.last_name, email=fixtures.email, password=fixtures.password)
-    u.bulk_insert(files)
-    for f in files:
-        u.upsert_music(f)
-
-    yield u
-    u.unregister()
-
-
-@pytest.fixture
-def musics(user_sample, files):
-    musics = user_sample.do_filter()
-    len_musics = len(musics)
-    len_files = len(files)
-    assert len_musics == len_files
-    return musics
-
-
-@pytest.fixture
-def common_args(user_token, postgraphile_public):
+def common_args(cli_runner, user_token, postgraphile_public):
+    common = ['--token', user_token, '--graphql', postgraphile_public]
+    run_cli(cli_runner, main_cli, [
+        'local', 'scan',
+        *common,
+        *fixtures.folders
+    ])
+    run_cli(cli_runner, main_cli, [
+        'filter', 'load',
+        *common,
+    ])
     return ['--token', user_token, '--graphql', postgraphile_public]
-
-
-@pytest.fixture
-def user_musics(cli_runner, common_args):
-    run_cli(cli_runner, main_cli, ['local', 'scan', *common_args, *fixtures.folders])

@@ -26,7 +26,7 @@ from musicbot.music.helpers import bytes_to_human, all_files, empty_dirs, except
 logger = logging.getLogger(__name__)
 
 
-@click.group('local', help='''Local music management''', cls=AdvancedGroup)
+@click.group('local', help='Local music management', cls=AdvancedGroup)
 def cli():
     pass
 
@@ -34,7 +34,7 @@ def cli():
 @cli.command(help='Count musics')
 @add_options(user_options.auth_options)
 def count(user):
-    print(user.count())
+    print(user.count_musics())
 
 
 @cli.command(help='Raw query', aliases=['query', 'fetch'])
@@ -42,42 +42,6 @@ def count(user):
 @add_options(user_options.auth_options)
 def execute(user, query):
     print(json.dumps(user.fetch(query)))
-
-
-@cli.command(help='Load default filters')
-@add_options(user_options.auth_options)
-def load_filters(user):
-    user.load_default_filters()
-
-
-@cli.command(help='List filters')
-@add_options(
-    helpers.output_option,
-    user_options.auth_options,
-)
-def filters(user, output):
-    if output == 'json':
-        print(json.dumps(user.filters()))
-    elif output == 'table':
-        pt = PrettyTable()
-        pt.field_names = ["Name", "Keywords", "No keywords", "Min rating", "Max rating"]
-        for f in user.filters():
-            pt.add_row([f['name'], f['keywords'], f['noKeywords'], f['minRating'], f['maxRating']])
-        print(pt)
-
-
-@cli.command('filter', help='Print a filter')
-@add_options(
-    helpers.output_option,
-    user_options.auth_options,
-)
-@click.argument('name')
-def _filter(user, name, output):
-    f = user.filter(name)
-    if output == 'json':
-        print(json.dumps(f))
-    elif output == 'table':
-        print(f)
 
 
 @cli.command(aliases=['stat'], help='Generate some stats for music collection with filters')

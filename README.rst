@@ -107,6 +107,7 @@ Commands
 
   Commands:
     completion    Shell completion
+    filter        Filter management
     folder        Manage folders
     help          Print help
     local         Local music management
@@ -159,6 +160,113 @@ musicbot completion show
   Options:
     -i, --case-insensitive / --no-case-insensitive  Case insensitive completion
     -h, --help                                      Show this message and exit.
+
+
+musicbot filter
+***************
+.. code-block::
+
+  Usage: musicbot filter [OPTIONS] COMMAND [ARGS]...
+
+    Filter management
+
+  Options:
+    -h, --help  Show this message and exit.
+
+  Commands:
+    count             Count filters
+    delete (remove)   Delete a filter
+    help              Print help
+    list              List filters
+    load              Load default filters
+    show (get,print)  Print a filter
+
+
+musicbot filter count
+*********************
+.. code-block::
+
+  Usage: musicbot filter count [OPTIONS]
+
+    Count filters
+
+  Options:
+    Auth options: 
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
+      -e, --email TEXT     User email
+      -p, --password TEXT  User password
+    -h, --help             Show this message and exit.
+
+
+musicbot filter delete
+**********************
+.. code-block::
+
+  Usage: musicbot filter delete [OPTIONS] NAME
+
+    Delete a filter
+
+  Options:
+    Auth options: 
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
+      -e, --email TEXT     User email
+      -p, --password TEXT  User password
+    -h, --help             Show this message and exit.
+
+
+musicbot filter list
+********************
+.. code-block::
+
+  Usage: musicbot filter list [OPTIONS]
+
+    List filters
+
+  Options:
+    --output [table|json]  Output format  [default: table]
+    Auth options: 
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
+      -e, --email TEXT     User email
+      -p, --password TEXT  User password
+    -h, --help             Show this message and exit.
+
+
+musicbot filter load
+********************
+.. code-block::
+
+  Usage: musicbot filter load [OPTIONS]
+
+    Load default filters
+
+  Options:
+    Auth options: 
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
+      -e, --email TEXT     User email
+      -p, --password TEXT  User password
+    -h, --help             Show this message and exit.
+
+
+musicbot filter show
+********************
+.. code-block::
+
+  Usage: musicbot filter show [OPTIONS] NAME
+
+    Print a filter
+
+  Options:
+    --output [table|json]  Output format  [default: table]
+    Auth options: 
+      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
+      -e, --email TEXT     User email
+      -p, --password TEXT  User password
+    -h, --help             Show this message and exit.
 
 
 musicbot folder
@@ -267,12 +375,9 @@ musicbot local
     clean                          Clean all musics
     count                          Count musics
     execute (fetch,query)          Raw query
-    filter                         Print a filter
-    filters                        List filters
     folders                        List folders
     help                           Print help
     inconsistencies (consistency)  Check music consistency
-    load-filters                   Load default filters
     player (play)                  Music player
     playlist                       Generate a new playlist
     rescan                         Clean and load musics
@@ -381,42 +486,6 @@ musicbot local execute
     -h, --help             Show this message and exit.
 
 
-musicbot local filter
-*********************
-.. code-block::
-
-  Usage: musicbot local filter [OPTIONS] NAME
-
-    Print a filter
-
-  Options:
-    --output [table|json]  Output format  [default: table]
-    Auth options: 
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT     User token
-      -e, --email TEXT     User email
-      -p, --password TEXT  User password
-    -h, --help             Show this message and exit.
-
-
-musicbot local filters
-**********************
-.. code-block::
-
-  Usage: musicbot local filters [OPTIONS]
-
-    List filters
-
-  Options:
-    --output [table|json]  Output format  [default: table]
-    Auth options: 
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT     User token
-      -e, --email TEXT     User email
-      -p, --password TEXT  User password
-    -h, --help             Show this message and exit.
-
-
 musicbot local folders
 **********************
 .. code-block::
@@ -484,23 +553,6 @@ musicbot local inconsistencies
       --relative                                        Generate relatives paths
       --shuffle                                         Randomize selection
     -h, --help                                          Show this message and exit.
-
-
-musicbot local load-filters
-***************************
-.. code-block::
-
-  Usage: musicbot local load-filters [OPTIONS]
-
-    Load default filters
-
-  Options:
-    Auth options: 
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT     User token
-      -e, --email TEXT     User email
-      -p, --password TEXT  User password
-    -h, --help             Show this message and exit.
 
 
 musicbot local player

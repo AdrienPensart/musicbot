@@ -147,6 +147,8 @@ def diff(user, spotify, output, min_threshold, max_threshold):
             local_slug: jellyfish.jaro_similarity(spotify_slug, local_slug)
             for local_slug in local_tracks
         }
+        if not distances:
+            continue
         closest_local_track = max(distances.items(), key=operator.itemgetter(1))
         closest_local_slug = closest_local_track[0]
         closest_distance = closest_local_track[1]

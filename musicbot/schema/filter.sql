@@ -33,6 +33,8 @@ create table if not exists musicbot_public.filter
     unique(name, user_id)
 );
 
+comment on table musicbot_public.filter is E'@omit delete';
+
 create index if not exists filter_user_idx on musicbot_public.filter (user_id);
 
 alter table if exists musicbot_public.filter enable row level security;
@@ -51,3 +53,11 @@ create policy update_filter on musicbot_public.filter for update using (user_id 
 
 drop policy if exists delete_filter on musicbot_public.filter cascade;
 create policy delete_filter on musicbot_public.filter for delete using (user_id = musicbot_public.current_musicbot());
+
+create or replace function musicbot_public.delete_filter(name text) returns void as $$
+    delete from musicbot_public.filter where name = delete_filter.name;
+$$ language sql;
+
+create or replace function musicbot_public.delete_all_filter() returns void as $$
+    delete from musicbot_public.filter;
+$$ language sql;
