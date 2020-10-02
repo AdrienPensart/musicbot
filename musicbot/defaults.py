@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 DEFAULT_EMAIL: Optional[str] = None
@@ -10,3 +11,42 @@ DEFAULT_GRAPHQL = 'http://127.0.0.1:5000/graphql'
 DEFAULT_GRAPHQL_ADMIN = 'http://127.0.0.1:5001/graphql'
 DEFAULT_GRAPHQL_ADMIN_USER: Optional[str] = None
 DEFAULT_GRAPHQL_ADMIN_PASSWORD: Optional[str] = None
+
+DEFAULT_DRY = False
+DEFAULT_MB_CONCURRENCY = 8
+DEFAULT_YES = False
+DEFAULT_SAVE = False
+DEFAULT_MB_OUTPUT = 'table'
+DEFAULT_MB_PLAYLIST_OUTPUT = 'table'
+
+DEFAULT_CHECK_VERSION = False
+DEFAULT_CONFIG = '~/musicbot.ini'
+DEFAULT_LOG = ''
+DEFAULT_DEBUG = False
+DEFAULT_INFO = False
+DEFAULT_WARNING = False
+DEFAULT_ERROR = False
+DEFAULT_CRITICAL = False
+DEFAULT_TIMINGS = False
+DEFAULT_VERBOSITY = 'warning'
+DEFAULT_QUIET = False
+
+VERBOSITIES = {
+    'debug': logging.DEBUG,
+    'info': logging.INFO,
+    'warning': logging.WARNING,
+    'error': logging.ERROR,
+    'critical': logging.CRITICAL,
+}
+
+MB_CHECK_VERSION = 'MB_CHECK_VERSION'
+MB_CONFIG = 'MB_CONFIG'
+MB_LOG = 'MB_LOG'
+MB_DEBUG = 'MB_DEBUG'
+MB_INFO = 'MB_INFO'
+MB_WARNING = 'MB_WARNING'
+MB_ERROR = 'MB_ERROR'
+MB_CRITICAL = 'MB_CRITICAL'
+MB_TIMINGS = 'MB_TIMINGS'
+MB_VERBOSITY = 'MB_VERBOSITY'
+MB_QUIET = 'MB_QUIET'

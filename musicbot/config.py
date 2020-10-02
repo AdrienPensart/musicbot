@@ -10,59 +10,27 @@ import attr
 import click
 import colorlog  # type: ignore
 from click_skeleton.helpers import str2bool, seconds_to_human
+from musicbot import defaults
 
 logger = logging.getLogger(__name__)
 
-VERBOSITIES = {
-    'debug': logging.DEBUG,
-    'info': logging.INFO,
-    'warning': logging.WARNING,
-    'error': logging.ERROR,
-    'critical': logging.CRITICAL,
-}
-
-DEFAULT_CHECK_VERSION = False
-DEFAULT_CONFIG = '~/musicbot.ini'
-DEFAULT_LOG = ''
-DEFAULT_DEBUG = False
-DEFAULT_INFO = False
-DEFAULT_WARNING = False
-DEFAULT_ERROR = False
-DEFAULT_CRITICAL = False
-DEFAULT_TIMINGS = False
-DEFAULT_VERBOSITY = 'warning'
-DEFAULT_QUIET = False
-
-MB_CHECK_VERSION = 'MB_CHECK_VERSION'
-MB_CONFIG = 'MB_CONFIG'
-MB_LOG = 'MB_LOG'
-MB_DEBUG = 'MB_DEBUG'
-MB_INFO = 'MB_INFO'
-MB_WARNING = 'MB_WARNING'
-MB_ERROR = 'MB_ERROR'
-MB_CRITICAL = 'MB_CRITICAL'
-MB_TIMINGS = 'MB_TIMINGS'
-MB_VERBOSITY = 'MB_VERBOSITY'
-MB_QUIET = 'MB_QUIET'
-
-
 @attr.s(auto_attribs=True)
 class Config:
-    log: Optional[Union[str, PathLike]] = DEFAULT_LOG
-    check_version: bool = DEFAULT_CHECK_VERSION
-    quiet: bool = DEFAULT_QUIET
-    debug: bool = DEFAULT_DEBUG
-    info: bool = DEFAULT_INFO
-    warning: bool = DEFAULT_WARNING
-    error: bool = DEFAULT_ERROR
-    critical: bool = DEFAULT_CRITICAL
-    timings: bool = DEFAULT_TIMINGS
-    verbosity: str = DEFAULT_VERBOSITY
-    config: str = DEFAULT_CONFIG
-    level: int = VERBOSITIES[DEFAULT_VERBOSITY]
+    log: Optional[Union[str, PathLike]] = defaults.DEFAULT_LOG
+    check_version: bool = defaults.DEFAULT_CHECK_VERSION
+    quiet: bool = defaults.DEFAULT_QUIET
+    debug: bool = defaults.DEFAULT_DEBUG
+    info: bool = defaults.DEFAULT_INFO
+    warning: bool = defaults.DEFAULT_WARNING
+    error: bool = defaults.DEFAULT_ERROR
+    critical: bool = defaults.DEFAULT_CRITICAL
+    timings: bool = defaults.DEFAULT_TIMINGS
+    verbosity: str = defaults.DEFAULT_VERBOSITY
+    config: str = defaults.DEFAULT_CONFIG
+    level: int = defaults.VERBOSITIES[defaults.DEFAULT_VERBOSITY]
 
     def __attrs_post_init__(self) -> None:
-        self.check_version = str2bool(os.getenv(MB_CHECK_VERSION, 'true'))
+        self.check_version = str2bool(os.getenv(defaults.MB_CHECK_VERSION, 'true'))
 
     def set(
         self,
@@ -77,16 +45,16 @@ class Config:
         verbosity: Optional[str] = None,
         log: Optional[Union[str, PathLike]] = None,
     ) -> None:
-        self.config = config if config is not None else os.environ.get(MB_CONFIG, DEFAULT_CONFIG)
-        self.quiet = quiet if quiet is not None else str2bool(os.environ.get(MB_QUIET, str(DEFAULT_QUIET)))
-        self.debug = debug if debug is not None else str2bool(os.environ.get(MB_DEBUG, str(DEFAULT_DEBUG)))
-        self.info = info if info is not None else str2bool(os.environ.get(MB_INFO, str(DEFAULT_INFO)))
-        self.warning = warning if warning is not None else str2bool(os.environ.get(MB_WARNING, str(DEFAULT_WARNING)))
-        self.error = error if error is not None else str2bool(os.environ.get(MB_ERROR, str(DEFAULT_ERROR)))
-        self.critical = critical if critical is not None else str2bool(os.environ.get(MB_CRITICAL, str(DEFAULT_CRITICAL)))
-        self.timings = timings if timings is not None else str2bool(os.environ.get(MB_TIMINGS, str(DEFAULT_TIMINGS)))
-        self.verbosity = verbosity if verbosity is not None else os.environ.get(MB_VERBOSITY, DEFAULT_VERBOSITY)
-        self.log = (log if log is not None else os.environ.get(MB_LOG, DEFAULT_LOG)) or None
+        self.config = config if config is not None else os.environ.get(defaults.MB_CONFIG, defaults.DEFAULT_CONFIG)
+        self.quiet = quiet if quiet is not None else str2bool(os.environ.get(defaults.MB_QUIET, str(defaults.DEFAULT_QUIET)))
+        self.debug = debug if debug is not None else str2bool(os.environ.get(defaults.MB_DEBUG, str(defaults.DEFAULT_DEBUG)))
+        self.info = info if info is not None else str2bool(os.environ.get(defaults.MB_INFO, str(defaults.DEFAULT_INFO)))
+        self.warning = warning if warning is not None else str2bool(os.environ.get(defaults.MB_WARNING, str(defaults.DEFAULT_WARNING)))
+        self.error = error if error is not None else str2bool(os.environ.get(defaults.MB_ERROR, str(defaults.DEFAULT_ERROR)))
+        self.critical = critical if critical is not None else str2bool(os.environ.get(defaults.MB_CRITICAL, str(defaults.DEFAULT_CRITICAL)))
+        self.timings = timings if timings is not None else str2bool(os.environ.get(defaults.MB_TIMINGS, str(defaults.DEFAULT_TIMINGS)))
+        self.verbosity = verbosity if verbosity is not None else os.environ.get(defaults.MB_VERBOSITY, defaults.DEFAULT_VERBOSITY)
+        self.log = (log if log is not None else os.environ.get(defaults.MB_LOG, defaults.DEFAULT_LOG)) or None
 
         if self.debug:
             self.verbosity = 'debug'
@@ -99,7 +67,7 @@ class Config:
         if self.critical:
             self.verbosity = 'critical'
 
-        self.level = VERBOSITIES.get(self.verbosity, logging.WARNING)
+        self.level = defaults.VERBOSITIES.get(self.verbosity, logging.WARNING)
         root_logger = logging.getLogger()
         root_logger.setLevel(self.level)
         handler = logging.StreamHandler()

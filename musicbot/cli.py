@@ -18,7 +18,6 @@ def main_cli(ctx, **kwargs):
     """Music swiss knife, new gen."""
     from musicbot.config import config as config_obj
     config_obj.set(**kwargs)
-    ctx.obj.config = config_obj
 
 
 main_cli.add_groups_from_package(musicbot.commands)

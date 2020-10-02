@@ -233,7 +233,7 @@ tests = ["coverage (<6)", "pytest", "pytest-cov", "coveralls"]
 
 [[package]]
 name = "click-skeleton"
-version = "0.8.0"
+version = "0.8.1"
 description = "Click app skeleton"
 category = "main"
 optional = false
@@ -666,7 +666,7 @@ python-versions = "*"
 
 [[package]]
 name = "isort"
-version = "5.5.3"
+version = "5.5.4"
 description = "A Python utility / library to sort Python imports."
 category = "dev"
 optional = false
@@ -1165,7 +1165,7 @@ python-versions = "*"
 
 [[package]]
 name = "pytype"
-version = "2020.9.24"
+version = "2020.9.29"
 description = "Python type inferencer"
 category = "dev"
 optional = false
@@ -1174,7 +1174,7 @@ python-versions = "<3.9,>=3.5"
 [package.dependencies]
 attrs = "*"
 importlab = ">=0.5.1"
-ninja = "*"
+ninja = ">=1.10.0.post2"
 pyyaml = ">=3.11"
 six = "*"
 typed_ast = "*"
@@ -1553,8 +1553,8 @@ click-option-group = [
     {file = "click_option_group-0.5.1-py3-none-any.whl", hash = "sha256:b363552b81f3bc9bef2402837b08865d186bd97c2311768f7d52aaf896e384a6"},
 ]
 click-skeleton = [
-    {file = "click-skeleton-0.8.0.tar.gz", hash = "sha256:83be47dee99b9c6ffd3d56fd025853ea1297bf12a88507aab975c29e454579ce"},
-    {file = "click_skeleton-0.8.0-py3-none-any.whl", hash = "sha256:4dffa296d81e41987725b453eb3e006e630ec00801c96620b907cb5f177a898c"},
+    {file = "click-skeleton-0.8.1.tar.gz", hash = "sha256:d925a18004db653de145940432d6a5c1a7f0408a8f3570606298ef026374477a"},
+    {file = "click_skeleton-0.8.1-py3-none-any.whl", hash = "sha256:66b99b7ca1f356cbcfdee1862ae7ac1ca6b5d1d2ab936c4cb67f5be305d13f5f"},
 ]
 colorama = [
     {file = "colorama-0.4.3-py2.py3-none-any.whl", hash = "sha256:7d73d2a99753107a36ac6b455ee49046802e59d9d076ef8e47b61499fa29afff"},
@@ -1737,8 +1737,8 @@ iniconfig = [
     {file = "iniconfig-1.0.1.tar.gz", hash = "sha256:e5f92f89355a67de0595932a6c6c02ab4afddc6fcdc0bfc5becd0d60884d3f69"},
 ]
 isort = [
-    {file = "isort-5.5.3-py3-none-any.whl", hash = "sha256:c16eaa7432a1c004c585d79b12ad080c6c421dd18fe27982ca11f95e6898e432"},
-    {file = "isort-5.5.3.tar.gz", hash = "sha256:6187a9f1ce8784cbc6d1b88790a43e6083a6302f03e9ae482acc0f232a98c843"},
+    {file = "isort-5.5.4-py3-none-any.whl", hash = "sha256:36f0c6659b9000597e92618d05b72d4181104cf59472b1c6a039e3783f930c95"},
+    {file = "isort-5.5.4.tar.gz", hash = "sha256:ba040c24d20aa302f78f4747df549573ae1eaf8e1084269199154da9c483f07f"},
 ]
 jellyfish = [
     {file = "jellyfish-0.8.2-cp35-cp35m-manylinux2014_x86_64.whl", hash = "sha256:f5c7fd1b02edf86135ed005ba8715ed9496d268e3d77e6428445689a441c4c64"},
@@ -2018,15 +2018,15 @@ python-vlc = [
     {file = "python_vlc-3.0.11115-py3-none-any.whl", hash = "sha256:508bc5b4b4fd72b4e23c926795bdcd38c7c1c08a4dd6b8cc87b0abd1d7118aa1"},
 ]
 pytype = [
-    {file = "pytype-2020.9.24-cp35-cp35m-macosx_10_14_x86_64.whl", hash = "sha256:de1e8be7623c3a52aa76bb0fe627ade03fba7d41481b3705a42b421bc20f4948"},
-    {file = "pytype-2020.9.24-cp35-cp35m-manylinux2014_x86_64.whl", hash = "sha256:e679d521c9d3ed2c42c62d8d15ab7b333d11c9d0b0f6a17ea43508a9ef8788f1"},
-    {file = "pytype-2020.9.24-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:b69b1684ad658ddb21f33a37871c0ea71a8adaf7a2e66b57091ab8b7c8ab94f3"},
-    {file = "pytype-2020.9.24-cp36-cp36m-manylinux2014_x86_64.whl", hash = "sha256:cbd0d4ecd610781b6fb11105a0a2781eea8025403ed186ed43eb8d1b853ea952"},
-    {file = "pytype-2020.9.24-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:6e3f6044211b58bcf5f71087cdfc704a0f66fc84e26cde2642836d342c163702"},
-    {file = "pytype-2020.9.24-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:513a3a11718632e5fa44a866a488f9e09aaf0be0460e8cbecddb15631ecd3542"},
-    {file = "pytype-2020.9.24-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:928c2fba3b9102fd279b6dfb632f5baca7917e80c57cf8b9eb25369f8c62317c"},
-    {file = "pytype-2020.9.24-cp38-cp38-manylinux2014_x86_64.whl", hash = "sha256:4948600946302ed929943ba7d2cf93e6d5bfa1e45232187d76fb119e86b92a1b"},
-    {file = "pytype-2020.9.24.tar.gz", hash = "sha256:438583c645fce1945606e9c16e6b2cce2cf16b31375080c9ef8bc7f5f036e7be"},
+    {file = "pytype-2020.9.29-cp35-cp35m-macosx_10_14_x86_64.whl", hash = "sha256:c424a17bd6d1a559291ad22cc2a91596ded5d8653665894d7a1cedf976303ff4"},
+    {file = "pytype-2020.9.29-cp35-cp35m-manylinux2014_x86_64.whl", hash = "sha256:fa53cf1ee3134368c4a330d75ebb9a84acf8126ea5ec102795087924cfcf5cec"},
+    {file = "pytype-2020.9.29-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:ceec03a974f3b728701a85e365a21e62a41143d95d0b099cc23bc490929bf85e"},
+    {file = "pytype-2020.9.29-cp36-cp36m-manylinux2014_x86_64.whl", hash = "sha256:e1dd3e387b850084305d2fb1c55b946d603b98b3bc0dbe57e8b7fe158f9e2cf6"},
+    {file = "pytype-2020.9.29-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:6aeb435f64fc3ab5fbd8a9997f64068e9c78e8d4691459cf46c75c6a7d560ccc"},
+    {file = "pytype-2020.9.29-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:cd781459c3000a3ffe54346471eb6e8ff1a29c2658d9d0aab43ea2ec4eebf12e"},
+    {file = "pytype-2020.9.29-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:2849c861cc3b8a795356a68d9f144634e6e6f0a82ecf81842ba7ec16481bded0"},
+    {file = "pytype-2020.9.29-cp38-cp38-manylinux2014_x86_64.whl", hash = "sha256:d5550ad4e26794780561e91548ed11ef059ebfadf52aa09c0b61b05ba3a1488a"},
+    {file = "pytype-2020.9.29.tar.gz", hash = "sha256:b44c0904160c6b55ee3f9e00227719a62bb4e3388ae54220da2e0609388325fe"},
 ]
 pywin32 = [
     {file = "pywin32-227-cp27-cp27m-win32.whl", hash = "sha256:371fcc39416d736401f0274dd64c2302728c9e034808e37381b5e1b22be4a6b0"},

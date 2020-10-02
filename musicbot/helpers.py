@@ -5,60 +5,55 @@ from typing import Any, Collection, Iterable
 import enlighten  # type: ignore
 import click
 from click_skeleton.helpers import mysplit
+from musicbot import defaults
 from musicbot.config import config
 from musicbot.music.file import File, supported_formats
 from musicbot.music.helpers import find_files, filecount
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_MB_CONCURRENCY = 8
 concurrency_options = click.option(
     '--concurrency',
     help='Number of coroutines',
-    default=DEFAULT_MB_CONCURRENCY,
+    default=defaults.DEFAULT_MB_CONCURRENCY,
     show_default=True,
 )
 
-DEFAULT_DRY = False
 dry_option = click.option(
     '--dry',
     help='Take no real action',
-    default=DEFAULT_DRY,
+    default=defaults.DEFAULT_DRY,
     is_flag=True,
     show_default=True,
 )
 
-DEFAULT_YES = False
 yes_option = click.option(
     '-y', '--yes',
     help='Confirm action',
-    default=DEFAULT_YES,
+    default=defaults.DEFAULT_YES,
     is_flag=True,
 )
 
-DEFAULT_SAVE = False
 save_option = click.option(
     '--save', '-s',
     help='Save to config file',
-    default=DEFAULT_SAVE,
+    default=defaults.DEFAULT_SAVE,
     is_flag=True,
     show_default=True,
 )
 
-DEFAULT_MB_OUTPUT = 'table'
 output_option = click.option(
     '--output',
     help='Output format',
-    default=DEFAULT_MB_OUTPUT,
+    default=defaults.DEFAULT_MB_OUTPUT,
     show_default=True,
     type=click.Choice(['table', 'json']),
 )
 
-DEFAULT_MB_PLAYLIST_OUTPUT = 'table'
 playlist_output_option = click.option(
     '--output',
     help='Output format',
-    default=DEFAULT_MB_PLAYLIST_OUTPUT,
+    default=defaults.DEFAULT_MB_PLAYLIST_OUTPUT,
     show_default=True,
     type=click.Choice(['json', 'm3u', 'table']),
 )
