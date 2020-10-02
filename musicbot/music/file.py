@@ -16,12 +16,12 @@ logger = logging.getLogger(__name__)
 
 music_options_group = optgroup.group('Music options')
 keywords_option = optgroup.option('--keywords', help='Keywords', multiple=True)
-artist_option = optgroup.option('--artist', help='Artist', default=None)
-album_option = optgroup.option('--album', help='Album', default=None)
-title_option = optgroup.option('--title', help='Title', default=None)
-genre_option = optgroup.option('--genre', help='Genre', default=None)
-number_option = optgroup.option('--number', help='Track number', default=None)
-rating_option = optgroup.option('--rating', help='Rating', default=None)
+artist_option = optgroup.option('--artist', help='Artist')
+album_option = optgroup.option('--album', help='Album')
+title_option = optgroup.option('--title', help='Title')
+genre_option = optgroup.option('--genre', help='Genre')
+number_option = optgroup.option('--number', help='Track number')
+rating_option = optgroup.option('--rating', help='Rating')
 
 keywords_argument = click.argument(
     'keywords',

@@ -14,6 +14,7 @@ from musicbot import defaults
 
 logger = logging.getLogger(__name__)
 
+
 @attr.s(auto_attribs=True)
 class Config:
     log: Optional[Union[str, PathLike]] = defaults.DEFAULT_LOG

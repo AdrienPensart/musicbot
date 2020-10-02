@@ -2,79 +2,49 @@ import logging
 import json
 from typing import Any, Dict, List, Optional
 import attr
+from musicbot import defaults
 
 logger = logging.getLogger(__name__)
-
-rating_choices = [x * 0.5 for x in range(0, 11)]
-min_int = 0
-max_int = 2147483647
-
-default_name: Optional[str] = None
-default_relative = False
-default_shuffle = False
-default_youtubes: List[str] = []
-default_no_youtubes: List[str] = []
-default_spotifys: List[str] = []
-default_no_spotifys: List[str] = []
-default_formats: List[str] = []
-default_no_formats: List[str] = []
-default_genres: List[str] = []
-default_no_genres: List[str] = []
-default_limit: int = max_int
-default_min_duration: int = min_int
-default_max_duration: int = max_int
-default_min_size: int = min_int
-default_max_size: int = max_int
-default_min_rating = min(rating_choices)
-default_max_rating = max(rating_choices)
-default_keywords: List[str] = []
-default_no_keywords: List[str] = []
-default_artists: List[str] = []
-default_no_artists: List[str] = []
-default_titles: List[str] = []
-default_no_titles: List[str] = []
-default_albums: List[str] = []
-default_no_albums: List[str] = []
 
 
 @attr.s(auto_attribs=True, frozen=True)
 class MusicFilter:
-    name: Optional[str] = default_name
-    relative: bool = default_relative
-    shuffle: bool = default_shuffle
-    min_duration: int = default_min_duration
-    max_duration: int = default_max_duration
-    min_size: int = default_min_size
-    max_size: int = default_max_size
-    min_rating: float = default_min_rating
-    max_rating: float = default_max_rating
-    youtubes: List[str] = default_youtubes
-    no_youtubes: List[str] = default_no_youtubes
-    spotifys: List[str] = default_spotifys
-    no_spotifys: List[str] = default_no_spotifys
-    formats: List[str] = default_formats
-    no_formats: List[str] = default_no_formats
-    limit: int = default_limit
-    genres: List[str] = default_genres
-    no_genres: List[str] = default_no_genres
-    keywords: List[str] = default_keywords
-    no_keywords: List[str] = default_no_keywords
-    artists: List[str] = default_artists
-    no_artists: List[str] = default_no_artists
-    titles: List[str] = default_titles
-    no_titles: List[str] = default_no_titles
-    albums: List[str] = default_albums
-    no_albums: List[str] = default_no_albums
+    name: Optional[str] = defaults.DEFAULT_NAME
+    relative: bool = defaults.DEFAULT_RELATIVE
+    shuffle: bool = defaults.DEFAULT_SHUFFLE
+    min_duration: int = defaults.DEFAULT_MIN_DURATION
+    max_duration: int = defaults.DEFAULT_MAX_DURATION
+    min_size: int = defaults.DEFAULT_MIN_SIZE
+    max_size: int = defaults.DEFAULT_MIN_SIZE
+    min_rating: float = defaults.DEFAULT_MIN_RATING
+    max_rating: float = defaults.DEFAULT_MAX_RATING
+    youtubes: List[str] = defaults.DEFAULT_YOUTUBES
+    no_youtubes: List[str] = defaults.DEFAULT_NO_YOUTUBES
+    spotifys: List[str] = defaults.DEFAULT_SPOTIFYS
+    no_spotifys: List[str] = defaults.DEFAULT_NO_SPOTIFYS
+    formats: List[str] = defaults.DEFAULT_FORMATS
+    no_formats: List[str] = defaults.DEFAULT_NO_FORMATS
+    limit: int = defaults.DEFAULT_LIMIT
+    genres: List[str] = defaults.DEFAULT_GENRES
+    no_genres: List[str] = defaults.DEFAULT_NO_GENRES
+    keywords: List[str] = defaults.DEFAULT_KEYWORDS
+    no_keywords: List[str] = defaults.DEFAULT_NO_KEYWORDS
+    artists: List[str] = defaults.DEFAULT_ARTISTS
+    no_artists: List[str] = defaults.DEFAULT_NO_ARTISTS
+    titles: List[str] = defaults.DEFAULT_TITLES
+    no_titles: List[str] = defaults.DEFAULT_NO_TITLES
+    albums: List[str] = defaults.DEFAULT_ALBUMS
+    no_albums: List[str] = defaults.DEFAULT_NO_ALBUMS
 
     def __attrs_post_init__(self) -> None:
         if self.min_size > self.max_size:
             raise ValueError(f"Invalid minimum ({self.min_rating}) or maximum ({self.max_rating}) size")
 
-        if self.min_rating not in rating_choices:
-            raise ValueError(f"Invalid minimum rating {self.min_rating}, it should be one of {rating_choices}")
+        if self.min_rating not in defaults.RATING_CHOICES:
+            raise ValueError(f"Invalid minimum rating {self.min_rating}, it should be one of {defaults.RATING_CHOICES}")
 
-        if self.max_rating not in rating_choices:
-            raise ValueError(f"Invalid maximum rating {self.max_rating}, it should be one of {rating_choices}")
+        if self.max_rating not in defaults.RATING_CHOICES:
+            raise ValueError(f"Invalid maximum rating {self.max_rating}, it should be one of {defaults.RATING_CHOICES}")
 
         if self.min_rating > self.max_rating:
             raise ValueError(f"Invalid minimum ({self.min_rating}) or maximum ({self.max_rating}) rating")

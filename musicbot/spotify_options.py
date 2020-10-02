@@ -4,6 +4,7 @@ import click
 import attr
 from click_option_group import optgroup  # type: ignore
 from click_skeleton import ExpandedPath
+from musicbot import defaults
 from musicbot.config import config
 from musicbot.spotify import Spotify
 
@@ -61,31 +62,28 @@ def sane_spotify(ctx, param, value):
     return ctx.params['spotify']
 
 
-DEFAULT_CACHE_PATH = '~/.spotify_cache'
 cache_path_option = optgroup.option(
     '--cache-path',
     help='Spotify cache path',
     is_eager=True,
     type=ExpandedPath(writable=True, readable=True, dir_okay=False),
-    default=DEFAULT_CACHE_PATH,
+    default=defaults.DEFAULT_CACHE_PATH,
     callback=config_string_spotify,
 )
 
-DEFAULT_SCOPES = 'user-library-read,user-follow-read,user-top-read,playlist-read-private,user-modify-playback-state,user-read-currently-playing,user-read-playback-state'
 scope_option = optgroup.option(
     '--scope',
     help='Spotify OAuth scope',
     is_eager=True,
-    default=DEFAULT_SCOPES,
+    default=defaults.DEFAULT_SCOPES,
     callback=config_string_spotify,
 )
 
-DEFAULT_REDIRECT_URI = 'http://localhost:8888/spotify/callback'
 redirect_uri_option = optgroup.option(
     '--redirect-uri',
     help='Spotify redirect URI',
     is_eager=True,
-    default=DEFAULT_REDIRECT_URI,
+    default=defaults.DEFAULT_REDIRECT_URI,
     callback=config_string_spotify,
 )
 
