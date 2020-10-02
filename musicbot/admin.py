@@ -17,7 +17,7 @@ class Admin:
         graphql: str = defaults.DEFAULT_GRAPHQL_ADMIN,
         graphql_admin_user: Optional[str] = defaults.DEFAULT_GRAPHQL_ADMIN_USER,
         graphql_admin_password: Optional[str] = defaults.DEFAULT_GRAPHQL_ADMIN_PASSWORD,
-    ):
+    ) -> "Admin":
         if graphql_admin_user and graphql_admin_password:
             authorization = requests.auth._basic_auth_str(graphql_admin_user, graphql_admin_password)
             api = GraphQL(graphql=graphql, authorization=authorization)

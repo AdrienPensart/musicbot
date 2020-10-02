@@ -1,5 +1,6 @@
 import logging
 import os
+from typing import Optional
 import click
 import attr
 from click_option_group import optgroup  # type: ignore
@@ -11,7 +12,7 @@ from musicbot.spotify import Spotify
 logger = logging.getLogger(__name__)
 
 
-def config_string_spotify(ctx, param, arg_value):
+def config_string_spotify(ctx: click.Context, param: click.Parameter, arg_value: str) -> Optional[str]:
     name = param.name
     value = None
 
@@ -47,19 +48,20 @@ def config_string_spotify(ctx, param, arg_value):
         logger.info(f"{name} : config value {config_value} is not sync with arg value {arg_value}")
 
     if not value and param.required:
-        raise click.BadParameter(f'missing arg {param.name} or env {env_name} or {param.name} in [spotify] section of {config.config}', ctx, param.name, param.name)
+        raise click.BadParameter(f'missing arg {param.name} or env {env_name} or {param.name} in [spotify] section of {config.config}', ctx, param, param.name)
     logger.info(f"{name} : final value {value}")
     return value
 
 
-def sane_spotify(ctx, param, value):
+def sane_spotify(ctx: click.Context, param: click.Parameter, value: str) -> Spotify:
     spotify_params = {}
     ctx.params[param.name] = value
     for field in attr.fields_dict(Spotify):
         spotify_params[field] = ctx.params[field]
         ctx.params.pop(field)
-    ctx.params['spotify'] = Spotify(**spotify_params)
-    return ctx.params['spotify']
+    spotify = Spotify(**spotify_params)
+    ctx.params['spotify'] = spotify
+    return spotify
 
 
 cache_path_option = optgroup.option(

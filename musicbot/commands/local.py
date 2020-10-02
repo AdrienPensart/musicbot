@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 @click.group('local', help='Local music management', cls=AdvancedGroup)
-def cli():
+def cli() -> None:
     pass
 
 

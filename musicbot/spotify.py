@@ -19,18 +19,18 @@ class Spotify:
     token: str
 
     @property
-    def _auth_manager(self):
+    def _auth_manager(self) -> spotipy.oauth2.SpotifyOAuth:
         auth_params = attr.asdict(self)
         del auth_params['token']
         return spotipy.oauth2.SpotifyOAuth(**auth_params)
 
     @functools.cached_property
-    def _api(self):
+    def _api(self) -> spotipy.Spotify:
         if self.token:
             return spotipy.Spotify(auth=self.token)
         return spotipy.Spotify(auth_manager=self._auth_manager)
 
-    def cached_token(self):
+    def cached_token(self) -> Any:
         return self._auth_manager.get_cached_token()
 
     def tracks(self) -> List[Any]:

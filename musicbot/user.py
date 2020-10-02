@@ -4,7 +4,7 @@ import base64
 import json
 import functools
 import sys
-from typing import Any, List, Collection, Optional
+from typing import Any, Collection, Optional
 import enlighten  # type: ignore
 import attr
 from watchdog.observers import Observer  # type: ignore
@@ -23,12 +23,12 @@ class User:
     token: str
 
     @classmethod
-    def from_token(cls, graphql: str, token: str):
+    def from_token(cls, graphql: str, token: str) -> "User":
         api = GraphQL(graphql, authorization=f"Bearer {token}")
         return cls(api=api, token=token)
 
     @classmethod
-    def from_auth(cls, graphql: str, email: str, password: str):
+    def from_auth(cls, graphql: str, email: str, password: str) -> "User":
         query = f"""
         mutation
         {{
@@ -87,11 +87,11 @@ class User:
             raise FailedAuthentication(f"Cannot delete user : {e}") from e
 
     @config.timeit
-    def execute(self, query):
+    def execute(self, query: str) -> Any:
         return self.api.post(query)
 
     @config.timeit
-    def fetch(self, query):
+    def fetch(self, query: str) -> Any:
         logger.debug(query)
         return self.api.post(query)['data']
 
@@ -144,7 +144,7 @@ class User:
         return self.fetch(query)['bests']['nodes']
 
     @config.timeit
-    def do_filter(self, mf: Optional[MusicFilter] = None) -> List[Any]:
+    def do_filter(self, mf: Optional[MusicFilter] = None) -> Any:
         mf = mf if mf is not None else MusicFilter()
         if mf.name:
             kwargs = self.get_filter(mf.name)

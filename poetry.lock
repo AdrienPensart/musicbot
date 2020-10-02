@@ -233,7 +233,7 @@ tests = ["coverage (<6)", "pytest", "pytest-cov", "coveralls"]
 
 [[package]]
 name = "click-skeleton"
-version = "0.8.1"
+version = "0.8.2"
 description = "Click app skeleton"
 category = "main"
 optional = false
@@ -1553,8 +1553,8 @@ click-option-group = [
     {file = "click_option_group-0.5.1-py3-none-any.whl", hash = "sha256:b363552b81f3bc9bef2402837b08865d186bd97c2311768f7d52aaf896e384a6"},
 ]
 click-skeleton = [
-    {file = "click-skeleton-0.8.1.tar.gz", hash = "sha256:d925a18004db653de145940432d6a5c1a7f0408a8f3570606298ef026374477a"},
-    {file = "click_skeleton-0.8.1-py3-none-any.whl", hash = "sha256:66b99b7ca1f356cbcfdee1862ae7ac1ca6b5d1d2ab936c4cb67f5be305d13f5f"},
+    {file = "click-skeleton-0.8.2.tar.gz", hash = "sha256:f6773cfa7f3b677ef63f23232cf9927ff3c7d780fcbe1f321852b35f58ce175a"},
+    {file = "click_skeleton-0.8.2-py3-none-any.whl", hash = "sha256:675d4dfcf49d003ac66af694c57d12538950ad40c2e42e5ed780811e95df703c"},
 ]
 colorama = [
     {file = "colorama-0.4.3-py2.py3-none-any.whl", hash = "sha256:7d73d2a99753107a36ac6b455ee49046802e59d9d076ef8e47b61499fa29afff"},

@@ -23,13 +23,14 @@ backtrace.hook(
 )
 
 
-def main(**kwargs):
+def main(**kwargs) -> int:
     helpers.raise_limits()
     version_check = version_checker.VersionCheckerThread(
         prog_name=PROG_NAME,
         current_version=__version__,
         autostart=config_obj.check_version,
     )
+    exit_code = 1
     try:
         exit_code = main_cli.main(prog_name=PROG_NAME, **kwargs)
         version_check.print()
@@ -39,6 +40,7 @@ def main(**kwargs):
             logger.exception(e)
         else:
             raise
+    return exit_code
 
 
 if __name__ == '__main__':
