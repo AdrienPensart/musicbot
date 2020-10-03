@@ -1120,7 +1120,7 @@ testing = ["fields", "hunter", "process-tests (2.0.2)", "six", "pytest-xdist", "
 
 [[package]]
 name = "pytest-docker-compose"
-version = "3.2.0"
+version = "3.1.2"
 description = "Manages Docker containers during your integration tests"
 category = "dev"
 optional = false
@@ -1420,7 +1420,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "<3.9,>=3.8"
-content-hash = "b3fb09655a3f0994b2cb3eedd5daea27cb510ae2cffef06d54a246a8fae75736"
+content-hash = "00f93c9a37da4da7b033a1503dad300fa3ccd00a682e46d49071721c64802df3"
 
 [metadata.files]
 aiohttp = [
@@ -2003,8 +2003,8 @@ pytest-cov = [
     {file = "pytest_cov-2.10.1-py2.py3-none-any.whl", hash = "sha256:45ec2d5182f89a81fc3eb29e3d1ed3113b9e9a873bcddb2a71faaab066110191"},
 ]
 pytest-docker-compose = [
-    {file = "pytest-docker-compose-3.2.0.tar.gz", hash = "sha256:51733a4ea3f0ceabfc48efc53f035117fa95163d7d0560d6f4cc3449784d63f7"},
-    {file = "pytest_docker_compose-3.2.0-py3-none-any.whl", hash = "sha256:e98a64cba911266c65899a82391fefb746f4375e6cb073404a54bb16b40bd102"},
+    {file = "pytest-docker-compose-3.1.2.tar.gz", hash = "sha256:f0d5c7b7e31458862aca3e5668aa6d32c5e22a177ef77c1898c74d95c6590a79"},
+    {file = "pytest_docker_compose-3.1.2-py3-none-any.whl", hash = "sha256:59462d39df9b5e09f4ddeb46f0d062b77a94dbb8d475e1a48cdea3e46aa6cee5"},
 ]
 python-dotenv = [
     {file = "python-dotenv-0.14.0.tar.gz", hash = "sha256:8c10c99a1b25d9a68058a1ad6f90381a62ba68230ca93966882a4dbc3bc9c33d"},

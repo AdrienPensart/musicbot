@@ -43,7 +43,7 @@ pytype = "^2020.8.28"
 Pygments = "^2.7.0"
 mypy = "^0.782"
 flake8 = "^3.8.3"
-pytest-docker-compose = "^3.2.0"
+pytest-docker-compose = "=3.1.2"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
