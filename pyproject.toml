@@ -43,7 +43,7 @@ pytype = "^2020.8.28"
 Pygments = "^2.7.0"
 mypy = "^0.782"
 flake8 = "^3.8.3"
-pytest-docker-compose = "=3.1.2"
+pytest-docker-compose = "^3.1.2"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -59,3 +59,7 @@ disable=too-few-public-methods,logging-format-interpolation,line-too-long,too-ma
 [tool.dephell.main]
 from = {format = "poetry", path = "pyproject.toml"}
 to = {format = "setuppy", path = "setup.py"}
+
+[tool.dephell.dev]
+from = {format = "poetry", path = "pyproject.toml"}
+to = {format = "pip", path = "requirements-dev.txt"}
