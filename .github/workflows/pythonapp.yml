@@ -24,7 +24,7 @@ jobs:
           pylint musicbot tests doc
       - name: Flake8 Linting
         run: |
-          flake8 musicbot tests doc
+          flake8 --config .flake8 musicbot tests doc
       - name: MyPy Static type checking
         run: |
           mypy musicbot tests doc

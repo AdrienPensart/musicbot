@@ -5,16 +5,14 @@ trap '[ $? -eq 0 ] && exit 0 || echo "$0 FAILED"' EXIT
 
 echo "updating poetry deps..."
 poetry update
-poetry export -f requirements.txt -o requirements.txt --without-hashes
-sed -i '/extra-index-url/d' requirements.txt
-sed -i '/^$/d' requirements.txt
 
-poetry export --dev -f requirements.txt -o requirements-dev.txt --without-hashes
-sed -i '/extra-index-url/d' requirements-dev.txt
-sed -i '/^$/d' requirements-dev.txt
+echo "generating setup.py, requirements.txt and requirements-dev.txt"
+poetry run dephell deps convert --env main-setup
+poetry run dephell deps convert --env main-dependencies
+poetry run dephell deps convert --env dev-dependencies
+
 echo "setup.py generation..."
-poetry run dephell convert
-git add setup.py poetry.lock requirements.txt requirements-dev.txt
+git add setup.py pyproject.toml poetry.lock requirements.txt requirements-dev.txt
 
 echo "linting : pylint..."
 poetry run pylint musicbot tests doc
