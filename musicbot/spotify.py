@@ -33,6 +33,12 @@ class Spotify:
     def cached_token(self) -> Any:
         return self._auth_manager.get_cached_token()
 
+    def is_token_expired(self) -> bool:
+        return self._auth_manager.is_token_expired(self.cached_token())
+
+    def refresh_token(self):
+        return self._auth_manager.refresh_access_token(self.cached_token()['refresh_token'])
+
     def tracks(self) -> List[Any]:
         offset = 0
         limit = 50

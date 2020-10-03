@@ -12,6 +12,8 @@ from colorama import Fore  # type: ignore
 from click_skeleton import AdvancedGroup, add_options
 
 from musicbot import helpers, spotify_options
+from musicbot.music import music_filter_options
+from musicbot.music.file import STOPWORDS, REPLACEMENTS
 from musicbot.user_options import auth_options
 
 logger = logging.getLogger(__name__)
@@ -82,6 +84,19 @@ def cli():
     pass
 
 
+@cli.command(help='Token informations')
+@add_options(spotify_options.options)
+def cached_token(spotify):
+    print(spotify.cached_token())
+    print(f"Expired : {spotify.is_token_expired()}")
+
+
+@cli.command(help='Get a new token')
+@add_options(spotify_options.options)
+def refresh_token(spotify):
+    print(spotify.refresh_token())
+
+
 @cli.command(help='List playlists')
 @add_options(spotify_options.options)
 def playlists(spotify):
@@ -113,39 +128,38 @@ def tracks(spotify, output):
 @add_options(
     auth_options,
     spotify_options.options,
+    music_filter_options.options,
     helpers.output_option,
 )
 @click.option('--min-threshold', help='Minimum distance threshold', type=click.FloatRange(0.0, 1.0), default=0.9)
 @click.option('--max-threshold', help='Maximum distance threshold', type=click.FloatRange(0.0, 1.0), default=1.0)
-def diff(user, spotify, output, min_threshold, max_threshold):
-    stopwords = ['the', 'remaster', 'remastered', 'cut', 'part', 'version', 'mix', 'deluxe', 'edit', 'album', 'lp'] + list(map(str, range(1900, 2020)))
-    replacements = [['praxis', 'buckethead'], ['lawson-rollins', 'buckethead']]
-
+def diff(user, music_filter, spotify, output, min_threshold, max_threshold):
     spotify_tracks = spotify.tracks()
-    local_tracks = user.do_filter()
-
-    spotify_tracks = {
-        slugify(f"""{t['track']['artists'][0]['name']}-{t['track']['name']}""", stopwords=stopwords, replacements=replacements):
+    spotify_tracks_by_slug = {
+        slugify(f"""{t['track']['artists'][0]['name']}-{t['track']['name']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):
         t for t in spotify_tracks
     }
 
-    local_tracks = {
-        slugify(f"""{t['artist']}-{t['title']}""", stopwords=stopwords, replacements=replacements):
+    local_tracks = user.do_filter(music_filter)
+    local_tracks_by_slug = {
+        slugify(f"""{t['artist']}-{t['title']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):
         t for t in local_tracks
     }
 
-    spotify_differences = set(spotify_tracks.keys()).difference(set(local_tracks.keys()))
-    spotify_slug_tracks = collections.OrderedDict((d, spotify_tracks[d]) for d in sorted(spotify_differences))
+    spotify_differences = set(spotify_tracks_by_slug.keys()).difference(set(local_tracks_by_slug.keys()))
+    spotify_slug_tracks = collections.OrderedDict((d, spotify_tracks_by_slug[d]) for d in sorted(spotify_differences))
+
+    local_tracks_found = len(spotify_tracks_by_slug) - len(spotify_differences)
+
+    if len(local_tracks) == local_tracks_found:
+        return
 
     output_tracks(output, spotify_slug_tracks.values())
-    print(f"found in local     : {len(local_tracks) - len(spotify_differences)}")
-    print(f"not found in local : {len(spotify_differences)}")
-
     distances_tracks = []
     for spotify_slug, spotify_track in spotify_slug_tracks.items():
         distances = {
             local_slug: jellyfish.jaro_similarity(spotify_slug, local_slug)
-            for local_slug in local_tracks
+            for local_slug in local_tracks_by_slug
         }
         if not distances:
             continue
@@ -154,13 +168,21 @@ def diff(user, spotify, output, min_threshold, max_threshold):
         closest_distance = closest_local_track[1]
 
         if min_threshold <= closest_distance <= max_threshold:
-            if 'spotify-error' in local_tracks[closest_local_slug]['keywords']:
+            if 'spotify-error' in local_tracks_by_slug[closest_local_slug]['keywords']:
                 continue
             distances_tracks.append({
-                'local_track': local_tracks[closest_local_slug],
+                'local_track': local_tracks_by_slug[closest_local_slug],
                 'local_slug': closest_local_slug,
                 'spotify_track': spotify_track,
                 'spotify_slug': spotify_slug,
                 'distance': closest_distance,
             })
     print_distances(distances_tracks)
+    print(f"min threshold : {min_threshold}")
+    print(f"max threshold : {max_threshold}")
+    print(f"spotify tracks : {len(spotify_tracks)}")
+    print(f"spotify slugs: {len(spotify_tracks_by_slug)}")
+    print(f"local tracks : {len(local_tracks)}")
+    print(f"local tracks slugs : {len(local_tracks_by_slug)}")
+    print(f"found in local     : {local_tracks_found}")
+    print(f"not found in local : {len(spotify_differences)}")

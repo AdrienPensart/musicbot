@@ -6,6 +6,7 @@ from typing import Any, Optional, List, Dict, Iterable, Iterator
 import click
 import acoustid  # type: ignore
 import mutagen  # type: ignore
+from slugify import slugify  # type: ignore
 from pydub import AudioSegment  # type: ignore
 from click_option_group import optgroup  # type: ignore
 from click_skeleton.helpers import mysplit
@@ -22,6 +23,9 @@ title_option = optgroup.option('--title', help='Title')
 genre_option = optgroup.option('--genre', help='Genre')
 number_option = optgroup.option('--number', help='Track number')
 rating_option = optgroup.option('--rating', help='Rating')
+
+STOPWORDS = ['the', 'remaster', 'remastered', 'cut', 'part', 'version', 'mix', 'deluxe', 'edit', 'album', 'lp'] + list(map(str, range(1900, 2020)))
+REPLACEMENTS = [['praxis', 'buckethead'], ['lawson-rollins', 'buckethead']]
 
 keywords_argument = click.argument(
     'keywords',
@@ -192,6 +196,10 @@ class File:
     @property
     def canonic_filename(self) -> str:
         return f"{self.canonic_title}{self.extension}"
+
+    @property
+    def slug(self) -> str:
+        return slugify(f"""{self.artist}-{self.title}""", stopwords=STOPWORDS, replacements=REPLACEMENTS)
 
     def _get_first(self, tag: str, default: str = '') -> str:
         if tag not in self.handle:
