@@ -603,7 +603,7 @@ blessed = ">=1.17.7"
 
 [[package]]
 name = "flake8"
-version = "3.8.3"
+version = "3.8.4"
 description = "the modular source code checker: pep8 pyflakes and co"
 category = "dev"
 optional = false
@@ -1420,7 +1420,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "<3.9,>=3.8"
-content-hash = "bf79159c9ebb0dfb44709983f3aec86760e60a30b4ce9f38348c26c6cec43b38"
+content-hash = "b3fb09655a3f0994b2cb3eedd5daea27cb510ae2cffef06d54a246a8fae75736"
 
 [metadata.files]
 aiohttp = [
@@ -1715,8 +1715,8 @@ enlighten = [
     {file = "enlighten-1.6.2.tar.gz", hash = "sha256:db00dfc4027a2dad2aaa4bff4b5fd8d8ab8376e175a02d02e156992f08062437"},
 ]
 flake8 = [
-    {file = "flake8-3.8.3-py2.py3-none-any.whl", hash = "sha256:15e351d19611c887e482fb960eae4d44845013cc142d42896e9862f775d8cf5c"},
-    {file = "flake8-3.8.3.tar.gz", hash = "sha256:f04b9fcbac03b0a3e58c0ab3a0ecc462e023a9faf046d57794184028123aa208"},
+    {file = "flake8-3.8.4-py2.py3-none-any.whl", hash = "sha256:749dbbd6bfd0cf1318af27bf97a14e28e5ff548ef8e5b1566ccfb25a11e7c839"},
+    {file = "flake8-3.8.4.tar.gz", hash = "sha256:aadae8761ec651813c24be05c6f7b4680857ef6afaae4651a4eccaef97ce6c3b"},
 ]
 graphql-py = [
     {file = "graphql-py-0.7.1.tar.gz", hash = "sha256:1279f3fbc30b154ef9c46850bdc15be13d845a01ba68d516a8a4088ba66a710b"},
