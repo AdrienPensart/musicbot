@@ -1,1 +1,2 @@
-[flake8]                                                                                                                                                                                                         ignore = E501,W503,W504
+[flake8]
+ignore = E501,W503,W504
