@@ -132,26 +132,34 @@ class File:
     def close(self) -> None:
         self.handle.close()
 
-    def to_mp3(self, folder: Optional[str] = None, dry: Optional[bool] = None) -> bool:
-        dry = dry if dry is not None else False
+    def to_mp3(self, folder: Optional[str] = None, dry: Optional[bool] = False, flat: Optional[bool] = False) -> bool:
         folder = folder if folder is not None else self.folder
 
         if self.extension != '.flac':
             logger.error(f"{self} is not a flac file")
             return False
-        if 'invalid-path' in self.inconsistencies:
+
+        if not flat and 'invalid-path' in self.inconsistencies:
             logger.error(f"{self} does not have a canonic path like : {self.canonic_artist_album_filename}")
             return False
 
-        mp3_path = os.path.join(folder, self.artist, self.album, self.canonic_title + '.mp3')
+        if flat:
+            mp3_path = os.path.join(folder, f'{self.artist} - {self.album} - {self.canonic_title}.mp3')
+        else:
+            mp3_path = os.path.join(folder, self.artist, self.album, self.canonic_title + '.mp3')
+
         if os.path.exists(mp3_path):
             logger.info(f"{mp3_path} already exists, not overwriting")
             return False
         logger.debug(f"{self} convert destination : {mp3_path}")
         if not dry:
             ensure(mp3_path)
-            flac_audio = AudioSegment.from_file(self.path, "flac")
-            flac_audio.export(mp3_path, format="mp3")
+            try:
+                flac_audio = AudioSegment.from_file(self.path, "flac")
+                flac_audio.export(mp3_path, format="mp3")
+            except KeyboardInterrupt:
+                os.remove(mp3_path)
+                raise
         return True
 
     def as_dict(self) -> Dict[str, Any]:  # pylint: disable=unsubscriptable-object

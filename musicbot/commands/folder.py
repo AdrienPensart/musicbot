@@ -57,7 +57,8 @@ def tracks(folders, output):
     helpers.concurrency_options,
     helpers.dry_option,
 )
-def flac2mp3(folders, folder, concurrency, dry):
+@click.option('--flat', help="Do not create subfolders", is_flag=True)
+def flac2mp3(folders, folder, concurrency, flat, dry):
     flac_files = list(find_files(folders, ['flac']))
     if not flac_files:
         logger.warning(f"No flac files detected in {folders}")
@@ -70,7 +71,7 @@ def flac2mp3(folders, folder, concurrency, dry):
                 def convert(flac_path):
                     try:
                         f = File(flac_path)
-                        f.to_mp3(folder, dry)
+                        f.to_mp3(folder=folder, dry=dry, flat=flat)
                     except MusicbotError as e:
                         logger.error(e)
                     except KeyboardInterrupt as e:
@@ -78,6 +79,7 @@ def flac2mp3(folders, folder, concurrency, dry):
                         raise
                     finally:
                         pbar.update()
+                executor.shutdown = lambda wait: None
                 futures = [executor.submit(convert, flac_path[1]) for flac_path in flac_files]
                 cf.wait(futures)
 
