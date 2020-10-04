@@ -1,8 +1,6 @@
-import sys
 import os
 import logging
 from typing import Any, Collection, Iterable
-import enlighten  # type: ignore
 import click
 from click_skeleton.helpers import mysplit
 from musicbot import defaults
@@ -28,7 +26,7 @@ dry_option = click.option(
 )
 
 yes_option = click.option(
-    '-y', '--yes',
+    '--yes', '-y',
     help='Confirm action',
     default=defaults.DEFAULT_YES,
     is_flag=True,
@@ -109,31 +107,26 @@ def config_list(ctx: click.Context, param: Any, value: Any) -> Any:
 @config.timeit
 def genfiles(folders: Iterable[str]) -> Collection[File]:
     directories = [os.path.abspath(f) for f in folders]
-    enabled = len(directories) and not config.quiet
-    with enlighten.Manager(stream=sys.stderr, enabled=enabled) as manager:
-        count = 0
-        with manager.counter(total=len(directories), desc=f"Music counting {folders}") as pbar:
-            for directory in directories:
-                try:
-                    pbar.desc = f"Music counting {directory}"
-                    subcount = filecount(directory, supported_formats)
-                    logger.info(f"{directory} : file count: {subcount}")
-                    count += subcount
-                finally:
-                    pbar.update()
-        files = []
-        enabled = count and not config.quiet
-        with manager.counter(total=count, desc="Music listing", enabled=enabled) as pbar:
-            file_list = find_files(folders, supported_formats)
-            music_files = list(file_list)
-            for f in music_files:
-                try:
-                    m = File(f[1], f[0])
-                    files.append(m)
-                except OSError as e:
-                    logger.error(e)
-                finally:
-                    pbar.update()
+    count = 0
+    for directory in directories:
+        subcount = filecount(directory, supported_formats)
+        logger.info(f"{directory} : file count: {subcount}")
+        count += subcount
+
+    files = []
+    file_list = find_files(folders, supported_formats)
+    music_files = list(file_list)
+
+    with config.progressbar(max_value=len(music_files), redirect_stdout=True) as pbar:
+        for f in music_files:
+            try:
+                m = File(f[1], f[0])
+                files.append(m)
+            except OSError as e:
+                logger.error(e)
+            finally:
+                pbar.value += 1
+                pbar.update()
     return files
 
 

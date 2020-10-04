@@ -312,6 +312,7 @@ musicbot folder flac2mp3
     --folder DIRECTORY     Destination folder
     --concurrency INTEGER  Number of coroutines  [default: 8]
     --dry                  Take no real action  [default: False]
+    --flat                 Do not create subfolders
     -h, --help             Show this message and exit.
 
 
@@ -608,6 +609,7 @@ musicbot local playlist
     Generate a new playlist
 
   Options:
+    --interleave               Interleave tracks by artist
     --dry                      Take no real action  [default: False]
     --output [json|m3u|table]  Output format  [default: table]
     Auth options: 
@@ -734,6 +736,7 @@ musicbot local sync
 
   Options:
     --dry                     Take no real action  [default: False]
+    -y, --yes                 Confirm action
     Auth options: 
       --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT        User token
@@ -766,6 +769,8 @@ musicbot local sync
       --max-rating FLOAT      Maximum rating  [default: 5.0]
       --relative              Generate relatives paths
       --shuffle               Randomize selection
+    --flat                    Do not create subfolders
+    --delete                  Delete files on destination if not present in library
     -h, --help                Show this message and exit.
 
 
@@ -926,11 +931,33 @@ musicbot spotify
     -h, --help  Show this message and exit.
 
   Commands:
-    diff       Diff between local and spotify
-    help       Print help
-    playlist   Show playlist
-    playlists  List playlists
-    tracks     Show tracks
+    cached-token   Token informations
+    diff           Diff between local and spotify
+    help           Print help
+    playlist       Show playlist
+    playlists      List playlists
+    refresh-token  Get a new token
+    tracks         Show tracks
+
+
+musicbot spotify cached-token
+*****************************
+.. code-block::
+
+  Usage: musicbot spotify cached-token [OPTIONS]
+
+    Token informations
+
+  Options:
+    Spotify options: 
+      --username TEXT       Spotify username
+      --client-id TEXT      Spotify client ID
+      --client-secret TEXT  Spotify client secret
+      --token TEXT          Spotify token
+      --cache-path FILE     Spotify cache path
+      --scope TEXT          Spotify OAuth scope
+      --redirect-uri TEXT   Spotify redirect URI
+    -h, --help              Show this message and exit.
 
 
 musicbot spotify diff
@@ -955,6 +982,33 @@ musicbot spotify diff
       --cache-path FILE          Spotify cache path
       --scope TEXT               Spotify OAuth scope
       --redirect-uri TEXT        Spotify redirect URI
+    Filter options: 
+      --name TEXT                Filter name
+      --limit INTEGER            Fetch a maximum limit of music
+      --youtubes TEXT            Select musics with a youtube link
+      --no-youtubes TEXT         Select musics without youtube link
+      --spotifys TEXT            Select musics with a spotifys link
+      --no-spotifys TEXT         Select musics without spotifys link
+      --formats TEXT             Select musics with file format
+      --no-formats TEXT          Filter musics without format
+      --keywords TEXT            Select musics with keywords
+      --no-keywords TEXT         Filter musics without keywords
+      --artists TEXT             Select musics with artists
+      --no-artists TEXT          Filter musics without artists
+      --albums TEXT              Select musics with albums
+      --no-albums TEXT           Filter musics without albums
+      --titles TEXT              Select musics with titles
+      --no-titles TEXT           Filter musics without titless
+      --genres TEXT              Select musics with genres
+      --no-genres TEXT           Filter musics without genres
+      --min-duration INTEGER     Minimum duration filter (hours:minutes:seconds)
+      --max-duration INTEGER     Maximum duration filter (hours:minutes:seconds))
+      --min-size INTEGER         Minimum file size filter (in bytes)
+      --max-size INTEGER         Maximum file size filter (in bytes)
+      --min-rating FLOAT         Minimum rating  [default: 0.0]
+      --max-rating FLOAT         Maximum rating  [default: 5.0]
+      --relative                 Generate relatives paths
+      --shuffle                  Randomize selection
     --output [table|json]        Output format  [default: table]
     --min-threshold FLOAT RANGE  Minimum distance threshold
     --max-threshold FLOAT RANGE  Maximum distance threshold
@@ -989,6 +1043,26 @@ musicbot spotify playlists
   Usage: musicbot spotify playlists [OPTIONS]
 
     List playlists
+
+  Options:
+    Spotify options: 
+      --username TEXT       Spotify username
+      --client-id TEXT      Spotify client ID
+      --client-secret TEXT  Spotify client secret
+      --token TEXT          Spotify token
+      --cache-path FILE     Spotify cache path
+      --scope TEXT          Spotify OAuth scope
+      --redirect-uri TEXT   Spotify redirect URI
+    -h, --help              Show this message and exit.
+
+
+musicbot spotify refresh-token
+******************************
+.. code-block::
+
+  Usage: musicbot spotify refresh-token [OPTIONS]
+
+    Get a new token
 
   Options:
     Spotify options: 

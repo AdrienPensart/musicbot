@@ -1,9 +1,7 @@
 import logging
-import sys
 import json
 import concurrent.futures as cf
 import click
-import enlighten  # type: ignore
 import mutagen  # type: ignore
 from prettytable import PrettyTable  # type: ignore
 from click_skeleton import AdvancedGroup, add_options
@@ -11,7 +9,7 @@ from click_skeleton import AdvancedGroup, add_options
 from musicbot import helpers
 from musicbot.exceptions import MusicbotError
 from musicbot.config import config
-from musicbot.music.file import File, folder_option, checks_options, supported_formats
+from musicbot.music.file import File, flat_option, folder_option, checks_options, supported_formats
 from musicbot.music.helpers import find_files
 
 logger = logging.getLogger(__name__)
@@ -56,32 +54,41 @@ def tracks(folders, output):
     helpers.folders_argument,
     helpers.concurrency_options,
     helpers.dry_option,
+    flat_option,
 )
-@click.option('--flat', help="Do not create subfolders", is_flag=True)
 def flac2mp3(folders, folder, concurrency, flat, dry):
     flac_files = list(find_files(folders, ['flac']))
     if not flac_files:
         logger.warning(f"No flac files detected in {folders}")
         return
 
-    enabled = not config.quiet
-    with enlighten.Manager(stream=sys.stderr, enabled=enabled) as manager:
-        with manager.counter(total=len(flac_files), desc="converting musics") as pbar:
-            with cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
-                def convert(flac_path):
-                    try:
-                        f = File(flac_path)
-                        f.to_mp3(folder=folder, dry=dry, flat=flat)
-                    except MusicbotError as e:
-                        logger.error(e)
-                    except KeyboardInterrupt as e:
-                        logger.warning(f'interrupted: {e}')
-                        raise
-                    finally:
-                        pbar.update()
-                executor.shutdown = lambda wait: None
+    with config.progressbar(max_value=len(flac_files)) as pbar:
+        with cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
+            def convert(flac_path):
+                if config.interrupted:
+                    return
+                try:
+                    f = File(flac_path)
+                    f.to_mp3(folder=folder, dry=dry, flat=flat)
+                except MusicbotError as e:
+                    logger.error(e)
+                except KeyboardInterrupt as e:
+                    logger.warning(f'interrupted : {e}')
+                    config.interrupted = True
+                    raise
+                except Exception as e:  # pylint: disable=broad-except
+                    logger.error(f"{flac_path} : unable to convert to mp3 : {e}")
+                finally:
+                    pbar.value += 1
+                    pbar.update()
+            try:
+                executor.shutdown = lambda wait: None  # type: ignore
                 futures = [executor.submit(convert, flac_path[1]) for flac_path in flac_files]
-                cf.wait(futures)
+                cf.wait(futures, return_when=cf.FIRST_EXCEPTION)
+            except Exception as e:
+                logger.error(f"interrupted : {e}")
+                config.interrupted = True
+                raise
 
 
 @cli.command(aliases=['consistency'], help='Check music files consistency')

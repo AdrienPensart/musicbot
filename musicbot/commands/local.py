@@ -1,7 +1,6 @@
 import logging
 import io
 import random
-import sys
 import shutil
 import os
 import itertools
@@ -10,7 +9,6 @@ import json
 import datetime
 import textwrap
 import click
-import enlighten  # type: ignore
 import attr
 import mutagen  # type: ignore
 from prettytable import PrettyTable  # type: ignore
@@ -22,7 +20,7 @@ from musicbot.player import play
 from musicbot.playlist import print_playlist
 from musicbot.config import config
 from musicbot.music import music_filter_options
-from musicbot.music.file import File, checks_options, folder_argument
+from musicbot.music.file import File, flat_option, checks_options, folder_argument
 from musicbot.music.helpers import bytes_to_human, all_files, empty_dirs, except_directories
 
 
@@ -131,33 +129,44 @@ def rescan(user, folders):
 @cli.command(help='Copy selected musics with filters to destination folder')
 @add_options(
     helpers.dry_option,
+    helpers.yes_option,
     user_options.auth_options,
     music_filter_options.options,
+    flat_option,
 )
+@click.option('--delete', help='Delete files on destination if not present in library', is_flag=True)
 @click.argument('destination')
-def sync(user, dry, destination, music_filter):
+def sync(user, delete, yes, dry, destination, music_filter, flat):
     logger.info(f'Destination: {destination}')
     musics = user.do_filter(music_filter)
+    if not musics:
+        click.secho('no result for filter, nothing to sync')
+        return
+
+    music_files = [File(path=m['path'], folder=m['folder']) for m in musics]
 
     files = list(all_files(destination))
     logger.info(f"Files : {len(files)}")
     if not files:
-        logger.warning("No files found in destination")
+        logger.warning("no files found in destination")
 
     destinations = {f[len(destination) + 1:]: f for f in files}
+
     logger.info(f"Destinations : {len(destinations)}")
-    sources = {m['path'][len(m['folder']) + 1:]: m['path'] for m in musics}
+    if flat:
+        sources = {m.flat_filename: m.path for m in music_files}
+    else:
+        sources = {m.filename: m.path for m in music_files}
+
     logger.info(f"Sources : {len(sources)}")
     to_delete = set(destinations.keys()) - set(sources.keys())
-    with enlighten.Manager(stream=sys.stderr) as manager:
-        logger.info(f"To delete: {len(to_delete)}")
-        enabled = to_delete and not config.quiet
-        with manager.counter(total=len(to_delete), enabled=enabled) as pbar:
+    if delete and (yes or click.confirm(f'Do you really want to delete {len(to_delete)} files and playlists ?')):
+        with config.progressbar(max_value=len(to_delete)) as pbar:
             for d in to_delete:
                 try:
                     pbar.desc = f"Deleting musics and playlists: {os.path.basename(destinations[d])}"
                     if dry:
-                        logger.info(f"[DRY-RUN] False Deleting {destinations[d]}")
+                        logger.info(f"[DRY-RUN] Deleting {destinations[d]}")
                         continue
                     try:
                         logger.info(f"Deleting {destinations[d]}")
@@ -165,31 +174,32 @@ def sync(user, dry, destination, music_filter):
                     except OSError as e:
                         logger.error(e)
                 finally:
+                    pbar.value += 1
                     pbar.update()
 
-        to_copy = set(sources.keys()) - set(destinations.keys())
+    to_copy = set(sources.keys()) - set(destinations.keys())
+    with config.progressbar(max_value=len(to_copy)) as pbar:
         logger.info(f"To copy: {len(to_copy)}")
-        enabled = to_copy and not config.quiet
-        with manager.counter(total=len(to_copy), enabled=enabled) as pbar:
-            for c in sorted(to_copy):
-                final_destination = os.path.join(destination, c)
+        for c in sorted(to_copy):
+            final_destination = os.path.join(destination, c)
+            try:
+                pbar.desc = f'Copying {os.path.basename(sources[c])} to {destination}'
+                if dry:
+                    logger.info(f"[DRY-RUN] Copying {sources[c]} to {final_destination}")
+                    continue
+                logger.info(f"Copying {sources[c]} to {final_destination}")
+                os.makedirs(os.path.dirname(final_destination), exist_ok=True)
+                shutil.copyfile(sources[c], final_destination)
+            except KeyboardInterrupt:
+                logger.debug(f"Cleanup {final_destination}")
                 try:
-                    pbar.desc = f'Copying {os.path.basename(sources[c])} to {destination}'
-                    if dry:
-                        logger.info(f"[DRY-RUN] False Copying {sources[c]} to {final_destination}")
-                        continue
-                    logger.info(f"Copying {sources[c]} to {final_destination}")
-                    os.makedirs(os.path.dirname(final_destination), exist_ok=True)
-                    shutil.copyfile(sources[c], final_destination)
-                except KeyboardInterrupt:
-                    logger.debug(f"Cleanup {final_destination}")
-                    try:
-                        os.remove(final_destination)
-                    except OSError:
-                        pass
-                    raise
-                finally:
-                    pbar.update()
+                    os.remove(final_destination)
+                except OSError:
+                    pass
+                raise
+            finally:
+                pbar.value += 1
+                pbar.update()
 
     for d in empty_dirs(destination):
         if any(e in d for e in except_directories):
@@ -250,25 +260,23 @@ def bests(user, dry, folder, prefix, suffix, music_filter):
         if not prefix.endswith('/'):
             prefix += '/'
     playlists = user.bests(music_filter)
-    enabled = playlists and not config.quiet
-    with enlighten.Manager(stream=sys.stderr, enabled=enabled) as manager:
-        with manager.counter(total=len(playlists)) as pbar:
-            for p in playlists:
+    with config.progressbar(max_value=len(playlists)) as pbar:
+        for p in playlists:
+            try:
+                playlist_filepath = os.path.join(folder, p['name'] + suffix + '.m3u')
+                content = textwrap.indent(p['content'], prefix, lambda line: line != '#EXTM3U\n')
+                if dry:
+                    logger.info(f'DRY RUN: Writing playlist to {playlist_filepath} with content:\n{content}')
+                    continue
                 try:
-                    playlist_filepath = os.path.join(folder, p['name'] + suffix + '.m3u')
-                    pbar.desc = f"Best playlist {prefix} {suffix}: {os.path.basename(playlist_filepath)}"
-                    content = textwrap.indent(p['content'], prefix, lambda line: line != '#EXTM3U\n')
-                    if dry:
-                        logger.info(f'DRY RUN: Writing playlist to {playlist_filepath} with content:\n{content}')
-                        continue
-                    try:
-                        with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:
-                            logger.debug(f'Writing playlist to {playlist_filepath} with content:\n{content}')
-                            playlist_file.write(content)
-                    except (OSError, LookupError, ValueError, UnicodeError) as e:
-                        logger.warning(f'Unable to write playlist to {playlist_filepath} because of {e}')
-                finally:
-                    pbar.update()
+                    with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:
+                        logger.debug(f'Writing playlist to {playlist_filepath} with content:\n{content}')
+                        playlist_file.write(content)
+                except (OSError, LookupError, ValueError, UnicodeError) as e:
+                    logger.warning(f'Unable to write playlist to {playlist_filepath} because of {e}')
+            finally:
+                pbar.value += 1
+                pbar.update()
 
 
 @cli.command(aliases=['play'], help='Music player')

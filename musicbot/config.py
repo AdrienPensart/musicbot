@@ -1,18 +1,23 @@
 import logging
+import atexit
 import os
 import time
 import inspect
 import functools
 import configparser
+from concurrent.futures import thread
 from os import PathLike
 from typing import Union, Optional, Any
 import attr
 import click
+import progressbar  # type: ignore
 import colorlog  # type: ignore
 from click_skeleton.helpers import str2bool, seconds_to_human
 from musicbot import defaults
 
 logger = logging.getLogger(__name__)
+
+progressbar.streams.wrap_stderr()
 
 
 @attr.s(auto_attribs=True)
@@ -29,9 +34,16 @@ class Config:
     verbosity: str = defaults.DEFAULT_VERBOSITY
     config: str = defaults.DEFAULT_CONFIG
     level: int = defaults.VERBOSITIES[defaults.DEFAULT_VERBOSITY]
+    interrupted: bool = False
 
     def __attrs_post_init__(self) -> None:
         self.check_version = str2bool(os.getenv(defaults.MB_CHECK_VERSION, 'true'))
+
+    @property
+    def progressbar(self):
+        if self.quiet:
+            return progressbar.NullBar
+        return progressbar.ProgressBar
 
     def set(
         self,
@@ -168,3 +180,12 @@ class Config:
 
 
 config = Config()
+
+
+def interrupt_threads():
+    config.interrupted = True
+    thread._python_exit()  # type: ignore
+
+
+atexit.unregister(thread._python_exit)  # type: ignore
+atexit.register(interrupt_threads)

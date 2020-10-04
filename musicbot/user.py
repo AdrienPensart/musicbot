@@ -3,9 +3,7 @@ import time
 import base64
 import json
 import functools
-import sys
 from typing import Any, Collection, Optional
-import enlighten  # type: ignore
 import attr
 from watchdog.observers import Observer  # type: ignore
 from musicbot.graphql import GraphQL
@@ -211,11 +209,13 @@ class User:
             logger.info("no musics to insert")
             return None
         if config.debug:
-            with enlighten.Manager(stream=sys.stderr) as manager:
-                with manager.counter(total=len(musics), desc="inserting music one by one") as pbar:
-                    for music in musics:
+            with config.progressbar(max_value=len(musics), redirect_stdout=True) as pbar:
+                for music in musics:
+                    try:
                         logger.debug(f"inserting {music}")
                         self.upsert_music(music)
+                    finally:
+                        pbar.value += 1
                         pbar.update()
             return None
 

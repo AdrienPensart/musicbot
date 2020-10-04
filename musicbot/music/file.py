@@ -10,7 +10,8 @@ from slugify import slugify  # type: ignore
 from pydub import AudioSegment  # type: ignore
 from click_option_group import optgroup  # type: ignore
 from click_skeleton.helpers import mysplit
-from .helpers import ensure
+from musicbot import defaults
+from musicbot.music.helpers import ensure
 
 
 logger = logging.getLogger(__name__)
@@ -30,6 +31,13 @@ REPLACEMENTS = [['praxis', 'buckethead'], ['lawson-rollins', 'buckethead']]
 keywords_argument = click.argument(
     'keywords',
     nargs=-1,
+)
+
+flat_option = click.option(
+    '--flat',
+    help="Do not create subfolders",
+    is_flag=True,
+    default=defaults.DEFAULT_MB_FLAT,
 )
 
 options = [
@@ -117,10 +125,10 @@ class File:
         if self.extension == '.mp3' and self._description and not self._comment:
             self.inconsistencies.append('invalid-comment')
         if self.number not in (-1, 0) and self.title != self.canonic_title:
-            logger.info(f"invalid-title, '{self.title}' should be '{self.canonic_title}'")
+            logger.debug(f"invalid-title, '{self.title}' should be '{self.canonic_title}'")
             self.inconsistencies.append("invalid-title")
         if self.number not in (-1, 0) and not self.path.endswith(self.canonic_path):
-            logger.info(f"invalid-path, '{self.path}' should be '{self.canonic_path}'")
+            logger.debug(f"invalid-path, '{self.path}' should be '{self.canonic_path}'")
             self.inconsistencies.append("invalid-path")
 
     def __repr__(self) -> str:
@@ -144,20 +152,37 @@ class File:
             return False
 
         if flat:
-            mp3_path = os.path.join(folder, f'{self.artist} - {self.album} - {self.canonic_title}.mp3')
+            mp3_path = os.path.join(folder, f'{self.flat_title}.mp3')
         else:
             mp3_path = os.path.join(folder, self.artist, self.album, self.canonic_title + '.mp3')
 
         if os.path.exists(mp3_path):
-            logger.info(f"{mp3_path} already exists, not overwriting")
+            logger.info(f"{mp3_path} already exists, overwriting only tags")
+            f = File(mp3_path)
+            f.number = self.number
+            f.album = self.album
+            f.title = self.title
+            f.artist = self.artist
+            f.save(dry=dry)
             return False
         logger.debug(f"{self} convert destination : {mp3_path}")
         if not dry:
             ensure(mp3_path)
             try:
                 flac_audio = AudioSegment.from_file(self.path, "flac")
-                flac_audio.export(mp3_path, format="mp3")
-            except KeyboardInterrupt:
+                mp3_file = flac_audio.export(
+                    mp3_path,
+                    format="mp3",
+                    bitrate="256k",
+                )
+                mp3_file.close()
+                f = File(mp3_path)
+                f.number = self.number
+                f.album = self.album
+                f.title = self.title
+                f.artist = self.artist
+                f.save()
+            except Exception:
                 os.remove(mp3_path)
                 raise
         return True
@@ -204,6 +229,14 @@ class File:
     @property
     def canonic_filename(self) -> str:
         return f"{self.canonic_title}{self.extension}"
+
+    @property
+    def flat_title(self) -> str:
+        return f'{self.artist} - {self.album} - {self.canonic_title}'
+
+    @property
+    def flat_filename(self) -> str:
+        return f'{self.artist} - {self.album} - {self.canonic_title}{self.extension}'
 
     @property
     def slug(self) -> str:
@@ -374,8 +407,6 @@ class File:
                 tags.append(k)
         if set(self.keywords) != set(tags):
             self.keywords = tags
-            print(self.keywords)
-            print(tags)
             logger.info(f'{self} : new keywords {self.keywords}')
             return self.save(dry)
         return False

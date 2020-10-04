@@ -8,6 +8,7 @@ DEFAULT_YES: Final[bool] = False
 DEFAULT_SAVE: Final[bool] = False
 DEFAULT_MB_OUTPUT: Final[str] = 'table'
 DEFAULT_MB_PLAYLIST_OUTPUT: Final[str] = 'table'
+DEFAULT_MB_FLAT: Final[bool] = False
 
 DEFAULT_CHECK_VERSION: Final[bool] = False
 DEFAULT_CONFIG: Final[str] = '~/musicbot.ini'
