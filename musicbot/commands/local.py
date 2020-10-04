@@ -3,6 +3,7 @@ import io
 import sys
 import shutil
 import os
+import itertools
 import codecs
 import json
 import datetime
@@ -13,6 +14,7 @@ import attr
 import mutagen  # type: ignore
 from prettytable import PrettyTable  # type: ignore
 from click_skeleton import AdvancedGroup, add_options
+from click_skeleton.helpers import PrettyDefaultDict
 
 from musicbot import helpers, user_options
 from musicbot.player import play
@@ -198,6 +200,7 @@ def sync(user, dry, destination, music_filter):
 
 
 @cli.command(help='Generate a new playlist')
+@click.option('--interleave', help='Interleave tracks by artist', is_flag=True)
 @add_options(
     helpers.dry_option,
     helpers.playlist_output_option,
@@ -205,15 +208,23 @@ def sync(user, dry, destination, music_filter):
     music_filter_options.options,
 )
 @click.argument('path', type=click.File('w'), default='-')
-def playlist(user, output, path, dry, music_filter):
+def playlist(user, output, path, dry, music_filter, interleave):
+    tracks = user.do_filter(music_filter)
+
+    if interleave:
+        tracks_by_artist = PrettyDefaultDict(list)
+        for track in tracks:
+            tracks_by_artist[track['artist']].append(track)
+        tracks = [track for track in itertools.chain(*itertools.zip_longest(*tracks_by_artist.values())) if track is not None]
+
+    # for artist, tracks in tracks_by_artist.items():
+    #     print(f"{artist} : {len(tracks)}")
     if output == 'm3u':
-        p = user.playlist(music_filter)
+        p = '#EXTM3U\n'
+        p += '\n'.join([track['path'] for track in tracks])
         if not dry:
             print(p, file=path)
-        else:
-            logger.info(f'DRY RUN: Writing playlist to {path} with content:\n{p}')
     elif output == 'json':
-        tracks = user.do_filter(music_filter)
         print(json.dumps(tracks), file=path)
     elif output == 'table':
         tracks = user.do_filter(music_filter)
