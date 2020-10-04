@@ -1,5 +1,6 @@
 import logging
 import io
+import random
 import sys
 import shutil
 import os
@@ -215,10 +216,14 @@ def playlist(user, output, path, dry, music_filter, interleave):
         tracks_by_artist = PrettyDefaultDict(list)
         for track in tracks:
             tracks_by_artist[track['artist']].append(track)
-        tracks = [track for track in itertools.chain(*itertools.zip_longest(*tracks_by_artist.values())) if track is not None]
+        tracks = [
+            track
+            for track in itertools.chain(*itertools.zip_longest(*tracks_by_artist.values()))
+            if track is not None
+        ]
+        if music_filter.shuffle:
+            random.shuffle(tracks)
 
-    # for artist, tracks in tracks_by_artist.items():
-    #     print(f"{artist} : {len(tracks)}")
     if output == 'm3u':
         p = '#EXTM3U\n'
         p += '\n'.join([track['path'] for track in tracks])
@@ -227,7 +232,6 @@ def playlist(user, output, path, dry, music_filter, interleave):
     elif output == 'json':
         print(json.dumps(tracks), file=path)
     elif output == 'table':
-        tracks = user.do_filter(music_filter)
         print_playlist(tracks, path)
 
 
