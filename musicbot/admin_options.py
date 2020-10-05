@@ -26,7 +26,7 @@ graphql_admin_password_option = optgroup.option(
     callback=config_string,
 )
 
-admin_options = [
+options = [
     optgroup.group('Admin options'),
     graphql_admin_option,
     optgroup.group('Basic auth', cls=AllOptionGroup),

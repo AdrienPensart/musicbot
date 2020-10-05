@@ -950,14 +950,14 @@ musicbot spotify cached-token
 
   Options:
     Spotify options: 
-      --username TEXT       Spotify username
-      --client-id TEXT      Spotify client ID
-      --client-secret TEXT  Spotify client secret
-      --token TEXT          Spotify token
-      --cache-path FILE     Spotify cache path
-      --scope TEXT          Spotify OAuth scope
-      --redirect-uri TEXT   Spotify redirect URI
-    -h, --help              Show this message and exit.
+      --spotify-username TEXT       Spotify username
+      --spotify-client-id TEXT      Spotify client ID
+      --spotify-client-secret TEXT  Spotify client secret
+      --spotify-token TEXT          Spotify token
+      --spotify-cache-path FILE     Spotify cache path
+      --spotify-scope TEXT          Spotify OAuth scopes, comma separated
+      --spotify-redirect-uri TEXT   Spotify redirect URI
+    -h, --help                      Show this message and exit.
 
 
 musicbot spotify diff
@@ -970,49 +970,49 @@ musicbot spotify diff
 
   Options:
     Auth options: 
-      --graphql TEXT             GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT           User token
-      -e, --email TEXT           User email
-      -p, --password TEXT        User password
+      --graphql TEXT                GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT              User token
+      -e, --email TEXT              User email
+      -p, --password TEXT           User password
     Spotify options: 
-      --username TEXT            Spotify username
-      --client-id TEXT           Spotify client ID
-      --client-secret TEXT       Spotify client secret
-      --token TEXT               Spotify token
-      --cache-path FILE          Spotify cache path
-      --scope TEXT               Spotify OAuth scope
-      --redirect-uri TEXT        Spotify redirect URI
+      --spotify-username TEXT       Spotify username
+      --spotify-client-id TEXT      Spotify client ID
+      --spotify-client-secret TEXT  Spotify client secret
+      --spotify-token TEXT          Spotify token
+      --spotify-cache-path FILE     Spotify cache path
+      --spotify-scope TEXT          Spotify OAuth scopes, comma separated
+      --spotify-redirect-uri TEXT   Spotify redirect URI
     Filter options: 
-      --name TEXT                Filter name
-      --limit INTEGER            Fetch a maximum limit of music
-      --youtubes TEXT            Select musics with a youtube link
-      --no-youtubes TEXT         Select musics without youtube link
-      --spotifys TEXT            Select musics with a spotifys link
-      --no-spotifys TEXT         Select musics without spotifys link
-      --formats TEXT             Select musics with file format
-      --no-formats TEXT          Filter musics without format
-      --keywords TEXT            Select musics with keywords
-      --no-keywords TEXT         Filter musics without keywords
-      --artists TEXT             Select musics with artists
-      --no-artists TEXT          Filter musics without artists
-      --albums TEXT              Select musics with albums
-      --no-albums TEXT           Filter musics without albums
-      --titles TEXT              Select musics with titles
-      --no-titles TEXT           Filter musics without titless
-      --genres TEXT              Select musics with genres
-      --no-genres TEXT           Filter musics without genres
-      --min-duration INTEGER     Minimum duration filter (hours:minutes:seconds)
-      --max-duration INTEGER     Maximum duration filter (hours:minutes:seconds))
-      --min-size INTEGER         Minimum file size filter (in bytes)
-      --max-size INTEGER         Maximum file size filter (in bytes)
-      --min-rating FLOAT         Minimum rating  [default: 0.0]
-      --max-rating FLOAT         Maximum rating  [default: 5.0]
-      --relative                 Generate relatives paths
-      --shuffle                  Randomize selection
-    --output [table|json]        Output format  [default: table]
-    --min-threshold FLOAT RANGE  Minimum distance threshold
-    --max-threshold FLOAT RANGE  Maximum distance threshold
-    -h, --help                   Show this message and exit.
+      --name TEXT                   Filter name
+      --limit INTEGER               Fetch a maximum limit of music
+      --youtubes TEXT               Select musics with a youtube link
+      --no-youtubes TEXT            Select musics without youtube link
+      --spotifys TEXT               Select musics with a spotifys link
+      --no-spotifys TEXT            Select musics without spotifys link
+      --formats TEXT                Select musics with file format
+      --no-formats TEXT             Filter musics without format
+      --keywords TEXT               Select musics with keywords
+      --no-keywords TEXT            Filter musics without keywords
+      --artists TEXT                Select musics with artists
+      --no-artists TEXT             Filter musics without artists
+      --albums TEXT                 Select musics with albums
+      --no-albums TEXT              Filter musics without albums
+      --titles TEXT                 Select musics with titles
+      --no-titles TEXT              Filter musics without titless
+      --genres TEXT                 Select musics with genres
+      --no-genres TEXT              Filter musics without genres
+      --min-duration INTEGER        Minimum duration filter (hours:minutes:seconds)
+      --max-duration INTEGER        Maximum duration filter (hours:minutes:seconds))
+      --min-size INTEGER            Minimum file size filter (in bytes)
+      --max-size INTEGER            Maximum file size filter (in bytes)
+      --min-rating FLOAT            Minimum rating  [default: 0.0]
+      --max-rating FLOAT            Maximum rating  [default: 5.0]
+      --relative                    Generate relatives paths
+      --shuffle                     Randomize selection
+    --output [table|json]           Output format  [default: table]
+    --min-threshold FLOAT RANGE     Minimum distance threshold
+    --max-threshold FLOAT RANGE     Maximum distance threshold
+    -h, --help                      Show this message and exit.
 
 
 musicbot spotify playlist
@@ -1025,15 +1025,15 @@ musicbot spotify playlist
 
   Options:
     Spotify options: 
-      --username TEXT       Spotify username
-      --client-id TEXT      Spotify client ID
-      --client-secret TEXT  Spotify client secret
-      --token TEXT          Spotify token
-      --cache-path FILE     Spotify cache path
-      --scope TEXT          Spotify OAuth scope
-      --redirect-uri TEXT   Spotify redirect URI
-    --output [table|json]   Output format  [default: table]
-    -h, --help              Show this message and exit.
+      --spotify-username TEXT       Spotify username
+      --spotify-client-id TEXT      Spotify client ID
+      --spotify-client-secret TEXT  Spotify client secret
+      --spotify-token TEXT          Spotify token
+      --spotify-cache-path FILE     Spotify cache path
+      --spotify-scope TEXT          Spotify OAuth scopes, comma separated
+      --spotify-redirect-uri TEXT   Spotify redirect URI
+    --output [table|json]           Output format  [default: table]
+    -h, --help                      Show this message and exit.
 
 
 musicbot spotify playlists
@@ -1046,14 +1046,14 @@ musicbot spotify playlists
 
   Options:
     Spotify options: 
-      --username TEXT       Spotify username
-      --client-id TEXT      Spotify client ID
-      --client-secret TEXT  Spotify client secret
-      --token TEXT          Spotify token
-      --cache-path FILE     Spotify cache path
-      --scope TEXT          Spotify OAuth scope
-      --redirect-uri TEXT   Spotify redirect URI
-    -h, --help              Show this message and exit.
+      --spotify-username TEXT       Spotify username
+      --spotify-client-id TEXT      Spotify client ID
+      --spotify-client-secret TEXT  Spotify client secret
+      --spotify-token TEXT          Spotify token
+      --spotify-cache-path FILE     Spotify cache path
+      --spotify-scope TEXT          Spotify OAuth scopes, comma separated
+      --spotify-redirect-uri TEXT   Spotify redirect URI
+    -h, --help                      Show this message and exit.
 
 
 musicbot spotify refresh-token
@@ -1066,14 +1066,14 @@ musicbot spotify refresh-token
 
   Options:
     Spotify options: 
-      --username TEXT       Spotify username
-      --client-id TEXT      Spotify client ID
-      --client-secret TEXT  Spotify client secret
-      --token TEXT          Spotify token
-      --cache-path FILE     Spotify cache path
-      --scope TEXT          Spotify OAuth scope
-      --redirect-uri TEXT   Spotify redirect URI
-    -h, --help              Show this message and exit.
+      --spotify-username TEXT       Spotify username
+      --spotify-client-id TEXT      Spotify client ID
+      --spotify-client-secret TEXT  Spotify client secret
+      --spotify-token TEXT          Spotify token
+      --spotify-cache-path FILE     Spotify cache path
+      --spotify-scope TEXT          Spotify OAuth scopes, comma separated
+      --spotify-redirect-uri TEXT   Spotify redirect URI
+    -h, --help                      Show this message and exit.
 
 
 musicbot spotify tracks
@@ -1086,15 +1086,15 @@ musicbot spotify tracks
 
   Options:
     Spotify options: 
-      --username TEXT       Spotify username
-      --client-id TEXT      Spotify client ID
-      --client-secret TEXT  Spotify client secret
-      --token TEXT          Spotify token
-      --cache-path FILE     Spotify cache path
-      --scope TEXT          Spotify OAuth scope
-      --redirect-uri TEXT   Spotify redirect URI
-    --output [table|json]   Output format  [default: table]
-    -h, --help              Show this message and exit.
+      --spotify-username TEXT       Spotify username
+      --spotify-client-id TEXT      Spotify client ID
+      --spotify-client-secret TEXT  Spotify client secret
+      --spotify-token TEXT          Spotify token
+      --spotify-cache-path FILE     Spotify cache path
+      --spotify-scope TEXT          Spotify OAuth scopes, comma separated
+      --spotify-redirect-uri TEXT   Spotify redirect URI
+    --output [table|json]           Output format  [default: table]
+    -h, --help                      Show this message and exit.
 
 
 musicbot user

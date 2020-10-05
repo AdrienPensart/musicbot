@@ -16,10 +16,11 @@ from click_skeleton import AdvancedGroup, add_options
 from click_skeleton.helpers import PrettyDefaultDict
 
 from musicbot import helpers, user_options
+from musicbot.music import music_filter_options
+
 from musicbot.player import play
 from musicbot.playlist import print_playlist
 from musicbot.config import config
-from musicbot.music import music_filter_options
 from musicbot.music.file import File, flat_option, checks_options, folder_argument
 from musicbot.music.helpers import bytes_to_human, all_files, empty_dirs, except_directories
 
@@ -33,14 +34,18 @@ def cli() -> None:
 
 
 @cli.command(help='Count musics')
-@add_options(user_options.auth_options)
+@add_options(
+    user_options.options,
+)
 def count(user):
     print(user.count_musics())
 
 
 @cli.command(help='Raw query', aliases=['query', 'fetch'])
 @click.argument('query')
-@add_options(user_options.auth_options)
+@add_options(
+    user_options.options,
+)
 def execute(user, query):
     print(json.dumps(user.fetch(query)))
 
@@ -48,7 +53,7 @@ def execute(user, query):
 @cli.command(aliases=['stat'], help='Generate some stats for music collection with filters')
 @add_options(
     helpers.output_option,
-    user_options.auth_options,
+    user_options.options,
     music_filter_options.options,
 )
 def stats(user, output, music_filter):
@@ -71,7 +76,7 @@ def stats(user, output, music_filter):
 @cli.command(help='List folders')
 @add_options(
     helpers.output_option,
-    user_options.auth_options,
+    user_options.options,
 )
 def folders(user, output):
     _folders = user.folders()
@@ -88,7 +93,7 @@ def folders(user, output):
 @cli.command(help='Load musics')
 @add_options(
     helpers.folders_argument,
-    user_options.auth_options,
+    user_options.options,
 )
 def scan(user, folders):
     if not folders:
@@ -98,14 +103,16 @@ def scan(user, folders):
 
 
 @cli.command(help='Watch files changes in folders')
-@add_options(user_options.auth_options)
+@add_options(
+    user_options.options,
+)
 def watch(user):
     user.watch()
 
 
 @cli.command(help='Clean all musics')
 @add_options(
-    user_options.auth_options,
+    user_options.options,
     helpers.yes_option,
 )
 def clean(user, yes):
@@ -116,7 +123,7 @@ def clean(user, yes):
 @cli.command(help='Clean and load musics')
 @add_options(
     helpers.folders_argument,
-    user_options.auth_options,
+    user_options.options,
 )
 def rescan(user, folders):
     if not folders:
@@ -130,7 +137,7 @@ def rescan(user, folders):
 @add_options(
     helpers.dry_option,
     helpers.yes_option,
-    user_options.auth_options,
+    user_options.options,
     music_filter_options.options,
     flat_option,
 )
@@ -215,7 +222,7 @@ def sync(user, delete, yes, dry, destination, music_filter, flat):
 @add_options(
     helpers.dry_option,
     helpers.playlist_output_option,
-    user_options.auth_options,
+    user_options.options,
     music_filter_options.options,
 )
 @click.argument('path', type=click.File('w'), default='-')
@@ -251,7 +258,7 @@ def playlist(user, output, path, dry, music_filter, interleave):
 @add_options(
     folder_argument,
     helpers.dry_option,
-    user_options.auth_options,
+    user_options.options,
     music_filter_options.options,
 )
 def bests(user, dry, folder, prefix, suffix, music_filter):
@@ -281,7 +288,7 @@ def bests(user, dry, folder, prefix, suffix, music_filter):
 
 @cli.command(aliases=['play'], help='Music player')
 @add_options(
-    user_options.auth_options,
+    user_options.options,
     music_filter_options.options,
 )
 def player(user, music_filter):
@@ -296,7 +303,7 @@ def player(user, music_filter):
 @add_options(
     checks_options,
     helpers.dry_option,
-    user_options.auth_options,
+    user_options.options,
     music_filter_options.options,
 )
 def inconsistencies(user, dry, fix, checks, music_filter):

@@ -53,9 +53,13 @@ DEFAULT_GRAPHQL_ADMIN: Final[str] = 'http://127.0.0.1:5001/graphql'
 DEFAULT_GRAPHQL_ADMIN_USER: Final[Optional[str]] = None
 DEFAULT_GRAPHQL_ADMIN_PASSWORD: Final[Optional[str]] = None
 
-DEFAULT_CACHE_PATH: Final[str] = '~/.spotify_cache'
-DEFAULT_SCOPES: Final[str] = 'user-library-read,user-follow-read,user-top-read,playlist-read-private,user-modify-playback-state,user-read-currently-playing,user-read-playback-state'
-DEFAULT_REDIRECT_URI: Final[str] = 'http://localhost:8888/spotify/callback'
+DEFAULT_SPOTIFY_USERNAME: Final[Optional[str]] = None
+DEFAULT_SPOTIFY_CLIENT_ID: Final[Optional[str]] = None
+DEFAULT_SPOTIFY_CLIENT_SECRET: Final[Optional[str]] = None
+DEFAULT_SPOTIFY_TOKEN: Final[Optional[str]] = None
+DEFAULT_SPOTIFY_CACHE_PATH: Final[str] = '~/.spotify_cache'
+DEFAULT_SPOTIFY_SCOPE: Final[str] = 'user-library-read,user-follow-read,user-top-read,playlist-read-private,user-modify-playback-state,user-read-currently-playing,user-read-playback-state'
+DEFAULT_SPOTIFY_REDIRECT_URI: Final[str] = 'http://localhost:8888/spotify/callback'
 
 DEFAULT_ACOUSTID_API_KEY: Final[Optional[str]] = None
 

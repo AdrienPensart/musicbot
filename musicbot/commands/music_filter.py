@@ -14,13 +14,17 @@ def cli():
 
 
 @cli.command(help='Load default filters')
-@add_options(user_options.auth_options)
+@add_options(
+    user_options.options,
+)
 def load(user):
     user.load_default_filters()
 
 
 @cli.command(help='Count filters')
-@add_options(user_options.auth_options)
+@add_options(
+    user_options.options,
+)
 def count(user):
     print(user.count_filters())
 
@@ -28,7 +32,7 @@ def count(user):
 @cli.command('list', help='List filters')
 @add_options(
     helpers.output_option,
-    user_options.auth_options,
+    user_options.options,
 )
 def _list(user, output):
     if output == 'json':
@@ -44,7 +48,7 @@ def _list(user, output):
 @cli.command(help='Print a filter', aliases=['get', 'print'])
 @add_options(
     helpers.output_option,
-    user_options.auth_options,
+    user_options.options,
 )
 @click.argument('name')
 def show(user, name, output):
@@ -57,7 +61,7 @@ def show(user, name, output):
 
 @cli.command(help='Delete a filter', aliases=['remove'])
 @add_options(
-    user_options.auth_options,
+    user_options.options,
 )
 @click.argument('name')
 def delete(user, name):

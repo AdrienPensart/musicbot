@@ -71,23 +71,7 @@ graphql_option = optgroup.option(
     show_default=True,
 )
 
-register_options = [
-    optgroup.group('Register options'),
-    graphql_option,
-    email_option,
-    password_option,
-    first_name_option,
-    last_name_option,
-]
-
-login_options = [
-    optgroup.group('Login options'),
-    graphql_option,
-    email_option,
-    password_option,
-]
-
-auth_options = [
+options = [
     optgroup.group('Auth options'),
     graphql_option,
     token_option,

@@ -209,7 +209,7 @@ class User:
             logger.info("no musics to insert")
             return None
         if config.debug:
-            with config.progressbar(max_value=len(musics), redirect_stdout=True) as pbar:
+            with config.progressbar(max_value=len(musics)) as pbar:
                 for music in musics:
                     try:
                         logger.debug(f"inserting {music}")

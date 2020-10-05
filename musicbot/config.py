@@ -18,7 +18,8 @@ from musicbot import defaults
 
 logger = logging.getLogger(__name__)
 
-# progressbar.streams.wrap_stderr()
+progressbar.streams.wrap_stderr()
+progressbar.streams.wrap_stdout()
 
 
 @attr.s(auto_attribs=True)
@@ -53,7 +54,7 @@ class Config:
 
         atexit.register(interrupt_threads)
         atexit.unregister(thread._python_exit)  # type: ignore
-        with self.progressbar(max_value=len(items), redirect_stdout=True, redirect_stderr=True) as pbar:
+        with self.progressbar(max_value=len(items)) as pbar:
             with cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
                 def worker_wrapper(item):
                     try:

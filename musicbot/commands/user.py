@@ -1,13 +1,12 @@
 import logging
 import json
 from prettytable import PrettyTable  # type: ignore
+from click_option_group import optgroup  # type: ignore
 from click_skeleton import AdvancedGroup, add_options
 import click
 
-from musicbot import helpers
+from musicbot import helpers, user_options, admin_options
 from musicbot.user import User
-from musicbot.user_options import register_options, auth_options, login_options
-from musicbot.admin_options import admin_options
 from musicbot.admin import Admin
 from musicbot.config import config
 
@@ -22,7 +21,7 @@ def cli():
 @cli.command('list', help='List users (admin)')
 @add_options(
     helpers.output_option,
-    admin_options,
+    admin_options.options,
 )
 def _list(graphql_admin, output, **kwargs):
     admin = Admin.from_auth(graphql=graphql_admin, **kwargs)
@@ -40,7 +39,12 @@ def _list(graphql_admin, output, **kwargs):
 @cli.command(aliases=['new', 'add', 'create'], help='Register a new user')
 @add_options(
     helpers.save_option,
-    register_options,
+    optgroup.group('Register options'),
+    user_options.graphql_option,
+    user_options.email_option,
+    user_options.password_option,
+    user_options.first_name_option,
+    user_options.last_name_option,
 )
 def register(save, email, password, **kwargs):
     user = User.register(email=email, password=password, **kwargs)
@@ -56,7 +60,7 @@ def register(save, email, password, **kwargs):
 
 
 @cli.command(aliases=['delete', 'remove'], help='Remove a user')
-@add_options(auth_options)
+@add_options(user_options.options)
 def unregister(user):
     user.unregister()
 
@@ -64,7 +68,10 @@ def unregister(user):
 @cli.command(aliases=['token'], help='Authenticate user')
 @add_options(
     helpers.save_option,
-    login_options,
+    optgroup.group('Login options'),
+    user_options.graphql_option,
+    user_options.email_option,
+    user_options.password_option,
 )
 def login(save, **kwargs):
     user = User.from_auth(**kwargs)

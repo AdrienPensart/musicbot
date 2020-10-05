@@ -11,10 +11,9 @@ from slugify import slugify  # type: ignore
 from colorama import Fore  # type: ignore
 from click_skeleton import AdvancedGroup, add_options
 
-from musicbot import helpers, spotify_options
+from musicbot import helpers, spotify_options, user_options
 from musicbot.music import music_filter_options
 from musicbot.music.file import STOPWORDS, REPLACEMENTS
-from musicbot.user_options import auth_options
 
 logger = logging.getLogger(__name__)
 
@@ -126,13 +125,15 @@ def tracks(spotify, output):
 
 @cli.command(help='Diff between local and spotify')
 @add_options(
-    auth_options,
+    user_options.options,
     spotify_options.options,
     music_filter_options.options,
     helpers.output_option,
 )
 @click.option('--min-threshold', help='Minimum distance threshold', type=click.FloatRange(0.0, 1.0), default=0.9)
 @click.option('--max-threshold', help='Maximum distance threshold', type=click.FloatRange(0.0, 1.0), default=1.0)
+# def diff(**kwargs):
+#     print(kwargs)
 def diff(user, music_filter, spotify, output, min_threshold, max_threshold):
     spotify_tracks = spotify.tracks()
     spotify_tracks_by_slug = {

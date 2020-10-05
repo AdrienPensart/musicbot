@@ -55,17 +55,18 @@ def tracks(folders, output):
     helpers.dry_option,
     flat_option,
 )
-def flac2mp3(folders, folder, concurrency, flat, dry):
+def flac2mp3(folders, **kwargs):
     flac_files = list(find_files(folders, ['flac']))
     if not flac_files:
         logger.warning(f"No flac files detected in {folders}")
         return
 
     def convert(flac_tuple):
+        flac_folder = flac_tuple[0]
+        flac_path = flac_tuple[1]
         try:
-            flac_path = flac_tuple[1]
-            f = File(flac_path)
-            f.to_mp3(folder=folder, dry=dry, flat=flat)
+            f = File(path=flac_path, folder=flac_folder)
+            f.to_mp3(**kwargs)
         except MusicbotError as e:
             logger.error(e)
         except Exception as e:  # pylint: disable=broad-except
