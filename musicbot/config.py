@@ -1,6 +1,7 @@
 import logging
 import atexit
 import os
+import concurrent.futures as cf
 import time
 import inspect
 import functools
@@ -17,7 +18,7 @@ from musicbot import defaults
 
 logger = logging.getLogger(__name__)
 
-progressbar.streams.wrap_stderr()
+# progressbar.streams.wrap_stderr()
 
 
 @attr.s(auto_attribs=True)
@@ -44,6 +45,39 @@ class Config:
         if self.quiet:
             return progressbar.NullBar
         return progressbar.ProgressBar
+
+    def parallel(self, worker, items, concurrency=defaults.DEFAULT_MB_CONCURRENCY):
+        def interrupt_threads():
+            config.interrupted = True
+            thread._python_exit()  # type: ignore
+
+        atexit.register(interrupt_threads)
+        atexit.unregister(thread._python_exit)  # type: ignore
+        with self.progressbar(max_value=len(items), redirect_stdout=True, redirect_stderr=True) as pbar:
+            with cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
+                def worker_wrapper(item):
+                    try:
+                        if self.interrupted:
+                            return
+                        worker(item)
+                    except KeyboardInterrupt as e:
+                        logger.warning(f'interrupted : {e}')
+                        config.interrupted = True
+                        raise
+                    finally:
+                        pbar.value += 1
+                        pbar.update()
+                try:
+                    executor.shutdown = lambda wait: None  # type: ignore
+                    futures = [executor.submit(worker_wrapper, item) for item in items]
+                    cf.wait(futures, return_when=cf.FIRST_EXCEPTION)
+                except Exception as e:
+                    logger.error(f"interrupted : {e}")
+                    self.interrupted = True
+                    raise
+
+        atexit.register(thread._python_exit)  # type: ignore
+        atexit.unregister(interrupt_threads)
 
     def set(
         self,
@@ -180,12 +214,3 @@ class Config:
 
 
 config = Config()
-
-
-def interrupt_threads():
-    config.interrupted = True
-    thread._python_exit()  # type: ignore
-
-
-atexit.unregister(thread._python_exit)  # type: ignore
-atexit.register(interrupt_threads)

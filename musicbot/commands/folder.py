@@ -1,6 +1,5 @@
 import logging
 import json
-import concurrent.futures as cf
 import click
 import mutagen  # type: ignore
 from prettytable import PrettyTable  # type: ignore
@@ -62,33 +61,17 @@ def flac2mp3(folders, folder, concurrency, flat, dry):
         logger.warning(f"No flac files detected in {folders}")
         return
 
-    with config.progressbar(max_value=len(flac_files)) as pbar:
-        with cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
-            def convert(flac_path):
-                if config.interrupted:
-                    return
-                try:
-                    f = File(flac_path)
-                    f.to_mp3(folder=folder, dry=dry, flat=flat)
-                except MusicbotError as e:
-                    logger.error(e)
-                except KeyboardInterrupt as e:
-                    logger.warning(f'interrupted : {e}')
-                    config.interrupted = True
-                    raise
-                except Exception as e:  # pylint: disable=broad-except
-                    logger.error(f"{flac_path} : unable to convert to mp3 : {e}")
-                finally:
-                    pbar.value += 1
-                    pbar.update()
-            try:
-                executor.shutdown = lambda wait: None  # type: ignore
-                futures = [executor.submit(convert, flac_path[1]) for flac_path in flac_files]
-                cf.wait(futures, return_when=cf.FIRST_EXCEPTION)
-            except Exception as e:
-                logger.error(f"interrupted : {e}")
-                config.interrupted = True
-                raise
+    def convert(flac_tuple):
+        try:
+            flac_path = flac_tuple[1]
+            f = File(flac_path)
+            f.to_mp3(folder=folder, dry=dry, flat=flat)
+        except MusicbotError as e:
+            logger.error(e)
+        except Exception as e:  # pylint: disable=broad-except
+            logger.error(f"{flac_path} : unable to convert to mp3 : {e}")
+
+    config.parallel(convert, flac_files)
 
 
 @cli.command(aliases=['consistency'], help='Check music files consistency')
