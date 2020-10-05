@@ -6,12 +6,12 @@ coverage-badge==1.*,>=1.0.0
 dephell==0.*,>=0.8.3
 flake8==3.*,>=3.8.3
 graphql-py==0.*,>=0.7.1
-humanize==2.*,>=2.6.0
+humanize==3.*,>=3.0.1
 jellyfish==0.*,>=0.8.2
 logging-tree==1.*,>=1.8.0
 mutagen==1.*,>=1.44.0
 mypy==0.*,>=0.782.0
-prettytable==0.*,>=0.7.2
+prettytable==1.*,>=1.0.0
 progressbar2==3.*,>=3.53.1
 prompt-toolkit==3.*,>=3.0.2
 pyacoustid==1.*,>=1.1.0
