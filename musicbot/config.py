@@ -145,10 +145,8 @@ class Config:
     def configfile(self) -> configparser.ConfigParser:
         file = configparser.ConfigParser()
         file.read(self.config)
-        valid_sections = ('musicbot', 'spotify')
-        for section in valid_sections:
-            if section not in file:
-                logger.warning(f'[{section}] section is not present in {self.config}')
+        if 'musicbot' not in file:
+            logger.warning(f'[musicbot] section is not present in {self.config}')
         return file
 
     def write(self) -> None:
