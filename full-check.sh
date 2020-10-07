@@ -15,9 +15,6 @@ poetry run dephell deps convert --from-format=poetry --from-path=pyproject.toml 
 echo "generating requirements-dev.txt"
 poetry run dephell deps convert --from-format=poetry --from-path=pyproject.toml --to-format=pip --to-path=requirements-dev.txt --envs main dev
 
-echo "setup.py generation..."
-git add setup.py pyproject.toml poetry.lock requirements.txt requirements-dev.txt
-
 echo "linting : pylint..."
 poetry run pylint musicbot tests doc
 
@@ -47,6 +44,5 @@ echo "doc generation..."
 poetry run doc/gen.py > README.rst
 echo "rst-linting pass 2..."
 poetry run rst-lint README.rst
-git add README.rst
 
 exit 0
