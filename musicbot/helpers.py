@@ -73,7 +73,6 @@ def config_string(ctx: click.Context, param: click.Parameter, value: Optional[st
 
 
 def config_list(ctx: click.Context, param: click.Parameter, value: Any) -> Any:
-    print(f'{param.name=} : {value=}')
     arg_value = value
     logger.info(f"{param.name} : try loading with arg value : {arg_value}")
 
