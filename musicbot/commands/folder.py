@@ -1,14 +1,18 @@
 import logging
 import json
+import random
+import itertools
 import click
 import mutagen  # type: ignore
 from prettytable import PrettyTable  # type: ignore
 from click_skeleton import AdvancedGroup, add_options
+from click_skeleton.helpers import PrettyDefaultDict
 
 from musicbot import helpers
 from musicbot.exceptions import MusicbotError
 from musicbot.config import config
-from musicbot.music.file import File, flat_option, folder_option, checks_options, supported_formats
+from musicbot.music import music_filter_options
+from musicbot.music.file import File, keywords_argument, flat_option, folder_option, checks_options, supported_formats
 from musicbot.music.helpers import find_files
 
 logger = logging.getLogger(__name__)
@@ -20,31 +24,65 @@ def cli():
 
 
 @cli.command(help='Just list music files')
-@add_options(helpers.folders_argument)
+@add_options(
+    helpers.folders_argument,
+)
 def find(folders):
     files = find_files(folders, supported_formats)
     for f in files:
         print(f[1])
 
 
-@cli.command(help='List tracks')
+@cli.command(help='Generate a playlist', aliases=['tracks'])
 @add_options(
     helpers.folders_argument,
     helpers.output_option,
+    music_filter_options.ordering_options,
 )
-def tracks(folders, output):
+def playlist(folders, output, shuffle, interleave):
     tracks = helpers.genfiles(folders)
+
+    if interleave:
+        tracks_by_artist = PrettyDefaultDict(list)
+        for track in tracks:
+            tracks_by_artist[track.artist].append(track)
+        tracks = [
+            track
+            for track in itertools.chain(*itertools.zip_longest(*tracks_by_artist.values()))
+            if track is not None
+        ]
+
+    if shuffle:
+        random.shuffle(tracks)
+
+    if output == 'm3u':
+        p = '#EXTM3U\n'
+        p += '\n'.join([track.path for track in tracks])
+        print(p)
+        return
+
     if output == 'json':
         tracks_dict = [{'title': t.title, 'artist': t.artist, 'album': t.album} for t in tracks]
         print(json.dumps(tracks_dict))
-    elif output == 'table':
+        return
+
+    if output == 'table':
         pt = PrettyTable()
         pt.field_names = ["Track", "Title", "Artist", "Album"]
         for t in tracks:
             pt.add_row([t.number, t.title, t.artist, t.album])
         print(pt)
-    else:
-        raise NotImplementedError
+
+
+@cli.command(help='Print music tags')
+@add_options(
+    helpers.folders_argument,
+)
+def tags(folders):
+    musics = helpers.genfiles(folders)
+    for music in musics:
+        logger.info(music.handle.tags.keys())
+        print(music.as_dict())
 
 
 @cli.command(help='Convert all files in folders to mp3')
@@ -81,16 +119,41 @@ def flac2mp3(folders, **kwargs):
     helpers.dry_option,
     checks_options,
 )
-def inconsistencies(folders, fix, **kwargs):
+def inconsistencies(folders, fix, checks, dry):
     musics = helpers.genfiles(folders)
     pt = PrettyTable()
     pt.field_names = ["Folder", "Path", "Inconsistencies"]
     for m in musics:
         try:
             if fix:
-                m.fix(**kwargs)
-            if m.inconsistencies:
+                m.fix(checks=checks, dry=dry)
+            if set(m.inconsistencies).intersection(set(checks)):
                 pt.add_row([m.folder, m.path, ', '.join(m.inconsistencies)])
         except (OSError, mutagen.MutagenError):
             pt.add_row([m.folder, m.path, "could not open file"])
+    pt.align["Path"] = "l"
     print(pt)
+
+
+@cli.command(help='Add keywords to music')
+@add_options(
+    helpers.dry_option,
+    helpers.folder_argument,
+    keywords_argument,
+)
+def add_keywords(folder, keywords, dry):
+    musics = helpers.genfiles([folder])
+    for music in musics:
+        music.add_keywords(keywords, dry)
+
+
+@cli.command(help='Delete keywords to music')
+@add_options(
+    helpers.dry_option,
+    helpers.folder_argument,
+    keywords_argument,
+)
+def delete_keywords(folder, keywords, dry):
+    musics = helpers.genfiles([folder])
+    for music in musics:
+        music.delete_keywords(keywords, dry)

@@ -24,6 +24,24 @@ def sane_music_filter(ctx: click.Context, param: click.ParamType, value: Any) ->
     return myfilter
 
 
+shuffle_option = optgroup.option(
+    '--shuffle',
+    help='Randomize selection',
+    default=defaults.DEFAULT_SHUFFLE,
+    is_flag=True,
+    is_eager=True,
+)
+interleave_option = optgroup.option(
+    '--interleave',
+    help='Interleave tracks by artist',
+    is_flag=True,
+)
+ordering_options = [
+    optgroup.group('Ordering options'),
+    shuffle_option,
+    interleave_option,
+]
+
 options = [
     optgroup.group('Filter options'),
     optgroup.option(
@@ -211,4 +229,6 @@ options = [
         is_flag=True,
         is_eager=True,
     ),
+    optgroup.group('Ordering options'),
+    shuffle_option,
 ]

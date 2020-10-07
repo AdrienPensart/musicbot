@@ -225,13 +225,13 @@ musicbot filter list
     List filters
 
   Options:
-    --output [table|json]  Output format  [default: table]
+    --output [json|table|m3u]  Output format  [default: table]
     Auth options: 
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT     User token
-      -e, --email TEXT     User email
-      -p, --password TEXT  User password
-    -h, --help             Show this message and exit.
+      --graphql TEXT           GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT         User token
+      -e, --email TEXT         User email
+      -p, --password TEXT      User password
+    -h, --help                 Show this message and exit.
 
 
 musicbot filter load
@@ -260,13 +260,13 @@ musicbot filter show
     Print a filter
 
   Options:
-    --output [table|json]  Output format  [default: table]
+    --output [json|table|m3u]  Output format  [default: table]
     Auth options: 
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT     User token
-      -e, --email TEXT     User email
-      -p, --password TEXT  User password
-    -h, --help             Show this message and exit.
+      --graphql TEXT           GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT         User token
+      -e, --email TEXT         User email
+      -p, --password TEXT      User password
+    -h, --help                 Show this message and exit.
 
 
 musicbot folder
@@ -281,11 +281,40 @@ musicbot folder
     -h, --help  Show this message and exit.
 
   Commands:
+    add-keywords                   Add keywords to music
+    delete-keywords                Delete keywords to music
     find                           Just list music files
     flac2mp3                       Convert all files in folders to mp3
     help                           Print help
     inconsistencies (consistency)  Check music files consistency
-    tracks                         List tracks
+    playlist (tracks)              Generate a playlist
+    tags                           Print music tags
+
+
+musicbot folder add-keywords
+****************************
+.. code-block::
+
+  Usage: musicbot folder add-keywords [OPTIONS] FOLDER [KEYWORDS]...
+
+    Add keywords to music
+
+  Options:
+    --dry       Take no real action  [default: False]
+    -h, --help  Show this message and exit.
+
+
+musicbot folder delete-keywords
+*******************************
+.. code-block::
+
+  Usage: musicbot folder delete-keywords [OPTIONS] FOLDER [KEYWORDS]...
+
+    Delete keywords to music
+
+  Options:
+    --dry       Take no real action  [default: False]
+    -h, --help  Show this message and exit.
 
 
 musicbot folder find
@@ -335,17 +364,32 @@ musicbot folder inconsistencies
     -h, --help                                          Show this message and exit.
 
 
-musicbot folder tracks
-**********************
+musicbot folder playlist
+************************
 .. code-block::
 
-  Usage: musicbot folder tracks [OPTIONS] [FOLDERS]...
+  Usage: musicbot folder playlist [OPTIONS] [FOLDERS]...
 
-    List tracks
+    Generate a playlist
 
   Options:
-    --output [table|json]  Output format  [default: table]
-    -h, --help             Show this message and exit.
+    --output [json|table|m3u]  Output format  [default: table]
+    Ordering options: 
+      --shuffle                Randomize selection
+      --interleave             Interleave tracks by artist
+    -h, --help                 Show this message and exit.
+
+
+musicbot folder tags
+********************
+.. code-block::
+
+  Usage: musicbot folder tags [OPTIONS] [FOLDERS]...
+
+    Print music tags
+
+  Options:
+    -h, --help  Show this message and exit.
 
 
 musicbot help
@@ -380,7 +424,7 @@ musicbot local
     help                           Print help
     inconsistencies (consistency)  Check music consistency
     player (play)                  Music player
-    playlist                       Generate a new playlist
+    playlist (tracks)              Generate a new playlist
     rescan                         Clean and load musics
     scan                           Load musics
     stats (stat)                   Generate some stats for music collection with filters
@@ -431,6 +475,8 @@ musicbot local bests
       --min-rating FLOAT      Minimum rating  [default: 0.0]
       --max-rating FLOAT      Maximum rating  [default: 5.0]
       --relative              Generate relatives paths
+      --shuffle               Randomize selection
+    Ordering options: 
       --shuffle               Randomize selection
     -h, --help                Show this message and exit.
 
@@ -496,13 +542,13 @@ musicbot local folders
     List folders
 
   Options:
-    --output [table|json]  Output format  [default: table]
+    --output [json|table|m3u]  Output format  [default: table]
     Auth options: 
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT     User token
-      -e, --email TEXT     User email
-      -p, --password TEXT  User password
-    -h, --help             Show this message and exit.
+      --graphql TEXT           GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT         User token
+      -e, --email TEXT         User email
+      -p, --password TEXT      User password
+    -h, --help                 Show this message and exit.
 
 
 musicbot local inconsistencies
@@ -553,6 +599,8 @@ musicbot local inconsistencies
       --max-rating FLOAT                                Maximum rating  [default: 5.0]
       --relative                                        Generate relatives paths
       --shuffle                                         Randomize selection
+    Ordering options: 
+      --shuffle                                         Randomize selection
     -h, --help                                          Show this message and exit.
 
 
@@ -597,6 +645,8 @@ musicbot local player
       --max-rating FLOAT      Maximum rating  [default: 5.0]
       --relative              Generate relatives paths
       --shuffle               Randomize selection
+    Ordering options: 
+      --shuffle               Randomize selection
     -h, --help                Show this message and exit.
 
 
@@ -604,14 +654,12 @@ musicbot local playlist
 ***********************
 .. code-block::
 
-  Usage: musicbot local playlist [OPTIONS] [PATH]
+  Usage: musicbot local playlist [OPTIONS]
 
     Generate a new playlist
 
   Options:
-    --interleave               Interleave tracks by artist
-    --dry                      Take no real action  [default: False]
-    --output [json|m3u|table]  Output format  [default: table]
+    --output [json|table|m3u]  Output format  [default: table]
     Auth options: 
       --graphql TEXT           GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT         User token
@@ -644,6 +692,9 @@ musicbot local playlist
       --max-rating FLOAT       Maximum rating  [default: 5.0]
       --relative               Generate relatives paths
       --shuffle                Randomize selection
+    Ordering options: 
+      --shuffle                Randomize selection
+      --interleave             Interleave tracks by artist
     -h, --help                 Show this message and exit.
 
 
@@ -690,40 +741,42 @@ musicbot local stats
     Generate some stats for music collection with filters
 
   Options:
-    --output [table|json]     Output format  [default: table]
+    --output [json|table|m3u]  Output format  [default: table]
     Auth options: 
-      --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT        User token
-      -e, --email TEXT        User email
-      -p, --password TEXT     User password
+      --graphql TEXT           GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT         User token
+      -e, --email TEXT         User email
+      -p, --password TEXT      User password
     Filter options: 
-      --name TEXT             Filter name
-      --limit INTEGER         Fetch a maximum limit of music
-      --youtubes TEXT         Select musics with a youtube link
-      --no-youtubes TEXT      Select musics without youtube link
-      --spotifys TEXT         Select musics with a spotifys link
-      --no-spotifys TEXT      Select musics without spotifys link
-      --formats TEXT          Select musics with file format
-      --no-formats TEXT       Filter musics without format
-      --keywords TEXT         Select musics with keywords
-      --no-keywords TEXT      Filter musics without keywords
-      --artists TEXT          Select musics with artists
-      --no-artists TEXT       Filter musics without artists
-      --albums TEXT           Select musics with albums
-      --no-albums TEXT        Filter musics without albums
-      --titles TEXT           Select musics with titles
-      --no-titles TEXT        Filter musics without titless
-      --genres TEXT           Select musics with genres
-      --no-genres TEXT        Filter musics without genres
-      --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
-      --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-      --min-size INTEGER      Minimum file size filter (in bytes)
-      --max-size INTEGER      Maximum file size filter (in bytes)
-      --min-rating FLOAT      Minimum rating  [default: 0.0]
-      --max-rating FLOAT      Maximum rating  [default: 5.0]
-      --relative              Generate relatives paths
-      --shuffle               Randomize selection
-    -h, --help                Show this message and exit.
+      --name TEXT              Filter name
+      --limit INTEGER          Fetch a maximum limit of music
+      --youtubes TEXT          Select musics with a youtube link
+      --no-youtubes TEXT       Select musics without youtube link
+      --spotifys TEXT          Select musics with a spotifys link
+      --no-spotifys TEXT       Select musics without spotifys link
+      --formats TEXT           Select musics with file format
+      --no-formats TEXT        Filter musics without format
+      --keywords TEXT          Select musics with keywords
+      --no-keywords TEXT       Filter musics without keywords
+      --artists TEXT           Select musics with artists
+      --no-artists TEXT        Filter musics without artists
+      --albums TEXT            Select musics with albums
+      --no-albums TEXT         Filter musics without albums
+      --titles TEXT            Select musics with titles
+      --no-titles TEXT         Filter musics without titless
+      --genres TEXT            Select musics with genres
+      --no-genres TEXT         Filter musics without genres
+      --min-duration INTEGER   Minimum duration filter (hours:minutes:seconds)
+      --max-duration INTEGER   Maximum duration filter (hours:minutes:seconds))
+      --min-size INTEGER       Minimum file size filter (in bytes)
+      --max-size INTEGER       Maximum file size filter (in bytes)
+      --min-rating FLOAT       Minimum rating  [default: 0.0]
+      --max-rating FLOAT       Maximum rating  [default: 5.0]
+      --relative               Generate relatives paths
+      --shuffle                Randomize selection
+    Ordering options: 
+      --shuffle                Randomize selection
+    -h, --help                 Show this message and exit.
 
 
 musicbot local sync
@@ -768,6 +821,8 @@ musicbot local sync
       --min-rating FLOAT      Minimum rating  [default: 0.0]
       --max-rating FLOAT      Maximum rating  [default: 5.0]
       --relative              Generate relatives paths
+      --shuffle               Randomize selection
+    Ordering options: 
       --shuffle               Randomize selection
     --flat                    Do not create subfolders
     --delete                  Delete files on destination if not present in library
@@ -1009,7 +1064,9 @@ musicbot spotify diff
       --max-rating FLOAT            Maximum rating  [default: 5.0]
       --relative                    Generate relatives paths
       --shuffle                     Randomize selection
-    --output [table|json]           Output format  [default: table]
+    Ordering options: 
+      --shuffle                     Randomize selection
+    --output [json|table|m3u]       Output format  [default: table]
     --min-threshold FLOAT RANGE     Minimum distance threshold
     --max-threshold FLOAT RANGE     Maximum distance threshold
     -h, --help                      Show this message and exit.
@@ -1032,7 +1089,7 @@ musicbot spotify playlist
       --spotify-cache-path FILE     Spotify cache path
       --spotify-scope TEXT          Spotify OAuth scopes, comma separated
       --spotify-redirect-uri TEXT   Spotify redirect URI
-    --output [table|json]           Output format  [default: table]
+    --output [json|table|m3u]       Output format  [default: table]
     -h, --help                      Show this message and exit.
 
 
@@ -1093,7 +1150,7 @@ musicbot spotify tracks
       --spotify-cache-path FILE     Spotify cache path
       --spotify-scope TEXT          Spotify OAuth scopes, comma separated
       --spotify-redirect-uri TEXT   Spotify redirect URI
-    --output [table|json]           Output format  [default: table]
+    --output [json|table|m3u]       Output format  [default: table]
     -h, --help                      Show this message and exit.
 
 
@@ -1125,7 +1182,7 @@ musicbot user list
     List users (admin)
 
   Options:
-    --output [table|json]            Output format  [default: table]
+    --output [json|table|m3u]        Output format  [default: table]
     Admin options: 
       --graphql-admin TEXT           GraphQL endpoint  [default: http://127.0.0.1:5001/graphql]
     Basic auth: [all_or_none]

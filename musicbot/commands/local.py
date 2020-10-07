@@ -217,16 +217,14 @@ def sync(user, delete, yes, dry, destination, music_filter, flat):
         logger.info(f"[DRY-RUN] Removing empty dir {d}")
 
 
-@cli.command(help='Generate a new playlist')
-@click.option('--interleave', help='Interleave tracks by artist', is_flag=True)
+@cli.command(help='Generate a new playlist', aliases=['tracks'])
 @add_options(
-    helpers.dry_option,
-    helpers.playlist_output_option,
+    helpers.output_option,
     user_options.options,
     music_filter_options.options,
+    music_filter_options.interleave_option,
 )
-@click.argument('path', type=click.File('w'), default='-')
-def playlist(user, output, path, dry, music_filter, interleave):
+def playlist(user, output, music_filter, interleave):
     tracks = user.do_filter(music_filter)
 
     if interleave:
@@ -238,18 +236,22 @@ def playlist(user, output, path, dry, music_filter, interleave):
             for track in itertools.chain(*itertools.zip_longest(*tracks_by_artist.values()))
             if track is not None
         ]
-        if music_filter.shuffle:
-            random.shuffle(tracks)
+
+    if music_filter.shuffle:
+        random.shuffle(tracks)
 
     if output == 'm3u':
         p = '#EXTM3U\n'
         p += '\n'.join([track['path'] for track in tracks])
-        if not dry:
-            print(p, file=path)
-    elif output == 'json':
-        print(json.dumps(tracks), file=path)
-    elif output == 'table':
-        print_playlist(tracks, path)
+        print(p)
+        return
+
+    if output == 'json':
+        print(json.dumps(tracks))
+        return
+
+    if output == 'table':
+        print_playlist(tracks)
 
 
 @cli.command(help='Generate bests playlists with some rules')

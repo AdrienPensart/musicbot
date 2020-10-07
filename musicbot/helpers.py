@@ -1,6 +1,6 @@
 import os
 import logging
-from typing import Any, Collection, Iterable
+from typing import Optional, Any, Collection, Iterable
 import click
 from click_skeleton.helpers import mysplit
 from musicbot import defaults
@@ -45,21 +45,13 @@ output_option = click.option(
     help='Output format',
     default=defaults.DEFAULT_MB_OUTPUT,
     show_default=True,
-    type=click.Choice(['table', 'json']),
-)
-
-playlist_output_option = click.option(
-    '--output',
-    help='Output format',
-    default=defaults.DEFAULT_MB_PLAYLIST_OUTPUT,
-    show_default=True,
-    type=click.Choice(['json', 'm3u', 'table']),
+    type=click.Choice(['json', 'table', 'm3u']),
 )
 
 
-def config_string(ctx: click.Context, param: Any, value: Any) -> Any:
+def config_string(ctx: click.Context, param: click.Parameter, value: Optional[str]) -> Any:
     arg_value = value
-    logger.info(f"{param.name} : try loading with value : {value}")
+    logger.info(f"{param.name} : try loading with arg value : {arg_value}")
 
     config_value = config.configfile.get('musicbot', param.name, fallback=None)
     logger.info(f"{param.name} : try loading with config key : {config_value}")
@@ -74,15 +66,16 @@ def config_string(ctx: click.Context, param: Any, value: Any) -> Any:
             logger.warning(f"{param.name} : config value {config_value} is not sync with arg value {arg_value}")
 
     if not value and param.required:
-        raise click.BadParameter(f'missing arg or config {param.name} in {config.config}', ctx, param.name, param.name)
+        raise click.BadParameter(f'missing arg or config {param.name} in {config.config}', ctx, param, param.name)
     logger.info(f"{param.name} : final value {value}")
     ctx.params[param.name] = value
     return value
 
 
-def config_list(ctx: click.Context, param: Any, value: Any) -> Any:
+def config_list(ctx: click.Context, param: click.Parameter, value: Any) -> Any:
+    print(f'{param.name=} : {value=}')
     arg_value = value
-    logger.info(f"{param.name} : try loading with value : {value}")
+    logger.info(f"{param.name} : try loading with arg value : {arg_value}")
 
     config_value = config.configfile.get('musicbot', param.name, fallback=None)
     list_value = tuple(mysplit(config_value, ',')) if config_value is not None else []
@@ -98,7 +91,7 @@ def config_list(ctx: click.Context, param: Any, value: Any) -> Any:
             logger.warning(f"{param.name} : config value {list_value} is not sync with arg value {arg_value}")
 
     if not value and param.required:
-        raise click.BadParameter(f'missing arg or config {param.name} in {config.config}', ctx, param.name, param.name)
+        raise click.BadParameter(f'missing arg or config {param.name} in {config.config}', ctx, param, param.name)
     logger.info(f"{param.name} : final value {value}")
     ctx.params[param.name] = value
     return value
@@ -132,7 +125,12 @@ def genfiles(folders: Iterable[str]) -> Collection[File]:
 
 folders_argument = click.argument(
     'folders',
+    type=click.Path(exists=True, file_okay=False),
     nargs=-1,
     callback=config_list,
+)
+
+folder_argument = click.argument(
+    'folder',
     type=click.Path(exists=True, file_okay=False),
 )

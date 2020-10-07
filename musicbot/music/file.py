@@ -340,7 +340,8 @@ class File:
 
     @_comment.setter
     def _comment(self, comment: str) -> None:
-        self.handle.tags.add(mutagen.id3.COMM(desc='ID3v1 Comment:eng', text=str(comment)))
+        self.handle.tags.delall('COMM')
+        self.handle.tags.add(mutagen.id3.COMM(desc='ID3v1 Comment', lang='eng', text=comment))
 
     @property
     def _description(self) -> str:
@@ -374,6 +375,7 @@ class File:
         if self.extension == '.flac':
             self.handle.tags['tracknumber'] = str(number)
         else:
+            self.handle.tags.delall('TRCK')
             self.handle.tags.add(mutagen.id3.TRCK(text=str(number)))
 
     @property
@@ -390,39 +392,26 @@ class File:
     @keywords.setter
     def keywords(self, keywords: Iterable[str]) -> None:
         if self.extension == '.mp3':
-            logger.info(f'{self} : mp3 {keywords}')
+            logger.info(f'{self} : new mp3 keywords : {keywords}')
             self._comment = ' '.join(keywords)
         elif self.extension == '.flac':
-            logger.info(f'{self} : flac {keywords}')
+            logger.info(f'{self} : new flac keywords : {keywords}')
             self._description = ' '.join(keywords)
         else:
             logger.error(f'{self} : unknown extension {self.extension}')
 
     def add_keywords(self, keywords: Iterable[str], dry: Optional[bool] = None) -> bool:
         dry = dry if dry is not None else False
-        tags = self.keywords
-        for k in keywords:
-            if k not in tags:
-                logger.info(f'{self} : new keyword {k}')
-                tags.append(k)
-        if set(self.keywords) != set(tags):
-            self.keywords = tags
-            logger.info(f'{self} : new keywords {self.keywords}')
-            return self.save(dry)
-        return False
+        self.keywords = list(set(self.keywords).union(set(keywords)))
+        logger.info(f'{self} : adding {keywords}, new keywords {self.keywords}')
+        return self.save(dry)
 
     def delete_keywords(self, keywords: Iterable[str], dry: Optional[bool] = None) -> bool:
         dry = dry if dry is not None else False
-        tags = self.keywords
-        for k in keywords:
-            if k in tags:
-                logger.info(f'{self} : new keyword {k}')
-                tags.remove(k)
-        if set(self.keywords) != set(tags):
-            self.keywords = tags
-            logger.info(f'{self} : new keywords {self.keywords}')
-            return self.save(dry)
-        return False
+        new_keywords = list(set(self.keywords) - set(keywords))
+        logger.info(f'{self} : deleting {keywords}, new keywords {new_keywords}')
+        self.keywords = new_keywords
+        return self.save(dry)
 
     @property
     def youtube(self) -> str:
