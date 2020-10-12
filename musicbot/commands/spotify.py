@@ -7,7 +7,7 @@ import collections
 import click
 import jellyfish  # type: ignore
 from prettytable import PrettyTable  # type: ignore
-from slugify import slugify  # type: ignore
+from slugify import slugify
 from colorama import Fore  # type: ignore
 from click_skeleton import AdvancedGroup, add_options
 
@@ -137,13 +137,13 @@ def tracks(spotify, output):
 def diff(user, music_filter, spotify, output, min_threshold, max_threshold):
     spotify_tracks = spotify.tracks()
     spotify_tracks_by_slug = {
-        slugify(f"""{t['track']['artists'][0]['name']}-{t['track']['name']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):
+        slugify(f"""{t['track']['artists'][0]['name']}-{t['track']['name']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):  # type: ignore
         t for t in spotify_tracks
     }
 
     local_tracks = user.do_filter(music_filter)
     local_tracks_by_slug = {
-        slugify(f"""{t['artist']}-{t['title']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):
+        slugify(f"""{t['artist']}-{t['title']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):  # type: ignore
         t for t in local_tracks
     }
 

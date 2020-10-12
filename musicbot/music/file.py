@@ -6,7 +6,7 @@ from typing import Any, Optional, List, Dict, Iterable, Iterator
 import click
 import acoustid  # type: ignore
 import mutagen  # type: ignore
-from slugify import slugify  # type: ignore
+from slugify import slugify
 from pydub import AudioSegment  # type: ignore
 from click_option_group import optgroup  # type: ignore
 from click_skeleton.helpers import mysplit
@@ -240,7 +240,7 @@ class File:
 
     @property
     def slug(self) -> str:
-        return slugify(f"""{self.artist}-{self.title}""", stopwords=STOPWORDS, replacements=REPLACEMENTS)
+        return slugify(f"""{self.artist}-{self.title}""", stopwords=STOPWORDS, replacements=REPLACEMENTS)  # type: ignore
 
     def _get_first(self, tag: str, default: str = '') -> str:
         if tag not in self.handle:

@@ -10,7 +10,7 @@ humanize==3.*,>=3.0.1
 jellyfish==0.*,>=0.8.2
 logging-tree==1.*,>=1.8.0
 mutagen==1.*,>=1.44.0
-mypy==0.*,>=0.782.0
+mypy==0.*,>=0.790.0
 prettytable==1.*,>=1.0.0
 progressbar2==3.*,>=3.53.1
 prompt-toolkit==3.*,>=3.0.2
