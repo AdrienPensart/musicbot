@@ -12,19 +12,15 @@ import attr
 import click
 import progressbar  # type: ignore
 import colorlog  # type: ignore
-from click_skeleton.helpers import str2bool, seconds_to_human
+from click_skeleton.helpers import seconds_to_human
 from musicbot import defaults
 
 logger = logging.getLogger(__name__)
 
-# progressbar.streams.wrap_stderr()
-# progressbar.streams.wrap_stdout()
 
-
-@attr.s(auto_attribs=True)
+@attr.s(auto_attribs=True, frozen=True)
 class Config:
     log: Optional[Union[str, PathLike]] = defaults.DEFAULT_LOG
-    check_version: bool = defaults.DEFAULT_CHECK_VERSION
     quiet: bool = defaults.DEFAULT_QUIET
     debug: bool = defaults.DEFAULT_DEBUG
     info: bool = defaults.DEFAULT_INFO
@@ -32,12 +28,49 @@ class Config:
     error: bool = defaults.DEFAULT_ERROR
     critical: bool = defaults.DEFAULT_CRITICAL
     timings: bool = defaults.DEFAULT_TIMINGS
-    verbosity: str = defaults.DEFAULT_VERBOSITY
     config: str = defaults.DEFAULT_CONFIG
     level: int = defaults.VERBOSITIES[defaults.DEFAULT_VERBOSITY]
 
     def __attrs_post_init__(self) -> None:
-        self.check_version = str2bool(os.getenv(defaults.MB_CHECK_VERSION, 'true'))
+        verbosity = 'warning'
+        if self.debug:
+            verbosity = 'debug'
+        if self.info:
+            verbosity = 'info'
+        if self.warning:
+            verbosity = 'warning'
+        if self.error:
+            verbosity = 'error'
+        if self.critical:
+            verbosity = 'critical'
+
+        level = defaults.VERBOSITIES.get(verbosity, logging.WARNING)
+        root_logger = logging.getLogger()
+        root_logger.setLevel(level)
+        progressbar.streams.wrap_stderr()
+        progressbar.streams.wrap_stdout()
+        handler = logging.StreamHandler()
+        handler.setLevel(level)
+        handler.setFormatter(
+            colorlog.ColoredFormatter(
+                fmt='%(log_color)s%(name)s | %(asctime)s | %(levelname)s | %(message)s',
+                datefmt='%Y-%d-%d %H:%M:%S',
+                log_colors={
+                    'DEBUG': 'cyan',
+                    'INFO': 'green',
+                    'WARNING': 'yellow',
+                    'ERROR': 'red',
+                    'CRITICAL': 'red,bg_white',
+                },
+            )
+        )
+        root_logger.addHandler(handler)
+
+        if self.log:
+            fh = logging.FileHandler(self.log)
+            fh.setLevel(logging.DEBUG)
+            logging.getLogger().addHandler(fh)
+            logger.debug(self)
 
     def progressbar(self, quiet=False, redirect_stderr=True, redirect_stdout=True, **pbar_options):
         if quiet or self.quiet:
@@ -69,67 +102,6 @@ class Config:
                     while True:
                         os.kill(os.getpid(), signal.SIGKILL)
                         os.killpg(os.getpid(), signal.SIGKILL)
-
-    def set(
-        self,
-        config: Optional[str] = None,
-        debug: Optional[bool] = None,
-        info: Optional[bool] = None,
-        warning: Optional[bool] = None,
-        error: Optional[bool] = None,
-        critical: Optional[bool] = None,
-        timings: Optional[bool] = None,
-        quiet: Optional[bool] = None,
-        verbosity: Optional[str] = None,
-        log: Optional[Union[str, PathLike]] = None,
-    ) -> None:
-        self.config = config if config is not None else os.environ.get(defaults.MB_CONFIG, defaults.DEFAULT_CONFIG)
-        self.quiet = quiet if quiet is not None else str2bool(os.environ.get(defaults.MB_QUIET, str(defaults.DEFAULT_QUIET)))
-        self.debug = debug if debug is not None else str2bool(os.environ.get(defaults.MB_DEBUG, str(defaults.DEFAULT_DEBUG)))
-        self.info = info if info is not None else str2bool(os.environ.get(defaults.MB_INFO, str(defaults.DEFAULT_INFO)))
-        self.warning = warning if warning is not None else str2bool(os.environ.get(defaults.MB_WARNING, str(defaults.DEFAULT_WARNING)))
-        self.error = error if error is not None else str2bool(os.environ.get(defaults.MB_ERROR, str(defaults.DEFAULT_ERROR)))
-        self.critical = critical if critical is not None else str2bool(os.environ.get(defaults.MB_CRITICAL, str(defaults.DEFAULT_CRITICAL)))
-        self.timings = timings if timings is not None else str2bool(os.environ.get(defaults.MB_TIMINGS, str(defaults.DEFAULT_TIMINGS)))
-        self.verbosity = verbosity if verbosity is not None else os.environ.get(defaults.MB_VERBOSITY, defaults.DEFAULT_VERBOSITY)
-        self.log = (log if log is not None else os.environ.get(defaults.MB_LOG, defaults.DEFAULT_LOG)) or None
-
-        if self.debug:
-            self.verbosity = 'debug'
-        if self.info:
-            self.verbosity = 'info'
-        if self.warning:
-            self.verbosity = 'warning'
-        if self.error:
-            self.verbosity = 'error'
-        if self.critical:
-            self.verbosity = 'critical'
-
-        self.level = defaults.VERBOSITIES.get(self.verbosity, logging.WARNING)
-        root_logger = logging.getLogger()
-        root_logger.setLevel(self.level)
-        handler = logging.StreamHandler()
-        handler.setLevel(self.level)
-        handler.setFormatter(
-            colorlog.ColoredFormatter(
-                fmt='%(log_color)s%(name)s | %(asctime)s | %(levelname)s | %(message)s',
-                datefmt='%Y-%d-%d %H:%M:%S',
-                log_colors={
-                    'DEBUG': 'cyan',
-                    'INFO': 'green',
-                    'WARNING': 'yellow',
-                    'ERROR': 'red',
-                    'CRITICAL': 'red,bg_white',
-                },
-            )
-        )
-        root_logger.addHandler(handler)
-
-        if self.log:
-            fh = logging.FileHandler(self.log)
-            fh.setLevel(logging.DEBUG)
-            logging.getLogger().addHandler(fh)
-            logger.debug(self)
 
     @functools.cached_property
     def configfile(self) -> configparser.ConfigParser:

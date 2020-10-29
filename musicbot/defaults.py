@@ -10,7 +10,6 @@ DEFAULT_MB_OUTPUT: Final[str] = 'table'
 DEFAULT_MB_PLAYLIST_OUTPUT: Final[str] = 'table'
 DEFAULT_MB_FLAT: Final[bool] = False
 
-DEFAULT_CHECK_VERSION: Final[bool] = False
 DEFAULT_CONFIG: Final[str] = '~/musicbot.ini'
 DEFAULT_LOG: Final[str] = ''
 DEFAULT_DEBUG: Final[bool] = False
@@ -30,7 +29,6 @@ VERBOSITIES: Final[Dict[str, int]] = {
     'critical': logging.CRITICAL,
 }
 
-MB_CHECK_VERSION: Final[str] = 'MB_CHECK_VERSION'
 MB_CONFIG: Final[str] = 'MB_CONFIG'
 MB_LOG: Final[str] = 'MB_LOG'
 MB_DEBUG: Final[str] = 'MB_DEBUG'
