@@ -1,4 +1,5 @@
 import logging
+import click
 from watchdog.events import FileSystemEvent, PatternMatchingEventHandler  # type: ignore
 from musicbot.music import file
 from musicbot.user import User
@@ -33,7 +34,7 @@ class MusicWatcherHandler(PatternMatchingEventHandler):
     def update_music(self, path: str) -> None:
         for folder in self.user.folders():
             if path.startswith(folder) and path.endswith(tuple(file.supported_formats)):
-                logger.debug(f'Creating/modifying DB for: {path}')
+                click.echo(f'Creating/modifying DB for: {path}')
                 f = file.File(path, folder)
                 self.user.upsert_music(f)
                 return

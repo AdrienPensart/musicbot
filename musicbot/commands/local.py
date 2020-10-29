@@ -1,4 +1,5 @@
 import logging
+import time
 import io
 import random
 import shutil
@@ -10,7 +11,9 @@ import datetime
 import textwrap
 import click
 import attr
+import progressbar  # type: ignore
 import mutagen  # type: ignore
+from watchdog.observers import Observer  # type: ignore
 from prettytable import PrettyTable  # type: ignore
 from click_skeleton import AdvancedGroup, add_options
 from click_skeleton.helpers import PrettyDefaultDict
@@ -18,6 +21,7 @@ from click_skeleton.helpers import PrettyDefaultDict
 from musicbot import helpers, user_options
 from musicbot.music import music_filter_options
 
+from musicbot.watcher import MusicWatcherHandler
 from musicbot.player import play
 from musicbot.playlist import print_playlist
 from musicbot.config import config
@@ -93,13 +97,19 @@ def folders(user, output):
 @cli.command(help='Load musics')
 @add_options(
     helpers.folders_argument,
+    helpers.save_option,
     user_options.options,
 )
-def scan(user, folders):
+def scan(user, save, folders):
+    user_folders = user.folders()
     if not folders:
-        folders = user.folders()
+        folders = user_folders
     files = helpers.genfiles(folders)
     user.bulk_insert(files)
+
+    if save:
+        config.configfile['musicbot']['folders'] = ','.join(set(folders))
+        config.write()
 
 
 @cli.command(help='Watch files changes in folders')
@@ -107,7 +117,18 @@ def scan(user, folders):
     user_options.options,
 )
 def watch(user):
-    user.watch()
+    click.echo(f'Watching: {user.folders()}')
+    event_handler = MusicWatcherHandler(user=user)
+    observer = Observer()
+    for f in user.folders():
+        observer.schedule(event_handler, f, recursive=True)
+    observer.start()
+    try:
+        while True:
+            time.sleep(50)
+    except KeyboardInterrupt:
+        observer.stop()
+    observer.join()
 
 
 @cli.command(help='Clean all musics')
@@ -294,6 +315,8 @@ def bests(user, dry, folder, prefix, suffix, music_filter):
     music_filter_options.options,
 )
 def player(user, music_filter):
+    progressbar.streams.unwrap_stderr()
+    progressbar.streams.unwrap_stdout()
     try:
         tracks = user.do_filter(music_filter)
         play(tracks)

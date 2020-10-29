@@ -1,12 +1,11 @@
 import logging
-import atexit
+import signal
 import os
 import concurrent.futures as cf
 import time
 import inspect
 import functools
 import configparser
-from concurrent.futures import thread
 from os import PathLike
 from typing import Union, Optional, Any
 import attr
@@ -18,8 +17,8 @@ from musicbot import defaults
 
 logger = logging.getLogger(__name__)
 
-progressbar.streams.wrap_stderr()
-progressbar.streams.wrap_stdout()
+# progressbar.streams.wrap_stderr()
+# progressbar.streams.wrap_stdout()
 
 
 @attr.s(auto_attribs=True)
@@ -36,49 +35,40 @@ class Config:
     verbosity: str = defaults.DEFAULT_VERBOSITY
     config: str = defaults.DEFAULT_CONFIG
     level: int = defaults.VERBOSITIES[defaults.DEFAULT_VERBOSITY]
-    interrupted: bool = False
 
     def __attrs_post_init__(self) -> None:
         self.check_version = str2bool(os.getenv(defaults.MB_CHECK_VERSION, 'true'))
 
-    @property
-    def progressbar(self):
-        if self.quiet:
-            return progressbar.NullBar
-        return progressbar.ProgressBar
+    def progressbar(self, quiet=False, redirect_stderr=True, redirect_stdout=True, **pbar_options):
+        if quiet or self.quiet:
+            return progressbar.NullBar(redirect_stderr=redirect_stderr, redirect_stdout=redirect_stdout, **pbar_options)
+        return progressbar.ProgressBar(redirect_stderr=redirect_stderr, redirect_stdout=redirect_stdout, **pbar_options)
 
-    def parallel(self, worker, items, concurrency=defaults.DEFAULT_MB_CONCURRENCY):
-        def interrupt_threads():
-            config.interrupted = True
-            thread._python_exit()  # type: ignore
-
-        atexit.register(interrupt_threads)
-        atexit.unregister(thread._python_exit)  # type: ignore
-        with self.progressbar(max_value=len(items)) as pbar:
+    def parallel(self, worker, items, quiet=False, concurrency=defaults.DEFAULT_MB_CONCURRENCY, **pbar_options):
+        with self.progressbar(max_value=len(items), quiet=quiet, redirect_stderr=True, redirect_stdout=True, **pbar_options) as pbar:
             with cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
-                def worker_wrapper(item):
-                    try:
-                        if self.interrupted:
-                            return
-                        worker(item)
-                    except KeyboardInterrupt as e:
-                        logger.warning(f'interrupted : {e}')
-                        config.interrupted = True
-                        raise
-                    finally:
-                        pbar.value += 1
-                        pbar.update()
                 try:
-                    executor.shutdown = lambda wait: None  # type: ignore
-                    futures = [executor.submit(worker_wrapper, item) for item in items]
-                    cf.wait(futures, return_when=cf.FIRST_EXCEPTION)
-                except Exception as e:
+                    def update_pbar(_):
+                        try:
+                            pbar.value += 1
+                            pbar.update()
+                        except KeyboardInterrupt as e:
+                            logger.error(f"interrupted : {e}")
+                            while True:
+                                os.kill(os.getpid(), signal.SIGKILL)
+                                os.killpg(os.getpid(), signal.SIGKILL)
+                    futures = []
+                    for item in items:
+                        future = executor.submit(worker, item)
+                        future.add_done_callback(update_pbar)
+                        futures.append(future)
+                    cf.wait(futures)
+                    return [future.result() for future in futures if future.result() is not None]
+                except KeyboardInterrupt as e:
                     logger.error(f"interrupted : {e}")
-                    self.interrupted = True
-                    raise
-
-        atexit.register(thread._python_exit)  # type: ignore
-        atexit.unregister(interrupt_threads)
+                    while True:
+                        os.kill(os.getpid(), signal.SIGKILL)
+                        os.killpg(os.getpid(), signal.SIGKILL)
 
     def set(
         self,

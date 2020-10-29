@@ -104,7 +104,7 @@ def add_keywords(path, keywords, dry):
     f.add_keywords(keywords, dry)
 
 
-@cli.command(help='Delete keywords to music')
+@cli.command(help='Delete keywords to music', aliases=['remove-keywords'])
 @add_options(
     helpers.dry_option,
     path_argument,

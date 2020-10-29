@@ -1,11 +1,9 @@
 import logging
-import time
 import base64
 import json
 import functools
 from typing import Any, Collection, Optional
 import attr
-from watchdog.observers import Observer  # type: ignore
 from musicbot.graphql import GraphQL
 from musicbot.config import config
 from musicbot.exceptions import MusicbotError, FailedAuthentication, FailedRegistration
@@ -328,21 +326,6 @@ class User:
             }}
         }}"""
         return self.fetch(query)['filtersList']
-
-    def watch(self) -> None:
-        from .watcher import MusicWatcherHandler
-        logger.info(f'Watching: {self.folders()}')
-        event_handler = MusicWatcherHandler(user=self)
-        observer = Observer()
-        for f in self.folders():
-            observer.schedule(event_handler, f, recursive=True)
-        observer.start()
-        try:
-            while True:
-                time.sleep(50)
-        except KeyboardInterrupt:
-            observer.stop()
-        observer.join()
 
     @config.timeit
     def delete_filter(self, name: str) -> Any:

@@ -724,6 +724,7 @@ musicbot local scan
     Load musics
 
   Options:
+    -s, --save             Save to config file  [default: False]
     Auth options: 
       --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT     User token
@@ -858,14 +859,14 @@ musicbot music
     -h, --help  Show this message and exit.
 
   Commands:
-    add-keywords                   Add keywords to music
-    delete-keywords                Delete keywords to music
-    fingerprint                    Print music fingerprint
-    flac2mp3                       Convert flac music to mp3
-    help                           Print help
-    inconsistencies (consistency)  Check music consistency
-    set-tags                       Set music title
-    tags                           Print music tags
+    add-keywords                       Add keywords to music
+    delete-keywords (remove-keywords)  Delete keywords to music
+    fingerprint                        Print music fingerprint
+    flac2mp3                           Convert flac music to mp3
+    help                               Print help
+    inconsistencies (consistency)      Check music consistency
+    set-tags                           Set music title
+    tags                               Print music tags
 
 
 musicbot music add-keywords

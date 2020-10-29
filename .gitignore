@@ -1,5 +1,6 @@
 env*
 .pytype
+.idea
 *.swp
 *.pyc
 doc/html

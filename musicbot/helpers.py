@@ -105,20 +105,20 @@ def genfiles(folders: Iterable[str]) -> Collection[File]:
         logger.info(f"{directory} : file count: {subcount}")
         count += subcount
 
-    files = []
     file_list = find_files(folders, supported_formats)
     music_files = list(file_list)
+    files = []
 
-    with config.progressbar(max_value=len(music_files), redirect_stdout=True) as pbar:
-        for f in music_files:
-            try:
-                m = File(f[1], f[0])
-                files.append(m)
-            except OSError as e:
-                logger.error(e)
-            finally:
-                pbar.value += 1
-                pbar.update()
+    def worker(file):
+        try:
+            m = File(file[1], file[0])
+            files.append(m)
+        except KeyboardInterrupt as e:
+            logger.error(f'interrupted : {e}')
+            raise
+        except OSError as e:
+            logger.error(e)
+    config.parallel(worker, music_files)
     return files
 
 
