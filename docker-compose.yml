@@ -20,7 +20,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.postgraphile
-    entrypoint: ["echo", "Service postgraphile custom disabled"]
+    entrypoint: ["tail", "-F", "anything"]
 
   # public API
   postgraphile_public:

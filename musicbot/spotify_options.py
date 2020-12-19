@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 def sane_spotify(ctx: click.Context, param: click.Parameter, value: str) -> Spotify:
     spotify_params = {}
     ctx.params[param.name] = value
-    print(param.name)
+    print(f'{ctx.params=}')
     for field in attr.fields_dict(Spotify):
         spotify_params[field] = ctx.params['spotify_' + field]
         ctx.params.pop('spotify_' + field)
@@ -22,7 +22,7 @@ def sane_spotify(ctx: click.Context, param: click.Parameter, value: str) -> Spot
     return spotify
 
 
-cache_path_option = optgroup.option(
+spotify_cache_path_option = optgroup.option(
     '--spotify-cache-path',
     help='Spotify cache path',
     is_eager=True,
@@ -31,7 +31,7 @@ cache_path_option = optgroup.option(
     callback=config_string,
 )
 
-scope_option = optgroup.option(
+spotify_scope_option = optgroup.option(
     '--spotify-scope',
     help='Spotify OAuth scopes, comma separated',
     is_eager=True,
@@ -39,7 +39,7 @@ scope_option = optgroup.option(
     callback=config_string,
 )
 
-redirect_uri_option = optgroup.option(
+spotify_redirect_uri_option = optgroup.option(
     '--spotify-redirect-uri',
     help='Spotify redirect URI',
     is_eager=True,
@@ -47,7 +47,7 @@ redirect_uri_option = optgroup.option(
     callback=config_string,
 )
 
-username_option = optgroup.option(
+spotify_username_option = optgroup.option(
     '--spotify-username',
     help='Spotify username',
     is_eager=True,
@@ -55,7 +55,7 @@ username_option = optgroup.option(
     callback=config_string,
 )
 
-client_id_option = optgroup.option(
+spotify_client_id_option = optgroup.option(
     '--spotify-client-id',
     help='Spotify client ID',
     is_eager=True,
@@ -63,7 +63,7 @@ client_id_option = optgroup.option(
     callback=config_string,
 )
 
-client_secret_option = optgroup.option(
+spotify_client_secret_option = optgroup.option(
     '--spotify-client-secret',
     help='Spotify client secret',
     is_eager=True,
@@ -71,7 +71,7 @@ client_secret_option = optgroup.option(
     callback=config_string,
 )
 
-token_option = optgroup.option(
+spotify_token_option = optgroup.option(
     '--spotify-token',
     help='Spotify token',
     expose_value=False,
@@ -80,11 +80,11 @@ token_option = optgroup.option(
 
 options = [
     optgroup.group('Spotify options'),
-    username_option,
-    client_id_option,
-    client_secret_option,
-    token_option,
-    cache_path_option,
-    scope_option,
-    redirect_uri_option,
+    spotify_token_option,
+    spotify_username_option,
+    spotify_client_id_option,
+    spotify_client_secret_option,
+    spotify_cache_path_option,
+    spotify_scope_option,
+    spotify_redirect_uri_option,
 ]

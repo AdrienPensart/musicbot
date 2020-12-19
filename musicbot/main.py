@@ -8,7 +8,7 @@ import spotipy  # type: ignore
 import mutagen  # type: ignore
 
 from click_skeleton import backtrace, version_checker, helpers
-from musicbot.config import config as config_obj
+from musicbot.config import Conf
 from musicbot.cli import main_cli, PROG_NAME, __version__
 from musicbot import exceptions
 
@@ -38,7 +38,7 @@ def main(**kwargs) -> int:
         version_check.print()
         return exit_code
     except (mutagen.MutagenError, exceptions.MusicbotError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError) as e:
-        if config_obj.debug:
+        if Conf.config.debug:
             logger.exception(e)
         else:
             raise

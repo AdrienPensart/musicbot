@@ -56,8 +56,7 @@ def tags(path):
 )
 def inconsistencies(path, folder, fix, **kwargs):
     m = File(path, folder)
-    pt = PrettyTable()
-    pt.field_names = ["Folder", "Path", "Inconsistencies"]
+    pt = PrettyTable(["Folder", "Path", "Inconsistencies"])
     try:
         if fix:
             m.fix(**kwargs)

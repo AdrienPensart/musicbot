@@ -10,7 +10,7 @@ from click_skeleton.helpers import PrettyDefaultDict
 
 from musicbot import helpers
 from musicbot.exceptions import MusicbotError
-from musicbot.config import config
+from musicbot.config import Conf
 from musicbot.music import music_filter_options
 from musicbot.music.file import File, keywords_argument, flat_option, folder_option, checks_options, supported_formats
 from musicbot.music.helpers import find_files
@@ -67,8 +67,7 @@ def playlist(folders, output, shuffle, interleave):
         return
 
     if output == 'table':
-        pt = PrettyTable()
-        pt.field_names = ["Track", "Title", "Artist", "Album"]
+        pt = PrettyTable(["Track", "Title", "Artist", "Album"])
         for t in tracks:
             pt.add_row([t.number, t.title, t.artist, t.album])
         print(pt)
@@ -110,7 +109,7 @@ def flac2mp3(folders, **kwargs):
         except Exception as e:  # pylint: disable=broad-except
             logger.error(f"{flac_path} : unable to convert to mp3 : {e}")
 
-    config.parallel(convert, flac_files)
+    Conf.parallel(convert, flac_files)
 
 
 @cli.command(aliases=['consistency'], help='Check music files consistency')
@@ -121,8 +120,7 @@ def flac2mp3(folders, **kwargs):
 )
 def inconsistencies(folders, fix, checks, dry):
     musics = helpers.genfiles(folders)
-    pt = PrettyTable()
-    pt.field_names = ["Folder", "Path", "Inconsistencies"]
+    pt = PrettyTable(["Folder", "Path", "Inconsistencies"])
     for m in musics:
         try:
             if fix:

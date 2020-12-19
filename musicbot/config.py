@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 @attr.s(auto_attribs=True, frozen=True)
 class Config:
     log: Optional[Union[str, PathLike]] = defaults.DEFAULT_LOG
-    quiet: bool = defaults.DEFAULT_QUIET
+    quiet: bool = True
     debug: bool = defaults.DEFAULT_DEBUG
     info: bool = defaults.DEFAULT_INFO
     warning: bool = defaults.DEFAULT_WARNING
@@ -47,8 +47,9 @@ class Config:
         level = defaults.VERBOSITIES.get(verbosity, logging.WARNING)
         root_logger = logging.getLogger()
         root_logger.setLevel(level)
-        progressbar.streams.wrap_stderr()
-        progressbar.streams.wrap_stdout()
+        if not self.quiet:
+            progressbar.streams.wrap_stderr()
+            progressbar.streams.wrap_stdout()
         handler = logging.StreamHandler()
         handler.setLevel(level)
         handler.setFormatter(
@@ -64,6 +65,7 @@ class Config:
                 },
             )
         )
+        root_logger.handlers = []
         root_logger.addHandler(handler)
 
         if self.log:
@@ -72,13 +74,31 @@ class Config:
             logging.getLogger().addHandler(fh)
             logger.debug(self)
 
-    def progressbar(self, quiet=False, redirect_stderr=True, redirect_stdout=True, **pbar_options):
-        if quiet or self.quiet:
+    @functools.cached_property
+    def configfile(self) -> configparser.ConfigParser:
+        file = configparser.ConfigParser()
+        file.read(self.config)
+        if 'musicbot' not in file:
+            logger.warning(f'[musicbot] section is not present in {self.config}')
+        return file
+
+    def write(self) -> None:
+        with open(self.config, 'w') as output_config:
+            self.configfile.write(output_config)
+
+
+class Conf:
+    config = Config()
+
+    @classmethod
+    def progressbar(cls, quiet=False, redirect_stderr=True, redirect_stdout=True, **pbar_options):
+        if quiet or cls.config.quiet:
             return progressbar.NullBar(redirect_stderr=redirect_stderr, redirect_stdout=redirect_stdout, **pbar_options)
         return progressbar.ProgressBar(redirect_stderr=redirect_stderr, redirect_stdout=redirect_stdout, **pbar_options)
 
-    def parallel(self, worker, items, quiet=False, concurrency=defaults.DEFAULT_MB_CONCURRENCY, **pbar_options):
-        with self.progressbar(max_value=len(items), quiet=quiet, redirect_stderr=True, redirect_stdout=True, **pbar_options) as pbar:
+    @classmethod
+    def parallel(cls, worker, items, quiet=False, concurrency=defaults.DEFAULT_MB_CONCURRENCY, **pbar_options):
+        with cls.progressbar(max_value=len(items), quiet=quiet, redirect_stderr=True, redirect_stdout=True, **pbar_options) as pbar:
             with cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
                 try:
                     def update_pbar(_):
@@ -103,19 +123,8 @@ class Config:
                         os.kill(os.getpid(), signal.SIGKILL)
                         os.killpg(os.getpid(), signal.SIGKILL)
 
-    @functools.cached_property
-    def configfile(self) -> configparser.ConfigParser:
-        file = configparser.ConfigParser()
-        file.read(self.config)
-        if 'musicbot' not in file:
-            logger.warning(f'[musicbot] section is not present in {self.config}')
-        return file
-
-    def write(self) -> None:
-        with open(self.config, 'w') as output_config:
-            self.configfile.write(output_config)
-
-    def timeit(self, *wrapper_args: Any, **wrapper_kwargs: Any) -> Any:
+    @classmethod
+    def timeit(cls, *wrapper_args: Any, **wrapper_kwargs: Any) -> Any:
         func = None
         if len(wrapper_args) == 1 and callable(wrapper_args[0]):
             func = wrapper_args[0]
@@ -140,7 +149,7 @@ class Config:
                     end = int(time.time())
                     for_human = seconds_to_human(end - start)
 
-                    if self.info or self.debug:
+                    if cls.config.info or Conf.config.debug:
                         args_values = []
                         argspec = inspect.getfullargspec(func)
                         # go through each position based argument
@@ -168,10 +177,7 @@ class Config:
                             timing = f'(timings) {func.__module__}.{func.__qualname__} ({args_values_str}): {for_human} | result = {result}'
                     else:
                         timing = f'(timings) {func.__module__}.{func.__qualname__} : {for_human}'
-                    if always or (on_success and result) or (on_config and self.timings):
+                    if always or (on_success and result) or (on_config and cls.config.timings):
                         click.secho(timing, fg="magenta", bold=True, err=True)
             return wrapper
         return real_timeit(func) if func else real_timeit
-
-
-config = Config()

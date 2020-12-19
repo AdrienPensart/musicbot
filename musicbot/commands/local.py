@@ -20,11 +20,10 @@ from click_skeleton.helpers import PrettyDefaultDict
 
 from musicbot import helpers, user_options
 from musicbot.music import music_filter_options
-
 from musicbot.watcher import MusicWatcherHandler
 from musicbot.player import play
 from musicbot.playlist import print_playlist
-from musicbot.config import config
+from musicbot.config import Conf
 from musicbot.music.file import File, flat_option, checks_options, folder_argument
 from musicbot.music.helpers import bytes_to_human, all_files, empty_dirs, except_directories
 
@@ -65,8 +64,7 @@ def stats(user, output, music_filter):
     if output == 'json':
         print(json.dumps(stats))
     elif output == 'table':
-        pt = PrettyTable()
-        pt.field_names = ["Stat", "Value"]
+        pt = PrettyTable(["Stat", "Value"])
         pt.add_row(["Music", stats['musics']])
         pt.add_row(["Artist", stats['artists']])
         pt.add_row(["Album", stats['albums']])
@@ -87,8 +85,7 @@ def folders(user, output):
     if output == 'json':
         print(json.dumps(_folders))
     elif output == 'table':
-        pt = PrettyTable()
-        pt.field_names = ["Folder"]
+        pt = PrettyTable(["Folders"])
         for f in _folders:
             pt.add_row([f])
         print(pt)
@@ -108,8 +105,8 @@ def scan(user, save, folders):
     user.bulk_insert(files)
 
     if save:
-        config.configfile['musicbot']['folders'] = ','.join(set(folders))
-        config.write()
+        Conf.config.configfile['musicbot']['folders'] = ','.join(set(folders))
+        Conf.config.write()
 
 
 @cli.command(help='Watch files changes in folders')
@@ -189,7 +186,7 @@ def sync(user, delete, yes, dry, destination, music_filter, flat):
     logger.info(f"Sources : {len(sources)}")
     to_delete = set(destinations.keys()) - set(sources.keys())
     if delete and (yes or click.confirm(f'Do you really want to delete {len(to_delete)} files and playlists ?')):
-        with config.progressbar(max_value=len(to_delete)) as pbar:
+        with Conf.progressbar(max_value=len(to_delete)) as pbar:
             for d in to_delete:
                 try:
                     pbar.desc = f"Deleting musics and playlists: {os.path.basename(destinations[d])}"
@@ -206,7 +203,7 @@ def sync(user, delete, yes, dry, destination, music_filter, flat):
                     pbar.update()
 
     to_copy = set(sources.keys()) - set(destinations.keys())
-    with config.progressbar(max_value=len(to_copy)) as pbar:
+    with Conf.progressbar(max_value=len(to_copy)) as pbar:
         logger.info(f"To copy: {len(to_copy)}")
         for c in sorted(to_copy):
             final_destination = os.path.join(destination, c)
@@ -290,7 +287,7 @@ def bests(user, dry, folder, prefix, suffix, music_filter):
         if not prefix.endswith('/'):
             prefix += '/'
     playlists = user.bests(music_filter)
-    with config.progressbar(max_value=len(playlists)) as pbar:
+    with Conf.progressbar(max_value=len(playlists)) as pbar:
         for p in playlists:
             try:
                 playlist_filepath = os.path.join(folder, p['name'] + suffix + '.m3u')
@@ -315,8 +312,9 @@ def bests(user, dry, folder, prefix, suffix, music_filter):
     music_filter_options.options,
 )
 def player(user, music_filter):
-    progressbar.streams.unwrap_stderr()
-    progressbar.streams.unwrap_stdout()
+    if not Conf.config.quiet:
+        progressbar.streams.unwrap_stderr()
+        progressbar.streams.unwrap_stdout()
     try:
         tracks = user.do_filter(music_filter)
         play(tracks)
@@ -333,8 +331,7 @@ def player(user, music_filter):
 )
 def inconsistencies(user, dry, fix, checks, music_filter):
     tracks = user.do_filter(music_filter)
-    pt = PrettyTable()
-    pt.field_names = ["Folder", "Path", "Inconsistencies"]
+    pt = PrettyTable(["Folder", "Path", "Inconsistencies"])
     for t in tracks:
         try:
             m = File(t['path'], t['folder'])

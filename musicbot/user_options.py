@@ -63,7 +63,7 @@ last_name_option = optgroup.option(
 )
 
 graphql_option = optgroup.option(
-    '--graphql',
+    '--graphql', '-g',
     help='GraphQL endpoint',
     default=defaults.DEFAULT_GRAPHQL,
     is_eager=True,

@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 @pytest.mark.runner_setup(mix_stderr=False)
 def test_spotify_playlists(cli_runner):
     run_cli(cli_runner, main_cli, [
+        '--quiet',
         'spotify', 'playlists'
     ])
 
@@ -16,6 +17,7 @@ def test_spotify_playlists(cli_runner):
 @pytest.mark.runner_setup(mix_stderr=False)
 def test_spotify_tracks(cli_runner):
     run_cli(cli_runner, main_cli, [
+        '--quiet',
         'spotify', 'tracks'
     ])
 
@@ -23,6 +25,7 @@ def test_spotify_tracks(cli_runner):
 @pytest.mark.runner_setup(mix_stderr=False)
 def test_spotify_diff(cli_runner, common_args):
     run_cli(cli_runner, main_cli, [
+        '--quiet',
         'spotify', 'diff',
         *common_args,
     ])

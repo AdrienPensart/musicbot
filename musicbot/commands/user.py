@@ -8,7 +8,7 @@ import click
 from musicbot import helpers, user_options, admin_options
 from musicbot.user import User
 from musicbot.admin import Admin
-from musicbot.config import config
+from musicbot.config import Conf
 
 logger = logging.getLogger(__name__)
 
@@ -27,8 +27,7 @@ def _list(graphql_admin, output, **kwargs):
     admin = Admin.from_auth(graphql=graphql_admin, **kwargs)
     users = admin.users()
     if output == 'table':
-        pt = PrettyTable()
-        pt.field_names = ["Email", "Firstname", "Lastname", "Created at", "Updated at"]
+        pt = PrettyTable(["Email", "Firstname", "Lastname", "Created at", "Updated at"])
         for u in users:
             pt.add_row([u["email"], u["user"]["firstName"], u["user"]["lastName"], u["user"]["createdAt"], u["user"]["updatedAt"]])
         print(pt)
@@ -53,10 +52,10 @@ def register(save, email, password, **kwargs):
         return
     if save:
         logger.info("saving user infos")
-        config.configfile['musicbot']['email'] = email
-        config.configfile['musicbot']['password'] = password
-        config.configfile['musicbot']['token'] = user.token
-        config.write()
+        Conf.config.configfile['musicbot']['email'] = email
+        Conf.config.configfile['musicbot']['password'] = password
+        Conf.config.configfile['musicbot']['token'] = user.token
+        Conf.config.write()
 
 
 @cli.command(aliases=['delete', 'remove'], help='Remove a user')
@@ -78,5 +77,5 @@ def login(save, **kwargs):
     print(user.token)
     if save:
         logger.info("saving user infos")
-        config.configfile['musicbot']['token'] = user.token
-        config.write()
+        Conf.config.configfile['musicbot']['token'] = user.token
+        Conf.config.write()

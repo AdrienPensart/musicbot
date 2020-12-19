@@ -7,7 +7,6 @@ logger = logging.getLogger(__name__)
 
 def test_flac_tags():
     m = file.File(fixtures.one_flac, fixtures.folder1)
-
     assert m.artist == "Buckethead"
     assert m.title == "Welcome To Bucketheadland"
     assert m.album == "Giant Robot"
@@ -21,7 +20,6 @@ def test_flac_tags():
 
 def test_mp3_tags():
     m = file.File(fixtures.one_mp3, fixtures.folder2)
-
     assert m.artist == "1995"
     assert m.title == "La Flemme"
     assert m.album == "La Source"
@@ -31,6 +29,3 @@ def test_mp3_tags():
     assert m.keywords == ['rap', 'french']
     assert m.rating == 4.5
     assert m.duration == 258
-
-    # from musicbot.music import youtube
-    # assert youtube.search(m.artist, m.title, 258) == 'https://www.youtube.com/watch?v=JyjQFMksvaM'

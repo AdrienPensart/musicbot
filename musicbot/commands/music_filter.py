@@ -38,8 +38,7 @@ def _list(user, output):
     if output == 'json':
         print(json.dumps(user.list_filters()))
     elif output == 'table':
-        pt = PrettyTable()
-        pt.field_names = ["Name", "Keywords", "No keywords", "Min rating", "Max rating"]
+        pt = PrettyTable(["Name", "Keywords", "No keywords", "Min rating", "Max rating"])
         for f in user.list_filters():
             pt.add_row([f['name'], f['keywords'], f['noKeywords'], f['minRating'], f['maxRating']])
         print(pt)

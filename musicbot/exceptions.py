@@ -2,6 +2,10 @@ class MusicbotError(Exception):
     pass
 
 
+class FilterNotFound(Exception):
+    pass
+
+
 class MusicbotConfigError(MusicbotError):
     pass
 

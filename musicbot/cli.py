@@ -2,7 +2,8 @@
 import logging
 from typing import Any
 from click_skeleton import skeleton, add_options
-from musicbot import config
+import musicbot
+from musicbot.config import Conf, Config
 from musicbot.global_options import options
 import musicbot.commands
 
@@ -15,7 +16,7 @@ logger = logging.getLogger(PROG_NAME)
 @add_options(options)
 def main_cli(**kwargs) -> Any:
     """Music swiss knife, new gen."""
-    config.config_obj = config.Config(**kwargs)
+    Conf.config = Config(**kwargs)
 
 
 main_cli.add_groups_from_package(musicbot.commands)

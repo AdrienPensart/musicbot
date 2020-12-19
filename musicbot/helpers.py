@@ -4,7 +4,7 @@ from typing import Optional, Any, Collection, Iterable
 import click
 from click_skeleton.helpers import mysplit
 from musicbot import defaults
-from musicbot.config import config
+from musicbot.config import Conf
 from musicbot.music.file import File, supported_formats
 from musicbot.music.helpers import find_files, filecount
 
@@ -50,35 +50,32 @@ output_option = click.option(
 
 
 def config_string(ctx: click.Context, param: click.Parameter, value: Optional[str]) -> Any:
-    arg_value = value
-    logger.info(f"{param.name} : try loading with arg value : {arg_value}")
-
-    config_value = config.configfile.get('musicbot', param.name, fallback=None)
-    logger.info(f"{param.name} : try loading with config key : {config_value}")
-
-    if arg_value:
-        value = arg_value
-
+    config_value = Conf.config.configfile.get('musicbot', param.name, fallback=None)
     if config_value:
-        if not value or value == param.default:
-            value = config_value
-        elif arg_value and arg_value != config_value:
-            logger.warning(f"{param.name} : config value {config_value} is not sync with arg value {arg_value}")
+        final_value = config_value
+        logger.info(f"{param.name} : value = {config_value=}")
 
-    if not value and param.required:
-        raise click.BadParameter(f'missing arg or config {param.name} in {config.config}', ctx, param, param.name)
-    logger.info(f"{param.name} : final value {value}")
-    ctx.params[param.name] = value
-    return value
+    if value:
+        arg_value = value
+        logger.info(f"{param.name} : value = {arg_value=}")
+        final_value = value
+        if arg_value != config_value:
+            logger.warning(f"{param.name} : config string value {config_value} is not sync with arg value {arg_value}")
+
+    if not final_value and param.required:
+        raise click.BadParameter(f'missing string arg or config {param.name} in {Conf.config.config}', ctx, param, param.name)
+    ctx.params[param.name] = final_value
+    logger.info(f"{param.name} : string final value {final_value}")
+    return final_value
 
 
 def config_list(ctx: click.Context, param: click.Parameter, value: Any) -> Any:
     arg_value = value
-    logger.info(f"{param.name} : try loading with arg value : {arg_value}")
+    logger.info(f"{param.name} : try list loading with arg value : {arg_value}")
 
-    config_value = config.configfile.get('musicbot', param.name, fallback=None)
+    config_value = Conf.config.configfile.get('musicbot', param.name, fallback=None)
     list_value = tuple(mysplit(config_value, ',')) if config_value is not None else []
-    logger.info(f"{param.name} : try loading with config key : {list_value}")
+    logger.info(f"{param.name} : try list loading with config key : {list_value}")
 
     if arg_value:
         value = arg_value
@@ -87,16 +84,16 @@ def config_list(ctx: click.Context, param: click.Parameter, value: Any) -> Any:
         if not value or value == param.default:
             value = list_value
         elif arg_value and arg_value != list_value:
-            logger.warning(f"{param.name} : config value {list_value} is not sync with arg value {arg_value}")
+            logger.warning(f"{param.name} : config list value {list_value} is not sync with arg value {arg_value}")
 
     if not value and param.required:
-        raise click.BadParameter(f'missing arg or config {param.name} in {config.config}', ctx, param, param.name)
-    logger.info(f"{param.name} : final value {value}")
+        raise click.BadParameter(f'missing list arg or config {param.name} in {Conf.config.config}', ctx, param, param.name)
+    logger.info(f"{param.name} : list final value {value}")
     ctx.params[param.name] = value
     return value
 
 
-@config.timeit
+@Conf.timeit
 def genfiles(folders: Iterable[str]) -> Collection[File]:
     directories = [os.path.abspath(f) for f in folders]
     count = 0
@@ -118,7 +115,7 @@ def genfiles(folders: Iterable[str]) -> Collection[File]:
             raise
         except OSError as e:
             logger.error(e)
-    config.parallel(worker, music_files)
+    Conf.parallel(worker, music_files)
     return files
 
 

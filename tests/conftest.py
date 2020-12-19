@@ -12,11 +12,6 @@ logger = logging.getLogger(__name__)
 pytest_plugins = ["docker_compose"]
 
 
-# import os
-# def pytest_generate_tests(metafunc):  # pylint: disable=unused-argument
-#     os.environ['MB_CONFIG'] = '/tmp/musicbot.ini'
-
-
 def wait_for_service(service, timeout=60):
     start_time = time.perf_counter()
     while True:
@@ -42,7 +37,8 @@ def postgraphile_public(db, function_scoped_container_getter):  # pylint: disabl
     service = function_scoped_container_getter.get("postgraphile_public").network_info[0]
     time.sleep(10)
     wait_for_service(service)
-    return f"http://{service.hostname}:{service.host_port}/graphql"
+    public = f"http://{service.hostname}:{service.host_port}/graphql"
+    return public
 
 
 @pytest.fixture
@@ -50,10 +46,11 @@ def postgraphile_private(db, function_scoped_container_getter):  # pylint: disab
     service = function_scoped_container_getter.get("postgraphile_private").network_info[0]
     time.sleep(10)
     wait_for_service(service)
-    return f"http://{service.hostname}:{service.host_port}/graphql"
+    private = f"http://{service.hostname}:{service.host_port}/graphql"
+    return private
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def user_unregister(postgraphile_public):
     try:
         user = User.from_auth(graphql=postgraphile_public, email=fixtures.email, password=fixtures.password)
@@ -62,37 +59,42 @@ def user_unregister(postgraphile_public):
         logger.warning(f"Test user did not exist : {e}")
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def user_token(cli_runner, postgraphile_public, user_unregister):  # pylint: disable=unused-argument
     run_cli(cli_runner, main_cli, [
+        '--quiet',
         'user', 'register',
         '--graphql', postgraphile_public,
         '--email', fixtures.email,
         '--password', fixtures.password,
         '--first-name', fixtures.first_name,
-        '--last-name', fixtures.last_name
+        '--last-name', fixtures.last_name,
     ])
-    token = run_cli(cli_runner, main_cli, [
+    output = run_cli(cli_runner, main_cli, [
+        '--quiet',
         'user', 'token',
         '--graphql', postgraphile_public,
         '--email', fixtures.email,
-        '--password', fixtures.password
+        '--password', fixtures.password,
     ])
-    token = token.rstrip()
-    assert token.count('\n') == 0
+    token_lines = output.splitlines()
+    assert len(token_lines) == 1
+    token = token_lines[0]
     return token
 
 
 @pytest.fixture
 def common_args(cli_runner, user_token, postgraphile_public):
-    common = ['--token', user_token, '--graphql', postgraphile_public]
+    common = ['-t', user_token, '-g', postgraphile_public]
     run_cli(cli_runner, main_cli, [
+        '--quiet',
         'local', 'scan',
         *common,
-        *fixtures.folders
+        *fixtures.folders,
     ])
     run_cli(cli_runner, main_cli, [
+        '--quiet',
         'filter', 'load',
         *common,
     ])
-    return ['--token', user_token, '--graphql', postgraphile_public]
+    return common

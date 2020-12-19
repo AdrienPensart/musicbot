@@ -8,6 +8,7 @@ from . import fixtures
 @pytest.mark.runner_setup(mix_stderr=False)
 def test_filter_show(cli_runner, common_args):
     run_cli(cli_runner, main_cli, [
+        '--quiet',
         'filter', 'show',
         *common_args,
         'default',
@@ -17,6 +18,7 @@ def test_filter_show(cli_runner, common_args):
 @pytest.mark.runner_setup(mix_stderr=False)
 def test_filter_delete(cli_runner, common_args):
     run_cli(cli_runner, main_cli, [
+        '--quiet',
         'filter', 'delete',
         *common_args,
         'default',
@@ -26,6 +28,7 @@ def test_filter_delete(cli_runner, common_args):
 @pytest.mark.runner_setup(mix_stderr=False)
 def test_filter_count(cli_runner, common_args):
     count_filters_str = run_cli(cli_runner, main_cli, [
+        '--quiet',
         'filter', 'count',
         *common_args,
     ])
@@ -36,6 +39,7 @@ def test_filter_count(cli_runner, common_args):
 @pytest.mark.runner_setup(mix_stderr=False)
 def test_filter_list(cli_runner, common_args):
     filters_json = run_cli(cli_runner, main_cli, [
+        '--quiet',
         'filter', 'list',
         *common_args,
         '--output', 'json',

@@ -81,6 +81,7 @@ Documentation
   poetry run rstcheck README.rst
 
 
+
 Commands
 --------
 .. code-block::
@@ -91,19 +92,18 @@ Commands
 
   Options:
     Global options: 
-      -c, --config FILE                                Config file path  [default: ~/musicbot.ini]
-      -l, --log FILE                                   Log file path
-      -q, --quiet                                      Disable progress bars  [default: False]
-      -t, --timings                                    Set verbosity to info and show execution timings  [default: False]
+      -c, --config FILE              Config file path  [default: ~/musicbot.ini]
+      -l, --log FILE                 Log file path  [default: ]
+      -q, --quiet                    Disable progress bars  [default: False]
+      -t, --timings                  Set verbosity to info and show execution timings  [default: False]
     Verbosity: [mutually_exclusive]
-      --debug                                          Same as "--verbosity debug"
-      --info                                           Same as "--verbosity info"
-      --warning                                        Same as "--verbosity warning"
-      --error                                          Same as "--verbosity error"
-      --critical                                       Same as "--verbosity critical"
-      --verbosity [debug|info|warning|error|critical]  Set verbosity level  [default: warning]
-    -V, --version                                      Show the version and exit.
-    -h, --help                                         Show this message and exit.
+      --debug                        Debug verbosity
+      --info                         Info verbosity
+      --warning                      Warning verbosity
+      --error                        Error verbosity
+      --critical                     Critical verbosity
+    -V, --version                    Show the version and exit.
+    -h, --help                       Show this message and exit.
 
   Commands:
     completion    Shell completion
@@ -116,7 +116,6 @@ Commands
     user          User management
     version       Print version
     youtube       Youtube tool
-
 
 musicbot completion
 *******************
@@ -134,7 +133,6 @@ musicbot completion
     install                Install the click-completion-command completion
     show (generate,print)  Show the click-completion-command completion code
 
-
 musicbot completion install
 ***************************
 .. code-block::
@@ -144,10 +142,9 @@ musicbot completion install
     Auto install shell completion code in your rc file
 
   Options:
-    -i, --case-insensitive / --no-case-insensitive  Case insensitive completion
-    --append / --overwrite                          Append the completion code to the file
-    -h, --help                                      Show this message and exit.
-
+    -i, --case-insensitive  Case insensitive completion
+    --append / --overwrite  Append the completion code to the file
+    -h, --help              Show this message and exit.
 
 musicbot completion show
 ************************
@@ -158,9 +155,8 @@ musicbot completion show
     Generate shell code to enable completion
 
   Options:
-    -i, --case-insensitive / --no-case-insensitive  Case insensitive completion
-    -h, --help                                      Show this message and exit.
-
+    -i, --case-insensitive  Case insensitive completion
+    -h, --help              Show this message and exit.
 
 musicbot filter
 ***************
@@ -181,7 +177,6 @@ musicbot filter
     load              Load default filters
     show (get,print)  Print a filter
 
-
 musicbot filter count
 *********************
 .. code-block::
@@ -192,12 +187,11 @@ musicbot filter count
 
   Options:
     Auth options: 
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT     User token
       -e, --email TEXT     User email
       -p, --password TEXT  User password
     -h, --help             Show this message and exit.
-
 
 musicbot filter delete
 **********************
@@ -209,12 +203,11 @@ musicbot filter delete
 
   Options:
     Auth options: 
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT     User token
       -e, --email TEXT     User email
       -p, --password TEXT  User password
     -h, --help             Show this message and exit.
-
 
 musicbot filter list
 ********************
@@ -227,12 +220,11 @@ musicbot filter list
   Options:
     --output [json|table|m3u]  Output format  [default: table]
     Auth options: 
-      --graphql TEXT           GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -g, --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT         User token
       -e, --email TEXT         User email
       -p, --password TEXT      User password
     -h, --help                 Show this message and exit.
-
 
 musicbot filter load
 ********************
@@ -244,12 +236,11 @@ musicbot filter load
 
   Options:
     Auth options: 
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT     User token
       -e, --email TEXT     User email
       -p, --password TEXT  User password
     -h, --help             Show this message and exit.
-
 
 musicbot filter show
 ********************
@@ -262,12 +253,11 @@ musicbot filter show
   Options:
     --output [json|table|m3u]  Output format  [default: table]
     Auth options: 
-      --graphql TEXT           GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -g, --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT         User token
       -e, --email TEXT         User email
       -p, --password TEXT      User password
     -h, --help                 Show this message and exit.
-
 
 musicbot folder
 ***************
@@ -290,7 +280,6 @@ musicbot folder
     playlist (tracks)              Generate a playlist
     tags                           Print music tags
 
-
 musicbot folder add-keywords
 ****************************
 .. code-block::
@@ -302,7 +291,6 @@ musicbot folder add-keywords
   Options:
     --dry       Take no real action  [default: False]
     -h, --help  Show this message and exit.
-
 
 musicbot folder delete-keywords
 *******************************
@@ -316,7 +304,6 @@ musicbot folder delete-keywords
     --dry       Take no real action  [default: False]
     -h, --help  Show this message and exit.
 
-
 musicbot folder find
 ********************
 .. code-block::
@@ -327,7 +314,6 @@ musicbot folder find
 
   Options:
     -h, --help  Show this message and exit.
-
 
 musicbot folder flac2mp3
 ************************
@@ -343,7 +329,6 @@ musicbot folder flac2mp3
     --dry                  Take no real action  [default: False]
     --flat                 Do not create subfolders
     -h, --help             Show this message and exit.
-
 
 musicbot folder inconsistencies
 *******************************
@@ -363,7 +348,6 @@ musicbot folder inconsistencies
       --fix                                             Fix musics
     -h, --help                                          Show this message and exit.
 
-
 musicbot folder playlist
 ************************
 .. code-block::
@@ -379,7 +363,6 @@ musicbot folder playlist
       --interleave             Interleave tracks by artist
     -h, --help                 Show this message and exit.
 
-
 musicbot folder tags
 ********************
 .. code-block::
@@ -391,7 +374,6 @@ musicbot folder tags
   Options:
     -h, --help  Show this message and exit.
 
-
 musicbot help
 *************
 .. code-block::
@@ -402,7 +384,6 @@ musicbot help
 
   Options:
     -h, --help  Show this message and exit.
-
 
 musicbot local
 **************
@@ -431,7 +412,6 @@ musicbot local
     sync                           Copy selected musics with filters to destination folder
     watch                          Watch files changes in folders
 
-
 musicbot local bests
 ********************
 .. code-block::
@@ -445,7 +425,7 @@ musicbot local bests
     --suffix TEXT             Append this suffix to playlist name
     --dry                     Take no real action  [default: False]
     Auth options: 
-      --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -g, --graphql TEXT      GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT        User token
       -e, --email TEXT        User email
       -p, --password TEXT     User password
@@ -480,7 +460,6 @@ musicbot local bests
       --shuffle               Randomize selection
     -h, --help                Show this message and exit.
 
-
 musicbot local clean
 ********************
 .. code-block::
@@ -491,13 +470,12 @@ musicbot local clean
 
   Options:
     Auth options: 
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT     User token
       -e, --email TEXT     User email
       -p, --password TEXT  User password
     -y, --yes              Confirm action
     -h, --help             Show this message and exit.
-
 
 musicbot local count
 ********************
@@ -509,12 +487,11 @@ musicbot local count
 
   Options:
     Auth options: 
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT     User token
       -e, --email TEXT     User email
       -p, --password TEXT  User password
     -h, --help             Show this message and exit.
-
 
 musicbot local execute
 **********************
@@ -526,12 +503,11 @@ musicbot local execute
 
   Options:
     Auth options: 
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT     User token
       -e, --email TEXT     User email
       -p, --password TEXT  User password
     -h, --help             Show this message and exit.
-
 
 musicbot local folders
 **********************
@@ -544,12 +520,11 @@ musicbot local folders
   Options:
     --output [json|table|m3u]  Output format  [default: table]
     Auth options: 
-      --graphql TEXT           GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -g, --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT         User token
       -e, --email TEXT         User email
       -p, --password TEXT      User password
     -h, --help                 Show this message and exit.
-
 
 musicbot local inconsistencies
 ******************************
@@ -568,7 +543,7 @@ musicbot local inconsistencies
       --fix                                             Fix musics
     --dry                                               Take no real action  [default: False]
     Auth options: 
-      --graphql TEXT                                    GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -g, --graphql TEXT                                GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT                                  User token
       -e, --email TEXT                                  User email
       -p, --password TEXT                               User password
@@ -603,7 +578,6 @@ musicbot local inconsistencies
       --shuffle                                         Randomize selection
     -h, --help                                          Show this message and exit.
 
-
 musicbot local player
 *********************
 .. code-block::
@@ -614,7 +588,7 @@ musicbot local player
 
   Options:
     Auth options: 
-      --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -g, --graphql TEXT      GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT        User token
       -e, --email TEXT        User email
       -p, --password TEXT     User password
@@ -649,7 +623,6 @@ musicbot local player
       --shuffle               Randomize selection
     -h, --help                Show this message and exit.
 
-
 musicbot local playlist
 ***********************
 .. code-block::
@@ -661,7 +634,7 @@ musicbot local playlist
   Options:
     --output [json|table|m3u]  Output format  [default: table]
     Auth options: 
-      --graphql TEXT           GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -g, --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT         User token
       -e, --email TEXT         User email
       -p, --password TEXT      User password
@@ -697,7 +670,6 @@ musicbot local playlist
       --interleave             Interleave tracks by artist
     -h, --help                 Show this message and exit.
 
-
 musicbot local rescan
 *********************
 .. code-block::
@@ -708,12 +680,11 @@ musicbot local rescan
 
   Options:
     Auth options: 
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT     User token
       -e, --email TEXT     User email
       -p, --password TEXT  User password
     -h, --help             Show this message and exit.
-
 
 musicbot local scan
 *******************
@@ -726,12 +697,11 @@ musicbot local scan
   Options:
     -s, --save             Save to config file  [default: False]
     Auth options: 
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT     User token
       -e, --email TEXT     User email
       -p, --password TEXT  User password
     -h, --help             Show this message and exit.
-
 
 musicbot local stats
 ********************
@@ -744,7 +714,7 @@ musicbot local stats
   Options:
     --output [json|table|m3u]  Output format  [default: table]
     Auth options: 
-      --graphql TEXT           GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -g, --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT         User token
       -e, --email TEXT         User email
       -p, --password TEXT      User password
@@ -779,7 +749,6 @@ musicbot local stats
       --shuffle                Randomize selection
     -h, --help                 Show this message and exit.
 
-
 musicbot local sync
 *******************
 .. code-block::
@@ -792,7 +761,7 @@ musicbot local sync
     --dry                     Take no real action  [default: False]
     -y, --yes                 Confirm action
     Auth options: 
-      --graphql TEXT          GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -g, --graphql TEXT      GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT        User token
       -e, --email TEXT        User email
       -p, --password TEXT     User password
@@ -829,7 +798,6 @@ musicbot local sync
     --delete                  Delete files on destination if not present in library
     -h, --help                Show this message and exit.
 
-
 musicbot local watch
 ********************
 .. code-block::
@@ -840,12 +808,11 @@ musicbot local watch
 
   Options:
     Auth options: 
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT     User token
       -e, --email TEXT     User email
       -p, --password TEXT  User password
     -h, --help             Show this message and exit.
-
 
 musicbot music
 **************
@@ -868,7 +835,6 @@ musicbot music
     set-tags                           Set music title
     tags                               Print music tags
 
-
 musicbot music add-keywords
 ***************************
 .. code-block::
@@ -880,7 +846,6 @@ musicbot music add-keywords
   Options:
     --dry       Take no real action  [default: False]
     -h, --help  Show this message and exit.
-
 
 musicbot music delete-keywords
 ******************************
@@ -894,7 +859,6 @@ musicbot music delete-keywords
     --dry       Take no real action  [default: False]
     -h, --help  Show this message and exit.
 
-
 musicbot music fingerprint
 **************************
 .. code-block::
@@ -906,7 +870,6 @@ musicbot music fingerprint
   Options:
     --acoustid-api-key TEXT  AcoustID API Key
     -h, --help               Show this message and exit.
-
 
 musicbot music flac2mp3
 ***********************
@@ -920,7 +883,6 @@ musicbot music flac2mp3
     --folder DIRECTORY  Destination folder
     --dry               Take no real action  [default: False]
     -h, --help          Show this message and exit.
-
 
 musicbot music inconsistencies
 ******************************
@@ -940,7 +902,6 @@ musicbot music inconsistencies
 
       --fix                                             Fix musics
     -h, --help                                          Show this message and exit.
-
 
 musicbot music set-tags
 ***********************
@@ -962,7 +923,6 @@ musicbot music set-tags
       --rating TEXT    Rating
     -h, --help         Show this message and exit.
 
-
 musicbot music tags
 *******************
 .. code-block::
@@ -973,7 +933,6 @@ musicbot music tags
 
   Options:
     -h, --help  Show this message and exit.
-
 
 musicbot spotify
 ****************
@@ -995,7 +954,6 @@ musicbot spotify
     refresh-token  Get a new token
     tracks         Show tracks
 
-
 musicbot spotify cached-token
 *****************************
 .. code-block::
@@ -1006,15 +964,14 @@ musicbot spotify cached-token
 
   Options:
     Spotify options: 
+      --spotify-token TEXT          Spotify token
       --spotify-username TEXT       Spotify username
       --spotify-client-id TEXT      Spotify client ID
       --spotify-client-secret TEXT  Spotify client secret
-      --spotify-token TEXT          Spotify token
       --spotify-cache-path FILE     Spotify cache path
       --spotify-scope TEXT          Spotify OAuth scopes, comma separated
       --spotify-redirect-uri TEXT   Spotify redirect URI
     -h, --help                      Show this message and exit.
-
 
 musicbot spotify diff
 *********************
@@ -1026,15 +983,15 @@ musicbot spotify diff
 
   Options:
     Auth options: 
-      --graphql TEXT                GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -g, --graphql TEXT            GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT              User token
       -e, --email TEXT              User email
       -p, --password TEXT           User password
     Spotify options: 
+      --spotify-token TEXT          Spotify token
       --spotify-username TEXT       Spotify username
       --spotify-client-id TEXT      Spotify client ID
       --spotify-client-secret TEXT  Spotify client secret
-      --spotify-token TEXT          Spotify token
       --spotify-cache-path FILE     Spotify cache path
       --spotify-scope TEXT          Spotify OAuth scopes, comma separated
       --spotify-redirect-uri TEXT   Spotify redirect URI
@@ -1072,7 +1029,6 @@ musicbot spotify diff
     --max-threshold FLOAT RANGE     Maximum distance threshold
     -h, --help                      Show this message and exit.
 
-
 musicbot spotify playlist
 *************************
 .. code-block::
@@ -1083,16 +1039,15 @@ musicbot spotify playlist
 
   Options:
     Spotify options: 
+      --spotify-token TEXT          Spotify token
       --spotify-username TEXT       Spotify username
       --spotify-client-id TEXT      Spotify client ID
       --spotify-client-secret TEXT  Spotify client secret
-      --spotify-token TEXT          Spotify token
       --spotify-cache-path FILE     Spotify cache path
       --spotify-scope TEXT          Spotify OAuth scopes, comma separated
       --spotify-redirect-uri TEXT   Spotify redirect URI
     --output [json|table|m3u]       Output format  [default: table]
     -h, --help                      Show this message and exit.
-
 
 musicbot spotify playlists
 **************************
@@ -1104,15 +1059,14 @@ musicbot spotify playlists
 
   Options:
     Spotify options: 
+      --spotify-token TEXT          Spotify token
       --spotify-username TEXT       Spotify username
       --spotify-client-id TEXT      Spotify client ID
       --spotify-client-secret TEXT  Spotify client secret
-      --spotify-token TEXT          Spotify token
       --spotify-cache-path FILE     Spotify cache path
       --spotify-scope TEXT          Spotify OAuth scopes, comma separated
       --spotify-redirect-uri TEXT   Spotify redirect URI
     -h, --help                      Show this message and exit.
-
 
 musicbot spotify refresh-token
 ******************************
@@ -1124,15 +1078,14 @@ musicbot spotify refresh-token
 
   Options:
     Spotify options: 
+      --spotify-token TEXT          Spotify token
       --spotify-username TEXT       Spotify username
       --spotify-client-id TEXT      Spotify client ID
       --spotify-client-secret TEXT  Spotify client secret
-      --spotify-token TEXT          Spotify token
       --spotify-cache-path FILE     Spotify cache path
       --spotify-scope TEXT          Spotify OAuth scopes, comma separated
       --spotify-redirect-uri TEXT   Spotify redirect URI
     -h, --help                      Show this message and exit.
-
 
 musicbot spotify tracks
 ***********************
@@ -1144,16 +1097,15 @@ musicbot spotify tracks
 
   Options:
     Spotify options: 
+      --spotify-token TEXT          Spotify token
       --spotify-username TEXT       Spotify username
       --spotify-client-id TEXT      Spotify client ID
       --spotify-client-secret TEXT  Spotify client secret
-      --spotify-token TEXT          Spotify token
       --spotify-cache-path FILE     Spotify cache path
       --spotify-scope TEXT          Spotify OAuth scopes, comma separated
       --spotify-redirect-uri TEXT   Spotify redirect URI
     --output [json|table|m3u]       Output format  [default: table]
     -h, --help                      Show this message and exit.
-
 
 musicbot user
 *************
@@ -1173,7 +1125,6 @@ musicbot user
     register (add,create,new)   Register a new user
     unregister (delete,remove)  Remove a user
 
-
 musicbot user list
 ******************
 .. code-block::
@@ -1191,7 +1142,6 @@ musicbot user list
       --graphql-admin-password TEXT  GraphQL admin password (basic auth)
     -h, --help                       Show this message and exit.
 
-
 musicbot user login
 *******************
 .. code-block::
@@ -1203,11 +1153,10 @@ musicbot user login
   Options:
     -s, --save             Save to config file  [default: False]
     Login options: 
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -e, --email TEXT     User email
       -p, --password TEXT  User password
     -h, --help             Show this message and exit.
-
 
 musicbot user register
 **********************
@@ -1220,13 +1169,12 @@ musicbot user register
   Options:
     -s, --save             Save to config file  [default: False]
     Register options: 
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -e, --email TEXT     User email
       -p, --password TEXT  User password
       --first-name TEXT    User first name
       --last-name TEXT     User last name
     -h, --help             Show this message and exit.
-
 
 musicbot user unregister
 ************************
@@ -1238,12 +1186,11 @@ musicbot user unregister
 
   Options:
     Auth options: 
-      --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT     User token
       -e, --email TEXT     User email
       -p, --password TEXT  User password
     -h, --help             Show this message and exit.
-
 
 musicbot version
 ****************
@@ -1255,7 +1202,6 @@ musicbot version
 
   Options:
     -h, --help  Show this message and exit.
-
 
 musicbot youtube
 ****************
@@ -1275,7 +1221,6 @@ musicbot youtube
     help         Print help
     search       Search a youtube link with artist and title
 
-
 musicbot youtube download
 *************************
 .. code-block::
@@ -1287,7 +1232,6 @@ musicbot youtube download
   Options:
     --path TEXT
     -h, --help   Show this message and exit.
-
 
 musicbot youtube find
 *********************
@@ -1301,7 +1245,6 @@ musicbot youtube find
     --acoustid-api-key TEXT  AcoustID API Key
     -h, --help               Show this message and exit.
 
-
 musicbot youtube fingerprint
 ****************************
 .. code-block::
@@ -1313,7 +1256,6 @@ musicbot youtube fingerprint
   Options:
     --acoustid-api-key TEXT  AcoustID API Key
     -h, --help               Show this message and exit.
-
 
 musicbot youtube search
 ***********************
