@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 def sane_spotify(ctx: click.Context, param: click.Parameter, value: str) -> Spotify:
     spotify_params = {}
     ctx.params[param.name] = value
-    print(f'{ctx.params=}')
     for field in attr.fields_dict(Spotify):
         spotify_params[field] = ctx.params['spotify_' + field]
         ctx.params.pop('spotify_' + field)
