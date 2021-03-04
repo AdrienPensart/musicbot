@@ -50,23 +50,26 @@ output_option = click.option(
 
 
 def config_string(ctx: click.Context, param: click.Parameter, value: Optional[str]) -> Any:
-    config_value = Conf.config.configfile.get('musicbot', param.name, fallback=None)
-    if config_value:
-        final_value = config_value
-        logger.info(f"{param.name} : value = {config_value=}")
+    arg_value = value
+    logger.info(f"{param.name} : try string loading with arg value : {arg_value}")
 
-    if value:
-        arg_value = value
-        logger.info(f"{param.name} : value = {arg_value=}")
-        final_value = value
-        if arg_value != config_value:
+    config_value = Conf.config.configfile.get('musicbot', param.name, fallback=None)
+    logger.info(f"{param.name} : try string loading with config key : {config_value}")
+
+    if arg_value:
+        value = arg_value
+
+    if config_value:
+        if not value or value == param.default:
+            value = config_value
+        elif arg_value and arg_value != config_value:
             logger.warning(f"{param.name} : config string value {config_value} is not sync with arg value {arg_value}")
 
-    if not final_value and param.required:
+    if not value and param.required:
         raise click.BadParameter(f'missing string arg or config {param.name} in {Conf.config.config}', ctx, param, param.name)
-    ctx.params[param.name] = final_value
-    logger.info(f"{param.name} : string final value {final_value}")
-    return final_value
+    ctx.params[param.name] = value
+    logger.info(f"{param.name} : string final value {value}")
+    return value
 
 
 def config_list(ctx: click.Context, param: click.Parameter, value: Any) -> Any:
