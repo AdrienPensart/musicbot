@@ -31,7 +31,7 @@ def play(tracks: Iterable[Dict[str, str]]) -> None:
             logger.error('no audio output')
             return
 
-        if all([device['name'] != b'pulse' for device in devices]):
+        if all(device['name'] != b'pulse' for device in devices):
             logger.error('pulse audio is not available, available devices : ')
             for device in devices:
                 logger.error(device['name'])
