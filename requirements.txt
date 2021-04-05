@@ -10,7 +10,7 @@ prettytable==2.*,>=2.1.0
 progressbar2==3.*,>=3.53.1
 prompt-toolkit==3.*,>=3.0.2
 pyacoustid==1.*,>=1.1.0
-pydub==0.*,>=0.24.0
+pydub==0.*,>=0.25.1
 python-slugify==4.*,>=4.0.0
 python-vlc==3.*,>=3.0.0
 requests==2.*,>=2.24.0

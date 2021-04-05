@@ -3,6 +3,7 @@ import functools
 import itertools
 from typing import List, Any
 import spotipy  # type: ignore
+from spotipy.oauth2 import CacheFileHandler  # type: ignore
 import attr
 
 logger = logging.getLogger(__name__)
@@ -22,7 +23,10 @@ class Spotify:
     def _auth_manager(self) -> spotipy.oauth2.SpotifyOAuth:
         auth_params = attr.asdict(self)
         del auth_params['token']
-        return spotipy.oauth2.SpotifyOAuth(**auth_params)
+        del auth_params['cache_path']
+        del auth_params['username']
+        cache_handler = CacheFileHandler(cache_path=self.cache_path, username=self.username)
+        return spotipy.oauth2.SpotifyOAuth(**auth_params, cache_handler=cache_handler)
 
     @functools.cached_property
     def _api(self) -> spotipy.Spotify:
