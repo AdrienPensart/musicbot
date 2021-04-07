@@ -5,9 +5,9 @@ colorlog==4.*,>=4.1.0
 coverage-badge==1.*,>=1.0.0
 dephell==0.*,>=0.8.3
 flake8==3.*,>=3.8.3
+fuzzywuzzy==0.*,>=0.18.0
 graphql-py==0.*,>=0.8.1
 humanize==3.*,>=3.0.1
-jellyfish==0.*,>=0.8.2
 logging-tree==1.*,>=1.8.0
 mutagen==1.*,>=1.44.0
 mypy==0.*,>=0.812.0
@@ -20,6 +20,7 @@ pygments==2.*,>=2.7.0
 pylint==2.*,>=2.6.0
 pytest-cov==2.*,>=2.6.0
 pytest-docker-compose==3.*,>=3.1.2
+python-levenshtein==0.*,>=0.12.2
 python-slugify==4.*,>=4.0.0
 python-vlc==3.*,>=3.0.0
 pytype==2021.*,>=2021.2.23

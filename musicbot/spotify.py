@@ -43,6 +43,24 @@ class Spotify:
     def refresh_token(self):
         return self._auth_manager.refresh_access_token(self.cached_token()['refresh_token'])
 
+    def get_download_playlist(self):
+        name = "To Download"
+        download_playlist = self.playlist(name)
+        if download_playlist:
+            return download_playlist
+        return self._api.user_playlist_create(self.username, name, public=False)
+
+    def set_download_playlist(self, tracks):
+        download_playlist = self.get_download_playlist()
+        track_ids = [track['track']['id'] for track in tracks]
+
+        # erase playlist first
+        self._api.user_playlist_replace_tracks(self.username, download_playlist['id'], [])
+
+        # add tracks 100 by 100 (API limit)
+        for i in range(0, len(track_ids), 100):
+            self._api.user_playlist_add_tracks(self.username, download_playlist['id'], track_ids[i:i + 100])
+
     def tracks(self) -> List[Any]:
         offset = 0
         limit = 50
@@ -72,7 +90,14 @@ class Spotify:
         logger.debug(f"length: {offset}")
         return list(itertools.chain(*objects))
 
-    def playlist(self, name: str) -> List[Any]:
+    def playlist(self, name: str) -> Any:
+        playlists = self.playlists()
+        for p in playlists:
+            if p['name'] == name:
+                return p
+        return None
+
+    def playlist_tracks(self, name: str) -> List[Any]:
         playlists = self.playlists()
         for p in playlists:
             if p['name'] == name:

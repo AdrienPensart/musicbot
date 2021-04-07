@@ -5,9 +5,9 @@ import json
 import shutil
 import collections
 import click
-import jellyfish  # type: ignore
-from prettytable import PrettyTable  # type: ignore
+from prettytable import PrettyTable, ALL  # type: ignore
 from slugify import slugify
+from fuzzywuzzy import fuzz
 from colorama import Fore  # type: ignore
 from click_skeleton import AdvancedGroup, add_options
 
@@ -33,6 +33,7 @@ def print_tracks_table(tracks):
     if not tracks:
         return
     pt = PrettyTable(["Track", "Artist", "Album"])
+    pt.align = 'l'
     width = shutil.get_terminal_size().columns // 3
     for t in tracks:
         title = '\n'.join(textwrap.wrap(t['track']['name'], width))
@@ -46,17 +47,44 @@ def print_distances(distances):
     if not distances:
         return
     pt = PrettyTable(["Title", "Artist", "Album", "Distance"])
+    pt.align = 'l'
+    pt.hrules = ALL
     for distance in distances:
         st = distance['spotify_track']
         stitle = st['track']['name']
         sartist = st['track']['artists'][0]['name']
         salbum = st['track']['album']['name']
-        lt = distance['local_track']
+        dtitle = distance['local_track']['title']
+        dartist = distance['local_track']['artist']
+        dalbum = distance['local_track']['album']
+        identical = True
+
+        if stitle != dtitle:
+            final_title = f"{Fore.YELLOW}{stitle} (spotify){Fore.RESET}\n{Fore.CYAN}{dtitle} (local){Fore.RESET}"
+            identical = False
+        else:
+            final_title = f"{Fore.GREEN}{stitle}{Fore.RESET}"
+
+        if sartist != dartist:
+            final_artist = f"{Fore.YELLOW}{sartist} (spotify){Fore.RESET}\n{Fore.CYAN}{dartist} (local){Fore.RESET}"
+            identical = False
+        else:
+            final_artist = f"{Fore.GREEN}{sartist}{Fore.RESET}"
+
+        if salbum != dalbum:
+            final_album = f"{Fore.YELLOW}{salbum} (spotify){Fore.RESET}\n{Fore.CYAN}{dalbum} (local){Fore.RESET}"
+            identical = False
+        else:
+            final_album = f"{Fore.GREEN}{salbum}{Fore.RESET}"
+
+        if identical:
+            continue
+
         d = distance['distance']
         pt.add_row([
-            f"{Fore.GREEN}Spotify : {stitle}{Fore.RESET}\nLocal : {lt['title']}",
-            f"{Fore.GREEN}Spotify : {sartist}{Fore.RESET}\n Local : {lt['artist']}",
-            f"{Fore.GREEN}Spotify : {salbum}{Fore.RESET}\nLocal : {lt['album']}",
+            final_title,
+            final_artist,
+            final_album,
             d,
         ])
     print(pt)
@@ -109,7 +137,7 @@ def playlists(spotify):
 )
 @click.argument("name")
 def playlist(name, spotify, output):
-    tracks = spotify.playlist(name)
+    tracks = spotify.playlist_tracks(name)
     output_tracks(output, tracks)
 
 
@@ -130,20 +158,19 @@ def tracks(spotify, output):
     music_filter_options.options,
     helpers.output_option,
 )
-@click.option('--min-threshold', help='Minimum distance threshold', type=click.FloatRange(0.0, 1.0), default=0.9)
-@click.option('--max-threshold', help='Maximum distance threshold', type=click.FloatRange(0.0, 1.0), default=1.0)
-# def diff(**kwargs):
-#     print(kwargs)
-def diff(user, music_filter, spotify, output, min_threshold, max_threshold):
+@click.option('--download-playlist', help='Create the download playlist', is_flag=True)
+@click.option('--min-threshold', help='Minimum distance threshold', type=click.FloatRange(0, 100), default=90)
+@click.option('--max-threshold', help='Maximum distance threshold', type=click.FloatRange(0, 100), default=100)
+def diff(user, download_playlist, music_filter, spotify, output, min_threshold, max_threshold):
     spotify_tracks = spotify.tracks()
     spotify_tracks_by_slug = {
-        slugify(f"""{t['track']['artists'][0]['name']}-{t['track']['name']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):  # type: ignore
+        slugify(f"""{t['track']['artists'][0]['name']}-{t['track']['album']['name']}-{t['track']['name']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):  # type: ignore
         t for t in spotify_tracks
     }
 
     local_tracks = user.do_filter(music_filter)
     local_tracks_by_slug = {
-        slugify(f"""{t['artist']}-{t['title']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):  # type: ignore
+        slugify(f"""{t['artist']}-{t['album']}-{t['title']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):  # type: ignore
         t for t in local_tracks
     }
 
@@ -151,15 +178,17 @@ def diff(user, music_filter, spotify, output, min_threshold, max_threshold):
     spotify_slug_tracks = collections.OrderedDict((d, spotify_tracks_by_slug[d]) for d in sorted(spotify_differences))
 
     local_tracks_found = len(spotify_tracks_by_slug) - len(spotify_differences)
-
     if len(local_tracks) == local_tracks_found:
         return
+
+    if download_playlist:
+        spotify.set_download_playlist(spotify_slug_tracks.values())
 
     output_tracks(output, spotify_slug_tracks.values())
     distances_tracks = []
     for spotify_slug, spotify_track in spotify_slug_tracks.items():
         distances = {
-            local_slug: jellyfish.jaro_similarity(spotify_slug, local_slug)
+            local_slug: fuzz.ratio(spotify_slug, local_slug)
             for local_slug in local_tracks_by_slug
         }
         if not distances:
@@ -179,8 +208,6 @@ def diff(user, music_filter, spotify, output, min_threshold, max_threshold):
                 'distance': closest_distance,
             })
     print_distances(distances_tracks)
-    print(f"min threshold : {min_threshold}")
-    print(f"max threshold : {max_threshold}")
     print(f"spotify tracks : {len(spotify_tracks)}")
     print(f"spotify slugs: {len(spotify_tracks_by_slug)}")
     print(f"local tracks : {len(local_tracks)}")

@@ -25,7 +25,30 @@ genre_option = optgroup.option('--genre', help='Genre')
 number_option = optgroup.option('--number', help='Track number')
 rating_option = optgroup.option('--rating', help='Rating')
 
-STOPWORDS = ['the', 'remaster', 'remastered', 'cut', 'part', 'version', 'mix', 'deluxe', 'edit', 'album', 'lp'] + list(map(str, range(1900, 2020)))
+STOPWORDS = [
+    'the',
+    'remaster',
+    'standard',
+    'remastered',
+    'bonus',
+    'cut',
+    'part',
+    'edition',
+    'version',
+    'mix',
+    'deluxe',
+    'edit',
+    'album',
+    'lp',
+    'ep',
+    'uk',
+    'track',
+    'expanded',
+    'single',
+    'volume',
+    'vol',
+] + list(map(str, range(1900, 2020)))
+
 REPLACEMENTS = [['praxis', 'buckethead'], ['lawson-rollins', 'buckethead']]
 
 keywords_argument = click.argument(
