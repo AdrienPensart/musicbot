@@ -955,6 +955,7 @@ musicbot spotify diff
     Ordering options: 
       --shuffle                     Randomize selection
     --output [json|table|m3u]       Output format  [default: table]
+    --download-playlist             Create the download playlist
     --min-threshold FLOAT RANGE     Minimum distance threshold
     --max-threshold FLOAT RANGE     Maximum distance threshold
     -h, --help                      Show this message and exit.
