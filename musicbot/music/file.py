@@ -47,6 +47,8 @@ STOPWORDS = [
     'single',
     'volume',
     'vol',
+    'legacy',
+    'special',
 ] + list(map(str, range(1900, 2020)))
 
 REPLACEMENTS = [['praxis', 'buckethead'], ['lawson-rollins', 'buckethead']]
