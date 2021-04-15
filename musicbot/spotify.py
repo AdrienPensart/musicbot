@@ -34,14 +34,26 @@ class Spotify:
             return spotipy.Spotify(auth=self.token)
         return spotipy.Spotify(auth_manager=self._auth_manager)
 
+    def new_token(self) -> Any:
+        return self._auth_manager.get_access_token(check_cache=False)
+
     def cached_token(self) -> Any:
-        return self._auth_manager.get_cached_token()
+        token = self._auth_manager.get_access_token()
+        if not token:
+            logger.warning("no cached token")
+        return token
 
     def is_token_expired(self) -> bool:
-        return self._auth_manager.is_token_expired(self.cached_token())
+        token = self.cached_token()
+        if not token:
+            return True
+        return self._auth_manager.is_token_expired(token)
 
-    def refresh_token(self):
-        return self._auth_manager.refresh_access_token(self.cached_token()['refresh_token'])
+    def refresh_token(self) -> Any:
+        token = self.cached_token()
+        if not token:
+            return None
+        return self._auth_manager.refresh_access_token(token['refresh_token'])
 
     def get_download_playlist(self):
         name = "To Download"

@@ -7,6 +7,14 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
+def test_spotify_cached_token(cli_runner):
+    run_cli(cli_runner, main_cli, [
+        '--quiet',
+        'spotify', 'cached-token'
+    ])
+
+
+@pytest.mark.runner_setup(mix_stderr=False)
 def test_spotify_playlists(cli_runner):
     run_cli(cli_runner, main_cli, [
         '--quiet',

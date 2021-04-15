@@ -876,13 +876,14 @@ musicbot spotify
     -h, --help  Show this message and exit.
 
   Commands:
-    cached-token   Token informations
-    diff           Diff between local and spotify
-    help           Print help
-    playlist       Show playlist
-    playlists      List playlists
-    refresh-token  Get a new token
-    tracks         Show tracks
+    cached-token      Token informations
+    diff              Diff between local and spotify
+    help              Print help
+    new-token (auth)  Generate a new token
+    playlist          Show playlist
+    playlists         List playlists
+    refresh-token     Get a new token
+    tracks            Show tracks
 
 musicbot spotify cached-token
 *****************************
@@ -958,6 +959,25 @@ musicbot spotify diff
     --download-playlist             Create the download playlist
     --min-threshold FLOAT RANGE     Minimum distance threshold
     --max-threshold FLOAT RANGE     Maximum distance threshold
+    -h, --help                      Show this message and exit.
+
+musicbot spotify new-token
+**************************
+.. code-block::
+
+  Usage: musicbot spotify new-token [OPTIONS]
+
+    Generate a new token
+
+  Options:
+    Spotify options: 
+      --spotify-token TEXT          Spotify token
+      --spotify-username TEXT       Spotify username
+      --spotify-client-id TEXT      Spotify client ID
+      --spotify-client-secret TEXT  Spotify client secret
+      --spotify-cache-path FILE     Spotify cache path
+      --spotify-scope TEXT          Spotify OAuth scopes, comma separated
+      --spotify-redirect-uri TEXT   Spotify redirect URI
     -h, --help                      Show this message and exit.
 
 musicbot spotify playlist

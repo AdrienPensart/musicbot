@@ -111,6 +111,12 @@ def cli():
     pass
 
 
+@cli.command(help='Generate a new token', aliases=['auth'])
+@add_options(spotify_options.options)
+def new_token(spotify):
+    print(spotify.new_token())
+
+
 @cli.command(help='Token informations')
 @add_options(spotify_options.options)
 def cached_token(spotify):

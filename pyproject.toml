@@ -18,7 +18,6 @@ python-vlc = "^3.0"
 prompt_toolkit = "^3.0.2"
 python-slugify = "^4.0.0"
 mutagen = "^1.44.0"
-colorlog = "^4.1.0"
 attrs = "^20.1.0"
 requests = "^2.24.0"
 spotipy = "^2.16.0"
@@ -32,6 +31,7 @@ graphql-py = "^0.8.1"
 pydub = "^0.25.1"
 fuzzywuzzy = "^0.18.0"
 python-Levenshtein = "^0.12.2"
+colorlog = "^5.0.1"
 
 [tool.poetry.dev-dependencies]
 pytest-cov = "^2.6"
@@ -45,10 +45,11 @@ flake8 = "^3.8.3"
 pytest-docker-compose = "^3.1.2"
 pytype = "^2021.2.23"
 mypy = "^0.812"
+pytest-timeout = "^1.4.2"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--cov-report term-missing --durations=0 --cov musicbot --docker-compose-no-build -x --use-running-containers "
+addopts = "--timeout 120 --cov-report term-missing --durations=0 --cov musicbot --docker-compose-no-build -x --use-running-containers "
 
 [tool.pylint.master]
 jobs = 4
