@@ -31,7 +31,7 @@ setup(
     author_email='crunchengine@gmail.com',
     license='MIT',
     entry_points={"console_scripts": ["musicbot = musicbot.main:main", "musicbot-fire = musicbot.main:main_fire"]},
-    packages=['musicbot', 'musicbot.commands', 'musicbot.music'],
+    packages=['musicbot', 'musicbot.cli', 'musicbot.commands', 'musicbot.music'],
     package_dir={"": "."},
     package_data={"musicbot": ["schema/*.sql"]},
     install_requires=['attrs==20.*,>=20.1.0', 'click-skeleton==0.*,>=0.12.0', 'colorlog==5.*,>=5.0.1', 'fuzzywuzzy==0.*,>=0.18.0', 'graphql-py==0.*,>=0.8.1', 'humanize==3.*,>=3.0.1', 'logging-tree==1.*,>=1.8.0', 'mutagen==1.*,>=1.44.0', 'prettytable==2.*,>=2.1.0', 'progressbar2==3.*,>=3.53.1', 'prompt-toolkit==3.*,>=3.0.2', 'pyacoustid==1.*,>=1.1.0', 'pydub==0.*,>=0.25.1', 'python-levenshtein==0.*,>=0.12.2', 'python-slugify==4.*,>=4.0.0', 'python-vlc==3.*,>=3.0.0', 'requests==2.*,>=2.24.0', 'spotipy==2.*,>=2.16.0', 'watchdog==2.*,>=2.0.2', 'youtube-dl==2021.*,>=2021.3.3'],

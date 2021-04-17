@@ -1,7 +1,7 @@
+from typing import Any, Collection, Optional
 import logging
 import base64
 import json
-from typing import Any, Collection, Optional
 import attr
 from musicbot.graphql import GraphQL
 from musicbot.config import Conf
@@ -10,6 +10,12 @@ from musicbot.music import file
 from musicbot.music.music_filter import MusicFilter
 
 logger = logging.getLogger(__name__)
+
+DEFAULT_EMAIL: Optional[str] = None
+DEFAULT_PASSWORD: Optional[str] = None
+DEFAULT_FIRST_NAME: Optional[str] = None
+DEFAULT_LAST_NAME: Optional[str] = None
+DEFAULT_TOKEN: Optional[str] = None
 
 
 @attr.s(auto_attribs=True, frozen=True)

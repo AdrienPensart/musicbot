@@ -13,23 +13,42 @@ import click
 import progressbar  # type: ignore
 import colorlog  # type: ignore
 from click_skeleton.helpers import seconds_to_human
-from musicbot import defaults
+from musicbot.defaults import DEFAULT_MB_CONCURRENCY
 
 logger = logging.getLogger(__name__)
+
+DEFAULT_CONFIG = '~/musicbot.ini'
+DEFAULT_LOG = ''
+DEFAULT_DEBUG = False
+DEFAULT_INFO = False
+DEFAULT_WARNING = False
+DEFAULT_ERROR = False
+DEFAULT_CRITICAL = False
+DEFAULT_TIMINGS = False
+DEFAULT_VERBOSITY = 'warning'
+DEFAULT_QUIET = False
+
+VERBOSITIES = {
+    'debug': logging.DEBUG,
+    'info': logging.INFO,
+    'warning': logging.WARNING,
+    'error': logging.ERROR,
+    'critical': logging.CRITICAL,
+}
 
 
 @attr.s(auto_attribs=True, frozen=True)
 class Config:
-    log: Optional[Union[str, PathLike]] = defaults.DEFAULT_LOG
+    log: Optional[Union[str, PathLike]] = DEFAULT_LOG
     quiet: bool = True
-    debug: bool = defaults.DEFAULT_DEBUG
-    info: bool = defaults.DEFAULT_INFO
-    warning: bool = defaults.DEFAULT_WARNING
-    error: bool = defaults.DEFAULT_ERROR
-    critical: bool = defaults.DEFAULT_CRITICAL
-    timings: bool = defaults.DEFAULT_TIMINGS
-    config: str = defaults.DEFAULT_CONFIG
-    level: int = defaults.VERBOSITIES[defaults.DEFAULT_VERBOSITY]
+    debug: bool = DEFAULT_DEBUG
+    info: bool = DEFAULT_INFO
+    warning: bool = DEFAULT_WARNING
+    error: bool = DEFAULT_ERROR
+    critical: bool = DEFAULT_CRITICAL
+    timings: bool = DEFAULT_TIMINGS
+    config: str = DEFAULT_CONFIG
+    level: int = VERBOSITIES[DEFAULT_VERBOSITY]
 
     def __attrs_post_init__(self) -> None:
         verbosity = 'warning'
@@ -44,7 +63,7 @@ class Config:
         if self.critical:
             verbosity = 'critical'
 
-        level = defaults.VERBOSITIES.get(verbosity, logging.WARNING)
+        level = VERBOSITIES.get(verbosity, logging.WARNING)
         root_logger = logging.getLogger()
         root_logger.setLevel(level)
         if not self.quiet:
@@ -97,7 +116,7 @@ class Conf:
         return progressbar.ProgressBar(redirect_stderr=redirect_stderr, redirect_stdout=redirect_stdout, **pbar_options)
 
     @classmethod
-    def parallel(cls, worker, items, quiet=False, concurrency=defaults.DEFAULT_MB_CONCURRENCY, **pbar_options):
+    def parallel(cls, worker, items, quiet=False, concurrency=DEFAULT_MB_CONCURRENCY, **pbar_options):
         with cls.progressbar(max_value=len(items), quiet=quiet, redirect_stderr=True, redirect_stdout=True, **pbar_options) as pbar:
             with cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
                 try:

@@ -9,10 +9,11 @@ from prettytable import PrettyTable, ALL  # type: ignore
 from slugify import slugify
 from fuzzywuzzy import fuzz  # type: ignore
 from colorama import Fore  # type: ignore
-from click_skeleton import AdvancedGroup, add_options
-
-from musicbot import helpers, spotify_options, user_options
-from musicbot.music import music_filter_options
+from click_skeleton import AdvancedGroup
+from musicbot.cli.options import output_option
+from musicbot.cli.spotify import spotify_options
+from musicbot.cli.user import user_options
+from musicbot.cli.music_filter import music_filter_options
 from musicbot.music.file import STOPWORDS, REPLACEMENTS
 
 logger = logging.getLogger(__name__)
@@ -112,35 +113,33 @@ def cli():
 
 
 @cli.command(help='Generate a new token', aliases=['auth'])
-@add_options(spotify_options.options)
+@spotify_options
 def new_token(spotify):
     print(spotify.new_token())
 
 
 @cli.command(help='Token informations')
-@add_options(spotify_options.options)
+@spotify_options
 def cached_token(spotify):
     print(spotify.cached_token())
     print(f"Expired : {spotify.is_token_expired()}")
 
 
 @cli.command(help='Get a new token')
-@add_options(spotify_options.options)
+@spotify_options
 def refresh_token(spotify):
     print(spotify.refresh_token())
 
 
 @cli.command(help='List playlists')
-@add_options(spotify_options.options)
+@spotify_options
 def playlists(spotify):
     print_playlists_table(spotify.playlists())
 
 
 @cli.command(help='Show playlist')
-@add_options(
-    spotify_options.options,
-    helpers.output_option,
-)
+@spotify_options
+@output_option
 @click.argument("name")
 def playlist(name, spotify, output):
     tracks = spotify.playlist_tracks(name)
@@ -148,22 +147,18 @@ def playlist(name, spotify, output):
 
 
 @cli.command(help='Show tracks')
-@add_options(
-    spotify_options.options,
-    helpers.output_option,
-)
+@spotify_options
+@output_option
 def tracks(spotify, output):
     tracks = spotify.tracks()
     output_tracks(output, tracks)
 
 
 @cli.command(help='Diff between local and spotify')
-@add_options(
-    user_options.options,
-    spotify_options.options,
-    music_filter_options.options,
-    helpers.output_option,
-)
+@user_options
+@spotify_options
+@music_filter_options
+@output_option
 @click.option('--download-playlist', help='Create the download playlist', is_flag=True)
 @click.option('--min-threshold', help='Minimum distance threshold', type=click.FloatRange(0, 100), default=90)
 @click.option('--max-threshold', help='Maximum distance threshold', type=click.FloatRange(0, 100), default=100)

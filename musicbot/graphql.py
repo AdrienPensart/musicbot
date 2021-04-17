@@ -7,6 +7,8 @@ from musicbot.exceptions import FailedRequest, FailedAuthentication
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_GRAPHQL = 'http://127.0.0.1:5000/graphql'
+
 
 @attr.s(auto_attribs=True, frozen=True)
 class GraphQL:

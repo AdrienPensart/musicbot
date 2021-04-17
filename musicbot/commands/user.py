@@ -2,10 +2,18 @@ import logging
 import json
 from prettytable import PrettyTable  # type: ignore
 from click_option_group import optgroup  # type: ignore
-from click_skeleton import AdvancedGroup, add_options
+from click_skeleton import AdvancedGroup
 import click
-
-from musicbot import helpers, user_options, admin_options
+from musicbot.cli.options import output_option, save_option
+from musicbot.cli.user import (
+    user_options,
+    graphql_option,
+    email_option,
+    password_option,
+    first_name_option,
+    last_name_option,
+)
+from musicbot.cli.admin import admin_options
 from musicbot.user import User
 from musicbot.admin import Admin
 from musicbot.config import Conf
@@ -19,10 +27,8 @@ def cli():
 
 
 @cli.command('list', help='List users (admin)')
-@add_options(
-    helpers.output_option,
-    admin_options.options,
-)
+@output_option
+@admin_options
 def _list(graphql_admin, output, **kwargs):
     admin = Admin.from_auth(graphql=graphql_admin, **kwargs)
     users = admin.users()
@@ -36,15 +42,13 @@ def _list(graphql_admin, output, **kwargs):
 
 
 @cli.command(aliases=['new', 'add', 'create'], help='Register a new user')
-@add_options(
-    helpers.save_option,
-    optgroup.group('Register options'),
-    user_options.graphql_option,
-    user_options.email_option,
-    user_options.password_option,
-    user_options.first_name_option,
-    user_options.last_name_option,
-)
+@save_option
+@optgroup.group('Register options')
+@graphql_option
+@email_option
+@password_option
+@first_name_option
+@last_name_option
 def register(save, email, password, **kwargs):
     user = User.register(email=email, password=password, **kwargs)
     if not user.token:
@@ -59,19 +63,17 @@ def register(save, email, password, **kwargs):
 
 
 @cli.command(aliases=['delete', 'remove'], help='Remove a user')
-@add_options(user_options.options)
+@user_options
 def unregister(user):
     user.unregister()
 
 
 @cli.command(aliases=['token'], help='Authenticate user')
-@add_options(
-    helpers.save_option,
-    optgroup.group('Login options'),
-    user_options.graphql_option,
-    user_options.email_option,
-    user_options.password_option,
-)
+@save_option
+@optgroup.group('Login options')
+@graphql_option
+@email_option
+@password_option
 def login(save, **kwargs):
     user = User.from_auth(**kwargs)
     print(user.token)

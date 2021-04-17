@@ -3,27 +3,15 @@ import pathlib
 import json
 import os
 from typing import Any, Optional, List, Dict, Iterable, Iterator
-import click
 import acoustid  # type: ignore
 import mutagen  # type: ignore
 from slugify import slugify
 from pydub import AudioSegment  # type: ignore
-from click_option_group import optgroup  # type: ignore
 from click_skeleton.helpers import mysplit
-from musicbot import defaults
 from musicbot.music.helpers import ensure
 
-
 logger = logging.getLogger(__name__)
-
-music_options_group = optgroup.group('Music options')
-keywords_option = optgroup.option('--keywords', help='Keywords', multiple=True)
-artist_option = optgroup.option('--artist', help='Artist')
-album_option = optgroup.option('--album', help='Album')
-title_option = optgroup.option('--title', help='Title')
-genre_option = optgroup.option('--genre', help='Genre')
-number_option = optgroup.option('--number', help='Track number')
-rating_option = optgroup.option('--rating', help='Rating')
+DEFAULT_ACOUSTID_API_KEY: Optional[str] = None
 
 STOPWORDS = [
     'the',
@@ -53,29 +41,6 @@ STOPWORDS = [
 
 REPLACEMENTS = [['praxis', 'buckethead'], ['lawson-rollins', 'buckethead']]
 
-keywords_argument = click.argument(
-    'keywords',
-    nargs=-1,
-)
-
-flat_option = click.option(
-    '--flat',
-    help="Do not create subfolders",
-    is_flag=True,
-    default=defaults.DEFAULT_MB_FLAT,
-)
-
-options = [
-    music_options_group,
-    keywords_option,
-    artist_option,
-    album_option,
-    title_option,
-    genre_option,
-    number_option,
-    rating_option,
-]
-
 DEFAULT_CHECKS = [
     'no-title',
     'no-artist',
@@ -86,38 +51,6 @@ DEFAULT_CHECKS = [
     'invalid-title',
     'invalid-comment',
     'invalid-path',
-]
-path_argument = click.argument(
-    'path',
-    type=click.Path(exists=True, dir_okay=False),
-)
-
-folder_option = click.option(
-    '--folder',
-    help="Destination folder",
-    type=click.Path(exists=True, file_okay=False),
-)
-
-folder_argument = click.argument(
-    'folder',
-    type=click.Path(exists=True, file_okay=False),
-)
-
-checks_options = [
-    optgroup.group('Check options'),
-    optgroup.option(
-        '--checks',
-        help='Consistency tests',
-        multiple=True,
-        default=DEFAULT_CHECKS,
-        show_default=True,
-        type=click.Choice(DEFAULT_CHECKS),
-    ),
-    optgroup.option(
-        '--fix',
-        help="Fix musics",
-        is_flag=True,
-    ),
 ]
 supported_formats = ["mp3", "flac"]
 

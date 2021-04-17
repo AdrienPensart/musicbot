@@ -5,14 +5,15 @@ import itertools
 import click
 import mutagen  # type: ignore
 from prettytable import PrettyTable  # type: ignore
-from click_skeleton import AdvancedGroup, add_options
+from click_skeleton import AdvancedGroup
 from click_skeleton.helpers import PrettyDefaultDict
-
-from musicbot import helpers
 from musicbot.exceptions import MusicbotError
 from musicbot.config import Conf
-from musicbot.music import music_filter_options
-from musicbot.music.file import File, keywords_argument, flat_option, folder_option, checks_options, supported_formats
+from musicbot.helpers import genfiles
+from musicbot.cli.options import folder_argument, folders_argument, output_option, concurrency_options, dry_option
+from musicbot.cli.music_filter import ordering_options
+from musicbot.cli.file import keywords_argument, flat_option, folder_option, checks_and_fix_options
+from musicbot.music.file import File, supported_formats
 from musicbot.music.helpers import find_files
 
 logger = logging.getLogger(__name__)
@@ -24,9 +25,7 @@ def cli():
 
 
 @cli.command(help='Just list music files')
-@add_options(
-    helpers.folders_argument,
-)
+@folders_argument
 def find(folders):
     files = find_files(folders, supported_formats)
     for f in files:
@@ -34,13 +33,11 @@ def find(folders):
 
 
 @cli.command(help='Generate a playlist', aliases=['tracks'])
-@add_options(
-    helpers.folders_argument,
-    helpers.output_option,
-    music_filter_options.ordering_options,
-)
+@folders_argument
+@output_option
+@ordering_options
 def playlist(folders, output, shuffle, interleave):
-    tracks = helpers.genfiles(folders)
+    tracks = genfiles(folders)
 
     if interleave:
         tracks_by_artist = PrettyDefaultDict(list)
@@ -74,24 +71,20 @@ def playlist(folders, output, shuffle, interleave):
 
 
 @cli.command(help='Print music tags')
-@add_options(
-    helpers.folders_argument,
-)
+@folders_argument
 def tags(folders):
-    musics = helpers.genfiles(folders)
+    musics = genfiles(folders)
     for music in musics:
         logger.info(music.handle.tags.keys())
         print(music.as_dict())
 
 
 @cli.command(help='Convert all files in folders to mp3')
-@add_options(
-    folder_option,
-    helpers.folders_argument,
-    helpers.concurrency_options,
-    helpers.dry_option,
-    flat_option,
-)
+@folder_option
+@folders_argument
+@concurrency_options
+@dry_option
+@flat_option
 def flac2mp3(folders, **kwargs):
     flac_files = list(find_files(folders, ['flac']))
     if not flac_files:
@@ -113,13 +106,11 @@ def flac2mp3(folders, **kwargs):
 
 
 @cli.command(aliases=['consistency'], help='Check music files consistency')
-@add_options(
-    helpers.folders_argument,
-    helpers.dry_option,
-    checks_options,
-)
+@folders_argument
+@dry_option
+@checks_and_fix_options
 def inconsistencies(folders, fix, checks, dry):
-    musics = helpers.genfiles(folders)
+    musics = genfiles(folders)
     pt = PrettyTable(["Folder", "Path", "Inconsistencies"])
     for m in musics:
         try:
@@ -134,24 +125,20 @@ def inconsistencies(folders, fix, checks, dry):
 
 
 @cli.command(help='Add keywords to music')
-@add_options(
-    helpers.dry_option,
-    helpers.folder_argument,
-    keywords_argument,
-)
+@dry_option
+@folder_argument
+@keywords_argument
 def add_keywords(folder, keywords, dry):
-    musics = helpers.genfiles([folder])
+    musics = genfiles([folder])
     for music in musics:
         music.add_keywords(keywords, dry)
 
 
 @cli.command(help='Delete keywords to music')
-@add_options(
-    helpers.dry_option,
-    helpers.folder_argument,
-    keywords_argument,
-)
+@dry_option
+@folder_argument
+@keywords_argument
 def delete_keywords(folder, keywords, dry):
-    musics = helpers.genfiles([folder])
+    musics = genfiles([folder])
     for music in musics:
         music.delete_keywords(keywords, dry)

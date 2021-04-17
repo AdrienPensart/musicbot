@@ -1,13 +1,23 @@
 from click_option_group import optgroup, MutuallyExclusiveOptionGroup  # type: ignore
-from click_skeleton import ExpandedPath
-from musicbot import defaults
+from click_skeleton import ExpandedPath, add_options
+from musicbot.config import (
+    DEFAULT_CONFIG,
+    DEFAULT_LOG,
+    DEFAULT_DEBUG,
+    DEFAULT_INFO,
+    DEFAULT_WARNING,
+    DEFAULT_ERROR,
+    DEFAULT_CRITICAL,
+    DEFAULT_TIMINGS,
+    DEFAULT_QUIET,
+)
 
 config_option = optgroup.option(
     '--config', '-c',
     help='Config file path',
     type=ExpandedPath(writable=True, dir_okay=False),
-    envvar=defaults.MB_CONFIG,
-    default=defaults.DEFAULT_CONFIG,
+    envvar='MB_CONFIG',
+    default=DEFAULT_CONFIG,
     show_default=True,
 )
 
@@ -15,56 +25,56 @@ log_option = optgroup.option(
     '--log', '-l',
     help='Log file path',
     type=ExpandedPath(writable=True, dir_okay=False),
-    envvar=defaults.MB_LOG,
-    default=defaults.DEFAULT_LOG,
+    envvar='MB_LOG',
+    default=DEFAULT_LOG,
     show_default=True,
 )
 
 debug_option = optgroup.option(
     '--debug',
     help='Debug verbosity',
-    envvar=defaults.MB_DEBUG,
-    default=defaults.DEFAULT_DEBUG,
+    envvar='MB_DEBUG',
+    default=DEFAULT_DEBUG,
     is_flag=True,
 )
 
 info_option = optgroup.option(
     '--info',
     help='Info verbosity',
-    envvar=defaults.MB_INFO,
-    default=defaults.DEFAULT_INFO,
+    envvar='MB_INFO',
+    default=DEFAULT_INFO,
     is_flag=True,
 )
 
 warning_option = optgroup.option(
     '--warning',
     help='Warning verbosity',
-    envvar=defaults.MB_WARNING,
-    default=defaults.DEFAULT_WARNING,
+    envvar='MB_WARNING',
+    default=DEFAULT_WARNING,
     is_flag=True,
 )
 
 error_option = optgroup.option(
     '--error',
     help='Error verbosity',
-    envvar=defaults.MB_ERROR,
-    default=defaults.DEFAULT_ERROR,
+    envvar='MB_ERROR',
+    default=DEFAULT_ERROR,
     is_flag=True,
 )
 
 critical_option = optgroup.option(
     '--critical',
     help='Critical verbosity',
-    envvar=defaults.MB_CRITICAL,
-    default=defaults.DEFAULT_CRITICAL,
+    envvar='MB_CRITICAL',
+    default=DEFAULT_CRITICAL,
     is_flag=True,
 )
 
 timings_option = optgroup.option(
     '--timings', '-t',
     help='Set verbosity to info and show execution timings',
-    envvar=defaults.MB_TIMINGS,
-    default=defaults.DEFAULT_TIMINGS,
+    envvar='MB_TIMINGS',
+    default=DEFAULT_TIMINGS,
     is_flag=True,
     show_default=True,
 )
@@ -72,13 +82,13 @@ timings_option = optgroup.option(
 quiet_option = optgroup.option(
     '--quiet', '-q',
     help='Disable progress bars',
-    envvar=defaults.MB_QUIET,
-    default=defaults.DEFAULT_QUIET,
+    envvar='MB_QUIET',
+    default=DEFAULT_QUIET,
     is_flag=True,
     show_default=True,
 )
 
-options = [
+config_options = add_options(
     optgroup.group('Global options'),
     config_option,
     log_option,
@@ -90,4 +100,4 @@ options = [
     warning_option,
     error_option,
     critical_option,
-]
+)

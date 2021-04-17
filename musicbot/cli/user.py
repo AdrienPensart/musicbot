@@ -1,10 +1,17 @@
 from typing import Any
 import click
 from click_option_group import optgroup  # type: ignore
-from musicbot import defaults
-from musicbot.user import User
+from click_skeleton import add_options
+from musicbot.user import (
+    User,
+    DEFAULT_EMAIL,
+    DEFAULT_PASSWORD,
+    DEFAULT_FIRST_NAME,
+    DEFAULT_LAST_NAME,
+)
+from musicbot.graphql import DEFAULT_GRAPHQL
 from musicbot.exceptions import FailedAuthentication
-from musicbot.helpers import config_string
+from musicbot.cli.options import config_string
 
 
 def sane_user(ctx: click.Context, param: Any, value: Any) -> User:  # pylint:disable=unused-argument
@@ -31,7 +38,7 @@ token_option = optgroup.option(
 email_option = optgroup.option(
     '--email', '-e',
     help='User email',
-    default=defaults.DEFAULT_EMAIL,
+    default=DEFAULT_EMAIL,
     is_eager=True,
     callback=config_string,
 )
@@ -39,7 +46,7 @@ email_option = optgroup.option(
 password_option = optgroup.option(
     '--password', '-p',
     help='User password',
-    default=defaults.DEFAULT_PASSWORD,
+    default=DEFAULT_PASSWORD,
     is_eager=True,
     callback=config_string,
 )
@@ -47,7 +54,7 @@ password_option = optgroup.option(
 first_name_option = optgroup.option(
     '--first-name',
     help='User first name',
-    default=defaults.DEFAULT_FIRST_NAME,
+    default=DEFAULT_FIRST_NAME,
     is_eager=True,
     callback=config_string,
     show_default=True,
@@ -56,7 +63,7 @@ first_name_option = optgroup.option(
 last_name_option = optgroup.option(
     '--last-name',
     help='User last name',
-    default=defaults.DEFAULT_FIRST_NAME,
+    default=DEFAULT_LAST_NAME,
     is_eager=True,
     callback=config_string,
     show_default=True,
@@ -65,16 +72,16 @@ last_name_option = optgroup.option(
 graphql_option = optgroup.option(
     '--graphql', '-g',
     help='GraphQL endpoint',
-    default=defaults.DEFAULT_GRAPHQL,
+    default=DEFAULT_GRAPHQL,
     is_eager=True,
     callback=config_string,
     show_default=True,
 )
 
-options = [
+user_options = add_options(
     optgroup.group('Auth options'),
     graphql_option,
     token_option,
     email_option,
     password_option,
-]
+)
