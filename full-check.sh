@@ -16,10 +16,10 @@ echo "generating requirements-dev.txt"
 poetry run dephell deps convert --from-format=poetry --from-path=pyproject.toml --to-format=pip --to-path=requirements-dev.txt --envs main dev
 
 echo "linting : pylint..."
-poetry run pylint musicbot tests doc
+poetry run pylint musicbot tests
 
 echo "linting : flake8..."
-poetry run flake8 musicbot tests doc
+poetry run flake8 musicbot tests
 
 echo "static type checking : mypy..."
 poetry run mypy musicbot tests
