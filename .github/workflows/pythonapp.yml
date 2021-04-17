@@ -21,16 +21,16 @@ jobs:
           rst-lint README.rst
       - name: Pylint Linting
         run: |
-          pylint musicbot tests doc
+          pylint musicbot tests
       - name: Flake8 Linting
         run: |
-          flake8 --config .flake8 musicbot tests doc
+          flake8 --config .flake8 musicbot tests
       - name: MyPy Static type checking
         run: |
-          mypy musicbot tests doc
+          mypy musicbot tests
       - name: PyType Static type checking
         run: |
-          pytype musicbot tests doc -j auto -k
+          pytype musicbot tests -j auto -k
       - name: Test with pytest
         env:
           MB_SPOTIFY_CACHE: ${{ secrets.MB_SPOTIFY_CACHE }}
