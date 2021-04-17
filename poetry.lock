@@ -561,7 +561,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "flake8"
-version = "3.9.0"
+version = "3.9.1"
 description = "the modular source code checker: pep8 pyflakes and co"
 category = "dev"
 optional = false
@@ -1159,7 +1159,7 @@ python-versions = "*"
 
 [[package]]
 name = "pytype"
-version = "2021.4.9"
+version = "2021.4.15"
 description = "Python type inferencer"
 category = "dev"
 optional = false
@@ -1172,7 +1172,7 @@ ninja = ">=1.10.0.post2"
 pyyaml = ">=3.11"
 six = "*"
 toml = "*"
-typed_ast = "*"
+typed_ast = ">=1.4.3"
 
 [[package]]
 name = "pywin32"
@@ -1404,7 +1404,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "youtube-dl"
-version = "2021.4.7"
+version = "2021.4.17"
 description = "YouTube video downloader"
 category = "main"
 optional = false
@@ -1727,8 +1727,8 @@ docutils = [
     {file = "docutils-0.17.tar.gz", hash = "sha256:e2ffeea817964356ba4470efba7c2f42b6b0de0b04e66378507e3e2504bbff4c"},
 ]
 flake8 = [
-    {file = "flake8-3.9.0-py2.py3-none-any.whl", hash = "sha256:12d05ab02614b6aee8df7c36b97d1a3b2372761222b19b58621355e82acddcff"},
-    {file = "flake8-3.9.0.tar.gz", hash = "sha256:78873e372b12b093da7b5e5ed302e8ad9e988b38b063b61ad937f26ca58fc5f0"},
+    {file = "flake8-3.9.1-py2.py3-none-any.whl", hash = "sha256:3b9f848952dddccf635be78098ca75010f073bfe14d2c6bda867154bea728d2a"},
+    {file = "flake8-3.9.1.tar.gz", hash = "sha256:1aa8990be1e689d96c745c5682b687ea49f2e05a443aff1f8251092b0014e378"},
 ]
 fuzzywuzzy = [
     {file = "fuzzywuzzy-0.18.0-py2.py3-none-any.whl", hash = "sha256:928244b28db720d1e0ee7587acf660ea49d7e4c632569cad4f1cd7e68a5f0993"},
@@ -2082,15 +2082,15 @@ python-vlc = [
     {file = "python_vlc-3.0.12117-py3-none-any.whl", hash = "sha256:d6150ac2e5ff363faa792545e57fa084fe4931fca7fcd035b58985fc0805a2be"},
 ]
 pytype = [
-    {file = "pytype-2021.4.9-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:a2d2348825eb1d2cb4b7e8ca9f576654e5577cd222f1196f142319e7cd4cbf29"},
-    {file = "pytype-2021.4.9-cp36-cp36m-manylinux2014_x86_64.whl", hash = "sha256:ace0a4c7f269668c5d1f135a8c7013f5e1877ae040530704d9d278c6ca1455c1"},
-    {file = "pytype-2021.4.9-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:66cabc56cfb2d5cc91450d1d2e81b5d021891046681d5163197cb0e26d580c4d"},
-    {file = "pytype-2021.4.9-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:1b52d8ec7dd64f07149b9d960dd23a224a2e0f7ece2d4d64183ed2e598ffb03f"},
-    {file = "pytype-2021.4.9-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:a1a084f585eba188c06d49bb0e5c5b8b030dd2faaa31cc57246f74270e27c3c8"},
-    {file = "pytype-2021.4.9-cp38-cp38-manylinux2014_x86_64.whl", hash = "sha256:f5d0b474e5d27d327f7028cbda4095c0e3189471357e80c42f6d8717aab20b42"},
-    {file = "pytype-2021.4.9-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:9701250f4824475634ca494a5f3134e550a8d38a0ee9b30c4b12b7f27fd428f1"},
-    {file = "pytype-2021.4.9-cp39-cp39-manylinux2014_x86_64.whl", hash = "sha256:1e8b8b5249565a32efd2221c014df137256b56f39b1744326e5fedcbbeba1c01"},
-    {file = "pytype-2021.4.9.tar.gz", hash = "sha256:3e2dac06387325e25dd014c07203b826009714048ac9953121d34860df1103d2"},
+    {file = "pytype-2021.4.15-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:e98a5260a27128fbb7c58d6a4893ec5c47a0153a760af0ee46b281d55352fe77"},
+    {file = "pytype-2021.4.15-cp36-cp36m-manylinux2014_x86_64.whl", hash = "sha256:286f16b5d41c10261bda5a7ec62832609ba1d56cadb5ed6c1997b6318f372f65"},
+    {file = "pytype-2021.4.15-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:486f6d191c64c55be2d6250da5ea4eb51360cc750cef0cce41a61dcf6fecb8cd"},
+    {file = "pytype-2021.4.15-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:0bcf41b152ee399bc853b2eecc092107730d4ce9fe04327e97beb5e498f251fb"},
+    {file = "pytype-2021.4.15-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:98c1faf5400bdeb62dca69e2690722d0b06b9a9a4d5e5f6ea16405566a2b8fc6"},
+    {file = "pytype-2021.4.15-cp38-cp38-manylinux2014_x86_64.whl", hash = "sha256:f1823862e1dc8bad5b9c144f8cd6320957615cb50cdaed22a86a9ac700a5ca57"},
+    {file = "pytype-2021.4.15-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:f1d0b491c5a6b1dd2005da1e5ee0e53a2e359196fa177e5fdae5f773f0326b30"},
+    {file = "pytype-2021.4.15-cp39-cp39-manylinux2014_x86_64.whl", hash = "sha256:d0bceb788f90bd260c794a9b1977f7f3f64887003110b91e311a5f7beefe849b"},
+    {file = "pytype-2021.4.15.tar.gz", hash = "sha256:c34487dbf9cfb840e311a3022e29f519de9ea4473dcc318101d2a8a81a17331a"},
 ]
 pywin32 = [
     {file = "pywin32-227-cp27-cp27m-win32.whl", hash = "sha256:371fcc39416d736401f0274dd64c2302728c9e034808e37381b5e1b22be4a6b0"},
@@ -2328,6 +2328,6 @@ yaspin = [
     {file = "yaspin-1.5.0.tar.gz", hash = "sha256:d8fc9bc1c8be225877ea6e2e08fec96c2b52e233525a5c40b92d373f015439c6"},
 ]
 youtube-dl = [
-    {file = "youtube_dl-2021.4.7-py2.py3-none-any.whl", hash = "sha256:5031125b13c92d23197adbe5d20f7a0a03befc510cabbfccb757703b7e35c140"},
-    {file = "youtube_dl-2021.4.7.tar.gz", hash = "sha256:34a034d9b2062e428710d4cd6365db7a64cd388e51a3f9ab74058179c95d8654"},
+    {file = "youtube_dl-2021.4.17-py2.py3-none-any.whl", hash = "sha256:22d385ea9887291764c3bd434554e44154f5e0935cde868b429d151415e1e3b2"},
+    {file = "youtube_dl-2021.4.17.tar.gz", hash = "sha256:e29b452b231581ba6d493af71ea4af5cc9d1d889b77b99ceccebbf180fc24758"},
 ]
