@@ -34,6 +34,7 @@ spotify_cache_path_option = optgroup.option(
     help='Spotify cache path',
     is_eager=True,
     type=ExpandedPath(writable=True, readable=True, dir_okay=False),
+    envvar='MB_SPOTIFY_CACHE_PATH',
     default=DEFAULT_SPOTIFY_CACHE_PATH,
     callback=config_string,
 )
@@ -42,6 +43,7 @@ spotify_scope_option = optgroup.option(
     '--spotify-scope',
     help='Spotify OAuth scopes, comma separated',
     is_eager=True,
+    envvar='MB_SPOTIFY_SCOPE',
     default=DEFAULT_SPOTIFY_SCOPE,
     callback=config_string,
 )
@@ -49,6 +51,7 @@ spotify_scope_option = optgroup.option(
 spotify_redirect_uri_option = optgroup.option(
     '--spotify-redirect-uri',
     help='Spotify redirect URI',
+    envvar='MB_SPOTIFY_REDIRECT_URI',
     is_eager=True,
     default=DEFAULT_SPOTIFY_REDIRECT_URI,
     callback=config_string,
@@ -58,6 +61,7 @@ spotify_username_option = optgroup.option(
     '--spotify-username',
     help='Spotify username',
     is_eager=True,
+    envvar='MB_SPOTIFY_USERNAME',
     default=DEFAULT_SPOTIFY_USERNAME,
     callback=config_string,
 )
@@ -66,6 +70,7 @@ spotify_client_id_option = optgroup.option(
     '--spotify-client-id',
     help='Spotify client ID',
     is_eager=True,
+    envvar='MB_SPOTIFY_CLIENT_ID',
     default=DEFAULT_SPOTIFY_CLIENT_ID,
     callback=config_string,
 )
@@ -74,6 +79,7 @@ spotify_client_secret_option = optgroup.option(
     '--spotify-client-secret',
     help='Spotify client secret',
     is_eager=True,
+    envvar='MB_SPOTIFY_CLIENT_SECRET',
     default=DEFAULT_SPOTIFY_CLIENT_SECRET,
     callback=config_string,
 )
@@ -81,6 +87,7 @@ spotify_client_secret_option = optgroup.option(
 spotify_token_option = optgroup.option(
     '--spotify-token',
     help='Spotify token',
+    envvar='MB_SPOTIFY_TOKEN',
     expose_value=False,
     default=DEFAULT_SPOTIFY_TOKEN,
     callback=sane_spotify,
