@@ -25,17 +25,17 @@ def play(tracks: Iterable[Dict[str, str]]) -> None:
         if platform.system() == 'Windows':
             os.add_dll_directory(r'C:\Program Files\VideoLAN\VLC')  # type: ignore
         import vlc  # type: ignore
-        instance = vlc.Instance("--vout=dummy")
-        devices = instance.audio_output_enumerate_devices()
-        if not devices:
-            logger.error('no audio output')
-            return
+        instance = vlc.Instance("--vout=dummy --aout=pulse")
+        # devices = instance.audio_output_enumerate_devices()
+        # if not devices:
+        #     logger.error('no audio output')
+        #     return
 
-        if all(device['name'] != b'pulse' for device in devices):
-            logger.error('pulse audio is not available, available devices : ')
-            for device in devices:
-                logger.error(device['name'])
-            return
+        # if all(device['name'] != b'pulse' for device in devices):
+        #     logger.error('pulse audio is not available, available devices : ')
+        #     for device in devices:
+        #         logger.error(device['name'])
+        #     return
 
         if not instance:
             logger.critical('Unable to start VLC instance')

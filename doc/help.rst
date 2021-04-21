@@ -64,6 +64,11 @@ How to use
   musicbot local scan /tests/fixtures/folder1 /tests/fixtures/folder2
   musicbot local tracks
 
+  # if under WSL2
+  export PULSE_SERVER=tcp:$(grep nameserver /etc/resolv.conf | awk '{print $2}');
+  musicbot local player
+
+
 Linting
 ------------
 
