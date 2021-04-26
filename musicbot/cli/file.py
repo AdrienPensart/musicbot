@@ -5,7 +5,7 @@ from musicbot.defaults import DEFAULT_MB_FLAT
 from musicbot.music.file import DEFAULT_CHECKS, DEFAULT_ACOUSTID_API_KEY
 from musicbot.cli.options import config_string
 
-music_options_group = optgroup.group('Music options')
+music_options_group = optgroup('Music options')
 keywords_option = optgroup.option('--keywords', help='Keywords', multiple=True)
 artist_option = optgroup.option('--artist', help='Artist')
 album_option = optgroup.option('--album', help='Album')
@@ -54,7 +54,7 @@ folder_argument = click.argument(
 )
 
 checks_and_fix_options = add_options(
-    optgroup.group('Check options'),
+    optgroup('Check options'),
     optgroup.option(
         '--checks',
         help='Consistency tests',

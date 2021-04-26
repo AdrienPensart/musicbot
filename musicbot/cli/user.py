@@ -79,7 +79,7 @@ graphql_option = optgroup.option(
 )
 
 user_options = add_options(
-    optgroup.group('Auth options'),
+    optgroup('Auth options'),
     graphql_option,
     token_option,
     email_option,

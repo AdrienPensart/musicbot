@@ -89,7 +89,7 @@ quiet_option = optgroup.option(
 )
 
 config_options = add_options(
-    optgroup.group('Global options'),
+    optgroup('Global options'),
     config_option,
     log_option,
     quiet_option,

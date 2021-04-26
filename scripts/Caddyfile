@@ -18,3 +18,15 @@
         reverse_proxy /* postgraphile_private:5001
     }
 }
+
+:82 {
+    log {
+        output file /var/log/musicbot_hasura.log
+    }
+    route {
+        basicauth /* {
+            musicbot_admin JDJhJDEwJDBoWXIxNVBiNDZmeDlpWEtwNFY1dnV4Z2dwNVlDOFR0T2J4cS84NzNaMVF6dlloTTVqVktH
+        }
+        reverse_proxy /* hasura:8080
+    }
+}

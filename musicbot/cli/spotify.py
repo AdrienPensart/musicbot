@@ -94,7 +94,7 @@ spotify_token_option = optgroup.option(
 )
 
 spotify_options = add_options(
-    optgroup.group('Spotify options'),
+    optgroup('Spotify options'),
     spotify_token_option,
     spotify_username_option,
     spotify_client_id_option,

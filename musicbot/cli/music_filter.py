@@ -66,13 +66,13 @@ interleave_option = optgroup.option(
     is_flag=True,
 )
 ordering_options = add_options(
-    optgroup.group('Ordering options'),
+    optgroup('Ordering options'),
     shuffle_option,
     interleave_option,
 )
 
 music_filter_options = add_options(
-    optgroup.group('Filter options'),
+    optgroup('Filter options'),
     optgroup.option(
         '--music-filter',
         help='Music Filter',
@@ -258,6 +258,6 @@ music_filter_options = add_options(
         is_flag=True,
         is_eager=True,
     ),
-    optgroup.group('Ordering options'),
+    optgroup('Ordering options'),
     shuffle_option,
 )

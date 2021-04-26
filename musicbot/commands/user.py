@@ -43,7 +43,7 @@ def _list(graphql_admin, output, **kwargs):
 
 @cli.command(aliases=['new', 'add', 'create'], help='Register a new user')
 @save_option
-@optgroup.group('Register options')
+@optgroup('Register options')
 @graphql_option
 @email_option
 @password_option
@@ -70,7 +70,7 @@ def unregister(user):
 
 @cli.command(aliases=['token'], help='Authenticate user')
 @save_option
-@optgroup.group('Login options')
+@optgroup('Login options')
 @graphql_option
 @email_option
 @password_option
