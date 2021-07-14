@@ -262,7 +262,6 @@ musicbot folder inconsistencies
       --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-comment|invalid-path]
                                                         Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
                                                         tracknumber, invalid-title, invalid-comment, invalid-path]
-
       --fix                                             Fix musics
     -h, --help                                          Show this message and exit.
 
@@ -457,7 +456,6 @@ musicbot local inconsistencies
       --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-comment|invalid-path]
                                                         Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
                                                         tracknumber, invalid-title, invalid-comment, invalid-path]
-
       --fix                                             Fix musics
     --dry                                               Take no real action  [default: False]
     Auth options: 
@@ -817,7 +815,6 @@ musicbot music inconsistencies
       --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-comment|invalid-path]
                                                         Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
                                                         tracknumber, invalid-title, invalid-comment, invalid-path]
-
       --fix                                             Fix musics
     -h, --help                                          Show this message and exit.
 
@@ -957,8 +954,8 @@ musicbot spotify diff
       --shuffle                     Randomize selection
     --output [json|table|m3u]       Output format  [default: table]
     --download-playlist             Create the download playlist
-    --min-threshold FLOAT RANGE     Minimum distance threshold
-    --max-threshold FLOAT RANGE     Maximum distance threshold
+    --min-threshold FLOAT RANGE     Minimum distance threshold  [0<=x<=100]
+    --max-threshold FLOAT RANGE     Maximum distance threshold  [0<=x<=100]
     -h, --help                      Show this message and exit.
 
 musicbot spotify new-token

@@ -317,7 +317,7 @@ class File:
             s = self._get_first('TRCK')
         try:
             if '/' in s:
-                s = s.split('/')[0]
+                s = s.split('/', maxsplit=1)[0]
             n = int(s)
             if n < 0:
                 return -1

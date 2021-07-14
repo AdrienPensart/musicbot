@@ -50,8 +50,9 @@ def config_string(ctx: click.Context, param: click.Parameter, value: Optional[st
     arg_value = value
     logger.info(f"{param.name} : try string loading with arg value : {arg_value}")
 
-    config_value = Conf.config.configfile.get('musicbot', param.name, fallback=None)
-    logger.info(f"{param.name} : try string loading with config key : {config_value}")
+    if param.name:
+        config_value = Conf.config.configfile.get('musicbot', param.name, fallback=None)
+        logger.info(f"{param.name} : try string loading with config key : {config_value}")
 
     if arg_value:
         value = arg_value
@@ -64,7 +65,9 @@ def config_string(ctx: click.Context, param: click.Parameter, value: Optional[st
 
     if not value and param.required:
         raise click.BadParameter(f'missing string arg or config {param.name} in {Conf.config.config}', ctx, param, param.name)
-    ctx.params[param.name] = value
+
+    if param.name:
+        ctx.params[param.name] = value
     logger.info(f"{param.name} : string final value {value}")
     return value
 
@@ -73,9 +76,10 @@ def config_list(ctx: click.Context, param: click.Parameter, value: Any) -> Any:
     arg_value = value
     logger.info(f"{param.name} : try list loading with arg value : {arg_value}")
 
-    config_value = Conf.config.configfile.get('musicbot', param.name, fallback=None)
-    list_value = tuple(mysplit(config_value, ',')) if config_value is not None else []
-    logger.info(f"{param.name} : try list loading with config key : {list_value}")
+    if param.name:
+        config_value = Conf.config.configfile.get('musicbot', param.name, fallback=None)
+        list_value = tuple(mysplit(config_value, ',')) if config_value is not None else []
+        logger.info(f"{param.name} : try list loading with config key : {list_value}")
 
     if arg_value:
         value = arg_value
@@ -89,7 +93,8 @@ def config_list(ctx: click.Context, param: click.Parameter, value: Any) -> Any:
     if not value and param.required:
         raise click.BadParameter(f'missing list arg or config {param.name} in {Conf.config.config}', ctx, param, param.name)
     logger.info(f"{param.name} : list final value {value}")
-    ctx.params[param.name] = value
+    if param.name:
+        ctx.params[param.name] = value
     return value
 
 

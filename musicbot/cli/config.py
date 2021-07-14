@@ -1,5 +1,6 @@
+import click
 from click_option_group import optgroup, MutuallyExclusiveOptionGroup  # type: ignore
-from click_skeleton import ExpandedPath, add_options
+from click_skeleton import add_options
 from musicbot.config import (
     DEFAULT_CONFIG,
     DEFAULT_LOG,
@@ -15,7 +16,7 @@ from musicbot.config import (
 config_option = optgroup.option(
     '--config', '-c',
     help='Config file path',
-    type=ExpandedPath(writable=True, dir_okay=False),
+    type=click.Path(writable=True, dir_okay=False),
     envvar='MB_CONFIG',
     default=DEFAULT_CONFIG,
     show_default=True,
@@ -24,7 +25,7 @@ config_option = optgroup.option(
 log_option = optgroup.option(
     '--log', '-l',
     help='Log file path',
-    type=ExpandedPath(writable=True, dir_okay=False),
+    type=click.Path(writable=True, dir_okay=False),
     envvar='MB_LOG',
     default=DEFAULT_LOG,
     show_default=True,

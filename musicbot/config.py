@@ -88,7 +88,7 @@ class Config:
         root_logger.addHandler(handler)
 
         if self.log:
-            fh = logging.FileHandler(self.log)
+            fh = logging.FileHandler(os.path.expanduser(self.log))
             fh.setLevel(logging.DEBUG)
             logging.getLogger().addHandler(fh)
             logger.debug(self)
@@ -96,7 +96,7 @@ class Config:
     @functools.cached_property
     def configfile(self) -> configparser.ConfigParser:
         file = configparser.ConfigParser()
-        file.read(self.config)
+        file.read(os.path.expanduser(self.config))
         if 'musicbot' not in file:
             logger.warning(f'[musicbot] section is not present in {self.config}')
         return file
