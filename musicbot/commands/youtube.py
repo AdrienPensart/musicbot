@@ -19,7 +19,7 @@ def cli():
 @cli.command(help='Search a youtube link with artist and title')
 @click.argument('artist')
 @click.argument('title')
-def search(artist, title):
+def search(artist: str, title: str):
     '''Search a youtube link with artist and title'''
     ydl_opts = {
         'format': 'bestaudio',
@@ -41,7 +41,7 @@ def search(artist, title):
 @click.argument('artist')
 @click.argument('title')
 @click.option('--path', default=None)
-def download(artist, title, path):
+def download(artist: str, title: str, path: str):
     try:
         if not path:
             path = f"{artist} - {title}.mp3"
@@ -64,7 +64,7 @@ def download(artist, title, path):
 @cli.command(help='Search a youtube link with artist and title')
 @path_argument
 @acoustid_api_key_option
-def find(path, acoustid_api_key):
+def find(path: str, acoustid_api_key: str):
     f = File(path)
     yt_path = f"{f.artist} - {f.title}.mp3"
     try:
@@ -114,7 +114,7 @@ def find(path, acoustid_api_key):
 @cli.command(help='Fingerprint a youtube video')
 @click.argument('url')
 @acoustid_api_key_option
-def fingerprint(url, acoustid_api_key):
+def fingerprint(url: str, acoustid_api_key: str):
     yt_path = "intermediate.mp3"
     ydl_opts = {
         'format': 'bestaudio/best',

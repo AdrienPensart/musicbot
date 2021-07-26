@@ -15,6 +15,9 @@ from musicbot.cli.spotify import spotify_options
 from musicbot.cli.user import user_options
 from musicbot.cli.music_filter import music_filter_options
 from musicbot.music.file import STOPWORDS, REPLACEMENTS
+from musicbot.music.music_filter import MusicFilter
+from musicbot.spotify import Spotify
+from musicbot.user import User
 
 logger = logging.getLogger(__name__)
 
@@ -114,26 +117,26 @@ def cli():
 
 @cli.command(help='Generate a new token', aliases=['auth'])
 @spotify_options
-def new_token(spotify):
+def new_token(spotify: Spotify):
     print(spotify.new_token())
 
 
 @cli.command(help='Token informations')
 @spotify_options
-def cached_token(spotify):
+def cached_token(spotify: Spotify):
     print(spotify.cached_token())
     print(f"Expired : {spotify.is_token_expired()}")
 
 
 @cli.command(help='Get a new token')
 @spotify_options
-def refresh_token(spotify):
+def refresh_token(spotify: Spotify):
     print(spotify.refresh_token())
 
 
 @cli.command(help='List playlists')
 @spotify_options
-def playlists(spotify):
+def playlists(spotify: Spotify):
     print_playlists_table(spotify.playlists())
 
 
@@ -141,7 +144,7 @@ def playlists(spotify):
 @spotify_options
 @output_option
 @click.argument("name")
-def playlist(name, spotify, output):
+def playlist(name: str, spotify: Spotify, output: str):
     tracks = spotify.playlist_tracks(name)
     output_tracks(output, tracks)
 
@@ -149,7 +152,7 @@ def playlist(name, spotify, output):
 @cli.command(help='Show tracks')
 @spotify_options
 @output_option
-def tracks(spotify, output):
+def tracks(spotify: Spotify, output: str):
     tracks = spotify.tracks()
     output_tracks(output, tracks)
 
@@ -162,7 +165,7 @@ def tracks(spotify, output):
 @click.option('--download-playlist', help='Create the download playlist', is_flag=True)
 @click.option('--min-threshold', help='Minimum distance threshold', type=click.FloatRange(0, 100), default=90)
 @click.option('--max-threshold', help='Maximum distance threshold', type=click.FloatRange(0, 100), default=100)
-def diff(user, download_playlist, music_filter, spotify, output, min_threshold, max_threshold):
+def diff(user: User, download_playlist: bool, music_filter: MusicFilter, spotify: Spotify, output: str, min_threshold: float, max_threshold: float):
     spotify_tracks = spotify.tracks()
     spotify_tracks_by_slug = {
         # slugify(f"""{t['track']['artists'][0]['name']}-{t['track']['album']['name']}-{t['track']['name']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):  # type: ignore

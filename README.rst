@@ -243,7 +243,7 @@ musicbot folder flac2mp3
 
   Options:
     --folder DIRECTORY     Destination folder
-    --concurrency INTEGER  Number of coroutines  [default: 8]
+    --concurrency INTEGER  Number of threads  [default: 8]
     --dry                  Take no real action  [default: False]
     --flat                 Do not create subfolders
     -h, --help             Show this message and exit.

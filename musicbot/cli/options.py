@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 concurrency_options = click.option(
     '--concurrency',
-    help='Number of coroutines',
+    help='Number of threads',
     default=DEFAULT_MB_CONCURRENCY,
     show_default=True,
 )

@@ -1,3 +1,4 @@
+from typing import List
 import logging
 from prettytable import PrettyTable  # type: ignore
 from mutagen import MutagenError  # type: ignore
@@ -26,7 +27,7 @@ def cli():
 @path_argument
 @folder_option
 @dry_option
-def flac2mp3(path, folder, dry):
+def flac2mp3(path: str, folder: str, dry: bool):
     f = File(path)
     f.to_mp3(folder, dry)
 
@@ -34,7 +35,7 @@ def flac2mp3(path, folder, dry):
 @cli.command(help='Print music fingerprint')
 @path_argument
 @acoustid_api_key_option
-def fingerprint(path, acoustid_api_key):
+def fingerprint(path: str, acoustid_api_key: str):
     f = File(path)
     print(f.fingerprint(acoustid_api_key))
 
@@ -52,7 +53,7 @@ def tags(path):
 @path_argument
 @dry_option
 @checks_and_fix_options
-def inconsistencies(path, folder, fix, **kwargs):
+def inconsistencies(path: str, folder: str, fix: bool, **kwargs):
     m = File(path, folder)
     pt = PrettyTable(["Folder", "Path", "Inconsistencies"])
     try:
@@ -69,7 +70,7 @@ def inconsistencies(path, folder, fix, **kwargs):
 @path_argument
 @dry_option
 @file_options
-def set_tags(path, title, artist, album, genre, keywords, rating, number, dry):
+def set_tags(path: str, title: str, artist: str, album: str, genre: str, keywords: List[str], rating: float, number: int, dry: bool):
     f = File(path)
     if title:
         f.title = title
@@ -92,7 +93,7 @@ def set_tags(path, title, artist, album, genre, keywords, rating, number, dry):
 @dry_option
 @path_argument
 @keywords_argument
-def add_keywords(path, keywords, dry):
+def add_keywords(path: str, keywords: List[str], dry: bool):
     f = File(path)
     f.add_keywords(keywords, dry)
 
@@ -101,6 +102,6 @@ def add_keywords(path, keywords, dry):
 @dry_option
 @path_argument
 @keywords_argument
-def delete_keywords(path, keywords, dry):
+def delete_keywords(path: str, keywords: List[str], dry: bool):
     f = File(path)
     f.delete_keywords(keywords, dry)

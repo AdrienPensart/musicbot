@@ -29,7 +29,7 @@ def cli():
 @cli.command('list', help='List users (admin)')
 @output_option
 @admin_options
-def _list(graphql_admin, output, **kwargs):
+def _list(graphql_admin: Admin, output: str, **kwargs):
     admin = Admin.from_auth(graphql=graphql_admin, **kwargs)
     users = admin.users()
     if output == 'table':
@@ -49,7 +49,7 @@ def _list(graphql_admin, output, **kwargs):
 @password_option
 @first_name_option
 @last_name_option
-def register(save, email, password, **kwargs):
+def register(save: bool, email: str, password: str, **kwargs):
     user = User.register(email=email, password=password, **kwargs)
     if not user.token:
         logger.error('register failed')
@@ -64,7 +64,7 @@ def register(save, email, password, **kwargs):
 
 @cli.command(aliases=['delete', 'remove'], help='Remove a user')
 @user_options
-def unregister(user):
+def unregister(user: User):
     user.unregister()
 
 
@@ -74,7 +74,7 @@ def unregister(user):
 @graphql_option
 @email_option
 @password_option
-def login(save, **kwargs):
+def login(save: bool, **kwargs):
     user = User.from_auth(**kwargs)
     print(user.token)
     if save:

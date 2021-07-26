@@ -1,3 +1,4 @@
+from typing import List
 import logging
 import json
 import random
@@ -26,7 +27,7 @@ def cli():
 
 @cli.command(help='Just list music files')
 @folders_argument
-def find(folders):
+def find(folders: List[str]):
     files = find_files(folders, supported_formats)
     for f in files:
         print(f[1])
@@ -36,7 +37,7 @@ def find(folders):
 @folders_argument
 @output_option
 @ordering_options
-def playlist(folders, output, shuffle, interleave):
+def playlist(folders: List[str], output: str, shuffle: bool, interleave: bool):
     tracks = genfiles(folders)
 
     if interleave:
@@ -72,7 +73,7 @@ def playlist(folders, output, shuffle, interleave):
 
 @cli.command(help='Print music tags')
 @folders_argument
-def tags(folders):
+def tags(folders: List[str]):
     musics = genfiles(folders)
     for music in musics:
         logger.info(music.handle.tags.keys())
@@ -85,7 +86,7 @@ def tags(folders):
 @concurrency_options
 @dry_option
 @flat_option
-def flac2mp3(folders, **kwargs):
+def flac2mp3(folders: List[str], folder, concurrency: int, dry: bool, flat: bool):
     flac_files = list(find_files(folders, ['flac']))
     if not flac_files:
         logger.warning(f"No flac files detected in {folders}")
@@ -96,20 +97,24 @@ def flac2mp3(folders, **kwargs):
         flac_path = flac_tuple[1]
         try:
             f = File(path=flac_path, folder=flac_folder)
-            f.to_mp3(**kwargs)
+            f.to_mp3(
+                folder=folder,
+                dry=dry,
+                flat=flat,
+            )
         except MusicbotError as e:
             logger.error(e)
         except Exception as e:  # pylint: disable=broad-except
             logger.error(f"{flac_path} : unable to convert to mp3 : {e}")
 
-    Conf.parallel(convert, flac_files)
+    Conf.parallel(convert, flac_files, concurrency=concurrency)
 
 
 @cli.command(aliases=['consistency'], help='Check music files consistency')
 @folders_argument
 @dry_option
 @checks_and_fix_options
-def inconsistencies(folders, fix, checks, dry):
+def inconsistencies(folders: List[str], fix: bool, checks: List[str], dry: bool):
     musics = genfiles(folders)
     pt = PrettyTable(["Folder", "Path", "Inconsistencies"])
     for m in musics:
@@ -128,7 +133,7 @@ def inconsistencies(folders, fix, checks, dry):
 @dry_option
 @folder_argument
 @keywords_argument
-def add_keywords(folder, keywords, dry):
+def add_keywords(folder: str, keywords: List[str], dry: bool):
     musics = genfiles([folder])
     for music in musics:
         music.add_keywords(keywords, dry)
@@ -138,7 +143,7 @@ def add_keywords(folder, keywords, dry):
 @dry_option
 @folder_argument
 @keywords_argument
-def delete_keywords(folder, keywords, dry):
+def delete_keywords(folder: str, keywords: List[str], dry: bool):
     musics = genfiles([folder])
     for music in musics:
         music.delete_keywords(keywords, dry)

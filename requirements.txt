@@ -2,7 +2,7 @@ atomicwrites==1.4.0; python_version >= "3.6" and python_full_version < "3.0.0" a
 attrs==21.2.0; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.5.0")
 audioread==2.1.9
 certifi==2021.5.30; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0"
-charset-normalizer==2.0.1; python_full_version >= "3.6.0" and python_version >= "3"
+charset-normalizer==2.0.3; python_full_version >= "3.6.0" and python_version >= "3"
 click-aliases==1.0.1; python_version >= "3.6" and python_version <= "3.9"
 click-completion==0.5.2; python_version >= "3.6" and python_version <= "3.9"
 click-didyoumean==0.0.3; python_version >= "3.6" and python_version <= "3.9"

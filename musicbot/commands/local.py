@@ -1,3 +1,4 @@
+from typing import List
 import logging
 import time
 import io
@@ -22,6 +23,8 @@ from musicbot.watcher import MusicWatcherHandler
 from musicbot.player import play
 from musicbot.playlist import print_playlist
 from musicbot.config import Conf
+from musicbot.user import User
+from musicbot.music.music_filter import MusicFilter
 from musicbot.music.file import File
 from musicbot.music.helpers import bytes_to_human, all_files, empty_dirs, except_directories
 from musicbot.cli.file import flat_option, checks_and_fix_options, folder_argument
@@ -40,14 +43,14 @@ def cli() -> None:
 
 @cli.command(help='Count musics')
 @user_options
-def count(user):
+def count(user: User):
     print(user.count_musics())
 
 
 @cli.command(help='Raw query', aliases=['query', 'fetch'])
 @click.argument('query')
 @user_options
-def execute(user, query):
+def execute(user: User, query: str):
     print(json.dumps(user.fetch(query)))
 
 
@@ -55,7 +58,7 @@ def execute(user, query):
 @output_option
 @user_options
 @music_filter_options
-def stats(user, output, music_filter):
+def stats(user: User, output: str, music_filter: MusicFilter):
     stats = user.do_stat(music_filter)
     if output == 'json':
         print(json.dumps(stats))
@@ -74,7 +77,7 @@ def stats(user, output, music_filter):
 @cli.command(help='List folders')
 @output_option
 @user_options
-def folders(user, output):
+def folders(user: User, output: str):
     _folders = user.folders()
     if output == 'json':
         print(json.dumps(_folders))
@@ -89,7 +92,7 @@ def folders(user, output):
 @folders_argument
 @save_option
 @user_options
-def scan(user, save, folders):
+def scan(user: User, save: bool, folders: List[str]):
     user_folders = user.folders()
     if not folders:
         folders = user_folders
@@ -103,7 +106,7 @@ def scan(user, save, folders):
 
 @cli.command(help='Watch files changes in folders')
 @user_options
-def watch(user):
+def watch(user: User):
     click.echo(f'Watching: {user.folders()}')
     event_handler = MusicWatcherHandler(user=user)
     observer = Observer()
@@ -121,7 +124,7 @@ def watch(user):
 @cli.command(help='Clean all musics')
 @user_options
 @yes_option
-def clean(user, yes):
+def clean(user: User, yes: bool):
     if yes or click.confirm("Are you sure to delete all musics from DB?"):
         user.clean_musics()
 
@@ -129,7 +132,7 @@ def clean(user, yes):
 @cli.command(help='Clean and load musics')
 @folders_argument
 @user_options
-def rescan(user, folders):
+def rescan(user: User, folders: List[str]):
     if not folders:
         folders = user.folders()
     files = genfiles(folders)
@@ -145,7 +148,7 @@ def rescan(user, folders):
 @flat_option
 @click.option('--delete', help='Delete files on destination if not present in library', is_flag=True)
 @click.argument('destination')
-def sync(user, delete, yes, dry, destination, music_filter, flat):
+def sync(user: User, delete: bool, yes: bool, dry: bool, destination: str, music_filter: MusicFilter, flat: bool):
     logger.info(f'Destination: {destination}')
     musics = user.do_filter(music_filter)
     if not musics:
@@ -224,7 +227,7 @@ def sync(user, delete, yes, dry, destination, music_filter, flat):
 @user_options
 @music_filter_options
 @interleave_option
-def playlist(user, output, music_filter, interleave):
+def playlist(user: User, output: str, music_filter: MusicFilter, interleave: bool):
     tracks = user.do_filter(music_filter)
 
     if interleave:
@@ -261,7 +264,7 @@ def playlist(user, output, music_filter, interleave):
 @dry_option
 @user_options
 @music_filter_options
-def bests(user, dry, folder, prefix, suffix, music_filter):
+def bests(user: User, dry: bool, folder: str, prefix: str, suffix: str, music_filter: MusicFilter):
     if prefix:
         music_filter = attr.evolve(music_filter, relative=True)
         if not prefix.endswith('/'):
@@ -289,7 +292,7 @@ def bests(user, dry, folder, prefix, suffix, music_filter):
 @cli.command(aliases=['play'], help='Music player')
 @user_options
 @music_filter_options
-def player(user, music_filter):
+def player(user: User, music_filter: MusicFilter):
     if not Conf.config.quiet:
         progressbar.streams.unwrap_stderr()
         progressbar.streams.unwrap_stdout()
@@ -305,7 +308,7 @@ def player(user, music_filter):
 @dry_option
 @user_options
 @music_filter_options
-def inconsistencies(user, dry, fix, checks, music_filter):
+def inconsistencies(user: User, dry: bool, fix: bool, checks: List[str], music_filter: MusicFilter):
     tracks = user.do_filter(music_filter)
     pt = PrettyTable(["Folder", "Path", "Inconsistencies"])
     for t in tracks:
