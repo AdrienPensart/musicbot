@@ -57,13 +57,13 @@ def main(**kwargs) -> int:
     exit_code = 1
     try:
         exit_code = cli.main(prog_name=PROG_NAME, **kwargs)
-        version_check.print()
         return exit_code
     except (mutagen.MutagenError, exceptions.MusicbotError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError) as e:
-        if Conf.config.debug:
+        logger.error(e)
+        if Conf.config and Conf.config.debug:
             logger.exception(e)
-        else:
-            raise
+    finally:
+        version_check.print()
     return exit_code
 
 

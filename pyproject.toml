@@ -32,9 +32,9 @@ python-Levenshtein = "^0.12.2"
 colorlog = "^5.0.1"
 python-slugify = "^5.0.0"
 attrs = "^21.2.0"
-click-skeleton = "^0.14"
 types-requests = "^2.25.0"
 types-python-slugify = "^0.1.1"
+click-skeleton = "^0.15"
 
 [tool.poetry.dev-dependencies]
 pytest-cov = "^2.6"
@@ -45,10 +45,9 @@ pylint = "^2.6.0"
 Pygments = "^2.7.0"
 flake8 = "^3.8.3"
 pytest-docker-compose = "^3.1.2"
-pytype = "^2021.2.23"
 pytest-timeout = "^1.4.2"
-mypy = "^0.910"
 poetry2setup = "^1.0.0"
+mypy = "^0.910"
 
 [tool.pytest.ini_options]
 minversion = "6.0"

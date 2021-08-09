@@ -1,24 +1,25 @@
 import logging
 import signal
 import os
+from pathlib import Path
 import concurrent.futures as cf
 import time
 import inspect
 import functools
 import configparser
-from os import PathLike
-from typing import Union, Optional, Any
+from typing import Optional, Any
 import attr
 import click
 import progressbar  # type: ignore
 import colorlog  # type: ignore
 from click_skeleton.helpers import seconds_to_human
+from musicbot.exceptions import MusicbotError
 from musicbot.defaults import DEFAULT_MB_CONCURRENCY
 
 logger = logging.getLogger(__name__)
 
 DEFAULT_CONFIG = '~/musicbot.ini'
-DEFAULT_LOG = ''
+DEFAULT_LOG: Optional[Path] = None
 DEFAULT_DEBUG = False
 DEFAULT_INFO = False
 DEFAULT_WARNING = False
@@ -39,7 +40,7 @@ VERBOSITIES = {
 
 @attr.s(auto_attribs=True, frozen=True)
 class Config:
-    log: Optional[Union[str, PathLike]] = DEFAULT_LOG
+    log: Optional[Path] = DEFAULT_LOG
     quiet: bool = True
     debug: bool = DEFAULT_DEBUG
     info: bool = DEFAULT_INFO
@@ -86,12 +87,15 @@ class Config:
         )
         root_logger.handlers = []
         root_logger.addHandler(handler)
-
         if self.log:
-            fh = logging.FileHandler(os.path.expanduser(self.log))
-            fh.setLevel(logging.DEBUG)
-            logging.getLogger().addHandler(fh)
-            logger.debug(self)
+            log_path = self.log.expanduser()
+            try:
+                fh = logging.FileHandler(log_path)
+                fh.setLevel(logging.DEBUG)
+                logging.getLogger().addHandler(fh)
+                logger.debug(self)
+            except PermissionError as e:
+                raise MusicbotError(f"Unable to write log file {log_path}") from e
 
     @functools.cached_property
     def configfile(self) -> configparser.ConfigParser:
@@ -117,30 +121,30 @@ class Conf:
 
     @classmethod
     def parallel(cls, worker, items, quiet=False, concurrency=DEFAULT_MB_CONCURRENCY, **pbar_options):
-        with cls.progressbar(max_value=len(items), quiet=quiet, redirect_stderr=True, redirect_stdout=True, **pbar_options) as pbar:
-            with cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
-                try:
-                    def update_pbar(_):
-                        try:
-                            pbar.value += 1
-                            pbar.update()
-                        except KeyboardInterrupt as e:
-                            logger.error(f"interrupted : {e}")
-                            while True:
-                                os.kill(os.getpid(), signal.SIGKILL)
-                                os.killpg(os.getpid(), signal.SIGKILL)
-                    futures = []
-                    for item in items:
-                        future = executor.submit(worker, item)
-                        future.add_done_callback(update_pbar)
-                        futures.append(future)
-                    cf.wait(futures)
-                    return [future.result() for future in futures if future.result() is not None]
-                except KeyboardInterrupt as e:
-                    logger.error(f"interrupted : {e}")
-                    while True:
-                        os.kill(os.getpid(), signal.SIGKILL)
-                        os.killpg(os.getpid(), signal.SIGKILL)
+        with cls.progressbar(max_value=len(items), quiet=quiet, redirect_stderr=True, redirect_stdout=True, **pbar_options) as pbar, \
+             cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
+            try:
+                def update_pbar(_):
+                    try:
+                        pbar.value += 1
+                        pbar.update()
+                    except KeyboardInterrupt as e:
+                        logger.error(f"interrupted : {e}")
+                        while True:
+                            os.kill(os.getpid(), signal.SIGKILL)
+                            os.killpg(os.getpid(), signal.SIGKILL)
+                futures = []
+                for item in items:
+                    future = executor.submit(worker, item)
+                    future.add_done_callback(update_pbar)
+                    futures.append(future)
+                cf.wait(futures)
+                return [future.result() for future in futures if future.result() is not None]
+            except KeyboardInterrupt as e:
+                logger.error(f"interrupted : {e}")
+                while True:
+                    os.kill(os.getpid(), signal.SIGKILL)
+                    os.killpg(os.getpid(), signal.SIGKILL)
 
     @classmethod
     def timeit(cls, *wrapper_args: Any, **wrapper_kwargs: Any) -> Any:

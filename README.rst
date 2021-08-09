@@ -10,7 +10,7 @@ Commands
   Options:
     Global options: 
       -c, --config FILE              Config file path  [default: ~/musicbot.ini]
-      -l, --log FILE                 Log file path  [default: ]
+      -l, --log FILE                 Log file path
       -q, --quiet                    Disable progress bars  [default: False]
       -t, --timings                  Set verbosity to info and show execution timings  [default: False]
     Verbosity: [mutually_exclusive]
