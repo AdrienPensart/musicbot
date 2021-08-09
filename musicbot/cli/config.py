@@ -16,7 +16,7 @@ from musicbot.config import (
 config_option = optgroup.option(
     '--config', '-c',
     help='Config file path',
-    type=click.Path(writable=True, dir_okay=False),
+    type=click.Path(readable=True, writable=True, dir_okay=False),
     envvar='MB_CONFIG',
     default=DEFAULT_CONFIG,
     show_default=True,
