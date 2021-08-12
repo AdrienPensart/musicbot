@@ -79,7 +79,7 @@ restructuredtext-lint==1.3.2
 semver==2.13.0; python_version >= "3.6" and python_full_version < "3.0.0" and python_version <= "3.9" or python_version >= "3.6" and python_version <= "3.9" and python_full_version >= "3.4.0"
 shellingham==1.4.0; python_version >= "3.6" and python_version <= "3.9"
 six==1.16.0; python_version >= "3.6" and python_full_version < "3.0.0" and python_version <= "3.9" or python_version >= "3.6" and python_version <= "3.9" and python_full_version >= "3.4.0"
-spotipy==2.18.0
+spotipy==2.19.0
 text-unidecode==1.3; python_version >= "3.6"
 texttable==1.6.4; python_version >= "3.4"
 toml==0.10.2; python_version >= "3.6" and python_full_version < "3.0.0" and python_version <= "3.9" or python_version >= "3.6" and python_version <= "3.9" and python_full_version >= "3.5.0"
