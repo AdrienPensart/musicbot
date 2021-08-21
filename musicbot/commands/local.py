@@ -22,7 +22,7 @@ from musicbot.helpers import genfiles
 from musicbot.watcher import MusicWatcherHandler
 from musicbot.player import play
 from musicbot.playlist import print_playlist
-from musicbot.config import Conf
+from musicbot.object import MusicbotObject
 from musicbot.user import User
 from musicbot.music.music_filter import MusicFilter
 from musicbot.music.file import File
@@ -100,8 +100,8 @@ def scan(user: User, save: bool, folders: List[str]):
     user.bulk_insert(files)
 
     if save:
-        Conf.config.configfile['musicbot']['folders'] = ','.join(set(folders))
-        Conf.config.write()
+        MusicbotObject.config.configfile['musicbot']['folders'] = ','.join(set(folders))
+        MusicbotObject.config.write()
 
 
 @cli.command(help='Watch files changes in folders')
@@ -173,7 +173,7 @@ def sync(user: User, delete: bool, yes: bool, dry: bool, destination: str, music
     logger.info(f"Sources : {len(sources)}")
     to_delete = set(destinations.keys()) - set(sources.keys())
     if delete and (yes or click.confirm(f'Do you really want to delete {len(to_delete)} files and playlists ?')):
-        with Conf.progressbar(max_value=len(to_delete)) as pbar:
+        with MusicbotObject.progressbar(max_value=len(to_delete)) as pbar:
             for d in to_delete:
                 try:
                     pbar.desc = f"Deleting musics and playlists: {os.path.basename(destinations[d])}"
@@ -190,7 +190,7 @@ def sync(user: User, delete: bool, yes: bool, dry: bool, destination: str, music
                     pbar.update()
 
     to_copy = set(sources.keys()) - set(destinations.keys())
-    with Conf.progressbar(max_value=len(to_copy)) as pbar:
+    with MusicbotObject.progressbar(max_value=len(to_copy)) as pbar:
         logger.info(f"To copy: {len(to_copy)}")
         for c in sorted(to_copy):
             final_destination = os.path.join(destination, c)
@@ -270,7 +270,7 @@ def bests(user: User, dry: bool, folder: str, prefix: str, suffix: str, music_fi
         if not prefix.endswith('/'):
             prefix += '/'
     playlists = user.bests(music_filter)
-    with Conf.progressbar(max_value=len(playlists)) as pbar:
+    with MusicbotObject.progressbar(max_value=len(playlists)) as pbar:
         for p in playlists:
             try:
                 playlist_filepath = os.path.join(folder, p['name'] + suffix + '.m3u')
@@ -293,9 +293,8 @@ def bests(user: User, dry: bool, folder: str, prefix: str, suffix: str, music_fi
 @user_options
 @music_filter_options
 def player(user: User, music_filter: MusicFilter):
-    if not Conf.config.quiet:
-        progressbar.streams.unwrap_stderr()
-        progressbar.streams.unwrap_stdout()
+    if not MusicbotObject.config.quiet:
+        progressbar.streams.unwrap(stderr=True, stdout=True)
     try:
         tracks = user.do_filter(music_filter)
         play(tracks)

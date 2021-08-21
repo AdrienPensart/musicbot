@@ -9,7 +9,7 @@ from prettytable import PrettyTable  # type: ignore
 from click_skeleton import AdvancedGroup
 from click_skeleton.helpers import PrettyDefaultDict
 from musicbot.exceptions import MusicbotError
-from musicbot.config import Conf
+from musicbot.object import MusicbotObject
 from musicbot.helpers import genfiles
 from musicbot.cli.options import folder_argument, folders_argument, output_option, concurrency_options, dry_option
 from musicbot.cli.music_filter import ordering_options
@@ -107,7 +107,7 @@ def flac2mp3(folders: List[str], folder, concurrency: int, dry: bool, flat: bool
         except Exception as e:  # pylint: disable=broad-except
             logger.error(f"{flac_path} : unable to convert to mp3 : {e}")
 
-    Conf.parallel(convert, flac_files, concurrency=concurrency)
+    MusicbotObject.parallel(convert, flac_files, concurrency=concurrency)
 
 
 @cli.command(aliases=['consistency'], help='Check music files consistency')

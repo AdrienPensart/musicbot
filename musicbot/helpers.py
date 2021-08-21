@@ -1,14 +1,15 @@
 from typing import Collection, Iterable
 import logging
 import os
+from musicbot.object import MusicbotObject
+from musicbot.timing import timeit
 from musicbot.music.file import File, supported_formats
-from musicbot.config import Conf
 from musicbot.music.helpers import find_files, filecount
 
 logger = logging.getLogger(__name__)
 
 
-@Conf.timeit
+@timeit
 def genfiles(folders: Iterable[str]) -> Collection[File]:
     directories = [os.path.abspath(f) for f in folders]
     count = 0
@@ -30,5 +31,5 @@ def genfiles(folders: Iterable[str]) -> Collection[File]:
             raise
         except OSError as e:
             logger.error(e)
-    Conf.parallel(worker, music_files)
+    MusicbotObject.parallel(worker, music_files)
     return files

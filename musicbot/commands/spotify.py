@@ -8,7 +8,6 @@ import click
 from prettytable import PrettyTable, ALL  # type: ignore
 from slugify import slugify
 from fuzzywuzzy import fuzz  # type: ignore
-from colorama import Fore  # type: ignore
 from click_skeleton import AdvancedGroup
 from musicbot.cli.options import output_option
 from musicbot.cli.spotify import spotify_options
@@ -63,23 +62,29 @@ def print_distances(distances):
         dalbum = distance['local_track']['album']
         identical = True
 
+        colored_stitle = click.style(f"{stitle} (spotify)", fg='yellow')
         if stitle != dtitle:
-            final_title = f"{Fore.YELLOW}{stitle} (spotify){Fore.RESET}\n{Fore.CYAN}{dtitle} (local){Fore.RESET}"
+            colored_dtitle = click.style(f"{dtitle} (local)", fg="cyan")
+            final_title = f"{colored_stitle}\n{colored_dtitle}"
             identical = False
         else:
-            final_title = f"{Fore.GREEN}{stitle}{Fore.RESET}"
+            final_title = colored_stitle
 
+        colored_sartist = click.style(f"{sartist} (spotify)", fg='yellow')
         if sartist != dartist:
-            final_artist = f"{Fore.YELLOW}{sartist} (spotify){Fore.RESET}\n{Fore.CYAN}{dartist} (local){Fore.RESET}"
+            colored_dartist = click.style(f"{dartist} (local)", fg="cyan")
+            final_artist = f"{colored_stitle}\n{colored_dartist}"
             identical = False
         else:
-            final_artist = f"{Fore.GREEN}{sartist}{Fore.RESET}"
+            final_artist = colored_sartist
 
+        colored_salbum = click.style(f"{salbum} (spotify)", fg='yellow')
         if salbum != dalbum:
-            final_album = f"{Fore.YELLOW}{salbum} (spotify){Fore.RESET}\n{Fore.CYAN}{dalbum} (local){Fore.RESET}"
+            colored_dalbum = click.style(f"{dalbum} (local)", fg="cyan")
+            final_album = f"{colored_salbum}\n{colored_dalbum}"
             identical = False
         else:
-            final_album = f"{Fore.GREEN}{salbum}{Fore.RESET}"
+            final_album = colored_salbum
 
         if identical:
             continue

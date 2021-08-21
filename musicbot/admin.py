@@ -1,7 +1,7 @@
 from typing import Any, Optional
 import attr
 import requests
-from musicbot.config import Conf
+from musicbot.timing import timeit
 from musicbot.graphql import GraphQL
 
 DEFAULT_GRAPHQL_ADMIN = 'http://127.0.0.1:5001/graphql'
@@ -14,7 +14,7 @@ class Admin:
     api: GraphQL
 
     @classmethod
-    @Conf.timeit
+    @timeit
     def from_auth(
         cls,
         graphql: str = DEFAULT_GRAPHQL_ADMIN,
@@ -28,7 +28,7 @@ class Admin:
             api = GraphQL(graphql=graphql)
         return cls(api=api)
 
-    @Conf.timeit
+    @timeit
     def users(self) -> Any:
         query = """{
             accountsList {

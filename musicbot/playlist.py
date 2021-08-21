@@ -1,7 +1,7 @@
 import sys
 from typing import Iterable, Dict, Optional, IO
-from colorama import Fore  # type: ignore
 from prettytable import PrettyTable  # type: ignore
+import click
 
 
 def print_playlist(
@@ -20,8 +20,8 @@ def print_playlist(
         album = t.get('album', None)
         artist = t.get('artist', None)
 
-        colored_title = (Fore.GREEN + title + Fore.RESET) if title == current_title else title
-        colored_album = (Fore.GREEN + album + Fore.RESET) if album == current_album else album
-        colored_artist = (Fore.GREEN + artist + Fore.RESET) if artist == current_artist else artist
+        colored_title = click.style(title, fg="green") if title == current_title else title
+        colored_album = click.style(album, fg="green") if album == current_album else album
+        colored_artist = click.style(artist, fg="green") if artist == current_artist else artist
         pt.add_row([colored_title, colored_album, colored_artist])
     print(pt, file=file)

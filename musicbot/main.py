@@ -10,29 +10,23 @@ import mutagen  # type: ignore
 import click
 from click_skeleton import skeleton, doc, backtrace, version_checker, helpers
 import musicbot
-from musicbot import version, exceptions
-from musicbot.config import Conf, Config
 from musicbot.cli.config import config_options
+from musicbot import MusicbotObject, Config, version, exceptions
 import musicbot.commands
 
 PROG_NAME = "musicbot"
 logger = logging.getLogger(__name__)
 
-backtrace.hook(
-    reverse=False,
-    align=True,
-    strip_path=False,
-    enable_on_envvar_only=False,
-    on_tty=False,
-    conservative=False,
-)
+backtrace.hook(reverse=False, align=True, strip_path=False, enable_on_envvar_only=False, on_tty=False, conservative=False)
 
 
 @skeleton(name=PROG_NAME, version=version.__version__, auto_envvar_prefix='MB')
+@click.pass_context
 @config_options
-def cli(**kwargs) -> Any:
+def cli(ctx, **kwargs) -> Any:
     """Music swiss knife, new gen."""
-    Conf.config = Config(**kwargs)
+    MusicbotObject.config = Config(**kwargs)
+    ctx.color = MusicbotObject.config.color
 
 
 @cli.command(short_help='Generates a README.rst', aliases=['doc'])
@@ -60,7 +54,7 @@ def main(**kwargs) -> int:
         return exit_code
     except (mutagen.MutagenError, exceptions.MusicbotError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError) as e:
         logger.error(e)
-        if Conf.config and Conf.config.debug:
+        if MusicbotObject.config and MusicbotObject.config.debug:
             logger.exception(e)
     finally:
         version_check.print()

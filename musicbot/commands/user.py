@@ -16,7 +16,7 @@ from musicbot.cli.user import (
 from musicbot.cli.admin import admin_options
 from musicbot.user import User
 from musicbot.admin import Admin
-from musicbot.config import Conf
+from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
 
@@ -56,10 +56,10 @@ def register(save: bool, email: str, password: str, **kwargs):
         return
     if save:
         logger.info("saving user infos")
-        Conf.config.configfile['musicbot']['email'] = email
-        Conf.config.configfile['musicbot']['password'] = password
-        Conf.config.configfile['musicbot']['token'] = user.token
-        Conf.config.write()
+        MusicbotObject.config.configfile['musicbot']['email'] = email
+        MusicbotObject.config.configfile['musicbot']['password'] = password
+        MusicbotObject.config.configfile['musicbot']['token'] = user.token
+        MusicbotObject.config.write()
 
 
 @cli.command(aliases=['delete', 'remove'], help='Remove a user')
@@ -79,5 +79,5 @@ def login(save: bool, **kwargs):
     print(user.token)
     if save:
         logger.info("saving user infos")
-        Conf.config.configfile['musicbot']['token'] = user.token
-        Conf.config.write()
+        MusicbotObject.config.configfile['musicbot']['token'] = user.token
+        MusicbotObject.config.write()

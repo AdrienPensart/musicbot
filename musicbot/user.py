@@ -3,8 +3,9 @@ import logging
 import base64
 import json
 import attr
+from musicbot.timing import timeit
+from musicbot.object import MusicbotObject
 from musicbot.graphql import GraphQL
-from musicbot.config import Conf
 from musicbot.exceptions import MusicbotError, FilterNotFound, FailedAuthentication, FailedRegistration
 from musicbot.music import file
 from musicbot.music.music_filter import MusicFilter
@@ -19,7 +20,7 @@ DEFAULT_TOKEN: Optional[str] = None
 
 
 @attr.s(auto_attribs=True, frozen=True)
-class User:
+class User(MusicbotObject):
     api: GraphQL
     token: str
 
@@ -50,7 +51,7 @@ class User:
             raise FailedAuthentication(f"Invalid response received : {response}") from e
 
     @classmethod
-    @Conf.timeit
+    @timeit
     def register(cls, graphql: str, email: str, password: str, first_name: str, last_name: str) -> "User":
         query = f"""
         mutation
@@ -72,7 +73,7 @@ class User:
         except MusicbotError as e:
             raise FailedRegistration(f"Registration failed for {first_name} | {last_name} | {email} | {password} : {e}") from e
 
-    @Conf.timeit
+    @timeit
     def unregister(self) -> Any:
         query = """
         mutation
@@ -87,16 +88,16 @@ class User:
         except MusicbotError as e:
             raise FailedAuthentication(f"Cannot delete user : {e}") from e
 
-    @Conf.timeit
+    @timeit
     def execute(self, query: str) -> Any:
         return self.api.post(query)
 
-    @Conf.timeit
+    @timeit
     def fetch(self, query: str) -> Any:
         logger.debug(query)
         return self.api.post(query)['data']
 
-    @Conf.timeit
+    @timeit
     def load_default_filters(self) -> Any:
         query = """
         mutation
@@ -119,7 +120,7 @@ class User:
         }"""
         return self.execute(query)
 
-    @Conf.timeit
+    @timeit
     def playlist(self, mf: Optional[MusicFilter] = None) -> Any:
         mf = mf if mf is not None else MusicFilter()
         query = f"""
@@ -128,7 +129,7 @@ class User:
         }}"""
         return self.fetch(query)['playlist']
 
-    @Conf.timeit
+    @timeit
     def bests(self, mf: Optional[MusicFilter] = None) -> Any:
         mf = mf if mf is not None else MusicFilter()
         query = f"""
@@ -144,7 +145,7 @@ class User:
         }}"""
         return self.fetch(query)['bests']['nodes']
 
-    @Conf.timeit
+    @timeit
     def do_filter(self, mf: Optional[MusicFilter] = None) -> Any:
         mf = mf if mf is not None else MusicFilter()
         if mf.name:
@@ -176,7 +177,7 @@ class User:
         }}"""
         return self.fetch(query)['doFilter']['nodes']
 
-    @Conf.timeit
+    @timeit
     def do_stat(self, mf: Optional[MusicFilter] = None) -> Any:
         mf = mf if mf is not None else MusicFilter()
         query = f"""
@@ -194,7 +195,7 @@ class User:
         }}"""
         return self.fetch(query)['doStat']
 
-    @Conf.timeit
+    @timeit
     def upsert_music(self, music: file.File) -> Any:
         query = f"""
         mutation
@@ -206,13 +207,13 @@ class User:
         }}"""
         return self.execute(query)
 
-    @Conf.timeit
+    @timeit
     def bulk_insert(self, musics: Collection[file.File]) -> Any:
         if not musics:
             logger.info("no musics to insert")
             return None
-        if Conf.config.debug:
-            with Conf.progressbar(max_value=len(musics)) as pbar:
+        if self.config.debug:
+            with self.progressbar(max_value=len(musics)) as pbar:
                 for music in musics:
                     try:
                         logger.debug(f"inserting {music}")
@@ -235,7 +236,7 @@ class User:
         }}'''
         return self.execute(query)
 
-    @Conf.timeit
+    @timeit
     def folders(self) -> Any:
         query = """
         {
@@ -243,7 +244,7 @@ class User:
         }"""
         return self.fetch(query)['foldersList']
 
-    @Conf.timeit
+    @timeit
     def count_musics(self) -> int:
         query = '''
         {
@@ -255,7 +256,7 @@ class User:
         '''
         return int(self.fetch(query)['rawMusics']['totalCount'])
 
-    @Conf.timeit
+    @timeit
     def count_filters(self) -> int:
         query = '''
         {
@@ -267,7 +268,7 @@ class User:
         '''
         return int(self.fetch(query)['filters']['totalCount'])
 
-    @Conf.timeit
+    @timeit
     def artists(self) -> Any:
         query = """
         {
@@ -285,7 +286,7 @@ class User:
         }"""
         return self.fetch(query)['artistsTreeList']
 
-    @Conf.timeit
+    @timeit
     def genres(self) -> Any:
         query = """
         {
@@ -295,7 +296,7 @@ class User:
         }"""
         return self.fetch(query)['genresTreeList']
 
-    @Conf.timeit
+    @timeit
     def get_filter(self, name: str) -> Any:
         default_filter = MusicFilter()
         filter_members = ','.join(default_filter.as_dict().keys())
@@ -313,7 +314,7 @@ class User:
             raise FilterNotFound(f'{name} : filter not found')
         return self.fetch(query)['filters']['nodes'][0]
 
-    @Conf.timeit
+    @timeit
     def list_filters(self) -> Any:
         default_filter = MusicFilter()
         filter_members = ','.join(default_filter.as_dict().keys())
@@ -327,7 +328,7 @@ class User:
         }}"""
         return self.fetch(query)['filtersList']
 
-    @Conf.timeit
+    @timeit
     def delete_filter(self, name: str) -> Any:
         query = f"""
         mutation
@@ -339,7 +340,7 @@ class User:
         }}"""
         return self.execute(query)
 
-    @Conf.timeit
+    @timeit
     def delete_music(self, path: str) -> Any:
         query = f"""
         mutation
@@ -351,7 +352,7 @@ class User:
         }}"""
         return self.execute(query)
 
-    @Conf.timeit
+    @timeit
     def clean_musics(self) -> Any:
         query = """
         mutation

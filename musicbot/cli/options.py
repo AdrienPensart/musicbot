@@ -3,7 +3,7 @@ from typing import Optional, Any
 import click
 from click_skeleton.helpers import mysplit
 from musicbot.defaults import DEFAULT_MB_CONCURRENCY, DEFAULT_DRY, DEFAULT_SAVE, DEFAULT_MB_OUTPUT, DEFAULT_YES
-from musicbot.config import Conf
+from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ def config_string(ctx: click.Context, param: click.Parameter, value: Optional[st
     logger.info(f"{param.name} : try string loading with arg value : {arg_value}")
 
     if param.name:
-        config_value = Conf.config.configfile.get('musicbot', param.name, fallback=None)
+        config_value = MusicbotObject.config.configfile.get('musicbot', param.name, fallback=None)
         logger.info(f"{param.name} : try string loading with config key : {config_value}")
 
     if arg_value:
@@ -64,7 +64,7 @@ def config_string(ctx: click.Context, param: click.Parameter, value: Optional[st
             logger.warning(f"{param.name} : config string value {config_value} is not sync with arg value {arg_value}")
 
     if not value and param.required:
-        raise click.BadParameter(f'missing string arg or config {param.name} in {Conf.config.config}', ctx, param, param.name)
+        raise click.BadParameter(f'missing string arg or config {param.name} in {MusicbotObject.config.config}', ctx, param, param.name)
 
     if param.name:
         ctx.params[param.name] = value
@@ -77,7 +77,7 @@ def config_list(ctx: click.Context, param: click.Parameter, value: Any) -> Any:
     logger.info(f"{param.name} : try list loading with arg value : {arg_value}")
 
     if param.name:
-        config_value = Conf.config.configfile.get('musicbot', param.name, fallback=None)
+        config_value = MusicbotObject.config.configfile.get('musicbot', param.name, fallback=None)
         list_value = tuple(mysplit(config_value, ',')) if config_value is not None else []
         logger.info(f"{param.name} : try list loading with config key : {list_value}")
 
@@ -91,7 +91,7 @@ def config_list(ctx: click.Context, param: click.Parameter, value: Any) -> Any:
             logger.warning(f"{param.name} : config list value {list_value} is not sync with arg value {arg_value}")
 
     if not value and param.required:
-        raise click.BadParameter(f'missing list arg or config {param.name} in {Conf.config.config}', ctx, param, param.name)
+        raise click.BadParameter(f'missing list arg or config {param.name} in {MusicbotObject.config.config}', ctx, param, param.name)
     logger.info(f"{param.name} : list final value {value}")
     if param.name:
         ctx.params[param.name] = value
