@@ -7,6 +7,10 @@ maintainers = ["Adrien Pensart <crunchengine@gmail.com>"]
 homepage = "https://github.com/AdrienPensart/musicbot"
 license = "MIT"
 
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.poetry.scripts]
 musicbot = 'musicbot.main:main'
 musicbot-fire = 'musicbot.main:main_fire'
@@ -59,7 +63,3 @@ jobs = 4
 disable = """
 disable=too-few-public-methods,logging-format-interpolation,line-too-long,too-many-arguments,protected-access,missing-docstring,invalid-name,too-many-public-methods,too-many-instance-attributes,duplicate-code,too-many-nested-blocks,too-many-branches,too-many-return-statements,too-many-statements,too-many-locals,too-few-public-methods,too-many-ancestors,abstract-method,anomalous-backslash-in-string,import-outside-toplevel,redefined-outer-name,unnecessary-lambda,c-extension-no-member,logging-fstring-interpolation
 """
-
-[tool.dephell.main]
-from = {format = "poetry", path = "pyproject.toml"}
-to = {format = "setuppy", path = "setup.py"}
