@@ -5,7 +5,7 @@ from pathlib import Path
 import functools
 import configparser
 import attr
-import colorlog  # type: ignore
+import colorlog
 import progressbar  # type: ignore
 from musicbot.exceptions import MusicbotError
 

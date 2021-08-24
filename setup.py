@@ -9,8 +9,8 @@ package_data = \
 
 install_requires = \
 ['attrs>=21.2.0,<22.0.0',
- 'click-skeleton>=0.15,<0.16',
- 'colorlog>=5.0.1,<6.0.0',
+ 'click-skeleton>=0.16,<0.17',
+ 'colorlog>=6.4.1,<7.0.0',
  'fuzzywuzzy>=0.18.0,<0.19.0',
  'graphql-py>=0.8.1,<0.9.0',
  'humanize>=3.0.1,<4.0.0',

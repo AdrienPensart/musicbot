@@ -17,7 +17,7 @@ import musicbot.commands
 PROG_NAME = "musicbot"
 logger = logging.getLogger(__name__)
 
-backtrace.hook(reverse=False, align=True, strip_path=False, enable_on_envvar_only=False, on_tty=False, conservative=False)
+backtrace.hook(strip_path=False, enable_on_envvar_only=False, on_tty=False)
 
 
 @skeleton(name=PROG_NAME, version=version.__version__, auto_envvar_prefix='MB')
