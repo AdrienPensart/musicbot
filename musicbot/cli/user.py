@@ -9,7 +9,7 @@ from musicbot.user import (
     DEFAULT_FIRST_NAME,
     DEFAULT_LAST_NAME,
 )
-from musicbot.graphql import DEFAULT_GRAPHQL
+from musicbot.graphql_client import DEFAULT_GRAPHQL
 from musicbot.exceptions import FailedAuthentication
 from musicbot.cli.options import config_string
 

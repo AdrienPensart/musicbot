@@ -2,7 +2,7 @@ from typing import Any, Optional
 import attr
 import requests
 from musicbot.timing import timeit
-from musicbot.graphql import GraphQL
+from musicbot.graphql_client import GraphQL
 
 DEFAULT_GRAPHQL_ADMIN = 'http://127.0.0.1:5001/graphql'
 DEFAULT_GRAPHQL_ADMIN_USER: Optional[str] = None

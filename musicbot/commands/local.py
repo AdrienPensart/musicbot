@@ -16,7 +16,7 @@ from watchdog.observers import Observer  # type: ignore
 from prettytable import PrettyTable  # type: ignore
 from click_skeleton import AdvancedGroup
 from musicbot.helpers import genfiles
-from musicbot.exceptions import FailedRequest
+from musicbot.exceptions import FailedBatchRequest
 from musicbot.watcher import MusicWatcherHandler
 from musicbot.player import play
 from musicbot.object import MusicbotObject
@@ -80,7 +80,9 @@ def scan(user: User, save: bool, folders: List[str]):
 
     try:
         user.bulk_insert(files)
-    except FailedRequest as e:
+    except FailedBatchRequest as e:
+        for error in e.errors:
+            MusicbotObject.err(error)
         MusicbotObject.err(f"{folders} : {e}")
 
     if save:
@@ -206,6 +208,14 @@ def sync(user: User, delete: bool, destination: str, music_filter: MusicFilter, 
         logger.info(f"[DRY-RUN] Removing empty dir {d}")
 
 
+@cli.command('tracks', help='Generate a new playlist')
+@user_options
+@music_filter_options
+def _tracks(user: User, music_filter: MusicFilter):
+    tracks = user.playlist(music_filter)
+    print(json.dumps(tracks))
+
+
 @cli.command(help='Generate a new playlist')
 @user_options
 @music_filter_options
@@ -231,7 +241,7 @@ def m3u_bests(user: User, folder: str, prefix: str, suffix: str, music_filter: M
     with MusicbotObject.progressbar(max_value=len(playlists)) as pbar:
         for p in playlists:
             try:
-                playlist_filepath = Path(folder) / p['name'] / (suffix + '.m3u')
+                playlist_filepath = Path(folder) / (p['name'] + suffix + '.m3u')
                 content = textwrap.indent(p['content'], prefix, lambda line: line != '#EXTM3U\n')
                 if MusicbotObject.dry:
                     logger.info(f'DRY RUN: Writing playlist to {playlist_filepath} with content:\n{content}')

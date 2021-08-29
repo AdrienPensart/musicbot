@@ -3,7 +3,7 @@ import json
 from typing import Optional, List, Any
 import requests
 import attr
-from musicbot.exceptions import FailedRequest, FailedAuthentication
+from musicbot.exceptions import FailedRequest, FailedBatchRequest, FailedAuthentication
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ class GraphQL:
         json_response = self._post(operations)
         for response_object in json_response:
             if 'errors' in response_object and response_object['errors']:
-                raise FailedRequest(operation=operations, response=response_object)
+                raise FailedBatchRequest(operations=operations, response=json_response)
         return json_response
 
     def post(self, query: Any) -> Any:
@@ -40,8 +40,10 @@ class GraphQL:
         if response.status_code == 401:
             raise FailedAuthentication(f"Authentication failed: {response.text} | {headers}")
 
+        response.raise_for_status()
+
         try:
             json_response = response.json()
         except json.JSONDecodeError as e:
-            raise FailedRequest(operation=operation, headers=headers) from e
+            raise FailedRequest(operation=operation, response=response) from e
         return json_response

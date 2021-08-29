@@ -3,7 +3,7 @@ import logging
 import functools
 import os
 import getpass
-import miniupnpc
+import miniupnpc  # type: ignore
 import requests
 from musicbot.object import MusicbotObject
 from musicbot.timing import timeit

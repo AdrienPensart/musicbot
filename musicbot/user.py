@@ -4,8 +4,8 @@ import logging
 import attr
 from musicbot.timing import timeit
 from musicbot.object import MusicbotObject
-from musicbot.graphql import GraphQL
-from musicbot.exceptions import MusicbotError, FilterNotFound, FailedRequest, FailedAuthentication, FailedRegistration
+from musicbot.graphql_client import GraphQL
+from musicbot.exceptions import MusicbotError, QuerySyntaxError, FilterNotFound, FailedRequest, FailedAuthentication, FailedRegistration
 from musicbot.music import file
 from musicbot.music.music_filter import MusicFilter, default_filters
 
@@ -104,11 +104,14 @@ class User(MusicbotObject):
     def load_default_filters(self) -> Any:
         operations = []
         for music_filter in default_filters:
-            operationName = f"filter_{str(uuid.uuid4().hex)}"
-            operations.append({
-                "query": music_filter.create_mutation(operationName),
-                "operationName": operationName
-            })
+            try:
+                operationName = f"filter_{str(uuid.uuid4().hex)}"
+                operations.append({
+                    "query": music_filter.create_mutation(operationName),
+                    "operationName": operationName
+                })
+            except QuerySyntaxError as e:
+                MusicbotObject.err(e)
         return self.execute_many(operations)
 
     @timeit
@@ -213,7 +216,7 @@ class User(MusicbotObject):
                         logger.debug(f"inserting {music}")
                         response = self.insert(music)
                         responses.append(response)
-                    except FailedRequest as e:
+                    except (QuerySyntaxError, FailedRequest) as e:
                         MusicbotObject.err(f"{music} : {e}")
                     finally:
                         pbar.value += 1
@@ -222,11 +225,14 @@ class User(MusicbotObject):
 
         operations = []
         for music in musics:
-            operationName = f"music_{str(uuid.uuid4().hex)}"
-            operations.append({
-                "query": music.create_mutation(operationName),
-                "operationName": operationName
-            })
+            try:
+                operationName = f"music_{str(uuid.uuid4().hex)}"
+                operations.append({
+                    "query": music.create_mutation(operationName),
+                    "operationName": operationName
+                })
+            except QuerySyntaxError as e:
+                MusicbotObject.err(f"{music} : {e}")
         return self.execute_many(operations)
 
     @timeit

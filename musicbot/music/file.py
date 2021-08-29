@@ -5,10 +5,12 @@ import os
 from typing import Any, Optional, List, Dict, Iterable, Iterator
 import acoustid  # type: ignore
 import mutagen  # type: ignore
+from gql import gql  # type: ignore
 from slugify import slugify
 from pydub import AudioSegment  # type: ignore
 from click_skeleton.helpers import mysplit
 from musicbot.object import MusicbotObject
+from musicbot.exceptions import QuerySyntaxError
 from musicbot.helpers import current_user, public_ip
 from musicbot.music.helpers import ensure
 
@@ -149,16 +151,16 @@ class File:
 
     def create_mutation(self, operationName=None) -> str:
         operationName = operationName if operationName is not None else ""
-        return f'''
+        mutation = f'''
         mutation {operationName} {{
             createMusic(
                 input: {{
                     music: {{
-                        title: "{self.title}",
-                        album: "{self.album}",
-                        artist: "{self.artist}",
+                        title: {json.dumps(self.title)},
+                        album: {json.dumps(self.album)},
+                        artist: {json.dumps(self.artist)},
                         duration: {self.duration},
-                        genre: "{self.genre}",
+                        genre: {json.dumps(self.genre)},
                         keywords: {json.dumps(self.keywords)},
                         number: {self.number},
                         rating: {self.rating},
@@ -180,6 +182,11 @@ class File:
             }}
         }}
         '''
+        try:
+            gql(mutation)
+        except Exception as e:
+            raise QuerySyntaxError(f"{self} : bad mutation : {mutation}") from e
+        return mutation
 
     def as_dict(self) -> Dict[str, Any]:  # pylint: disable=unsubscriptable-object
         return {
@@ -248,7 +255,7 @@ class File:
 
     @property
     def size(self) -> int:
-        return Path(self.path).stat().size
+        return Path(self.path).stat().st_size
 
     @property
     def title(self) -> str:
