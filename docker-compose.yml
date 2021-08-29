@@ -11,7 +11,7 @@ services:
       POSTGRES_DB: musicbot
     restart: always
     ports:
-      - 127.0.0.1:5432:5432
+      - 127.0.0.1:5433:5433
     volumes:
       - /home/postgres-data:/var/lib/postgresql/data
 
@@ -82,24 +82,6 @@ services:
       "--simple-collections", "both",
       "--append-plugins", "postgraphile-plugin-connection-filter,@graphile-contrib/pg-simplify-inflector"
     ]
-
-  hasura:
-    image: hasura/graphql-engine:v2.0.0-alpha.9
-    depends_on:
-      - db
-    ports:
-      - 127.0.0.1:8080:8080
-    restart: always
-    stop_signal: SIGKILL
-    environment:
-      HASURA_GRAPHQL_DATABASE_URL: $DATABASE_URL
-      ## enable the console served by server
-      HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
-      ## enable debugging mode. It is recommended to disable this in production
-      HASURA_GRAPHQL_DEV_MODE: "true"
-      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
-      ## uncomment next line to set an admin secret
-      # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
 
   reverse_proxy:
     build:

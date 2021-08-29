@@ -13,9 +13,6 @@ $$
 declare
   user_id integer;
 begin
-    --select id into user_id
-    --from musicbot_public.user
-    --where id = current_setting('jwt.claims.user_id', true)::integer;
     user_id = current_setting('jwt.claims.user_id', true)::integer;
     raise notice 'Detected user_id %', user_id;
     if user_id is null then
@@ -31,8 +28,6 @@ create table if not exists musicbot_private.account (
     password_hash    text not null
 );
 
---drop role if exists musicbot_anonymous;
---create role musicbot_anonymous;
 do $$
 begin
     create role musicbot_anonymous;
@@ -41,8 +36,6 @@ begin
 end
 $$;
 
---drop role if exists musicbot_user;
---create role musicbot_user;
 do $$
 begin
     create role musicbot_user;
@@ -51,8 +44,6 @@ begin
 end
 $$;
 
---drop role if exists musicbot_postgraphile;
---create role musicbot_postgraphile login password 'musicbot_postgraphile_password';
 do $$
 begin
     create role musicbot_postgraphile login password 'musicbot_postgraphile_password';
@@ -111,12 +102,6 @@ begin
     from musicbot_private.account as a
     where a.email = $1;
     if account.password_hash = crypt(password, account.password_hash) then
-        --set role musicbot_user;
-        --set local jwt.claims.role to 'musicbot_user';
-        --set local jwt.claims.user_id to
-        --set session authorization musicbot_user;
-        --perform set_config('jwt.claims.role', 'musicbot_user', false);
-        --perform set_config('jwt.claims.user_id', account.user_id::text, false);
         raise notice 'Token Authorization for user % : %', email, ('musicbot_user', account.user_id, extract(epoch from (now() + interval '1 day')))::musicbot_public.jwt_token;
         return ('musicbot_user', account.user_id, extract(epoch from (now() + interval '1 day')))::musicbot_public.jwt_token;
     else
@@ -131,6 +116,7 @@ begin
 end;
 $$ language plpgsql strict security definer;
 
+/*
 create or replace function musicbot_public.new_token(
   email text,
   password text,
@@ -151,6 +137,7 @@ begin
     return sign((select row_to_json(token)), secret);
 end;
 $$ language plpgsql stable;
+*/
 
 alter default privileges revoke execute on functions from public;
 
@@ -159,7 +146,7 @@ grant select on table musicbot_public.user to musicbot_anonymous, musicbot_user;
 grant update, delete on table musicbot_public.user to musicbot_user;
 
 grant execute on function musicbot_public.authenticate to musicbot_anonymous;
-grant execute on function musicbot_public.new_token to musicbot_anonymous;
+--grant execute on function musicbot_public.new_token to musicbot_anonymous;
 grant execute on function musicbot_public.current_musicbot to musicbot_anonymous;
 grant execute on function musicbot_public.register_user to musicbot_anonymous;
 

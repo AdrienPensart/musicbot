@@ -7,26 +7,84 @@ from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
 
-concurrency_options = click.option(
-    '--concurrency',
-    help='Number of threads',
-    default=DEFAULT_MB_CONCURRENCY,
-    show_default=True,
-)
+
+def sane_dry(ctx, param, value):  # pylint: disable=unused-argument
+    '''Overwrite global dry mode'''
+    MusicbotObject.dry = value
+
 
 dry_option = click.option(
-    '--dry',
-    help='Take no real action',
-    default=DEFAULT_DRY,
+    '--dry/--no-dry',
+    help='Do not launch real action',
     is_flag=True,
+    default=DEFAULT_DRY,
     show_default=True,
+    callback=sane_dry,
+    expose_value=False,
+    is_eager=True,
 )
+
+true_values = ('enabled', 'y', 'yes', 't', 'true', 'True', 'on', '1')
+false_values = ('', 'none', 'disabled', 'n', 'no', 'f', 'false', 'False', 'off', '0')
+
+
+def str2bool(val: Any) -> bool:
+    '''Converts any value to string and detects if it looks like a known bool value'''
+    val = str(val).lower()
+    if val in true_values:
+        return True
+    if val in false_values:
+        return False
+    raise ValueError(f"invalid truth value {val}")
+
+
+def yes_or_no(question: str, default='no'):
+    '''Re-implement click.confirm but do not ask confirmation if we are in a script'''
+    if not MusicbotObject.is_tty:
+        print("Y/N : non interactive shell detected, answer is NO")
+        return False
+
+    if default is None:
+        prompt = " [y/n] "
+    elif default == 'yes':
+        prompt = " [Y/n] "
+    elif default == 'no':
+        prompt = " [y/N] "
+    else:
+        raise ValueError(f"Unknown setting '{default}' for default.")
+
+    while True:
+        try:
+            MusicbotObject.echo(question + prompt, fg="bright_magenta")
+            resp = input()  # nosec
+            if default is not None and resp == '':
+                return default == 'yes'
+            return str2bool(resp)
+        except ValueError:
+            print("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
+
+
+def confirm(ctx, param, value):  # pylint: disable=unused-argument
+    '''Callback to confirm action of user'''
+    if not (value or MusicbotObject.dry or yes_or_no('Do you REALLY want to confirm ?')):
+        raise click.Abort()
+
 
 yes_option = click.option(
     '--yes', '-y',
     help='Confirm action',
     default=DEFAULT_YES,
     is_flag=True,
+    show_default=True,
+    expose_value=False,
+    callback=confirm,
+)
+
+concurrency_options = click.option(
+    '--concurrency',
+    help='Number of threads',
+    default=DEFAULT_MB_CONCURRENCY,
+    show_default=True,
 )
 
 save_option = click.option(

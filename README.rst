@@ -318,7 +318,6 @@ musicbot local
     clean                          Clean all musics
     count                          Count musics
     execute (fetch,query)          Raw query
-    folders                        List folders
     help                           Print help
     inconsistencies (consistency)  Check music consistency
     player (play)                  Music player
@@ -349,12 +348,6 @@ musicbot local bests
     Filter options: 
       --name TEXT             Filter name
       --limit INTEGER         Fetch a maximum limit of music
-      --youtubes TEXT         Select musics with a youtube link
-      --no-youtubes TEXT      Select musics without youtube link
-      --spotifys TEXT         Select musics with a spotifys link
-      --no-spotifys TEXT      Select musics without spotifys link
-      --formats TEXT          Select musics with file format
-      --no-formats TEXT       Filter musics without format
       --keywords TEXT         Select musics with keywords
       --no-keywords TEXT      Filter musics without keywords
       --artists TEXT          Select musics with artists
@@ -367,8 +360,6 @@ musicbot local bests
       --no-genres TEXT        Filter musics without genres
       --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
       --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-      --min-size INTEGER      Minimum file size filter (in bytes)
-      --max-size INTEGER      Maximum file size filter (in bytes)
       --min-rating FLOAT      Minimum rating  [default: 0.0]
       --max-rating FLOAT      Maximum rating  [default: 5.0]
       --relative              Generate relatives paths
@@ -426,23 +417,6 @@ musicbot local execute
       -p, --password TEXT  User password
     -h, --help             Show this message and exit.
 
-musicbot local folders
-**********************
-.. code-block::
-
-  Usage: musicbot local folders [OPTIONS]
-
-    List folders
-
-  Options:
-    --output [json|table|m3u]  Output format  [default: table]
-    Auth options: 
-      -g, --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT         User token
-      -e, --email TEXT         User email
-      -p, --password TEXT      User password
-    -h, --help                 Show this message and exit.
-
 musicbot local inconsistencies
 ******************************
 .. code-block::
@@ -466,12 +440,6 @@ musicbot local inconsistencies
     Filter options: 
       --name TEXT                                       Filter name
       --limit INTEGER                                   Fetch a maximum limit of music
-      --youtubes TEXT                                   Select musics with a youtube link
-      --no-youtubes TEXT                                Select musics without youtube link
-      --spotifys TEXT                                   Select musics with a spotifys link
-      --no-spotifys TEXT                                Select musics without spotifys link
-      --formats TEXT                                    Select musics with file format
-      --no-formats TEXT                                 Filter musics without format
       --keywords TEXT                                   Select musics with keywords
       --no-keywords TEXT                                Filter musics without keywords
       --artists TEXT                                    Select musics with artists
@@ -484,8 +452,6 @@ musicbot local inconsistencies
       --no-genres TEXT                                  Filter musics without genres
       --min-duration INTEGER                            Minimum duration filter (hours:minutes:seconds)
       --max-duration INTEGER                            Maximum duration filter (hours:minutes:seconds))
-      --min-size INTEGER                                Minimum file size filter (in bytes)
-      --max-size INTEGER                                Maximum file size filter (in bytes)
       --min-rating FLOAT                                Minimum rating  [default: 0.0]
       --max-rating FLOAT                                Maximum rating  [default: 5.0]
       --relative                                        Generate relatives paths
@@ -511,12 +477,6 @@ musicbot local player
     Filter options: 
       --name TEXT             Filter name
       --limit INTEGER         Fetch a maximum limit of music
-      --youtubes TEXT         Select musics with a youtube link
-      --no-youtubes TEXT      Select musics without youtube link
-      --spotifys TEXT         Select musics with a spotifys link
-      --no-spotifys TEXT      Select musics without spotifys link
-      --formats TEXT          Select musics with file format
-      --no-formats TEXT       Filter musics without format
       --keywords TEXT         Select musics with keywords
       --no-keywords TEXT      Filter musics without keywords
       --artists TEXT          Select musics with artists
@@ -529,8 +489,6 @@ musicbot local player
       --no-genres TEXT        Filter musics without genres
       --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
       --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-      --min-size INTEGER      Minimum file size filter (in bytes)
-      --max-size INTEGER      Maximum file size filter (in bytes)
       --min-rating FLOAT      Minimum rating  [default: 0.0]
       --max-rating FLOAT      Maximum rating  [default: 5.0]
       --relative              Generate relatives paths
@@ -557,12 +515,6 @@ musicbot local playlist
     Filter options: 
       --name TEXT              Filter name
       --limit INTEGER          Fetch a maximum limit of music
-      --youtubes TEXT          Select musics with a youtube link
-      --no-youtubes TEXT       Select musics without youtube link
-      --spotifys TEXT          Select musics with a spotifys link
-      --no-spotifys TEXT       Select musics without spotifys link
-      --formats TEXT           Select musics with file format
-      --no-formats TEXT        Filter musics without format
       --keywords TEXT          Select musics with keywords
       --no-keywords TEXT       Filter musics without keywords
       --artists TEXT           Select musics with artists
@@ -575,8 +527,6 @@ musicbot local playlist
       --no-genres TEXT         Filter musics without genres
       --min-duration INTEGER   Minimum duration filter (hours:minutes:seconds)
       --max-duration INTEGER   Maximum duration filter (hours:minutes:seconds))
-      --min-size INTEGER       Minimum file size filter (in bytes)
-      --max-size INTEGER       Maximum file size filter (in bytes)
       --min-rating FLOAT       Minimum rating  [default: 0.0]
       --max-rating FLOAT       Maximum rating  [default: 5.0]
       --relative               Generate relatives paths
@@ -637,12 +587,6 @@ musicbot local stats
     Filter options: 
       --name TEXT              Filter name
       --limit INTEGER          Fetch a maximum limit of music
-      --youtubes TEXT          Select musics with a youtube link
-      --no-youtubes TEXT       Select musics without youtube link
-      --spotifys TEXT          Select musics with a spotifys link
-      --no-spotifys TEXT       Select musics without spotifys link
-      --formats TEXT           Select musics with file format
-      --no-formats TEXT        Filter musics without format
       --keywords TEXT          Select musics with keywords
       --no-keywords TEXT       Filter musics without keywords
       --artists TEXT           Select musics with artists
@@ -655,8 +599,6 @@ musicbot local stats
       --no-genres TEXT         Filter musics without genres
       --min-duration INTEGER   Minimum duration filter (hours:minutes:seconds)
       --max-duration INTEGER   Maximum duration filter (hours:minutes:seconds))
-      --min-size INTEGER       Minimum file size filter (in bytes)
-      --max-size INTEGER       Maximum file size filter (in bytes)
       --min-rating FLOAT       Minimum rating  [default: 0.0]
       --max-rating FLOAT       Maximum rating  [default: 5.0]
       --relative               Generate relatives paths
@@ -684,12 +626,6 @@ musicbot local sync
     Filter options: 
       --name TEXT             Filter name
       --limit INTEGER         Fetch a maximum limit of music
-      --youtubes TEXT         Select musics with a youtube link
-      --no-youtubes TEXT      Select musics without youtube link
-      --spotifys TEXT         Select musics with a spotifys link
-      --no-spotifys TEXT      Select musics without spotifys link
-      --formats TEXT          Select musics with file format
-      --no-formats TEXT       Filter musics without format
       --keywords TEXT         Select musics with keywords
       --no-keywords TEXT      Filter musics without keywords
       --artists TEXT          Select musics with artists
@@ -702,8 +638,6 @@ musicbot local sync
       --no-genres TEXT        Filter musics without genres
       --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
       --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-      --min-size INTEGER      Minimum file size filter (in bytes)
-      --max-size INTEGER      Maximum file size filter (in bytes)
       --min-rating FLOAT      Minimum rating  [default: 0.0]
       --max-rating FLOAT      Maximum rating  [default: 5.0]
       --relative              Generate relatives paths
@@ -718,7 +652,7 @@ musicbot local watch
 ********************
 .. code-block::
 
-  Usage: musicbot local watch [OPTIONS]
+  Usage: musicbot local watch [OPTIONS] [FOLDERS]...
 
     Watch files changes in folders
 
@@ -926,12 +860,6 @@ musicbot spotify diff
     Filter options: 
       --name TEXT                   Filter name
       --limit INTEGER               Fetch a maximum limit of music
-      --youtubes TEXT               Select musics with a youtube link
-      --no-youtubes TEXT            Select musics without youtube link
-      --spotifys TEXT               Select musics with a spotifys link
-      --no-spotifys TEXT            Select musics without spotifys link
-      --formats TEXT                Select musics with file format
-      --no-formats TEXT             Filter musics without format
       --keywords TEXT               Select musics with keywords
       --no-keywords TEXT            Filter musics without keywords
       --artists TEXT                Select musics with artists
@@ -944,8 +872,6 @@ musicbot spotify diff
       --no-genres TEXT              Filter musics without genres
       --min-duration INTEGER        Minimum duration filter (hours:minutes:seconds)
       --max-duration INTEGER        Maximum duration filter (hours:minutes:seconds))
-      --min-size INTEGER            Minimum file size filter (in bytes)
-      --max-size INTEGER            Maximum file size filter (in bytes)
       --min-rating FLOAT            Minimum rating  [default: 0.0]
       --max-rating FLOAT            Maximum rating  [default: 5.0]
       --relative                    Generate relatives paths

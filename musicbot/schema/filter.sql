@@ -5,8 +5,6 @@ create table if not exists musicbot_public.filter
     name         text not null,
     min_duration integer default 0,
     max_duration integer default +2147483647,
-    min_size     integer default 0,
-    max_size     integer default +2147483647,
     min_rating   float default 0.0 check (min_rating between 0.0 and 5.0),
     max_rating   float default 5.0 check (max_rating between 0.0 and 5.0),
     artists      text[] default '{}',
@@ -17,20 +15,14 @@ create table if not exists musicbot_public.filter
     no_titles    text[] default '{}',
     genres       text[] default '{}',
     no_genres    text[] default '{}',
-    formats      text[] default '{}',
-    no_formats   text[] default '{}',
     keywords     text[] default '{}',
     no_keywords  text[] default '{}',
     shuffle      boolean default 'false',
     relative     boolean default 'false',
     "limit"      integer default +2147483647,
-    youtubes     text[] default '{}',
-    no_youtubes  text[] default '{}',
-    spotifys     text[] default '{}',
-    no_spotifys  text[] default '{}',
     created_at   timestamp with time zone default now(),
     updated_at   timestamp with time zone default now(),
-    unique(name, user_id)
+    constraint unique_filter unique (name, user_id) deferrable
 );
 
 comment on table musicbot_public.filter is E'@omit delete';

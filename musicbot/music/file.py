@@ -145,20 +145,44 @@ class File:
                 raise
         return True
 
+    def create_mutation(self, operationName=None) -> str:
+        operationName = operationName if operationName is not None else ""
+        return f'''
+        mutation {operationName} {{
+            createMusic(
+                input: {{
+                    music: {{
+                        title: "{self.title}",
+                        album: "{self.album}",
+                        artist: "{self.artist}",
+                        duration: {self.duration},
+                        genre: "{self.genre}",
+                        keywords: {json.dumps(self.keywords)},
+                        number: {self.number},
+                        rating: {self.rating},
+                        linksUsingId: {{
+                            create: [{{
+                                url: "{self.path}"
+                            }}]
+                        }}
+                    }}
+                }}
+            )
+            {{
+                clientMutationId
+            }}
+        }}
+        '''
+
     def as_dict(self) -> Dict[str, Any]:  # pylint: disable=unsubscriptable-object
         return {
             'title': self.title,
             'album': self.album,
             'genre': self.genre,
             'artist': self.artist,
-            'folder': self.folder,
-            'youtube': self.youtube,
-            'spotify': self.spotify,
             'number': self.number,
-            'path': self.path,
             'rating': self.rating,
             'duration': self.duration,
-            'size': self.size,
             'keywords': self.keywords,
         }
 

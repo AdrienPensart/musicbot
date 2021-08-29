@@ -19,6 +19,7 @@ from prettytable import PrettyTable  # type: ignore
 from click_skeleton import AdvancedGroup
 from click_skeleton.helpers import PrettyDefaultDict
 from musicbot.helpers import genfiles
+from musicbot.exceptions import FailedRequest
 from musicbot.watcher import MusicWatcherHandler
 from musicbot.player import play
 from musicbot.playlist import print_playlist
@@ -26,7 +27,7 @@ from musicbot.object import MusicbotObject
 from musicbot.user import User
 from musicbot.music.music_filter import MusicFilter
 from musicbot.music.file import File
-from musicbot.music.helpers import bytes_to_human, all_files, empty_dirs, except_directories
+from musicbot.music.helpers import all_files, empty_dirs, except_directories
 from musicbot.cli.file import flat_option, checks_and_fix_options, folder_argument
 from musicbot.cli.music_filter import music_filter_options, interleave_option
 from musicbot.cli.user import user_options
@@ -69,22 +70,7 @@ def stats(user: User, output: str, music_filter: MusicFilter):
         pt.add_row(["Album", stats['albums']])
         pt.add_row(["Genre", stats['genres']])
         pt.add_row(["Keywords", stats['keywords']])
-        pt.add_row(["Size", bytes_to_human(int(stats['size']))])
         pt.add_row(["Total duration", datetime.timedelta(seconds=int(stats['duration']))])
-        print(pt)
-
-
-@cli.command(help='List folders')
-@output_option
-@user_options
-def folders(user: User, output: str):
-    _folders = user.folders()
-    if output == 'json':
-        print(json.dumps(_folders))
-    elif output == 'table':
-        pt = PrettyTable(["Folders"])
-        for f in _folders:
-            pt.add_row([f])
         print(pt)
 
 
@@ -93,11 +79,12 @@ def folders(user: User, output: str):
 @save_option
 @user_options
 def scan(user: User, save: bool, folders: List[str]):
-    user_folders = user.folders()
-    if not folders:
-        folders = user_folders
     files = genfiles(folders)
-    user.bulk_insert(files)
+
+    try:
+        user.bulk_insert(files)
+    except FailedRequest as e:
+        MusicbotObject.err(f"{folders} : {e}")
 
     if save:
         MusicbotObject.config.configfile['musicbot']['folders'] = ','.join(set(folders))
@@ -105,13 +92,13 @@ def scan(user: User, save: bool, folders: List[str]):
 
 
 @cli.command(help='Watch files changes in folders')
+@folders_argument
 @user_options
-def watch(user: User):
-    click.echo(f'Watching: {user.folders()}')
-    event_handler = MusicWatcherHandler(user=user)
+def watch(user: User, folders: List[str]):
+    event_handler = MusicWatcherHandler(user=user, folders=folders)
     observer = Observer()
-    for f in user.folders():
-        observer.schedule(event_handler, f, recursive=True)
+    for folder in folders:
+        observer.schedule(event_handler, folder, recursive=True)
     observer.start()
     try:
         while True:
@@ -133,8 +120,6 @@ def clean(user: User, yes: bool):
 @folders_argument
 @user_options
 def rescan(user: User, folders: List[str]):
-    if not folders:
-        folders = user.folders()
     files = genfiles(folders)
     user.clean_musics()
     user.bulk_insert(files)

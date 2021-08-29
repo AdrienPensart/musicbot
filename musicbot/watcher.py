@@ -1,3 +1,4 @@
+from typing import List
 import logging
 import click
 from watchdog.events import FileSystemEvent, PatternMatchingEventHandler  # type: ignore
@@ -8,13 +9,14 @@ logger = logging.getLogger(__name__)
 
 
 class MusicWatcherHandler(PatternMatchingEventHandler):
-    def __init__(self, user: User) -> None:
+    def __init__(self, user: User, folders: List[str]) -> None:
         PatternMatchingEventHandler.__init__(
             self,
             patterns=['*.' + f for f in file.supported_formats],
             ignore_directories=True,
         )
         self.user = user
+        self.folders = folders
 
     def on_modified(self, event: FileSystemEvent) -> None:
         self.update_music(event.src_path)
@@ -32,9 +34,9 @@ class MusicWatcherHandler(PatternMatchingEventHandler):
         self.update_music(event.dest_path)
 
     def update_music(self, path: str) -> None:
-        for folder in self.user.folders():
+        for folder in self.folders:
             if path.startswith(folder) and path.endswith(tuple(file.supported_formats)):
                 click.echo(f'Creating/modifying DB for: {path}')
-                f = file.File(path, folder)
-                self.user.upsert_music(f)
+                music = file.File(path, folder)
+                self.user.insert(music)
                 return

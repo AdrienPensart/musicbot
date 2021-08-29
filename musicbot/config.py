@@ -94,13 +94,11 @@ class Config:
     @functools.cached_property
     def configfile(self) -> configparser.ConfigParser:
         file = configparser.ConfigParser()
-        config_path = self.config.expanduser()
-        file.read(config_path)
+        file.read(self.config)
         if 'musicbot' not in file:
             logger.warning(f'[musicbot] section is not present in {self.config}')
         return file
 
     def write(self) -> None:
-        config_path = self.config.expanduser()
-        with open(config_path, 'w', encoding="utf8") as output_config:
+        with open(self.config, 'w', encoding="utf8") as output_config:
             self.configfile.write(output_config)

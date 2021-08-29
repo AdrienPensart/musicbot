@@ -25,6 +25,7 @@ class MusicbotObject:
     show_success: bool = True
     already_printed: List[str] = []
     config = Config()
+    dry = False
 
     @classmethod
     def timing(cls, message, **options):

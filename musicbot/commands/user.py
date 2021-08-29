@@ -21,7 +21,7 @@ from musicbot.object import MusicbotObject
 logger = logging.getLogger(__name__)
 
 
-@click.group('user', help='User management', cls=AdvancedGroup)
+@click.group(help='User management', cls=AdvancedGroup)
 def cli():
     pass
 

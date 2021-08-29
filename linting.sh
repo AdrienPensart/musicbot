@@ -2,6 +2,11 @@
 
 set -e
 
+echo "sql linting..."
+for sql in $(find musicbot/schema -type f); do
+    squawk --verbose --exclude=prefer-robust-stmts --exclude=require-concurrent-index-creation $sql
+done
+
 echo "linting : pylint..."
 poetry run pylint musicbot tests
 

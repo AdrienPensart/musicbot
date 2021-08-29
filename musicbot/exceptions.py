@@ -19,4 +19,14 @@ class FailedAuthentication(MusicbotError):
 
 
 class FailedRequest(MusicbotError):
-    pass
+    def __init__(self, message=None, headers=None, operation=None, response=None):
+        if not message:
+            message = "Failed request | "
+        self.operation = operation if operation is not None else []
+        if response and 'errors' in response and response['errors']:
+            messages = [error['message'] for error in response['errors']]
+            message += f" error : {messages}"
+
+        if headers:
+            message += f" | headers : {headers}"
+        super().__init__(message)

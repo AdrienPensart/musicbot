@@ -1,12 +1,11 @@
-from typing import Any, Collection, Optional
+from typing import Any, Collection, Optional, List
+import uuid
 import logging
-import base64
-import json
 import attr
 from musicbot.timing import timeit
 from musicbot.object import MusicbotObject
 from musicbot.graphql import GraphQL
-from musicbot.exceptions import MusicbotError, FilterNotFound, FailedAuthentication, FailedRegistration
+from musicbot.exceptions import MusicbotError, FilterNotFound, FailedRequest, FailedAuthentication, FailedRegistration
 from musicbot.music import file
 from musicbot.music.music_filter import MusicFilter
 
@@ -93,6 +92,10 @@ class User(MusicbotObject):
         return self.api.post(query)
 
     @timeit
+    def execute_many(self, operations: List[Any]) -> Any:
+        return self.api.batch(operations)
+
+    @timeit
     def fetch(self, query: str) -> Any:
         logger.debug(query)
         return self.api.post(query)['data']
@@ -107,10 +110,6 @@ class User(MusicbotObject):
             no_album_set:      createFilter(input: {filter: {name: "no album set",      albums:     ""                                                 }}){clientMutationId}
             no_title_set:      createFilter(input: {filter: {name: "no title set",      titles:     ""                                                 }}){clientMutationId}
             no_genre_set:      createFilter(input: {filter: {name: "no genre set",      genres:     ""                                                 }}){clientMutationId}
-            youtube_not_found: createFilter(input: {filter: {name: "youtube not found", youtubes:   ["not found"]                                      }}){clientMutationId}
-            spotify_not_found: createFilter(input: {filter: {name: "spotify not found", spotifys:   ["not found"]                                      }}){clientMutationId}
-            no_youtube_links:  createFilter(input: {filter: {name: "no youtube links",  youtubes:   []                                                 }}){clientMutationId}
-            no_spotify_links:  createFilter(input: {filter: {name: "no spotify links",  spotifys:   ["not found"]                                      }}){clientMutationId}
             no_rating:         createFilter(input: {filter: {name: "no rating",         minRating:  0.0, maxRating: 0.0                                }}){clientMutationId}
             bests_40:          createFilter(input: {filter: {name: "best (4.0+)",       minRating:  4.0, noKeywords: ["cutoff", "bad", "demo", "intro"]}}){clientMutationId}
             bests_45:          createFilter(input: {filter: {name: "best (4.5+)",       minRating:  4.5, noKeywords: ["cutoff", "bad", "demo", "intro"]}}){clientMutationId}
@@ -163,14 +162,9 @@ class User(MusicbotObject):
                     album,
                     genre,
                     artist,
-                    folder,
-                    youtube,
-                    spotify,
                     number,
-                    path,
                     rating,
                     duration,
-                    size,
                     keywords
                 }}
             }}
@@ -189,23 +183,15 @@ class User(MusicbotObject):
               albums,
               genres,
               keywords,
-              size,
               duration
             }}
         }}"""
         return self.fetch(query)['doStat']
 
     @timeit
-    def upsert_music(self, music: file.File) -> Any:
-        query = f"""
-        mutation
-        {{
-            upsertMusic(input: {{{music.to_graphql()}}})
-            {{
-                clientMutationId
-            }}
-        }}"""
-        return self.execute(query)
+    def insert(self, music) -> Any:
+        operationName = f"music_{str(uuid.uuid4().hex)}"
+        return self.execute(music.create_mutation(operationName))
 
     @timeit
     def bulk_insert(self, musics: Collection[file.File]) -> Any:
@@ -213,59 +199,37 @@ class User(MusicbotObject):
             logger.info("no musics to insert")
             return None
         if self.config.debug:
+            responses = []
             with self.progressbar(max_value=len(musics)) as pbar:
                 for music in musics:
                     try:
                         logger.debug(f"inserting {music}")
-                        self.upsert_music(music)
+                        response = self.insert(music)
+                        responses.append(response)
+                    except FailedRequest as e:
+                        MusicbotObject.err(f"{music} : {e}")
                     finally:
                         pbar.value += 1
                         pbar.update()
-            return None
+            return responses
 
-        j = json.dumps([m.as_dict() for m in musics])
-        b64 = j.encode('utf-8')
-        data = base64.b64encode(b64)
-        query = f'''
-        mutation
-        {{
-            bulkInsert(input: {{data: "{data.decode()}"}})
-            {{
-                clientMutationId
-            }}
-        }}'''
-        return self.execute(query)
-
-    @timeit
-    def folders(self) -> Any:
-        query = """
-        {
-            foldersList
-        }"""
-        return self.fetch(query)['foldersList']
+        operations = []
+        for music in musics:
+            operationName = f"music_{str(uuid.uuid4().hex)}"
+            operations.append({
+                "query": music.create_mutation(operationName),
+                "operationName": operationName
+            })
+        return self.execute_many(operations)
 
     @timeit
     def count_musics(self) -> int:
-        query = '''
-        {
-            rawMusics
-            {
-                totalCount
-            }
-        }
-        '''
-        return int(self.fetch(query)['rawMusics']['totalCount'])
+        query = '''{ musics { totalCount } }'''
+        return int(self.fetch(query)['musics']['totalCount'])
 
     @timeit
     def count_filters(self) -> int:
-        query = '''
-        {
-            filters
-            {
-                totalCount
-            }
-        }
-        '''
+        query = '''{ filters { totalCount } }'''
         return int(self.fetch(query)['filters']['totalCount'])
 
     @timeit
@@ -277,9 +241,7 @@ class User(MusicbotObject):
             albums {
               name
               musics {
-                folder
                 name
-                path
               }
             }
           }
