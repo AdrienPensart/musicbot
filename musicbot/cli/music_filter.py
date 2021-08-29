@@ -7,7 +7,6 @@ from musicbot.music.music_filter import (
     MusicFilter,
     RATING_CHOICES,
     DEFAULT_SHUFFLE,
-    DEFAULT_RELATIVE,
     DEFAULT_NAME,
     DEFAULT_GENRES,
     DEFAULT_NO_GENRES,
@@ -180,13 +179,6 @@ music_filter_options = add_options(
         default=DEFAULT_MAX_RATING,
         show_default=True,
         callback=sane_rating,
-        is_eager=True,
-    ),
-    optgroup.option(
-        '--relative',
-        help='Generate relatives paths',
-        default=DEFAULT_RELATIVE,
-        is_flag=True,
         is_eager=True,
     ),
     optgroup.option(

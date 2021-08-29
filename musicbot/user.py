@@ -7,7 +7,7 @@ from musicbot.object import MusicbotObject
 from musicbot.graphql import GraphQL
 from musicbot.exceptions import MusicbotError, FilterNotFound, FailedRequest, FailedAuthentication, FailedRegistration
 from musicbot.music import file
-from musicbot.music.music_filter import MusicFilter
+from musicbot.music.music_filter import MusicFilter, default_filters
 
 logger = logging.getLogger(__name__)
 
@@ -102,22 +102,23 @@ class User(MusicbotObject):
 
     @timeit
     def load_default_filters(self) -> Any:
-        query = """
-        mutation
-        {
-            default:           createFilter(input: {filter: {name: "default"                                                                           }}){clientMutationId}
-            no_artist_set:     createFilter(input: {filter: {name: "no artist set",     artists:    ""                                                 }}){clientMutationId}
-            no_album_set:      createFilter(input: {filter: {name: "no album set",      albums:     ""                                                 }}){clientMutationId}
-            no_title_set:      createFilter(input: {filter: {name: "no title set",      titles:     ""                                                 }}){clientMutationId}
-            no_genre_set:      createFilter(input: {filter: {name: "no genre set",      genres:     ""                                                 }}){clientMutationId}
-            no_rating:         createFilter(input: {filter: {name: "no rating",         minRating:  0.0, maxRating: 0.0                                }}){clientMutationId}
-            bests_40:          createFilter(input: {filter: {name: "best (4.0+)",       minRating:  4.0, noKeywords: ["cutoff", "bad", "demo", "intro"]}}){clientMutationId}
-            bests_45:          createFilter(input: {filter: {name: "best (4.5+)",       minRating:  4.5, noKeywords: ["cutoff", "bad", "demo", "intro"]}}){clientMutationId}
-            bests_50:          createFilter(input: {filter: {name: "best (5.0+)",       minRating:  5.0, noKeywords: ["cutoff", "bad", "demo", "intro"]}}){clientMutationId}
-            no_live:           createFilter(input: {filter: {name: "no live",           noKeywords: ["live"]                                           }}){clientMutationId}
-            only_live:         createFilter(input: {filter: {name: "only live",         keywords:   ["live"]                                           }}){clientMutationId}
-        }"""
-        return self.execute(query)
+        operations = []
+        for music_filter in default_filters:
+            operationName = f"filter_{str(uuid.uuid4().hex)}"
+            operations.append({
+                "query": music_filter.create_mutation(operationName),
+                "operationName": operationName
+            })
+        return self.execute_many(operations)
+
+    @timeit
+    def m3u_playlist(self, mf: Optional[MusicFilter] = None) -> Any:
+        mf = mf if mf is not None else MusicFilter()
+        query = f"""
+        {{
+            m3UPlaylist({mf.to_graphql()})
+        }}"""
+        return self.fetch(query)['m3UPlaylist']
 
     @timeit
     def playlist(self, mf: Optional[MusicFilter] = None) -> Any:
@@ -125,15 +126,21 @@ class User(MusicbotObject):
         query = f"""
         {{
             playlist({mf.to_graphql()})
+            {{
+                nodes
+                {{
+                    url
+                }}
+            }}
         }}"""
-        return self.fetch(query)['playlist']
+        return self.fetch(query)['playlist']['nodes']
 
     @timeit
-    def bests(self, mf: Optional[MusicFilter] = None) -> Any:
+    def m3u_bests(self, mf: Optional[MusicFilter] = None) -> Any:
         mf = mf if mf is not None else MusicFilter()
         query = f"""
         {{
-            bests({mf.to_graphql()})
+            m3UBests({mf.to_graphql()})
             {{
                 nodes
                 {{
@@ -142,14 +149,13 @@ class User(MusicbotObject):
                 }}
             }}
         }}"""
-        return self.fetch(query)['bests']['nodes']
+        return self.fetch(query)['m3UBests']['nodes']
 
     @timeit
     def do_filter(self, mf: Optional[MusicFilter] = None) -> Any:
         mf = mf if mf is not None else MusicFilter()
         if mf.name:
             kwargs = self.get_filter(mf.name)
-            print(kwargs)
             mf = MusicFilter(**kwargs)
 
         query = f"""
@@ -181,6 +187,7 @@ class User(MusicbotObject):
               musics,
               artists,
               albums,
+              links,
               genres,
               keywords,
               duration

@@ -86,7 +86,7 @@ def tags(folders: List[str]):
 @concurrency_options
 @dry_option
 @flat_option
-def flac2mp3(folders: List[str], folder, concurrency: int, dry: bool, flat: bool):
+def flac2mp3(folders: List[str], folder, concurrency: int, flat: bool):
     flac_files = list(find_files(folders, ['flac']))
     if not flac_files:
         logger.warning(f"No flac files detected in {folders}")
@@ -99,7 +99,6 @@ def flac2mp3(folders: List[str], folder, concurrency: int, dry: bool, flat: bool
             f = File(path=flac_path, folder=flac_folder)
             f.to_mp3(
                 folder=folder,
-                dry=dry,
                 flat=flat,
             )
         except MusicbotError as e:
@@ -114,13 +113,13 @@ def flac2mp3(folders: List[str], folder, concurrency: int, dry: bool, flat: bool
 @folders_argument
 @dry_option
 @checks_and_fix_options
-def inconsistencies(folders: List[str], fix: bool, checks: List[str], dry: bool):
+def inconsistencies(folders: List[str], fix: bool, checks: List[str]):
     musics = genfiles(folders)
     pt = PrettyTable(["Folder", "Path", "Inconsistencies"])
     for m in musics:
         try:
             if fix:
-                m.fix(checks=checks, dry=dry)
+                m.fix(checks=checks)
             if set(m.inconsistencies).intersection(set(checks)):
                 pt.add_row([m.folder, m.path, ', '.join(m.inconsistencies)])
         except (OSError, mutagen.MutagenError):
@@ -133,17 +132,17 @@ def inconsistencies(folders: List[str], fix: bool, checks: List[str], dry: bool)
 @dry_option
 @folder_argument
 @keywords_argument
-def add_keywords(folder: str, keywords: List[str], dry: bool):
+def add_keywords(folder: str, keywords: List[str]):
     musics = genfiles([folder])
     for music in musics:
-        music.add_keywords(keywords, dry)
+        music.add_keywords(keywords)
 
 
 @cli.command(help='Delete keywords to music')
 @dry_option
 @folder_argument
 @keywords_argument
-def delete_keywords(folder: str, keywords: List[str], dry: bool):
+def delete_keywords(folder: str, keywords: List[str]):
     musics = genfiles([folder])
     for music in musics:
-        music.delete_keywords(keywords, dry)
+        music.delete_keywords(keywords)

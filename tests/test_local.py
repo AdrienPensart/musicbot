@@ -1,4 +1,3 @@
-import json
 import pytest
 from click_skeleton.testing import run_cli
 from musicbot.main import cli
@@ -37,32 +36,19 @@ def test_local_sync(cli_runner, common_args):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_local_playlist(cli_runner, common_args):
+def test_local_m3u_playlist(cli_runner, common_args):
     run_cli(cli_runner, cli, [
         '--quiet',
-        'local', 'playlist',
+        'local', 'm3u-playlist',
         *common_args,
-        '--output', 'json',
-    ])
-    run_cli(cli_runner, cli, [
-        '--quiet',
-        'local', 'playlist',
-        *common_args,
-        '--output', 'table',
-    ])
-    run_cli(cli_runner, cli, [
-        '--quiet',
-        'local', 'playlist',
-        *common_args,
-        '--output', 'm3u',
     ])
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_local_bests(cli_runner, common_args):
+def test_local_m3u_bests(cli_runner, common_args):
     run_cli(cli_runner, cli, [
         '--quiet',
-        'local', 'bests',
+        'local', 'm3u-bests',
         *common_args,
         '/tmp',
         '--dry',
@@ -85,15 +71,3 @@ def test_local_player(cli_runner, common_args):
         'local', 'player',
         *common_args,
     ])
-
-
-@pytest.mark.runner_setup(mix_stderr=False)
-def test_local_folders(cli_runner, common_args):
-    folders_json = run_cli(cli_runner, cli, [
-        '--quiet',
-        'local', 'folders',
-        *common_args,
-        '--output', 'json',
-    ])
-    folders = json.loads(folders_json)
-    assert len(folders) == 2

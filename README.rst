@@ -23,17 +23,18 @@ Commands
     -h, --help                       Show this message and exit.
 
   Commands:
-    completion    Shell completion
-    filter        Filter management
-    folder        Manage folders
-    help          Print help
-    local         Local music management
-    music (file)  Music file
-    readme (doc)  Generates a README.rst
-    spotify       Spotify tool
-    user          User management
-    version       Print version
-    youtube       Youtube tool
+    completion     Shell completion
+    database (db)  Database management (admin)
+    filter         Filter management
+    folder         Manage folders
+    help           Print help
+    local          Local music management
+    music (file)   Music file
+    readme (doc)   Generates a README.rst
+    spotify        Spotify tool
+    user           User management
+    version        Print version
+    youtube        Youtube tool
 
 musicbot completion
 *******************
@@ -75,6 +76,102 @@ musicbot completion show
   Options:
     -i, --case-insensitive  Case insensitive completion
     -h, --help              Show this message and exit.
+
+musicbot database
+*****************
+.. code-block::
+
+  Usage: musicbot database [OPTIONS] COMMAND [ARGS]...
+
+    Database management (admin)
+
+  Options:
+    -h, --help  Show this message and exit.
+
+  Commands:
+    clear-schemas (recreate)                       Drop and recreate database and schema
+    cli                                            Start PgCLI util
+    create-role-and-database (create-role-and-db)  Create role and database
+    create-schemas                                 Create database and load schema
+    drop-database (drop-db)                        Create role and database
+    drop-schemas                                   Drop database
+    help                                           Print help
+
+musicbot database clear-schemas
+*******************************
+.. code-block::
+
+  Usage: musicbot database clear-schemas [OPTIONS] DSN
+
+    Drop and recreate database and schema
+
+  Options:
+    -y, --yes         Confirm action  [default: False]
+    --dry / --no-dry  Do not launch real action  [default: no-dry]
+    -h, --help        Show this message and exit.
+
+musicbot database cli
+*********************
+.. code-block::
+
+  Usage: musicbot database cli [OPTIONS] [PGCLI_ARGS]...
+
+    Start PgCLI util
+
+  Options:
+    -h, --help  Show this message and exit.
+
+musicbot database create-role-and-database
+******************************************
+.. code-block::
+
+  Usage: musicbot database create-role-and-database [OPTIONS] DSN
+
+    Create role and database
+
+  Options:
+    --dry / --no-dry  Do not launch real action  [default: no-dry]
+    --admin TEXT
+    --password TEXT
+    -h, --help        Show this message and exit.
+
+musicbot database create-schemas
+********************************
+.. code-block::
+
+  Usage: musicbot database create-schemas [OPTIONS] DSN
+
+    Create database and load schema
+
+  Options:
+    --dry / --no-dry  Do not launch real action  [default: no-dry]
+    -h, --help        Show this message and exit.
+
+musicbot database drop-database
+*******************************
+.. code-block::
+
+  Usage: musicbot database drop-database [OPTIONS] DSN
+
+    Create role and database
+
+  Options:
+    --dry / --no-dry  Do not launch real action  [default: no-dry]
+    -y, --yes         Confirm action  [default: False]
+    -h, --help        Show this message and exit.
+
+musicbot database drop-schemas
+******************************
+.. code-block::
+
+  Usage: musicbot database drop-schemas [OPTIONS] DSN
+
+    Drop database
+
+  Options:
+    -y, --yes         Confirm action  [default: False]
+    --dry / --no-dry  Do not launch real action  [default: no-dry]
+    -h, --help        Show this message and exit.
 
 musicbot filter
 ***************
@@ -207,8 +304,8 @@ musicbot folder add-keywords
     Add keywords to music
 
   Options:
-    --dry       Take no real action  [default: False]
-    -h, --help  Show this message and exit.
+    --dry / --no-dry  Do not launch real action  [default: no-dry]
+    -h, --help        Show this message and exit.
 
 musicbot folder delete-keywords
 *******************************
@@ -219,8 +316,8 @@ musicbot folder delete-keywords
     Delete keywords to music
 
   Options:
-    --dry       Take no real action  [default: False]
-    -h, --help  Show this message and exit.
+    --dry / --no-dry  Do not launch real action  [default: no-dry]
+    -h, --help        Show this message and exit.
 
 musicbot folder find
 ********************
@@ -244,7 +341,7 @@ musicbot folder flac2mp3
   Options:
     --folder DIRECTORY     Destination folder
     --concurrency INTEGER  Number of threads  [default: 8]
-    --dry                  Take no real action  [default: False]
+    --dry / --no-dry       Do not launch real action  [default: no-dry]
     --flat                 Do not create subfolders
     -h, --help             Show this message and exit.
 
@@ -257,7 +354,7 @@ musicbot folder inconsistencies
     Check music files consistency
 
   Options:
-    --dry                                               Take no real action  [default: False]
+    --dry / --no-dry                                    Do not launch real action  [default: no-dry]
     Check options: 
       --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-comment|invalid-path]
                                                         Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
@@ -314,59 +411,19 @@ musicbot local
     -h, --help  Show this message and exit.
 
   Commands:
-    bests                          Generate bests playlists with some rules
     clean                          Clean all musics
     count                          Count musics
     execute (fetch,query)          Raw query
     help                           Print help
     inconsistencies (consistency)  Check music consistency
+    m3u-bests                      Generate bests playlists with some rules
+    m3u-playlist                   Generate a new playlist
     player (play)                  Music player
-    playlist (tracks)              Generate a new playlist
     rescan                         Clean and load musics
     scan                           Load musics
     stats (stat)                   Generate some stats for music collection with filters
     sync                           Copy selected musics with filters to destination folder
     watch                          Watch files changes in folders
-
-musicbot local bests
-********************
-.. code-block::
-
-  Usage: musicbot local bests [OPTIONS] FOLDER
-
-    Generate bests playlists with some rules
-
-  Options:
-    --prefix TEXT             Append prefix before each path (implies relative)
-    --suffix TEXT             Append this suffix to playlist name
-    --dry                     Take no real action  [default: False]
-    Auth options: 
-      -g, --graphql TEXT      GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT        User token
-      -e, --email TEXT        User email
-      -p, --password TEXT     User password
-    Filter options: 
-      --name TEXT             Filter name
-      --limit INTEGER         Fetch a maximum limit of music
-      --keywords TEXT         Select musics with keywords
-      --no-keywords TEXT      Filter musics without keywords
-      --artists TEXT          Select musics with artists
-      --no-artists TEXT       Filter musics without artists
-      --albums TEXT           Select musics with albums
-      --no-albums TEXT        Filter musics without albums
-      --titles TEXT           Select musics with titles
-      --no-titles TEXT        Filter musics without titless
-      --genres TEXT           Select musics with genres
-      --no-genres TEXT        Filter musics without genres
-      --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
-      --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-      --min-rating FLOAT      Minimum rating  [default: 0.0]
-      --max-rating FLOAT      Maximum rating  [default: 5.0]
-      --relative              Generate relatives paths
-      --shuffle               Randomize selection
-    Ordering options: 
-      --shuffle               Randomize selection
-    -h, --help                Show this message and exit.
 
 musicbot local clean
 ********************
@@ -382,7 +439,7 @@ musicbot local clean
       -t, --token TEXT     User token
       -e, --email TEXT     User email
       -p, --password TEXT  User password
-    -y, --yes              Confirm action
+    -y, --yes              Confirm action  [default: False]
     -h, --help             Show this message and exit.
 
 musicbot local count
@@ -431,7 +488,7 @@ musicbot local inconsistencies
                                                         Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
                                                         tracknumber, invalid-title, invalid-comment, invalid-path]
       --fix                                             Fix musics
-    --dry                                               Take no real action  [default: False]
+    --dry / --no-dry                                    Do not launch real action  [default: no-dry]
     Auth options: 
       -g, --graphql TEXT                                GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT                                  User token
@@ -454,11 +511,85 @@ musicbot local inconsistencies
       --max-duration INTEGER                            Maximum duration filter (hours:minutes:seconds))
       --min-rating FLOAT                                Minimum rating  [default: 0.0]
       --max-rating FLOAT                                Maximum rating  [default: 5.0]
-      --relative                                        Generate relatives paths
       --shuffle                                         Randomize selection
     Ordering options: 
       --shuffle                                         Randomize selection
     -h, --help                                          Show this message and exit.
+
+musicbot local m3u-bests
+************************
+.. code-block::
+
+  Usage: musicbot local m3u-bests [OPTIONS] FOLDER
+
+    Generate bests playlists with some rules
+
+  Options:
+    --prefix TEXT             Append prefix before each path
+    --suffix TEXT             Append this suffix to playlist name
+    --dry / --no-dry          Do not launch real action  [default: no-dry]
+    Auth options: 
+      -g, --graphql TEXT      GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT        User token
+      -e, --email TEXT        User email
+      -p, --password TEXT     User password
+    Filter options: 
+      --name TEXT             Filter name
+      --limit INTEGER         Fetch a maximum limit of music
+      --keywords TEXT         Select musics with keywords
+      --no-keywords TEXT      Filter musics without keywords
+      --artists TEXT          Select musics with artists
+      --no-artists TEXT       Filter musics without artists
+      --albums TEXT           Select musics with albums
+      --no-albums TEXT        Filter musics without albums
+      --titles TEXT           Select musics with titles
+      --no-titles TEXT        Filter musics without titless
+      --genres TEXT           Select musics with genres
+      --no-genres TEXT        Filter musics without genres
+      --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
+      --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
+      --min-rating FLOAT      Minimum rating  [default: 0.0]
+      --max-rating FLOAT      Maximum rating  [default: 5.0]
+      --shuffle               Randomize selection
+    Ordering options: 
+      --shuffle               Randomize selection
+    -h, --help                Show this message and exit.
+
+musicbot local m3u-playlist
+***************************
+.. code-block::
+
+  Usage: musicbot local m3u-playlist [OPTIONS]
+
+    Generate a new playlist
+
+  Options:
+    Auth options: 
+      -g, --graphql TEXT      GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT        User token
+      -e, --email TEXT        User email
+      -p, --password TEXT     User password
+    Filter options: 
+      --name TEXT             Filter name
+      --limit INTEGER         Fetch a maximum limit of music
+      --keywords TEXT         Select musics with keywords
+      --no-keywords TEXT      Filter musics without keywords
+      --artists TEXT          Select musics with artists
+      --no-artists TEXT       Filter musics without artists
+      --albums TEXT           Select musics with albums
+      --no-albums TEXT        Filter musics without albums
+      --titles TEXT           Select musics with titles
+      --no-titles TEXT        Filter musics without titless
+      --genres TEXT           Select musics with genres
+      --no-genres TEXT        Filter musics without genres
+      --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
+      --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
+      --min-rating FLOAT      Minimum rating  [default: 0.0]
+      --max-rating FLOAT      Maximum rating  [default: 5.0]
+      --shuffle               Randomize selection
+    Ordering options: 
+      --shuffle               Randomize selection
+    -h, --help                Show this message and exit.
 
 musicbot local player
 *********************
@@ -491,50 +622,10 @@ musicbot local player
       --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
       --min-rating FLOAT      Minimum rating  [default: 0.0]
       --max-rating FLOAT      Maximum rating  [default: 5.0]
-      --relative              Generate relatives paths
       --shuffle               Randomize selection
     Ordering options: 
       --shuffle               Randomize selection
     -h, --help                Show this message and exit.
-
-musicbot local playlist
-***********************
-.. code-block::
-
-  Usage: musicbot local playlist [OPTIONS]
-
-    Generate a new playlist
-
-  Options:
-    --output [json|table|m3u]  Output format  [default: table]
-    Auth options: 
-      -g, --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT         User token
-      -e, --email TEXT         User email
-      -p, --password TEXT      User password
-    Filter options: 
-      --name TEXT              Filter name
-      --limit INTEGER          Fetch a maximum limit of music
-      --keywords TEXT          Select musics with keywords
-      --no-keywords TEXT       Filter musics without keywords
-      --artists TEXT           Select musics with artists
-      --no-artists TEXT        Filter musics without artists
-      --albums TEXT            Select musics with albums
-      --no-albums TEXT         Filter musics without albums
-      --titles TEXT            Select musics with titles
-      --no-titles TEXT         Filter musics without titless
-      --genres TEXT            Select musics with genres
-      --no-genres TEXT         Filter musics without genres
-      --min-duration INTEGER   Minimum duration filter (hours:minutes:seconds)
-      --max-duration INTEGER   Maximum duration filter (hours:minutes:seconds))
-      --min-rating FLOAT       Minimum rating  [default: 0.0]
-      --max-rating FLOAT       Maximum rating  [default: 5.0]
-      --relative               Generate relatives paths
-      --shuffle                Randomize selection
-    Ordering options: 
-      --shuffle                Randomize selection
-      --interleave             Interleave tracks by artist
-    -h, --help                 Show this message and exit.
 
 musicbot local rescan
 *********************
@@ -601,7 +692,6 @@ musicbot local stats
       --max-duration INTEGER   Maximum duration filter (hours:minutes:seconds))
       --min-rating FLOAT       Minimum rating  [default: 0.0]
       --max-rating FLOAT       Maximum rating  [default: 5.0]
-      --relative               Generate relatives paths
       --shuffle                Randomize selection
     Ordering options: 
       --shuffle                Randomize selection
@@ -616,8 +706,8 @@ musicbot local sync
     Copy selected musics with filters to destination folder
 
   Options:
-    --dry                     Take no real action  [default: False]
-    -y, --yes                 Confirm action
+    --dry / --no-dry          Do not launch real action  [default: no-dry]
+    -y, --yes TEXT            Confirm file deletion on destination
     Auth options: 
       -g, --graphql TEXT      GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT        User token
@@ -640,7 +730,6 @@ musicbot local sync
       --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
       --min-rating FLOAT      Minimum rating  [default: 0.0]
       --max-rating FLOAT      Maximum rating  [default: 5.0]
-      --relative              Generate relatives paths
       --shuffle               Randomize selection
     Ordering options: 
       --shuffle               Randomize selection
@@ -694,8 +783,8 @@ musicbot music add-keywords
     Add keywords to music
 
   Options:
-    --dry       Take no real action  [default: False]
-    -h, --help  Show this message and exit.
+    --dry / --no-dry  Do not launch real action  [default: no-dry]
+    -h, --help        Show this message and exit.
 
 musicbot music delete-keywords
 ******************************
@@ -706,8 +795,8 @@ musicbot music delete-keywords
     Delete keywords to music
 
   Options:
-    --dry       Take no real action  [default: False]
-    -h, --help  Show this message and exit.
+    --dry / --no-dry  Do not launch real action  [default: no-dry]
+    -h, --help        Show this message and exit.
 
 musicbot music fingerprint
 **************************
@@ -731,7 +820,7 @@ musicbot music flac2mp3
 
   Options:
     --folder DIRECTORY  Destination folder
-    --dry               Take no real action  [default: False]
+    --dry / --no-dry    Do not launch real action  [default: no-dry]
     -h, --help          Show this message and exit.
 
 musicbot music inconsistencies
@@ -744,7 +833,7 @@ musicbot music inconsistencies
 
   Options:
     --folder DIRECTORY                                  Destination folder
-    --dry                                               Take no real action  [default: False]
+    --dry / --no-dry                                    Do not launch real action  [default: no-dry]
     Check options: 
       --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-comment|invalid-path]
                                                         Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
@@ -761,7 +850,7 @@ musicbot music set-tags
     Set music title
 
   Options:
-    --dry              Take no real action  [default: False]
+    --dry / --no-dry   Do not launch real action  [default: no-dry]
     Music options: 
       --keywords TEXT  Keywords
       --artist TEXT    Artist
@@ -874,7 +963,6 @@ musicbot spotify diff
       --max-duration INTEGER        Maximum duration filter (hours:minutes:seconds))
       --min-rating FLOAT            Minimum rating  [default: 0.0]
       --max-rating FLOAT            Maximum rating  [default: 5.0]
-      --relative                    Generate relatives paths
       --shuffle                     Randomize selection
     Ordering options: 
       --shuffle                     Randomize selection

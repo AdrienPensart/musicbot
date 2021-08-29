@@ -2,7 +2,7 @@ import json
 import pytest
 from click_skeleton.testing import run_cli
 from musicbot.main import cli
-from . import fixtures
+from musicbot.music.music_filter import default_filters
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
@@ -33,7 +33,7 @@ def test_filter_count(cli_runner, common_args):
         *common_args,
     ])
     count_filters = int(count_filters_str)
-    assert count_filters == 15
+    assert count_filters == len(default_filters)
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
@@ -46,4 +46,4 @@ def test_filter_list(cli_runner, common_args):
     ])
 
     filters = json.loads(filters_json)
-    assert len(filters) == fixtures.filters
+    assert len(filters) == len(default_filters)

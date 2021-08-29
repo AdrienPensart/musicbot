@@ -6,12 +6,4 @@ RUN git clone https://github.com/michelp/pgjwt.git /pgjwt && cd /pgjwt && make i
 RUN echo "shared_preload_libraries=pg_stat_statements" >> /etc/postgresql/postgresql.conf
 RUN echo "pg_stat_statements.track=all" >> /etc/postgresql/postgresql.conf
 
-ADD musicbot/schema/schemas.sql /docker-entrypoint-initdb.d/a_schema.sql
-ADD musicbot/schema/extensions.sql /docker-entrypoint-initdb.d/b_extensions.sql
-ADD musicbot/schema/user.sql /docker-entrypoint-initdb.d/c_user.sql
-ADD musicbot/schema/music.sql /docker-entrypoint-initdb.d/d_music.sql
-ADD musicbot/schema/link.sql /docker-entrypoint-initdb.d/e_link.sql
-ADD musicbot/schema/filter.sql /docker-entrypoint-initdb.d/f_filter.sql
-ADD musicbot/schema/playlist.sql /docker-entrypoint-initdb.d/g_playlist.sql
-ADD musicbot/schema/stat.sql /docker-entrypoint-initdb.d/h_stat.sql
-ADD musicbot/schema/grants.sql /docker-entrypoint-initdb.d/i_grants.sql
+ADD musicbot/schema/* /docker-entrypoint-initdb.d/

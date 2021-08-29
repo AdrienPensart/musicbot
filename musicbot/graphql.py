@@ -18,7 +18,6 @@ class GraphQL:
     def batch(self, operations: List[Any]) -> Any:
         json_response = self._post(operations)
         for response_object in json_response:
-            print(response_object)
             if 'errors' in response_object and response_object['errors']:
                 raise FailedRequest(operation=operations, response=response_object)
         return json_response

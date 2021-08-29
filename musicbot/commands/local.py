@@ -1,35 +1,31 @@
 from typing import List
+from pathlib import Path
 import logging
 import time
 import io
 import random
 import shutil
-import os
-import itertools
 import codecs
 import json
 import datetime
 import textwrap
 import click
-import attr
 import progressbar  # type: ignore
 import mutagen  # type: ignore
 from watchdog.observers import Observer  # type: ignore
 from prettytable import PrettyTable  # type: ignore
 from click_skeleton import AdvancedGroup
-from click_skeleton.helpers import PrettyDefaultDict
 from musicbot.helpers import genfiles
 from musicbot.exceptions import FailedRequest
 from musicbot.watcher import MusicWatcherHandler
 from musicbot.player import play
-from musicbot.playlist import print_playlist
 from musicbot.object import MusicbotObject
 from musicbot.user import User
 from musicbot.music.music_filter import MusicFilter
 from musicbot.music.file import File
 from musicbot.music.helpers import all_files, empty_dirs, except_directories
 from musicbot.cli.file import flat_option, checks_and_fix_options, folder_argument
-from musicbot.cli.music_filter import music_filter_options, interleave_option
+from musicbot.cli.music_filter import music_filter_options
 from musicbot.cli.user import user_options
 from musicbot.cli.options import yes_option, save_option, folders_argument, output_option, dry_option
 
@@ -66,6 +62,7 @@ def stats(user: User, output: str, music_filter: MusicFilter):
     elif output == 'table':
         pt = PrettyTable(["Stat", "Value"])
         pt.add_row(["Music", stats['musics']])
+        pt.add_row(["Link", stats['links']])
         pt.add_row(["Artist", stats['artists']])
         pt.add_row(["Album", stats['albums']])
         pt.add_row(["Genre", stats['genres']])
@@ -127,20 +124,20 @@ def rescan(user: User, folders: List[str]):
 
 @cli.command(help='Copy selected musics with filters to destination folder')
 @dry_option
-@yes_option
+@click.option('--yes', '-y', help="Confirm file deletion on destination")
 @user_options
 @music_filter_options
 @flat_option
 @click.option('--delete', help='Delete files on destination if not present in library', is_flag=True)
 @click.argument('destination')
-def sync(user: User, delete: bool, yes: bool, dry: bool, destination: str, music_filter: MusicFilter, flat: bool):
+def sync(user: User, delete: bool, destination: str, music_filter: MusicFilter, yes: bool, flat: bool):
     logger.info(f'Destination: {destination}')
-    musics = user.do_filter(music_filter)
-    if not musics:
+    music_paths = user.playlist(music_filter)
+    if not music_paths:
         click.secho('no result for filter, nothing to sync')
         return
 
-    music_files = [File(path=m['path'], folder=m['folder']) for m in musics]
+    music_files = [File(path=music_path['url']) for music_path in music_paths]
 
     files = list(all_files(destination))
     logger.info(f"Files : {len(files)}")
@@ -161,13 +158,14 @@ def sync(user: User, delete: bool, yes: bool, dry: bool, destination: str, music
         with MusicbotObject.progressbar(max_value=len(to_delete)) as pbar:
             for d in to_delete:
                 try:
-                    pbar.desc = f"Deleting musics and playlists: {os.path.basename(destinations[d])}"
-                    if dry:
-                        logger.info(f"[DRY-RUN] Deleting {destinations[d]}")
+                    path_to_delete = Path(destinations[d])
+                    pbar.desc = f"Deleting musics and playlists: {path_to_delete.name}"
+                    if MusicbotObject.dry:
+                        logger.info(f"[DRY-RUN] Deleting {path_to_delete}")
                         continue
                     try:
-                        logger.info(f"Deleting {destinations[d]}")
-                        os.remove(destinations[d])
+                        logger.info(f"Deleting {path_to_delete}")
+                        path_to_delete.unlink()
                     except OSError as e:
                         logger.error(e)
                 finally:
@@ -178,19 +176,21 @@ def sync(user: User, delete: bool, yes: bool, dry: bool, destination: str, music
     with MusicbotObject.progressbar(max_value=len(to_copy)) as pbar:
         logger.info(f"To copy: {len(to_copy)}")
         for c in sorted(to_copy):
-            final_destination = os.path.join(destination, c)
+            final_destination = Path(destination) / c
             try:
-                pbar.desc = f'Copying {os.path.basename(sources[c])} to {destination}'
-                if dry:
-                    logger.info(f"[DRY-RUN] Copying {sources[c]} to {final_destination}")
+                path_to_copy = Path(sources[c])
+                pbar.desc = f'Copying {path_to_copy.name} to {destination}'
+                if MusicbotObject.dry:
+                    logger.info(f"[DRY-RUN] Copying {path_to_copy.name} to {final_destination}")
                     continue
-                logger.info(f"Copying {sources[c]} to {final_destination}")
-                os.makedirs(os.path.dirname(final_destination), exist_ok=True)
-                shutil.copyfile(sources[c], final_destination)
+                logger.info(f"Copying {path_to_copy.name} to {final_destination}")
+
+                Path(final_destination).parent.mkdir(exist_ok=True)
+                shutil.copyfile(path_to_copy, final_destination)
             except KeyboardInterrupt:
                 logger.debug(f"Cleanup {final_destination}")
                 try:
-                    os.remove(final_destination)
+                    final_destination.unlink()
                 except OSError:
                     pass
                 raise
@@ -202,65 +202,39 @@ def sync(user: User, delete: bool, yes: bool, dry: bool, destination: str, music
         if any(e in d for e in except_directories):
             logger.debug(f"Invalid path {d}")
             continue
-        if not dry:
+        if not MusicbotObject.dry:
             shutil.rmtree(d)
         logger.info(f"[DRY-RUN] Removing empty dir {d}")
 
 
-@cli.command(help='Generate a new playlist', aliases=['tracks'])
-@output_option
+@cli.command(help='Generate a new playlist')
 @user_options
 @music_filter_options
-@interleave_option
-def playlist(user: User, output: str, music_filter: MusicFilter, interleave: bool):
-    tracks = user.do_filter(music_filter)
-
-    if interleave:
-        tracks_by_artist = PrettyDefaultDict(list)
-        for track in tracks:
-            tracks_by_artist[track['artist']].append(track)
-        tracks = [
-            track
-            for track in itertools.chain(*itertools.zip_longest(*tracks_by_artist.values()))
-            if track is not None
-        ]
-
+def m3u_playlist(user: User, music_filter: MusicFilter):
+    tracks = user.playlist(music_filter)
     if music_filter.shuffle:
         random.shuffle(tracks)
 
-    if output == 'm3u':
-        p = '#EXTM3U\n'
-        p += '\n'.join([track['path'] for track in tracks])
-        print(p)
-        return
-
-    if output == 'json':
-        print(json.dumps(tracks))
-        return
-
-    if output == 'table':
-        print_playlist(tracks)
+    p = '#EXTM3U\n'
+    p += '\n'.join([track['url'] for track in tracks])
+    print(p)
 
 
 @cli.command(help='Generate bests playlists with some rules')
-@click.option('--prefix', envvar='MB_PREFIX', help="Append prefix before each path (implies relative)", default='')
+@click.option('--prefix', envvar='MB_PREFIX', help="Append prefix before each path", default='')
 @click.option('--suffix', envvar='MB_SUFFIX', help="Append this suffix to playlist name", default='')
 @folder_argument
 @dry_option
 @user_options
 @music_filter_options
-def bests(user: User, dry: bool, folder: str, prefix: str, suffix: str, music_filter: MusicFilter):
-    if prefix:
-        music_filter = attr.evolve(music_filter, relative=True)
-        if not prefix.endswith('/'):
-            prefix += '/'
-    playlists = user.bests(music_filter)
+def m3u_bests(user: User, folder: str, prefix: str, suffix: str, music_filter: MusicFilter):
+    playlists = user.m3u_bests(music_filter)
     with MusicbotObject.progressbar(max_value=len(playlists)) as pbar:
         for p in playlists:
             try:
-                playlist_filepath = os.path.join(folder, p['name'] + suffix + '.m3u')
+                playlist_filepath = Path(folder) / p['name'] / (suffix + '.m3u')
                 content = textwrap.indent(p['content'], prefix, lambda line: line != '#EXTM3U\n')
-                if dry:
+                if MusicbotObject.dry:
                     logger.info(f'DRY RUN: Writing playlist to {playlist_filepath} with content:\n{content}')
                     continue
                 try:
@@ -292,14 +266,14 @@ def player(user: User, music_filter: MusicFilter):
 @dry_option
 @user_options
 @music_filter_options
-def inconsistencies(user: User, dry: bool, fix: bool, checks: List[str], music_filter: MusicFilter):
+def inconsistencies(user: User, fix: bool, checks: List[str], music_filter: MusicFilter):
     tracks = user.do_filter(music_filter)
     pt = PrettyTable(["Folder", "Path", "Inconsistencies"])
     for t in tracks:
         try:
             m = File(t['path'], t['folder'])
             if fix:
-                m.fix(dry=dry, checks=checks)
+                m.fix(checks=checks)
             if m.inconsistencies:
                 pt.add_row([m.folder, m.path, ', '.join(m.inconsistencies)])
         except (OSError, mutagen.MutagenError):

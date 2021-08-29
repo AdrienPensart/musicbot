@@ -31,7 +31,6 @@ DEFAULT_NO_ALBUMS: List[str] = []
 @attr.s(auto_attribs=True, frozen=True)
 class MusicFilter:
     name: Optional[str] = DEFAULT_NAME
-    relative: bool = DEFAULT_RELATIVE
     shuffle: bool = DEFAULT_SHUFFLE
     min_duration: int = DEFAULT_MIN_DURATION
     max_duration: int = DEFAULT_MAX_DURATION
@@ -87,6 +86,39 @@ class MusicFilter:
         default = vars(MusicFilter())
         return {k: myself[k] for k in myself if default[k] == myself[k] and k != 'name'}
 
+    def create_mutation(self, operationName=None) -> str:
+        operationName = operationName if operationName is not None else ""
+        return f'''
+        mutation {operationName} {{
+            createFilter(
+                input: {{
+                    filter: {{
+                        name: "{self.name}",
+                        minDuration: {self.min_duration},
+                        maxDuration: {self.max_duration},
+                        minRating: {self.min_rating},
+                        maxRating: {self.max_rating},
+                        artists: {json.dumps(self.artists)},
+                        noArtists: {json.dumps(self.no_artists)},
+                        albums: {json.dumps(self.albums)},
+                        noAlbums: {json.dumps(self.no_albums)},
+                        titles: {json.dumps(self.titles)},
+                        noTitles: {json.dumps(self.no_titles)},
+                        genres: {json.dumps(self.genres)},
+                        noGenres: {json.dumps(self.no_genres)},
+                        keywords: {json.dumps(self.keywords)},
+                        noKeywords: {json.dumps(self.no_keywords)},
+                        shuffle: {json.dumps(self.shuffle)},
+                        limit: {self.limit},
+                    }}
+                }}
+            )
+            {{
+                clientMutationId
+            }}
+        }}
+        '''
+
     def as_dict(self) -> Dict[str, Any]:  # pylint: disable=unsubscriptable-object
         return {
             'minDuration': self.min_duration,
@@ -104,9 +136,23 @@ class MusicFilter:
             'keywords': self.keywords,
             'noKeywords': self.no_keywords,
             'shuffle': self.shuffle,
-            'relative': self.relative,
             'limit': self.limit,
         }
 
     def to_graphql(self) -> str:
         return ", ".join([f'{k}: {json.dumps(v)}' for k, v in self.as_dict().items()])
+
+
+default_filters = [
+    MusicFilter(name="default"),
+    MusicFilter(name="no artist set", artists=[""]),
+    MusicFilter(name="no album set", albums=[""]),
+    MusicFilter(name="no title set", titles=[""]),
+    MusicFilter(name="no genre set", genres=[""]),
+    MusicFilter(name="no rating", min_rating=0.0, max_rating=0.0),
+    MusicFilter(name="best (4.0+)", min_rating=4.0, no_keywords=["cutoff", "bad", "demo", "intro"]),
+    MusicFilter(name="best (4.5+)", min_rating=4.5, no_keywords=["cutoff", "bad", "demo", "intro"]),
+    MusicFilter(name="best (5.0+)", min_rating=5.0, no_keywords=["cutoff", "bad", "demo", "intro"]),
+    MusicFilter(name="no live", no_keywords=["live"]),
+    MusicFilter(name="only live", keywords=["live"]),
+]

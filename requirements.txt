@@ -3,6 +3,7 @@ attrs==21.2.0; (python_version >= "2.7" and python_full_version < "3.0.0") or (p
 audioread==2.1.9
 certifi==2021.5.30; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0"
 charset-normalizer==2.0.4; python_full_version >= "3.6.0" and python_version >= "3"
+cli-helpers==2.2.0; python_version >= "3.6"
 click-aliases==1.0.1; python_version >= "3.6" and python_version <= "3.9"
 click-completion==0.5.2; python_version >= "3.6" and python_version <= "3.9"
 click-didyoumean==0.0.3; python_version >= "3.6" and python_version <= "3.9"
@@ -12,6 +13,7 @@ click-skeleton==0.16; python_version >= "3.6" and python_version <= "3.9"
 click==8.0.1; python_version >= "3.6" and python_version <= "3.9"
 colorama==0.4.4; python_version >= "3.6" and python_full_version < "3.0.0" and sys_platform == "win32" and python_version <= "3.9" and platform_system == "Windows" or sys_platform == "win32" and python_version >= "3.6" and python_full_version >= "3.5.0" and python_version <= "3.9" and platform_system == "Windows"
 colorlog==6.4.1; python_version >= "3.6"
+configobj==5.0.6; python_version >= "3.6"
 fuzzywuzzy==0.18.0
 graphql-py==0.8.1
 humanize==3.11.0; python_version >= "3.6"
@@ -23,26 +25,36 @@ markupsafe==2.0.1; python_version >= "3.6" and python_version <= "3.9"
 munch==2.5.0; python_version >= "3.6" and python_version <= "3.9"
 mutagen==1.45.1; python_version >= "3.5" and python_version < "4"
 packaging==21.0; python_version >= "3.6" and python_version <= "3.9"
+pendulum==2.1.2; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
+pgcli==3.2.0; python_version >= "3.6"
+pgspecial==1.13.0; python_version >= "3.6"
 pluggy==0.13.1; python_version >= "3.6" and python_full_version < "3.0.0" and python_version <= "3.9" or python_version >= "3.6" and python_version <= "3.9" and python_full_version >= "3.4.0"
 ply==3.11
 prettytable==2.2.0; python_version >= "3.6"
 progressbar2==3.53.1
 prompt-toolkit==3.0.20; python_full_version >= "3.6.2"
+psycopg2==2.9.1; python_version >= "3.6"
 py==1.10.0; python_version >= "3.6" and python_full_version < "3.0.0" and python_version <= "3.9" or python_version >= "3.6" and python_version <= "3.9" and python_full_version >= "3.4.0"
 pyacoustid==1.2.1
 pydub==0.25.1
+pygments==2.10.0; python_version >= "3.5"
 pyparsing==2.4.7; python_version >= "3.6" and python_full_version < "3.0.0" and python_version <= "3.9" or python_version >= "3.6" and python_version <= "3.9" and python_full_version >= "3.3.0"
 pytest-click==1.0.2; python_version >= "3.6" and python_version <= "3.9"
 pytest==6.2.4; python_version >= "3.6" and python_version <= "3.9"
+python-dateutil==2.8.2; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
 python-levenshtein==0.12.2
 python-slugify==5.0.2; python_version >= "3.6"
 python-utils==2.5.6
 python-vlc==3.0.12118
+pytzdata==2020.1; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
 requests==2.26.0; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.6.0")
 semver==2.13.0; python_version >= "3.6" and python_full_version < "3.0.0" and python_version <= "3.9" or python_version >= "3.6" and python_version <= "3.9" and python_full_version >= "3.4.0"
+setproctitle==1.2.2; python_version >= "3.6"
 shellingham==1.4.0; python_version >= "3.6" and python_version <= "3.9"
-six==1.16.0; python_version >= "3.6" and python_full_version < "3.0.0" and python_version <= "3.9" or python_version >= "3.6" and python_version <= "3.9" and python_full_version >= "3.3.0"
+six==1.16.0; python_version >= "3.6" and python_full_version < "3.0.0" and python_version <= "3.9" or python_version >= "3.6" and python_version <= "3.9" and python_full_version >= "3.5.0"
 spotipy==2.19.0
+sqlparse==0.4.1; python_version >= "3.6"
+tabulate==0.8.9; python_version >= "3.6"
 text-unidecode==1.3; python_version >= "3.6"
 toml==0.10.2; python_version >= "3.6" and python_full_version < "3.0.0" and python_version <= "3.9" or python_version >= "3.6" and python_version <= "3.9" and python_full_version >= "3.3.0"
 types-python-slugify==0.1.2

@@ -7,7 +7,7 @@ bump2version==1.0.1; python_version >= "3.5"
 certifi==2021.5.30; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0"
 cffi==1.14.6; python_version >= "3.6" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_version >= "3.6" and python_full_version >= "3.4.0")
 charset-normalizer==2.0.4; python_full_version >= "3.6.0" and python_version >= "3"
-cli-helpers==2.1.0; python_version >= "3.6"
+cli-helpers==2.2.0; python_version >= "3.6"
 click-aliases==1.0.1; python_version >= "3.6" and python_version <= "3.9"
 click-completion==0.5.2; python_version >= "3.6" and python_version <= "3.9"
 click-didyoumean==0.0.3; python_version >= "3.6" and python_version <= "3.9"
@@ -92,13 +92,12 @@ six==1.16.0; python_version >= "3.6" and python_full_version < "3.0.0" and pytho
 spotipy==2.19.0
 sqlparse==0.4.1; python_version >= "3.6"
 tabulate==0.8.9; python_version >= "3.6"
-terminaltables==3.1.0; python_version >= "3.6"
 text-unidecode==1.3; python_version >= "3.6"
 texttable==1.6.4; python_version >= "3.4"
 toml==0.10.2; python_version >= "3.6" and python_full_version < "3.0.0" and python_version <= "3.9" or python_version >= "3.6" and python_version <= "3.9" and python_full_version >= "3.5.0"
 types-python-slugify==0.1.2
 types-requests==2.25.6
-typing-extensions==3.10.0.0; python_version >= "3.5"
+typing-extensions==3.10.0.1; python_version >= "3.5"
 urllib3==1.26.6; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version < "4"
 watchdog==2.1.5; python_version >= "3.6"
 wcwidth==0.2.5; python_full_version >= "3.6.2" and python_version >= "3.6"

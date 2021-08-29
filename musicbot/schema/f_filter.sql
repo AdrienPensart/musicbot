@@ -18,7 +18,6 @@ create table if not exists musicbot_public.filter
     keywords     text[] default '{}',
     no_keywords  text[] default '{}',
     shuffle      boolean default 'false',
-    relative     boolean default 'false',
     "limit"      integer default +2147483647,
     created_at   timestamp with time zone default now(),
     updated_at   timestamp with time zone default now(),

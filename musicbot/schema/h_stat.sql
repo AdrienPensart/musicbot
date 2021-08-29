@@ -1,4 +1,3 @@
-/*
 create table if not exists musicbot_public.stat
 (
     id           bigserial primary key,
@@ -7,6 +6,7 @@ create table if not exists musicbot_public.stat
     albums       bigint not null default 0,
     artists      bigint not null default 0,
     genres       bigint not null default 0,
+    links        bigint not null default 0,
     keywords     bigint not null default 0,
     duration     bigint not null default 0,
     created_at   timestamp with time zone default now(),
@@ -32,7 +32,6 @@ create policy update_stat on musicbot_public.stat for update using (user_id = mu
 drop policy if exists delete_stat on musicbot_public.stat cascade;
 create policy delete_stat on musicbot_public.stat for delete using (user_id = musicbot_public.current_musicbot());
 
-
 drop aggregate if exists musicbot_public.array_cat_agg(anyarray) cascade;
 create aggregate musicbot_public.array_cat_agg(anyarray) (
     SFUNC=array_cat,
@@ -55,40 +54,40 @@ create or replace function musicbot_public.do_stat(
     keywords     text[] default '{}',
     no_keywords  text[] default '{}',
     shuffle      boolean default 'false',
-    relative     boolean default 'false',
-    "limit"      integer default +2147483647,
+    "limit"      integer default +2147483647
 )
 returns musicbot_public.stat as
 $$
     select
         row_number() over () as id,
         musicbot_public.current_musicbot(),
-        count(distinct f.path) as musics,
-        count(distinct f.album) as albums,
-        count(distinct f.artist) as artists,
-        count(distinct f.genre) as genres,
-        (select count(distinct k.keywords) from (select unnest(musicbot_public.array_cat_agg(f.keywords)) as keywords) as k) as keywords,
-        coalesce(sum(f.duration),0) as duration,
+        count(distinct m.id) as musics,
+        count(distinct m.album) as albums,
+        count(distinct m.artist) as artists,
+        count(distinct m.genre) as genres,
+        count(distinct l.url) as links,
+        (select count(distinct k.keywords) from (select unnest(musicbot_public.array_cat_agg(m.keywords)) as keywords) as k) as keywords,
+        coalesce(sum(m.duration),0) as duration,
         now(),
         now()
-    from musicbot_public.do_filter(
-            min_duration => do_stat.min_duration,
-            max_duration => do_stat.max_duration,
-            min_rating   => do_stat.min_rating,
-            max_rating   => do_stat.max_rating,
-            artists      => do_stat.artists,
-            no_artists   => do_stat.no_artists,
-            albums       => do_stat.albums,
-            no_albums    => do_stat.no_albums,
-            titles       => do_stat.titles,
-            no_titles    => do_stat.no_titles,
-            genres       => do_stat.genres,
-            no_genres    => do_stat.no_genres,
-            keywords     => do_stat.keywords,
-            no_keywords  => do_stat.no_keywords,
-            shuffle      => do_stat.shuffle,
-            relative     => do_stat.relative,
-            "limit"      => do_stat."limit"
-        ) f;
+    from musicbot_public.do_filter
+    (
+        min_duration => do_stat.min_duration,
+        max_duration => do_stat.max_duration,
+        min_rating   => do_stat.min_rating,
+        max_rating   => do_stat.max_rating,
+        artists      => do_stat.artists,
+        no_artists   => do_stat.no_artists,
+        albums       => do_stat.albums,
+        no_albums    => do_stat.no_albums,
+        titles       => do_stat.titles,
+        no_titles    => do_stat.no_titles,
+        genres       => do_stat.genres,
+        no_genres    => do_stat.no_genres,
+        keywords     => do_stat.keywords,
+        no_keywords  => do_stat.no_keywords,
+        shuffle      => do_stat.shuffle,
+        "limit"      => do_stat."limit"
+    ) m
+    inner join musicbot_public.link l on l.music_id = m.id;
 $$ language sql stable;
-*/

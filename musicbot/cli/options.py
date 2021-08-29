@@ -110,7 +110,7 @@ def config_string(ctx: click.Context, param: click.Parameter, value: Optional[st
 
     if param.name:
         config_value = MusicbotObject.config.configfile.get('musicbot', param.name, fallback=None)
-        logger.info(f"{param.name} : try string loading with config key : {config_value}")
+        logger.info(f"{param.name} : try string loading with config key from {MusicbotObject.config.config} : {config_value}")
 
     if arg_value:
         value = arg_value

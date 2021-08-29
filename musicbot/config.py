@@ -11,8 +11,8 @@ from musicbot.exceptions import MusicbotError
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_CONFIG = Path('~/musicbot.ini')
-DEFAULT_LOG: Optional[Path] = None
+DEFAULT_CONFIG = '~/musicbot.ini'
+DEFAULT_LOG: Optional[str] = None
 DEFAULT_COLOR = True
 DEFAULT_DEBUG = False
 DEFAULT_INFO = False
@@ -34,7 +34,7 @@ VERBOSITIES = {
 
 @attr.s(auto_attribs=True, frozen=True)
 class Config:
-    log: Optional[Path] = DEFAULT_LOG
+    log: Optional[str] = DEFAULT_LOG
     color: bool = DEFAULT_COLOR
     quiet: bool = True
     debug: bool = DEFAULT_DEBUG
@@ -43,7 +43,7 @@ class Config:
     error: bool = DEFAULT_ERROR
     critical: bool = DEFAULT_CRITICAL
     timings: bool = DEFAULT_TIMINGS
-    config: Path = DEFAULT_CONFIG
+    config: str = DEFAULT_CONFIG
     level: int = VERBOSITIES[DEFAULT_VERBOSITY]
 
     def __attrs_post_init__(self) -> None:
@@ -82,7 +82,7 @@ class Config:
         root_logger.handlers = []
         root_logger.addHandler(handler)
         if self.log:
-            log_path = self.log.expanduser()
+            log_path = Path(self.log).expanduser()
             try:
                 fh = logging.FileHandler(log_path)
                 fh.setLevel(logging.DEBUG)
@@ -94,11 +94,11 @@ class Config:
     @functools.cached_property
     def configfile(self) -> configparser.ConfigParser:
         file = configparser.ConfigParser()
-        file.read(self.config)
+        file.read(Path(self.config).expanduser())
         if 'musicbot' not in file:
             logger.warning(f'[musicbot] section is not present in {self.config}')
         return file
 
     def write(self) -> None:
-        with open(self.config, 'w', encoding="utf8") as output_config:
+        with open(Path(self.config).expanduser(), 'w', encoding="utf8") as output_config:
             self.configfile.write(output_config)

@@ -8,6 +8,7 @@ import mutagen  # type: ignore
 from slugify import slugify
 from pydub import AudioSegment  # type: ignore
 from click_skeleton.helpers import mysplit
+from musicbot.object import MusicbotObject
 from musicbot.music.helpers import ensure
 
 logger = logging.getLogger(__name__)
@@ -98,7 +99,7 @@ class File:
     def close(self) -> None:
         self.handle.close()
 
-    def to_mp3(self, folder: Optional[str] = None, dry: Optional[bool] = False, flat: Optional[bool] = False) -> bool:
+    def to_mp3(self, folder: Optional[str] = None, flat: Optional[bool] = False) -> bool:
         folder = folder if folder is not None else self.folder
 
         if self.extension != '.flac':
@@ -121,10 +122,10 @@ class File:
             f.album = self.album
             f.title = self.title
             f.artist = self.artist
-            f.save(dry=dry)
+            f.save()
             return False
         logger.debug(f"{self} convert destination : {mp3_path}")
-        if not dry:
+        if not MusicbotObject.dry:
             ensure(mp3_path)
             try:
                 flac_audio = AudioSegment.from_file(self.path, "flac")
@@ -382,18 +383,16 @@ class File:
         else:
             logger.error(f'{self} : unknown extension {self.extension}')
 
-    def add_keywords(self, keywords: Iterable[str], dry: Optional[bool] = None) -> bool:
-        dry = dry if dry is not None else False
+    def add_keywords(self, keywords: Iterable[str]) -> bool:
         self.keywords = list(set(self.keywords).union(set(keywords)))
         logger.info(f'{self} : adding {keywords}, new keywords {self.keywords}')
-        return self.save(dry)
+        return self.save()
 
-    def delete_keywords(self, keywords: Iterable[str], dry: Optional[bool] = None) -> bool:
-        dry = dry if dry is not None else False
+    def delete_keywords(self, keywords: Iterable[str]) -> bool:
         new_keywords = list(set(self.keywords) - set(keywords))
         logger.info(f'{self} : deleting {keywords}, new keywords {new_keywords}')
         self.keywords = new_keywords
-        return self.save(dry)
+        return self.save()
 
     @property
     def youtube(self) -> str:
@@ -411,9 +410,8 @@ class File:
         logger.info(f'{self} : fingerprint cannot be detected')
         return ''
 
-    def fix(self, checks: Optional[Iterable[str]] = None, dry: Optional[bool] = None) -> bool:
+    def fix(self, checks: Optional[Iterable[str]] = None) -> bool:
         checks = checks if checks is not None else DEFAULT_CHECKS
-        dry = dry if dry is not None else False
         if 'no-rating' in checks:
             self.rating = 0.0
             self.inconsistencies.remove('no-rating')
@@ -432,19 +430,18 @@ class File:
             self.inconsistencies.remove('invalid-title')
         if 'invalid-path' in checks:
             logger.info(f"{self} : {self.path} => {self.canonic_path}")
-            if not dry:
+            if not MusicbotObject.dry:
                 ensure(self.canonic_path)
                 path = pathlib.Path(self.path)
                 path.replace(self.canonic_path)
                 self.path = self.canonic_path
                 self.handle = mutagen.File(self.path)
                 self.inconsistencies.remove('invalid-path')
-        return self.save(dry)
+        return self.save()
 
-    def save(self, dry: Optional[bool] = None) -> bool:
-        dry = dry if dry is not None else False
+    def save(self) -> bool:
         try:
-            if not dry:
+            if not MusicbotObject.dry:
                 self.handle.save()
             return True
         except mutagen.MutagenError as e:

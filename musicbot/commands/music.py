@@ -27,9 +27,9 @@ def cli():
 @path_argument
 @folder_option
 @dry_option
-def flac2mp3(path: str, folder: str, dry: bool):
+def flac2mp3(path: str, folder: str):
     f = File(path)
-    f.to_mp3(folder, dry)
+    f.to_mp3(folder)
 
 
 @cli.command(help='Print music fingerprint')
@@ -70,7 +70,7 @@ def inconsistencies(path: str, folder: str, fix: bool, **kwargs):
 @path_argument
 @dry_option
 @file_options
-def set_tags(path: str, title: str, artist: str, album: str, genre: str, keywords: List[str], rating: float, number: int, dry: bool):
+def set_tags(path: str, title: str, artist: str, album: str, genre: str, keywords: List[str], rating: float, number: int):
     f = File(path)
     if title:
         f.title = title
@@ -86,22 +86,22 @@ def set_tags(path: str, title: str, artist: str, album: str, genre: str, keyword
         f.rating = rating
     if number:
         f.number = number
-    f.save(dry)
+    f.save()
 
 
 @cli.command(help='Add keywords to music')
 @dry_option
 @path_argument
 @keywords_argument
-def add_keywords(path: str, keywords: List[str], dry: bool):
+def add_keywords(path: str, keywords: List[str]):
     f = File(path)
-    f.add_keywords(keywords, dry)
+    f.add_keywords(keywords)
 
 
 @cli.command(help='Delete keywords to music', aliases=['remove-keywords'])
 @dry_option
 @path_argument
 @keywords_argument
-def delete_keywords(path: str, keywords: List[str], dry: bool):
+def delete_keywords(path: str, keywords: List[str]):
     f = File(path)
-    f.delete_keywords(keywords, dry)
+    f.delete_keywords(keywords)
