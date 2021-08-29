@@ -1,5 +1,5 @@
 import logging
-import pathlib
+from pathlib import Path, PurePath
 import json
 import os
 from typing import Any, Optional, List, Dict, Iterable, Iterator
@@ -9,6 +9,7 @@ from slugify import slugify
 from pydub import AudioSegment  # type: ignore
 from click_skeleton.helpers import mysplit
 from musicbot.object import MusicbotObject
+from musicbot.helpers import current_user, public_ip
 from musicbot.music.helpers import ensure
 
 logger = logging.getLogger(__name__)
@@ -162,9 +163,14 @@ class File:
                         number: {self.number},
                         rating: {self.rating},
                         linksUsingId: {{
-                            create: [{{
-                                url: "{self.path}"
-                            }}]
+                            create: [
+                                {{
+                                    url: "{self.path}"
+                                }},
+                                {{
+                                    url: "{self.ssh_path}"
+                                }},
+                            ]
                         }}
                     }}
                 }}
@@ -188,8 +194,12 @@ class File:
         }
 
     @property
+    def ssh_path(self) -> str:
+        return f"ssh://{current_user()}@{public_ip()}:{self.path}"
+
+    @property
     def extension(self) -> str:
-        return pathlib.Path(self.path).suffix
+        return Path(self.path).suffix
 
     def to_graphql(self) -> str:
         return ", ".join([f'{k}: {json.dumps(v)}' for k, v in self.as_dict().items()])
@@ -199,15 +209,15 @@ class File:
 
     @property
     def canonic_path(self) -> str:
-        return str(pathlib.PurePath(self.folder, self.canonic_artist_album_filename))
+        return str(PurePath(self.folder, self.canonic_artist_album_filename))
 
     @property
     def canonic_artist_album_filename(self) -> str:
-        return str(pathlib.PurePath(self.artist, self.album, self.canonic_filename))
+        return str(PurePath(self.artist, self.album, self.canonic_filename))
 
     @property
     def filename(self) -> str:
-        return os.path.basename(self.path)
+        return Path(self.path).name
 
     @property
     def canonic_filename(self) -> str:
@@ -238,7 +248,7 @@ class File:
 
     @property
     def size(self) -> int:
-        return os.path.getsize(self.path)
+        return Path(self.path).stat().size
 
     @property
     def title(self) -> str:
@@ -432,7 +442,7 @@ class File:
             logger.info(f"{self} : {self.path} => {self.canonic_path}")
             if not MusicbotObject.dry:
                 ensure(self.canonic_path)
-                path = pathlib.Path(self.path)
+                path = Path(self.path)
                 path.replace(self.canonic_path)
                 self.path = self.canonic_path
                 self.handle = mutagen.File(self.path)

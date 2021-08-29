@@ -108,9 +108,8 @@ def watch(user: User, folders: List[str]):
 @cli.command(help='Clean all musics')
 @user_options
 @yes_option
-def clean(user: User, yes: bool):
-    if yes or click.confirm("Are you sure to delete all musics from DB?"):
-        user.clean_musics()
+def clean(user: User):
+    user.clean_musics()
 
 
 @cli.command(help='Clean and load musics')

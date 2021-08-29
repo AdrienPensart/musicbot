@@ -500,6 +500,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "miniupnpc"
+version = "2.0.2"
+description = "miniUPnP client"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "munch"
 version = "2.5.0"
 description = "A dot-accessible dictionary (a la JavaScript objects)"
@@ -1204,7 +1212,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "<3.9,>=3.8"
-content-hash = "0939791d8d349a7c2fa44a01954406d05ef073e266dd4c195ad61a5e0bd5a81d"
+content-hash = "9611529b5726d069418772fd241bf91261667e8b72b85635b9a598f058724d6f"
 
 [metadata.files]
 astroid = [
@@ -1531,6 +1539,9 @@ markupsafe = [
 mccabe = [
     {file = "mccabe-0.6.1-py2.py3-none-any.whl", hash = "sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42"},
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
+]
+miniupnpc = [
+    {file = "miniupnpc-2.0.2.tar.gz", hash = "sha256:7ea46c93486fe1bdb31f0e0c2d911d224fce70bf5ea120e4295d647dfe274931"},
 ]
 munch = [
     {file = "munch-2.5.0-py2.py3-none-any.whl", hash = "sha256:6f44af89a2ce4ed04ff8de41f70b226b984db10a91dcc7b9ac2efc1c77022fdd"},

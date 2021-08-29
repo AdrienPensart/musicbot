@@ -15,6 +15,7 @@ install_requires = \
  'graphql-py>=0.8.1,<0.9.0',
  'humanize>=3.0.1,<4.0.0',
  'logging-tree>=1.8,<2.0',
+ 'miniupnpc>=2.0.2,<3.0.0',
  'mutagen>=1.44.0,<2.0.0',
  'pgcli>=3.2.0,<4.0.0',
  'prettytable>=2.1.0,<3.0.0',
