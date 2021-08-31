@@ -137,22 +137,28 @@ def config_list(ctx: click.Context, param: click.Parameter, value: Any) -> Any:
 
     if param.name:
         config_value = MusicbotObject.config.configfile.get('musicbot', param.name, fallback=None)
-        list_value = tuple(mysplit(config_value, ',')) if config_value is not None else []
-        logger.info(f"{param.name} : try list loading with config key : {list_value}")
+        list_value = []
+        if config_value:
+            for v in mysplit(config_value, ','):
+                try:
+                    list_value.append(param.type(v))
+                except Exception as e:  # pylint: disable=broad-except
+                    logger.warning(e)
+        final_list_value = tuple(list_value)
+        logger.info(f"{param.name} : try list loading with config key : {final_list_value}")
 
     if arg_value:
         value = arg_value
 
-    if list_value:
+    if final_list_value:
         if not value or value == param.default:
-            value = list_value
-        elif arg_value and arg_value != list_value:
+            value = final_list_value
+        elif arg_value and arg_value != final_list_value:
             logger.warning(f"{param.name} : config list value {list_value} is not sync with arg value {arg_value}")
 
     if not value and param.required:
         raise click.BadParameter(f'missing list arg or config {param.name} in {MusicbotObject.config.config}', ctx, param, param.name)
     logger.info(f"{param.name} : list final value {value}")
-    value = [param.type(v) for v in value]
     if param.name:
         ctx.params[param.name] = value
     return value
