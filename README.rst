@@ -807,6 +807,7 @@ musicbot music
     flac2mp3                           Convert flac music to mp3
     help                               Print help
     inconsistencies (consistency)      Check music consistency
+    insert                             Insert music in DB
     set-tags                           Set music title
     tags                               Print music tags
 
@@ -874,6 +875,23 @@ musicbot music inconsistencies
                                                         tracknumber, invalid-title, invalid-comment, invalid-path]
       --fix                                             Fix musics
     -h, --help                                          Show this message and exit.
+
+musicbot music insert
+*********************
+.. code-block::
+
+  Usage: musicbot music insert [OPTIONS] PATH
+
+    Insert music in DB
+
+  Options:
+    Auth options: 
+      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
+      -e, --email TEXT     User email
+      -p, --password TEXT  User password
+    --dry / --no-dry       Do not launch real action  [default: no-dry]
+    -h, --help             Show this message and exit.
 
 musicbot music set-tags
 ***********************

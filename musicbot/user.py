@@ -105,6 +105,7 @@ class User(MusicbotObject):
             MusicbotObject.err(e)
             for detail in e.details:
                 MusicbotObject.err(detail)
+        return None
 
     @timeit
     def fetch(self, query: str) -> Any:

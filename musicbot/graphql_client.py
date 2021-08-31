@@ -14,9 +14,7 @@ DEFAULT_GRAPHQL = 'http://127.0.0.1:5000/graphql'
 class GraphQL:
     graphql: str
     authorization: Optional[str] = None
-
-    def __attrs_post_init__(self):
-        self.session = requests.session()
+    session: requests.Session = requests.Session()
 
     def __repr__(self):
         return self.graphql

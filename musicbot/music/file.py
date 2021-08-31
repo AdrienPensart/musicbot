@@ -1,8 +1,7 @@
 from pathlib import Path, PurePath
-from typing import Any, Optional, List, Dict, Iterable
+from typing import Any, Set, Optional, List, Dict, Iterable
 import logging
 import json
-import attr
 import acoustid  # type: ignore
 import mutagen  # type: ignore
 from slugify import slugify
@@ -71,14 +70,11 @@ DEFAULT_CHECKS = [
 supported_formats = ["mp3", "flac"]
 
 
-@attr.s(auto_attribs=True, repr=False)
 class File:
-    path: Path
-
-    def __attrs_post_init__(self):
-        self.path = self.path.resolve()
-        self.handle = mutagen.File(self.path)
-        self.inconsistencies = set()
+    def __init__(self, path):
+        path = path.resolve()
+        self.handle = mutagen.File(path)
+        self.inconsistencies: Set[str] = set()
 
         if not self.title:
             self.inconsistencies.add("no-title")
@@ -105,6 +101,10 @@ class File:
 
     def __repr__(self) -> str:
         return str(self.path)
+
+    @property
+    def path(self) -> Path:
+        return Path(self.handle.filename)
 
     def close(self) -> None:
         self.handle.close()

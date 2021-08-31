@@ -286,15 +286,15 @@ def player(user: User, music_filter: MusicFilter):
 @user_options
 @music_filter_options
 def inconsistencies(user: User, fix: bool, checks: List[str], music_filter: MusicFilter):
-    tracks = user.do_filter(music_filter)
-    pt = PrettyTable(["Folder", "Path", "Inconsistencies"])
-    for t in tracks:
+    musics = user.do_filter(music_filter)
+    pt = PrettyTable(["Path", "Inconsistencies"])
+    for music in musics:
         try:
-            m = File(t['path'], t['folder'])
+            m = File(music['path'])
             if fix:
                 m.fix(checks=checks)
             if m.inconsistencies:
                 pt.add_row([m.path, ', '.join(m.inconsistencies)])
         except (OSError, mutagen.MutagenError):
-            pt.add_row([t['path'], "could not open file"])
+            pt.add_row([music['path'], "could not open file"])
     print(pt)
