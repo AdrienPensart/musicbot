@@ -54,7 +54,7 @@ services:
       "--jwt-secret", $MUSICBOT_SECRET,
       "--body-size-limit", "10MB",
       "--simple-collections", "both",
-      "--append-plugins", "postgraphile-plugin-connection-filter,@graphile-contrib/pg-simplify-inflector,postgraphile-plugin-nested-mutations"
+      "--append-plugins", "postgraphile-plugin-connection-filter,@graphile-contrib/pg-simplify-inflector,postgraphile-plugin-nested-mutations,postgraphile-upsert-plugin:PgMutationUpsertPlugin"
     ]
 
   # private API
@@ -85,7 +85,7 @@ services:
       "--enhance-graphiql",
       "--allow-explain",
       "--simple-collections", "both",
-      "--append-plugins", "postgraphile-plugin-connection-filter,@graphile-contrib/pg-simplify-inflector,postgraphile-plugin-nested-mutations"
+      "--append-plugins", "postgraphile-plugin-connection-filter,@graphile-contrib/pg-simplify-inflector,postgraphile-plugin-nested-mutations,postgraphile-upsert-plugin:PgMutationUpsertPlugin"
     ]
 
   reverse_proxy:

@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 
 def test_flac_tags():
-    m = file.File(fixtures.one_flac, fixtures.folder1)
+    m = file.File(path=fixtures.one_flac)
     assert m.artist == "Buckethead"
     assert m.title == "Welcome To Bucketheadland"
     assert m.album == "Giant Robot"
@@ -19,7 +19,7 @@ def test_flac_tags():
 
 
 def test_mp3_tags():
-    m = file.File(fixtures.one_mp3, fixtures.folder2)
+    m = file.File(path=fixtures.one_mp3)
     assert m.artist == "1995"
     assert m.title == "La Flemme"
     assert m.album == "La Source"

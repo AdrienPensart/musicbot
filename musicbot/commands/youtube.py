@@ -1,3 +1,4 @@
+from pathlib import Path
 import os
 import logging
 import click
@@ -64,8 +65,8 @@ def download(artist: str, title: str, path: str):
 @cli.command(help='Search a youtube link with artist and title')
 @path_argument
 @acoustid_api_key_option
-def find(path: str, acoustid_api_key: str):
-    f = File(path)
+def find(path: Path, acoustid_api_key: str):
+    f = File(path=path)
     yt_path = f"{f.artist} - {f.title}.mp3"
     try:
         file_id = f.fingerprint(acoustid_api_key)

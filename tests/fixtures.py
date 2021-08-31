@@ -1,23 +1,24 @@
-import os
+from pathlib import Path
 
-my_dir = os.path.dirname(os.path.abspath(__file__))
+my_dir = Path(__file__).resolve().parent
 
 first_name = "first_test"
 last_name = "last_test"
 email = "test@test.com"
 password = "test_test"
 
-folder1 = my_dir + "/fixtures/folder1"
-folder2 = my_dir + "/fixtures/folder2"
-folders = [folder1, folder2]
+folder1 = my_dir / "fixtures" / "folder1"
+folder2 = my_dir / "fixtures" / "folder2"
+folders = [str(folder1), str(folder2)]
 youtube_url = "https://www.youtube.com/watch?v=rIlLqmI_VkE"
 
-one_flac = folder1 + "/Buckethead/1994 - Giant Robot/02 - Welcome To Bucketheadland.flac"
-one_mp3 = folder2 + "/1995/La Source/La Flemme.mp3"
+one_flac = folder1 / "Buckethead" / "1994 - Giant Robot" / "02 - Welcome To Bucketheadland.flac"
+one_mp3 = folder2 / "1995" / "La Source" / "La Flemme.mp3"
 
 teststats = {
     'id': 1,
     'musics': 5,
+    'links': 10,
     'genres': 2,
     'albums': 2,
     'duration': 262,
@@ -28,6 +29,7 @@ teststats = {
 filtered_teststats = {
     'id': 1,
     'musics': 2,
+    'links': 4,
     'genres': 1,
     'albums': 1,
     'duration': 2,

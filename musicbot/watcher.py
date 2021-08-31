@@ -1,4 +1,5 @@
 from typing import List
+from pathlib import Path
 import logging
 import click
 from watchdog.events import FileSystemEvent, PatternMatchingEventHandler  # type: ignore
@@ -9,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class MusicWatcherHandler(PatternMatchingEventHandler):
-    def __init__(self, user: User, folders: List[str]) -> None:
+    def __init__(self, user: User, folders: List[Path]) -> None:
         PatternMatchingEventHandler.__init__(
             self,
             patterns=['*.' + f for f in file.supported_formats],
@@ -35,8 +36,8 @@ class MusicWatcherHandler(PatternMatchingEventHandler):
 
     def update_music(self, path: str) -> None:
         for folder in self.folders:
-            if path.startswith(folder) and path.endswith(tuple(file.supported_formats)):
+            if path.startswith(str(folder)) and path.endswith(tuple(file.supported_formats)):
                 click.echo(f'Creating/modifying DB for: {path}')
-                music = file.File(path, folder)
+                music = file.File(path=Path(path))
                 self.user.insert(music)
                 return

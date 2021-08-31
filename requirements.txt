@@ -15,6 +15,8 @@ colorama==0.4.4; python_version >= "3.6" and python_full_version < "3.0.0" and s
 colorlog==6.4.1; python_version >= "3.6"
 configobj==5.0.6; python_version >= "3.6"
 fuzzywuzzy==0.18.0
+gql==2.0.0
+graphql-core==2.3.2
 graphql-py==0.8.1
 humanize==3.11.0; python_version >= "3.6"
 idna==3.2; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.5"
@@ -29,10 +31,11 @@ packaging==21.0; python_version >= "3.6" and python_version <= "3.9"
 pendulum==2.1.2; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
 pgcli==3.2.0; python_version >= "3.6"
 pgspecial==1.13.0; python_version >= "3.6"
-pluggy==0.13.1; python_version >= "3.6" and python_full_version < "3.0.0" and python_version <= "3.9" or python_version >= "3.6" and python_version <= "3.9" and python_full_version >= "3.4.0"
+pluggy==1.0.0; python_version >= "3.6" and python_version <= "3.9"
 ply==3.11
 prettytable==2.2.0; python_version >= "3.6"
 progressbar2==3.53.1
+promise==2.3
 prompt-toolkit==3.0.20; python_full_version >= "3.6.2"
 psycopg2==2.9.1; python_version >= "3.6"
 py==1.10.0; python_version >= "3.6" and python_full_version < "3.0.0" and python_version <= "3.9" or python_version >= "3.6" and python_version <= "3.9" and python_full_version >= "3.4.0"
@@ -41,7 +44,7 @@ pydub==0.25.1
 pygments==2.10.0; python_version >= "3.5"
 pyparsing==2.4.7; python_version >= "3.6" and python_full_version < "3.0.0" and python_version <= "3.9" or python_version >= "3.6" and python_version <= "3.9" and python_full_version >= "3.3.0"
 pytest-click==1.0.2; python_version >= "3.6" and python_version <= "3.9"
-pytest==6.2.4; python_version >= "3.6" and python_version <= "3.9"
+pytest==6.2.5; python_version >= "3.6" and python_version <= "3.9"
 python-dateutil==2.8.2; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
 python-levenshtein==0.12.2
 python-slugify==5.0.2; python_version >= "3.6"
@@ -49,6 +52,7 @@ python-utils==2.5.6
 python-vlc==3.0.12118
 pytzdata==2020.1; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
 requests==2.26.0; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.6.0")
+rx==1.6.1
 semver==2.13.0; python_version >= "3.6" and python_full_version < "3.0.0" and python_version <= "3.9" or python_version >= "3.6" and python_version <= "3.9" and python_full_version >= "3.4.0"
 setproctitle==1.2.2; python_version >= "3.6"
 shellingham==1.4.0; python_version >= "3.6" and python_version <= "3.9"

@@ -45,50 +45,6 @@ $$
     limit do_filter.limit;
 $$ language sql stable;
 
-create or replace function musicbot_public.playlist
-(
-    "min_duration" integer default 0,
-    "max_duration" integer default +2147483647,
-    "min_rating"   float default 0.0,
-    "max_rating"   float default 5.0,
-    "artists"      text[] default '{}',
-    "no_artists"   text[] default '{}',
-    "albums"       text[] default '{}',
-    "no_albums"    text[] default '{}',
-    "titles"       text[] default '{}',
-    "no_titles"    text[] default '{}',
-    "genres"       text[] default '{}',
-    "no_genres"    text[] default '{}',
-    "keywords"     text[] default '{}',
-    "no_keywords"  text[] default '{}',
-    "shuffle"      boolean default 'false',
-    "limit"        integer default +2147483647
-)
-returns setof musicbot_public.link as
-$$
-    select l.*
-    from musicbot_public.do_filter
-    (
-        "min_duration" => playlist."min_duration",
-        "max_duration" => playlist."max_duration",
-        "min_rating"   => playlist."min_rating",
-        "max_rating"   => playlist."max_rating",
-        "artists"      => playlist."artists",
-        "no_artists"   => playlist."no_artists",
-        "albums"       => playlist."albums",
-        "no_albums"    => playlist."no_albums",
-        "titles"       => playlist."titles",
-        "no_titles"    => playlist."no_titles",
-        "genres"       => playlist."genres",
-        "no_genres"    => playlist."no_genres",
-        "keywords"     => playlist."keywords",
-        "no_keywords"  => playlist."no_keywords",
-        "shuffle"      => playlist."shuffle",
-        "limit"        => playlist."limit"
-    ) m
-    inner join musicbot_public.link l on l.music_id = m.id;
-$$ language sql stable;
-
 create or replace function musicbot_public.m3u_playlist
 (
     "min_duration" integer default 0,
@@ -110,8 +66,7 @@ create or replace function musicbot_public.m3u_playlist
 )
 returns text as
 $$
-    select coalesce('#EXTM3U' || E'\n' || string_agg(l.url, E'\n'), '')
-    from (
+    with music as (
         select *
         from musicbot_public.do_filter
         (
@@ -132,8 +87,13 @@ $$
             "shuffle"      => m3u_playlist."shuffle",
             "limit"        => m3u_playlist."limit"
         )
-    ) m
-    inner join musicbot_public.link l on l.music_id = m.id;
+    ),
+    music_link as (
+        select unnest(music.links) as url
+        from music
+    )
+    select coalesce('#EXTM3U' || E'\n' || string_agg(music_link.url, E'\n'), '')
+    from music_link;
 $$ language sql stable;
 
 create or replace function musicbot_public.m3u_bests
@@ -161,9 +121,9 @@ returns table
     content text
 ) as
 $$
-    with recursive musics as
+    with recursive music as
     (
-        select l.url as url, artist, genre, keywords
+        select links, artist, genre, keywords
         from musicbot_public.do_filter
         (
             "min_duration" => m3u_bests."min_duration",
@@ -183,13 +143,12 @@ $$
             "shuffle"      => m3u_bests."shuffle",
             "limit"        => m3u_bests."limit"
         ) m
-        inner join musicbot_public.link l on l.music_id = m.id
     ),
     bests_artists as (
         select
             (m.artist || '/bests') as name,
             coalesce('#EXTM3U' || E'\n' || string_agg(m.url, E'\n'), '')
-        from musics m
+        from (select unnest(music.links) as url, artist from music) m
         where m.artist != ''
         group by m.artist
     ),
@@ -197,17 +156,17 @@ $$
         select
             m.genre as name,
             coalesce('#EXTM3U' || E'\n' || string_agg(m.url, E'\n'), '')
-        from musics m
+        from (select unnest(music.links) as url, genre from music) m
         where m.genre != ''
         group by m.genre
     ),
     bests_artist_keywords as (
         with keywords as (
             select
-                url,
-                artist,
-                unnest(keywords) as k
-            from musics
+                m.url as url,
+                m.artist as artist,
+                unnest(m.keywords) as k
+            from (select unnest(music.links) as url, artist, keywords from music) m
             group by url, artist, keywords
             order by k
         )
@@ -220,9 +179,9 @@ $$
     bests_keywords as (
         with keywords as (
             select
-                url,
-                unnest(keywords) as k
-            from musics
+                m.url as url,
+                unnest(m.keywords) as k
+            from (select unnest(music.links) as url, artist, keywords from music) m
             group by url, keywords
             order by k
         )

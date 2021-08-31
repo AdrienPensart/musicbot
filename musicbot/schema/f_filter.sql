@@ -21,7 +21,7 @@ create table if not exists musicbot_public.filter
     "limit"      integer default +2147483647,
     created_at   timestamp with time zone default now(),
     updated_at   timestamp with time zone default now(),
-    constraint unique_filter unique (name, user_id) deferrable
+    constraint unique_filter unique (name, user_id)
 );
 
 comment on table musicbot_public.filter is E'@omit delete';
@@ -29,6 +29,7 @@ comment on table musicbot_public.filter is E'@omit delete';
 create index if not exists filter_user_idx on musicbot_public.filter (user_id);
 
 alter table if exists musicbot_public.filter enable row level security;
+
 grant select on table musicbot_public.filter to musicbot_anonymous, musicbot_user;
 grant insert, update, delete on table musicbot_public.filter to musicbot_user;
 grant usage on sequence musicbot_public.filter_id_seq to musicbot_user;

@@ -10,15 +10,17 @@ create table if not exists musicbot_public.music
     rating     float default 0.0,
     duration   integer default 0,
     keywords   text[] default '{}',
+    links      text[] default '{}',
     created_at timestamp with time zone default now(),
     updated_at timestamp with time zone default now(),
-    constraint unique_music unique (title, album, artist, user_id) deferrable
+    constraint unique_music_by_user unique (title, album, artist, user_id)
 );
 
 create index if not exists music_user_idx on musicbot_public.music (user_id);
 
 alter table if exists musicbot_public.music enable row level security;
-alter table if exists musicbot_public.music force row level security;
+--alter table if exists musicbot_public.music force row level security;
+
 grant usage on sequence musicbot_public.music_id_seq to musicbot_user;
 
 grant select on table musicbot_public.music to musicbot_anonymous, musicbot_user;
@@ -33,15 +35,11 @@ create policy select_music on musicbot_public.music for select using (user_id = 
 drop policy if exists update_music on musicbot_public.music cascade;
 create policy update_music on musicbot_public.music for update using (user_id = musicbot_public.current_musicbot());
 
+drop policy if exists upsert_music on musicbot_public.music cascade;
+create policy upsert_music on musicbot_public.music for update with check (user_id = musicbot_public.current_musicbot());
+
 drop policy if exists delete_music on musicbot_public.music cascade;
 create policy delete_music on musicbot_public.music for delete using (user_id = musicbot_public.current_musicbot());
-
-drop aggregate if exists musicbot_public.array_cat_agg(anyarray) cascade;
-create aggregate musicbot_public.array_cat_agg(anyarray) (
-    SFUNC=array_cat,
-    STYPE=anyarray
-);
-
 
 drop type if exists musicbot_public.music_title cascade;
 drop type if exists musicbot_public.album cascade;
@@ -70,12 +68,23 @@ $$ language sql stable;
 
 create or replace function musicbot_public.genres_tree() returns setof musicbot_public.genre
 as $$
-    select row_number() over () as id, genre from musicbot_public.music where genre != '' group by genre order by genre asc;
+    select row_number() over () as id, genre
+    from musicbot_public.music
+    where genre != ''
+    group by genre
+    order by genre asc;
 $$ language sql stable;
 
 create or replace function musicbot_public.keywords_tree() returns setof musicbot_public.keyword
 as $$
-    select row_number() over () as id, keyword from (select unnest(musicbot_public.array_cat_agg(keywords)) as keyword from musicbot_public.music where array_length(keywords, 1) > 0) k group by keyword order by keyword asc;
+    select row_number() over () as id, keyword
+    from (
+        select unnest(musicbot_public.array_cat_agg(keywords)) as keyword
+        from musicbot_public.music
+        where array_length(keywords, 1) > 0
+    ) k
+    group by keyword
+    order by keyword asc;
 $$ language sql stable;
 
 create or replace function musicbot_public.delete_all_music() returns void as $$

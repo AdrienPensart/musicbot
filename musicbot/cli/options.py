@@ -124,6 +124,7 @@ def config_string(ctx: click.Context, param: click.Parameter, value: Optional[st
     if not value and param.required:
         raise click.BadParameter(f'missing string arg or config {param.name} in {MusicbotObject.config.config}', ctx, param, param.name)
 
+    value = param.type(value)
     if param.name:
         ctx.params[param.name] = value
     logger.info(f"{param.name} : string final value {value}")
@@ -151,19 +152,7 @@ def config_list(ctx: click.Context, param: click.Parameter, value: Any) -> Any:
     if not value and param.required:
         raise click.BadParameter(f'missing list arg or config {param.name} in {MusicbotObject.config.config}', ctx, param, param.name)
     logger.info(f"{param.name} : list final value {value}")
+    value = [param.type(v) for v in value]
     if param.name:
         ctx.params[param.name] = value
     return value
-
-
-folders_argument = click.argument(
-    'folders',
-    type=click.Path(exists=True, file_okay=False),
-    nargs=-1,
-    callback=config_list,
-)
-
-folder_argument = click.argument(
-    'folder',
-    type=click.Path(exists=True, file_okay=False),
-)

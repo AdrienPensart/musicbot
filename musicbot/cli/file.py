@@ -1,3 +1,4 @@
+from pathlib import Path
 import click
 from click_option_group import optgroup  # type: ignore
 from click_skeleton import add_options
@@ -39,18 +40,7 @@ file_options = add_options(
 
 path_argument = click.argument(
     'path',
-    type=click.Path(exists=True, dir_okay=False),
-)
-
-folder_option = click.option(
-    '--folder',
-    help="Destination folder",
-    type=click.Path(exists=True, file_okay=False),
-)
-
-folder_argument = click.argument(
-    'folder',
-    type=click.Path(exists=True, file_okay=False),
+    type=click.Path(path_type=Path, exists=True, dir_okay=False),
 )
 
 checks_and_fix_options = add_options(

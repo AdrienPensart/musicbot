@@ -1,21 +1,33 @@
-import logging
 from pathlib import Path, PurePath
+from typing import Any, Optional, List, Dict, Iterable
+import logging
 import json
-import os
-from typing import Any, Optional, List, Dict, Iterable, Iterator
+import attr
 import acoustid  # type: ignore
 import mutagen  # type: ignore
-from gql import gql  # type: ignore
 from slugify import slugify
 from pydub import AudioSegment  # type: ignore
 from click_skeleton.helpers import mysplit
 from musicbot.object import MusicbotObject
-from musicbot.exceptions import QuerySyntaxError
-from musicbot.helpers import current_user, public_ip
-from musicbot.music.helpers import ensure
+from musicbot.helpers import parse_graphql, current_user, public_ip
 
 logger = logging.getLogger(__name__)
 DEFAULT_ACOUSTID_API_KEY: Optional[str] = None
+
+output_types = ["list", "json"]
+default_output_type = 'json'
+
+default_checks = [
+    'keywords',
+    'strict_title',
+    'title',
+    'path',
+    'genre',
+    'album',
+    'artist',
+    'rating',
+    'number'
+]
 
 STOPWORDS = [
     'the',
@@ -59,17 +71,17 @@ DEFAULT_CHECKS = [
 supported_formats = ["mp3", "flac"]
 
 
-# pylint: disable-msg=unsupported-membership-test
-# pylint: disable-msg=unsubscriptable-object
-# pylint: disable-msg=unsupported-assignment-operation
+@attr.s(auto_attribs=True)
 class File:
-    def __init__(self, path: str, folder: Optional[str] = None, youtube_link: Optional[str] = None, spotify_link: Optional[str] = None):
-        self.path = path
-        self.folder = folder if folder is not None else ''
-        self.youtube_link = youtube_link if youtube_link is not None else ''
-        self.spotify_link = spotify_link if spotify_link is not None else ''
-        self.handle = mutagen.File(self.path)
-        self.inconsistencies = []
+    path: Path
+    handle: mutagen.File = attr.ib()
+    inconsistencies: List[str] = []
+
+    @handle.default
+    def _handle_default(self):
+        return mutagen.File(self.path.resolve())
+
+    def __attrs_post_init__(self):
         if not self.title:
             self.inconsistencies.append("no-title")
         if self.genre == '':
@@ -89,22 +101,17 @@ class File:
         if self.number not in (-1, 0) and self.title != self.canonic_title:
             logger.debug(f"invalid-title, '{self.title}' should be '{self.canonic_title}'")
             self.inconsistencies.append("invalid-title")
-        if self.number not in (-1, 0) and not self.path.endswith(self.canonic_path):
-            logger.debug(f"invalid-path, '{self.path}' should be '{self.canonic_path}'")
+        if self.number not in (-1, 0) and not str(self.path).endswith(str(self.canonic_artist_album_filename)):
+            logger.debug(f"invalid-path, '{self.path}' must have a number and should end with '{self.canonic_artist_album_filename}'")
             self.inconsistencies.append("invalid-path")
 
     def __repr__(self) -> str:
-        return self.path
-
-    def __iter__(self) -> Iterator[Any]:
-        yield from self.as_dict().items()
+        return str(self.path)
 
     def close(self) -> None:
         self.handle.close()
 
-    def to_mp3(self, folder: Optional[str] = None, flat: Optional[bool] = False) -> bool:
-        folder = folder if folder is not None else self.folder
-
+    def to_mp3(self, destination: Path, flat: Optional[bool] = False) -> bool:
         if self.extension != '.flac':
             logger.error(f"{self} is not a flac file")
             return False
@@ -114,22 +121,22 @@ class File:
             return False
 
         if flat:
-            mp3_path = os.path.join(folder, f'{self.flat_title}.mp3')
+            mp3_path = destination / f'{self.flat_title}.mp3'
         else:
-            mp3_path = os.path.join(folder, self.artist, self.album, self.canonic_title + '.mp3')
+            mp3_path = destination / self.artist / self.album / (self.canonic_title + '.mp3')
 
-        if os.path.exists(mp3_path):
+        if mp3_path.exists():
             logger.info(f"{mp3_path} already exists, overwriting only tags")
-            f = File(mp3_path)
+            f = File(path=mp3_path)
             f.number = self.number
             f.album = self.album
             f.title = self.title
             f.artist = self.artist
-            f.save()
-            return False
+            return f.save()
+
         logger.debug(f"{self} convert destination : {mp3_path}")
         if not MusicbotObject.dry:
-            ensure(mp3_path)
+            mp3_path.parent.mkdir(parents=True, exist_ok=True)
             try:
                 flac_audio = AudioSegment.from_file(self.path, "flac")
                 mp3_file = flac_audio.export(
@@ -143,37 +150,34 @@ class File:
                 f.album = self.album
                 f.title = self.title
                 f.artist = self.artist
-                f.save()
+                return f.save()
             except Exception:
-                os.remove(mp3_path)
+                mp3_path.unlink()
                 raise
-        return True
+        return False
 
-    def create_mutation(self, operationName=None) -> str:
-        operationName = operationName if operationName is not None else ""
+    def upsert_mutation(self, user_id: int, operation=None) -> str:
+        operation = operation if operation is not None else ""
         mutation = f'''
-        mutation {operationName} {{
-            createMusic(
+        mutation {operation} {{
+            upsertMusic(
+                where: {{
+                    title: {json.dumps(self.title)}
+                    album: {json.dumps(self.album)}
+                    artist: {json.dumps(self.artist)}
+                    userId: {user_id}
+                }}
                 input: {{
                     music: {{
-                        title: {json.dumps(self.title)},
-                        album: {json.dumps(self.album)},
-                        artist: {json.dumps(self.artist)},
-                        duration: {self.duration},
-                        genre: {json.dumps(self.genre)},
-                        keywords: {json.dumps(self.keywords)},
-                        number: {self.number},
-                        rating: {self.rating},
-                        linksUsingId: {{
-                            create: [
-                                {{
-                                    url: "{self.path}"
-                                }},
-                                {{
-                                    url: "{self.ssh_path}"
-                                }},
-                            ]
-                        }}
+                        title: {json.dumps(self.title)}
+                        album: {json.dumps(self.album)}
+                        artist: {json.dumps(self.artist)}
+                        duration: {self.duration}
+                        genre: {json.dumps(self.genre)}
+                        keywords: {json.dumps(self.keywords)}
+                        number: {self.number}
+                        rating: {self.rating}
+                        links: {json.dumps([str(self.path), self.ssh_path])}
                     }}
                 }}
             )
@@ -182,10 +186,7 @@ class File:
             }}
         }}
         '''
-        try:
-            gql(mutation)
-        except Exception as e:
-            raise QuerySyntaxError(f"{self} : bad mutation : {mutation}") from e
+        parse_graphql(mutation)
         return mutation
 
     def as_dict(self) -> Dict[str, Any]:  # pylint: disable=unsubscriptable-object
@@ -206,7 +207,7 @@ class File:
 
     @property
     def extension(self) -> str:
-        return Path(self.path).suffix
+        return self.path.suffix
 
     def to_graphql(self) -> str:
         return ", ".join([f'{k}: {json.dumps(v)}' for k, v in self.as_dict().items()])
@@ -215,16 +216,12 @@ class File:
         return json.dumps(self.as_dict())
 
     @property
-    def canonic_path(self) -> str:
-        return str(PurePath(self.folder, self.canonic_artist_album_filename))
-
-    @property
-    def canonic_artist_album_filename(self) -> str:
-        return str(PurePath(self.artist, self.album, self.canonic_filename))
+    def canonic_artist_album_filename(self) -> PurePath:
+        return PurePath(self.artist, self.album, self.canonic_filename)
 
     @property
     def filename(self) -> str:
-        return Path(self.path).name
+        return self.path.name
 
     @property
     def canonic_filename(self) -> str:
@@ -411,14 +408,6 @@ class File:
         self.keywords = new_keywords
         return self.save()
 
-    @property
-    def youtube(self) -> str:
-        return self.youtube_link
-
-    @property
-    def spotify(self) -> str:
-        return self.spotify_link
-
     def fingerprint(self, api_key: str) -> str:
         ids = acoustid.match(api_key, self.path)
         for score, recording_id, title, artist in ids:
@@ -445,15 +434,13 @@ class File:
             logger.info(f"{self} : {self.title} => {self.canonic_title}")
             self.title = self.canonic_title
             self.inconsistencies.remove('invalid-title')
-        if 'invalid-path' in checks:
-            logger.info(f"{self} : {self.path} => {self.canonic_path}")
-            if not MusicbotObject.dry:
-                ensure(self.canonic_path)
-                path = Path(self.path)
-                path.replace(self.canonic_path)
-                self.path = self.canonic_path
-                self.handle = mutagen.File(self.path)
-                self.inconsistencies.remove('invalid-path')
+        # if 'invalid-path' in checks:
+        #     logger.info(f"{self} : {self.path} => {self.canonic_artist_album_filename}")
+        #     if not MusicbotObject.dry:
+        #         self.canonic_path.parent.mkdir(parents=True, exist_ok=True)
+        #         self.path = self.path.replace(self.canonic_artist_album_filename)
+        #         self.handle = mutagen.File(self.path)
+        #         self.inconsistencies.remove('invalid-path')
         return self.save()
 
     def save(self) -> bool:

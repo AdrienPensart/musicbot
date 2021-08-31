@@ -334,12 +334,11 @@ musicbot folder flac2mp3
 ************************
 .. code-block::
 
-  Usage: musicbot folder flac2mp3 [OPTIONS] [FOLDERS]...
+  Usage: musicbot folder flac2mp3 [OPTIONS] DESTINATION [FOLDERS]...
 
     Convert all files in folders to mp3
 
   Options:
-    --folder DIRECTORY     Destination folder
     --concurrency INTEGER  Number of threads  [default: 8]
     --dry / --no-dry       Do not launch real action  [default: no-dry]
     --flat                 Do not create subfolders
@@ -423,6 +422,7 @@ musicbot local
     scan                           Load musics
     stats (stat)                   Generate some stats for music collection with filters
     sync                           Copy selected musics with filters to destination folder
+    tracks                         Generate a new playlist
     watch                          Watch files changes in folders
 
 musicbot local clean
@@ -737,6 +737,42 @@ musicbot local sync
     --delete                  Delete files on destination if not present in library
     -h, --help                Show this message and exit.
 
+musicbot local tracks
+*********************
+.. code-block::
+
+  Usage: musicbot local tracks [OPTIONS]
+
+    Generate a new playlist
+
+  Options:
+    Auth options: 
+      -g, --graphql TEXT      GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT        User token
+      -e, --email TEXT        User email
+      -p, --password TEXT     User password
+    Filter options: 
+      --name TEXT             Filter name
+      --limit INTEGER         Fetch a maximum limit of music
+      --keywords TEXT         Select musics with keywords
+      --no-keywords TEXT      Filter musics without keywords
+      --artists TEXT          Select musics with artists
+      --no-artists TEXT       Filter musics without artists
+      --albums TEXT           Select musics with albums
+      --no-albums TEXT        Filter musics without albums
+      --titles TEXT           Select musics with titles
+      --no-titles TEXT        Filter musics without titless
+      --genres TEXT           Select musics with genres
+      --no-genres TEXT        Filter musics without genres
+      --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
+      --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
+      --min-rating FLOAT      Minimum rating  [default: 0.0]
+      --max-rating FLOAT      Maximum rating  [default: 5.0]
+      --shuffle               Randomize selection
+    Ordering options: 
+      --shuffle               Randomize selection
+    -h, --help                Show this message and exit.
+
 musicbot local watch
 ********************
 .. code-block::
@@ -814,14 +850,13 @@ musicbot music flac2mp3
 ***********************
 .. code-block::
 
-  Usage: musicbot music flac2mp3 [OPTIONS] PATH
+  Usage: musicbot music flac2mp3 [OPTIONS] PATH DESTINATION
 
     Convert flac music to mp3
 
   Options:
-    --folder DIRECTORY  Destination folder
-    --dry / --no-dry    Do not launch real action  [default: no-dry]
-    -h, --help          Show this message and exit.
+    --dry / --no-dry  Do not launch real action  [default: no-dry]
+    -h, --help        Show this message and exit.
 
 musicbot music inconsistencies
 ******************************
@@ -832,7 +867,6 @@ musicbot music inconsistencies
     Check music consistency
 
   Options:
-    --folder DIRECTORY                                  Destination folder
     --dry / --no-dry                                    Do not launch real action  [default: no-dry]
     Check options: 
       --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-comment|invalid-path]

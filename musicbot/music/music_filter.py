@@ -2,6 +2,7 @@ import logging
 import json
 from typing import Any, Dict, List, Optional
 import attr
+from musicbot.helpers import parse_graphql
 
 logger = logging.getLogger(__name__)
 
@@ -86,11 +87,15 @@ class MusicFilter:
         default = vars(MusicFilter())
         return {k: myself[k] for k in myself if default[k] == myself[k] and k != 'name'}
 
-    def create_mutation(self, operationName=None) -> str:
-        operationName = operationName if operationName is not None else ""
-        return f'''
-        mutation {operationName} {{
-            createFilter(
+    def upsert_mutation(self, user_id: str, operation=None) -> str:
+        operation = operation if operation is not None else ""
+        mutation = f'''
+        mutation {operation} {{
+            upsertFilter(
+                where: {{
+                    name: "{self.name}"
+                    userId: {user_id}
+                }}
                 input: {{
                     filter: {{
                         name: "{self.name}",
@@ -118,6 +123,8 @@ class MusicFilter:
             }}
         }}
         '''
+        parse_graphql(mutation)
+        return mutation
 
     def as_dict(self) -> Dict[str, Any]:  # pylint: disable=unsubscriptable-object
         return {

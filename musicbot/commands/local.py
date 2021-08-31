@@ -15,7 +15,12 @@ import mutagen  # type: ignore
 from watchdog.observers import Observer  # type: ignore
 from prettytable import PrettyTable  # type: ignore
 from click_skeleton import AdvancedGroup
-from musicbot.helpers import genfiles
+from musicbot.cli.file import flat_option, checks_and_fix_options
+from musicbot.cli.folders import destination_argument, folders_argument, folder_argument
+from musicbot.cli.music_filter import music_filter_options
+from musicbot.cli.user import user_options
+from musicbot.cli.options import yes_option, save_option, output_option, dry_option
+
 from musicbot.exceptions import FailedBatchRequest
 from musicbot.watcher import MusicWatcherHandler
 from musicbot.player import play
@@ -23,11 +28,7 @@ from musicbot.object import MusicbotObject
 from musicbot.user import User
 from musicbot.music.music_filter import MusicFilter
 from musicbot.music.file import File
-from musicbot.music.helpers import all_files, empty_dirs, except_directories
-from musicbot.cli.file import flat_option, checks_and_fix_options, folder_argument
-from musicbot.cli.music_filter import music_filter_options
-from musicbot.cli.user import user_options
-from musicbot.cli.options import yes_option, save_option, folders_argument, output_option, dry_option
+from musicbot.music.folders import Folders, except_directories
 
 
 logger = logging.getLogger(__name__)
@@ -75,25 +76,24 @@ def stats(user: User, output: str, music_filter: MusicFilter):
 @folders_argument
 @save_option
 @user_options
-def scan(user: User, save: bool, folders: List[str]):
-    files = genfiles(folders)
-
+def scan(user: User, save: bool, folders: List[Path]):
+    musics = Folders(folders).musics()
     try:
-        user.bulk_insert(files)
+        user.bulk_insert(musics)
     except FailedBatchRequest as e:
         for error in e.errors:
             MusicbotObject.err(error)
         MusicbotObject.err(f"{folders} : {e}")
 
     if save:
-        MusicbotObject.config.configfile['musicbot']['folders'] = ','.join(set(folders))
+        MusicbotObject.config.configfile['musicbot']['folders'] = ','.join({str(folder) for folder in folders})
         MusicbotObject.config.write()
 
 
 @cli.command(help='Watch files changes in folders')
 @folders_argument
 @user_options
-def watch(user: User, folders: List[str]):
+def watch(user: User, folders: List[Path]):
     event_handler = MusicWatcherHandler(user=user, folders=folders)
     observer = Observer()
     for folder in folders:
@@ -117,41 +117,50 @@ def clean(user: User):
 @cli.command(help='Clean and load musics')
 @folders_argument
 @user_options
-def rescan(user: User, folders: List[str]):
-    files = genfiles(folders)
+def rescan(user: User, folders: List[Path]):
+    musics = Folders(folders).musics()
     user.clean_musics()
-    user.bulk_insert(files)
+    user.bulk_insert(musics)
 
 
 @cli.command(help='Copy selected musics with filters to destination folder')
+@destination_argument
 @dry_option
 @click.option('--yes', '-y', help="Confirm file deletion on destination")
 @user_options
 @music_filter_options
 @flat_option
 @click.option('--delete', help='Delete files on destination if not present in library', is_flag=True)
-@click.argument('destination')
-def sync(user: User, delete: bool, destination: str, music_filter: MusicFilter, yes: bool, flat: bool):
+def sync(user: User, delete: bool, destination: Path, music_filter: MusicFilter, yes: bool, flat: bool):
     logger.info(f'Destination: {destination}')
-    music_paths = user.playlist(music_filter)
-    if not music_paths:
+    objs = user.do_filter(music_filter)
+    if not objs:
         click.secho('no result for filter, nothing to sync')
         return
 
-    music_files = [File(path=music_path['url']) for music_path in music_paths]
-
-    files = list(all_files(destination))
+    folders = Folders(folders=[destination])
+    files = folders.supported_files(supported_formats=[])
     logger.info(f"Files : {len(files)}")
     if not files:
         logger.warning("no files found in destination")
 
-    destinations = {f[len(destination) + 1:]: f for f in files}
+    destinations = {str(f)[len(str(destination)) + 1:]: f for f in files}
+
+    musics: List[File] = []
+    for obj in objs:
+        for link in obj['links']:
+            try:
+                if link.startswith('ssh://'):
+                    continue
+                musics.append(File(path=Path(link)))
+            except OSError as e:
+                logger.error(e)
 
     logger.info(f"Destinations : {len(destinations)}")
     if flat:
-        sources = {m.flat_filename: m.path for m in music_files}
+        sources = {music.flat_filename: music.path for music in musics}
     else:
-        sources = {m.filename: m.path for m in music_files}
+        sources = {music.filename: music.path for music in musics}
 
     logger.info(f"Sources : {len(sources)}")
     to_delete = set(destinations.keys()) - set(sources.keys())
@@ -177,7 +186,7 @@ def sync(user: User, delete: bool, destination: str, music_filter: MusicFilter, 
     with MusicbotObject.progressbar(max_value=len(to_copy)) as pbar:
         logger.info(f"To copy: {len(to_copy)}")
         for c in sorted(to_copy):
-            final_destination = Path(destination) / c
+            final_destination = destination / c
             try:
                 path_to_copy = Path(sources[c])
                 pbar.desc = f'Copying {path_to_copy.name} to {destination}'
@@ -199,7 +208,7 @@ def sync(user: User, delete: bool, destination: str, music_filter: MusicFilter, 
                 pbar.value += 1
                 pbar.update()
 
-    for d in empty_dirs(destination):
+    for d in folders.empty_dirs():
         if any(e in d for e in except_directories):
             logger.debug(f"Invalid path {d}")
             continue
@@ -212,7 +221,7 @@ def sync(user: User, delete: bool, destination: str, music_filter: MusicFilter, 
 @user_options
 @music_filter_options
 def _tracks(user: User, music_filter: MusicFilter):
-    tracks = user.playlist(music_filter)
+    tracks = user.do_filter(music_filter)
     print(json.dumps(tracks))
 
 
@@ -220,12 +229,19 @@ def _tracks(user: User, music_filter: MusicFilter):
 @user_options
 @music_filter_options
 def m3u_playlist(user: User, music_filter: MusicFilter):
-    tracks = user.playlist(music_filter)
+    tracks = user.do_filter(music_filter)
     if music_filter.shuffle:
         random.shuffle(tracks)
 
+    urls = []
+    for track in tracks:
+        for link in track['links']:
+            if link.startswith('ssh://'):
+                continue
+            urls.append(link)
+
     p = '#EXTM3U\n'
-    p += '\n'.join([track['url'] for track in tracks])
+    p += '\n'.join(urls)
     print(p)
 
 
@@ -236,7 +252,7 @@ def m3u_playlist(user: User, music_filter: MusicFilter):
 @dry_option
 @user_options
 @music_filter_options
-def m3u_bests(user: User, folder: str, prefix: str, suffix: str, music_filter: MusicFilter):
+def m3u_bests(user: User, folder: Path, prefix: str, suffix: str, music_filter: MusicFilter):
     playlists = user.m3u_bests(music_filter)
     with MusicbotObject.progressbar(max_value=len(playlists)) as pbar:
         for p in playlists:
@@ -284,7 +300,7 @@ def inconsistencies(user: User, fix: bool, checks: List[str], music_filter: Musi
             if fix:
                 m.fix(checks=checks)
             if m.inconsistencies:
-                pt.add_row([m.folder, m.path, ', '.join(m.inconsistencies)])
+                pt.add_row([m.path, ', '.join(m.inconsistencies)])
         except (OSError, mutagen.MutagenError):
-            pt.add_row([t['folder'], t['path'], "could not open file"])
+            pt.add_row([t['path'], "could not open file"])
     print(pt)

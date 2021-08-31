@@ -1,4 +1,5 @@
 from typing import List
+from pathlib import Path
 import logging
 from prettytable import PrettyTable  # type: ignore
 from mutagen import MutagenError  # type: ignore
@@ -6,10 +7,10 @@ from click_skeleton import AdvancedGroup
 import click
 from musicbot.music.file import File
 from musicbot.cli.options import dry_option
+from musicbot.cli.folders import destination_argument
 from musicbot.cli.file import (
     keywords_argument,
     path_argument,
-    folder_option,
     file_options,
     checks_and_fix_options,
     acoustid_api_key_option,
@@ -25,44 +26,43 @@ def cli():
 
 @cli.command(help='Convert flac music to mp3')
 @path_argument
-@folder_option
+@destination_argument
 @dry_option
-def flac2mp3(path: str, folder: str):
-    f = File(path)
-    f.to_mp3(folder)
+def flac2mp3(path: Path, destination: Path):
+    f = File(path=path)
+    f.to_mp3(destination)
 
 
 @cli.command(help='Print music fingerprint')
 @path_argument
 @acoustid_api_key_option
-def fingerprint(path: str, acoustid_api_key: str):
-    f = File(path)
+def fingerprint(path: Path, acoustid_api_key: str):
+    f = File(path=path)
     print(f.fingerprint(acoustid_api_key))
 
 
 @cli.command(help='Print music tags')
 @path_argument
-def tags(path):
-    f = File(path)
+def tags(path: Path):
+    f = File(path=path)
     logger.info(f.handle.tags.keys())
     print(f.as_dict())
 
 
 @cli.command(aliases=['consistency'], help='Check music consistency')
-@folder_option
 @path_argument
 @dry_option
 @checks_and_fix_options
-def inconsistencies(path: str, folder: str, fix: bool, **kwargs):
-    m = File(path, folder)
-    pt = PrettyTable(["Folder", "Path", "Inconsistencies"])
+def inconsistencies(path: Path, fix: bool, **kwargs):
+    m = File(path=path)
+    pt = PrettyTable(["Path", "Inconsistencies"])
     try:
         if fix:
             m.fix(**kwargs)
         if m.inconsistencies:
-            pt.add_row([m.folder, m.path, ', '.join(m.inconsistencies)])
+            pt.add_row([m.path, ', '.join(m.inconsistencies)])
     except (OSError, MutagenError):
-        pt.add_row([m.folder, m.path, "could not open file"])
+        pt.add_row([m.path, "could not open file"])
     print(pt)
 
 
@@ -70,8 +70,8 @@ def inconsistencies(path: str, folder: str, fix: bool, **kwargs):
 @path_argument
 @dry_option
 @file_options
-def set_tags(path: str, title: str, artist: str, album: str, genre: str, keywords: List[str], rating: float, number: int):
-    f = File(path)
+def set_tags(path: Path, title: str, artist: str, album: str, genre: str, keywords: List[str], rating: float, number: int):
+    f = File(path=path)
     if title:
         f.title = title
     if artist:
@@ -93,8 +93,8 @@ def set_tags(path: str, title: str, artist: str, album: str, genre: str, keyword
 @dry_option
 @path_argument
 @keywords_argument
-def add_keywords(path: str, keywords: List[str]):
-    f = File(path)
+def add_keywords(path: Path, keywords: List[str]):
+    f = File(path=path)
     f.add_keywords(keywords)
 
 
@@ -102,6 +102,6 @@ def add_keywords(path: str, keywords: List[str]):
 @dry_option
 @path_argument
 @keywords_argument
-def delete_keywords(path: str, keywords: List[str]):
-    f = File(path)
+def delete_keywords(path: Path, keywords: List[str]):
+    f = File(path=path)
     f.delete_keywords(keywords)

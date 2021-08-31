@@ -1,4 +1,5 @@
 from typing import Any, Collection, Optional, List
+from functools import cached_property
 import uuid
 import logging
 import attr
@@ -87,6 +88,11 @@ class User(MusicbotObject):
         except MusicbotError as e:
             raise FailedAuthentication(f"Cannot delete user : {e}") from e
 
+    @cached_property
+    def user_id(self):
+        query = """{ currentMusicbot }"""
+        return self.fetch(query)['currentMusicbot']
+
     @timeit
     def execute(self, query: str) -> Any:
         return self.api.post(query)
@@ -105,10 +111,10 @@ class User(MusicbotObject):
         operations = []
         for music_filter in default_filters:
             try:
-                operationName = f"filter_{str(uuid.uuid4().hex)}"
+                operation = f"filter_{str(uuid.uuid4().hex)}"
                 operations.append({
-                    "query": music_filter.create_mutation(operationName),
-                    "operationName": operationName
+                    "query": music_filter.upsert_mutation(self.user_id, operation),
+                    "operation": operation
                 })
             except QuerySyntaxError as e:
                 MusicbotObject.err(e)
@@ -122,21 +128,6 @@ class User(MusicbotObject):
             m3UPlaylist({mf.to_graphql()})
         }}"""
         return self.fetch(query)['m3UPlaylist']
-
-    @timeit
-    def playlist(self, mf: Optional[MusicFilter] = None) -> Any:
-        mf = mf if mf is not None else MusicFilter()
-        query = f"""
-        {{
-            playlist({mf.to_graphql()})
-            {{
-                nodes
-                {{
-                    url
-                }}
-            }}
-        }}"""
-        return self.fetch(query)['playlist']['nodes']
 
     @timeit
     def m3u_bests(self, mf: Optional[MusicFilter] = None) -> Any:
@@ -167,14 +158,15 @@ class User(MusicbotObject):
             {{
                 nodes
                 {{
-                    title,
-                    album,
-                    genre,
-                    artist,
-                    number,
-                    rating,
-                    duration,
+                    title
+                    album
+                    genre
+                    artist
+                    number
+                    rating
+                    duration
                     keywords
+                    links
                 }}
             }}
         }}"""
@@ -187,12 +179,12 @@ class User(MusicbotObject):
         {{
             doStat({mf.to_graphql()})
             {{
-              musics,
-              artists,
-              albums,
-              links,
-              genres,
-              keywords,
+              musics
+              artists
+              albums
+              links
+              genres
+              keywords
               duration
             }}
         }}"""
@@ -200,8 +192,8 @@ class User(MusicbotObject):
 
     @timeit
     def insert(self, music) -> Any:
-        operationName = f"music_{str(uuid.uuid4().hex)}"
-        return self.execute(music.create_mutation(operationName))
+        operation = f"music_{str(uuid.uuid4().hex)}"
+        return self.execute(music.upsert_mutation(self.user_id, operation))
 
     @timeit
     def bulk_insert(self, musics: Collection[file.File]) -> Any:
@@ -226,10 +218,10 @@ class User(MusicbotObject):
         operations = []
         for music in musics:
             try:
-                operationName = f"music_{str(uuid.uuid4().hex)}"
+                operation = f"music_{str(uuid.uuid4().hex)}"
                 operations.append({
-                    "query": music.create_mutation(operationName),
-                    "operationName": operationName
+                    "query": music.upsert_mutation(self.user_id, operation),
+                    "operationName": operation,
                 })
             except QuerySyntaxError as e:
                 MusicbotObject.err(f"{music} : {e}")

@@ -1,7 +1,7 @@
 create table if not exists musicbot_public.user
 (
     id               serial primary key,
-    first_name       text not null check (char_length(first_name) < 80),
+    first_name       text check (char_length(first_name) < 80),
     last_name        text check (char_length(last_name) < 80),
     created_at       timestamp with time zone default now(),
     updated_at       timestamp with time zone default now()
@@ -117,29 +117,6 @@ begin
 end;
 $$ language plpgsql strict security definer;
 
-/*
-create or replace function musicbot_public.new_token(
-  email text,
-  password text,
-  secret text
-)
-returns text as
-$$
-declare
-  token musicbot_public.jwt_token;
-begin
-    select t.* into token
-    from musicbot_public.authenticate(email, password) as t;
-
-    if token = null then
-        raise notice 'Token failed for user %', email;
-        return null;
-    end if;
-    return sign((select row_to_json(token)), secret);
-end;
-$$ language plpgsql stable;
-*/
-
 alter default privileges revoke execute on functions from public;
 
 grant usage on schema musicbot_public to musicbot_anonymous, musicbot_user;
@@ -147,7 +124,6 @@ grant select on table musicbot_public.user to musicbot_anonymous, musicbot_user;
 grant update, delete on table musicbot_public.user to musicbot_user;
 
 grant execute on function musicbot_public.authenticate to musicbot_anonymous;
---grant execute on function musicbot_public.new_token to musicbot_anonymous;
 grant execute on function musicbot_public.current_musicbot to musicbot_anonymous;
 grant execute on function musicbot_public.register_user to musicbot_anonymous;
 
