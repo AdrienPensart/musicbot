@@ -15,7 +15,6 @@ declare
   user_id integer;
 begin
     user_id = current_setting('jwt.claims.user_id', true)::integer;
-    raise notice 'Detected user_id %', user_id;
     if user_id is null then
         raise exception 'Invalid user %', user_id;
     end if;
