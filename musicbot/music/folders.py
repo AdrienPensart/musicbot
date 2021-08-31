@@ -1,26 +1,26 @@
-from typing import TYPE_CHECKING, List, Iterator, Iterable, Collection
+from typing import List, Iterator, Iterable, Collection
 from pathlib import Path
 import os
 import logging
 import attr
 from musicbot.timing import timeit
 from musicbot.object import MusicbotObject
-
-if TYPE_CHECKING:
-    from musicbot.music.file import File
+from musicbot.music.file import File, supported_formats
 
 logger = logging.getLogger(__name__)
 
 except_directories = ['.Spotlight-V100', '.zfs', 'Android', 'LOST.DIR']
 
 
-@attr.s(auto_attribs=True)
+@attr.s(auto_attribs=True, repr=False)
 class Folders:
     folders: Iterable[Path]
 
+    def __repr__(self):
+        return ' '.join(str(folder) for folder in self.folders)
+
     @timeit
     def musics(self) -> Collection["File"]:
-        from musicbot.music.file import File, supported_formats
         files: List[Path] = self.supported_files(supported_formats)
 
         def worker(path: Path):

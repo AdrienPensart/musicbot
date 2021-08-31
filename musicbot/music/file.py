@@ -71,39 +71,37 @@ DEFAULT_CHECKS = [
 supported_formats = ["mp3", "flac"]
 
 
-@attr.s(auto_attribs=True)
+@attr.s(auto_attribs=True, repr=False)
 class File:
     path: Path
-    handle: mutagen.File = attr.ib()
-    inconsistencies: List[str] = []
-
-    @handle.default
-    def _handle_default(self):
-        return mutagen.File(self.path.resolve())
 
     def __attrs_post_init__(self):
+        self.path = self.path.resolve()
+        self.handle = mutagen.File(self.path)
+        self.inconsistencies = set()
+
         if not self.title:
-            self.inconsistencies.append("no-title")
-        if self.genre == '':
-            self.inconsistencies.append("no-genre")
-        if self.album == '':
-            self.inconsistencies.append("no-album")
-        if self.artist == '':
-            self.inconsistencies.append("no-artist")
+            self.inconsistencies.add("no-title")
+        if not self.genre:
+            self.inconsistencies.add("no-genre")
+        if not self.album:
+            self.inconsistencies.add("no-album")
+        if not self.artist:
+            self.inconsistencies.add("no-artist")
         if self.rating == -1:
-            self.inconsistencies.append("no-rating")
+            self.inconsistencies.add("no-rating")
         if self.number == -1:
-            self.inconsistencies.append("no-tracknumber")
+            self.inconsistencies.add("no-tracknumber")
         if self.extension == '.flac' and self._comment and not self._description:
-            self.inconsistencies.append('invalid-comment')
+            self.inconsistencies.add('invalid-comment')
         if self.extension == '.mp3' and self._description and not self._comment:
-            self.inconsistencies.append('invalid-comment')
+            self.inconsistencies.add('invalid-comment')
         if self.number not in (-1, 0) and self.title != self.canonic_title:
-            logger.debug(f"invalid-title, '{self.title}' should be '{self.canonic_title}'")
-            self.inconsistencies.append("invalid-title")
+            logger.debug(f"{self} : invalid-title, '{self.title}' should be '{self.canonic_title}'")
+            self.inconsistencies.add("invalid-title")
         if self.number not in (-1, 0) and not str(self.path).endswith(str(self.canonic_artist_album_filename)):
-            logger.debug(f"invalid-path, '{self.path}' must have a number and should end with '{self.canonic_artist_album_filename}'")
-            self.inconsistencies.append("invalid-path")
+            logger.debug(f"{self} : invalid-path, must have a number and should end with '{self.canonic_artist_album_filename}'")
+            self.inconsistencies.add("invalid-path")
 
     def __repr__(self) -> str:
         return str(self.path)

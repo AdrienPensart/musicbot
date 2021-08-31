@@ -47,6 +47,7 @@ class FailedBatchRequest(MusicbotError):
 
         self.operations = operations if operations is not None else []
         self.errors = set()
+        self.details = []
 
         if not isinstance(response, list):
             logger.error(f"{self} : response is not a list : {type(response)}")
@@ -57,4 +58,5 @@ class FailedBatchRequest(MusicbotError):
                 logger.error(f"{self} : response object is not a dict : {type(response_object)}")
                 continue
             errors = response_object.get('errors', [])
+            self.details.extend(errors)
             self.errors.update([error['message'] for error in errors])

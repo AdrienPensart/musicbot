@@ -117,7 +117,7 @@ def inconsistencies(folders: List[Path], fix: bool, checks: List[str]):
         try:
             if fix:
                 m.fix(checks=checks)
-            if set(m.inconsistencies).intersection(set(checks)):
+            if m.inconsistencies.intersection(set(checks)):
                 pt.add_row([m.path, ', '.join(m.inconsistencies)])
         except (OSError, mutagen.MutagenError):
             pt.add_row([m.path, "could not open file"])

@@ -8,6 +8,7 @@ import click
 from musicbot.music.file import File
 from musicbot.cli.options import dry_option
 from musicbot.cli.folders import destination_argument
+from musicbot.cli.user import user_options
 from musicbot.cli.file import (
     keywords_argument,
     path_argument,
@@ -15,6 +16,7 @@ from musicbot.cli.file import (
     checks_and_fix_options,
     acoustid_api_key_option,
 )
+from musicbot.user import User
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +24,15 @@ logger = logging.getLogger(__name__)
 @click.group('music', help='Music file', cls=AdvancedGroup, aliases=['file'])
 def cli():
     pass
+
+
+@cli.command(help='Insert music in DB')
+@path_argument
+@user_options
+@dry_option
+def insert(path: Path, user: User):
+    f = File(path=path)
+    user.insert(f)
 
 
 @cli.command(help='Convert flac music to mp3')

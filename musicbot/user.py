@@ -6,7 +6,7 @@ import attr
 from musicbot.timing import timeit
 from musicbot.object import MusicbotObject
 from musicbot.graphql_client import GraphQL
-from musicbot.exceptions import MusicbotError, QuerySyntaxError, FilterNotFound, FailedRequest, FailedAuthentication, FailedRegistration
+from musicbot.exceptions import MusicbotError, QuerySyntaxError, FilterNotFound, FailedRequest, FailedAuthentication, FailedRegistration, FailedBatchRequest
 from musicbot.music import file
 from musicbot.music.music_filter import MusicFilter, default_filters
 
@@ -99,7 +99,12 @@ class User(MusicbotObject):
 
     @timeit
     def execute_many(self, operations: List[Any]) -> Any:
-        return self.api.batch(operations)
+        try:
+            return self.api.batch(operations)
+        except FailedBatchRequest as e:
+            MusicbotObject.err(e)
+            for detail in e.details:
+                MusicbotObject.err(detail)
 
     @timeit
     def fetch(self, query: str) -> Any:
@@ -192,6 +197,9 @@ class User(MusicbotObject):
 
     @timeit
     def insert(self, music) -> Any:
+        if 'no-title' in music.inconsistencies or 'no-artist' in music.inconsistencies or 'no-album' in music.inconsistencies:
+            MusicbotObject.warn(f"{music} : missing mandatory fields title/album/artist : {music.inconsistencies}")
+            return None
         operation = f"music_{str(uuid.uuid4().hex)}"
         return self.execute(music.upsert_mutation(self.user_id, operation))
 
@@ -218,6 +226,10 @@ class User(MusicbotObject):
         operations = []
         for music in musics:
             try:
+                if 'no-title' in music.inconsistencies or 'no-artist' in music.inconsistencies or 'no-album' in music.inconsistencies:
+                    MusicbotObject.warn(f"{music} : missing mandatory fields title/album/artist : {music.inconsistencies}")
+                    continue
+
                 operation = f"music_{str(uuid.uuid4().hex)}"
                 operations.append({
                     "query": music.upsert_mutation(self.user_id, operation),

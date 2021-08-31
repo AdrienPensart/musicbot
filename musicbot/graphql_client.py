@@ -10,10 +10,16 @@ logger = logging.getLogger(__name__)
 DEFAULT_GRAPHQL = 'http://127.0.0.1:5000/graphql'
 
 
-@attr.s(auto_attribs=True, frozen=True)
+@attr.s(auto_attribs=True, repr=False)
 class GraphQL:
     graphql: str
     authorization: Optional[str] = None
+
+    def __attrs_post_init__(self):
+        self.session = requests.session()
+
+    def __repr__(self):
+        return self.graphql
 
     def batch(self, operations: List[Any]) -> Any:
         json_response = self._post(operations)
@@ -31,7 +37,7 @@ class GraphQL:
 
     def _post(self, operation: Any) -> Any:
         headers = {'Authorization': self.authorization} if self.authorization else {}
-        response = requests.post(
+        response = self.session.post(
             self.graphql,
             headers=headers,
             json=operation,

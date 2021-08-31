@@ -21,7 +21,6 @@ from musicbot.cli.music_filter import music_filter_options
 from musicbot.cli.user import user_options
 from musicbot.cli.options import yes_option, save_option, output_option, dry_option
 
-from musicbot.exceptions import FailedBatchRequest
 from musicbot.watcher import MusicWatcherHandler
 from musicbot.player import play
 from musicbot.object import MusicbotObject
@@ -78,12 +77,7 @@ def stats(user: User, output: str, music_filter: MusicFilter):
 @user_options
 def scan(user: User, save: bool, folders: List[Path]):
     musics = Folders(folders).musics()
-    try:
-        user.bulk_insert(musics)
-    except FailedBatchRequest as e:
-        for error in e.errors:
-            MusicbotObject.err(error)
-        MusicbotObject.err(f"{folders} : {e}")
+    user.bulk_insert(musics)
 
     if save:
         MusicbotObject.config.configfile['musicbot']['folders'] = ','.join({str(folder) for folder in folders})
