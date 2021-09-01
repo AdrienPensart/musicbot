@@ -2,7 +2,7 @@ import logging
 from typing import Optional, Any
 import click
 from click_skeleton.helpers import mysplit
-from musicbot.defaults import DEFAULT_MB_CONCURRENCY, DEFAULT_DRY, DEFAULT_SAVE, DEFAULT_MB_OUTPUT, DEFAULT_YES
+from musicbot.defaults import DEFAULT_CONCURRENCY, DEFAULT_DRY, DEFAULT_SAVE, DEFAULT_OUTPUT, DEFAULT_YES, DEFAULT_CLEAN
 from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
@@ -80,10 +80,19 @@ yes_option = click.option(
     callback=confirm,
 )
 
+clean_option = click.option(
+    '--clean',
+    help='Delete musics before',
+    default=DEFAULT_CLEAN,
+    is_flag=True,
+    show_default=True,
+    callback=confirm,
+)
+
 concurrency_options = click.option(
     '--concurrency',
     help='Number of threads',
-    default=DEFAULT_MB_CONCURRENCY,
+    default=DEFAULT_CONCURRENCY,
     show_default=True,
 )
 
@@ -98,7 +107,7 @@ save_option = click.option(
 output_option = click.option(
     '--output',
     help='Output format',
-    default=DEFAULT_MB_OUTPUT,
+    default=DEFAULT_OUTPUT,
     show_default=True,
     type=click.Choice(['json', 'table', 'm3u']),
 )

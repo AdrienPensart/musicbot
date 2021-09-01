@@ -15,11 +15,11 @@ import mutagen  # type: ignore
 from watchdog.observers import Observer  # type: ignore
 from prettytable import PrettyTable  # type: ignore
 from click_skeleton import AdvancedGroup
-from musicbot.cli.file import flat_option, checks_and_fix_options
+from musicbot.cli.file import extensions_option, link_options, flat_option, checks_and_fix_options
 from musicbot.cli.folders import destination_argument, folders_argument, folder_argument
 from musicbot.cli.music_filter import music_filter_options
 from musicbot.cli.user import user_options
-from musicbot.cli.options import yes_option, save_option, output_option, dry_option
+from musicbot.cli.options import yes_option, save_option, output_option, dry_option, clean_option
 
 from musicbot.watcher import MusicWatcherHandler
 from musicbot.player import play
@@ -73,11 +73,17 @@ def stats(user: User, output: str, music_filter: MusicFilter):
 
 @cli.command(help='Load musics')
 @folders_argument
+@extensions_option
 @save_option
+@clean_option
+@link_options
 @user_options
-def scan(user: User, save: bool, folders: List[Path]):
-    musics = Folders(folders).musics()
-    user.bulk_insert(musics)
+def scan(user: User, clean: bool, save: bool, folders: List[Path], extensions: List[str], **link_options):
+    if clean:
+        user.clean_musics()
+
+    musics = Folders(folders=folders, extensions=extensions).musics
+    user.bulk_insert(musics, **link_options)
 
     if save:
         MusicbotObject.config.configfile['musicbot']['folders'] = ','.join({str(folder) for folder in folders})
@@ -86,9 +92,10 @@ def scan(user: User, save: bool, folders: List[Path]):
 
 @cli.command(help='Watch files changes in folders')
 @folders_argument
+@extensions_option
 @user_options
-def watch(user: User, folders: List[Path]):
-    event_handler = MusicWatcherHandler(user=user, folders=folders)
+def watch(user: User, folders: List[Path], extensions: List[str]):
+    event_handler = MusicWatcherHandler(user=user, folders=folders, extensions=extensions)
     observer = Observer()
     for folder in folders:
         observer.schedule(event_handler, folder, recursive=True)
@@ -108,13 +115,137 @@ def clean(user: User):
     user.clean_musics()
 
 
-@cli.command(help='Clean and load musics')
-@folders_argument
+@cli.command('tracks', help='Generate a new playlist')
 @user_options
-def rescan(user: User, folders: List[Path]):
-    musics = Folders(folders).musics()
-    user.clean_musics()
-    user.bulk_insert(musics)
+@music_filter_options
+def _tracks(user: User, music_filter: MusicFilter):
+    tracks = user.playlist(music_filter)
+    print(json.dumps(tracks))
+
+
+@cli.command(help='Generate a new playlist')
+@output_option
+@user_options
+@link_options
+@music_filter_options
+def playlist(output: str, user: User, music_filter: MusicFilter, http: bool, sftp: bool, youtube: bool, spotify: bool, local: bool):
+    musics = user.playlist(music_filter)
+    if music_filter.shuffle:
+        random.shuffle(musics)
+
+    urls = []
+    pt = PrettyTable(['url'])
+    pt.align = 'l'
+    for music in musics:
+        links = music['links']
+        if not links:
+            MusicbotObject.warn(f'{music} : no links available')
+        for link in links:
+            if 'youtube' in link:
+                if youtube:
+                    urls.append(link)
+                    pt.add_row([link])
+                continue
+
+            if 'http' in link:
+                if http:
+                    urls.append(link)
+                    pt.add_row([link])
+                continue
+
+            if 'spotify' in link:
+                if spotify:
+                    urls.append(link)
+                    pt.add_row([link])
+                continue
+
+            if 'sftp' in link:
+                if sftp:
+                    urls.append(link)
+                    pt.add_row([link])
+                continue
+
+            if local:
+                path = Path(link)
+                if not path.exists():
+                    MusicbotObject.warn(f'{link} does not exist locally, skipping')
+                    continue
+                urls.append(link)
+                pt.add_row([link])
+
+    if output == 'm3u':
+        p = '#EXTM3U\n'
+        p += '\n'.join(urls)
+        print(p)
+        return
+
+    if output == 'table':
+        print(pt)
+        return
+
+    if output == 'json':
+        print(json.dumps(musics))
+
+
+@cli.command(help='Generate bests playlists with some rules')
+@click.option('--prefix', envvar='MB_PREFIX', help="Append prefix before each path", default='')
+@click.option('--suffix', envvar='MB_SUFFIX', help="Append this suffix to playlist name", default='')
+@folder_argument
+@dry_option
+@user_options
+@music_filter_options
+def bests(user: User, folder: Path, prefix: str, suffix: str, music_filter: MusicFilter):
+    playlists = user.bests(music_filter)
+    with MusicbotObject.progressbar(max_value=len(playlists)) as pbar:
+        for p in playlists:
+            try:
+                playlist_filepath = Path(folder) / (p['name'] + suffix + '.m3u')
+                content = textwrap.indent(p['content'], prefix, lambda line: line != '#EXTM3U\n')
+                if MusicbotObject.dry:
+                    logger.info(f'DRY RUN: Writing playlist to {playlist_filepath} with content:\n{content}')
+                    continue
+                try:
+                    with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:
+                        logger.debug(f'Writing playlist to {playlist_filepath} with content:\n{content}')
+                        playlist_file.write(content)
+                except (OSError, LookupError, ValueError, UnicodeError) as e:
+                    logger.warning(f'Unable to write playlist to {playlist_filepath} because of {e}')
+            finally:
+                pbar.value += 1
+                pbar.update()
+
+
+@cli.command(aliases=['play'], help='Music player')
+@user_options
+@music_filter_options
+def player(user: User, music_filter: MusicFilter):
+    if not MusicbotObject.config.quiet:
+        progressbar.streams.unwrap(stderr=True, stdout=True)
+    try:
+        tracks = user.playlist(music_filter)
+        play(tracks)
+    except io.UnsupportedOperation:
+        logger.critical('Unable to load UI')
+
+
+@cli.command(aliases=['consistency'], help='Check music consistency')
+@checks_and_fix_options
+@dry_option
+@user_options
+@music_filter_options
+def inconsistencies(user: User, fix: bool, checks: List[str], music_filter: MusicFilter):
+    musics = user.playlist(music_filter)
+    pt = PrettyTable(["Path", "Inconsistencies"])
+    for music in musics:
+        try:
+            m = File(music['path'])
+            if fix:
+                m.fix(checks=checks)
+            if m.inconsistencies:
+                pt.add_row([m.path, ', '.join(m.inconsistencies)])
+        except (OSError, mutagen.MutagenError):
+            pt.add_row([music['path'], "could not open file"])
+    print(pt)
 
 
 @cli.command(help='Copy selected musics with filters to destination folder')
@@ -132,13 +263,12 @@ def sync(user: User, delete: bool, destination: Path, music_filter: MusicFilter,
         click.secho('no result for filter, nothing to sync')
         return
 
-    folders = Folders(folders=[destination])
-    files = folders.supported_files(supported_formats=[])
-    logger.info(f"Files : {len(files)}")
-    if not files:
+    folders = Folders(folders=[destination], extensions=[])
+    logger.info(f"Files : {len(folders.files)}")
+    if not folders.files:
         logger.warning("no files found in destination")
 
-    destinations = {str(f)[len(str(destination)) + 1:]: f for f in files}
+    destinations = {str(file)[len(str(destination)) + 1:]: file for file in folders.files}
 
     musics: List[File] = []
     for obj in objs:
@@ -209,105 +339,3 @@ def sync(user: User, delete: bool, destination: Path, music_filter: MusicFilter,
         if not MusicbotObject.dry:
             shutil.rmtree(d)
         logger.info(f"[DRY-RUN] Removing empty dir {d}")
-
-
-@cli.command('tracks', help='Generate a new playlist')
-@user_options
-@music_filter_options
-def _tracks(user: User, music_filter: MusicFilter):
-    tracks = user.playlist(music_filter)
-    print(json.dumps(tracks))
-
-
-@cli.command(help='Generate a new playlist')
-@output_option
-@user_options
-@music_filter_options
-def playlist(output: str, user: User, music_filter: MusicFilter):
-    tracks = user.playlist(music_filter)
-    if music_filter.shuffle:
-        random.shuffle(tracks)
-
-    urls = []
-    pt = PrettyTable(['url'])
-    pt.align = 'l'
-    for track in tracks:
-        for link in track['links']:
-            if link.startswith('ssh://'):
-                continue
-            urls.append(link)
-            pt.add_row([link])
-
-    if output == 'm3u':
-        p = '#EXTM3U\n'
-        p += '\n'.join(urls)
-        print(p)
-        return
-
-    if output == 'table':
-        print(pt)
-        return
-
-    if output == 'json':
-        print(json.dumps(tracks))
-
-
-@cli.command(help='Generate bests playlists with some rules')
-@click.option('--prefix', envvar='MB_PREFIX', help="Append prefix before each path", default='')
-@click.option('--suffix', envvar='MB_SUFFIX', help="Append this suffix to playlist name", default='')
-@folder_argument
-@dry_option
-@user_options
-@music_filter_options
-def bests(user: User, folder: Path, prefix: str, suffix: str, music_filter: MusicFilter):
-    playlists = user.bests(music_filter)
-    with MusicbotObject.progressbar(max_value=len(playlists)) as pbar:
-        for p in playlists:
-            try:
-                playlist_filepath = Path(folder) / (p['name'] + suffix + '.m3u')
-                content = textwrap.indent(p['content'], prefix, lambda line: line != '#EXTM3U\n')
-                if MusicbotObject.dry:
-                    logger.info(f'DRY RUN: Writing playlist to {playlist_filepath} with content:\n{content}')
-                    continue
-                try:
-                    with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:
-                        logger.debug(f'Writing playlist to {playlist_filepath} with content:\n{content}')
-                        playlist_file.write(content)
-                except (OSError, LookupError, ValueError, UnicodeError) as e:
-                    logger.warning(f'Unable to write playlist to {playlist_filepath} because of {e}')
-            finally:
-                pbar.value += 1
-                pbar.update()
-
-
-@cli.command(aliases=['play'], help='Music player')
-@user_options
-@music_filter_options
-def player(user: User, music_filter: MusicFilter):
-    if not MusicbotObject.config.quiet:
-        progressbar.streams.unwrap(stderr=True, stdout=True)
-    try:
-        tracks = user.playlist(music_filter)
-        play(tracks)
-    except io.UnsupportedOperation:
-        logger.critical('Unable to load UI')
-
-
-@cli.command(aliases=['consistency'], help='Check music consistency')
-@checks_and_fix_options
-@dry_option
-@user_options
-@music_filter_options
-def inconsistencies(user: User, fix: bool, checks: List[str], music_filter: MusicFilter):
-    musics = user.playlist(music_filter)
-    pt = PrettyTable(["Path", "Inconsistencies"])
-    for music in musics:
-        try:
-            m = File(music['path'])
-            if fix:
-                m.fix(checks=checks)
-            if m.inconsistencies:
-                pt.add_row([m.path, ', '.join(m.inconsistencies)])
-        except (OSError, mutagen.MutagenError):
-            pt.add_row([music['path'], "could not open file"])
-    print(pt)

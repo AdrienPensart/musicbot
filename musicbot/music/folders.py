@@ -1,27 +1,33 @@
-from typing import List, Iterator, Iterable, Collection
+from typing import List, Iterator, Iterable, Optional
 from pathlib import Path
 import os
 import logging
-import attr
-from musicbot.timing import timeit
 from musicbot.object import MusicbotObject
-from musicbot.music.file import File, supported_formats
+from musicbot.defaults import DEFAULT_EXTENSIONS
+from musicbot.music.file import File
 
 logger = logging.getLogger(__name__)
 
 except_directories = ['.Spotlight-V100', '.zfs', 'Android', 'LOST.DIR']
 
 
-@attr.s(auto_attribs=True, repr=False)
 class Folders:
-    folders: Iterable[Path]
+    def __init__(self, folders: Iterable[Path], extensions: Optional[List[str]] = None):
+        self.supported_formats: List[str] = extensions if extensions is not None else DEFAULT_EXTENSIONS
+        self.folders = [folder.resolve() for folder in folders]
+        self.files = []
+        self.other_files: List[Path] = []
 
-    def __repr__(self):
-        return ' '.join(str(folder) for folder in self.folders)
-
-    @timeit
-    def musics(self) -> Collection["File"]:
-        files: List[Path] = self.supported_files(supported_formats)
+        for folder in self.folders:
+            for root, _, basenames in os.walk(folder):
+                if any(e in root for e in except_directories):
+                    continue
+                for basename in basenames:
+                    path = Path(folder) / root / basename
+                    if not basename.endswith(tuple(self.supported_formats)):
+                        self.other_files.append(path)
+                    else:
+                        self.files.append(path)
 
         def worker(path: Path):
             try:
@@ -32,12 +38,15 @@ class Folders:
             except OSError as e:
                 logger.error(e)
             return None
-        return MusicbotObject.parallel(worker, files)
+        self.musics = MusicbotObject.parallel(worker, self.files)
+
+    def __repr__(self):
+        return ' '.join(str(folder) for folder in self.folders)
 
     def empty_dirs(self, recursive: bool = True) -> Iterator[str]:
         for root_dir in self.folders:
             dirs_list = []
-            for root, dirs, files in os.walk(root_dir.resolve(), topdown=False):
+            for root, dirs, files in os.walk(root_dir, topdown=False):
                 if recursive:
                     all_subs_empty = True
                     for sub in dirs:
@@ -50,15 +59,3 @@ class Folders:
                 if all_subs_empty and not files:
                     dirs_list.append(root)
                     yield root
-
-    def supported_files(self, supported_formats: Iterable[str]) -> List[Path]:
-        files: List[Path] = []
-        for folder in self.folders:
-            for root, _, basenames in os.walk(folder.resolve()):
-                if any(e in root for e in except_directories):
-                    continue
-                for basename in basenames:
-                    if not basename.endswith(tuple(supported_formats)):
-                        continue
-                    files.append(Path(folder) / root / basename)
-        return files

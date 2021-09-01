@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 DEFAULT_ACOUSTID_API_KEY: Optional[str] = None
 
 output_types = ["list", "json"]
-default_output_type = 'json'
 
 default_checks = [
     'keywords',
@@ -67,7 +66,6 @@ DEFAULT_CHECKS = [
     'invalid-comment',
     'invalid-path',
 ]
-supported_formats = ["mp3", "flac"]
 
 
 class File:
@@ -102,91 +100,6 @@ class File:
     def __repr__(self) -> str:
         return str(self.path)
 
-    @property
-    def path(self) -> Path:
-        return Path(self.handle.filename)
-
-    def close(self) -> None:
-        self.handle.close()
-
-    def to_mp3(self, destination: Path, flat: Optional[bool] = False) -> bool:
-        if self.extension != '.flac':
-            logger.error(f"{self} is not a flac file")
-            return False
-
-        if not flat and 'invalid-path' in self.inconsistencies:
-            logger.error(f"{self} does not have a canonic path like : {self.canonic_artist_album_filename}")
-            return False
-
-        if flat:
-            mp3_path = destination / f'{self.flat_title}.mp3'
-        else:
-            mp3_path = destination / self.artist / self.album / (self.canonic_title + '.mp3')
-
-        if mp3_path.exists():
-            logger.info(f"{mp3_path} already exists, overwriting only tags")
-            f = File(path=mp3_path)
-            f.number = self.number
-            f.album = self.album
-            f.title = self.title
-            f.artist = self.artist
-            return f.save()
-
-        logger.debug(f"{self} convert destination : {mp3_path}")
-        if not MusicbotObject.dry:
-            mp3_path.parent.mkdir(parents=True, exist_ok=True)
-            try:
-                flac_audio = AudioSegment.from_file(self.path, "flac")
-                mp3_file = flac_audio.export(
-                    mp3_path,
-                    format="mp3",
-                    bitrate="256k",
-                )
-                mp3_file.close()
-                f = File(mp3_path)
-                f.number = self.number
-                f.album = self.album
-                f.title = self.title
-                f.artist = self.artist
-                return f.save()
-            except Exception:
-                mp3_path.unlink()
-                raise
-        return False
-
-    def upsert_mutation(self, user_id: int, operation=None) -> str:
-        operation = operation if operation is not None else ""
-        mutation = f'''
-        mutation {operation} {{
-            upsertMusic(
-                where: {{
-                    title: {json.dumps(self.title)}
-                    album: {json.dumps(self.album)}
-                    artist: {json.dumps(self.artist)}
-                    userId: {user_id}
-                }}
-                input: {{
-                    music: {{
-                        title: {json.dumps(self.title)}
-                        album: {json.dumps(self.album)}
-                        artist: {json.dumps(self.artist)}
-                        duration: {self.duration}
-                        genre: {json.dumps(self.genre)}
-                        keywords: {json.dumps(self.keywords)}
-                        number: {self.number}
-                        rating: {self.rating}
-                        links: {json.dumps([str(self.path), self.ssh_path])}
-                    }}
-                }}
-            )
-            {{
-                clientMutationId
-            }}
-        }}
-        '''
-        parse_graphql(mutation)
-        return mutation
-
     def as_dict(self) -> Dict[str, Any]:  # pylint: disable=unsubscriptable-object
         return {
             'title': self.title,
@@ -200,8 +113,16 @@ class File:
         }
 
     @property
-    def ssh_path(self) -> str:
-        return f"ssh://{current_user()}@{public_ip()}:{self.path}"
+    def path(self) -> Path:
+        return Path(self.handle.filename)
+
+    @property
+    def http_path(self) -> str:
+        return f"http://{public_ip()}/{self.canonic_artist_album_filename}"
+
+    @property
+    def sftp_path(self) -> str:
+        return f"sftp://{current_user()}@{public_ip()}:{self.path}"
 
     @property
     def extension(self) -> str:
@@ -406,6 +327,92 @@ class File:
         self.keywords = new_keywords
         return self.save()
 
+    def to_mp3(self, destination: Path, flat: Optional[bool] = False) -> bool:
+        if self.extension != '.flac':
+            logger.error(f"{self} is not a flac file")
+            return False
+
+        if not flat and 'invalid-path' in self.inconsistencies:
+            logger.error(f"{self} does not have a canonic path like : {self.canonic_artist_album_filename}")
+            return False
+
+        if flat:
+            mp3_path = destination / f'{self.flat_title}.mp3'
+        else:
+            mp3_path = destination / self.artist / self.album / (self.canonic_title + '.mp3')
+
+        if mp3_path.exists():
+            logger.info(f"{mp3_path} already exists, overwriting only tags")
+            f = File(path=mp3_path)
+            f.number = self.number
+            f.album = self.album
+            f.title = self.title
+            f.artist = self.artist
+            return f.save()
+
+        logger.debug(f"{self} convert destination : {mp3_path}")
+        if not MusicbotObject.dry:
+            mp3_path.parent.mkdir(parents=True, exist_ok=True)
+            try:
+                flac_audio = AudioSegment.from_file(self.path, "flac")
+                mp3_file = flac_audio.export(
+                    mp3_path,
+                    format="mp3",
+                    bitrate="256k",
+                )
+                mp3_file.close()
+                f = File(mp3_path)
+                f.number = self.number
+                f.album = self.album
+                f.title = self.title
+                f.artist = self.artist
+                return f.save()
+            except Exception:
+                mp3_path.unlink()
+                raise
+        return False
+
+    def upsert_mutation(self, user_id: int, sftp=False, http=False, local=True, operation=None) -> str:
+        paths = []
+        if local:
+            paths.append(str(self.path))
+        if sftp:
+            paths.append(self.sftp_path)
+        if http:
+            paths.append(self.http_path)
+
+        operation = operation if operation is not None else ""
+        mutation = f'''
+        mutation {operation} {{
+            upsertMusic(
+                where: {{
+                    title: {json.dumps(self.title)}
+                    album: {json.dumps(self.album)}
+                    artist: {json.dumps(self.artist)}
+                    userId: {user_id}
+                }}
+                input: {{
+                    music: {{
+                        title: {json.dumps(self.title)}
+                        album: {json.dumps(self.album)}
+                        artist: {json.dumps(self.artist)}
+                        duration: {self.duration}
+                        genre: {json.dumps(self.genre)}
+                        keywords: {json.dumps(self.keywords)}
+                        number: {self.number}
+                        rating: {self.rating}
+                        links: {json.dumps([str(self.path), self.sftp_path, self.http_path])}
+                    }}
+                }}
+            )
+            {{
+                clientMutationId
+            }}
+        }}
+        '''
+        parse_graphql(mutation)
+        return mutation
+
     def fingerprint(self, api_key: str) -> str:
         ids = acoustid.match(api_key, self.path)
         for score, recording_id, title, artist in ids:
@@ -442,3 +449,6 @@ class File:
         except mutagen.MutagenError as e:
             logger.error(e)
         return False
+
+    def close(self) -> None:
+        self.handle.close()

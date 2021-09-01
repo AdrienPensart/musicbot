@@ -2,7 +2,7 @@ from pathlib import Path
 import click
 from click_option_group import optgroup  # type: ignore
 from click_skeleton import add_options
-from musicbot.defaults import DEFAULT_MB_FLAT
+from musicbot.defaults import DEFAULT_FLAT, DEFAULT_EXTENSIONS
 from musicbot.music.file import DEFAULT_CHECKS, DEFAULT_ACOUSTID_API_KEY
 from musicbot.cli.options import config_string
 
@@ -15,6 +15,14 @@ genre_option = optgroup.option('--genre', help='Genre')
 number_option = optgroup.option('--number', help='Track number')
 rating_option = optgroup.option('--rating', help='Rating')
 
+extensions_option = click.option(
+    '--extension',
+    'extensions',
+    help='Supported formats',
+    default=DEFAULT_EXTENSIONS,
+    multiple=str,
+)
+
 keywords_argument = click.argument(
     'keywords',
     nargs=-1,
@@ -24,7 +32,7 @@ flat_option = click.option(
     '--flat',
     help="Do not create subfolders",
     is_flag=True,
-    default=DEFAULT_MB_FLAT,
+    default=DEFAULT_FLAT,
 )
 
 file_options = add_options(
@@ -41,6 +49,15 @@ file_options = add_options(
 path_argument = click.argument(
     'path',
     type=click.Path(path_type=Path, exists=True, dir_okay=False),
+)
+
+link_options = add_options(
+    optgroup('Link options'),
+    optgroup.option('--http/--no-http', is_flag=True),
+    optgroup.option('--sftp/--no-sftp', is_flag=True),
+    optgroup.option('--youtube/--no-youtube', is_flag=True),
+    optgroup.option('--spotify/--no-spotify', is_flag=True),
+    optgroup.option('--local/--no-local', is_flag=True, default=True),
 )
 
 checks_and_fix_options = add_options(

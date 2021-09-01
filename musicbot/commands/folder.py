@@ -11,12 +11,11 @@ from click_skeleton import AdvancedGroup
 from click_skeleton.helpers import PrettyDefaultDict
 from musicbot.cli.options import output_option, concurrency_options, dry_option
 from musicbot.cli.music_filter import ordering_options
-from musicbot.cli.file import keywords_argument, flat_option, checks_and_fix_options
-from musicbot.cli.folders import destination_argument, folder_argument, folders_argument
+from musicbot.cli.file import keywords_argument, flat_option, checks_and_fix_options, extensions_option
+from musicbot.cli.folders import destination_argument, folders_argument
 
-from musicbot.exceptions import MusicbotError
 from musicbot.object import MusicbotObject
-from musicbot.music.file import File, supported_formats
+from musicbot.exceptions import MusicbotError
 from musicbot.music.folders import Folders
 
 logger = logging.getLogger(__name__)
@@ -29,8 +28,9 @@ def cli():
 
 @cli.command(help='Just list music files')
 @folders_argument
-def find(folders: List[Path]):
-    files = Folders(folders).supported_files(supported_formats)
+@extensions_option
+def find(folders: List[Path], extensions: List[str]):
+    files = Folders(folders=folders, extensions=extensions).files
     for file in files:
         print(file)
 
@@ -39,8 +39,9 @@ def find(folders: List[Path]):
 @folders_argument
 @output_option
 @ordering_options
-def playlist(folders: List[Path], output: str, shuffle: bool, interleave: bool):
-    tracks = Folders(folders).musics()
+@extensions_option
+def playlist(folders: List[Path], extensions: List[str], output: str, shuffle: bool, interleave: bool):
+    tracks = Folders(folders=folders, extensions=extensions).musics
 
     if interleave:
         tracks_by_artist = PrettyDefaultDict(list)
@@ -75,8 +76,9 @@ def playlist(folders: List[Path], output: str, shuffle: bool, interleave: bool):
 
 @cli.command(help='Print music tags')
 @folders_argument
-def tags(folders: List[Path]):
-    musics = Folders(folders).musics()
+@extensions_option
+def tags(folders: List[Path], extensions: List[str]):
+    musics = Folders(folders=folders, extensions=extensions).musics
     for music in musics:
         logger.info(music.handle.tags.keys())
         print(music.as_dict())
@@ -89,29 +91,29 @@ def tags(folders: List[Path]):
 @dry_option
 @flat_option
 def flac2mp3(folders: List[Path], destination: Path, concurrency: int, flat: bool):
-    flac_files = Folders(folders).supported_files(['flac'])
-    if not flac_files:
+    flac_musics = Folders(folders=folders, extensions=['flac']).musics
+    if not flac_musics:
         logger.warning(f"No flac files detected in {folders}")
         return
 
-    def convert(path):
+    def convert(music):
         try:
-            f = File(path=path)
-            f.to_mp3(flat=flat, destination=destination)
+            music.to_mp3(flat=flat, destination=destination)
         except MusicbotError as e:
             logger.error(e)
         except Exception as e:  # pylint: disable=broad-except
-            logger.error(f"{path} : unable to convert to mp3 : {e}")
+            logger.error(f"{music} : unable to convert to mp3 : {e}")
 
-    MusicbotObject.parallel(convert, flac_files, concurrency=concurrency)
+    MusicbotObject.parallel(convert, flac_musics, concurrency=concurrency)
 
 
 @cli.command(aliases=['consistency'], help='Check music files consistency')
 @folders_argument
 @dry_option
 @checks_and_fix_options
-def inconsistencies(folders: List[Path], fix: bool, checks: List[str]):
-    musics = Folders(folders).musics()
+@extensions_option
+def inconsistencies(folders: List[Path], extensions: List[str], fix: bool, checks: List[str]):
+    musics = Folders(folders=folders, extensions=extensions).musics
     pt = PrettyTable(["Path", "Inconsistencies"])
     for m in musics:
         try:
@@ -127,19 +129,21 @@ def inconsistencies(folders: List[Path], fix: bool, checks: List[str]):
 
 @cli.command(help='Add keywords to music')
 @dry_option
-@folder_argument
+@folders_argument
 @keywords_argument
-def add_keywords(folder: Path, keywords: List[str]):
-    musics = Folders([folder]).musics()
+@extensions_option
+def add_keywords(folders: List[Path], extensions: List[str], keywords: List[str]):
+    musics = Folders(folders=folders, extensions=extensions).musics
     for music in musics:
         music.add_keywords(keywords)
 
 
 @cli.command(help='Delete keywords to music')
 @dry_option
-@folder_argument
+@folders_argument
 @keywords_argument
-def delete_keywords(folder: Path, keywords: List[str]):
-    musics = Folders([folder]).musics()
+@extensions_option
+def delete_keywords(folders: List[Path], extensions: List[str], keywords: List[str]):
+    musics = Folders(folders=folders, extensions=extensions).musics
     for music in musics:
         music.delete_keywords(keywords)

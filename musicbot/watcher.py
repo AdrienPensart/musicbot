@@ -10,14 +10,15 @@ logger = logging.getLogger(__name__)
 
 
 class MusicWatcherHandler(PatternMatchingEventHandler):
-    def __init__(self, user: User, folders: List[Path]) -> None:
+    def __init__(self, user: User, folders: List[Path], extensions: List[str]) -> None:
         PatternMatchingEventHandler.__init__(
             self,
-            patterns=['*.' + f for f in file.supported_formats],
+            patterns=[f'*.{extension}' for extension in extensions],
             ignore_directories=True,
         )
         self.user = user
         self.folders = folders
+        self.extensions = extensions
 
     def on_modified(self, event: FileSystemEvent) -> None:
         self.update_music(event.src_path)
@@ -36,7 +37,7 @@ class MusicWatcherHandler(PatternMatchingEventHandler):
 
     def update_music(self, path: str) -> None:
         for folder in self.folders:
-            if path.startswith(str(folder)) and path.endswith(tuple(file.supported_formats)):
+            if path.startswith(str(folder)) and path.endswith(tuple(self.extensions)):
                 click.echo(f'Creating/modifying DB for: {path}')
                 music = file.File(path=Path(path))
                 self.user.insert(music)

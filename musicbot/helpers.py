@@ -1,6 +1,7 @@
 import logging
 import functools
 import getpass
+import socket
 import miniupnpc  # type: ignore
 import requests
 from gql import gql  # type: ignore
@@ -9,6 +10,11 @@ from musicbot.object import MusicbotObject
 from musicbot.exceptions import MusicbotError, QuerySyntaxError
 
 logger = logging.getLogger(__name__)
+
+
+def is_port_in_use(port):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(('localhost', port)) == 0
 
 
 def bytes_to_human(b: int) -> str:

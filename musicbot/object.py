@@ -7,7 +7,7 @@ import concurrent.futures as cf
 from threading import Lock
 import click
 import progressbar  # type: ignore
-from musicbot.defaults import DEFAULT_MB_CONCURRENCY
+from musicbot.defaults import DEFAULT_CONCURRENCY
 from musicbot.config import DEFAULT_QUIET, Config
 
 logger = logging.getLogger(__name__)
@@ -85,7 +85,7 @@ class MusicbotObject:
         return pbar(redirect_stderr=redirect_stderr, redirect_stdout=redirect_stdout, **pbar_options)
 
     @classmethod
-    def parallel(cls, worker, items, quiet=DEFAULT_QUIET, concurrency=DEFAULT_MB_CONCURRENCY, **pbar_options):
+    def parallel(cls, worker, items, quiet=DEFAULT_QUIET, concurrency=DEFAULT_CONCURRENCY, **pbar_options):
         with cls.progressbar(max_value=len(items), quiet=quiet, redirect_stderr=True, redirect_stdout=True, **pbar_options) as pbar, \
              cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
             try:

@@ -30,7 +30,7 @@ class GraphQL:
         json_response = self._post({'query': query})
         if 'errors' in json_response and json_response['errors']:
             logger.debug(json_response)
-            raise FailedRequest(operation=query, response=json_response)
+            raise FailedRequest(f"Errors in response: \n{query}", operation=query, response=json_response)
         return json_response
 
     def _post(self, operation: Any) -> Any:
@@ -48,5 +48,5 @@ class GraphQL:
             response.raise_for_status()
             json_response = response.json()
         except (requests.exceptions.HTTPError, json.JSONDecodeError) as e:
-            raise FailedRequest(operation=operation, response=response) from e
+            raise FailedRequest(f"Failed post: \n{operation}", operation=operation, response=response) from e
         return json_response
