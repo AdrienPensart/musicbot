@@ -432,13 +432,6 @@ class File:
             logger.info(f"{self} : {self.title} => {self.canonic_title}")
             self.title = self.canonic_title
             self.inconsistencies.remove('invalid-title')
-        # if 'invalid-path' in checks:
-        #     logger.info(f"{self} : {self.path} => {self.canonic_artist_album_filename}")
-        #     if not MusicbotObject.dry:
-        #         self.canonic_path.parent.mkdir(parents=True, exist_ok=True)
-        #         self.path = self.path.replace(self.canonic_artist_album_filename)
-        #         self.handle = mutagen.File(self.path)
-        #         self.inconsistencies.remove('invalid-path')
         return self.save()
 
     def save(self) -> bool:

@@ -178,7 +178,7 @@ def diff(user: User, download_playlist: bool, music_filter: MusicFilter, spotify
         t for t in spotify_tracks
     }
 
-    local_tracks = user.do_filter(music_filter)
+    local_tracks = user.playlist(music_filter)
     local_tracks_by_slug = {
         # slugify(f"""{t['artist']}-{t['album']}-{t['title']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):  # type: ignore
         slugify(f"""{t['artist']}-{t['title']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):  # type: ignore

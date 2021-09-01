@@ -127,7 +127,7 @@ def rescan(user: User, folders: List[Path]):
 @click.option('--delete', help='Delete files on destination if not present in library', is_flag=True)
 def sync(user: User, delete: bool, destination: Path, music_filter: MusicFilter, yes: bool, flat: bool):
     logger.info(f'Destination: {destination}')
-    objs = user.do_filter(music_filter)
+    objs = user.playlist(music_filter)
     if not objs:
         click.secho('no result for filter, nothing to sync')
         return
@@ -215,28 +215,41 @@ def sync(user: User, delete: bool, destination: Path, music_filter: MusicFilter,
 @user_options
 @music_filter_options
 def _tracks(user: User, music_filter: MusicFilter):
-    tracks = user.do_filter(music_filter)
+    tracks = user.playlist(music_filter)
     print(json.dumps(tracks))
 
 
 @cli.command(help='Generate a new playlist')
+@output_option
 @user_options
 @music_filter_options
-def m3u_playlist(user: User, music_filter: MusicFilter):
-    tracks = user.do_filter(music_filter)
+def playlist(output: str, user: User, music_filter: MusicFilter):
+    tracks = user.playlist(music_filter)
     if music_filter.shuffle:
         random.shuffle(tracks)
 
     urls = []
+    pt = PrettyTable(['url'])
+    pt.align = 'l'
     for track in tracks:
         for link in track['links']:
             if link.startswith('ssh://'):
                 continue
             urls.append(link)
+            pt.add_row([link])
 
-    p = '#EXTM3U\n'
-    p += '\n'.join(urls)
-    print(p)
+    if output == 'm3u':
+        p = '#EXTM3U\n'
+        p += '\n'.join(urls)
+        print(p)
+        return
+
+    if output == 'table':
+        print(pt)
+        return
+
+    if output == 'json':
+        print(json.dumps(tracks))
 
 
 @cli.command(help='Generate bests playlists with some rules')
@@ -246,8 +259,8 @@ def m3u_playlist(user: User, music_filter: MusicFilter):
 @dry_option
 @user_options
 @music_filter_options
-def m3u_bests(user: User, folder: Path, prefix: str, suffix: str, music_filter: MusicFilter):
-    playlists = user.m3u_bests(music_filter)
+def bests(user: User, folder: Path, prefix: str, suffix: str, music_filter: MusicFilter):
+    playlists = user.bests(music_filter)
     with MusicbotObject.progressbar(max_value=len(playlists)) as pbar:
         for p in playlists:
             try:
@@ -274,7 +287,7 @@ def player(user: User, music_filter: MusicFilter):
     if not MusicbotObject.config.quiet:
         progressbar.streams.unwrap(stderr=True, stdout=True)
     try:
-        tracks = user.do_filter(music_filter)
+        tracks = user.playlist(music_filter)
         play(tracks)
     except io.UnsupportedOperation:
         logger.critical('Unable to load UI')
@@ -286,7 +299,7 @@ def player(user: User, music_filter: MusicFilter):
 @user_options
 @music_filter_options
 def inconsistencies(user: User, fix: bool, checks: List[str], music_filter: MusicFilter):
-    musics = user.do_filter(music_filter)
+    musics = user.playlist(music_filter)
     pt = PrettyTable(["Path", "Inconsistencies"])
     for music in musics:
         try:

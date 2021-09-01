@@ -127,20 +127,11 @@ class User(MusicbotObject):
         return self.execute_many(operations)
 
     @timeit
-    def m3u_playlist(self, mf: Optional[MusicFilter] = None) -> Any:
+    def bests(self, mf: Optional[MusicFilter] = None) -> Any:
         mf = mf if mf is not None else MusicFilter()
         query = f"""
         {{
-            m3UPlaylist({mf.to_graphql()})
-        }}"""
-        return self.fetch(query)['m3UPlaylist']
-
-    @timeit
-    def m3u_bests(self, mf: Optional[MusicFilter] = None) -> Any:
-        mf = mf if mf is not None else MusicFilter()
-        query = f"""
-        {{
-            m3UBests({mf.to_graphql()})
+            bests({mf.to_graphql()})
             {{
                 nodes
                 {{
@@ -152,7 +143,7 @@ class User(MusicbotObject):
         return self.fetch(query)['m3UBests']['nodes']
 
     @timeit
-    def do_filter(self, mf: Optional[MusicFilter] = None) -> Any:
+    def playlist(self, mf: Optional[MusicFilter] = None) -> Any:
         mf = mf if mf is not None else MusicFilter()
         if mf.name:
             kwargs = self.get_filter(mf.name)
@@ -160,7 +151,7 @@ class User(MusicbotObject):
 
         query = f"""
         {{
-            doFilter({mf.to_graphql()})
+            playlist({mf.to_graphql()})
             {{
                 nodes
                 {{

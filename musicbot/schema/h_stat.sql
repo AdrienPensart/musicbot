@@ -69,7 +69,7 @@ $$
         coalesce(sum(m.duration),0) as duration,
         now(),
         now()
-    from musicbot_public.do_filter
+    from musicbot_public.playlist
     (
         min_duration => do_stat.min_duration,
         max_duration => do_stat.max_duration,
