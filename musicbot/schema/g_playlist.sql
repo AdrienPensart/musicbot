@@ -100,7 +100,7 @@ $$
         from (select unnest(music.links) as url, artist from music) m
         where m.artist != ''
         group by m.artist
-        having coalesce(string_agg(m.url, E'\n'), '') as content <> ''
+        having coalesce(string_agg(m.url, E'\n'), '') <> ''
     ),
     bests_genres as (
         select
@@ -109,7 +109,7 @@ $$
         from (select unnest(music.links) as url, genre from music) m
         where m.genre != ''
         group by m.genre
-        having coalesce(string_agg(m.url, E'\n'), '') as content <> ''
+        having coalesce(string_agg(m.url, E'\n'), '') <> ''
     ),
     bests_artist_keywords as (
         with keywords as (

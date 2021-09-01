@@ -44,10 +44,9 @@ class GraphQL:
         if response.status_code == 401:
             raise FailedAuthentication(f"Authentication failed: {response.text} | {headers}")
 
-        response.raise_for_status()
-
         try:
+            response.raise_for_status()
             json_response = response.json()
-        except json.JSONDecodeError as e:
+        except (requests.exceptions.HTTPError, json.JSONDecodeError) as e:
             raise FailedRequest(operation=operation, response=response) from e
         return json_response

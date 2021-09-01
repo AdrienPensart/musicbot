@@ -7,7 +7,7 @@ class MusicbotError(Exception):
     pass
 
 
-class FilterNotFound(Exception):
+class FilterNotFound(MusicbotError):
     pass
 
 

@@ -31,19 +31,21 @@ class User(MusicbotObject):
 
     @classmethod
     def from_auth(cls, graphql: str, email: str, password: str) -> "User":
+        name = "authenticate"
+        field = "jwtToken"
         query = f"""
         mutation
         {{
-            authenticate(input: {{email: "{email}", password: "{password}"}})
+            {name} (input: {{email: "{email}", password: "{password}"}})
             {{
-                jwtToken
+                {field}
             }}
         }}"""
         response = None
         try:
             api = GraphQL(graphql=graphql)
             response = api.post(query)
-            token = response['data']['authenticate']['jwtToken']
+            token = response['data'][name][field]
             return cls.from_token(graphql=graphql, token=token)
         except MusicbotError as e:
             raise FailedAuthentication(f"Authentication failed for email {email} : {e}") from e
@@ -109,8 +111,12 @@ class User(MusicbotObject):
 
     @timeit
     def fetch(self, query: str) -> Any:
-        logger.debug(query)
-        return self.api.post(query)['data']
+        try:
+            logger.debug(query)
+            return self.api.post(query)['data']
+        except FailedRequest as e:
+            MusicbotObject.err(e)
+        return None
 
     @timeit
     def load_default_filters(self) -> Any:
@@ -129,9 +135,10 @@ class User(MusicbotObject):
     @timeit
     def bests(self, mf: Optional[MusicFilter] = None) -> Any:
         mf = mf if mf is not None else MusicFilter()
+        name = "bests"
         query = f"""
         {{
-            bests({mf.to_graphql()})
+            {name}({mf.to_graphql()})
             {{
                 nodes
                 {{
@@ -140,7 +147,7 @@ class User(MusicbotObject):
                 }}
             }}
         }}"""
-        return self.fetch(query)['m3UBests']['nodes']
+        return self.fetch(query)[name]['nodes']
 
     @timeit
     def playlist(self, mf: Optional[MusicFilter] = None) -> Any:
@@ -149,9 +156,10 @@ class User(MusicbotObject):
             kwargs = self.get_filter(mf.name)
             mf = MusicFilter(**kwargs)
 
+        name = "playlist"
         query = f"""
         {{
-            playlist({mf.to_graphql()})
+            {name}({mf.to_graphql()})
             {{
                 nodes
                 {{
@@ -167,14 +175,15 @@ class User(MusicbotObject):
                 }}
             }}
         }}"""
-        return self.fetch(query)['doFilter']['nodes']
+        return self.fetch(query)[name]['nodes']
 
     @timeit
     def do_stat(self, mf: Optional[MusicFilter] = None) -> Any:
         mf = mf if mf is not None else MusicFilter()
+        name = 'doStat'
         query = f"""
         {{
-            doStat({mf.to_graphql()})
+            {name}({mf.to_graphql()})
             {{
               musics
               artists
@@ -185,7 +194,7 @@ class User(MusicbotObject):
               duration
             }}
         }}"""
-        return self.fetch(query)['doStat']
+        return self.fetch(query)[name]
 
     @timeit
     def insert(self, music) -> Any:
@@ -243,37 +252,40 @@ class User(MusicbotObject):
 
     @timeit
     def artists(self) -> Any:
-        query = """
-        {
-          artistsTreeList {
+        name = "artistsTreeList"
+        query = f"""
+        {{
+          {name} {{
             name
-            albums {
+            albums {{
               name
-              musics {
+              musics {{
                 name
-              }
-            }
-          }
-        }"""
-        return self.fetch(query)['artistsTreeList']
+              }}
+            }}
+          }}
+        }}"""
+        return self.fetch(query)[name]
 
     @timeit
     def genres(self) -> Any:
-        query = """
-        {
-          genresTreeList {
+        name = "genresTreeList"
+        query = f"""
+        {{
+          {name} {{
             name
-          }
-        }"""
-        return self.fetch(query)['genresTreeList']
+          }}
+        }}"""
+        return self.fetch(query)[name]
 
     @timeit
     def get_filter(self, name: str) -> Any:
         default_filter = MusicFilter()
         filter_members = ','.join(default_filter.as_dict().keys())
+        function = "filters"
         query = f"""
         {{
-            filters(condition: {{name: "{name}"}})
+            {function}(condition: {{name: "{name}"}})
             {{
                 nodes {{
                     name,
@@ -281,23 +293,24 @@ class User(MusicbotObject):
                 }}
             }}
         }}"""
-        if not self.fetch(query)['filters']['nodes']:
+        if not self.fetch(query)[function]['nodes']:
             raise FilterNotFound(f'{name} : filter not found')
-        return self.fetch(query)['filters']['nodes'][0]
+        return self.fetch(query)[function]['nodes'][0]
 
     @timeit
     def list_filters(self) -> Any:
         default_filter = MusicFilter()
         filter_members = ','.join(default_filter.as_dict().keys())
+        name = "filtersList"
         query = f"""
         {{
-            filtersList
+            {name}
             {{
                 name,
                 {filter_members}
             }}
         }}"""
-        return self.fetch(query)['filtersList']
+        return self.fetch(query)[name]
 
     @timeit
     def delete_filter(self, name: str) -> Any:

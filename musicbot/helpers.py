@@ -25,7 +25,7 @@ def parse_graphql(query):
 @functools.lru_cache(maxsize=None)
 def public_ip() -> str:
     try:
-        return requests.get('http://checkip.amazonaws.com').text.strip()
+        return requests.get('https://api.ipify.org').text
     except Exception as e:  # pylint: disable=broad-except
         MusicbotObject.warn(f"Unable to detect public IP via Amazon : {e}")
 

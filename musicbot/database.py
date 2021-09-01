@@ -167,7 +167,11 @@ $do$;'''
         dbname = params.pop('dbname')
         admin_connection = None
         try:
-            admin_connection = psycopg2.connect(self.dsn)
+            try:
+                admin_connection = psycopg2.connect(self.dsn)
+            except psycopg2.OperationalError as e:
+                MusicbotObject.warn(e)
+                return
             admin_connection.autocommit = True
 
             with admin_connection.cursor() as admin_cursor:

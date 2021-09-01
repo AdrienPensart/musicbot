@@ -1,3 +1,4 @@
+import json
 import pytest
 from click_skeleton.testing import run_cli
 from musicbot.main import cli
@@ -36,19 +37,21 @@ def test_local_sync(cli_runner, common_args):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_local_m3u_playlist(cli_runner, common_args):
-    run_cli(cli_runner, cli, [
+def test_local_playlist(cli_runner, common_args):
+    output = run_cli(cli_runner, cli, [
         '--quiet',
-        'local', 'm3u-playlist',
+        'local', 'playlist',
         *common_args,
+        '--output', 'json',
     ])
+    json.loads(output)
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_local_m3u_bests(cli_runner, common_args):
+def test_local_bests(cli_runner, common_args):
     run_cli(cli_runner, cli, [
         '--quiet',
-        'local', 'm3u-bests',
+        'local', 'bests',
         *common_args,
         '/tmp',
         '--dry',
