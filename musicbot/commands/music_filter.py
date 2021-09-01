@@ -15,7 +15,7 @@ def cli():
     pass
 
 
-@cli.command(help='Load default filters')
+@cli.command(help='Load default filters', aliases=['load-defaults'])
 @user_options
 def load(user: User):
     user.load_default_filters()

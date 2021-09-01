@@ -185,6 +185,7 @@ def playlist(output: str, user: User, music_filter: MusicFilter, http: bool, sft
 
     if output == 'json':
         print(json.dumps(musics))
+        return
 
 
 @cli.command(help='Generate bests playlists with some rules')
@@ -205,6 +206,7 @@ def bests(user: User, folder: Path, prefix: str, suffix: str, music_filter: Musi
                     logger.info(f'DRY RUN: Writing playlist to {playlist_filepath} with content:\n{content}')
                     continue
                 try:
+                    playlist_filepath.parent.mkdir(parents=True, exist_ok=True)
                     with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:
                         logger.debug(f'Writing playlist to {playlist_filepath} with content:\n{content}')
                         playlist_file.write(content)

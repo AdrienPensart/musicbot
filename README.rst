@@ -185,12 +185,12 @@ musicbot filter
     -h, --help  Show this message and exit.
 
   Commands:
-    count             Count filters
-    delete (remove)   Delete a filter
-    help              Print help
-    list              List filters
-    load              Load default filters
-    show (get,print)  Print a filter
+    count                 Count filters
+    delete (remove)       Delete a filter
+    help                  Print help
+    list                  List filters
+    load (load-defaults)  Load default filters
+    show (get,print)      Print a filter
 
 musicbot filter count
 *********************
@@ -233,7 +233,7 @@ musicbot filter list
     List filters
 
   Options:
-    --output [json|table|m3u]  Output format  [default: json]
+    --output [json|table|m3u]  Output format  [default: table]
     Auth options: 
       -g, --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT         User token
@@ -266,7 +266,7 @@ musicbot filter show
     Print a filter
 
   Options:
-    --output [json|table|m3u]  Output format  [default: json]
+    --output [json|table|m3u]  Output format  [default: table]
     Auth options: 
       -g, --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT         User token
@@ -374,7 +374,7 @@ musicbot folder playlist
     Generate a playlist
 
   Options:
-    --output [json|table|m3u]  Output format  [default: json]
+    --output [json|table|m3u]  Output format  [default: table]
     Ordering options: 
       --shuffle                Randomize selection
       --interleave             Interleave tracks by artist
@@ -605,7 +605,7 @@ musicbot local playlist
     Generate a new playlist
 
   Options:
-    --output [json|table|m3u]   Output format  [default: json]
+    --output [json|table|m3u]   Output format  [default: table]
     Auth options: 
       -g, --graphql TEXT        GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT          User token
@@ -673,7 +673,7 @@ musicbot local stats
     Generate some stats for music collection with filters
 
   Options:
-    --output [json|table|m3u]  Output format  [default: json]
+    --output [json|table|m3u]  Output format  [default: table]
     Auth options: 
       -g, --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT         User token
@@ -1029,7 +1029,7 @@ musicbot spotify diff
       --shuffle                     Randomize selection
     Ordering options: 
       --shuffle                     Randomize selection
-    --output [json|table|m3u]       Output format  [default: json]
+    --output [json|table|m3u]       Output format  [default: table]
     --download-playlist             Create the download playlist
     --min-threshold FLOAT RANGE     Minimum distance threshold  [0<=x<=100]
     --max-threshold FLOAT RANGE     Maximum distance threshold  [0<=x<=100]
@@ -1071,7 +1071,7 @@ musicbot spotify playlist
       --spotify-cache-path FILE     Spotify cache path
       --spotify-scope TEXT          Spotify OAuth scopes, comma separated
       --spotify-redirect-uri TEXT   Spotify redirect URI
-    --output [json|table|m3u]       Output format  [default: json]
+    --output [json|table|m3u]       Output format  [default: table]
     -h, --help                      Show this message and exit.
 
 musicbot spotify playlists
@@ -1129,7 +1129,7 @@ musicbot spotify tracks
       --spotify-cache-path FILE     Spotify cache path
       --spotify-scope TEXT          Spotify OAuth scopes, comma separated
       --spotify-redirect-uri TEXT   Spotify redirect URI
-    --output [json|table|m3u]       Output format  [default: json]
+    --output [json|table|m3u]       Output format  [default: table]
     -h, --help                      Show this message and exit.
 
 musicbot user
@@ -1159,7 +1159,7 @@ musicbot user list
     List users (admin)
 
   Options:
-    --output [json|table|m3u]        Output format  [default: json]
+    --output [json|table|m3u]        Output format  [default: table]
     Admin options: 
       --graphql-admin TEXT           GraphQL endpoint  [default: http://127.0.0.1:5001/graphql]
     Basic auth: [all_or_none]
