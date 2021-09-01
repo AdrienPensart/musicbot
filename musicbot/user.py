@@ -7,7 +7,7 @@ from musicbot.timing import timeit
 from musicbot.object import MusicbotObject
 from musicbot.graphql_client import GraphQL
 from musicbot.exceptions import MusicbotError, QuerySyntaxError, FilterNotFound, FailedRequest, FailedAuthentication, FailedRegistration, FailedBatchRequest
-from musicbot.music import file
+from musicbot.music.file import File
 from musicbot.music.music_filter import MusicFilter, default_filters
 
 logger = logging.getLogger(__name__)
@@ -197,15 +197,15 @@ class User(MusicbotObject):
         return self.fetch(query)[name]
 
     @timeit
-    def insert(self, music) -> Any:
+    def insert(self, music: File, **link_options) -> Any:
         if 'no-title' in music.inconsistencies or 'no-artist' in music.inconsistencies or 'no-album' in music.inconsistencies:
             MusicbotObject.warn(f"{music} : missing mandatory fields title/album/artist : {music.inconsistencies}")
             return None
         operation = f"music_{str(uuid.uuid4().hex)}"
-        return self.execute(music.upsert_mutation(self.user_id, operation))
+        return self.execute(music.upsert_mutation(user_id=self.user_id, operation=operation, **link_options))
 
     @timeit
-    def bulk_insert(self, musics: Collection[file.File]) -> Any:
+    def bulk_insert(self, musics: Collection[File], **link_options) -> Any:
         if not musics:
             logger.info("no musics to insert")
             return None
@@ -215,7 +215,7 @@ class User(MusicbotObject):
                 for music in musics:
                     try:
                         logger.debug(f"inserting {music}")
-                        response = self.insert(music)
+                        response = self.insert(music, **link_options)
                         responses.append(response)
                     except (QuerySyntaxError, FailedRequest) as e:
                         MusicbotObject.err(f"{music} : {e}")
@@ -233,7 +233,7 @@ class User(MusicbotObject):
 
                 operation = f"music_{str(uuid.uuid4().hex)}"
                 operations.append({
-                    "query": music.upsert_mutation(self.user_id, operation),
+                    "query": music.upsert_mutation(user_id=self.user_id, operation=operation, **link_options),
                     "operationName": operation,
                 })
             except QuerySyntaxError as e:

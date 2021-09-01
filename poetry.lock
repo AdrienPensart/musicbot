@@ -792,7 +792,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
 name = "pyacoustid"
-version = "1.2.1"
+version = "1.2.2"
 description = "bindings for Chromaprint acoustic fingerprinting and the Acoustid API"
 category = "main"
 optional = false
@@ -1736,7 +1736,7 @@ py = [
     {file = "py-1.10.0.tar.gz", hash = "sha256:21b81bda15b66ef5e1a777a21c4dcd9c20ad3efd0b3f817e7a809035269e1bd3"},
 ]
 pyacoustid = [
-    {file = "pyacoustid-1.2.1.tar.gz", hash = "sha256:e62b2929fbc5ead508758d2f700f5d355f7d83d14f5efe33c1d4fc59cbdeba84"},
+    {file = "pyacoustid-1.2.2.tar.gz", hash = "sha256:c279d9c30a7f481f1420fc37db65833b5f9816cd364dc2acaa93a11c482d4141"},
 ]
 pycodestyle = [
     {file = "pycodestyle-2.7.0-py2.py3-none-any.whl", hash = "sha256:514f76d918fcc0b55c6680472f0a37970994e07bbb80725808c17089be302068"},

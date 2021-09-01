@@ -125,6 +125,14 @@ class File:
         return f"sftp://{current_user()}@{public_ip()}:{self.path}"
 
     @property
+    def youtube_path(self) -> str:
+        return ''
+
+    @property
+    def spotify_path(self) -> str:
+        return ''
+
+    @property
     def extension(self) -> str:
         return self.path.suffix
 
@@ -372,14 +380,18 @@ class File:
                 raise
         return False
 
-    def upsert_mutation(self, user_id: int, sftp=False, http=False, local=True, operation=None) -> str:
+    def upsert_mutation(self, user_id: int, sftp=False, http=False, local=True, spotify=False, youtube=False, operation: Optional[str] = None) -> str:
         paths = []
         if local:
             paths.append(str(self.path))
-        if sftp:
+        if sftp and self.sftp_path:
             paths.append(self.sftp_path)
-        if http:
+        if http and self.http_path:
             paths.append(self.http_path)
+        if youtube and self.youtube_path:
+            paths.append(self.youtube_path)
+        if spotify and self.spotify_path:
+            paths.append(self.spotify_path)
 
         operation = operation if operation is not None else ""
         mutation = f'''
@@ -401,7 +413,7 @@ class File:
                         keywords: {json.dumps(self.keywords)}
                         number: {self.number}
                         rating: {self.rating}
-                        links: {json.dumps([str(self.path), self.sftp_path, self.http_path])}
+                        links: {json.dumps(paths)}
                     }}
                 }}
             )

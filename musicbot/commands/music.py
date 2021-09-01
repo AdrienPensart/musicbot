@@ -10,6 +10,7 @@ from musicbot.cli.options import dry_option
 from musicbot.cli.folders import destination_argument
 from musicbot.cli.user import user_options
 from musicbot.cli.file import (
+    link_options,
     keywords_argument,
     path_argument,
     file_options,
@@ -30,9 +31,10 @@ def cli():
 @path_argument
 @user_options
 @dry_option
-def insert(path: Path, user: User):
+@link_options
+def insert(path: Path, user: User, **link_options):
     f = File(path=path)
-    user.insert(f)
+    user.insert(f, **link_options)
 
 
 @cli.command(help='Convert flac music to mp3')

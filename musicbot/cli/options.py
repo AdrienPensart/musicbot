@@ -86,7 +86,6 @@ clean_option = click.option(
     default=DEFAULT_CLEAN,
     is_flag=True,
     show_default=True,
-    callback=confirm,
 )
 
 concurrency_options = click.option(
