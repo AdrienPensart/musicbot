@@ -33,10 +33,11 @@ class Admin:
         query = """{
             accountsList {
                 user {
-                  lastName
-                  createdAt
-                  updatedAt
-                  firstName
+                    id
+                    lastName
+                    createdAt
+                    updatedAt
+                    firstName
                 }
                 email
             }

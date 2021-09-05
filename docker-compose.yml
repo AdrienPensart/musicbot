@@ -34,6 +34,7 @@ services:
       - db
     environment:
       DEBUG: postgraphile:postgres:notice
+      # DEBUG: postgraphile:graphql,postgraphile:request,postgraphile:postgres*
     command: [
       "--retry-on-init-fail",
       "--cors",
@@ -68,6 +69,7 @@ services:
       - 127.0.0.1:5001:5001
     environment:
       DEBUG: postgraphile:postgres:notice
+      # DEBUG: postgraphile:graphql,postgraphile:request,postgraphile:postgres*
     command: [
       "--retry-on-init-fail",
       "--cors",

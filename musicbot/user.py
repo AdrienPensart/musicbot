@@ -97,6 +97,7 @@ class User(MusicbotObject):
 
     @timeit
     def execute(self, query: str) -> Any:
+        logger.debug(query)
         return self.api.post(query)
 
     @timeit
