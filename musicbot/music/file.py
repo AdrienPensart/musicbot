@@ -164,7 +164,7 @@ class File:
 
     @property
     def slug(self) -> str:
-        return slugify(f"""{self.artist}-{self.title}""", stopwords=STOPWORDS, replacements=REPLACEMENTS)  # type: ignore
+        return slugify(f"""{self.artist}-{self.title}""", stopwords=STOPWORDS, replacements=REPLACEMENTS)
 
     def _get_first(self, tag: str, default: str = '') -> str:
         if tag not in self.handle:

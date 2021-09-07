@@ -173,15 +173,15 @@ def tracks(spotify: Spotify, output: str):
 def diff(user: User, download_playlist: bool, music_filter: MusicFilter, spotify: Spotify, output: str, min_threshold: float, max_threshold: float):
     spotify_tracks = spotify.tracks()
     spotify_tracks_by_slug = {
-        # slugify(f"""{t['track']['artists'][0]['name']}-{t['track']['album']['name']}-{t['track']['name']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):  # type: ignore
-        slugify(f"""{t['track']['artists'][0]['name']}-{t['track']['name']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):  # type: ignore
+        # slugify(f"""{t['track']['artists'][0]['name']}-{t['track']['album']['name']}-{t['track']['name']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):
+        slugify(f"""{t['track']['artists'][0]['name']}-{t['track']['name']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):
         t for t in spotify_tracks
     }
 
     local_tracks = user.playlist(music_filter)
     local_tracks_by_slug = {
-        # slugify(f"""{t['artist']}-{t['album']}-{t['title']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):  # type: ignore
-        slugify(f"""{t['artist']}-{t['title']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):  # type: ignore
+        # slugify(f"""{t['artist']}-{t['album']}-{t['title']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):
+        slugify(f"""{t['artist']}-{t['title']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):
         t for t in local_tracks
     }
 

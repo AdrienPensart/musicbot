@@ -1186,7 +1186,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "types-python-slugify"
-version = "0.1.2"
+version = "5.0.0"
 description = "Typing stubs for python-slugify"
 category = "main"
 optional = false
@@ -1270,7 +1270,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "<3.9,>=3.8"
-content-hash = "93b9c822180e710eb1f5aa7d5ddfb79facf829c399b58a5c1cf0dbc5d30bf890"
+content-hash = "fbf58cbe3c8db38f93936b058235209691adf099b68aac0240ae0fdc633a751a"
 
 [metadata.files]
 astroid = [
@@ -1973,8 +1973,8 @@ toml = [
     {file = "toml-0.10.2.tar.gz", hash = "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f"},
 ]
 types-python-slugify = [
-    {file = "types-python-slugify-0.1.2.tar.gz", hash = "sha256:77829d8e47b22aea89fbc028076fa69e20387e09f755b281f1faf2ee3cb61915"},
-    {file = "types_python_slugify-0.1.2-py3-none-any.whl", hash = "sha256:f91a6e43fcfee27c98793585e9ef03a278e0ec8644efa8e41974e51494163f84"},
+    {file = "types-python-slugify-5.0.0.tar.gz", hash = "sha256:5c574967549f34213a89515a733d8886e41c305c1f0d1f663551429688c5aa70"},
+    {file = "types_python_slugify-5.0.0-py3-none-any.whl", hash = "sha256:3ba6d6a63f0e8b98b91527c7e15db2cdd3762c9f04e3aea952fc6a1391bcb45a"},
 ]
 types-requests = [
     {file = "types-requests-2.25.6.tar.gz", hash = "sha256:e21541c0f55c066c491a639309159556dd8c5833e49fcde929c4c47bdb0002ee"},

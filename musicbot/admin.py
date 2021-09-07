@@ -30,16 +30,15 @@ class Admin:
 
     @timeit
     def users(self) -> Any:
-        query = """{
-            accountsList {
-                user {
-                    id
-                    lastName
-                    createdAt
-                    updatedAt
-                    firstName
-                }
+        name = "userAccountsList"
+        query = f"""{{
+            {name} {{
+                id
                 email
-            }
-        }"""
-        return self.api.post(query)['data']['accountsList']
+                lastName
+                createdAt
+                updatedAt
+                firstName
+            }}
+        }}"""
+        return self.api.post(query)['data'][name]

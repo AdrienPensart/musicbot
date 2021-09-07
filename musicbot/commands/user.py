@@ -35,7 +35,7 @@ def _list(graphql_admin: Admin, output: str, **kwargs):
     if output == 'table':
         pt = PrettyTable(["ID", "Email", "Firstname", "Lastname", "Created at", "Updated at"])
         for u in users:
-            pt.add_row([u["user"]["id"], u["email"], u["user"]["firstName"], u["user"]["lastName"], u["user"]["createdAt"], u["user"]["updatedAt"]])
+            pt.add_row([u["id"], u["email"], u["firstName"], u["lastName"], u["createdAt"], u["updatedAt"]])
         print(pt)
     elif output == 'json':
         print(json.dumps(users))
