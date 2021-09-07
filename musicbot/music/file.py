@@ -178,10 +178,6 @@ class File:
         return int(self.handle.info.length)
 
     @property
-    def size(self) -> int:
-        return Path(self.path).stat().st_size
-
-    @property
     def title(self) -> str:
         if self.extension == '.flac':
             return self._get_first('title')
