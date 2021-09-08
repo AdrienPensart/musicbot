@@ -55,22 +55,22 @@ class User(MusicbotObject):
     @classmethod
     @timeit
     def register(cls, graphql: str, email: str, password: str, first_name: str, last_name: str) -> "User":
+        name = 'registerUser'
         mutation = f"""
         mutation
         {{
-            registerUser(input: {{firstName: "{first_name}", lastName: "{last_name}", email: "{email}", password: "{password}"}})
+            {name} (input: {{firstName: "{first_name}", lastName: "{last_name}", email: "{email}", password: "{password}"}})
             {{
-                clientMutationId
+                jwtToken
             }}
         }}"""
 
         try:
             api = GraphQL(graphql=graphql)
-            api.post(mutation)
-            return cls.from_auth(
+            token = api.post(mutation)['data'][name]['jwtToken']
+            return cls.from_token(
                 graphql=graphql,
-                email=email,
-                password=password
+                token=token,
             )
         except MusicbotError as e:
             raise FailedRegistration(f"Registration failed for {first_name} | {last_name} | {email} | {password} : {e}") from e

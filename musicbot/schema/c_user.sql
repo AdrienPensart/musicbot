@@ -1,8 +1,8 @@
 create table if not exists musicbot_public.user
 (
     id               serial primary key,
-    first_name       text check (char_length(first_name) < 80),
-    last_name        text check (char_length(last_name) < 80),
+    first_name       text check (char_length(coalesce(first_name, '')) < 80),
+    last_name        text check (char_length(coalesce(last_name, '')) < 80),
     created_at       timestamp with time zone default now(),
     updated_at       timestamp with time zone default now()
 );
@@ -24,7 +24,7 @@ $$ language plpgsql stable;
 
 create table if not exists musicbot_private.account (
     user_id          integer primary key references musicbot_public.user(id) on delete cascade,
-    email            text not null unique check (email ~* '^.+@.+\..+$'),
+    email            text not null constraint email_unique unique constraint email_format check (email ~* '^.+@.+\..+$'),
     password_hash    text not null
 );
 
@@ -62,33 +62,6 @@ create type musicbot_public.jwt_token as (
     exp int
 );
 
-create or replace function musicbot_public.register_user(
-    first_name text,
-    last_name text,
-    email text,
-    password text
-)
-returns musicbot_public.user as
-$$
-    with insert_user as (
-        insert into musicbot_public.user as u (first_name, last_name)
-        values (first_name, last_name)
-        returning *
-    ), insert_account as (
-        insert into musicbot_private.account (user_id, email, password_hash)
-        values ((select insert_user.id from insert_user), email, crypt(password, gen_salt('bf')))
-    )
-    select insert_user.* from insert_user;
-$$ language sql strict security definer;
-
-create or replace function musicbot_public.unregister_user()
-returns musicbot_public.user as
-$$
-    delete from musicbot_public.user u
-    where u.id = musicbot_public.current_musicbot()
-    returning *
-$$ language sql strict security definer;
-
 create or replace function musicbot_public.authenticate(
   email text,
   password text
@@ -100,21 +73,75 @@ declare
 begin
     select a.* into strict account
     from musicbot_private.account as a
-    where a.email = $1;
-    if account.password_hash = crypt(password, account.password_hash) then
+    where a.email = authenticate.email;
+    if account.password_hash = crypt(authenticate.password, account.password_hash) then
         raise notice 'Token Authorization for user % : %', email, ('musicbot_user', account.user_id, extract(epoch from (now() + interval '1 day')))::musicbot_public.jwt_token;
         return ('musicbot_user', account.user_id, extract(epoch from (now() + interval '1 day')))::musicbot_public.jwt_token;
     else
         raise exception 'Authentication failed for user %', email;
     end if;
-    exception
-        when NO_DATA_FOUND then
-            raise exception 'Account % not found', email;
-        when TOO_MANY_ROWS then
-            raise exception 'Account % not unique', email;
-        return null;
+exception
+    when NO_DATA_FOUND then
+        raise exception 'Account % not found', email;
+    when TOO_MANY_ROWS then
+        raise exception 'Account % not unique', email;
+    return null;
 end;
 $$ language plpgsql strict security definer;
+
+create or replace function musicbot_public.register_user(
+    email text,
+    password text,
+    first_name text default null,
+    last_name text default null
+)
+returns musicbot_public.jwt_token as
+$$
+declare
+    minimum_password_length constant integer := 8;
+    cn text;
+begin
+    if register_user.email is null then
+        raise exception 'Email is mandatory';
+    end if;
+    if register_user.password is null then
+        raise exception 'Password is mandatory';
+    end if;
+
+    if length(register_user.password) < minimum_password_length then
+        raise exception 'Password is too weak, it must be at least % characters long', minimum_password_length;
+    end if;
+
+    with insert_user as (
+        insert into musicbot_public.user as u (first_name, last_name)
+        values (register_user.first_name, register_user.last_name)
+        returning *
+    )
+    insert into musicbot_private.account (user_id, email, password_hash)
+    values ((select insert_user.id from insert_user), register_user.email, crypt(register_user.password, gen_salt('bf')));
+
+    return musicbot_public.authenticate(email => register_user.email, password => register_user.password);
+exception
+    when integrity_constraint_violation or unique_violation then
+        get stacked diagnostics cn := constraint_name;
+        if cn = 'email_format' then
+            raise exception 'Email format is not correct';
+        end if;
+
+        if cn = 'email_unique' then
+            raise exception 'Email already in use';
+        end if;
+        raise;
+end;
+$$ language plpgsql security definer;
+
+create or replace function musicbot_public.unregister_user()
+returns musicbot_public.user as
+$$
+    delete from musicbot_public.user u
+    where u.id = musicbot_public.current_musicbot()
+    returning *
+$$ language sql strict security definer;
 
 alter default privileges revoke execute on functions from public;
 

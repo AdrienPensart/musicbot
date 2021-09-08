@@ -14,6 +14,7 @@ services:
       - 127.0.0.1:5433:5432
     volumes:
       - /home/postgres-data:/var/lib/postgresql/data
+    command: ["postgres", "-c", "log_statement=all"]
 
   # this is needed as an intermediate image
   postgraphile_custom:
@@ -34,11 +35,12 @@ services:
       - db
     environment:
       DEBUG: postgraphile:postgres:notice
-      # DEBUG: postgraphile:graphql,postgraphile:request,postgraphile:postgres*
     command: [
+      "--watch",
       "--retry-on-init-fail",
       "--cors",
       "--enable-query-batching",
+      "--show-error-stack",
       "--extended-errors", "severity,code,detail,hint,position,internalPosition,internalQuery,where,schema,table,column,dataType,constraint,file,line,routine",
       "--no-setof-functions-contain-nulls",
       "--no-ignore-rbac",
@@ -63,17 +65,17 @@ services:
     image: musicbot_postgraphile_custom:latest
     restart: always
     stop_signal: SIGKILL
-    depends_on:
-      - db
     ports:
       - 127.0.0.1:5001:5001
+    depends_on:
+      - db
     environment:
       DEBUG: postgraphile:postgres:notice
-      # DEBUG: postgraphile:graphql,postgraphile:request,postgraphile:postgres*
     command: [
       "--retry-on-init-fail",
       "--cors",
       "--enable-query-batching",
+      "--show-error-stack",
       "--extended-errors", "severity,code,detail,hint,position,internalPosition,internalQuery,where,schema,table,column,dataType,constraint,file,line,routine",
       "--include-extension-resources",
       "--no-setof-functions-contain-nulls",

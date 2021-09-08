@@ -5,6 +5,7 @@ import logging
 import os
 import sys
 import requests
+import psycopg2  # type: ignore
 import spotipy  # type: ignore
 import mutagen  # type: ignore
 import click
@@ -52,7 +53,7 @@ def main(**kwargs) -> int:
     try:
         exit_code = cli.main(prog_name=PROG_NAME, **kwargs)
         return exit_code
-    except (mutagen.MutagenError, exceptions.MusicbotError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError) as e:
+    except (psycopg2.OperationalError, mutagen.MutagenError, exceptions.MusicbotError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError) as e:
         logger.error(e)
         if MusicbotObject.config and MusicbotObject.config.debug:
             logger.exception(e)
