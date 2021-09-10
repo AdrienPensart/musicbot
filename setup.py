@@ -36,8 +36,7 @@ install_requires = \
  'youtube_dl>=2021.3.3,<2022.0.0']
 
 entry_points = \
-{'console_scripts': ['musicbot = musicbot.main:main',
-                     'musicbot-fire = musicbot.main:main_fire']}
+{'console_scripts': ['musicbot = musicbot.main:main']}
 
 setup_kwargs = {
     'name': 'musicbot',
