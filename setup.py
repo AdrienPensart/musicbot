@@ -9,7 +9,7 @@ package_data = \
 
 install_requires = \
 ['attrs>=21.2.0,<22.0.0',
- 'click-skeleton>=0.16,<0.17',
+ 'click-skeleton>=0.17,<0.18',
  'colorlog>=6.4.1,<7.0.0',
  'fuzzywuzzy>=0.18.0,<0.19.0',
  'gql>=2.0.0,<3.0.0',

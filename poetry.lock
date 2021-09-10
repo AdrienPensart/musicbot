@@ -191,11 +191,11 @@ tests = ["coverage (<6)", "pytest", "pytest-cov", "coveralls"]
 
 [[package]]
 name = "click-skeleton"
-version = "0.16"
+version = "0.17"
 description = "Click app skeleton"
 category = "main"
 optional = false
-python-versions = ">=3.6,<=3.9"
+python-versions = ">=3.6,<=3.9.6"
 
 [package.dependencies]
 click = ">=8.0.1,<9.0.0"
@@ -292,7 +292,7 @@ python-versions = "*"
 
 [[package]]
 name = "docker"
-version = "5.0.0"
+version = "5.0.2"
 description = "A Python library for the Docker Engine API."
 category = "dev"
 optional = false
@@ -735,7 +735,7 @@ tests = ["pytest", "pytest-cov"]
 
 [[package]]
 name = "progressbar2"
-version = "3.53.1"
+version = "3.53.2"
 description = "A Python Progressbar library to provide visual (yet text based) progress to long running operations."
 category = "main"
 optional = false
@@ -747,7 +747,7 @@ six = "*"
 
 [package.extras]
 docs = ["sphinx (>=1.7.4)"]
-tests = ["flake8 (>=3.7.7)", "pytest (>=4.6.9)", "pytest-cov (>=2.6.1)", "pytest-flakes (>=4.0.0)", "pytest-pep8 (>=1.0.6)", "freezegun (>=0.3.11)", "sphinx (>=1.8.5)"]
+tests = ["flake8 (>=3.7.7)", "pytest (>=4.6.9)", "pytest-cov (>=2.6.1)", "freezegun (>=0.3.11)", "sphinx (>=1.8.5)"]
 
 [[package]]
 name = "promise"
@@ -1140,7 +1140,7 @@ test = ["mock (==2.0.0)"]
 
 [[package]]
 name = "sqlparse"
-version = "0.4.1"
+version = "0.4.2"
 description = "A non-validating SQL parser."
 category = "main"
 optional = false
@@ -1270,7 +1270,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "<3.9,>=3.8"
-content-hash = "fbf58cbe3c8db38f93936b058235209691adf099b68aac0240ae0fdc633a751a"
+content-hash = "0b08a8748b725e196c5ace27c38ca96275a5ff792a9139618e23b5bdae380289"
 
 [metadata.files]
 astroid = [
@@ -1382,8 +1382,8 @@ click-option-group = [
     {file = "click_option_group-0.5.3-py3-none-any.whl", hash = "sha256:9653a2297357335d7325a1827e71ac1245d91c97d959346a7decabd4a52d5354"},
 ]
 click-skeleton = [
-    {file = "click-skeleton-0.16.tar.gz", hash = "sha256:0cdea550f3583b2fb6ebb50b8ccf787c1ac70da86ee1b5a5c54ae9aa28e87d33"},
-    {file = "click_skeleton-0.16-py3-none-any.whl", hash = "sha256:e78a6801033cdc7e2aa9b786a087b9b63be72beac977000fec6ffcdd2992be16"},
+    {file = "click-skeleton-0.17.tar.gz", hash = "sha256:27b21e54423a031e6bfab350f77d121f8245d8a8054767194d426f2b5f9964f6"},
+    {file = "click_skeleton-0.17-py3-none-any.whl", hash = "sha256:1a2bea357f90b54a1d942d3dbcf4fef1b6651ed60f822404aecbdbdbcaac2cf7"},
 ]
 colorama = [
     {file = "colorama-0.4.4-py2.py3-none-any.whl", hash = "sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2"},
@@ -1478,8 +1478,8 @@ distro = [
     {file = "distro-1.6.0.tar.gz", hash = "sha256:83f5e5a09f9c5f68f60173de572930effbcc0287bb84fdc4426cb4168c088424"},
 ]
 docker = [
-    {file = "docker-5.0.0-py2.py3-none-any.whl", hash = "sha256:fc961d622160e8021c10d1bcabc388c57d55fb1f917175afbe24af442e6879bd"},
-    {file = "docker-5.0.0.tar.gz", hash = "sha256:3e8bc47534e0ca9331d72c32f2881bb13b93ded0bcdeab3c833fb7cf61c0a9a5"},
+    {file = "docker-5.0.2-py2.py3-none-any.whl", hash = "sha256:9b17f0723d83c1f3418d2aa17bf90b24dbe97deda06208dd4262fa30a6ee87eb"},
+    {file = "docker-5.0.2.tar.gz", hash = "sha256:21ec4998e90dff7a7aaaa098ca8d839c7de412b89e6f6c30908372d58fecf663"},
 ]
 docker-compose = [
     {file = "docker-compose-1.29.2.tar.gz", hash = "sha256:4c8cd9d21d237412793d18bd33110049ee9af8dab3fe2c213bbd0733959b09b7"},
@@ -1710,8 +1710,8 @@ prettytable = [
     {file = "prettytable-2.2.0.tar.gz", hash = "sha256:bd81678c108e6c73d4f1e47cd4283de301faaa6ff6220bcd1d4022038c56b416"},
 ]
 progressbar2 = [
-    {file = "progressbar2-3.53.1-py2.py3-none-any.whl", hash = "sha256:fe2738e7ecb7df52ad76307fe610c460c52b50f5335fd26c3ab80ff7655ba1e0"},
-    {file = "progressbar2-3.53.1.tar.gz", hash = "sha256:ef72be284e7f2b61ac0894b44165926f13f5d995b2bf3cd8a8dedc6224b255a7"},
+    {file = "progressbar2-3.53.2-py2.py3-none-any.whl", hash = "sha256:c84d074ffb68159dc1b844eeb9e765dac84a633d3fa8527000b53a6a86bd2f93"},
+    {file = "progressbar2-3.53.2.tar.gz", hash = "sha256:8c150baaa33448c1e34a2cafa5108285d96f2c877bdf64fcbd77f26cb135435d"},
 ]
 promise = [
     {file = "promise-2.3.tar.gz", hash = "sha256:dfd18337c523ba4b6a58801c164c1904a9d4d1b1747c7d5dbf45b693a49d93d0"},
@@ -1953,8 +1953,8 @@ spotipy = [
     {file = "spotipy-2.19.0.tar.gz", hash = "sha256:904f6e813dba837758e9510c1bee51d7ca217f169246625a13e693733dc33543"},
 ]
 sqlparse = [
-    {file = "sqlparse-0.4.1-py3-none-any.whl", hash = "sha256:017cde379adbd6a1f15a61873f43e8274179378e95ef3fede90b5aa64d304ed0"},
-    {file = "sqlparse-0.4.1.tar.gz", hash = "sha256:0f91fd2e829c44362cbcfab3e9ae12e22badaa8a29ad5ff599f9ec109f0454e8"},
+    {file = "sqlparse-0.4.2-py3-none-any.whl", hash = "sha256:48719e356bb8b42991bdbb1e8b83223757b93789c00910a616a071910ca4a64d"},
+    {file = "sqlparse-0.4.2.tar.gz", hash = "sha256:0c00730c74263a94e5a9919ade150dfc3b19c574389985446148402998287dae"},
 ]
 tabulate = [
     {file = "tabulate-0.8.9-py3-none-any.whl", hash = "sha256:d7c013fe7abbc5e491394e10fa845f8f32fe54f8dc60c6622c6cf482d25d47e4"},
