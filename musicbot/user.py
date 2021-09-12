@@ -90,6 +90,25 @@ class User(MusicbotObject):
         except MusicbotError as e:
             raise FailedAuthentication(f"Cannot delete user : {e}") from e
 
+    @timeit
+    def whoami(self) -> Any:
+        name = "user"
+        query = f"""
+        {{
+            {name} (id: {self.user_id}) {{
+                id
+                createdAt
+                firstName
+                lastName
+                updatedAt
+            }}
+        }}
+        """
+        try:
+            return self.fetch(query)[name]
+        except MusicbotError as e:
+            raise FailedAuthentication(f"Cannot delete user : {e}") from e
+
     @cached_property
     def user_id(self):
         query = """{ currentMusicbot }"""

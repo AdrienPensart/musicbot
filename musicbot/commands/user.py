@@ -68,6 +68,12 @@ def unregister(user: User):
     user.unregister()
 
 
+@cli.command(help='Info about me')
+@user_options
+def whoami(user: User):
+    print(user.whoami());
+
+
 @cli.command(aliases=['token'], help='Authenticate user')
 @save_option
 @optgroup('Login options')
