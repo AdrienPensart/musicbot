@@ -9,14 +9,12 @@ package_data = \
 
 install_requires = \
 ['attrs>=21.2.0,<22.0.0',
- 'click-skeleton>=0.17,<0.18',
+ 'click-skeleton>=0.19,<0.20',
  'colorlog>=6.4.1,<7.0.0',
  'fuzzywuzzy>=0.18.0,<0.19.0',
  'gql>=2.0.0,<3.0.0',
- 'graphql-py>=0.8.1,<0.9.0',
  'humanize>=3.0.1,<4.0.0',
  'logging-tree>=1.8,<2.0',
- 'miniupnpc>=2.0.2,<3.0.0',
  'mutagen>=1.44.0,<2.0.0',
  'pgcli>=3.2.0,<4.0.0',
  'prettytable>=2.1.0,<3.0.0',
@@ -52,7 +50,7 @@ setup_kwargs = {
     'package_data': package_data,
     'install_requires': install_requires,
     'entry_points': entry_points,
-    'python_requires': '>=3.8,<3.9',
+    'python_requires': '>=3.8,<3.10',
 }
 
 

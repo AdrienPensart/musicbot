@@ -2,11 +2,9 @@ import logging
 import functools
 import getpass
 import socket
-import miniupnpc  # type: ignore
 import requests
 from gql import gql  # type: ignore
 import humanize  # type: ignore
-from musicbot.object import MusicbotObject
 from musicbot.exceptions import MusicbotError, QuerySyntaxError
 
 logger = logging.getLogger(__name__)
@@ -33,18 +31,7 @@ def public_ip() -> str:
     try:
         return requests.get('https://api.ipify.org').text
     except Exception as e:  # pylint: disable=broad-except
-        MusicbotObject.warn(f"Unable to detect public IP via Amazon : {e}")
-
-    try:
-        upnp = miniupnpc.UPnP()
-        upnp.discoverdelay = 200
-        upnp.discover()
-        upnp.selectigd()
-        return upnp.externalipaddress()
-    except Exception as e:  # pylint: disable=broad-except
-        MusicbotObject.warn(f"Unable to detect public IP via UPnP : {e}")
-
-    raise MusicbotError("Unable to detect Public IP")
+        raise MusicbotError("Unable to detect Public IP") from e
 
 
 @functools.lru_cache(maxsize=None)

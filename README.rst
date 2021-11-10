@@ -1149,6 +1149,7 @@ musicbot user
     login (token)               Authenticate user
     register (add,create,new)   Register a new user
     unregister (delete,remove)  Remove a user
+    whoami                      Info about me
 
 musicbot user list
 ******************
@@ -1208,6 +1209,22 @@ musicbot user unregister
   Usage: musicbot user unregister [OPTIONS]
 
     Remove a user
+
+  Options:
+    Auth options: 
+      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
+      -t, --token TEXT     User token
+      -e, --email TEXT     User email
+      -p, --password TEXT  User password
+    -h, --help             Show this message and exit.
+
+musicbot user whoami
+********************
+.. code-block::
+
+  Usage: musicbot user whoami [OPTIONS]
+
+    Info about me
 
   Options:
     Auth options: 

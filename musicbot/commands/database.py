@@ -19,7 +19,8 @@ def _pgcli(db, pgcli_args):
     '''Start PgCLI util'''
     from subprocess import call
     cmdline = ['pgcli', db] + list(pgcli_args)
-    click.echo('Invoking: %s' % ' '.join(cmdline))
+    joined_cmdline = ' '.join(cmdline)
+    click.echo(f'Invoking: {joined_cmdline}')
     call(cmdline)
 
 
