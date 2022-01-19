@@ -1,4 +1,4 @@
-from typing import List
+from typing import Tuple, List
 from pathlib import Path
 import logging
 import time
@@ -12,6 +12,7 @@ import textwrap
 import click
 import progressbar  # type: ignore
 import mutagen  # type: ignore
+from beartype import beartype
 from watchdog.observers import Observer  # type: ignore
 from prettytable import PrettyTable  # type: ignore
 from click_skeleton import AdvancedGroup
@@ -34,20 +35,23 @@ logger = logging.getLogger(__name__)
 
 
 @click.group('local', help='Local music management', cls=AdvancedGroup)
+@beartype
 def cli() -> None:
     pass
 
 
 @cli.command(help='Count musics')
 @user_options
-def count(user: User):
+@beartype
+def count(user: User) -> None:
     print(user.count_musics())
 
 
 @cli.command(help='Raw query', aliases=['query', 'fetch'])
 @click.argument('query')
 @user_options
-def execute(user: User, query: str):
+@beartype
+def execute(user: User, query: str) -> None:
     print(json.dumps(user.fetch(query)))
 
 
@@ -55,7 +59,8 @@ def execute(user: User, query: str):
 @output_option
 @user_options
 @music_filter_options
-def stats(user: User, output: str, music_filter: MusicFilter):
+@beartype
+def stats(user: User, output: str, music_filter: MusicFilter) -> None:
     stats = user.do_stat(music_filter)
     if output == 'json':
         print(json.dumps(stats))
@@ -78,12 +83,31 @@ def stats(user: User, output: str, music_filter: MusicFilter):
 @clean_option
 @link_options
 @user_options
-def scan(user: User, clean: bool, save: bool, folders: List[Path], extensions: List[str], **link_options):
+@beartype
+def scan(
+    user: User,
+    clean: bool,
+    save: bool,
+    folders: Tuple[Path, ...],
+    extensions: Tuple[str, ...],
+    http: bool,
+    sftp: bool,
+    youtube: bool,
+    spotify: bool,
+    local: bool,
+) -> None:
     if clean:
         user.clean_musics()
 
     musics = Folders(folders=folders, extensions=extensions).musics
-    user.bulk_insert(musics, **link_options)
+    user.bulk_insert(
+        musics,
+        http=http,
+        sftp=sftp,
+        youtube=youtube,
+        spotify=spotify,
+        local=local,
+    )
 
     if save:
         MusicbotObject.config.configfile['musicbot']['folders'] = ','.join({str(folder) for folder in folders})
@@ -94,7 +118,8 @@ def scan(user: User, clean: bool, save: bool, folders: List[Path], extensions: L
 @folders_argument
 @extensions_option
 @user_options
-def watch(user: User, folders: List[Path], extensions: List[str]):
+@beartype
+def watch(user: User, folders: Tuple[Path, ...], extensions: Tuple[str, ...]) -> None:
     event_handler = MusicWatcherHandler(user=user, folders=folders, extensions=extensions)
     observer = Observer()
     for folder in folders:
@@ -111,14 +136,16 @@ def watch(user: User, folders: List[Path], extensions: List[str]):
 @cli.command(help='Clean all musics')
 @user_options
 @yes_option
-def clean(user: User):
+@beartype
+def clean(user: User) -> None:
     user.clean_musics()
 
 
 @cli.command('tracks', help='Generate a new playlist')
 @user_options
 @music_filter_options
-def _tracks(user: User, music_filter: MusicFilter):
+@beartype
+def _tracks(user: User, music_filter: MusicFilter) -> None:
     tracks = user.playlist(music_filter)
     print(json.dumps(tracks))
 
@@ -128,7 +155,8 @@ def _tracks(user: User, music_filter: MusicFilter):
 @user_options
 @link_options
 @music_filter_options
-def playlist(output: str, user: User, music_filter: MusicFilter, http: bool, sftp: bool, youtube: bool, spotify: bool, local: bool):
+@beartype
+def playlist(output: str, user: User, music_filter: MusicFilter, http: bool, sftp: bool, youtube: bool, spotify: bool, local: bool) -> None:
     musics = user.playlist(music_filter)
     if music_filter.shuffle:
         random.shuffle(musics)
@@ -195,7 +223,8 @@ def playlist(output: str, user: User, music_filter: MusicFilter, http: bool, sft
 @dry_option
 @user_options
 @music_filter_options
-def bests(user: User, folder: Path, prefix: str, suffix: str, music_filter: MusicFilter):
+@beartype
+def bests(user: User, folder: Path, prefix: str, suffix: str, music_filter: MusicFilter) -> None:
     playlists = user.bests(music_filter)
     with MusicbotObject.progressbar(max_value=len(playlists)) as pbar:
         for p in playlists:
@@ -220,7 +249,8 @@ def bests(user: User, folder: Path, prefix: str, suffix: str, music_filter: Musi
 @cli.command(aliases=['play'], help='Music player')
 @user_options
 @music_filter_options
-def player(user: User, music_filter: MusicFilter):
+@beartype
+def player(user: User, music_filter: MusicFilter) -> None:
     if not MusicbotObject.config.quiet:
         progressbar.streams.unwrap(stderr=True, stdout=True)
     try:
@@ -235,7 +265,8 @@ def player(user: User, music_filter: MusicFilter):
 @dry_option
 @user_options
 @music_filter_options
-def inconsistencies(user: User, fix: bool, checks: List[str], music_filter: MusicFilter):
+@beartype
+def inconsistencies(user: User, fix: bool, checks: Tuple[str, ...], music_filter: MusicFilter) -> None:
     musics = user.playlist(music_filter)
     pt = PrettyTable(["Path", "Inconsistencies"])
     for music in musics:
@@ -253,12 +284,13 @@ def inconsistencies(user: User, fix: bool, checks: List[str], music_filter: Musi
 @cli.command(help='Copy selected musics with filters to destination folder')
 @destination_argument
 @dry_option
-@click.option('--yes', '-y', help="Confirm file deletion on destination")
+@click.option('--yes', '-y', help="Confirm file deletion on destination", is_flag=True)
 @user_options
 @music_filter_options
 @flat_option
 @click.option('--delete', help='Delete files on destination if not present in library', is_flag=True)
-def sync(user: User, delete: bool, destination: Path, music_filter: MusicFilter, yes: bool, flat: bool):
+@beartype
+def sync(user: User, delete: bool, destination: Path, music_filter: MusicFilter, yes: bool, flat: bool) -> None:
     logger.info(f'Destination: {destination}')
     objs = user.playlist(music_filter)
     if not objs:

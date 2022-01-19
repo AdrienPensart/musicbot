@@ -1,10 +1,11 @@
-from typing import List
+from typing import List, Tuple
 from pathlib import Path
 import logging
 from prettytable import PrettyTable  # type: ignore
 from mutagen import MutagenError  # type: ignore
 from click_skeleton import AdvancedGroup
 import click
+from beartype import beartype
 from musicbot.music.file import File
 from musicbot.cli.options import dry_option
 from musicbot.cli.folders import destination_argument
@@ -23,7 +24,8 @@ logger = logging.getLogger(__name__)
 
 
 @click.group('music', help='Music file', cls=AdvancedGroup, aliases=['file'])
-def cli():
+@beartype
+def cli() -> None:
     pass
 
 
@@ -32,16 +34,33 @@ def cli():
 @user_options
 @dry_option
 @link_options
-def insert(path: Path, user: User, **link_options):
+@beartype
+def insert(
+    path: Path,
+    user: User,
+    http: bool,
+    sftp: bool,
+    youtube: bool,
+    spotify: bool,
+    local: bool,
+) -> None:
     f = File(path=path)
-    user.insert(f, **link_options)
+    user.insert(
+        f,
+        http=http,
+        sftp=sftp,
+        youtube=youtube,
+        spotify=spotify,
+        local=local,
+    )
 
 
 @cli.command(help='Convert flac music to mp3')
 @path_argument
 @destination_argument
 @dry_option
-def flac2mp3(path: Path, destination: Path):
+@beartype
+def flac2mp3(path: Path, destination: Path) -> None:
     f = File(path=path)
     f.to_mp3(destination)
 
@@ -49,14 +68,16 @@ def flac2mp3(path: Path, destination: Path):
 @cli.command(help='Print music fingerprint')
 @path_argument
 @acoustid_api_key_option
-def fingerprint(path: Path, acoustid_api_key: str):
+@beartype
+def fingerprint(path: Path, acoustid_api_key: str) -> None:
     f = File(path=path)
     print(f.fingerprint(acoustid_api_key))
 
 
 @cli.command(help='Print music tags')
 @path_argument
-def tags(path: Path):
+@beartype
+def tags(path: Path) -> None:
     f = File(path=path)
     logger.info(f.handle.tags.keys())
     print(f.as_dict())
@@ -66,12 +87,13 @@ def tags(path: Path):
 @path_argument
 @dry_option
 @checks_and_fix_options
-def inconsistencies(path: Path, fix: bool, **kwargs):
+@beartype
+def inconsistencies(path: Path, fix: bool, checks: Tuple[str, ...]) -> None:
     m = File(path=path)
     pt = PrettyTable(["Path", "Inconsistencies"])
     try:
         if fix:
-            m.fix(**kwargs)
+            m.fix(checks=checks)
         if m.inconsistencies:
             pt.add_row([m.path, ', '.join(m.inconsistencies)])
     except (OSError, MutagenError):
@@ -83,7 +105,8 @@ def inconsistencies(path: Path, fix: bool, **kwargs):
 @path_argument
 @dry_option
 @file_options
-def set_tags(path: Path, title: str, artist: str, album: str, genre: str, keywords: List[str], rating: float, number: int):
+@beartype
+def set_tags(path: Path, title: str, artist: str, album: str, genre: str, keywords: List[str], rating: float, number: int) -> None:
     f = File(path=path)
     if title:
         f.title = title
@@ -106,7 +129,8 @@ def set_tags(path: Path, title: str, artist: str, album: str, genre: str, keywor
 @dry_option
 @path_argument
 @keywords_argument
-def add_keywords(path: Path, keywords: List[str]):
+@beartype
+def add_keywords(path: Path, keywords: Tuple[str, ...]) -> None:
     f = File(path=path)
     f.add_keywords(keywords)
 
@@ -115,6 +139,7 @@ def add_keywords(path: Path, keywords: List[str]):
 @dry_option
 @path_argument
 @keywords_argument
-def delete_keywords(path: Path, keywords: List[str]):
+@beartype
+def delete_keywords(path: Path, keywords: Tuple[str, ...]) -> None:
     f = File(path=path)
     f.delete_keywords(keywords)

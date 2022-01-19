@@ -48,7 +48,11 @@ file_options = add_options(
 
 path_argument = click.argument(
     'path',
-    type=click.Path(path_type=Path, exists=True, dir_okay=False),
+    type=click.Path(
+        path_type=Path,
+        exists=True,
+        dir_okay=False,
+    ),
 )
 
 link_options = add_options(

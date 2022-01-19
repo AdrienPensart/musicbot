@@ -1,5 +1,6 @@
 import logging
 import json
+import textwrap
 from typing import Optional, List, Any
 import requests
 import attr
@@ -16,7 +17,7 @@ class GraphQL:
     authorization: Optional[str] = None
     session: requests.Session = requests.Session()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.graphql
 
     def batch(self, operations: List[Any]) -> Any:
@@ -27,6 +28,7 @@ class GraphQL:
         return json_response
 
     def post(self, query: Any) -> Any:
+        query = textwrap.dedent(query)
         json_response = self._post({'query': query})
         if 'errors' in json_response and json_response['errors']:
             logger.debug(json_response)

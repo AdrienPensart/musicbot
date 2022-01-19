@@ -5,6 +5,7 @@ import click
 import acoustid  # type: ignore
 import youtube_dl  # type: ignore
 import humanize  # type: ignore
+from beartype import beartype
 from click_skeleton import AdvancedGroup
 from musicbot.music.file import File
 from musicbot.cli.file import path_argument, acoustid_api_key_option
@@ -13,14 +14,16 @@ logger = logging.getLogger(__name__)
 
 
 @click.group('youtube', help='Youtube tool', cls=AdvancedGroup)
-def cli():
+@beartype
+def cli() -> None:
     pass
 
 
 @cli.command(help='Search a youtube link with artist and title')
 @click.argument('artist')
 @click.argument('title')
-def search(artist: str, title: str):
+@beartype
+def search(artist: str, title: str) -> None:
     '''Search a youtube link with artist and title'''
     ydl_opts = {
         'format': 'bestaudio',
@@ -42,7 +45,8 @@ def search(artist: str, title: str):
 @click.argument('artist')
 @click.argument('title')
 @click.option('--path', default=None)
-def download(artist: str, title: str, path: str):
+@beartype
+def download(artist: str, title: str, path: str) -> None:
     try:
         if not path:
             path = f"{artist} - {title}.mp3"
@@ -65,7 +69,8 @@ def download(artist: str, title: str, path: str):
 @cli.command(help='Search a youtube link with artist and title')
 @path_argument
 @acoustid_api_key_option
-def find(path: Path, acoustid_api_key: str):
+@beartype
+def find(path: Path, acoustid_api_key: str) -> None:
     f = File(path=path)
     yt_path = f"{f.artist} - {f.title}.mp3"
     try:
@@ -115,7 +120,8 @@ def find(path: Path, acoustid_api_key: str):
 @cli.command(help='Fingerprint a youtube video')
 @click.argument('url')
 @acoustid_api_key_option
-def fingerprint(url: str, acoustid_api_key: str):
+@beartype
+def fingerprint(url: str, acoustid_api_key: str) -> None:
     yt_path = "intermediate.mp3"
     ydl_opts = {
         'format': 'bestaudio/best',

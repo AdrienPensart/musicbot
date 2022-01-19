@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 from pathlib import Path
 import logging
 import json
@@ -7,6 +7,7 @@ import itertools
 import click
 import mutagen  # type: ignore
 from prettytable import PrettyTable  # type: ignore
+from beartype import beartype
 from click_skeleton import AdvancedGroup
 from click_skeleton.helpers import PrettyDefaultDict
 from musicbot.cli.options import output_option, concurrency_options, dry_option
@@ -17,19 +18,22 @@ from musicbot.cli.folders import destination_argument, folders_argument
 from musicbot.object import MusicbotObject
 from musicbot.exceptions import MusicbotError
 from musicbot.music.folders import Folders
+from musicbot.music.file import File
 
 logger = logging.getLogger(__name__)
 
 
 @click.group('folder', help='Manage folders', cls=AdvancedGroup)
-def cli():
+@beartype
+def cli() -> None:
     pass
 
 
 @cli.command(help='Just list music files')
 @folders_argument
 @extensions_option
-def find(folders: List[Path], extensions: List[str]):
+@beartype
+def find(folders: Tuple[Path, ...], extensions: Tuple[str, ...]) -> None:
     files = Folders(folders=folders, extensions=extensions).files
     for file in files:
         print(file)
@@ -40,7 +44,8 @@ def find(folders: List[Path], extensions: List[str]):
 @output_option
 @ordering_options
 @extensions_option
-def playlist(folders: List[Path], extensions: List[str], output: str, shuffle: bool, interleave: bool):
+@beartype
+def playlist(folders: Tuple[Path, ...], extensions: Tuple[str, ...], output: str, shuffle: bool, interleave: bool) -> None:
     tracks = Folders(folders=folders, extensions=extensions).musics
 
     if interleave:
@@ -77,7 +82,8 @@ def playlist(folders: List[Path], extensions: List[str], output: str, shuffle: b
 @cli.command(help='Print music tags')
 @folders_argument
 @extensions_option
-def tags(folders: List[Path], extensions: List[str]):
+@beartype
+def tags(folders: Tuple[Path, ...], extensions: Tuple[str, ...]) -> None:
     musics = Folders(folders=folders, extensions=extensions).musics
     for music in musics:
         logger.info(music.handle.tags.keys())
@@ -90,13 +96,14 @@ def tags(folders: List[Path], extensions: List[str]):
 @concurrency_options
 @dry_option
 @flat_option
-def flac2mp3(folders: List[Path], destination: Path, concurrency: int, flat: bool):
+@beartype
+def flac2mp3(folders: Tuple[Path, ...], destination: Path, concurrency: int, flat: bool) -> None:
     flac_musics = Folders(folders=folders, extensions=['flac']).musics
     if not flac_musics:
         logger.warning(f"No flac files detected in {folders}")
         return
 
-    def convert(music):
+    def convert(music: File) -> None:
         try:
             music.to_mp3(flat=flat, destination=destination)
         except MusicbotError as e:
@@ -112,7 +119,8 @@ def flac2mp3(folders: List[Path], destination: Path, concurrency: int, flat: boo
 @dry_option
 @checks_and_fix_options
 @extensions_option
-def inconsistencies(folders: List[Path], extensions: List[str], fix: bool, checks: List[str]):
+@beartype
+def inconsistencies(folders: Tuple[Path, ...], extensions: Tuple[str, ...], fix: bool, checks: Tuple[str, ...]) -> None:
     musics = Folders(folders=folders, extensions=extensions).musics
     pt = PrettyTable(["Path", "Inconsistencies"])
     for m in musics:
@@ -132,7 +140,8 @@ def inconsistencies(folders: List[Path], extensions: List[str], fix: bool, check
 @folders_argument
 @keywords_argument
 @extensions_option
-def add_keywords(folders: List[Path], extensions: List[str], keywords: List[str]):
+@beartype
+def add_keywords(folders: Tuple[Path, ...], extensions: Tuple[str, ...], keywords: List[str]) -> None:
     musics = Folders(folders=folders, extensions=extensions).musics
     for music in musics:
         music.add_keywords(keywords)
@@ -143,7 +152,8 @@ def add_keywords(folders: List[Path], extensions: List[str], keywords: List[str]
 @folders_argument
 @keywords_argument
 @extensions_option
-def delete_keywords(folders: List[Path], extensions: List[str], keywords: List[str]):
+@beartype
+def delete_keywords(folders: Tuple[Path, ...], extensions: Tuple[str, ...], keywords: List[str]) -> None:
     musics = Folders(folders=folders, extensions=extensions).musics
     for music in musics:
         music.delete_keywords(keywords)

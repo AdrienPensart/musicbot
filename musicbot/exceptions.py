@@ -1,3 +1,4 @@
+from typing import Optional, List, Any
 import logging
 
 logger = logging.getLogger(__name__)
@@ -28,19 +29,29 @@ class QuerySyntaxError(MusicbotError):
 
 
 class FailedRequest(MusicbotError):
-    def __init__(self, message=None, operation=None, response=None):
+    def __init__(
+        self,
+        message: Optional[str] = None,
+        operation: Optional[str] = None,
+        response: Optional[Any] = None,
+    ):
         if not message:
             message = "Failed request"
         super().__init__(message)
 
-        self.operation = operation if operation is not None else []
-        self.errors = []
+        self.operation = operation if operation is not None else "unknown operation"
+        self.errors: List[str] = []
         if isinstance(response, dict) and response.get('errors', []):
             self.errors = [error['message'] for error in response['errors']]
 
 
 class FailedBatchRequest(MusicbotError):
-    def __init__(self, message=None, operations=None, response=None):
+    def __init__(
+        self,
+        message: Optional[str] = None,
+        operations: Optional[List[str]] = None,
+        response: Optional[Any] = None,
+    ):
         if not message:
             message = "Failed batch request"
         super().__init__(message)

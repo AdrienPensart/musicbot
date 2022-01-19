@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 '''Main module, import commands and start CLI'''
-from typing import Any
+from typing import Optional, Any
 import logging
 import os
 import sys
@@ -10,6 +10,7 @@ import spotipy  # type: ignore
 import mutagen  # type: ignore
 import click
 from click_skeleton import skeleton, doc, backtrace, version_checker, helpers
+from beartype import beartype
 import musicbot
 from musicbot.cli.config import config_options
 from musicbot import MusicbotObject, Config, version, exceptions
@@ -24,16 +25,40 @@ backtrace.hook(strip_path=False, enable_on_envvar_only=False, on_tty=False)
 @skeleton(name=PROG_NAME, version=version.__version__, auto_envvar_prefix='MB')
 @click.pass_context
 @config_options
-def cli(ctx, **kwargs) -> Any:
+@beartype
+def cli(
+    ctx: click.Context,
+    log: Optional[str],
+    color: bool,
+    quiet: bool,
+    debug: bool,
+    info: bool,
+    warning: bool,
+    error: bool,
+    critical: bool,
+    timings: bool,
+    config: str,
+) -> Any:
     """Music swiss knife, new gen."""
-    MusicbotObject.config = Config(**kwargs)
+    MusicbotObject.config = Config(
+        log=log,
+        color=color,
+        quiet=quiet,
+        debug=debug,
+        info=info,
+        warning=warning,
+        error=error,
+        critical=critical,
+        timings=timings,
+        config=config,
+    )
     ctx.color = MusicbotObject.config.color
 
 
 @cli.command(short_help='Generates a README.rst', aliases=['doc'])
 @click.pass_context
 @click.option('--output', help='README output format', type=click.Choice(['rst', 'markdown']), default='rst', show_default=True)
-def readme(ctx, output):
+def readme(ctx: click.Context, output: str) -> None:
     '''Generates a complete readme'''
     doc.readme(cli, ctx.obj.prog_name, ctx.obj.context_settings, output)
 
@@ -41,7 +66,7 @@ def readme(ctx, output):
 cli.add_groups_from_package(musicbot.commands)
 
 
-def main(**kwargs) -> int:
+def main(**kwargs: Any) -> int:
     helpers.raise_limits()
     check_version = helpers.str2bool(os.getenv('MB_CHECK_VERSION', 'true'))
     version_check = version_checker.VersionCheckerThread(

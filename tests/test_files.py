@@ -1,3 +1,4 @@
+# type: ignore
 import logging
 from musicbot.music import file
 from . import fixtures
@@ -5,7 +6,7 @@ from . import fixtures
 logger = logging.getLogger(__name__)
 
 
-def test_flac_tags():
+def test_flac_tags() -> None:
     m = file.File(path=fixtures.one_flac)
     assert m.artist == "Buckethead"
     assert m.title == "Welcome To Bucketheadland"
@@ -18,7 +19,7 @@ def test_flac_tags():
     assert m.duration == 1
 
 
-def test_mp3_tags():
+def test_mp3_tags() -> None:
     m = file.File(path=fixtures.one_mp3)
     assert m.artist == "1995"
     assert m.title == "La Flemme"

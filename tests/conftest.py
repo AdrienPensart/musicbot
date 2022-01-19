@@ -1,3 +1,4 @@
+# type: ignore
 import socket
 import time
 import logging

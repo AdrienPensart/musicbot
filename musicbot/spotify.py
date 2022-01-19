@@ -1,4 +1,4 @@
-from typing import Optional, List, Any
+from typing import Optional, List, Any, Dict
 import logging
 import functools
 import itertools
@@ -36,7 +36,7 @@ class Spotify:
         return spotipy.oauth2.SpotifyOAuth(**auth_params, cache_handler=self.cache_handler)
 
     @functools.cached_property
-    def cache_handler(self):
+    def cache_handler(self) -> CacheFileHandler:
         return CacheFileHandler(cache_path=self.cache_path, username=self.username)
 
     @functools.cached_property
@@ -67,14 +67,14 @@ class Spotify:
             return None
         return self.auth_manager.refresh_access_token(token['refresh_token'])
 
-    def get_download_playlist(self):
+    def get_download_playlist(self) -> Dict[Any, Any]:
         name = "To Download"
         download_playlist = self.playlist(name)
         if download_playlist:
             return download_playlist
         return self.api.user_playlist_create(self.username, name, public=False)
 
-    def set_download_playlist(self, tracks):
+    def set_download_playlist(self, tracks: Any) -> Any:
         download_playlist = self.get_download_playlist()
         track_ids = [track['track']['id'] for track in tracks]
 

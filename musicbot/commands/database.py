@@ -1,6 +1,8 @@
+from typing import List
 import logging
 import click
 from click_skeleton import AdvancedGroup
+from beartype import beartype
 from musicbot.cli.options import dry_option, yes_option
 from musicbot.cli.database import admin_option, password_option, dsn_argument
 from musicbot.database import Database
@@ -9,13 +11,15 @@ logger = logging.getLogger(__name__)
 
 
 @click.group(cls=AdvancedGroup, aliases=['db'])
-def cli():
+@beartype
+def cli() -> None:
     '''Database management (admin)'''
 
 
 @cli.command('cli', context_settings=dict(ignore_unknown_options=True))
 @click.argument('pgcli_args', nargs=-1, type=click.UNPROCESSED)
-def _pgcli(db, pgcli_args):
+@beartype
+def _pgcli(db: str, pgcli_args: List[str]) -> None:
     '''Start PgCLI util'''
     from subprocess import call
     cmdline = ['pgcli', db] + list(pgcli_args)
@@ -29,7 +33,8 @@ def _pgcli(db, pgcli_args):
 @dry_option
 @admin_option
 @password_option
-def create_role_and_database(dsn, admin, password):
+@beartype
+def create_role_and_database(dsn: str, admin: str, password: str) -> None:
     '''Create role and database'''
     database = Database(dsn=dsn)
     database.create_role_and_database(admin_user=admin, admin_password=password)
@@ -39,7 +44,8 @@ def create_role_and_database(dsn, admin, password):
 @dsn_argument
 @dry_option
 @yes_option
-def drop_database(dsn):
+@beartype
+def drop_database(dsn: str) -> None:
     '''Create role and database'''
     database = Database(dsn=dsn)
     database.drop_schemas()
@@ -49,7 +55,8 @@ def drop_database(dsn):
 @cli.command()
 @dsn_argument
 @dry_option
-def create_schemas(dsn):
+@beartype
+def create_schemas(dsn: str) -> None:
     '''Create database and load schema'''
     database = Database(dsn=dsn)
     database.create_schemas()
@@ -59,7 +66,8 @@ def create_schemas(dsn):
 @yes_option
 @dry_option
 @dsn_argument
-def drop_schemas(dsn):
+@beartype
+def drop_schemas(dsn: str) -> None:
     '''Drop database'''
     database = Database(dsn=dsn)
     database.drop_schemas()
@@ -69,7 +77,8 @@ def drop_schemas(dsn):
 @yes_option
 @dry_option
 @dsn_argument
-def clear_schemas(dsn):
+@beartype
+def clear_schemas(dsn: str) -> None:
     '''Drop and recreate database and schema'''
     database = Database(dsn=dsn)
     database.clear_schemas()

@@ -8,7 +8,7 @@ from musicbot.object import MusicbotObject
 logger = logging.getLogger(__name__)
 
 
-def sane_dry(ctx, param, value):  # pylint: disable=unused-argument
+def sane_dry(ctx: click.Context, param: Any, value: bool) -> None:  # pylint: disable=unused-argument
     '''Overwrite global dry mode'''
     MusicbotObject.dry = value
 
@@ -38,7 +38,7 @@ def str2bool(val: Any) -> bool:
     raise ValueError(f"invalid truth value {val}")
 
 
-def yes_or_no(question: str, default='no'):
+def yes_or_no(question: str, default: Optional[str] = 'no') -> bool:
     '''Re-implement click.confirm but do not ask confirmation if we are in a script'''
     if not MusicbotObject.is_tty:
         print("Y/N : non interactive shell detected, answer is NO")
@@ -64,7 +64,7 @@ def yes_or_no(question: str, default='no'):
             print("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
 
 
-def confirm(ctx, param, value):  # pylint: disable=unused-argument
+def confirm(ctx: click.Context, param: Any, value: bool) -> None:  # pylint: disable=unused-argument
     '''Callback to confirm action of user'''
     if not (value or MusicbotObject.dry or yes_or_no('Do you REALLY want to confirm ?')):
         raise click.Abort()

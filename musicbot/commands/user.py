@@ -1,9 +1,11 @@
+from typing import Optional
 import logging
 import json
 from prettytable import PrettyTable  # type: ignore
 from click_option_group import optgroup  # type: ignore
 from click_skeleton import AdvancedGroup
 import click
+from beartype import beartype
 from musicbot.cli.options import output_option, save_option
 from musicbot.cli.user import (
     user_options,
@@ -22,15 +24,21 @@ logger = logging.getLogger(__name__)
 
 
 @click.group(help='User management', cls=AdvancedGroup)
-def cli():
+@beartype
+def cli() -> None:
     pass
 
 
 @cli.command('list', help='List users (admin)')
 @output_option
 @admin_options
-def _list(graphql_admin: Admin, output: str, **kwargs):
-    admin = Admin.from_auth(graphql=graphql_admin, **kwargs)
+@beartype
+def _list(graphql_admin: str, output: str, graphql_admin_user: Optional[str], graphql_admin_password: Optional[str]) -> None:
+    admin = Admin.from_auth(
+        graphql=graphql_admin,
+        graphql_admin_user=graphql_admin_user,
+        graphql_admin_password=graphql_admin_password,
+    )
     users = admin.users()
     if output == 'table':
         pt = PrettyTable(["ID", "Email", "Firstname", "Lastname", "Created at", "Updated at"])
@@ -49,8 +57,15 @@ def _list(graphql_admin: Admin, output: str, **kwargs):
 @password_option
 @first_name_option
 @last_name_option
-def register(save: bool, email: str, password: str, **kwargs):
-    user = User.register(email=email, password=password, **kwargs)
+@beartype
+def register(graphql: str, save: bool, email: str, password: str, first_name: str, last_name: str) -> None:
+    user = User.register(
+        graphql=graphql,
+        email=email,
+        password=password,
+        first_name=first_name,
+        last_name=last_name,
+    )
     if not user.token:
         logger.error('register failed')
         return
@@ -64,13 +79,15 @@ def register(save: bool, email: str, password: str, **kwargs):
 
 @cli.command(aliases=['delete', 'remove'], help='Remove a user')
 @user_options
-def unregister(user: User):
+@beartype
+def unregister(user: User) -> None:
     user.unregister()
 
 
 @cli.command(help='Info about me')
 @user_options
-def whoami(user: User):
+@beartype
+def whoami(user: User) -> None:
     print(user.whoami())
 
 
@@ -80,8 +97,13 @@ def whoami(user: User):
 @graphql_option
 @email_option
 @password_option
-def login(save: bool, **kwargs):
-    user = User.from_auth(**kwargs)
+@beartype
+def login(save: bool, graphql: str, email: str, password: str) -> None:
+    user = User.from_auth(
+        graphql=graphql,
+        email=email,
+        password=password,
+    )
     print(user.token)
     if save:
         logger.info("saving user infos")

@@ -1,3 +1,4 @@
+# type: ignore
 import os
 import pytest
 from click_skeleton.testing import run_cli

@@ -1,3 +1,4 @@
+from typing import Any
 import logging
 import functools
 import getpass
@@ -10,7 +11,7 @@ from musicbot.exceptions import MusicbotError, QuerySyntaxError
 logger = logging.getLogger(__name__)
 
 
-def is_port_in_use(port):
+def is_port_in_use(port: int) -> bool:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         return s.connect_ex(('localhost', port)) == 0
 
@@ -19,7 +20,7 @@ def bytes_to_human(b: int) -> str:
     return str(humanize.naturalsize(b))
 
 
-def parse_graphql(query):
+def parse_graphql(query: str) -> Any:
     try:
         gql(query)
     except Exception as e:
@@ -35,5 +36,5 @@ def public_ip() -> str:
 
 
 @functools.lru_cache(maxsize=None)
-def current_user():
+def current_user() -> str:
     return getpass.getuser()

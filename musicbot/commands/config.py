@@ -1,5 +1,6 @@
 import logging
 import click
+from beartype import beartype
 from logging_tree import printout  # type: ignore
 from click_skeleton import AdvancedGroup
 from musicbot.object import MusicbotObject
@@ -8,12 +9,14 @@ logger = logging.getLogger('musicbot')
 
 
 @click.group('config', hidden=True, help='Config management', cls=AdvancedGroup)
-def cli():
+@beartype
+def cli() -> None:
     pass
 
 
 @cli.command(help='Print global config')
-def show():
+@beartype
+def show() -> None:
     print(MusicbotObject.config)
 
 
@@ -21,7 +24,8 @@ def show():
 @click.argument('section')
 @click.argument('key')
 @click.argument('value')
-def write(section, key, value):
+@beartype
+def write(section: str, key: str, value: str) -> None:
     if not MusicbotObject.config.configfile.has_section(section):
         MusicbotObject.config.configfile.add_section(section)
     MusicbotObject.config.configfile[section][key] = value
@@ -29,7 +33,8 @@ def write(section, key, value):
 
 
 @cli.command('print', help='Print config file')
-def _print():
+@beartype
+def _print() -> None:
     for each_section in MusicbotObject.config.configfile.sections():
         print(f"[{each_section}]")
         for (each_key, each_val) in MusicbotObject.config.configfile.items(each_section):
@@ -38,5 +43,6 @@ def _print():
 
 
 @cli.command('logging', help='Print logging config')
-def _logging():
+@beartype
+def _logging() -> None:
     printout()

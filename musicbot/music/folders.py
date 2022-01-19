@@ -29,7 +29,7 @@ class Folders:
                     else:
                         self.files.append(path)
 
-        def worker(path: Path):
+        def worker(path: Path) -> Optional[File]:
             try:
                 return File(path=path)
             except KeyboardInterrupt as e:
@@ -40,7 +40,7 @@ class Folders:
             return None
         self.musics = MusicbotObject.parallel(worker, self.files)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return ' '.join(str(folder) for folder in self.folders)
 
     def empty_dirs(self, recursive: bool = True) -> Iterator[str]:

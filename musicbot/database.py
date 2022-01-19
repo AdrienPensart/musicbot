@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any
 import logging
 from pathlib import Path
 import attr
@@ -25,16 +25,16 @@ class Database:
     sql: Path = Path(__file__).resolve().parent / 'schema'
 
     @classmethod
-    def from_params(cls, name: str, user: str, password: str, host: str, port: int):
+    def from_params(cls, name: str, user: str, password: str, host: str, port: int) -> "Database":
         return Database(f'postgresql://{user}:{password}@{host}:{port}/{name}')
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         representation = self.dsn
         if MusicbotObject.dry:
             representation += ' [DRY]'
         return representation
 
-    def create_role_and_database(self, admin_password: Optional[str] = None, admin_user: Optional[str] = None):
+    def create_role_and_database(self, admin_password: Optional[str] = None, admin_user: Optional[str] = None) -> None:
         params = psycopg2.extensions.parse_dsn(self.dsn)
         host = params.pop('host')
         port = params.pop('port')
@@ -69,7 +69,7 @@ $do$;
 
         admin_connection.close()
 
-    def drop_database(self):
+    def drop_database(self) -> None:
         params = psycopg2.extensions.parse_dsn(self.dsn)
         dbname = params.pop('dbname')
         host = params.pop('host')
@@ -89,7 +89,7 @@ $do$;
         finally:
             admin_connection.close()
 
-    def create_schemas(self):
+    def create_schemas(self) -> None:
         admin_connection = None
         try:
             admin_connection = psycopg2.connect(self.dsn)
@@ -117,7 +117,7 @@ $do$;
             if admin_connection:
                 admin_connection.close()
 
-    def kill_connections(self, cursor, dbname):
+    def kill_connections(self, cursor: Any, dbname: str) -> None:
         if not MusicbotObject.dry:
             cursor.execute(f'''
                 select pg_terminate_backend(pg_stat_activity.pid)
@@ -126,7 +126,7 @@ $do$;
         else:
             MusicbotObject.tip(f"{self} : killing connections")
 
-    def drop_functions(self, cursor, schema):
+    def drop_functions(self, cursor: Any, schema: str) -> None:
         query = f'''
 DO
 $do$
@@ -162,7 +162,7 @@ $do$;'''
         except psycopg2.Error:
             MusicbotObject.warn(f'{self} : {schema} does not exist')
 
-    def drop_schemas(self):
+    def drop_schemas(self) -> None:
         params = psycopg2.extensions.parse_dsn(self.dsn)
         dbname = params.pop('dbname')
         admin_connection = None
@@ -191,6 +191,6 @@ $do$;'''
             if admin_connection:
                 admin_connection.close()
 
-    def clear_schemas(self):
+    def clear_schemas(self) -> None:
         self.drop_schemas()
         self.create_schemas()

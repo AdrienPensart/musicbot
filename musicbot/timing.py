@@ -1,4 +1,5 @@
 '''Timing helpers'''
+from typing import Callable, Any
 import logging
 import functools
 import datetime
@@ -13,7 +14,7 @@ def seconds_to_human(seconds: int) -> str:
     return str(datetime.timedelta(seconds=seconds))
 
 
-def timeit(*wrapper_args, **wrapper_kwargs):
+def timeit(*wrapper_args: Any, **wrapper_kwargs: Any) -> Any:
     '''Function decorator to have time statistics'''
     from musicbot.object import MusicbotObject
     func = None
@@ -28,9 +29,9 @@ def timeit(*wrapper_args, **wrapper_kwargs):
         on_success = wrapper_kwargs.get('on_success', False)
         on_config = wrapper_kwargs.get('on_config', True)
 
-    def real_timeit(func):
+    def real_timeit(func: Callable) -> Any:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             start = time.time()
             result = func(*args, **kwargs)
             for_human = seconds_to_human(int(time.time() - start))

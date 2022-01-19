@@ -11,8 +11,9 @@ Commands
     Global options: 
       -c, --config FILE              Config file path  [default: ~/musicbot.ini]
       -l, --log FILE                 Log file path
-      -q, --quiet                    Disable progress bars  [default: False]
-      -t, --timings                  Set verbosity to info and show execution timings  [default: False]
+      -q, --quiet / --no-quiet       Disable progress bars  [default: no-quiet]
+      -t, --timings, --timing        Set verbosity to info and show execution timings  [default: False]
+      --color / --no-color           Enable or disable color in output  [default: color]
     Verbosity: [mutually_exclusive]
       --debug                        Debug verbosity
       --info                         Info verbosity

@@ -87,7 +87,7 @@ class MusicFilter:
         default = vars(MusicFilter())
         return {k: myself[k] for k in myself if default[k] == myself[k] and k != 'name'}
 
-    def upsert_mutation(self, user_id: str, operation=None) -> str:
+    def upsert_mutation(self, user_id: int, operation: Optional[str] = None) -> str:
         operation = operation if operation is not None else ""
         mutation = f'''
         mutation {operation} {{

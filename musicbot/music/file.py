@@ -69,9 +69,9 @@ DEFAULT_CHECKS = [
 
 
 class File:
-    def __init__(self, path):
-        path = path.resolve()
-        self.handle = mutagen.File(path)
+    def __init__(self, path: Path):
+        resolved_path = path.resolve()
+        self.handle = mutagen.File(resolved_path)
         self.inconsistencies: Set[str] = set()
 
         if not self.title:
@@ -376,7 +376,16 @@ class File:
                 raise
         return False
 
-    def upsert_mutation(self, user_id: int, sftp=False, http=False, local=True, spotify=False, youtube=False, operation: Optional[str] = None) -> str:
+    def upsert_mutation(
+        self,
+        user_id: int,
+        sftp: bool = False,
+        http: bool = False,
+        local: bool = True,
+        spotify: bool = False,
+        youtube: bool = False,
+        operation: Optional[str] = None,
+    ) -> str:
         paths = []
         if local:
             paths.append(str(self.path))

@@ -110,7 +110,7 @@ class User(MusicbotObject):
             raise FailedAuthentication(f"Cannot delete user : {e}") from e
 
     @cached_property
-    def user_id(self):
+    def user_id(self) -> int:
         query = """{ currentMusicbot }"""
         return self.fetch(query)['currentMusicbot']
 
@@ -211,15 +211,41 @@ class User(MusicbotObject):
         return self.fetch(query)[name]
 
     @timeit
-    def insert(self, music: File, **link_options) -> Any:
+    def insert(
+        self,
+        music: File,
+        http: bool,
+        sftp: bool,
+        youtube: bool,
+        spotify: bool,
+        local: bool,
+    ) -> Any:
         if 'no-title' in music.inconsistencies or 'no-artist' in music.inconsistencies or 'no-album' in music.inconsistencies:
             MusicbotObject.warn(f"{music} : missing mandatory fields title/album/artist : {music.inconsistencies}")
             return None
         operation = f"music_{str(uuid.uuid4().hex)}"
-        return self.execute(music.upsert_mutation(user_id=self.user_id, operation=operation, **link_options))
+        return self.execute(
+            music.upsert_mutation(
+                user_id=self.user_id,
+                operation=operation,
+                http=http,
+                sftp=sftp,
+                youtube=youtube,
+                spotify=spotify,
+                local=local,
+            )
+        )
 
     @timeit
-    def bulk_insert(self, musics: Collection[File], **link_options) -> Any:
+    def bulk_insert(
+        self,
+        musics: Collection[File],
+        http: bool,
+        sftp: bool,
+        youtube: bool,
+        spotify: bool,
+        local: bool,
+    ) -> Any:
         if not musics:
             logger.info("no musics to insert")
             return None
@@ -229,7 +255,14 @@ class User(MusicbotObject):
                 for music in musics:
                     try:
                         logger.debug(f"inserting {music}")
-                        response = self.insert(music, **link_options)
+                        response = self.insert(
+                            music,
+                            http=http,
+                            sftp=sftp,
+                            youtube=youtube,
+                            spotify=spotify,
+                            local=local,
+                        )
                         responses.append(response)
                     except (QuerySyntaxError, FailedRequest) as e:
                         MusicbotObject.err(f"{music} : {e}")
@@ -247,7 +280,15 @@ class User(MusicbotObject):
 
                 operation = f"music_{str(uuid.uuid4().hex)}"
                 operations.append({
-                    "query": music.upsert_mutation(user_id=self.user_id, operation=operation, **link_options),
+                    "query": music.upsert_mutation(
+                        user_id=self.user_id,
+                        operation=operation,
+                        http=http,
+                        sftp=sftp,
+                        youtube=youtube,
+                        spotify=spotify,
+                        local=local,
+                    ),
                     "operationName": operation,
                 })
             except QuerySyntaxError as e:

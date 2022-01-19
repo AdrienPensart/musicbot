@@ -11,6 +11,7 @@ from musicbot.config import (
     DEFAULT_CRITICAL,
     DEFAULT_TIMINGS,
     DEFAULT_QUIET,
+    DEFAULT_COLOR,
 )
 
 config_option = optgroup.option(
@@ -19,6 +20,15 @@ config_option = optgroup.option(
     type=click.Path(readable=True, writable=True, dir_okay=False),
     envvar='MB_CONFIG',
     default=DEFAULT_CONFIG,
+    show_default=True,
+)
+
+color_option = optgroup.option(
+    '--color/--no-color',
+    help='Enable or disable color in output',
+    envvar='MB_COLOR',
+    is_flag=True,
+    default=DEFAULT_COLOR,
     show_default=True,
 )
 
@@ -72,7 +82,7 @@ critical_option = optgroup.option(
 )
 
 timings_option = optgroup.option(
-    '--timings', '-t',
+    '--timings', '-t', '--timing',
     help='Set verbosity to info and show execution timings',
     envvar='MB_TIMINGS',
     default=DEFAULT_TIMINGS,
@@ -81,7 +91,7 @@ timings_option = optgroup.option(
 )
 
 quiet_option = optgroup.option(
-    '--quiet', '-q',
+    '-q', '--quiet/--no-quiet',
     help='Disable progress bars',
     envvar='MB_QUIET',
     default=DEFAULT_QUIET,
@@ -95,6 +105,7 @@ config_options = add_options(
     log_option,
     quiet_option,
     timings_option,
+    color_option,
     optgroup('Verbosity', cls=MutuallyExclusiveOptionGroup),
     debug_option,
     info_option,
