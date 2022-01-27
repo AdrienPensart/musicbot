@@ -4,7 +4,7 @@ import functools
 import getpass
 import socket
 import requests
-from gql import gql  # type: ignore
+from gql import gql
 import humanize  # type: ignore
 from musicbot.exceptions import MusicbotError, QuerySyntaxError
 

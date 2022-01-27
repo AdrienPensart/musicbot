@@ -12,8 +12,8 @@ except_directories = ['.Spotlight-V100', '.zfs', 'Android', 'LOST.DIR']
 
 
 class Folders:
-    def __init__(self, folders: Iterable[Path], extensions: Optional[List[str]] = None):
-        self.supported_formats: List[str] = extensions if extensions is not None else DEFAULT_EXTENSIONS
+    def __init__(self, folders: Iterable[Path], extensions: Optional[Iterable[str]]):
+        self.supported_formats = extensions if extensions is not None else DEFAULT_EXTENSIONS
         self.folders = [folder.resolve() for folder in folders]
         self.files = []
         self.other_files: List[Path] = []

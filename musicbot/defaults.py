@@ -5,4 +5,4 @@ DEFAULT_YES = False
 DEFAULT_SAVE = False
 DEFAULT_OUTPUT = 'table'
 DEFAULT_FLAT = False
-DEFAULT_EXTENSIONS = ["mp3", "flac"]
+DEFAULT_EXTENSIONS = ("mp3", "flac")

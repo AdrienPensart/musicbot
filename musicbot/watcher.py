@@ -1,4 +1,4 @@
-from typing import List
+from typing import Iterable
 from pathlib import Path
 import logging
 import click
@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class MusicWatcherHandler(PatternMatchingEventHandler):
-    def __init__(self, user: User, folders: List[Path], extensions: List[str]) -> None:
+    def __init__(self, user: User, folders: Iterable[Path], extensions: Iterable[str]) -> None:
         PatternMatchingEventHandler.__init__(
             self,
             patterns=[f'*.{extension}' for extension in extensions],

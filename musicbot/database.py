@@ -38,7 +38,7 @@ class Database:
         params = psycopg2.extensions.parse_dsn(self.dsn)
         host = params.pop('host')
         port = params.pop('port')
-        name = params.pop('dbname')
+        name = params.pop('dbname', DEFAULT_DB_NAME)
         user = params.pop('user')
         password = params.pop('password')
 
@@ -71,7 +71,7 @@ $do$;
 
     def drop_database(self) -> None:
         params = psycopg2.extensions.parse_dsn(self.dsn)
-        dbname = params.pop('dbname')
+        dbname = params.pop('dbname', DEFAULT_DB_NAME)
         host = params.pop('host')
         port = params.pop('port')
         user = params.pop('user')
@@ -164,7 +164,7 @@ $do$;'''
 
     def drop_schemas(self) -> None:
         params = psycopg2.extensions.parse_dsn(self.dsn)
-        dbname = params.pop('dbname')
+        dbname = params.pop('dbname', DEFAULT_DB_NAME)
         admin_connection = None
         try:
             try:

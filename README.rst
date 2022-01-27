@@ -712,7 +712,7 @@ musicbot local sync
 
   Options:
     --dry / --no-dry          Do not launch real action  [default: no-dry]
-    -y, --yes TEXT            Confirm file deletion on destination
+    -y, --yes                 Confirm file deletion on destination
     Auth options: 
       -g, --graphql TEXT      GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
       -t, --token TEXT        User token
