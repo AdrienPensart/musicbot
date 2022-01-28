@@ -1,12 +1,11 @@
 from typing import List, Tuple
 from pathlib import Path
 import logging
-from prettytable import PrettyTable  # type: ignore
+from rich.table import Table
 from mutagen import MutagenError  # type: ignore
 from click_skeleton import AdvancedGroup
 import click
 from beartype import beartype
-from musicbot.music.file import File
 from musicbot.cli.options import dry_option
 from musicbot.cli.folders import destination_argument
 from musicbot.cli.user import user_options
@@ -18,7 +17,9 @@ from musicbot.cli.file import (
     checks_and_fix_options,
     acoustid_api_key_option,
 )
+from musicbot.object import MusicbotObject
 from musicbot.user import User
+from musicbot.music.file import File
 
 logger = logging.getLogger(__name__)
 
@@ -90,15 +91,15 @@ def tags(path: Path) -> None:
 @beartype
 def inconsistencies(path: Path, fix: bool, checks: Tuple[str, ...]) -> None:
     m = File(path=path)
-    pt = PrettyTable(["Path", "Inconsistencies"])
+    table = Table("Path", "Inconsistencies")
     try:
         if fix:
             m.fix(checks=checks)
         if m.inconsistencies:
-            pt.add_row([m.path, ', '.join(m.inconsistencies)])
+            table.add_row(str(m.path), ', '.join(m.inconsistencies))
     except (OSError, MutagenError):
-        pt.add_row([m.path, "could not open file"])
-    print(pt)
+        table.add_row(str(m.path), "could not open file")
+    MusicbotObject.console.print(table)
 
 
 @cli.command(help='Set music title')

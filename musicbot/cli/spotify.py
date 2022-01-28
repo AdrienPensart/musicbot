@@ -5,7 +5,7 @@ import json
 import shutil
 import click
 import attr
-from prettytable import PrettyTable, ALL  # type: ignore
+from rich.table import Table
 from click_option_group import optgroup  # type: ignore
 from click_skeleton import ExpandedPath, add_options
 from musicbot.cli.options import config_string
@@ -19,6 +19,7 @@ from musicbot.spotify import (
     DEFAULT_SPOTIFY_SCOPE,
     DEFAULT_SPOTIFY_REDIRECT_URI,
 )
+from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
 
@@ -37,23 +38,20 @@ def dump_tracks(tracks: Any) -> None:
 def print_tracks_table(tracks: Any) -> None:
     if not tracks:
         return
-    pt = PrettyTable(["Track", "Artist", "Album"])
-    pt.align = 'l'
+    table = Table("Track", "Artist", "Album")
     width = shutil.get_terminal_size().columns // 3
     for t in tracks:
         title = '\n'.join(textwrap.wrap(t['track']['name'], width))
         artist = '\n'.join(textwrap.wrap(t['track']['artists'][0]['name'], width))
         album = '\n'.join(textwrap.wrap(t['track']['album']['name'], width))
-        pt.add_row([title, artist, album])
-    print(pt)
+        table.add_row(title, artist, album)
+    MusicbotObject.console.print(table)
 
 
 def print_distances(distances: Any) -> None:
     if not distances:
         return
-    pt = PrettyTable(["Title", "Artist", "Album", "Distance"])
-    pt.align = 'l'
-    pt.hrules = ALL
+    table = Table("Title", "Artist", "Album", "Distance", show_lines=True)
     for distance in distances:
         st = distance['spotify_track']
         stitle = st['track']['name']
@@ -92,22 +90,17 @@ def print_distances(distances: Any) -> None:
             continue
 
         d = distance['distance']
-        pt.add_row([
-            final_title,
-            final_artist,
-            final_album,
-            d,
-        ])
-    print(pt)
+        table.add_row(final_title, final_artist, final_album, d)
+    MusicbotObject.console.print(table)
 
 
 def print_playlists_table(playlists: Any) -> None:
     if not playlists:
         return
-    pt = PrettyTable(["Name", "Size"])
+    table = Table("Name", "Size", title="Spotify Playlist")
     for p in playlists:
-        pt.add_row([p['name'], p['tracks']['total']])
-    print(pt.get_string(title='Spotify playlists'))
+        table.add_row(p['name'], str(p['tracks']['total']))
+    MusicbotObject.console.print(table)
 
 
 def output_tracks(output: str, tracks: Any) -> None:

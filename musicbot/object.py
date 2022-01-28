@@ -6,6 +6,7 @@ import os
 import concurrent.futures as cf
 from threading import Lock
 import click
+from rich.console import Console
 from progressbar import NullBar, ProgressBar  # type: ignore
 from musicbot.defaults import DEFAULT_CONCURRENCY
 from musicbot.config import DEFAULT_QUIET, Config
@@ -16,6 +17,7 @@ logger = logging.getLogger(__name__)
 class MusicbotObject:
     print_lock = Lock()
     is_tty = sys.stderr.isatty()
+    console = Console()
     show_warn: bool = True
     show_err: bool = True
     show_tip: bool = True

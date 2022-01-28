@@ -7,15 +7,15 @@ import random
 import shutil
 import codecs
 import json
-import datetime
 import textwrap
 import click
 import progressbar  # type: ignore
 import mutagen  # type: ignore
 from beartype import beartype
 from watchdog.observers import Observer  # type: ignore
-from prettytable import PrettyTable  # type: ignore
+from rich.table import Table
 from click_skeleton import AdvancedGroup
+from click_skeleton.helpers import seconds_to_human
 from musicbot.cli.file import extensions_option, link_options, flat_option, checks_and_fix_options
 from musicbot.cli.folders import destination_argument, folders_argument, folder_argument
 from musicbot.cli.music_filter import music_filter_options
@@ -65,15 +65,15 @@ def stats(user: User, output: str, music_filter: MusicFilter) -> None:
     if output == 'json':
         print(json.dumps(stats))
     elif output == 'table':
-        pt = PrettyTable(["Stat", "Value"])
-        pt.add_row(["Music", stats['musics']])
-        pt.add_row(["Link", stats['links']])
-        pt.add_row(["Artist", stats['artists']])
-        pt.add_row(["Album", stats['albums']])
-        pt.add_row(["Genre", stats['genres']])
-        pt.add_row(["Keywords", stats['keywords']])
-        pt.add_row(["Total duration", datetime.timedelta(seconds=int(stats['duration']))])
-        print(pt)
+        table = Table("Stat", "Value")
+        table.add_row("Music", stats['musics'])
+        table.add_row("Link", stats['links'])
+        table.add_row("Artist", stats['artists'])
+        table.add_row("Album", stats['albums'])
+        table.add_row("Genre", stats['genres'])
+        table.add_row("Keywords", stats['keywords'])
+        table.add_row("Total duration", seconds_to_human(int(stats['duration'])))
+        MusicbotObject.console.print(table)
 
 
 @cli.command(help='Load musics')
@@ -162,8 +162,7 @@ def playlist(output: str, user: User, music_filter: MusicFilter, http: bool, sft
         random.shuffle(musics)
 
     urls = []
-    pt = PrettyTable(['url'])
-    pt.align = 'l'
+    table = Table('url')
     for music in musics:
         links = music['links']
         if not links:
@@ -172,25 +171,25 @@ def playlist(output: str, user: User, music_filter: MusicFilter, http: bool, sft
             if 'youtube' in link:
                 if youtube:
                     urls.append(link)
-                    pt.add_row([link])
+                    table.add_row(link)
                 continue
 
             if 'http' in link:
                 if http:
                     urls.append(link)
-                    pt.add_row([link])
+                    table.add_row(link)
                 continue
 
             if 'spotify' in link:
                 if spotify:
                     urls.append(link)
-                    pt.add_row([link])
+                    table.add_row(link)
                 continue
 
             if 'sftp' in link:
                 if sftp:
                     urls.append(link)
-                    pt.add_row([link])
+                    table.add_row(link)
                 continue
 
             if local:
@@ -199,7 +198,7 @@ def playlist(output: str, user: User, music_filter: MusicFilter, http: bool, sft
                     MusicbotObject.warn(f'{link} does not exist locally, skipping')
                     continue
                 urls.append(link)
-                pt.add_row([link])
+                table.add_row(link)
 
     if output == 'm3u':
         p = '#EXTM3U\n'
@@ -208,7 +207,7 @@ def playlist(output: str, user: User, music_filter: MusicFilter, http: bool, sft
         return
 
     if output == 'table':
-        print(pt)
+        MusicbotObject.console.print(table)
         return
 
     if output == 'json':
@@ -268,17 +267,17 @@ def player(user: User, music_filter: MusicFilter) -> None:
 @beartype
 def inconsistencies(user: User, fix: bool, checks: Tuple[str, ...], music_filter: MusicFilter) -> None:
     musics = user.playlist(music_filter)
-    pt = PrettyTable(["Path", "Inconsistencies"])
+    table = Table("Path", "Inconsistencies")
     for music in musics:
         try:
             m = File(music['path'])
             if fix:
                 m.fix(checks=checks)
             if m.inconsistencies:
-                pt.add_row([m.path, ', '.join(m.inconsistencies)])
+                table.add_row(music['path'], ', '.join(m.inconsistencies))
         except (OSError, mutagen.MutagenError):
-            pt.add_row([music['path'], "could not open file"])
-    print(pt)
+            table.add_row(music['path'], "could not open file")
+    MusicbotObject.console.print(table)
 
 
 @cli.command(help='Copy selected musics with filters to destination folder')

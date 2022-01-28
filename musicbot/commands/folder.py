@@ -6,7 +6,7 @@ import random
 import itertools
 import click
 import mutagen  # type: ignore
-from prettytable import PrettyTable  # type: ignore
+from rich.table import Table
 from beartype import beartype
 from click_skeleton import AdvancedGroup
 from click_skeleton.helpers import PrettyDefaultDict
@@ -73,10 +73,10 @@ def playlist(folders: Tuple[Path, ...], extensions: Tuple[str, ...], output: str
         return
 
     if output == 'table':
-        pt = PrettyTable(["Track", "Title", "Artist", "Album"])
+        table = Table("Track", "Title", "Artist", "Album")
         for t in tracks:
-            pt.add_row([t.number, t.title, t.artist, t.album])
-        print(pt)
+            table.add_row(str(t.number), t.title, t.artist, t.album)
+        MusicbotObject.console.print(table)
 
 
 @cli.command(help='Print music tags')
@@ -122,17 +122,16 @@ def flac2mp3(folders: Tuple[Path, ...], destination: Path, concurrency: int, fla
 @beartype
 def inconsistencies(folders: Tuple[Path, ...], extensions: Tuple[str, ...], fix: bool, checks: Tuple[str, ...]) -> None:
     musics = Folders(folders=folders, extensions=extensions).musics
-    pt = PrettyTable(["Path", "Inconsistencies"])
+    table = Table("Path", "Inconsistencies")
     for m in musics:
         try:
             if fix:
                 m.fix(checks=checks)
             if m.inconsistencies.intersection(set(checks)):
-                pt.add_row([m.path, ', '.join(m.inconsistencies)])
+                table.add_row(str(m.path), ', '.join(m.inconsistencies))
         except (OSError, mutagen.MutagenError):
-            pt.add_row([m.path, "could not open file"])
-    pt.align["Path"] = "l"
-    print(pt)
+            table.add_row(m.path, "could not open file")
+    MusicbotObject.console.print(table)
 
 
 @cli.command(help='Add keywords to music')

@@ -37,10 +37,10 @@ psycopg2 = "^2.9.1"
 types-python-slugify = "^5.0.0"
 click-skeleton = "^0.19"
 progressbar2 = "^4.0.0"
-prettytable = "^3.0.0"
 pgcli = "^3.3.0"
 beartype = "^0.9.1"
 gql = "^3.0.0"
+rich = "^11.0.0"
 
 [tool.poetry.dev-dependencies]
 coverage-badge = "^1.0"

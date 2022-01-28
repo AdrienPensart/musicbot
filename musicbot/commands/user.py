@@ -1,7 +1,7 @@
 from typing import Optional
 import logging
 import json
-from prettytable import PrettyTable  # type: ignore
+from rich.table import Table
 from click_option_group import optgroup  # type: ignore
 from click_skeleton import AdvancedGroup
 import click
@@ -41,10 +41,10 @@ def _list(graphql_admin: str, output: str, graphql_admin_user: Optional[str], gr
     )
     users = admin.users()
     if output == 'table':
-        pt = PrettyTable(["ID", "Email", "Firstname", "Lastname", "Created at", "Updated at"])
+        table = Table("ID", "Email", "Firstname", "Lastname", "Created at", "Updated at")
         for u in users:
-            pt.add_row([u["id"], u["email"], u["firstName"], u["lastName"], u["createdAt"], u["updatedAt"]])
-        print(pt)
+            table.add_row(u["id"], u["email"], u["firstName"], u["lastName"], u["createdAt"], u["updatedAt"])
+        MusicbotObject.console.print(table)
     elif output == 'json':
         print(json.dumps(users))
 

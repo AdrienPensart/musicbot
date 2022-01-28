@@ -2,11 +2,12 @@ import logging
 import json
 import click
 from click_skeleton import AdvancedGroup
-from prettytable import PrettyTable  # type: ignore
+from rich.table import Table
 from beartype import beartype
 from musicbot.cli.options import output_option
 from musicbot.cli.user import user_options
 from musicbot.user import User
+from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
 
@@ -39,10 +40,10 @@ def _list(user: User, output: str) -> None:
     if output == 'json':
         print(json.dumps(user.list_filters()))
     elif output == 'table':
-        pt = PrettyTable(["Name", "Keywords", "No keywords", "Min rating", "Max rating"])
+        table = Table("Name", "Keywords", "No keywords", "Min rating", "Max rating")
         for f in user.list_filters():
-            pt.add_row([f['name'], f['keywords'], f['noKeywords'], f['minRating'], f['maxRating']])
-        print(pt)
+            table.add_row(f['name'], f['keywords'], f['noKeywords'], f['minRating'], f['maxRating'])
+        MusicbotObject.console.print(table)
 
 
 @cli.command(help='Print a filter', aliases=['get', 'print'])
