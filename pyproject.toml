@@ -35,12 +35,12 @@ types-requests = "^2.25.0"
 colorlog = "^6.4.1"
 psycopg2 = "^2.9.1"
 types-python-slugify = "^5.0.0"
-click-skeleton = "^0.19"
 progressbar2 = "^4.0.0"
 pgcli = "^3.3.0"
 beartype = "^0.9.1"
 gql = "^3.0.0"
 rich = "^11.0.0"
+click-skeleton = "^0.20"
 
 [tool.poetry.dev-dependencies]
 coverage-badge = "^1.0"
@@ -54,6 +54,7 @@ pytest-cov = "^3.0.0"
 pytest-timeout = "^2.0.1"
 flake8 = "^4.0.1"
 mypy = "^0.931"
+pytest-click = "^1.0.2"
 
 [tool.pytest.ini_options]
 minversion = "6.0"

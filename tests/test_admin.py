@@ -1,9 +1,12 @@
 # type: ignore
+import logging
 import json
 import pytest
 from click_skeleton.testing import run_cli
 from musicbot.main import cli
 from . import fixtures
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
