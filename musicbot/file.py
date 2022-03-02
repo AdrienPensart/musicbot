@@ -1,14 +1,16 @@
-from pathlib import Path, PurePath
-from typing import Any, Set, Optional, List, Dict, Iterable
 import logging
-import json
+from functools import cached_property
+from pathlib import Path, PurePath
+from typing import Any, Iterable, Optional
+
 import acoustid  # type: ignore
 import mutagen  # type: ignore
-from slugify import slugify
-from pydub import AudioSegment  # type: ignore
 from click_skeleton.helpers import mysplit
+from pydub import AudioSegment  # type: ignore
+from slugify import slugify
+
+from musicbot.helpers import current_user, public_ip
 from musicbot.object import MusicbotObject
-from musicbot.helpers import parse_graphql, current_user, public_ip
 
 logger = logging.getLogger(__name__)
 DEFAULT_ACOUSTID_API_KEY: Optional[str] = None
@@ -24,7 +26,7 @@ default_checks = [
     'album',
     'artist',
     'rating',
-    'number'
+    'track'
 ]
 
 STOPWORDS = [
@@ -61,7 +63,7 @@ DEFAULT_CHECKS = [
     'no-album',
     'no-genre',
     'no-rating',
-    'no-tracknumber',
+    'no-track',
     'invalid-title',
     'invalid-comment',
     'invalid-path',
@@ -72,7 +74,7 @@ class File:
     def __init__(self, path: Path):
         resolved_path = path.resolve()
         self.handle = mutagen.File(resolved_path)
-        self.inconsistencies: Set[str] = set()
+        self.inconsistencies: set[str] = set()
 
         if not self.title:
             self.inconsistencies.add("no-title")
@@ -84,33 +86,38 @@ class File:
             self.inconsistencies.add("no-artist")
         if self.rating == -1:
             self.inconsistencies.add("no-rating")
-        if self.number == -1:
-            self.inconsistencies.add("no-tracknumber")
+        if self.track == -1:
+            self.inconsistencies.add("no-track")
         if self.extension == '.flac' and self._comment and not self._description:
             self.inconsistencies.add('invalid-comment')
         if self.extension == '.mp3' and self._description and not self._comment:
             self.inconsistencies.add('invalid-comment')
-        if self.number not in (-1, 0) and self.title != self.canonic_title:
+        if self.track not in (-1, 0) and self.title != self.canonic_title:
             logger.debug(f"{self} : invalid-title, '{self.title}' should be '{self.canonic_title}'")
             self.inconsistencies.add("invalid-title")
-        if self.number not in (-1, 0) and not str(self.path).endswith(str(self.canonic_artist_album_filename)):
-            logger.debug(f"{self} : invalid-path, must have a number and should end with '{self.canonic_artist_album_filename}'")
+        if self.track not in (-1, 0) and not str(self.path).endswith(str(self.canonic_artist_album_filename)):
+            logger.debug(f"{self} : invalid-path, must have a track and should end with '{self.canonic_artist_album_filename}'")
             self.inconsistencies.add("invalid-path")
 
     def __repr__(self) -> str:
         return str(self.path)
 
-    def as_dict(self) -> Dict[str, Any]:  # pylint: disable=unsubscriptable-object
-        return {
-            'title': self.title,
-            'album': self.album,
-            'genre': self.genre,
-            'artist': self.artist,
-            'number': self.number,
-            'rating': self.rating,
-            'duration': self.duration,
-            'keywords': self.keywords,
-        }
+    def to_dict(self) -> dict[str, Any]:
+        return dict(
+            title=self.title,
+            size=self.size,
+            album=self.album,
+            artist=self.artist,
+            genre=self.genre,
+            length=self.length,
+            track=self.track,
+            rating=self.rating,
+            keywords=self.keywords,
+        )
+
+    @cached_property
+    def size(self) -> int:
+        return self.path.stat().st_size
 
     @property
     def path(self) -> Path:
@@ -135,12 +142,6 @@ class File:
     @property
     def extension(self) -> str:
         return self.path.suffix
-
-    def to_graphql(self) -> str:
-        return ", ".join([f'{k}: {json.dumps(v)}' for k, v in self.as_dict().items()])
-
-    def to_json(self) -> str:
-        return json.dumps(self.as_dict())
 
     @property
     def canonic_artist_album_filename(self) -> PurePath:
@@ -174,7 +175,7 @@ class File:
         return default
 
     @property
-    def duration(self) -> int:
+    def length(self) -> int:
         return int(self.handle.info.length)
 
     @property
@@ -192,7 +193,7 @@ class File:
 
     @property
     def canonic_title(self) -> str:
-        return f"{str(self.number).zfill(2)} - {self.title}"
+        return f"{str(self.track).zfill(2)} - {self.title}"
 
     @property
     def album(self) -> str:
@@ -272,7 +273,7 @@ class File:
         self.handle.tags['description'] = description
 
     @property
-    def number(self) -> int:
+    def track(self) -> int:
         if self.extension == '.flac':
             s = self._get_first('tracknumber')
         else:
@@ -290,8 +291,8 @@ class File:
         except ValueError:
             return -1
 
-    @number.setter
-    def number(self, number: int) -> None:
+    @track.setter
+    def track(self, number: int) -> None:
         if self.extension == '.flac':
             self.handle.tags['tracknumber'] = str(number)
         else:
@@ -299,7 +300,7 @@ class File:
             self.handle.tags.add(mutagen.id3.TRCK(text=str(number)))
 
     @property
-    def keywords(self) -> List[str]:
+    def keywords(self) -> list[str]:
         if self.extension == '.mp3':
             return mysplit(self._comment, ' ')
         if self.extension == '.flac':
@@ -348,7 +349,7 @@ class File:
         if mp3_path.exists():
             logger.info(f"{mp3_path} already exists, overwriting only tags")
             f = File(path=mp3_path)
-            f.number = self.number
+            f.track = self.track
             f.album = self.album
             f.title = self.title
             f.artist = self.artist
@@ -366,7 +367,7 @@ class File:
                 )
                 mp3_file.close()
                 f = File(mp3_path)
-                f.number = self.number
+                f.track = self.track
                 f.album = self.album
                 f.title = self.title
                 f.artist = self.artist
@@ -375,60 +376,6 @@ class File:
                 mp3_path.unlink()
                 raise
         return False
-
-    def upsert_mutation(
-        self,
-        user_id: int,
-        sftp: bool = False,
-        http: bool = False,
-        local: bool = True,
-        spotify: bool = False,
-        youtube: bool = False,
-        operation: Optional[str] = None,
-    ) -> str:
-        paths = []
-        if local:
-            paths.append(str(self.path))
-        if sftp and self.sftp_path:
-            paths.append(self.sftp_path)
-        if http and self.http_path:
-            paths.append(self.http_path)
-        if youtube and self.youtube_path:
-            paths.append(self.youtube_path)
-        if spotify and self.spotify_path:
-            paths.append(self.spotify_path)
-
-        operation = operation if operation is not None else ""
-        mutation = f'''
-        mutation {operation} {{
-            upsertMusic(
-                where: {{
-                    title: {json.dumps(self.title)}
-                    album: {json.dumps(self.album)}
-                    artist: {json.dumps(self.artist)}
-                    userId: {user_id}
-                }}
-                input: {{
-                    music: {{
-                        title: {json.dumps(self.title)}
-                        album: {json.dumps(self.album)}
-                        artist: {json.dumps(self.artist)}
-                        duration: {self.duration}
-                        genre: {json.dumps(self.genre)}
-                        keywords: {json.dumps(self.keywords)}
-                        number: {self.number}
-                        rating: {self.rating}
-                        links: {json.dumps(paths)}
-                    }}
-                }}
-            )
-            {{
-                clientMutationId
-            }}
-        }}
-        '''
-        parse_graphql(mutation)
-        return mutation
 
     def fingerprint(self, api_key: str) -> str:
         ids = acoustid.match(api_key, self.path)
@@ -443,9 +390,9 @@ class File:
         if 'no-rating' in checks:
             self.rating = 0.0
             self.inconsistencies.remove('no-rating')
-        if 'no-tracknumber' in checks:
-            self.number = 0
-            self.inconsistencies.remove('no-tracknumber')
+        if 'no-track' in checks:
+            self.track = 0
+            self.inconsistencies.remove('no-track')
         if 'invalid-comment' in checks:
             if self.extension == '.flac' and self._comment and not self._description:
                 self._description = ''

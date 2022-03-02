@@ -1,24 +1,29 @@
-from typing import List, Tuple
-from pathlib import Path
-import logging
-import json
-import random
 import itertools
+import json
+import logging
+import random
+from pathlib import Path
+
 import click
 import mutagen  # type: ignore
-from rich.table import Table
 from beartype import beartype
 from click_skeleton import AdvancedGroup
 from click_skeleton.helpers import PrettyDefaultDict
-from musicbot.cli.options import output_option, concurrency_options, dry_option
-from musicbot.cli.music_filter import ordering_options
-from musicbot.cli.file import keywords_argument, flat_option, checks_and_fix_options, extensions_option
-from musicbot.cli.folders import destination_argument, folders_argument
+from rich.table import Table
 
-from musicbot.object import MusicbotObject
+from musicbot.cli.file import (
+    checks_and_fix_options,
+    extensions_option,
+    flat_option,
+    keywords_argument
+)
+from musicbot.cli.folders import destination_argument, folders_argument
+from musicbot.cli.music_filter import ordering_options
+from musicbot.cli.options import concurrency_options, dry_option, output_option
 from musicbot.exceptions import MusicbotError
-from musicbot.music.folders import Folders
-from musicbot.music.file import File
+from musicbot.file import File
+from musicbot.folders import Folders
+from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +38,10 @@ def cli() -> None:
 @folders_argument
 @extensions_option
 @beartype
-def find(folders: Tuple[Path, ...], extensions: Tuple[str, ...]) -> None:
+def find(
+    folders: list[Path],
+    extensions: list[str],
+) -> None:
     files = Folders(folders=folders, extensions=extensions).files
     for file in files:
         print(file)
@@ -45,7 +53,13 @@ def find(folders: Tuple[Path, ...], extensions: Tuple[str, ...]) -> None:
 @ordering_options
 @extensions_option
 @beartype
-def playlist(folders: Tuple[Path, ...], extensions: Tuple[str, ...], output: str, shuffle: bool, interleave: bool) -> None:
+def playlist(
+    folders: list[Path],
+    extensions: list[str],
+    output: str,
+    shuffle: bool,
+    interleave: bool,
+) -> None:
     tracks = Folders(folders=folders, extensions=extensions).musics
 
     if interleave:
@@ -75,7 +89,7 @@ def playlist(folders: Tuple[Path, ...], extensions: Tuple[str, ...], output: str
     if output == 'table':
         table = Table("Track", "Title", "Artist", "Album")
         for t in tracks:
-            table.add_row(str(t.number), t.title, t.artist, t.album)
+            table.add_row(str(t.track), t.title, t.artist, t.album)
         MusicbotObject.console.print(table)
 
 
@@ -83,7 +97,10 @@ def playlist(folders: Tuple[Path, ...], extensions: Tuple[str, ...], output: str
 @folders_argument
 @extensions_option
 @beartype
-def tags(folders: Tuple[Path, ...], extensions: Tuple[str, ...]) -> None:
+def tags(
+    folders: list[Path],
+    extensions: list[str],
+) -> None:
     musics = Folders(folders=folders, extensions=extensions).musics
     for music in musics:
         logger.info(music.handle.tags.keys())
@@ -97,7 +114,12 @@ def tags(folders: Tuple[Path, ...], extensions: Tuple[str, ...]) -> None:
 @dry_option
 @flat_option
 @beartype
-def flac2mp3(folders: Tuple[Path, ...], destination: Path, concurrency: int, flat: bool) -> None:
+def flac2mp3(
+    folders: list[Path],
+    destination: Path,
+    concurrency: int,
+    flat: bool,
+) -> None:
     flac_musics = Folders(folders=folders, extensions=['flac']).musics
     if not flac_musics:
         logger.warning(f"No flac files detected in {folders}")
@@ -120,7 +142,12 @@ def flac2mp3(folders: Tuple[Path, ...], destination: Path, concurrency: int, fla
 @checks_and_fix_options
 @extensions_option
 @beartype
-def inconsistencies(folders: Tuple[Path, ...], extensions: Tuple[str, ...], fix: bool, checks: Tuple[str, ...]) -> None:
+def inconsistencies(
+    folders: list[Path],
+    extensions: list[str],
+    fix: bool,
+    checks: list[str],
+) -> None:
     musics = Folders(folders=folders, extensions=extensions).musics
     table = Table("Path", "Inconsistencies")
     for m in musics:
@@ -140,7 +167,11 @@ def inconsistencies(folders: Tuple[Path, ...], extensions: Tuple[str, ...], fix:
 @keywords_argument
 @extensions_option
 @beartype
-def add_keywords(folders: Tuple[Path, ...], extensions: Tuple[str, ...], keywords: List[str]) -> None:
+def add_keywords(
+    folders: list[Path],
+    extensions: list[str],
+    keywords: list[str],
+) -> None:
     musics = Folders(folders=folders, extensions=extensions).musics
     for music in musics:
         music.add_keywords(keywords)
@@ -152,7 +183,11 @@ def add_keywords(folders: Tuple[Path, ...], extensions: Tuple[str, ...], keyword
 @keywords_argument
 @extensions_option
 @beartype
-def delete_keywords(folders: Tuple[Path, ...], extensions: Tuple[str, ...], keywords: List[str]) -> None:
+def delete_keywords(
+    folders: list[Path],
+    extensions: list[str],
+    keywords: list[str],
+) -> None:
     musics = Folders(folders=folders, extensions=extensions).musics
     for music in musics:
         music.delete_keywords(keywords)

@@ -1,14 +1,16 @@
-from pathlib import Path
-import os
 import logging
-import click
+import os
+from pathlib import Path
+
 import acoustid  # type: ignore
-import youtube_dl  # type: ignore
+import click
 import humanize  # type: ignore
+import youtube_dl  # type: ignore
 from beartype import beartype
 from click_skeleton import AdvancedGroup
-from musicbot.music.file import File
-from musicbot.cli.file import path_argument, acoustid_api_key_option
+
+from musicbot.cli.file import acoustid_api_key_option, path_argument
+from musicbot.file import File
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +77,7 @@ def find(path: Path, acoustid_api_key: str) -> None:
     yt_path = f"{f.artist} - {f.title}.mp3"
     try:
         file_id = f.fingerprint(acoustid_api_key)
-        print(f'Searching for artist {f.artist} and title {f.title} and duration {humanize.naturaltime(f.duration)}')
+        print(f'Searching for artist {f.artist} and title {f.title} and duration {humanize.naturaltime(f.length)}')
         ydl_opts = {
             'format': 'bestaudio/best',
             'quiet': True,

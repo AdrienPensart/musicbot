@@ -1,8 +1,10 @@
 # type: ignore
 import logging
+
 import pytest
-from click_skeleton.testing import run_cli
 from click_skeleton.helpers import strip_colors
+from click_skeleton.testing import run_cli
+
 from musicbot.main import cli
 from musicbot.version import __version__
 

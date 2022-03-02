@@ -1,28 +1,47 @@
 from typing import Any
-import click
+
 import attr
+import click
 from click_option_group import optgroup  # type: ignore
 from click_skeleton import add_options
-from musicbot.music.music_filter import (
-    MusicFilter,
-    RATING_CHOICES,
-    DEFAULT_SHUFFLE,
-    DEFAULT_NAME,
-    DEFAULT_GENRES,
-    DEFAULT_NO_GENRES,
-    DEFAULT_LIMIT,
-    DEFAULT_MIN_DURATION,
-    DEFAULT_MAX_DURATION,
-    DEFAULT_MIN_RATING,
-    DEFAULT_MAX_RATING,
-    DEFAULT_KEYWORDS,
-    DEFAULT_NO_KEYWORDS,
-    DEFAULT_ARTISTS,
-    DEFAULT_NO_ARTISTS,
-    DEFAULT_TITLES,
-    DEFAULT_NO_TITLES,
+from click_skeleton.helpers import split_arguments
+
+from musicbot.music_filter import (
     DEFAULT_ALBUMS,
+    DEFAULT_ARTISTS,
+    DEFAULT_GENRES,
+    DEFAULT_HTTP,
+    DEFAULT_KEYWORDS,
+    DEFAULT_LIMIT,
+    DEFAULT_LOCAL,
+    DEFAULT_MAX_LENGTH,
+    DEFAULT_MAX_RATING,
+    DEFAULT_MAX_SIZE,
+    DEFAULT_MIN_LENGTH,
+    DEFAULT_MIN_RATING,
+    DEFAULT_MIN_SIZE,
+    DEFAULT_NAME,
     DEFAULT_NO_ALBUMS,
+    DEFAULT_NO_ARTISTS,
+    DEFAULT_NO_GENRES,
+    DEFAULT_NO_KEYWORDS,
+    DEFAULT_NO_TITLES,
+    DEFAULT_SFTP,
+    DEFAULT_SHUFFLE,
+    DEFAULT_SPOTIFY,
+    DEFAULT_TITLES,
+    DEFAULT_YOUTUBE,
+    RATING_CHOICES,
+    MusicFilter
+)
+
+link_options = add_options(
+    optgroup('Link options'),
+    optgroup.option('--http/--no-http', is_flag=True, default=DEFAULT_HTTP),
+    optgroup.option('--sftp/--no-sftp', is_flag=True, default=DEFAULT_SFTP),
+    optgroup.option('--youtube/--no-youtube', is_flag=True, default=DEFAULT_YOUTUBE),
+    optgroup.option('--spotify/--no-spotify', is_flag=True, default=DEFAULT_SPOTIFY),
+    optgroup.option('--local/--no-local', is_flag=True, default=DEFAULT_LOCAL),
 )
 
 
@@ -30,7 +49,7 @@ def sane_rating(ctx: click.Context, param: click.ParamType, value: float) -> flo
     if value in RATING_CHOICES:
         ctx.params[param.name] = value
         return value
-    return float('nan')
+    raise ValueError(f"Invalid rating choice {value}, it should be in {RATING_CHOICES}")
 
 
 def sane_music_filter(ctx: click.Context, param: click.ParamType, value: Any) -> MusicFilter:  # pylint: disable=unused-argument
@@ -49,13 +68,14 @@ shuffle_option = optgroup.option(
     help='Randomize selection',
     default=DEFAULT_SHUFFLE,
     is_flag=True,
-    is_eager=True,
 )
+
 interleave_option = optgroup.option(
     '--interleave',
     help='Interleave tracks by artist',
     is_flag=True,
 )
+
 ordering_options = add_options(
     optgroup('Ordering options'),
     shuffle_option,
@@ -65,129 +85,136 @@ ordering_options = add_options(
 music_filter_options = add_options(
     optgroup('Filter options'),
     optgroup.option(
-        '--music-filter',
-        help='Music Filter',
-        expose_value=False,
-        callback=sane_music_filter,
-        hidden=True,
-    ),
-    optgroup.option(
         '--name',
         help='Filter name',
         default=DEFAULT_NAME,
-        is_eager=True,
     ),
     optgroup.option(
         '--limit',
         help='Fetch a maximum limit of music',
         default=DEFAULT_LIMIT,
-        is_eager=True,
     ),
+    shuffle_option,
+    link_options,
+    optgroup('Keywords'),
     optgroup.option(
         '--keywords',
         help='Select musics with keywords',
         multiple=True,
         default=DEFAULT_KEYWORDS,
-        is_eager=True,
+        callback=split_arguments,
     ),
     optgroup.option(
         '--no-keywords',
         help='Filter musics without keywords',
         multiple=True,
         default=DEFAULT_NO_KEYWORDS,
-        is_eager=True,
+        callback=split_arguments,
     ),
+    optgroup('Artists'),
     optgroup.option(
         '--artists',
         help='Select musics with artists',
         multiple=True,
         default=DEFAULT_ARTISTS,
-        is_eager=True,
+        callback=split_arguments,
     ),
     optgroup.option(
         '--no-artists',
         help='Filter musics without artists',
         multiple=True,
         default=DEFAULT_NO_ARTISTS,
-        is_eager=True,
+        callback=split_arguments,
     ),
+    optgroup('Albums'),
     optgroup.option(
         '--albums',
         help='Select musics with albums',
         multiple=True,
         default=DEFAULT_ALBUMS,
-        is_eager=True,
+        callback=split_arguments,
     ),
     optgroup.option(
         '--no-albums',
         help='Filter musics without albums',
         multiple=True,
         default=DEFAULT_NO_ALBUMS,
-        is_eager=True,
+        callback=split_arguments,
     ),
+    optgroup('Titles'),
     optgroup.option(
         '--titles',
         help='Select musics with titles',
         multiple=True,
         default=DEFAULT_TITLES,
-        is_eager=True,
+        callback=split_arguments,
     ),
     optgroup.option(
         '--no-titles',
         help='Filter musics without titless',
         multiple=True,
         default=DEFAULT_NO_TITLES,
-        is_eager=True,
+        callback=split_arguments,
     ),
+    optgroup('Genres'),
     optgroup.option(
         '--genres',
         help='Select musics with genres',
         multiple=True,
         default=DEFAULT_GENRES,
-        is_eager=True,
+        callback=split_arguments,
     ),
     optgroup.option(
         '--no-genres',
         help='Filter musics without genres',
         multiple=True,
         default=DEFAULT_NO_GENRES,
-        is_eager=True,
+        callback=split_arguments,
+    ),
+    optgroup('Length'),
+    optgroup.option(
+        '--min-length',
+        help='Minimum length filter in seconds',
+        default=DEFAULT_MIN_LENGTH,
     ),
     optgroup.option(
-        '--min-duration',
-        help='Minimum duration filter (hours:minutes:seconds)',
-        default=DEFAULT_MIN_DURATION,
-        is_eager=True,
+        '--max-length',
+        help='Maximum length filter in seconds',
+        default=DEFAULT_MAX_LENGTH,
+    ),
+    optgroup('Size'),
+    optgroup.option(
+        '--min-size',
+        help='Minimum file size',
+        default=DEFAULT_MIN_SIZE,
     ),
     optgroup.option(
-        '--max-duration',
-        help='Maximum duration filter (hours:minutes:seconds))',
-        default=DEFAULT_MAX_DURATION,
-        is_eager=True,
+        '--max-size',
+        help='Maximum file size',
+        default=DEFAULT_MAX_SIZE,
     ),
+    optgroup('Rating'),
     optgroup.option(
         '--min-rating',
         help='Minimum rating',
         default=DEFAULT_MIN_RATING,
         show_default=True,
+        type=click.FloatRange(DEFAULT_MIN_RATING, DEFAULT_MAX_RATING, clamp=True),
         callback=sane_rating,
-        is_eager=True,
     ),
     optgroup.option(
         '--max-rating',
         help='Maximum rating',
         default=DEFAULT_MAX_RATING,
         show_default=True,
+        type=click.FloatRange(DEFAULT_MIN_RATING, DEFAULT_MAX_RATING, clamp=True),
         callback=sane_rating,
-        is_eager=True,
     ),
     optgroup.option(
-        '--shuffle',
-        help='Randomize selection',
-        default=DEFAULT_SHUFFLE,
-        is_flag=True,
-        is_eager=True,
+        '--music-filter',
+        help='Music Filter',
+        expose_value=False,
+        callback=sane_music_filter,
+        hidden=True,
     ),
-    optgroup('Ordering options'),
-    shuffle_option,
 )

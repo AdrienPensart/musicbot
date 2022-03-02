@@ -1,11 +1,15 @@
 #!/bin/sh
 
+export SETUPTOOLS_USE_DISTUTILS=stdlib
+
 set -e
 trap '[ $? -eq 0 ] && exit 0 || echo "$0 FAILED"' EXIT
 
-bash gen-deps.sh
-bash linting.sh
-bash gen-doc.sh
+sh gen-deps.sh
+sh linting.sh
+sh security-checks.sh
+sh gen-doc.sh
+sh code-format.sh
 
 kernel=`uname -r`
 case "$kernel" in

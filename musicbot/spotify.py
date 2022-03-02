@@ -1,10 +1,11 @@
-from typing import Optional, List, Any, Dict
-import logging
 import functools
 import itertools
+import logging
+from typing import Any, Optional
+
+import attr
 import spotipy  # type: ignore
 from spotipy.oauth2 import CacheFileHandler  # type: ignore
-import attr
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +68,7 @@ class Spotify:
             return None
         return self.auth_manager.refresh_access_token(token['refresh_token'])
 
-    def get_download_playlist(self) -> Dict[Any, Any]:
+    def get_download_playlist(self) -> dict[Any, Any]:
         name = "To Download"
         download_playlist = self.playlist(name)
         if download_playlist:
@@ -85,7 +86,7 @@ class Spotify:
         for i in range(0, len(track_ids), 100):
             self.api.user_playlist_add_tracks(self.username, download_playlist['id'], track_ids[i:i + 100])
 
-    def tracks(self) -> List[Any]:
+    def tracks(self) -> list[Any]:
         offset = 0
         limit = 50
         objects = []
@@ -99,7 +100,7 @@ class Spotify:
                 break
         return list(itertools.chain(*objects))
 
-    def playlists(self) -> List[Any]:
+    def playlists(self) -> list[Any]:
         offset = 0
         limit = 50
         objects = []
@@ -121,7 +122,7 @@ class Spotify:
                 return p
         return None
 
-    def playlist_tracks(self, name: str) -> List[Any]:
+    def playlist_tracks(self, name: str) -> list[Any]:
         playlists = self.playlists()
         for p in playlists:
             if p['name'] == name:

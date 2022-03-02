@@ -1,15 +1,20 @@
-from typing import List, Optional, IO, Any, Sequence, Callable, Union
-import logging
-import sys
-import signal
-import os
 import concurrent.futures as cf
+import json
+import logging
+import os
+import signal
+import sys
 from threading import Lock
+from typing import IO, Any, Callable, Optional, Sequence, Union
+
 import click
-from rich.console import Console
+import rich
 from progressbar import NullBar, ProgressBar  # type: ignore
-from musicbot.defaults import DEFAULT_CONCURRENCY
+from rich.console import Console
+from rich.table import Table
+
 from musicbot.config import DEFAULT_QUIET, Config
+from musicbot.defaults import DEFAULT_CONCURRENCY, DEFAULT_THREADS
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +30,29 @@ class MusicbotObject:
     show_timing: bool = True
     show_header: bool = True
     show_success: bool = True
-    already_printed: List[str] = []
+    already_printed: list[str] = []
     config = Config()
     dry = False
+
+    def __repr__(self) -> str:
+        return '[DRY]' if self.dry else '[DOING]'
+
+    @staticmethod
+    def is_dev() -> bool:
+        '''Do we execute Unity from a dev folder?'''
+        if 'poetry' in os.environ.get('VIRTUAL_ENV', ''):
+            return True
+        return bool(sys.flags.dev_mode) or "main.py" in sys.argv[0]
+
+    @staticmethod
+    def is_test() -> bool:
+        '''Are we in a test session ?'''
+        return "pytest" in sys.modules
+
+    @classmethod
+    def is_prod(cls) -> bool:
+        '''Are we executing the prod version?'''
+        return not cls.is_dev() and not cls.is_test()
 
     @classmethod
     def timing(cls, message: Any, **options: Any) -> None:
@@ -80,9 +105,9 @@ class MusicbotObject:
         file = file if file is not None else sys.stderr
         if not quiet and not cls.config.quiet:
             if cls.config.color:
-                final_message = click.style(f'{message}', **kwargs)
+                final_message = click.style(f'\r{message}\033[K', **kwargs)
             else:
-                final_message = f'{message}'
+                final_message = f'\r{message}\033[K'
             with cls.print_lock:
                 print(final_message, file=file, flush=flush, end=end)
 
@@ -92,7 +117,20 @@ class MusicbotObject:
         return pbar(redirect_stderr=redirect_stderr, redirect_stdout=redirect_stdout, **kwargs)
 
     @classmethod
-    def parallel(cls, worker: Callable, items: Sequence, quiet: bool = DEFAULT_QUIET, concurrency: int = DEFAULT_CONCURRENCY, **kwargs: Any) -> Any:
+    def parallel(
+        cls,
+        worker: Callable,
+        items: Sequence,
+        quiet: bool = DEFAULT_QUIET,
+        prefix: Optional[str] = None,
+        concurrency: int = DEFAULT_CONCURRENCY,
+        threads: Optional[int] = None,
+        **kwargs: Any
+    ) -> Any:
+        threads = threads if threads not in (None, 0) else DEFAULT_THREADS
+        quiet = len(items) <= 1 or quiet
+        if prefix and (cls.is_dev() or cls.config.info or cls.config.debug):
+            prefix += f" ({threads} threads)"
         with cls.progressbar(max_value=len(items), quiet=quiet, redirect_stderr=True, redirect_stdout=True, **kwargs) as pbar, \
              cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
             try:
@@ -119,3 +157,23 @@ class MusicbotObject:
                 while True:
                     os.kill(os.getpid(), signal.SIGKILL)
                     os.killpg(os.getpid(), signal.SIGKILL)
+
+    @classmethod
+    def print_table(cls, table: Table) -> None:
+        '''Print rich table'''
+        with cls.print_lock:
+            print('\r\033[K', end='')
+            cls.console.print(table)
+
+    @classmethod
+    def print_json(cls, data: Any, file: Optional[IO] = None, **kwargs: Any) -> Any:
+        '''Print highlighted json to stdout depending if we are in a TTY'''
+        file = file if file is not None else sys.stdout
+        if file.isatty():
+            rich.print_json(
+                data=data,
+                highlight=cls.config.color,
+                **kwargs,
+            )
+        else:
+            print(json.dumps(data, **kwargs), file=file)

@@ -1,9 +1,0 @@
-FROM postgres:14
-
-RUN apt-get update && apt-get upgrade -y && apt-get install -y python3-pip curl build-essential git postgresql-server-dev-14
-RUN git clone https://github.com/michelp/pgjwt.git /pgjwt && cd /pgjwt && make install
-
-RUN echo "shared_preload_libraries=pg_stat_statements" >> /etc/postgresql/postgresql.conf
-RUN echo "pg_stat_statements.track=all" >> /etc/postgresql/postgresql.conf
-
-ADD musicbot/schema/* /docker-entrypoint-initdb.d/

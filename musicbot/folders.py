@@ -1,22 +1,23 @@
-from typing import List, Iterator, Iterable, Optional
-from pathlib import Path
-import os
 import logging
-from musicbot.object import MusicbotObject
+import os
+from pathlib import Path
+from typing import Iterable, Iterator, Optional
+
 from musicbot.defaults import DEFAULT_EXTENSIONS
-from musicbot.music.file import File
+from musicbot.file import File
+from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
 
 except_directories = ['.Spotlight-V100', '.zfs', 'Android', 'LOST.DIR']
 
 
-class Folders:
+class Folders(MusicbotObject):
     def __init__(self, folders: Iterable[Path], extensions: Optional[Iterable[str]]):
         self.supported_formats = extensions if extensions is not None else DEFAULT_EXTENSIONS
         self.folders = [folder.resolve() for folder in folders]
         self.files = []
-        self.other_files: List[Path] = []
+        self.other_files: list[Path] = []
 
         for folder in self.folders:
             for root, _, basenames in os.walk(folder):
@@ -32,13 +33,15 @@ class Folders:
         def worker(path: Path) -> Optional[File]:
             try:
                 return File(path=path)
-            except KeyboardInterrupt as e:
-                logger.error(f'interrupted : {e}')
-                raise
             except OSError as e:
                 logger.error(e)
             return None
-        self.musics = MusicbotObject.parallel(worker, self.files)
+
+        self.musics = self.parallel(
+            worker,
+            self.files,
+            prefix='Loading musics',
+        )
 
     def __repr__(self) -> str:
         return ' '.join(str(folder) for folder in self.folders)

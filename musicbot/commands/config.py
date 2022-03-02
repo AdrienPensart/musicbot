@@ -1,8 +1,10 @@
 import logging
+
 import click
 from beartype import beartype
-from logging_tree import printout  # type: ignore
 from click_skeleton import AdvancedGroup
+from logging_tree import printout  # type: ignore
+
 from musicbot.object import MusicbotObject
 
 logger = logging.getLogger('musicbot')

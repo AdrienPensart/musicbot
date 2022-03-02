@@ -15,7 +15,7 @@ build-backend = "poetry.core.masonry.api"
 musicbot = 'musicbot.main:main'
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.10"
+python = ">=3.10,<4.0"
 logging-tree = "^1.8"
 pyacoustid = "^1.1"
 python-vlc = "^3.0"
@@ -23,24 +23,25 @@ prompt_toolkit = "^3.0.2"
 mutagen = "^1.44.0"
 requests = "^2.24.0"
 spotipy = "^2.16.0"
-humanize = "^3.0.1"
 youtube_dl = "^2021.3.3"
 watchdog = "^2.0.2"
 pydub = "^0.25.1"
 fuzzywuzzy = "^0.18.0"
 python-Levenshtein = "^0.12.2"
-python-slugify = "^5.0.0"
 attrs = "^21.2.0"
 types-requests = "^2.25.0"
 colorlog = "^6.4.1"
-psycopg2 = "^2.9.1"
 types-python-slugify = "^5.0.0"
 progressbar2 = "^4.0.0"
-pgcli = "^3.3.0"
-beartype = "^0.9.1"
-gql = "^3.0.0"
 rich = "^11.0.0"
-click-skeleton = "^0.20"
+click-skeleton = "^0.21"
+beartype = "^0.10.0"
+humanize = "^4.0.0"
+python-slugify = "^6.0.1"
+edgedb = "^0.22.0"
+
+[tool.isort]
+multi_line_output = 3
 
 [tool.poetry.dev-dependencies]
 coverage-badge = "^1.0"
@@ -55,6 +56,10 @@ pytest-timeout = "^2.0.1"
 flake8 = "^4.0.1"
 mypy = "^0.931"
 pytest-click = "^1.0.2"
+isort = "^5.10.1"
+bandit = "^1.7.2"
+safety = "^1.10.3"
+vulture = "^2.3"
 
 [tool.pytest.ini_options]
 minversion = "6.0"

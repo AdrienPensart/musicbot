@@ -1,25 +1,24 @@
-from typing import List, Tuple
-from pathlib import Path
 import logging
-from rich.table import Table
-from mutagen import MutagenError  # type: ignore
-from click_skeleton import AdvancedGroup
+from pathlib import Path
+from typing import Optional
+
 import click
 from beartype import beartype
-from musicbot.cli.options import dry_option
-from musicbot.cli.folders import destination_argument
-from musicbot.cli.user import user_options
+from click_skeleton import AdvancedGroup
+from mutagen import MutagenError  # type: ignore
+from rich.table import Table
+
 from musicbot.cli.file import (
-    link_options,
-    keywords_argument,
-    path_argument,
-    file_options,
-    checks_and_fix_options,
     acoustid_api_key_option,
+    checks_and_fix_options,
+    file_options,
+    keywords_argument,
+    path_argument
 )
+from musicbot.cli.folders import destination_argument
+from musicbot.cli.options import dry_option
+from musicbot.file import File
 from musicbot.object import MusicbotObject
-from musicbot.user import User
-from musicbot.music.file import File
 
 logger = logging.getLogger(__name__)
 
@@ -28,32 +27,6 @@ logger = logging.getLogger(__name__)
 @beartype
 def cli() -> None:
     pass
-
-
-@cli.command(help='Insert music in DB')
-@path_argument
-@user_options
-@dry_option
-@link_options
-@beartype
-def insert(
-    path: Path,
-    user: User,
-    http: bool,
-    sftp: bool,
-    youtube: bool,
-    spotify: bool,
-    local: bool,
-) -> None:
-    f = File(path=path)
-    user.insert(
-        f,
-        http=http,
-        sftp=sftp,
-        youtube=youtube,
-        spotify=spotify,
-        local=local,
-    )
 
 
 @cli.command(help='Convert flac music to mp3')
@@ -81,7 +54,7 @@ def fingerprint(path: Path, acoustid_api_key: str) -> None:
 def tags(path: Path) -> None:
     f = File(path=path)
     logger.info(f.handle.tags.keys())
-    print(f.as_dict())
+    print(f.to_dict())
 
 
 @cli.command(aliases=['consistency'], help='Check music consistency')
@@ -89,7 +62,7 @@ def tags(path: Path) -> None:
 @dry_option
 @checks_and_fix_options
 @beartype
-def inconsistencies(path: Path, fix: bool, checks: Tuple[str, ...]) -> None:
+def inconsistencies(path: Path, fix: bool, checks: list[str]) -> None:
     m = File(path=path)
     table = Table("Path", "Inconsistencies")
     try:
@@ -107,7 +80,16 @@ def inconsistencies(path: Path, fix: bool, checks: Tuple[str, ...]) -> None:
 @dry_option
 @file_options
 @beartype
-def set_tags(path: Path, title: str, artist: str, album: str, genre: str, keywords: List[str], rating: float, number: int) -> None:
+def set_tags(
+    path: Path,
+    title: Optional[str],
+    artist: Optional[str],
+    album: Optional[str],
+    genre: Optional[str],
+    keywords: list[str],
+    rating: Optional[float],
+    track: Optional[int],
+) -> None:
     f = File(path=path)
     if title:
         f.title = title
@@ -121,8 +103,8 @@ def set_tags(path: Path, title: str, artist: str, album: str, genre: str, keywor
         f.keywords = keywords
     if rating:
         f.rating = rating
-    if number:
-        f.number = number
+    if track:
+        f.track = track
     f.save()
 
 
@@ -131,7 +113,7 @@ def set_tags(path: Path, title: str, artist: str, album: str, genre: str, keywor
 @path_argument
 @keywords_argument
 @beartype
-def add_keywords(path: Path, keywords: Tuple[str, ...]) -> None:
+def add_keywords(path: Path, keywords: list[str]) -> None:
     f = File(path=path)
     f.add_keywords(keywords)
 
@@ -141,6 +123,6 @@ def add_keywords(path: Path, keywords: Tuple[str, ...]) -> None:
 @path_argument
 @keywords_argument
 @beartype
-def delete_keywords(path: Path, keywords: Tuple[str, ...]) -> None:
+def delete_keywords(path: Path, keywords: list[str]) -> None:
     f = File(path=path)
     f.delete_keywords(keywords)

@@ -1,24 +1,24 @@
+import collections
 import logging
 import operator
-import collections
+
 import click
 from beartype import beartype
-from slugify import slugify
-from fuzzywuzzy import fuzz  # type: ignore
 from click_skeleton import AdvancedGroup
+from fuzzywuzzy import fuzz  # type: ignore
+from slugify import slugify
+
+from musicbot.cli.musicdb import musicdb_options
 from musicbot.cli.options import output_option
 from musicbot.cli.spotify import (
-    spotify_options,
-    print_playlists_table,
     output_tracks,
     print_distances,
+    print_playlists_table,
+    spotify_options
 )
-from musicbot.cli.user import user_options
-from musicbot.cli.music_filter import music_filter_options
-from musicbot.music.file import STOPWORDS, REPLACEMENTS
-from musicbot.music.music_filter import MusicFilter
+from musicbot.file import REPLACEMENTS, STOPWORDS
+from musicbot.musicdb import MusicDb
 from musicbot.spotify import Spotify
-from musicbot.user import User
 
 logger = logging.getLogger(__name__)
 
@@ -78,15 +78,14 @@ def tracks(spotify: Spotify, output: str) -> None:
 
 
 @cli.command(help='Diff between local and spotify')
-@user_options
 @spotify_options
-@music_filter_options
+@musicdb_options
 @output_option
 @click.option('--download-playlist', help='Create the download playlist', is_flag=True)
 @click.option('--min-threshold', help='Minimum distance threshold', type=click.FloatRange(0, 100), default=90)
 @click.option('--max-threshold', help='Maximum distance threshold', type=click.FloatRange(0, 100), default=100)
 @beartype
-def diff(user: User, download_playlist: bool, music_filter: MusicFilter, spotify: Spotify, output: str, min_threshold: float, max_threshold: float) -> None:
+def diff(musicdb: MusicDb, download_playlist: bool, spotify: Spotify, output: str, min_threshold: float, max_threshold: float) -> None:
     spotify_tracks = spotify.tracks()
     spotify_tracks_by_slug = {
         # slugify(f"""{t['track']['artists'][0]['name']}-{t['track']['album']['name']}-{t['track']['name']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):
@@ -94,18 +93,18 @@ def diff(user: User, download_playlist: bool, music_filter: MusicFilter, spotify
         t for t in spotify_tracks
     }
 
-    local_tracks = user.playlist(music_filter)
+    local_tracks = musicdb.make_playlist()
     local_tracks_by_slug = {
         # slugify(f"""{t['artist']}-{t['album']}-{t['title']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):
-        slugify(f"""{t['artist']}-{t['title']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):
-        t for t in local_tracks
+        slugify(f"""{t.artist}-{t.title}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):
+        t for t in local_tracks.musics
     }
 
     spotify_differences = set(spotify_tracks_by_slug.keys()).difference(set(local_tracks_by_slug.keys()))
     spotify_slug_tracks = collections.OrderedDict((d, spotify_tracks_by_slug[d]) for d in sorted(spotify_differences))
 
     local_tracks_found = len(spotify_tracks_by_slug) - len(spotify_differences)
-    if len(local_tracks) == local_tracks_found:
+    if len(local_tracks.musics) == local_tracks_found:
         return
 
     if download_playlist:
@@ -125,7 +124,7 @@ def diff(user: User, download_playlist: bool, music_filter: MusicFilter, spotify
         closest_distance = closest_local_track[1]
 
         if min_threshold <= closest_distance <= max_threshold:
-            if 'spotify-error' in local_tracks_by_slug[closest_local_slug]['keywords']:
+            if 'spotify-error' in local_tracks_by_slug[closest_local_slug].keywords:
                 continue
             distances_tracks.append({
                 'local_track': local_tracks_by_slug[closest_local_slug],
@@ -137,7 +136,7 @@ def diff(user: User, download_playlist: bool, music_filter: MusicFilter, spotify
     print_distances(distances_tracks)
     print(f"spotify tracks : {len(spotify_tracks)}")
     print(f"spotify slugs: {len(spotify_tracks_by_slug)}")
-    print(f"local tracks : {len(local_tracks)}")
+    print(f"local tracks : {len(local_tracks.musics)}")
     print(f"local tracks slugs : {len(local_tracks_by_slug)}")
     print(f"found in local     : {local_tracks_found}")
     print(f"not found in local : {len(spotify_differences)}")

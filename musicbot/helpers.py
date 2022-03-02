@@ -1,12 +1,12 @@
-from typing import Any
-import logging
 import functools
 import getpass
+import logging
 import socket
-import requests
-from gql import gql
+
 import humanize  # type: ignore
-from musicbot.exceptions import MusicbotError, QuerySyntaxError
+import requests
+
+from musicbot.exceptions import MusicbotError
 
 logger = logging.getLogger(__name__)
 
@@ -18,13 +18,6 @@ def is_port_in_use(port: int) -> bool:
 
 def bytes_to_human(b: int) -> str:
     return str(humanize.naturalsize(b))
-
-
-def parse_graphql(query: str) -> Any:
-    try:
-        gql(query)
-    except Exception as e:
-        raise QuerySyntaxError(f"Bad mutation : {query}") from e
 
 
 @functools.lru_cache(maxsize=None)

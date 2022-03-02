@@ -1,10 +1,13 @@
 from pathlib import Path
+
 import click
 from click_option_group import optgroup  # type: ignore
 from click_skeleton import add_options
-from musicbot.defaults import DEFAULT_FLAT, DEFAULT_EXTENSIONS
-from musicbot.music.file import DEFAULT_CHECKS, DEFAULT_ACOUSTID_API_KEY
-from musicbot.cli.options import config_string
+from click_skeleton.helpers import split_arguments
+
+from musicbot.cli.options import config_string, sane_list
+from musicbot.defaults import DEFAULT_EXTENSIONS, DEFAULT_FLAT
+from musicbot.file import DEFAULT_ACOUSTID_API_KEY, DEFAULT_CHECKS
 
 music_options_group = optgroup('Music options')
 keywords_option = optgroup.option('--keywords', help='Keywords', multiple=True)
@@ -12,7 +15,7 @@ artist_option = optgroup.option('--artist', help='Artist')
 album_option = optgroup.option('--album', help='Album')
 title_option = optgroup.option('--title', help='Title')
 genre_option = optgroup.option('--genre', help='Genre')
-number_option = optgroup.option('--number', help='Track number')
+track_option = optgroup.option('--track', help='Track number')
 rating_option = optgroup.option('--rating', help='Rating')
 
 extensions_option = click.option(
@@ -21,11 +24,13 @@ extensions_option = click.option(
     help='Supported formats',
     default=DEFAULT_EXTENSIONS,
     multiple=str,
+    callback=sane_list,
 )
 
 keywords_argument = click.argument(
     'keywords',
     nargs=-1,
+    callback=split_arguments,
 )
 
 flat_option = click.option(
@@ -42,7 +47,7 @@ file_options = add_options(
     album_option,
     title_option,
     genre_option,
-    number_option,
+    track_option,
     rating_option,
 )
 
@@ -55,15 +60,6 @@ path_argument = click.argument(
     ),
 )
 
-link_options = add_options(
-    optgroup('Link options'),
-    optgroup.option('--http/--no-http', is_flag=True),
-    optgroup.option('--sftp/--no-sftp', is_flag=True),
-    optgroup.option('--youtube/--no-youtube', is_flag=True),
-    optgroup.option('--spotify/--no-spotify', is_flag=True),
-    optgroup.option('--local/--no-local', is_flag=True, default=True),
-)
-
 checks_and_fix_options = add_options(
     optgroup('Check options'),
     optgroup.option(
@@ -73,6 +69,7 @@ checks_and_fix_options = add_options(
         default=DEFAULT_CHECKS,
         show_default=True,
         type=click.Choice(DEFAULT_CHECKS),
+        callback=sane_list,
     ),
     optgroup.option(
         '--fix',

@@ -1,7 +1,10 @@
 # type: ignore
 import pytest
+from click_skeleton.helpers import mysplit
 from click_skeleton.testing import run_cli
+
 from musicbot.main import cli
+
 from . import fixtures
 
 
@@ -12,7 +15,7 @@ def test_folder_find(cli_runner):
         'folder', 'find',
         *fixtures.folders,
     ])
-    assert len(musics.split("\n")) == 5
+    assert len(mysplit(musics, "\n")) == 5
 
 
 @pytest.mark.runner_setup(mix_stderr=False)

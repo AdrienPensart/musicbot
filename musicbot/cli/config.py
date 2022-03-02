@@ -1,17 +1,21 @@
 import click
-from click_option_group import optgroup, MutuallyExclusiveOptionGroup  # type: ignore
+from click_option_group import (  # type: ignore
+    MutuallyExclusiveOptionGroup,
+    optgroup
+)
 from click_skeleton import add_options
+
 from musicbot.config import (
-    DEFAULT_CONFIG,
-    DEFAULT_LOG,
-    DEFAULT_DEBUG,
-    DEFAULT_INFO,
-    DEFAULT_WARNING,
-    DEFAULT_ERROR,
-    DEFAULT_CRITICAL,
-    DEFAULT_TIMINGS,
-    DEFAULT_QUIET,
     DEFAULT_COLOR,
+    DEFAULT_CONFIG,
+    DEFAULT_CRITICAL,
+    DEFAULT_DEBUG,
+    DEFAULT_ERROR,
+    DEFAULT_INFO,
+    DEFAULT_LOG,
+    DEFAULT_QUIET,
+    DEFAULT_TIMINGS,
+    DEFAULT_WARNING
 )
 
 config_option = optgroup.option(

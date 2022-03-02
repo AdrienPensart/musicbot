@@ -24,18 +24,15 @@ Commands
     -h, --help                       Show this message and exit.
 
   Commands:
-    completion     Shell completion
-    database (db)  Database management (admin)
-    filter         Filter management
-    folder         Manage folders
-    help           Print help
-    local          Local music management
-    music (file)   Music file
-    readme (doc)   Generates a README.rst
-    spotify        Spotify tool
-    user           User management
-    version        Print version
-    youtube        Youtube tool
+    completion    Shell completion
+    folder        Manage folders
+    help          Print help
+    local         Local music management
+    music (file)  Music file
+    readme (doc)  Generates a README.rst
+    spotify       Spotify tool
+    version       Print version
+    youtube       Youtube tool
 
 musicbot completion
 *******************
@@ -77,203 +74,6 @@ musicbot completion show
   Options:
     -i, --case-insensitive  Case insensitive completion
     -h, --help              Show this message and exit.
-
-musicbot database
-*****************
-.. code-block::
-
-  Usage: musicbot database [OPTIONS] COMMAND [ARGS]...
-
-    Database management (admin)
-
-  Options:
-    -h, --help  Show this message and exit.
-
-  Commands:
-    clear-schemas (recreate)                       Drop and recreate database and schema
-    cli                                            Start PgCLI util
-    create-role-and-database (create-role-and-db)  Create role and database
-    create-schemas                                 Create database and load schema
-    drop-database (drop-db)                        Create role and database
-    drop-schemas                                   Drop database
-    help                                           Print help
-
-musicbot database clear-schemas
-*******************************
-.. code-block::
-
-  Usage: musicbot database clear-schemas [OPTIONS] DSN
-
-    Drop and recreate database and schema
-
-  Options:
-    -y, --yes         Confirm action  [default: False]
-    --dry / --no-dry  Do not launch real action  [default: no-dry]
-    -h, --help        Show this message and exit.
-
-musicbot database cli
-*********************
-.. code-block::
-
-  Usage: musicbot database cli [OPTIONS] [PGCLI_ARGS]...
-
-    Start PgCLI util
-
-  Options:
-    -h, --help  Show this message and exit.
-
-musicbot database create-role-and-database
-******************************************
-.. code-block::
-
-  Usage: musicbot database create-role-and-database [OPTIONS] DSN
-
-    Create role and database
-
-  Options:
-    --dry / --no-dry  Do not launch real action  [default: no-dry]
-    --admin TEXT
-    --password TEXT
-    -h, --help        Show this message and exit.
-
-musicbot database create-schemas
-********************************
-.. code-block::
-
-  Usage: musicbot database create-schemas [OPTIONS] DSN
-
-    Create database and load schema
-
-  Options:
-    --dry / --no-dry  Do not launch real action  [default: no-dry]
-    -h, --help        Show this message and exit.
-
-musicbot database drop-database
-*******************************
-.. code-block::
-
-  Usage: musicbot database drop-database [OPTIONS] DSN
-
-    Create role and database
-
-  Options:
-    --dry / --no-dry  Do not launch real action  [default: no-dry]
-    -y, --yes         Confirm action  [default: False]
-    -h, --help        Show this message and exit.
-
-musicbot database drop-schemas
-******************************
-.. code-block::
-
-  Usage: musicbot database drop-schemas [OPTIONS] DSN
-
-    Drop database
-
-  Options:
-    -y, --yes         Confirm action  [default: False]
-    --dry / --no-dry  Do not launch real action  [default: no-dry]
-    -h, --help        Show this message and exit.
-
-musicbot filter
-***************
-.. code-block::
-
-  Usage: musicbot filter [OPTIONS] COMMAND [ARGS]...
-
-    Filter management
-
-  Options:
-    -h, --help  Show this message and exit.
-
-  Commands:
-    count                 Count filters
-    delete (remove)       Delete a filter
-    help                  Print help
-    list                  List filters
-    load (load-defaults)  Load default filters
-    show (get,print)      Print a filter
-
-musicbot filter count
-*********************
-.. code-block::
-
-  Usage: musicbot filter count [OPTIONS]
-
-    Count filters
-
-  Options:
-    Auth options: 
-      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT     User token
-      -e, --email TEXT     User email
-      -p, --password TEXT  User password
-    -h, --help             Show this message and exit.
-
-musicbot filter delete
-**********************
-.. code-block::
-
-  Usage: musicbot filter delete [OPTIONS] NAME
-
-    Delete a filter
-
-  Options:
-    Auth options: 
-      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT     User token
-      -e, --email TEXT     User email
-      -p, --password TEXT  User password
-    -h, --help             Show this message and exit.
-
-musicbot filter list
-********************
-.. code-block::
-
-  Usage: musicbot filter list [OPTIONS]
-
-    List filters
-
-  Options:
-    --output [json|table|m3u]  Output format  [default: table]
-    Auth options: 
-      -g, --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT         User token
-      -e, --email TEXT         User email
-      -p, --password TEXT      User password
-    -h, --help                 Show this message and exit.
-
-musicbot filter load
-********************
-.. code-block::
-
-  Usage: musicbot filter load [OPTIONS]
-
-    Load default filters
-
-  Options:
-    Auth options: 
-      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT     User token
-      -e, --email TEXT     User email
-      -p, --password TEXT  User password
-    -h, --help             Show this message and exit.
-
-musicbot filter show
-********************
-.. code-block::
-
-  Usage: musicbot filter show [OPTIONS] NAME
-
-    Print a filter
-
-  Options:
-    --output [json|table|m3u]  Output format  [default: table]
-    Auth options: 
-      -g, --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT         User token
-      -e, --email TEXT         User email
-      -p, --password TEXT      User password
-    -h, --help                 Show this message and exit.
 
 musicbot folder
 ***************
@@ -359,9 +159,9 @@ musicbot folder inconsistencies
   Options:
     --dry / --no-dry                                    Do not launch real action  [default: no-dry]
     Check options: 
-      --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-comment|invalid-path]
+      --checks [no-title|no-artist|no-album|no-genre|no-rating|no-track|invalid-title|invalid-comment|invalid-path]
                                                         Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
-                                                        tracknumber, invalid-title, invalid-comment, invalid-path]
+                                                        track, invalid-title, invalid-comment, invalid-path]
       --fix                                             Fix musics
     --extension TEXT                                    Supported formats
     -h, --help                                          Show this message and exit.
@@ -417,19 +217,15 @@ musicbot local
     -h, --help  Show this message and exit.
 
   Commands:
-    bests                          Generate bests playlists with some rules
-    clean                          Clean all musics
-    count                          Count musics
-    execute (fetch,query)          Raw query
-    help                           Print help
-    inconsistencies (consistency)  Check music consistency
-    player (play)                  Music player
-    playlist                       Generate a new playlist
-    scan                           Load musics
-    stats (stat)                   Generate some stats for music collection with filters
-    sync                           Copy selected musics with filters to destination folder
-    tracks                         Generate a new playlist
-    watch                          Watch files changes in folders
+    bests                  Generate bests playlists with some rules
+    clean                  Clean all musics
+    execute (fetch,query)  Raw query
+    help                   Print help
+    player (play)          Music player
+    playlist               Generate a new playlist
+    scan                   Load musics
+    sync                   Copy selected musics with filters to destination folder
+    watch                  Watch files changes in folders
 
 musicbot local bests
 ********************
@@ -440,35 +236,49 @@ musicbot local bests
     Generate bests playlists with some rules
 
   Options:
-    --prefix TEXT             Append prefix before each path
-    --suffix TEXT             Append this suffix to playlist name
-    --dry / --no-dry          Do not launch real action  [default: no-dry]
-    Auth options: 
-      -g, --graphql TEXT      GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT        User token
-      -e, --email TEXT        User email
-      -p, --password TEXT     User password
+    --prefix TEXT                Append prefix before each path
+    --min-playlist-size INTEGER  Minimum size of playlist to write
+    --ratings FLOAT              Generate bests for those ratings
+    --types TEXT                 Type of bests playlists
+    --dry / --no-dry             Do not launch real action  [default: no-dry]
     Filter options: 
-      --name TEXT             Filter name
-      --limit INTEGER         Fetch a maximum limit of music
-      --keywords TEXT         Select musics with keywords
-      --no-keywords TEXT      Filter musics without keywords
-      --artists TEXT          Select musics with artists
-      --no-artists TEXT       Filter musics without artists
-      --albums TEXT           Select musics with albums
-      --no-albums TEXT        Filter musics without albums
-      --titles TEXT           Select musics with titles
-      --no-titles TEXT        Filter musics without titless
-      --genres TEXT           Select musics with genres
-      --no-genres TEXT        Filter musics without genres
-      --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
-      --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-      --min-rating FLOAT      Minimum rating  [default: 0.0]
-      --max-rating FLOAT      Maximum rating  [default: 5.0]
-      --shuffle               Randomize selection
-    Ordering options: 
-      --shuffle               Randomize selection
-    -h, --help                Show this message and exit.
+      --name TEXT                Filter name
+      --limit INTEGER            Fetch a maximum limit of music
+      --shuffle                  Randomize selection
+    Link options: 
+      --http / --no-http
+      --sftp / --no-sftp
+      --youtube / --no-youtube
+      --spotify / --no-spotify
+      --local / --no-local
+    Keywords: 
+      --keywords TEXT            Select musics with keywords
+      --no-keywords TEXT         Filter musics without keywords
+    Artists: 
+      --artists TEXT             Select musics with artists
+      --no-artists TEXT          Filter musics without artists
+    Albums: 
+      --albums TEXT              Select musics with albums
+      --no-albums TEXT           Filter musics without albums
+    Titles: 
+      --titles TEXT              Select musics with titles
+      --no-titles TEXT           Filter musics without titless
+    Genres: 
+      --genres TEXT              Select musics with genres
+      --no-genres TEXT           Filter musics without genres
+    Length: 
+      --min-length INTEGER       Minimum length filter in seconds
+      --max-length INTEGER       Maximum length filter in seconds
+    Size: 
+      --min-size INTEGER         Minimum file size
+      --max-size INTEGER         Maximum file size
+    Rating: 
+      --min-rating FLOAT RANGE   Minimum rating  [default: 0.0; 0.0<=x<=5.0]
+      --max-rating FLOAT RANGE   Maximum rating  [default: 5.0; 0.0<=x<=5.0]
+    MusicDB options: 
+      --dsn TEXT                 DSN to MusicBot EdgeDB
+      --musicdb TEXT
+    -h, --help                   Show this message and exit.
 
 musicbot local clean
 ********************
@@ -479,29 +289,11 @@ musicbot local clean
     Clean all musics
 
   Options:
-    Auth options: 
-      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT     User token
-      -e, --email TEXT     User email
-      -p, --password TEXT  User password
-    -y, --yes              Confirm action  [default: False]
-    -h, --help             Show this message and exit.
-
-musicbot local count
-********************
-.. code-block::
-
-  Usage: musicbot local count [OPTIONS]
-
-    Count musics
-
-  Options:
-    Auth options: 
-      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT     User token
-      -e, --email TEXT     User email
-      -p, --password TEXT  User password
-    -h, --help             Show this message and exit.
+    MusicDB options: 
+      --dsn TEXT       DSN to MusicBot EdgeDB
+      --musicdb TEXT
+    -y, --yes          Confirm action  [default: False]
+    -h, --help         Show this message and exit.
 
 musicbot local execute
 **********************
@@ -512,54 +304,10 @@ musicbot local execute
     Raw query
 
   Options:
-    Auth options: 
-      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT     User token
-      -e, --email TEXT     User email
-      -p, --password TEXT  User password
-    -h, --help             Show this message and exit.
-
-musicbot local inconsistencies
-******************************
-.. code-block::
-
-  Usage: musicbot local inconsistencies [OPTIONS]
-
-    Check music consistency
-
-  Options:
-    Check options: 
-      --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-comment|invalid-path]
-                                                        Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
-                                                        tracknumber, invalid-title, invalid-comment, invalid-path]
-      --fix                                             Fix musics
-    --dry / --no-dry                                    Do not launch real action  [default: no-dry]
-    Auth options: 
-      -g, --graphql TEXT                                GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT                                  User token
-      -e, --email TEXT                                  User email
-      -p, --password TEXT                               User password
-    Filter options: 
-      --name TEXT                                       Filter name
-      --limit INTEGER                                   Fetch a maximum limit of music
-      --keywords TEXT                                   Select musics with keywords
-      --no-keywords TEXT                                Filter musics without keywords
-      --artists TEXT                                    Select musics with artists
-      --no-artists TEXT                                 Filter musics without artists
-      --albums TEXT                                     Select musics with albums
-      --no-albums TEXT                                  Filter musics without albums
-      --titles TEXT                                     Select musics with titles
-      --no-titles TEXT                                  Filter musics without titless
-      --genres TEXT                                     Select musics with genres
-      --no-genres TEXT                                  Filter musics without genres
-      --min-duration INTEGER                            Minimum duration filter (hours:minutes:seconds)
-      --max-duration INTEGER                            Maximum duration filter (hours:minutes:seconds))
-      --min-rating FLOAT                                Minimum rating  [default: 0.0]
-      --max-rating FLOAT                                Maximum rating  [default: 5.0]
-      --shuffle                                         Randomize selection
-    Ordering options: 
-      --shuffle                                         Randomize selection
-    -h, --help                                          Show this message and exit.
+    MusicDB options: 
+      --dsn TEXT       DSN to MusicBot EdgeDB
+      --musicdb TEXT
+    -h, --help         Show this message and exit.
 
 musicbot local player
 *********************
@@ -570,32 +318,44 @@ musicbot local player
     Music player
 
   Options:
-    Auth options: 
-      -g, --graphql TEXT      GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT        User token
-      -e, --email TEXT        User email
-      -p, --password TEXT     User password
+    MusicDB options: 
+      --dsn TEXT                DSN to MusicBot EdgeDB
+      --musicdb TEXT
     Filter options: 
-      --name TEXT             Filter name
-      --limit INTEGER         Fetch a maximum limit of music
-      --keywords TEXT         Select musics with keywords
-      --no-keywords TEXT      Filter musics without keywords
-      --artists TEXT          Select musics with artists
-      --no-artists TEXT       Filter musics without artists
-      --albums TEXT           Select musics with albums
-      --no-albums TEXT        Filter musics without albums
-      --titles TEXT           Select musics with titles
-      --no-titles TEXT        Filter musics without titless
-      --genres TEXT           Select musics with genres
-      --no-genres TEXT        Filter musics without genres
-      --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
-      --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-      --min-rating FLOAT      Minimum rating  [default: 0.0]
-      --max-rating FLOAT      Maximum rating  [default: 5.0]
-      --shuffle               Randomize selection
-    Ordering options: 
-      --shuffle               Randomize selection
-    -h, --help                Show this message and exit.
+      --name TEXT               Filter name
+      --limit INTEGER           Fetch a maximum limit of music
+      --shuffle                 Randomize selection
+    Link options: 
+      --http / --no-http
+      --sftp / --no-sftp
+      --youtube / --no-youtube
+      --spotify / --no-spotify
+      --local / --no-local
+    Keywords: 
+      --keywords TEXT           Select musics with keywords
+      --no-keywords TEXT        Filter musics without keywords
+    Artists: 
+      --artists TEXT            Select musics with artists
+      --no-artists TEXT         Filter musics without artists
+    Albums: 
+      --albums TEXT             Select musics with albums
+      --no-albums TEXT          Filter musics without albums
+    Titles: 
+      --titles TEXT             Select musics with titles
+      --no-titles TEXT          Filter musics without titless
+    Genres: 
+      --genres TEXT             Select musics with genres
+      --no-genres TEXT          Filter musics without genres
+    Length: 
+      --min-length INTEGER      Minimum length filter in seconds
+      --max-length INTEGER      Maximum length filter in seconds
+    Size: 
+      --min-size INTEGER        Minimum file size
+      --max-size INTEGER        Maximum file size
+    Rating: 
+      --min-rating FLOAT RANGE  Minimum rating  [default: 0.0; 0.0<=x<=5.0]
+      --max-rating FLOAT RANGE  Maximum rating  [default: 5.0; 0.0<=x<=5.0]
+    -h, --help                  Show this message and exit.
 
 musicbot local playlist
 ***********************
@@ -606,12 +366,10 @@ musicbot local playlist
     Generate a new playlist
 
   Options:
+    MusicDB options: 
+      --dsn TEXT                DSN to MusicBot EdgeDB
+      --musicdb TEXT
     --output [json|table|m3u]   Output format  [default: table]
-    Auth options: 
-      -g, --graphql TEXT        GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT          User token
-      -e, --email TEXT          User email
-      -p, --password TEXT       User password
     Link options: 
       --http / --no-http
       --sftp / --no-sftp
@@ -621,23 +379,37 @@ musicbot local playlist
     Filter options: 
       --name TEXT               Filter name
       --limit INTEGER           Fetch a maximum limit of music
+      --shuffle                 Randomize selection
+    Link options: 
+      --http / --no-http
+      --sftp / --no-sftp
+      --youtube / --no-youtube
+      --spotify / --no-spotify
+      --local / --no-local
+    Keywords: 
       --keywords TEXT           Select musics with keywords
       --no-keywords TEXT        Filter musics without keywords
+    Artists: 
       --artists TEXT            Select musics with artists
       --no-artists TEXT         Filter musics without artists
+    Albums: 
       --albums TEXT             Select musics with albums
       --no-albums TEXT          Filter musics without albums
+    Titles: 
       --titles TEXT             Select musics with titles
       --no-titles TEXT          Filter musics without titless
+    Genres: 
       --genres TEXT             Select musics with genres
       --no-genres TEXT          Filter musics without genres
-      --min-duration INTEGER    Minimum duration filter (hours:minutes:seconds)
-      --max-duration INTEGER    Maximum duration filter (hours:minutes:seconds))
-      --min-rating FLOAT        Minimum rating  [default: 0.0]
-      --max-rating FLOAT        Maximum rating  [default: 5.0]
-      --shuffle                 Randomize selection
-    Ordering options: 
-      --shuffle                 Randomize selection
+    Length: 
+      --min-length INTEGER      Minimum length filter in seconds
+      --max-length INTEGER      Maximum length filter in seconds
+    Size: 
+      --min-size INTEGER        Minimum file size
+      --max-size INTEGER        Maximum file size
+    Rating: 
+      --min-rating FLOAT RANGE  Minimum rating  [default: 0.0; 0.0<=x<=5.0]
+      --max-rating FLOAT RANGE  Maximum rating  [default: 5.0; 0.0<=x<=5.0]
     -h, --help                  Show this message and exit.
 
 musicbot local scan
@@ -649,6 +421,9 @@ musicbot local scan
     Load musics
 
   Options:
+    MusicDB options: 
+      --dsn TEXT                DSN to MusicBot EdgeDB
+      --musicdb TEXT
     --extension TEXT            Supported formats
     -s, --save                  Save to config file  [default: False]
     --clean                     Delete musics before  [default: False]
@@ -658,49 +433,7 @@ musicbot local scan
       --youtube / --no-youtube
       --spotify / --no-spotify
       --local / --no-local
-    Auth options: 
-      -g, --graphql TEXT        GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT          User token
-      -e, --email TEXT          User email
-      -p, --password TEXT       User password
     -h, --help                  Show this message and exit.
-
-musicbot local stats
-********************
-.. code-block::
-
-  Usage: musicbot local stats [OPTIONS]
-
-    Generate some stats for music collection with filters
-
-  Options:
-    --output [json|table|m3u]  Output format  [default: table]
-    Auth options: 
-      -g, --graphql TEXT       GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT         User token
-      -e, --email TEXT         User email
-      -p, --password TEXT      User password
-    Filter options: 
-      --name TEXT              Filter name
-      --limit INTEGER          Fetch a maximum limit of music
-      --keywords TEXT          Select musics with keywords
-      --no-keywords TEXT       Filter musics without keywords
-      --artists TEXT           Select musics with artists
-      --no-artists TEXT        Filter musics without artists
-      --albums TEXT            Select musics with albums
-      --no-albums TEXT         Filter musics without albums
-      --titles TEXT            Select musics with titles
-      --no-titles TEXT         Filter musics without titless
-      --genres TEXT            Select musics with genres
-      --no-genres TEXT         Filter musics without genres
-      --min-duration INTEGER   Minimum duration filter (hours:minutes:seconds)
-      --max-duration INTEGER   Maximum duration filter (hours:minutes:seconds))
-      --min-rating FLOAT       Minimum rating  [default: 0.0]
-      --max-rating FLOAT       Maximum rating  [default: 5.0]
-      --shuffle                Randomize selection
-    Ordering options: 
-      --shuffle                Randomize selection
-    -h, --help                 Show this message and exit.
 
 musicbot local sync
 *******************
@@ -711,72 +444,48 @@ musicbot local sync
     Copy selected musics with filters to destination folder
 
   Options:
-    --dry / --no-dry          Do not launch real action  [default: no-dry]
-    -y, --yes                 Confirm file deletion on destination
-    Auth options: 
-      -g, --graphql TEXT      GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT        User token
-      -e, --email TEXT        User email
-      -p, --password TEXT     User password
+    --dry / --no-dry            Do not launch real action  [default: no-dry]
+    -y, --yes                   Confirm file deletion on destination
+    MusicDB options: 
+      --dsn TEXT                DSN to MusicBot EdgeDB
+      --musicdb TEXT
     Filter options: 
-      --name TEXT             Filter name
-      --limit INTEGER         Fetch a maximum limit of music
-      --keywords TEXT         Select musics with keywords
-      --no-keywords TEXT      Filter musics without keywords
-      --artists TEXT          Select musics with artists
-      --no-artists TEXT       Filter musics without artists
-      --albums TEXT           Select musics with albums
-      --no-albums TEXT        Filter musics without albums
-      --titles TEXT           Select musics with titles
-      --no-titles TEXT        Filter musics without titless
-      --genres TEXT           Select musics with genres
-      --no-genres TEXT        Filter musics without genres
-      --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
-      --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-      --min-rating FLOAT      Minimum rating  [default: 0.0]
-      --max-rating FLOAT      Maximum rating  [default: 5.0]
-      --shuffle               Randomize selection
-    Ordering options: 
-      --shuffle               Randomize selection
-    --flat                    Do not create subfolders
-    --delete                  Delete files on destination if not present in library
-    -h, --help                Show this message and exit.
-
-musicbot local tracks
-*********************
-.. code-block::
-
-  Usage: musicbot local tracks [OPTIONS]
-
-    Generate a new playlist
-
-  Options:
-    Auth options: 
-      -g, --graphql TEXT      GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT        User token
-      -e, --email TEXT        User email
-      -p, --password TEXT     User password
-    Filter options: 
-      --name TEXT             Filter name
-      --limit INTEGER         Fetch a maximum limit of music
-      --keywords TEXT         Select musics with keywords
-      --no-keywords TEXT      Filter musics without keywords
-      --artists TEXT          Select musics with artists
-      --no-artists TEXT       Filter musics without artists
-      --albums TEXT           Select musics with albums
-      --no-albums TEXT        Filter musics without albums
-      --titles TEXT           Select musics with titles
-      --no-titles TEXT        Filter musics without titless
-      --genres TEXT           Select musics with genres
-      --no-genres TEXT        Filter musics without genres
-      --min-duration INTEGER  Minimum duration filter (hours:minutes:seconds)
-      --max-duration INTEGER  Maximum duration filter (hours:minutes:seconds))
-      --min-rating FLOAT      Minimum rating  [default: 0.0]
-      --max-rating FLOAT      Maximum rating  [default: 5.0]
-      --shuffle               Randomize selection
-    Ordering options: 
-      --shuffle               Randomize selection
-    -h, --help                Show this message and exit.
+      --name TEXT               Filter name
+      --limit INTEGER           Fetch a maximum limit of music
+      --shuffle                 Randomize selection
+    Link options: 
+      --http / --no-http
+      --sftp / --no-sftp
+      --youtube / --no-youtube
+      --spotify / --no-spotify
+      --local / --no-local
+    Keywords: 
+      --keywords TEXT           Select musics with keywords
+      --no-keywords TEXT        Filter musics without keywords
+    Artists: 
+      --artists TEXT            Select musics with artists
+      --no-artists TEXT         Filter musics without artists
+    Albums: 
+      --albums TEXT             Select musics with albums
+      --no-albums TEXT          Filter musics without albums
+    Titles: 
+      --titles TEXT             Select musics with titles
+      --no-titles TEXT          Filter musics without titless
+    Genres: 
+      --genres TEXT             Select musics with genres
+      --no-genres TEXT          Filter musics without genres
+    Length: 
+      --min-length INTEGER      Minimum length filter in seconds
+      --max-length INTEGER      Maximum length filter in seconds
+    Size: 
+      --min-size INTEGER        Minimum file size
+      --max-size INTEGER        Maximum file size
+    Rating: 
+      --min-rating FLOAT RANGE  Minimum rating  [default: 0.0; 0.0<=x<=5.0]
+      --max-rating FLOAT RANGE  Maximum rating  [default: 5.0; 0.0<=x<=5.0]
+    --flat                      Do not create subfolders
+    --delete                    Delete files on destination if not present in library
+    -h, --help                  Show this message and exit.
 
 musicbot local watch
 ********************
@@ -787,13 +496,11 @@ musicbot local watch
     Watch files changes in folders
 
   Options:
-    --extension TEXT       Supported formats
-    Auth options: 
-      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT     User token
-      -e, --email TEXT     User email
-      -p, --password TEXT  User password
-    -h, --help             Show this message and exit.
+    --extension TEXT   Supported formats
+    MusicDB options: 
+      --dsn TEXT       DSN to MusicBot EdgeDB
+      --musicdb TEXT
+    -h, --help         Show this message and exit.
 
 musicbot music
 **************
@@ -813,7 +520,6 @@ musicbot music
     flac2mp3                           Convert flac music to mp3
     help                               Print help
     inconsistencies (consistency)      Check music consistency
-    insert                             Insert music in DB
     set-tags                           Set music title
     tags                               Print music tags
 
@@ -876,34 +582,11 @@ musicbot music inconsistencies
   Options:
     --dry / --no-dry                                    Do not launch real action  [default: no-dry]
     Check options: 
-      --checks [no-title|no-artist|no-album|no-genre|no-rating|no-tracknumber|invalid-title|invalid-comment|invalid-path]
+      --checks [no-title|no-artist|no-album|no-genre|no-rating|no-track|invalid-title|invalid-comment|invalid-path]
                                                         Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
-                                                        tracknumber, invalid-title, invalid-comment, invalid-path]
+                                                        track, invalid-title, invalid-comment, invalid-path]
       --fix                                             Fix musics
     -h, --help                                          Show this message and exit.
-
-musicbot music insert
-*********************
-.. code-block::
-
-  Usage: musicbot music insert [OPTIONS] PATH
-
-    Insert music in DB
-
-  Options:
-    Auth options: 
-      -g, --graphql TEXT        GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT          User token
-      -e, --email TEXT          User email
-      -p, --password TEXT       User password
-    --dry / --no-dry            Do not launch real action  [default: no-dry]
-    Link options: 
-      --http / --no-http
-      --sftp / --no-sftp
-      --youtube / --no-youtube
-      --spotify / --no-spotify
-      --local / --no-local
-    -h, --help                  Show this message and exit.
 
 musicbot music set-tags
 ***********************
@@ -921,7 +604,7 @@ musicbot music set-tags
       --album TEXT     Album
       --title TEXT     Title
       --genre TEXT     Genre
-      --number TEXT    Track number
+      --track TEXT     Track number
       --rating TEXT    Rating
     -h, --help         Show this message and exit.
 
@@ -979,13 +662,13 @@ musicbot spotify cached-token
 
   Options:
     Spotify options: 
-      --spotify-token TEXT          Spotify token
       --spotify-username TEXT       Spotify username
       --spotify-client-id TEXT      Spotify client ID
       --spotify-client-secret TEXT  Spotify client secret
       --spotify-cache-path FILE     Spotify cache path
       --spotify-scope TEXT          Spotify OAuth scopes, comma separated
       --spotify-redirect-uri TEXT   Spotify redirect URI
+      --spotify-token TEXT          Spotify token
     -h, --help                      Show this message and exit.
 
 musicbot spotify diff
@@ -997,39 +680,17 @@ musicbot spotify diff
     Diff between local and spotify
 
   Options:
-    Auth options: 
-      -g, --graphql TEXT            GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT              User token
-      -e, --email TEXT              User email
-      -p, --password TEXT           User password
     Spotify options: 
-      --spotify-token TEXT          Spotify token
       --spotify-username TEXT       Spotify username
       --spotify-client-id TEXT      Spotify client ID
       --spotify-client-secret TEXT  Spotify client secret
       --spotify-cache-path FILE     Spotify cache path
       --spotify-scope TEXT          Spotify OAuth scopes, comma separated
       --spotify-redirect-uri TEXT   Spotify redirect URI
-    Filter options: 
-      --name TEXT                   Filter name
-      --limit INTEGER               Fetch a maximum limit of music
-      --keywords TEXT               Select musics with keywords
-      --no-keywords TEXT            Filter musics without keywords
-      --artists TEXT                Select musics with artists
-      --no-artists TEXT             Filter musics without artists
-      --albums TEXT                 Select musics with albums
-      --no-albums TEXT              Filter musics without albums
-      --titles TEXT                 Select musics with titles
-      --no-titles TEXT              Filter musics without titless
-      --genres TEXT                 Select musics with genres
-      --no-genres TEXT              Filter musics without genres
-      --min-duration INTEGER        Minimum duration filter (hours:minutes:seconds)
-      --max-duration INTEGER        Maximum duration filter (hours:minutes:seconds))
-      --min-rating FLOAT            Minimum rating  [default: 0.0]
-      --max-rating FLOAT            Maximum rating  [default: 5.0]
-      --shuffle                     Randomize selection
-    Ordering options: 
-      --shuffle                     Randomize selection
+      --spotify-token TEXT          Spotify token
+    MusicDB options: 
+      --dsn TEXT                    DSN to MusicBot EdgeDB
+      --musicdb TEXT
     --output [json|table|m3u]       Output format  [default: table]
     --download-playlist             Create the download playlist
     --min-threshold FLOAT RANGE     Minimum distance threshold  [0<=x<=100]
@@ -1046,13 +707,13 @@ musicbot spotify new-token
 
   Options:
     Spotify options: 
-      --spotify-token TEXT          Spotify token
       --spotify-username TEXT       Spotify username
       --spotify-client-id TEXT      Spotify client ID
       --spotify-client-secret TEXT  Spotify client secret
       --spotify-cache-path FILE     Spotify cache path
       --spotify-scope TEXT          Spotify OAuth scopes, comma separated
       --spotify-redirect-uri TEXT   Spotify redirect URI
+      --spotify-token TEXT          Spotify token
     -h, --help                      Show this message and exit.
 
 musicbot spotify playlist
@@ -1065,13 +726,13 @@ musicbot spotify playlist
 
   Options:
     Spotify options: 
-      --spotify-token TEXT          Spotify token
       --spotify-username TEXT       Spotify username
       --spotify-client-id TEXT      Spotify client ID
       --spotify-client-secret TEXT  Spotify client secret
       --spotify-cache-path FILE     Spotify cache path
       --spotify-scope TEXT          Spotify OAuth scopes, comma separated
       --spotify-redirect-uri TEXT   Spotify redirect URI
+      --spotify-token TEXT          Spotify token
     --output [json|table|m3u]       Output format  [default: table]
     -h, --help                      Show this message and exit.
 
@@ -1085,13 +746,13 @@ musicbot spotify playlists
 
   Options:
     Spotify options: 
-      --spotify-token TEXT          Spotify token
       --spotify-username TEXT       Spotify username
       --spotify-client-id TEXT      Spotify client ID
       --spotify-client-secret TEXT  Spotify client secret
       --spotify-cache-path FILE     Spotify cache path
       --spotify-scope TEXT          Spotify OAuth scopes, comma separated
       --spotify-redirect-uri TEXT   Spotify redirect URI
+      --spotify-token TEXT          Spotify token
     -h, --help                      Show this message and exit.
 
 musicbot spotify refresh-token
@@ -1104,13 +765,13 @@ musicbot spotify refresh-token
 
   Options:
     Spotify options: 
-      --spotify-token TEXT          Spotify token
       --spotify-username TEXT       Spotify username
       --spotify-client-id TEXT      Spotify client ID
       --spotify-client-secret TEXT  Spotify client secret
       --spotify-cache-path FILE     Spotify cache path
       --spotify-scope TEXT          Spotify OAuth scopes, comma separated
       --spotify-redirect-uri TEXT   Spotify redirect URI
+      --spotify-token TEXT          Spotify token
     -h, --help                      Show this message and exit.
 
 musicbot spotify tracks
@@ -1123,117 +784,15 @@ musicbot spotify tracks
 
   Options:
     Spotify options: 
-      --spotify-token TEXT          Spotify token
       --spotify-username TEXT       Spotify username
       --spotify-client-id TEXT      Spotify client ID
       --spotify-client-secret TEXT  Spotify client secret
       --spotify-cache-path FILE     Spotify cache path
       --spotify-scope TEXT          Spotify OAuth scopes, comma separated
       --spotify-redirect-uri TEXT   Spotify redirect URI
+      --spotify-token TEXT          Spotify token
     --output [json|table|m3u]       Output format  [default: table]
     -h, --help                      Show this message and exit.
-
-musicbot user
-*************
-.. code-block::
-
-  Usage: musicbot user [OPTIONS] COMMAND [ARGS]...
-
-    User management
-
-  Options:
-    -h, --help  Show this message and exit.
-
-  Commands:
-    help                        Print help
-    list                        List users (admin)
-    login (token)               Authenticate user
-    register (add,create,new)   Register a new user
-    unregister (delete,remove)  Remove a user
-    whoami                      Info about me
-
-musicbot user list
-******************
-.. code-block::
-
-  Usage: musicbot user list [OPTIONS]
-
-    List users (admin)
-
-  Options:
-    --output [json|table|m3u]        Output format  [default: table]
-    Admin options: 
-      --graphql-admin TEXT           GraphQL endpoint  [default: http://127.0.0.1:5001/graphql]
-    Basic auth: [all_or_none]
-      --graphql-admin-user TEXT      GraphQL admin user (basic auth)
-      --graphql-admin-password TEXT  GraphQL admin password (basic auth)
-    -h, --help                       Show this message and exit.
-
-musicbot user login
-*******************
-.. code-block::
-
-  Usage: musicbot user login [OPTIONS]
-
-    Authenticate user
-
-  Options:
-    -s, --save             Save to config file  [default: False]
-    Login options: 
-      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -e, --email TEXT     User email
-      -p, --password TEXT  User password
-    -h, --help             Show this message and exit.
-
-musicbot user register
-**********************
-.. code-block::
-
-  Usage: musicbot user register [OPTIONS]
-
-    Register a new user
-
-  Options:
-    -s, --save             Save to config file  [default: False]
-    Register options: 
-      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -e, --email TEXT     User email
-      -p, --password TEXT  User password
-      --first-name TEXT    User first name
-      --last-name TEXT     User last name
-    -h, --help             Show this message and exit.
-
-musicbot user unregister
-************************
-.. code-block::
-
-  Usage: musicbot user unregister [OPTIONS]
-
-    Remove a user
-
-  Options:
-    Auth options: 
-      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT     User token
-      -e, --email TEXT     User email
-      -p, --password TEXT  User password
-    -h, --help             Show this message and exit.
-
-musicbot user whoami
-********************
-.. code-block::
-
-  Usage: musicbot user whoami [OPTIONS]
-
-    Info about me
-
-  Options:
-    Auth options: 
-      -g, --graphql TEXT   GraphQL endpoint  [default: http://127.0.0.1:5000/graphql]
-      -t, --token TEXT     User token
-      -e, --email TEXT     User email
-      -p, --password TEXT  User password
-    -h, --help             Show this message and exit.
 
 musicbot version
 ****************

@@ -1,12 +1,14 @@
-from typing import Optional
-import sys
-import logging
-from pathlib import Path
-import functools
 import configparser
+import functools
+import logging
+import sys
+from pathlib import Path
+from typing import Optional
+
 import attr
 import colorlog
 import progressbar  # type: ignore
+
 from musicbot.exceptions import MusicbotError
 
 logger = logging.getLogger(__name__)

@@ -1,7 +1,9 @@
 # type: ignore
 import pytest
 from click_skeleton.testing import run_cli
+
 from musicbot.main import cli
+
 from . import fixtures
 
 

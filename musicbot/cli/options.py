@@ -1,8 +1,17 @@
 import logging
-from typing import Optional, Any
+from typing import Any, Optional
+
 import click
 from click_skeleton.helpers import mysplit
-from musicbot.defaults import DEFAULT_CONCURRENCY, DEFAULT_DRY, DEFAULT_SAVE, DEFAULT_OUTPUT, DEFAULT_YES, DEFAULT_CLEAN
+
+from musicbot.defaults import (
+    DEFAULT_CLEAN,
+    DEFAULT_CONCURRENCY,
+    DEFAULT_DRY,
+    DEFAULT_OUTPUT,
+    DEFAULT_SAVE,
+    DEFAULT_YES
+)
 from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
@@ -21,7 +30,6 @@ dry_option = click.option(
     show_default=True,
     callback=sane_dry,
     expose_value=False,
-    is_eager=True,
 )
 
 true_values = ('enabled', 'y', 'yes', 't', 'true', 'True', 'on', '1')
@@ -62,6 +70,12 @@ def yes_or_no(question: str, default: Optional[str] = 'no') -> bool:
             return str2bool(resp)
         except ValueError:
             print("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
+
+
+def sane_list(ctx: click.Context, param: Any, value: Any) -> list[Any]:
+    '''Convert Tuple when multiple=True to a list'''
+    ctx.params[param.name] = list(value)
+    return ctx.params[param.name]
 
 
 def confirm(ctx: click.Context, param: Any, value: bool) -> None:  # pylint: disable=unused-argument
@@ -140,28 +154,28 @@ def config_string(ctx: click.Context, param: click.Parameter, value: Optional[st
 
 
 def config_list(ctx: click.Context, param: click.Parameter, value: Any) -> Any:
+    value = sane_list(ctx, param, value)
     arg_value = value
+    list_value = []
     logger.info(f"{param.name} : try list loading with arg value : {arg_value}")
 
     if param.name:
         config_value = MusicbotObject.config.configfile.get('musicbot', param.name, fallback=None)
-        list_value = []
         if config_value:
             for v in mysplit(config_value, ','):
                 try:
                     list_value.append(param.type(v))
                 except Exception as e:  # pylint: disable=broad-except
                     logger.warning(e)
-        final_list_value = tuple(list_value)
-        logger.info(f"{param.name} : try list loading with config key : {final_list_value}")
+        logger.info(f"{param.name} : try list loading with config key : {list_value}")
 
     if arg_value:
         value = arg_value
 
-    if final_list_value:
+    if list_value:
         if not value or value == param.default:
-            value = final_list_value
-        elif arg_value and arg_value != final_list_value:
+            value = list_value
+        elif arg_value and arg_value != list_value:
             logger.warning(f"{param.name} : config list value {list_value} is not sync with arg value {arg_value}")
 
     if not value and param.required:

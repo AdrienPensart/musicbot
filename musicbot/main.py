@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
 '''Main module, import commands and start CLI'''
-from typing import Optional, Any
 import logging
 import os
 import sys
-import requests
-import psycopg2  # type: ignore
-import spotipy  # type: ignore
-import mutagen  # type: ignore
+from typing import Any, Optional
+
 import click
-from click_skeleton import skeleton, doc, backtrace, version_checker, helpers
+import edgedb
+import mutagen  # type: ignore
+import requests
+import spotipy  # type: ignore
 from beartype import beartype
+from click_skeleton import backtrace, doc, helpers, skeleton, version_checker
+
 import musicbot
-from musicbot.cli.config import config_options
-from musicbot import MusicbotObject, Config, version, exceptions
 import musicbot.commands
+from musicbot import Config, MusicbotObject, exceptions, version
+from musicbot.cli.config import config_options
 
 PROG_NAME = "musicbot"
 logger = logging.getLogger(__name__)
@@ -78,7 +80,13 @@ def main(**kwargs: Any) -> int:
     try:
         exit_code = cli.main(prog_name=PROG_NAME, **kwargs)
         return exit_code
-    except (psycopg2.OperationalError, mutagen.MutagenError, exceptions.MusicbotError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError) as e:
+    except (
+        mutagen.MutagenError,
+        exceptions.MusicbotError,
+        spotipy.client.SpotifyException,
+        requests.exceptions.ConnectionError,
+        edgedb.errors.AuthenticationError
+    ) as e:
         logger.error(e)
         if MusicbotObject.config and MusicbotObject.config.debug:
             logger.exception(e)

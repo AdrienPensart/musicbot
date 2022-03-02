@@ -1,10 +1,10 @@
 '''Timing helpers'''
-from typing import Callable, Any
-import logging
-import functools
 import datetime
+import functools
 import inspect
+import logging
 import time
+from typing import Any, Callable
 
 logger = logging.getLogger(__name__)
 

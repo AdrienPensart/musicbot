@@ -1,35 +1,40 @@
-from typing import Tuple, List
-from pathlib import Path
-import logging
-import time
+# import codecs
 import io
-import random
+import logging
 import shutil
-import codecs
-import json
-import textwrap
+import time
+from pathlib import Path
+from typing import Optional
+
+import attr
 import click
 import progressbar  # type: ignore
-import mutagen  # type: ignore
 from beartype import beartype
-from watchdog.observers import Observer  # type: ignore
-from rich.table import Table
 from click_skeleton import AdvancedGroup
-from click_skeleton.helpers import seconds_to_human
-from musicbot.cli.file import extensions_option, link_options, flat_option, checks_and_fix_options
-from musicbot.cli.folders import destination_argument, folders_argument, folder_argument
-from musicbot.cli.music_filter import music_filter_options
-from musicbot.cli.user import user_options
-from musicbot.cli.options import yes_option, save_option, output_option, dry_option, clean_option
+from watchdog.observers import Observer  # type: ignore
 
-from musicbot.watcher import MusicWatcherHandler
-from musicbot.player import play
+from musicbot.cli.file import extensions_option, flat_option
+from musicbot.cli.folders import (
+    destination_argument,
+    folder_argument,
+    folders_argument
+)
+from musicbot.cli.music_filter import link_options, music_filter_options
+from musicbot.cli.musicdb import musicdb_options
+from musicbot.cli.options import (
+    clean_option,
+    dry_option,
+    output_option,
+    sane_list,
+    save_option,
+    yes_option
+)
+from musicbot.file import File
+from musicbot.folders import Folders, except_directories
+from musicbot.music_filter import MusicFilter
+from musicbot.musicdb import MusicDb
 from musicbot.object import MusicbotObject
-from musicbot.user import User
-from musicbot.music.music_filter import MusicFilter
-from musicbot.music.file import File
-from musicbot.music.folders import Folders, except_directories
-
+from musicbot.watcher import MusicWatcherHandler
 
 logger = logging.getLogger(__name__)
 
@@ -40,56 +45,28 @@ def cli() -> None:
     pass
 
 
-@cli.command(help='Count musics')
-@user_options
-@beartype
-def count(user: User) -> None:
-    print(user.count_musics())
-
-
 @cli.command(help='Raw query', aliases=['query', 'fetch'])
 @click.argument('query')
-@user_options
+@musicdb_options
 @beartype
-def execute(user: User, query: str) -> None:
-    print(json.dumps(user.fetch(query)))
-
-
-@cli.command(aliases=['stat'], help='Generate some stats for music collection with filters')
-@output_option
-@user_options
-@music_filter_options
-@beartype
-def stats(user: User, output: str, music_filter: MusicFilter) -> None:
-    stats = user.do_stat(music_filter)
-    if output == 'json':
-        print(json.dumps(stats))
-    elif output == 'table':
-        table = Table("Stat", "Value")
-        table.add_row("Music", stats['musics'])
-        table.add_row("Link", stats['links'])
-        table.add_row("Artist", stats['artists'])
-        table.add_row("Album", stats['albums'])
-        table.add_row("Genre", stats['genres'])
-        table.add_row("Keywords", stats['keywords'])
-        table.add_row("Total duration", seconds_to_human(int(stats['duration'])))
-        MusicbotObject.console.print(table)
+def execute(musicdb: MusicDb, query: str) -> None:
+    print(musicdb.client.query_json(query))
 
 
 @cli.command(help='Load musics')
 @folders_argument
+@musicdb_options
 @extensions_option
 @save_option
 @clean_option
 @link_options
-@user_options
 @beartype
 def scan(
-    user: User,
+    musicdb: MusicDb,
     clean: bool,
     save: bool,
-    folders: Tuple[Path, ...],
-    extensions: Tuple[str, ...],
+    folders: list[Path],
+    extensions: list[str],
     http: bool,
     sftp: bool,
     youtube: bool,
@@ -97,17 +74,20 @@ def scan(
     local: bool,
 ) -> None:
     if clean:
-        user.clean_musics()
-
+        musicdb.clean_musics()
     musics = Folders(folders=folders, extensions=extensions).musics
-    user.bulk_insert(
-        musics,
-        http=http,
-        sftp=sftp,
-        youtube=youtube,
-        spotify=spotify,
-        local=local,
-    )
+    for music in musics:
+        if 'no-title' in music.inconsistencies or 'no-artist' in music.inconsistencies or 'no-album' in music.inconsistencies:
+            MusicbotObject.warn(f"{music} : missing mandatory fields title/album/artist : {music.inconsistencies}")
+            continue
+        musicdb.upsert_music(
+            music,
+            http=http,
+            sftp=sftp,
+            youtube=youtube,
+            spotify=spotify,
+            local=local,
+        )
 
     if save:
         MusicbotObject.config.configfile['musicbot']['folders'] = ','.join({str(folder) for folder in folders})
@@ -117,10 +97,14 @@ def scan(
 @cli.command(help='Watch files changes in folders')
 @folders_argument
 @extensions_option
-@user_options
+@musicdb_options
 @beartype
-def watch(user: User, folders: Tuple[Path, ...], extensions: Tuple[str, ...]) -> None:
-    event_handler = MusicWatcherHandler(user=user, folders=folders, extensions=extensions)
+def watch(
+    musicdb: MusicDb,
+    folders: list[Path],
+    extensions: list[str],
+) -> None:
+    event_handler = MusicWatcherHandler(musicdb=musicdb, folders=folders, extensions=extensions)
     observer = Observer()
     for folder in folders:
         observer.schedule(event_handler, folder, recursive=True)
@@ -134,165 +118,149 @@ def watch(user: User, folders: Tuple[Path, ...], extensions: Tuple[str, ...]) ->
 
 
 @cli.command(help='Clean all musics')
-@user_options
+@musicdb_options
 @yes_option
 @beartype
-def clean(user: User) -> None:
-    user.clean_musics()
-
-
-@cli.command('tracks', help='Generate a new playlist')
-@user_options
-@music_filter_options
-@beartype
-def _tracks(user: User, music_filter: MusicFilter) -> None:
-    tracks = user.playlist(music_filter)
-    print(json.dumps(tracks))
+def clean(musicdb: MusicDb) -> None:
+    musicdb.clean_musics()
 
 
 @cli.command(help='Generate a new playlist')
+@musicdb_options
 @output_option
-@user_options
 @link_options
 @music_filter_options
 @beartype
-def playlist(output: str, user: User, music_filter: MusicFilter, http: bool, sftp: bool, youtube: bool, spotify: bool, local: bool) -> None:
-    musics = user.playlist(music_filter)
-    if music_filter.shuffle:
-        random.shuffle(musics)
-
-    urls = []
-    table = Table('url')
-    for music in musics:
-        links = music['links']
-        if not links:
-            MusicbotObject.warn(f'{music} : no links available')
-        for link in links:
-            if 'youtube' in link:
-                if youtube:
-                    urls.append(link)
-                    table.add_row(link)
-                continue
-
-            if 'http' in link:
-                if http:
-                    urls.append(link)
-                    table.add_row(link)
-                continue
-
-            if 'spotify' in link:
-                if spotify:
-                    urls.append(link)
-                    table.add_row(link)
-                continue
-
-            if 'sftp' in link:
-                if sftp:
-                    urls.append(link)
-                    table.add_row(link)
-                continue
-
-            if local:
-                path = Path(link)
-                if not path.exists():
-                    MusicbotObject.warn(f'{link} does not exist locally, skipping')
-                    continue
-                urls.append(link)
-                table.add_row(link)
-
-    if output == 'm3u':
-        p = '#EXTM3U\n'
-        p += '\n'.join(urls)
-        print(p)
-        return
-
-    if output == 'table':
-        MusicbotObject.console.print(table)
-        return
-
-    if output == 'json':
-        print(json.dumps(musics))
-        return
+def playlist(
+    output: str,
+    music_filter: MusicFilter,
+    musicdb: MusicDb,
+) -> None:
+    p = musicdb.make_playlist(music_filter)
+    p.print(output=output)
 
 
 @cli.command(help='Generate bests playlists with some rules')
-@click.option('--prefix', envvar='MB_PREFIX', help="Append prefix before each path", default='')
-@click.option('--suffix', envvar='MB_SUFFIX', help="Append this suffix to playlist name", default='')
+@click.option('--prefix', help="Append prefix before each path")
+@click.option('--min-playlist-size', help="Minimum size of playlist to write", default=1)
+@click.option('--ratings', help="Generate bests for those ratings", default=[4.0, 4.5, 5.0], multiple=True, callback=sane_list)
+@click.option('--types', help="Type of bests playlists", default=["genre", "keyword", "rating", "artist"], multiple=True, callback=sane_list)
 @folder_argument
 @dry_option
-@user_options
 @music_filter_options
+@musicdb_options
 @beartype
-def bests(user: User, folder: Path, prefix: str, suffix: str, music_filter: MusicFilter) -> None:
-    playlists = user.bests(music_filter)
-    with MusicbotObject.progressbar(max_value=len(playlists)) as pbar:
-        for p in playlists:
-            try:
-                playlist_filepath = Path(folder) / (p['name'] + suffix + '.m3u')
-                content = textwrap.indent(p['content'], prefix, lambda line: line != '#EXTM3U\n')
-                if MusicbotObject.dry:
-                    logger.info(f'DRY RUN: Writing playlist to {playlist_filepath} with content:\n{content}')
+def bests(
+    musicdb: MusicDb,
+    music_filter: MusicFilter,
+    folder: Path,
+    prefix: Optional[str],
+    min_playlist_size: int,
+    ratings: list[float],
+    types: list[str],
+) -> None:
+    prefiltered = musicdb.make_playlist(music_filter)
+    if "genre" in types:
+        for genre in prefiltered.genres:
+            filter_copy = attr.evolve(
+                music_filter,
+                genres=[genre],
+            )
+            best = musicdb.make_playlist(filter_copy)
+            if len(best.musics) < min_playlist_size:
+                continue
+            filepath = Path(folder) / ('genre_' + genre.lower() + '.m3u')
+            best.write(filepath, prefix)
+
+    if "rating" in types:
+        for rating in ratings:
+            filter_copy = attr.evolve(
+                music_filter,
+                min_rating=rating,
+            )
+            best = musicdb.make_playlist(filter_copy)
+            if len(best.musics) < min_playlist_size:
+                continue
+            filepath = Path(folder) / ('rating_' + str(rating) + '.m3u')
+            best.write(filepath, prefix)
+
+    if "keyword" in types:
+        for keyword in prefiltered.keywords:
+            filter_copy = attr.evolve(
+                music_filter,
+                keywords=[keyword],
+            )
+            best = musicdb.make_playlist(filter_copy)
+            if len(best.musics) < min_playlist_size:
+                continue
+            filepath = Path(folder) / ('keyword_' + keyword.lower() + '.m3u')
+            best.write(filepath, prefix)
+
+    if "artist" not in types:
+        return
+
+    for artist in prefiltered.artists:
+        if "rating" in types:
+            for rating in ratings:
+                filter_copy = attr.evolve(
+                    music_filter,
+                    min_rating=rating,
+                    artists=[artist],
+                )
+                best = musicdb.make_playlist(filter_copy)
+                if len(best.musics) < min_playlist_size:
                     continue
-                try:
-                    playlist_filepath.parent.mkdir(parents=True, exist_ok=True)
-                    with codecs.open(playlist_filepath, 'w', "utf-8-sig") as playlist_file:
-                        logger.debug(f'Writing playlist to {playlist_filepath} with content:\n{content}')
-                        playlist_file.write(content)
-                except (OSError, LookupError, ValueError, UnicodeError) as e:
-                    logger.warning(f'Unable to write playlist to {playlist_filepath} because of {e}')
-            finally:
-                pbar.value += 1
-                pbar.update()
+                filepath = Path(folder) / artist / ('rating_' + str(rating) + '.m3u')
+                best.write(filepath, prefix)
+
+        if "keyword" in types:
+            for keyword in prefiltered.keywords:
+                filter_copy = attr.evolve(
+                    music_filter,
+                    keywords=[keyword],
+                    artists=[artist],
+                )
+                best = musicdb.make_playlist(filter_copy)
+                if len(best.musics) < min_playlist_size:
+                    continue
+                filepath = Path(folder) / artist / ('keyword_' + keyword.lower() + '.m3u')
+                best.write(filepath, prefix)
 
 
 @cli.command(aliases=['play'], help='Music player')
-@user_options
+@musicdb_options
 @music_filter_options
 @beartype
-def player(user: User, music_filter: MusicFilter) -> None:
+def player(music_filter: MusicFilter, musicdb: MusicDb) -> None:
     if not MusicbotObject.config.quiet:
         progressbar.streams.unwrap(stderr=True, stdout=True)
     try:
-        tracks = user.playlist(music_filter)
-        play(tracks)
+        playlist = musicdb.make_playlist(music_filter)
+        playlist.play()
     except io.UnsupportedOperation:
         logger.critical('Unable to load UI')
-
-
-@cli.command(aliases=['consistency'], help='Check music consistency')
-@checks_and_fix_options
-@dry_option
-@user_options
-@music_filter_options
-@beartype
-def inconsistencies(user: User, fix: bool, checks: Tuple[str, ...], music_filter: MusicFilter) -> None:
-    musics = user.playlist(music_filter)
-    table = Table("Path", "Inconsistencies")
-    for music in musics:
-        try:
-            m = File(music['path'])
-            if fix:
-                m.fix(checks=checks)
-            if m.inconsistencies:
-                table.add_row(music['path'], ', '.join(m.inconsistencies))
-        except (OSError, mutagen.MutagenError):
-            table.add_row(music['path'], "could not open file")
-    MusicbotObject.console.print(table)
 
 
 @cli.command(help='Copy selected musics with filters to destination folder')
 @destination_argument
 @dry_option
 @click.option('--yes', '-y', help="Confirm file deletion on destination", is_flag=True)
-@user_options
+@musicdb_options
 @music_filter_options
 @flat_option
 @click.option('--delete', help='Delete files on destination if not present in library', is_flag=True)
 @beartype
-def sync(user: User, delete: bool, destination: Path, music_filter: MusicFilter, yes: bool, flat: bool) -> None:
+def sync(
+    musicdb: MusicDb,
+    music_filter: MusicFilter,
+    delete: bool,
+    destination: Path,
+    yes: bool,
+    flat: bool,
+) -> None:
     logger.info(f'Destination: {destination}')
-    objs = user.playlist(music_filter)
-    if not objs:
+    playlist = musicdb.make_playlist(music_filter)
+    if not playlist.musics:
         click.secho('no result for filter, nothing to sync')
         return
 
@@ -303,9 +271,9 @@ def sync(user: User, delete: bool, destination: Path, music_filter: MusicFilter,
 
     destinations = {str(file)[len(str(destination)) + 1:]: file for file in folders.files}
 
-    musics: List[File] = []
-    for obj in objs:
-        for link in obj['links']:
+    musics: list[File] = []
+    for music in playlist.musics:
+        for link in music.links:
             try:
                 if link.startswith('ssh://'):
                     continue

@@ -1,5 +1,7 @@
 from pathlib import Path
+
 import click
+
 from musicbot.cli.options import config_list
 
 folder_argument = click.argument(

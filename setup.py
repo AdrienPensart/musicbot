@@ -2,29 +2,27 @@
 from setuptools import setup
 
 packages = \
-['musicbot', 'musicbot.cli', 'musicbot.commands', 'musicbot.music']
+['musicbot', 'musicbot.cli', 'musicbot.commands']
 
 package_data = \
-{'': ['*'], 'musicbot': ['schema/*']}
+{'': ['*']}
 
 install_requires = \
 ['attrs>=21.2.0,<22.0.0',
- 'beartype>=0.9.1,<0.10.0',
- 'click-skeleton>=0.20,<0.21',
+ 'beartype>=0.10.0,<0.11.0',
+ 'click-skeleton>=0.21,<0.22',
  'colorlog>=6.4.1,<7.0.0',
+ 'edgedb>=0.22.0,<0.23.0',
  'fuzzywuzzy>=0.18.0,<0.19.0',
- 'gql>=3.0.0,<4.0.0',
- 'humanize>=3.0.1,<4.0.0',
+ 'humanize>=4.0.0,<5.0.0',
  'logging-tree>=1.8,<2.0',
  'mutagen>=1.44.0,<2.0.0',
- 'pgcli>=3.3.0,<4.0.0',
  'progressbar2>=4.0.0,<5.0.0',
  'prompt_toolkit>=3.0.2,<4.0.0',
- 'psycopg2>=2.9.1,<3.0.0',
  'pyacoustid>=1.1,<2.0',
  'pydub>=0.25.1,<0.26.0',
  'python-Levenshtein>=0.12.2,<0.13.0',
- 'python-slugify>=5.0.0,<6.0.0',
+ 'python-slugify>=6.0.1,<7.0.0',
  'python-vlc>=3.0,<4.0',
  'requests>=2.24.0,<3.0.0',
  'rich>=11.0.0,<12.0.0',
@@ -51,7 +49,7 @@ setup_kwargs = {
     'package_data': package_data,
     'install_requires': install_requires,
     'entry_points': entry_points,
-    'python_requires': '>=3.8,<3.10',
+    'python_requires': '>=3.10,<4.0',
 }
 
 

@@ -1,8 +1,0 @@
-FROM graphile/postgraphile:4-12
-
-RUN yarn add postgraphile-plugin-connection-filter
-RUN yarn add @graphile-contrib/pg-simplify-inflector
-RUN yarn add postgraphile-plugin-nested-mutations
-RUN yarn add postgraphile-upsert-plugin
-
-ADD ./scripts/.postgraphilerc.js .
