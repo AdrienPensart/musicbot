@@ -32,6 +32,24 @@ def test_music_tags(cli_runner):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
+def test_music_set_tags(cli_runner):
+    run_cli(cli_runner, cli, [
+        '--quiet',
+        'music', 'set-tags',
+        str(fixtures.one_flac),
+        '--rating', 0,
+        '--dry',
+    ])
+    run_cli(cli_runner, cli, [
+        '--quiet',
+        'music', 'tags',
+        str(fixtures.one_mp3),
+        '--rating', 0,
+        '--dry',
+    ])
+
+
+@pytest.mark.runner_setup(mix_stderr=False)
 def test_music_check_consistency(cli_runner):
     run_cli(cli_runner, cli, [
         '--quiet',

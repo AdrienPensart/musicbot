@@ -6,8 +6,8 @@ from click_option_group import optgroup  # type: ignore
 from click_skeleton import add_options
 from click_skeleton.helpers import split_arguments
 
-from musicbot.defaults import RATING_CHOICES
-from musicbot.music_filter import (
+from musicbot.cli.options import sane_rating
+from musicbot.defaults import (
     DEFAULT_ALBUMS,
     DEFAULT_ARTISTS,
     DEFAULT_GENRES,
@@ -32,8 +32,8 @@ from musicbot.music_filter import (
     DEFAULT_SPOTIFY,
     DEFAULT_TITLES,
     DEFAULT_YOUTUBE,
-    MusicFilter
 )
+from musicbot.music_filter import MusicFilter
 
 link_options = add_options(
     optgroup('Link options'),
@@ -43,13 +43,6 @@ link_options = add_options(
     optgroup.option('--spotify/--no-spotify', is_flag=True, default=DEFAULT_SPOTIFY),
     optgroup.option('--local/--no-local', is_flag=True, default=DEFAULT_LOCAL),
 )
-
-
-def sane_rating(ctx: click.Context, param: click.ParamType, value: float) -> float:
-    if value in RATING_CHOICES:
-        ctx.params[param.name] = value
-        return value
-    raise ValueError(f"Invalid rating choice {value}, it should be in {RATING_CHOICES}")
 
 
 def sane_music_filter(ctx: click.Context, param: click.ParamType, value: Any) -> MusicFilter:  # pylint: disable=unused-argument

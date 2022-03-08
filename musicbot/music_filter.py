@@ -1,39 +1,38 @@
 import json
 import logging
-from typing import Any, Final
+from typing import Any
 
 from attr import asdict, frozen
 
-from musicbot.defaults import MAX_INT, MIN_INT, RATING_CHOICES
+from musicbot.defaults import (
+    DEFAULT_NAME,
+    DEFAULT_SFTP,
+    DEFAULT_HTTP,
+    DEFAULT_LOCAL,
+    DEFAULT_SPOTIFY,
+    DEFAULT_YOUTUBE,
+    DEFAULT_SHUFFLE,
+    DEFAULT_MIN_SIZE,
+    DEFAULT_MAX_SIZE,
+    DEFAULT_MIN_LENGTH,
+    DEFAULT_MAX_LENGTH,
+    DEFAULT_MIN_RATING,
+    DEFAULT_MAX_RATING,
+    DEFAULT_LIMIT,
+    DEFAULT_GENRES,
+    DEFAULT_NO_GENRES,
+    DEFAULT_KEYWORDS,
+    DEFAULT_NO_KEYWORDS,
+    DEFAULT_ARTISTS,
+    DEFAULT_NO_ARTISTS,
+    DEFAULT_TITLES,
+    DEFAULT_NO_TITLES,
+    DEFAULT_ALBUMS,
+    DEFAULT_NO_ALBUMS,
+    RATING_CHOICES,
+)
 
 logger = logging.getLogger(__name__)
-
-DEFAULT_SFTP: Final[bool] = False
-DEFAULT_HTTP: Final[bool] = False
-DEFAULT_LOCAL: Final[bool] = True
-DEFAULT_SPOTIFY: Final[bool] = False
-DEFAULT_YOUTUBE: Final[bool] = False
-DEFAULT_NAME: Final[str | None] = None
-DEFAULT_RELATIVE: Final[bool] = False
-DEFAULT_SHUFFLE: Final[bool] = False
-DEFAULT_LIMIT: Final[int] = MAX_INT
-DEFAULT_MIN_LENGTH: Final[int] = MIN_INT
-DEFAULT_MAX_LENGTH: Final[int] = MAX_INT
-DEFAULT_MIN_SIZE: Final[int] = MIN_INT
-DEFAULT_MAX_SIZE: Final[int] = MAX_INT
-DEFAULT_MIN_RATING: Final[float] = min(RATING_CHOICES)
-DEFAULT_MAX_RATING: Final[float] = max(RATING_CHOICES)
-
-DEFAULT_GENRES: Final[frozenset[str]] = frozenset()
-DEFAULT_NO_GENRES: Final[frozenset[str]] = frozenset()
-DEFAULT_KEYWORDS: Final[frozenset[str]] = frozenset()
-DEFAULT_NO_KEYWORDS: Final[frozenset[str]] = frozenset()
-DEFAULT_ARTISTS: Final[frozenset[str]] = frozenset()
-DEFAULT_NO_ARTISTS: Final[frozenset[str]] = frozenset()
-DEFAULT_TITLES: Final[frozenset[str]] = frozenset()
-DEFAULT_NO_TITLES: Final[frozenset[str]] = frozenset()
-DEFAULT_ALBUMS: Final[frozenset[str]] = frozenset()
-DEFAULT_NO_ALBUMS: Final[frozenset[str]] = frozenset()
 
 
 @frozen

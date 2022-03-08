@@ -12,7 +12,8 @@ from musicbot.cli.file import (
     checks_and_fix_options,
     file_options,
     keywords_argument,
-    path_argument
+    path_argument,
+    paths_arguments,
 )
 from musicbot.cli.folders import destination_argument
 from musicbot.cli.music_filter import link_options
@@ -79,7 +80,7 @@ def fingerprint(path: Path, acoustid_api_key: str) -> None:
     print(f.fingerprint(acoustid_api_key))
 
 
-@cli.command(help='Print music tags')
+@cli.command(help='Print music tags', aliases=['tag'])
 @path_argument
 @beartype
 def tags(path: Path) -> None:
@@ -106,13 +107,13 @@ def inconsistencies(path: Path, fix: bool, checks: list[str]) -> None:
     MusicbotObject.console.print(table)
 
 
-@cli.command(help='Set music title')
-@path_argument
+@cli.command(help='Set music title', aliases=['set-tag'])
+@paths_arguments
 @dry_option
 @file_options
 @beartype
 def set_tags(
-    path: Path,
+    paths: list[Path],
     title: str | None = None,
     artist: str | None = None,
     album: str | None = None,
@@ -121,22 +122,23 @@ def set_tags(
     rating: float | None = None,
     track: int | None = None,
 ) -> None:
-    f = File(path=path)
-    if title:
-        f.title = title
-    if artist:
-        f.artist = artist
-    if album:
-        f.album = album
-    if genre:
-        f.genre = genre
-    if keywords:
-        f.keywords = set(keywords)
-    if rating:
-        f.rating = rating
-    if track:
-        f.track = track
-    f.save()
+    for path in paths:
+        music = File(path=path)
+        if title is not None:
+            music.title = title
+        if artist is not None:
+            music.artist = artist
+        if album is not None:
+            music.album = album
+        if genre is not None:
+            music.genre = genre
+        if keywords is not None:
+            music.keywords = set(keywords)
+        if rating is not None:
+            music.rating = rating
+        if track is not None:
+            music.track = track
+        music.save()
 
 
 @cli.command(help='Add keywords to music')

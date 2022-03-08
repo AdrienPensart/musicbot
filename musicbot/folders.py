@@ -16,6 +16,7 @@ class Folders(MusicbotObject):
         folders: Iterable[Path],
         extensions: Iterable[str] | None,
         threads: int | None = None,
+        limit: int | None = None,
     ):
         self.supported_formats = extensions if extensions is not None else DEFAULT_EXTENSIONS
         self.folders = [folder.resolve() for folder in folders]
@@ -42,7 +43,7 @@ class Folders(MusicbotObject):
 
         self.musics = self.parallel(
             worker,
-            self.files,
+            self.files[:limit],
             prefix='Loading musics',
             threads=threads,
         )

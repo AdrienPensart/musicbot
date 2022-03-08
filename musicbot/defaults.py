@@ -1,5 +1,38 @@
 from typing import Final
 
+MIN_INT: Final[int] = 0
+MAX_INT: Final[int] = 2147483647
+
+RATING_CHOICES: Final[list[float]] = [x * 0.5 for x in range(0, 11)]
+STORED_RATING_CHOICES: Final[list[float]] = [float(x) / 10.0 for x in range(0, 11)]
+
+DEFAULT_SFTP: Final[bool] = False
+DEFAULT_HTTP: Final[bool] = False
+DEFAULT_LOCAL: Final[bool] = True
+DEFAULT_SPOTIFY: Final[bool] = False
+DEFAULT_YOUTUBE: Final[bool] = False
+DEFAULT_NAME: Final[str | None] = None
+DEFAULT_RELATIVE: Final[bool] = False
+DEFAULT_SHUFFLE: Final[bool] = False
+DEFAULT_LIMIT: Final[int] = MAX_INT
+DEFAULT_MIN_LENGTH: Final[int] = MIN_INT
+DEFAULT_MAX_LENGTH: Final[int] = MAX_INT
+DEFAULT_MIN_SIZE: Final[int] = MIN_INT
+DEFAULT_MAX_SIZE: Final[int] = MAX_INT
+DEFAULT_MIN_RATING: Final[float] = min(RATING_CHOICES)
+DEFAULT_MAX_RATING: Final[float] = max(RATING_CHOICES)
+
+DEFAULT_GENRES: Final[frozenset[str]] = frozenset()
+DEFAULT_NO_GENRES: Final[frozenset[str]] = frozenset()
+DEFAULT_KEYWORDS: Final[frozenset[str]] = frozenset()
+DEFAULT_NO_KEYWORDS: Final[frozenset[str]] = frozenset()
+DEFAULT_ARTISTS: Final[frozenset[str]] = frozenset()
+DEFAULT_NO_ARTISTS: Final[frozenset[str]] = frozenset()
+DEFAULT_TITLES: Final[frozenset[str]] = frozenset()
+DEFAULT_NO_TITLES: Final[frozenset[str]] = frozenset()
+DEFAULT_ALBUMS: Final[frozenset[str]] = frozenset()
+DEFAULT_NO_ALBUMS: Final[frozenset[str]] = frozenset()
+
 DEFAULT_SPOTIFY_USERNAME: Final[str | None] = None
 DEFAULT_SPOTIFY_CLIENT_ID: Final[str | None] = None
 DEFAULT_SPOTIFY_CLIENT_SECRET: Final[str | None] = None
@@ -18,9 +51,6 @@ DEFAULT_OUTPUT: Final[str] = 'table'
 DEFAULT_FLAT: Final[bool] = False
 DEFAULT_EXTENSIONS: Final[list[str]] = ["mp3", "flac"]
 EXCEPT_DIRECTORIES: Final[list[str]] = ['.Spotlight-V100', '.zfs', 'Android', 'LOST.DIR']
-RATING_CHOICES: Final[list[float]] = [x * 0.5 for x in range(0, 11)]
-MIN_INT: Final[int] = 0
-MAX_INT: Final[int] = 2147483647
 
 STOPWORDS: Final[list[str]] = [
     'the',

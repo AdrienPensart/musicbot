@@ -141,6 +141,7 @@ class MusicbotObject:
         cls,
         worker: Callable,
         items: Sequence,
+        *args: Any,
         quiet: bool = DEFAULT_QUIET,
         prefix: str | None = None,
         threads: int | None = None,
@@ -173,7 +174,7 @@ class MusicbotObject:
                             os.killpg(os.getpid(), signal.SIGKILL)
                 futures = []
                 for item in items:
-                    future = executor.submit(worker, item)
+                    future = executor.submit(worker, item, *args)
                     future.add_done_callback(update_pbar)
                     futures.append(future)
                 cf.wait(futures)

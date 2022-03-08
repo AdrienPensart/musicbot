@@ -2,11 +2,23 @@ import logging
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Sequence, Any
 
 from beartype import beartype
-from edgedb.blocking_client import Client
+from edgedb.blocking_client import create_client
+from edgedb.asyncio_client import create_async_client
 
+from musicbot.defaults import (
+    DEFAULT_LOCAL,
+    DEFAULT_HTTP,
+    DEFAULT_SFTP,
+    DEFAULT_SPOTIFY,
+    DEFAULT_YOUTUBE,
+)
+from musicbot.queries import (
+    UPSERT_QUERY,
+    PLAYLIST_QUERY,
+)
 from musicbot.file import File
 from musicbot.music import Music
 from musicbot.music_filter import MusicFilter
@@ -17,72 +29,24 @@ logger = logging.getLogger(__name__)
 
 
 class MusicDb(MusicbotObject):
-    def __init__(self, client: Client):
-        self.client = client
+    def __init__(
+        self,
+        dsn: str,
+    ):
+        self.async_client = create_async_client(dsn=dsn)
+        self.blocking_client = create_client(dsn=dsn)
         if not self.is_prod():
             os.environ['EDGEDB_CLIENT_SECURITY'] = 'insecure_dev_mode'
 
     @lru_cache(maxsize=None)
     @beartype
-    def make_playlist(self, music_filter: MusicFilter | None = None) -> Playlist:
+    def make_playlist(
+        self,
+        music_filter: MusicFilter | None = None,
+    ) -> Playlist:
         music_filter = music_filter if music_filter is not None else MusicFilter()
-        query = """
-with
-    artists := (
-        select Artist
-        filter
-            (len(<array<str>>$artists) = 0 or contains(<array<str>>$artists, .name)) and
-            (len(<array<str>>$no_artists) = 0 or not contains(<array<str>>$no_artists, .name))
-    ),
-    albums := (
-        select Album
-        filter
-            (len(<array<str>>$albums) = 0 or contains(<array<str>>$albums, .name)) and
-            (len(<array<str>>$no_albums) = 0 or not contains(<array<str>>$no_albums, .name)) and
-            .artist in artists
-    ),
-    genres := (
-        select Genre
-        filter
-            (len(<array<str>>$genres) = 0 or contains(<array<str>>$genres, .name)) and
-            (len(<array<str>>$no_genres) = 0 or not contains(<array<str>>$no_genres, .name))
-    ),
-    #keywords := (
-    #    select Keyword
-    #    filter
-    #        (len(<array<str>>$keywords) = 0 or contains(<array<str>>$keywords, .name)) and
-    #        (len(<array<str>>$no_keywords) = 0 or not contains(<array<str>>$no_keywords, .name))
-    #),
-    select Music {
-        name,
-        links,
-        size,
-        genre_name := .genre.name,
-        album_name := .album.name,
-        artist_name := .album.artist.name,
-        all_keywords := array_agg(.keywords.name),
-        length := <int64>duration_to_seconds(.duration),
-        track,
-        rating
-    }
-    filter
-        .length >= <int64>$min_length and .length <= <int64>$max_length
-        and .size >= <int64>$min_size and .size <= <int64>$max_size
-        and .rating >= <Rating>$min_rating and .rating <= <Rating>$max_rating
-        and (len(<array<str>>$titles) = 0 or contains(<array<str>>$titles, .name))
-        and (len(<array<str>>$no_titles) = 0 or not contains(<array<str>>$no_titles, .name))
-        and .genre in genres
-        and .album in albums
-        #and (
-        #    for music_keyword in .keywords
-        #    union (
-        #        filter not contains(keywords, music_keyword)
-        #    )
-        #)
-    ;
-"""
-        results = self.client.query(
-            query,
+        results = self.blocking_client.query(
+            PLAYLIST_QUERY,
             titles=list(music_filter.titles),
             no_titles=list(music_filter.no_titles),
 
@@ -173,23 +137,78 @@ with
 
         return Playlist(musics=musics, music_filter=music_filter)
 
-    def clean_musics(self) -> None:
+    def clean_musics(self) -> Any:
         query = """delete Artist;"""
-        self.client.query(query)
+        return self.blocking_client.query(query)
 
-    def delete_music(self, path: str) -> None:
+    def delete_music(self, path: str) -> Any:
         query = """delete Music filter .path = <str>$path;"""
-        self.client.query(query, path=path)
+        return self.blocking_client.query(query, path=path)
+
+    def upsert_musics(
+        self,
+        musics: Sequence[File],
+        sftp: bool = DEFAULT_SFTP,
+        http: bool = DEFAULT_HTTP,
+        local: bool = DEFAULT_LOCAL,
+        spotify: bool = DEFAULT_SPOTIFY,
+        youtube: bool = DEFAULT_YOUTUBE,
+    ) -> list[Any]:
+        results = []
+        with self.progressbar(max_value=len(musics), prefix='Upserting musics') as pbar:
+            for music in musics:
+                try:
+                    result = self.upsert_music(
+                        music=music,
+                        http=http,
+                        sftp=sftp,
+                        youtube=youtube,
+                        spotify=spotify,
+                        local=local,
+                    )
+                    if result is not None:
+                        results.append(result)
+                except Exception as e:  # pylint: disable=broad-except
+                    self.err(f"{music} : {e}")
+                finally:
+                    pbar.value += 1
+                    pbar.update()
+        return results
 
     def upsert_music(
         self,
         music: File,
-        sftp: bool = False,
-        http: bool = False,
-        local: bool = True,
-        spotify: bool = False,
-        youtube: bool = False,
-    ) -> list[Any]:
+        sftp: bool = DEFAULT_SFTP,
+        http: bool = DEFAULT_HTTP,
+        local: bool = DEFAULT_LOCAL,
+        spotify: bool = DEFAULT_SPOTIFY,
+        youtube: bool = DEFAULT_YOUTUBE,
+    ) -> Any:
+        params = self._prepare_upsert_music(
+            music=music,
+            http=http,
+            sftp=sftp,
+            youtube=youtube,
+            spotify=spotify,
+            local=local,
+        )
+        if not params:
+            return None
+        return self.blocking_client.query(**params)
+
+    @staticmethod
+    def _prepare_upsert_music(
+        music: File,
+        local: bool = DEFAULT_LOCAL,
+        http: bool = DEFAULT_HTTP,
+        sftp: bool = DEFAULT_SFTP,
+        spotify: bool = DEFAULT_SPOTIFY,
+        youtube: bool = DEFAULT_YOUTUBE,
+    ) -> dict[str, Any] | None:
+        if 'no-title' in music.inconsistencies or 'no-artist' in music.inconsistencies or 'no-album' in music.inconsistencies:
+            MusicbotObject.warn(f"{music} : missing mandatory fields title/album/artist : {music.inconsistencies}")
+            return None
+
         links = set()
         if local:
             links.add(str(music.path))
@@ -201,67 +220,9 @@ with
             links.add(music.youtube_path)
         if spotify and music.spotify_path:
             links.add(music.spotify_path)
-        query = """
-with
-    upsert_artist := (
-        insert Artist {
-            name := <str>$artist
-        }
-        unless conflict on .name else (select Artist)
-    ),
-    upsert_album := (
-        insert Album {
-            name := <str>$album,
-            artist := upsert_artist
-        }
-        unless conflict on (.name, .artist) else (select Album)
-    ),
-    upsert_genre := (
-        insert Genre {
-            name := <str>$genre
-        }
-        unless conflict on .name else (select Genre)
-    ),
-    upsert_keywords := (
-        for keyword in { array_unpack(<array<str>>$keywords) }
-        union (
-            insert Keyword {
-                name := keyword
-            }
-            unless conflict on .name
-            else (select Keyword)
-        )
-    ),
-    select (
-        insert Music {
-            name := <str>$title,
-            links := array_unpack(<array<str>>$links),
-            size := <Size>$size,
-            genre := upsert_genre,
-            album := upsert_album,
-            keywords := upsert_keywords,
-            duration := to_duration(seconds := <float64>$length),
-            track := <int16>$track,
-            rating := <Rating>$rating
-        }
-        unless conflict on (.name, .album)
-        else (
-            update Music
-            set {
-                links := array_unpack(<array<str>>$links),
-                size := <Size>$size,
-                genre := upsert_genre,
-                album := upsert_album,
-                keywords := upsert_keywords,
-                duration := to_duration(seconds := <float64>$length),
-                track := <int16>$track,
-                rating := <Rating>$rating
-            }
-        )
-    );
-"""
-        return self.client.query(
-            query,
+
+        return dict(
+            query=UPSERT_QUERY,
             links=list(links),
             **music.to_dict(),
         )

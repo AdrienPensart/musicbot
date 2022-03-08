@@ -10,7 +10,8 @@ from musicbot.defaults import (
     DEFAULT_OUTPUT,
     DEFAULT_SAVE,
     DEFAULT_THREADS,
-    DEFAULT_YES
+    DEFAULT_YES,
+    RATING_CHOICES,
 )
 from musicbot.object import MusicbotObject
 
@@ -32,8 +33,19 @@ dry_option = click.option(
     expose_value=False,
 )
 
-true_values = ('enabled', 'y', 'yes', 't', 'true', 'True', 'on', '1')
-false_values = ('', 'none', 'disabled', 'n', 'no', 'f', 'false', 'False', 'off', '0')
+true_values = ('enabled', 'y', 'yes', 't', 'true', 'on', '1')
+false_values = ('', 'none', 'disabled', 'n', 'no', 'f', 'false', 'off', '0')
+
+
+def sane_rating(ctx: click.Context, param: click.Parameter, value: float | None) -> float | None:
+    if value is not None:
+        if value not in RATING_CHOICES:
+            raise ValueError(f"Invalid rating choice {value}, it should be in {RATING_CHOICES}")
+    elif param.required:
+        raise ValueError("Rating is mandatory")
+    if param.name:
+        ctx.params[param.name] = value
+    return value
 
 
 def str2bool(val: Any) -> bool:

@@ -11,9 +11,12 @@ from slugify import slugify
 
 from musicbot.defaults import (
     DEFAULT_CHECKS,
+    STORED_RATING_CHOICES,
     RATING_CHOICES,
     REPLACEMENTS,
-    STOPWORDS
+    STOPWORDS,
+    DEFAULT_MIN_RATING,
+    DEFAULT_MAX_RATING,
 )
 from musicbot.helpers import current_user, public_ip
 from musicbot.object import MusicbotObject
@@ -199,12 +202,15 @@ class File(MusicbotObject):
             rating_str = self._get_first('TXXX:FMPS_Rating')
         try:
             rating = float(rating_str)
-            if rating < 0.0:
-                return 0.0
-            rating *= 5.0
-            if rating not in RATING_CHOICES:
+            if rating not in STORED_RATING_CHOICES:
                 self.err(f"{self} : badly stored rating : '{rating}'", only_once=True)
                 return 0.0
+
+            rating *= 5.0
+            if rating < DEFAULT_MIN_RATING:
+                return DEFAULT_MIN_RATING
+            if rating > DEFAULT_MAX_RATING:
+                return DEFAULT_MAX_RATING
             return rating
         except ValueError:
             self.err(f"{self} : cannot convert rating to float : '{rating_str}'", only_once=True)
@@ -215,6 +221,7 @@ class File(MusicbotObject):
         if rating not in RATING_CHOICES:
             self.err(f"{self} : tried to set a bad rating : {rating}")
             return
+        rating /= 5.0
         if self.extension == '.flac':
             self.handle['fmps_rating'] = str(rating)
         else:
@@ -372,7 +379,7 @@ class File(MusicbotObject):
 
     def save(self) -> bool:
         try:
-            if not MusicbotObject.dry:
+            if not self.dry:
                 self.handle.save()
             return True
         except mutagen.MutagenError as e:

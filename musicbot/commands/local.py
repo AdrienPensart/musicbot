@@ -26,7 +26,6 @@ from musicbot.cli.options import (
     output_option,
     sane_list,
     save_option,
-    threads_option,
     yes_option
 )
 from musicbot.defaults import EXCEPT_DIRECTORIES
@@ -51,7 +50,7 @@ def cli() -> None:
 @musicdb_options
 @beartype
 def execute(musicdb: MusicDb, query: str) -> None:
-    print(musicdb.client.query_json(query))
+    print(musicdb.blocking_client.query_json(query))
 
 
 @cli.command(help='Load musics')
@@ -61,12 +60,13 @@ def execute(musicdb: MusicDb, query: str) -> None:
 @save_option
 @clean_option
 @link_options
-@threads_option
+@click.option('--limit', help="Limit number of music files", type=int)
 @beartype
 def scan(
     musicdb: MusicDb,
     clean: bool,
     save: bool,
+    limit: int | None,
     folders: list[Path],
     extensions: list[str],
     http: bool,
@@ -74,37 +74,27 @@ def scan(
     youtube: bool,
     spotify: bool,
     local: bool,
-    threads: int,
 ) -> None:
     if clean:
         musicdb.clean_musics()
 
-    def worker(music: File) -> None:
-        try:
-            if 'no-title' in music.inconsistencies or 'no-artist' in music.inconsistencies or 'no-album' in music.inconsistencies:
-                MusicbotObject.warn(f"{music} : missing mandatory fields title/album/artist : {music.inconsistencies}")
-                return
-
-            musicdb.upsert_music(
-                music,
-                http=http,
-                sftp=sftp,
-                youtube=youtube,
-                spotify=spotify,
-                local=local,
-            )
-        except Exception as e:  # pylint: disable=broad-except
-            MusicbotObject.err(f"{music} : {music.rating} - unable to upsert music : {e}")
-
-    musics = Folders(folders=folders, extensions=extensions).musics
-    MusicbotObject.parallel(
-        worker,
-        musics,
-        prefix="Upserting music",
-        threads=threads,
+    _folders = Folders(
+        folders=folders,
+        extensions=extensions,
+        limit=limit,
     )
+    musicdb.upsert_musics(
+        _folders.musics,
+        http=http,
+        sftp=sftp,
+        youtube=youtube,
+        spotify=spotify,
+        local=local,
+    )
+
     if save:
-        MusicbotObject.config.configfile['musicbot']['folders'] = ','.join({str(folder) for folder in folders})
+        unique_folders = ','.join({str(folder) for folder in _folders.folders})
+        MusicbotObject.config.configfile['musicbot']['folders'] = unique_folders
         MusicbotObject.config.write()
 
 
