@@ -56,8 +56,8 @@ class MusicDb(MusicbotObject):
             genres=list(music_filter.genres),
             no_genres=list(music_filter.no_genres),
 
-            # keywords=list(music_filter.keywords),
-            # no_keywords=list(music_filter.no_keywords),
+            keywords=list(music_filter.keywords),
+            no_keywords=list(music_filter.no_keywords),
 
             min_size=music_filter.min_size,
             max_size=music_filter.max_size,
@@ -70,26 +70,6 @@ class MusicDb(MusicbotObject):
         musics = []
         for result in results:
             keywords = list(keyword for keyword in result.all_keywords)
-            if len(music_filter.no_keywords):
-                found = False
-                for mtag in music_filter.no_keywords:
-                    if mtag in keywords:
-                        logger.debug(f"no_keyword {mtag} MET in {result.name} : {keywords}")
-                        found = True
-                        break
-                if found:
-                    continue
-
-            if len(music_filter.keywords):
-                found = False
-                for mtag in music_filter.keywords:
-                    if mtag not in keywords:
-                        logger.debug(f"yes_keyword {mtag} NOT met in {result.name} : {keywords}")
-                        break
-                    found = True
-                if not found:
-                    continue
-
             links = set()
             for link in result.links:
                 if 'youtube' in link:

@@ -81,12 +81,6 @@ with
             (len(<array<str>>$genres) = 0 or contains(<array<str>>$genres, .name)) and
             (len(<array<str>>$no_genres) = 0 or not contains(<array<str>>$no_genres, .name))
     ),
-    #keywords := (
-    #    select Keyword
-    #    filter
-    #        (len(<array<str>>$keywords) = 0 or contains(<array<str>>$keywords, .name)) and
-    #        (len(<array<str>>$no_keywords) = 0 or not contains(<array<str>>$no_keywords, .name))
-    #),
     select Music {
         name,
         links,
@@ -107,11 +101,17 @@ with
         and (len(<array<str>>$no_titles) = 0 or not contains(<array<str>>$no_titles, .name))
         and .genre in genres
         and .album in albums
-        #and (
-        #    for music_keyword in .keywords
-        #    union (
-        #        filter not contains(keywords, music_keyword)
-        #    )
-        #)
+        and (len(<array<str>>$no_keywords) = 0 or all((
+            for no_keyword in array_unpack(<array<str>>$no_keywords)
+            union (
+                not contains(.all_keywords, no_keyword)
+            )
+        )))
+        and (len(<array<str>>$keywords) = 0 or all((
+            for yes_keyword in array_unpack(<array<str>>$keywords)
+            union (
+                contains(.all_keywords, yes_keyword)
+            )
+        )))
     ;
 """

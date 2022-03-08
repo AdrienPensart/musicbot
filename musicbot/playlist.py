@@ -6,7 +6,7 @@ import platform
 from pathlib import Path
 from typing import Any
 
-from attr import asdict, fields_dict, frozen
+from attr import asdict, frozen
 from click_skeleton.helpers import seconds_to_human
 from prompt_toolkit import HTML, Application, print_formatted_text
 from prompt_toolkit.application import get_app, run_in_terminal
@@ -37,13 +37,27 @@ class Playlist(MusicbotObject):
         current_album: str | None = None,
         current_artist: str | None = None,
     ) -> None:
-        table = Table(*fields_dict(Music))
+        table = Table("Title", "Artist", "Album", "Genre", "Rating", "Keywords", "Links", "Size", "Length", "Track")
         links = []
         for music in self.musics:
-            colored_title: Text | str = Text(music.title, style="green") if music.title == current_title else music.title
-            colored_album: Text | str = Text(music.album, style="green") if music.album == current_album else music.album
-            colored_artist: Text | str = Text(music.artist, style="green") if music.artist == current_artist else music.artist
-            table.add_row(colored_title, colored_album, colored_artist)
+            raw_row: list[str] = [
+                music.title,
+                music.artist,
+                music.album,
+                music.genre,
+                str(music.rating),
+                ' '.join(music.keywords),
+                '\n'.join(music.links),
+                str(music.size),
+                str(music.length),
+                str(music.track),
+            ]
+            if music.title == current_title and music.album == current_album and music.artist == current_artist:
+                colored_row = [Text(elem, style="green") for elem in raw_row]
+                table.add_row(*colored_row)
+            else:
+                table.add_row(*raw_row)
+
             for link in music.links:
                 links.append(link)
 
