@@ -6,6 +6,7 @@ from click_option_group import optgroup  # type: ignore
 from click_skeleton import add_options
 from click_skeleton.helpers import split_arguments
 
+from musicbot.defaults import RATING_CHOICES
 from musicbot.music_filter import (
     DEFAULT_ALBUMS,
     DEFAULT_ARTISTS,
@@ -31,7 +32,6 @@ from musicbot.music_filter import (
     DEFAULT_SPOTIFY,
     DEFAULT_TITLES,
     DEFAULT_YOUTUBE,
-    RATING_CHOICES,
     MusicFilter
 )
 
@@ -53,9 +53,12 @@ def sane_rating(ctx: click.Context, param: click.ParamType, value: float) -> flo
 
 
 def sane_music_filter(ctx: click.Context, param: click.ParamType, value: Any) -> MusicFilter:  # pylint: disable=unused-argument
-    kwargs = {}
+    kwargs: dict[str, Any] = {}
     for field in attr.fields_dict(MusicFilter):
-        kwargs[field] = ctx.params[field]
+        if isinstance(ctx.params[field], list):
+            kwargs[field] = frozenset(ctx.params[field])
+        else:
+            kwargs[field] = ctx.params[field]
         ctx.params.pop(field)
 
     myfilter = MusicFilter(**kwargs)

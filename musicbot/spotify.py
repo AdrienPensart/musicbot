@@ -1,21 +1,13 @@
 import functools
 import itertools
 import logging
-from typing import Any, Optional
+from typing import Any
 
 import attr
 import spotipy  # type: ignore
 from spotipy.oauth2 import CacheFileHandler  # type: ignore
 
 logger = logging.getLogger(__name__)
-
-DEFAULT_SPOTIFY_USERNAME: Optional[str] = None
-DEFAULT_SPOTIFY_CLIENT_ID: Optional[str] = None
-DEFAULT_SPOTIFY_CLIENT_SECRET: Optional[str] = None
-DEFAULT_SPOTIFY_TOKEN: Optional[str] = None
-DEFAULT_SPOTIFY_CACHE_PATH = '~/.spotify_cache'
-DEFAULT_SPOTIFY_SCOPE = 'user-library-read,user-library-modify,user-follow-read,user-top-read,user-modify-playback-state,user-read-currently-playing,user-read-playback-state,playlist-modify-public,playlist-read-private,playlist-modify-private'
-DEFAULT_SPOTIFY_REDIRECT_URI = 'http://localhost:8888/spotify/callback'
 
 
 @attr.s(auto_attribs=True, frozen=True)

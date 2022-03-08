@@ -17,9 +17,16 @@ from musicbot.cli.file import (
     flat_option,
     keywords_argument
 )
-from musicbot.cli.folders import destination_argument, folders_argument
+from musicbot.cli.folders import (
+    destination_argument,
+    folders_argument
+)
 from musicbot.cli.music_filter import ordering_options
-from musicbot.cli.options import concurrency_options, dry_option, output_option
+from musicbot.cli.options import (
+    threads_option,
+    dry_option,
+    output_option
+)
 from musicbot.exceptions import MusicbotError
 from musicbot.file import File
 from musicbot.folders import Folders
@@ -110,14 +117,14 @@ def tags(
 @cli.command(help='Convert all files in folders to mp3')
 @destination_argument
 @folders_argument
-@concurrency_options
+@threads_option
 @dry_option
 @flat_option
 @beartype
 def flac2mp3(
     folders: list[Path],
     destination: Path,
-    concurrency: int,
+    threads: int,
     flat: bool,
 ) -> None:
     flac_musics = Folders(folders=folders, extensions=['flac']).musics
@@ -125,7 +132,7 @@ def flac2mp3(
         logger.warning(f"No flac files detected in {folders}")
         return
 
-    def convert(music: File) -> None:
+    def worker(music: File) -> None:
         try:
             music.to_mp3(flat=flat, destination=destination)
         except MusicbotError as e:
@@ -133,7 +140,12 @@ def flac2mp3(
         except Exception as e:  # pylint: disable=broad-except
             logger.error(f"{music} : unable to convert to mp3 : {e}")
 
-    MusicbotObject.parallel(convert, flac_musics, concurrency=concurrency)
+    MusicbotObject.parallel(
+        worker,
+        flac_musics,
+        prefix="Converting flac to mp3",
+        threads=threads,
+    )
 
 
 @cli.command(aliases=['consistency'], help='Check music files consistency')

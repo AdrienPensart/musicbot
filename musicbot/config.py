@@ -3,7 +3,7 @@ import functools
 import logging
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Final
 
 import attr
 import colorlog
@@ -13,17 +13,17 @@ from musicbot.exceptions import MusicbotError
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_CONFIG = '~/musicbot.ini'
-DEFAULT_LOG: Optional[str] = None
-DEFAULT_COLOR = True
-DEFAULT_DEBUG = False
-DEFAULT_INFO = False
-DEFAULT_WARNING = False
-DEFAULT_ERROR = False
-DEFAULT_CRITICAL = False
-DEFAULT_TIMINGS = False
-DEFAULT_VERBOSITY = 'warning'
-DEFAULT_QUIET = False
+DEFAULT_CONFIG: Final[str] = '~/musicbot.ini'
+DEFAULT_LOG: Final[str | None] = None
+DEFAULT_COLOR: Final[bool] = True
+DEFAULT_DEBUG: Final[bool] = False
+DEFAULT_INFO: Final[bool] = False
+DEFAULT_WARNING: Final[bool] = False
+DEFAULT_ERROR: Final[bool] = False
+DEFAULT_CRITICAL: Final[bool] = False
+DEFAULT_TIMINGS: Final[bool] = False
+DEFAULT_VERBOSITY: Final[str] = 'warning'
+DEFAULT_QUIET: Final[bool] = False
 
 VERBOSITIES = {
     'debug': logging.DEBUG,
@@ -36,7 +36,7 @@ VERBOSITIES = {
 
 @attr.s(auto_attribs=True, frozen=True)
 class Config:
-    log: Optional[str] = DEFAULT_LOG
+    log: str | None = DEFAULT_LOG
     color: bool = DEFAULT_COLOR
     quiet: bool = True
     debug: bool = DEFAULT_DEBUG

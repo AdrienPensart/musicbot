@@ -1,7 +1,7 @@
-import attr
+from attr import frozen
 
 
-@attr.s(auto_attribs=True, frozen=True)
+@frozen
 class Music:
     title: str
     links: list[str]

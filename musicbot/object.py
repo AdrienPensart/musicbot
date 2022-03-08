@@ -5,7 +5,7 @@ import os
 import signal
 import sys
 from threading import Lock
-from typing import IO, Any, Callable, Optional, Sequence, Union
+from typing import IO, Any, Callable, Sequence, Union
 
 import click
 import rich
@@ -13,8 +13,11 @@ from progressbar import NullBar, ProgressBar  # type: ignore
 from rich.console import Console
 from rich.table import Table
 
-from musicbot.config import DEFAULT_QUIET, Config
-from musicbot.defaults import DEFAULT_CONCURRENCY, DEFAULT_THREADS
+from musicbot.config import (
+    DEFAULT_QUIET,
+    Config
+)
+from musicbot.defaults import DEFAULT_THREADS
 
 logger = logging.getLogger(__name__)
 
@@ -67,9 +70,13 @@ class MusicbotObject:
             cls.echo(message, fg='cyan', bold=True, **options)
 
     @classmethod
-    def err(cls, message: Any, **options: Any) -> None:
+    def err(cls, message: Any, only_once: bool = False, **options: Any) -> None:
         '''Print error to the user'''
         if cls.show_err:
+            if only_once:
+                if message in cls.already_printed:
+                    return
+                cls.already_printed.append(message)
             cls.echo(message, fg='red', **options)
 
     @classmethod
@@ -96,7 +103,7 @@ class MusicbotObject:
         cls,
         message: Any,
         quiet: bool = DEFAULT_QUIET,
-        file: Optional[IO] = None,
+        file: IO | None = None,
         end: str = '\n',
         flush: bool = True,
         **kwargs: Any,
@@ -112,9 +119,25 @@ class MusicbotObject:
                 print(final_message, file=file, flush=flush, end=end)
 
     @classmethod
-    def progressbar(cls, quiet: bool = DEFAULT_QUIET, redirect_stderr: bool = True, redirect_stdout: bool = True, **kwargs: Any) -> Union[NullBar, ProgressBar]:
+    def progressbar(
+        cls,
+        quiet: bool = DEFAULT_QUIET,
+        prefix: str | None = None,
+        redirect_stderr: bool = True,
+        redirect_stdout: bool = True,
+        term_width: int | None = 150,
+        **kwargs: Any,
+    ) -> Union[NullBar, ProgressBar]:
         pbar = NullBar if (quiet or cls.config.quiet) else ProgressBar
-        return pbar(redirect_stderr=redirect_stderr, redirect_stdout=redirect_stdout, **kwargs)
+        if prefix:
+            prefix += ' : '
+        return pbar(
+            prefix=prefix,
+            redirect_stderr=redirect_stderr,
+            redirect_stdout=redirect_stdout,
+            term_width=term_width,
+            **kwargs,
+        )
 
     @classmethod
     def parallel(
@@ -122,17 +145,25 @@ class MusicbotObject:
         worker: Callable,
         items: Sequence,
         quiet: bool = DEFAULT_QUIET,
-        prefix: Optional[str] = None,
-        concurrency: int = DEFAULT_CONCURRENCY,
-        threads: Optional[int] = None,
+        prefix: str | None = None,
+        threads: int | None = None,
         **kwargs: Any
     ) -> Any:
         threads = threads if threads not in (None, 0) else DEFAULT_THREADS
         quiet = len(items) <= 1 or quiet
         if prefix and (cls.is_dev() or cls.config.info or cls.config.debug):
             prefix += f" ({threads} threads)"
-        with cls.progressbar(max_value=len(items), quiet=quiet, redirect_stderr=True, redirect_stdout=True, **kwargs) as pbar, \
-             cf.ThreadPoolExecutor(max_workers=concurrency) as executor:
+        with (
+            cls.progressbar(
+                max_value=len(items),
+                quiet=quiet,
+                redirect_stderr=True,
+                redirect_stdout=True,
+                prefix=prefix,
+                **kwargs,
+            ) as pbar,
+            cf.ThreadPoolExecutor(max_workers=threads) as executor
+        ):
             try:
                 def update_pbar(_: Any) -> None:
                     try:
@@ -166,7 +197,12 @@ class MusicbotObject:
             cls.console.print(table)
 
     @classmethod
-    def print_json(cls, data: Any, file: Optional[IO] = None, **kwargs: Any) -> Any:
+    def print_json(
+        cls,
+        data: Any,
+        file: IO | None = None,
+        **kwargs: Any,
+    ) -> Any:
         '''Print highlighted json to stdout depending if we are in a TTY'''
         file = file if file is not None else sys.stdout
         if file.isatty():

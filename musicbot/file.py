@@ -1,7 +1,7 @@
 import logging
 from functools import cached_property
 from pathlib import Path, PurePath
-from typing import Any, Iterable, Optional
+from typing import Any, Iterable
 
 import acoustid  # type: ignore
 import mutagen  # type: ignore
@@ -11,66 +11,19 @@ from slugify import slugify
 
 from musicbot.helpers import current_user, public_ip
 from musicbot.object import MusicbotObject
+from musicbot.defaults import (
+    DEFAULT_CHECKS,
+    STOPWORDS,
+    REPLACEMENTS,
+    RATING_CHOICES,
+)
 
 logger = logging.getLogger(__name__)
-DEFAULT_ACOUSTID_API_KEY: Optional[str] = None
 
 output_types = ["list", "json"]
 
-default_checks = [
-    'keywords',
-    'strict_title',
-    'title',
-    'path',
-    'genre',
-    'album',
-    'artist',
-    'rating',
-    'track'
-]
 
-STOPWORDS = [
-    'the',
-    'remaster',
-    'standard',
-    'remastered',
-    'bonus',
-    'cut',
-    'part',
-    'edition',
-    'version',
-    'mix',
-    'deluxe',
-    'edit',
-    'album',
-    'lp',
-    'ep',
-    'uk',
-    'track',
-    'expanded',
-    'single',
-    'volume',
-    'vol',
-    'legacy',
-    'special',
-] + list(map(str, range(1900, 2020)))
-
-REPLACEMENTS = [['praxis', 'buckethead'], ['lawson-rollins', 'buckethead']]
-
-DEFAULT_CHECKS = [
-    'no-title',
-    'no-artist',
-    'no-album',
-    'no-genre',
-    'no-rating',
-    'no-track',
-    'invalid-title',
-    'invalid-comment',
-    'invalid-path',
-]
-
-
-class File:
+class File(MusicbotObject):
     def __init__(self, path: Path):
         resolved_path = path.resolve()
         self.handle = mutagen.File(resolved_path)
@@ -112,7 +65,7 @@ class File:
             length=self.length,
             track=self.track,
             rating=self.rating,
-            keywords=self.keywords,
+            keywords=list(self.keywords),
         )
 
     @cached_property
@@ -224,8 +177,12 @@ class File:
     @property
     def genre(self) -> str:
         if self.extension == '.flac':
-            return self._get_first('genre')
-        return self._get_first('TCON')
+            genre = self._get_first('genre')
+        else:
+            genre = self._get_first('TCON')
+        if not genre:
+            logger.debug(f"{self} : no genre set")
+        return genre
 
     @genre.setter
     def genre(self, genre: str) -> None:
@@ -237,19 +194,27 @@ class File:
     @property
     def rating(self) -> float:
         if self.extension == '.flac':
-            s = self._get_first('fmps_rating')
+            rating_str = self._get_first('fmps_rating')
         else:
-            s = self._get_first('TXXX:FMPS_Rating')
+            rating_str = self._get_first('TXXX:FMPS_Rating')
         try:
-            n = float(s)
-            if n < 0.0:
+            rating = float(rating_str)
+            if rating < 0.0:
                 return 0.0
-            return n * 5.0
+            rating *= 5.0
+            if rating not in RATING_CHOICES:
+                self.err(f"{self} : badly stored rating : '{rating}'", only_once=True)
+                return 0.0
+            return rating
         except ValueError:
-            return -1
+            self.err(f"{self} : cannot convert rating to float : '{rating_str}'", only_once=True)
+            return 0.0
 
     @rating.setter
     def rating(self, rating: float) -> None:
+        if rating not in RATING_CHOICES:
+            self.err(f"{self} : tried to set a bad rating : {rating}")
+            return
         if self.extension == '.flac':
             self.handle['fmps_rating'] = str(rating)
         else:
@@ -300,15 +265,15 @@ class File:
             self.handle.tags.add(mutagen.id3.TRCK(text=str(number)))
 
     @property
-    def keywords(self) -> list[str]:
+    def keywords(self) -> set[str]:
         if self.extension == '.mp3':
-            return mysplit(self._comment, ' ')
+            return set(mysplit(self._comment, ' '))
         if self.extension == '.flac':
             if self._comment and not self._description:
                 logger.warning(f'{self} : fixing flac keywords with mp3 comment')
                 self._description = self._comment
-            return mysplit(self._description, ' ')
-        return []
+            return set(mysplit(self._description, ' '))
+        return set()
 
     @keywords.setter
     def keywords(self, keywords: Iterable[str]) -> None:
@@ -319,26 +284,26 @@ class File:
             logger.info(f'{self} : new flac keywords : {keywords}')
             self._description = ' '.join(keywords)
         else:
-            logger.error(f'{self} : unknown extension {self.extension}')
+            self.err(f'{self} : unknown extension {self.extension}')
 
-    def add_keywords(self, keywords: Iterable[str]) -> bool:
-        self.keywords = list(set(self.keywords).union(set(keywords)))
+    def add_keywords(self, keywords: set[str]) -> bool:
+        self.keywords = self.keywords.union(keywords)
         logger.info(f'{self} : adding {keywords}, new keywords {self.keywords}')
         return self.save()
 
-    def delete_keywords(self, keywords: Iterable[str]) -> bool:
-        new_keywords = list(set(self.keywords) - set(keywords))
+    def delete_keywords(self, keywords: set[str]) -> bool:
+        new_keywords = self.keywords - set(keywords)
         logger.info(f'{self} : deleting {keywords}, new keywords {new_keywords}')
         self.keywords = new_keywords
         return self.save()
 
-    def to_mp3(self, destination: Path, flat: Optional[bool] = False) -> bool:
+    def to_mp3(self, destination: Path, flat: bool = False) -> bool:
         if self.extension != '.flac':
-            logger.error(f"{self} is not a flac file")
+            self.err(f"{self} is not a flac file")
             return False
 
         if not flat and 'invalid-path' in self.inconsistencies:
-            logger.error(f"{self} does not have a canonic path like : {self.canonic_artist_album_filename}")
+            self.err(f"{self} does not have a canonic path like : {self.canonic_artist_album_filename}")
             return False
 
         if flat:
@@ -385,7 +350,7 @@ class File:
         logger.info(f'{self} : fingerprint cannot be detected')
         return ''
 
-    def fix(self, checks: Optional[Iterable[str]] = None) -> bool:
+    def fix(self, checks: Iterable[str] | None = None) -> bool:
         checks = checks if checks is not None else DEFAULT_CHECKS
         if 'no-rating' in checks:
             self.rating = 0.0
@@ -411,7 +376,7 @@ class File:
                 self.handle.save()
             return True
         except mutagen.MutagenError as e:
-            logger.error(e)
+            self.err(e)
         return False
 
     def close(self) -> None:

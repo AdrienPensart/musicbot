@@ -1,4 +1,4 @@
-import functools
+from functools import lru_cache
 import getpass
 import logging
 import socket
@@ -20,7 +20,7 @@ def bytes_to_human(b: int) -> str:
     return str(humanize.naturalsize(b))
 
 
-@functools.lru_cache(maxsize=None)
+@lru_cache(maxsize=None)
 def public_ip() -> str:
     try:
         return requests.get('https://api.ipify.org').text
@@ -28,6 +28,6 @@ def public_ip() -> str:
         raise MusicbotError("Unable to detect Public IP") from e
 
 
-@functools.lru_cache(maxsize=None)
+@lru_cache(maxsize=None)
 def current_user() -> str:
     return getpass.getuser()

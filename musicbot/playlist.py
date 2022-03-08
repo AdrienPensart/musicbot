@@ -3,11 +3,10 @@ import itertools
 import logging
 import os
 import platform
-import textwrap
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
-import attr
+from attr import frozen, asdict, fields_dict
 from click_skeleton.helpers import seconds_to_human
 from prompt_toolkit import HTML, Application, print_formatted_text
 from prompt_toolkit.application import get_app, run_in_terminal
@@ -26,22 +25,22 @@ logging.getLogger("vlc").setLevel(logging.NOTSET)
 logger = logging.getLogger(__name__)
 
 
-@attr.s(auto_attribs=True, frozen=True)
+@frozen
 class Playlist(MusicbotObject):
     musics: list[Music]
-    music_filter: Optional[MusicFilter] = None
+    music_filter: MusicFilter | None = None
 
     def print(
         self,
         output: str,
-        current_title: Optional[str] = None,
-        current_album: Optional[str] = None,
-        current_artist: Optional[str] = None,
+        current_title: str | None = None,
+        current_album: str | None = None,
+        current_artist: str | None = None,
     ) -> None:
         if not self.musics:
             return
 
-        table = Table(*attr.fields_dict(Music))
+        table = Table(*fields_dict(Music))
         links = []
         for music in self.musics:
             colored_title: Text | str = Text(music.title, style="green") if music.title == current_title else music.title
@@ -61,36 +60,33 @@ class Playlist(MusicbotObject):
             self.print_table(table)
 
         if output == 'json':
-            self.print_json([attr.asdict(music) for music in self.musics])
+            self.print_json([asdict(music) for music in self.musics])
             return
 
     @property
-    def links(self) -> list[str]:
-        return list(itertools.chain(*[music.links for music in self.musics]))
+    def links(self) -> frozenset[str]:
+        return frozenset(itertools.chain(*[music.links for music in self.musics]))
 
     @property
-    def genres(self) -> list[str]:
-        return list(set(music.genre for music in self.musics))
+    def genres(self) -> frozenset[str]:
+        return frozenset(set(music.genre for music in self.musics))
 
     @property
-    def artists(self) -> list[str]:
-        return list(set(music.artist for music in self.musics))
+    def artists(self) -> frozenset[str]:
+        return frozenset(set(music.artist for music in self.musics))
 
     @property
-    def keywords(self) -> list[str]:
-        return list(itertools.chain(*[music.keywords for music in self.musics]))
+    def keywords(self) -> frozenset[str]:
+        return frozenset(itertools.chain(*[music.keywords for music in self.musics]))
 
     @property
-    def ratings(self) -> list[float]:
-        return list(set(music.rating for music in self.musics))
+    def ratings(self) -> frozenset[float]:
+        return frozenset(set(music.rating for music in self.musics))
 
-    def write(self, filepath: Path, prefix: Optional[str]) -> None:
+    def write(self, filepath: Path) -> None:
         if not self.links:
             return
-        content = '\n'.join(self.links)
-        if prefix:
-            content = textwrap.indent(content, prefix)
-        content = ('#EXTM3U\n' + content)
+        content = '#EXTM3U\n' + '\n'.join(self.links)
         if MusicbotObject.dry:
             self.success(f'DRY RUN: Writing playlist to {filepath} with content:\n{content}')
             return

@@ -3,7 +3,7 @@
 import logging
 import os
 import sys
-from typing import Any, Optional
+from typing import Final, Any
 
 import click
 import edgedb
@@ -18,7 +18,7 @@ import musicbot.commands
 from musicbot import Config, MusicbotObject, exceptions, version
 from musicbot.cli.config import config_options
 
-PROG_NAME = "musicbot"
+PROG_NAME: Final[str] = "musicbot"
 logger = logging.getLogger(__name__)
 
 backtrace.hook(strip_path=False, enable_on_envvar_only=False, on_tty=False)
@@ -30,7 +30,7 @@ backtrace.hook(strip_path=False, enable_on_envvar_only=False, on_tty=False)
 @beartype
 def cli(
     ctx: click.Context,
-    log: Optional[str],
+    log: str | None,
     color: bool,
     quiet: bool,
     debug: bool,

@@ -12,7 +12,7 @@ from rich.table import Table
 
 from musicbot.cli.options import config_string
 from musicbot.object import MusicbotObject
-from musicbot.spotify import (
+from musicbot.defaults import (
     DEFAULT_SPOTIFY_CACHE_PATH,
     DEFAULT_SPOTIFY_CLIENT_ID,
     DEFAULT_SPOTIFY_CLIENT_SECRET,
@@ -20,8 +20,8 @@ from musicbot.spotify import (
     DEFAULT_SPOTIFY_SCOPE,
     DEFAULT_SPOTIFY_TOKEN,
     DEFAULT_SPOTIFY_USERNAME,
-    Spotify
 )
+from musicbot.spotify import Spotify
 
 logger = logging.getLogger(__name__)
 

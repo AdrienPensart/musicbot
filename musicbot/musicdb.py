@@ -1,7 +1,8 @@
 import logging
 import os
+from functools import lru_cache
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from beartype import beartype
 from edgedb.blocking_client import Client
@@ -21,8 +22,9 @@ class MusicDb(MusicbotObject):
         if not self.is_prod():
             os.environ['EDGEDB_CLIENT_SECURITY'] = 'insecure_dev_mode'
 
+    @lru_cache(maxsize=None)
     @beartype
-    def make_playlist(self, music_filter: Optional[MusicFilter] = None) -> Playlist:
+    def make_playlist(self, music_filter: MusicFilter | None = None) -> Playlist:
         music_filter = music_filter if music_filter is not None else MusicFilter()
         query = """
 with
@@ -81,20 +83,20 @@ with
 """
         results = self.client.query(
             query,
-            titles=music_filter.titles,
-            no_titles=music_filter.no_titles,
+            titles=list(music_filter.titles),
+            no_titles=list(music_filter.no_titles),
 
-            artists=music_filter.artists,
-            no_artists=music_filter.no_artists,
+            artists=list(music_filter.artists),
+            no_artists=list(music_filter.no_artists),
 
-            albums=music_filter.albums,
-            no_albums=music_filter.no_albums,
+            albums=list(music_filter.albums),
+            no_albums=list(music_filter.no_albums),
 
-            genres=music_filter.genres,
-            no_genres=music_filter.no_genres,
+            genres=list(music_filter.genres),
+            no_genres=list(music_filter.no_genres),
 
-            # keywords=music_filter.keywords,
-            # no_keywords=music_filter.no_keywords,
+            # keywords=list(music_filter.keywords),
+            # no_keywords=list(music_filter.no_keywords),
 
             min_size=music_filter.min_size,
             max_size=music_filter.max_size,
@@ -127,31 +129,31 @@ with
                 if not found:
                     continue
 
-            links = []
+            links = set()
             for link in result.links:
                 if 'youtube' in link:
                     if music_filter.youtube:
-                        links.append(link)
+                        links.add(link)
                 elif 'http' in link:
                     if music_filter.http:
-                        links.append(link)
+                        links.add(link)
                 elif 'spotify' in link:
                     if music_filter.spotify:
-                        links.append(link)
+                        links.add(link)
                 elif 'sftp' in link:
                     if music_filter.sftp:
-                        links.append(link)
+                        links.add(link)
                     continue
                 elif music_filter.local:
                     path = Path(link)
                     if not path.exists():
                         self.warn(f'{link} does not exist locally, skipping')
                     else:
-                        links.append(link)
+                        links.add(link)
                     continue
                 else:
                     self.warn(f'{link} format not recognized, keeping')
-                    links.append(link)
+                    links.add(link)
 
             music = Music(
                 title=result.name,
@@ -163,7 +165,7 @@ with
                 keywords=keywords,
                 track=result.track,
                 rating=result.rating,
-                links=links,
+                links=list(links),
             )
             if not links:
                 self.warn(f'{music} : no links available')
@@ -188,17 +190,17 @@ with
         spotify: bool = False,
         youtube: bool = False,
     ) -> list[Any]:
-        links = []
+        links = set()
         if local:
-            links.append(str(music.path))
+            links.add(str(music.path))
         if sftp and music.sftp_path:
-            links.append(music.sftp_path)
+            links.add(music.sftp_path)
         if http and music.http_path:
-            links.append(music.http_path)
+            links.add(music.http_path)
         if youtube and music.youtube_path:
-            links.append(music.youtube_path)
+            links.add(music.youtube_path)
         if spotify and music.spotify_path:
-            links.append(music.spotify_path)
+            links.add(music.spotify_path)
         query = """
 with
     upsert_artist := (
@@ -260,6 +262,6 @@ with
 """
         return self.client.query(
             query,
-            links=links,
+            links=list(links),
             **music.to_dict(),
         )

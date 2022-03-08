@@ -1,12 +1,12 @@
 import logging
-from typing import Any, Optional
+from typing import Any
 
 import click
 from click_skeleton.helpers import mysplit
 
 from musicbot.defaults import (
     DEFAULT_CLEAN,
-    DEFAULT_CONCURRENCY,
+    DEFAULT_THREADS,
     DEFAULT_DRY,
     DEFAULT_OUTPUT,
     DEFAULT_SAVE,
@@ -46,7 +46,7 @@ def str2bool(val: Any) -> bool:
     raise ValueError(f"invalid truth value {val}")
 
 
-def yes_or_no(question: str, default: Optional[str] = 'no') -> bool:
+def yes_or_no(question: str, default: str | None = 'no') -> bool:
     '''Re-implement click.confirm but do not ask confirmation if we are in a script'''
     if not MusicbotObject.is_tty:
         print("Y/N : non interactive shell detected, answer is NO")
@@ -102,10 +102,10 @@ clean_option = click.option(
     show_default=True,
 )
 
-concurrency_options = click.option(
-    '--concurrency',
+threads_option = click.option(
+    '--threads',
     help='Number of threads',
-    default=DEFAULT_CONCURRENCY,
+    default=DEFAULT_THREADS,
     show_default=True,
 )
 
@@ -126,7 +126,7 @@ output_option = click.option(
 )
 
 
-def config_string(ctx: click.Context, param: click.Parameter, value: Optional[str]) -> Any:
+def config_string(ctx: click.Context, param: click.Parameter, value: str | None) -> Any:
     arg_value = value
     logger.info(f"{param.name} : try string loading with arg value : {arg_value}")
 

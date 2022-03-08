@@ -1,19 +1,26 @@
 import logging
 import os
 from pathlib import Path
-from typing import Iterable, Iterator, Optional
+from typing import Iterable, Iterator
 
-from musicbot.defaults import DEFAULT_EXTENSIONS
+from musicbot.defaults import (
+    DEFAULT_EXTENSIONS,
+    EXCEPT_DIRECTORIES
+)
+
 from musicbot.file import File
 from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
 
-except_directories = ['.Spotlight-V100', '.zfs', 'Android', 'LOST.DIR']
-
 
 class Folders(MusicbotObject):
-    def __init__(self, folders: Iterable[Path], extensions: Optional[Iterable[str]]):
+    def __init__(
+        self,
+        folders: Iterable[Path],
+        extensions: Iterable[str] | None,
+        threads: int | None = None,
+    ):
         self.supported_formats = extensions if extensions is not None else DEFAULT_EXTENSIONS
         self.folders = [folder.resolve() for folder in folders]
         self.files = []
@@ -21,7 +28,7 @@ class Folders(MusicbotObject):
 
         for folder in self.folders:
             for root, _, basenames in os.walk(folder):
-                if any(e in root for e in except_directories):
+                if any(e in root for e in EXCEPT_DIRECTORIES):
                     continue
                 for basename in basenames:
                     path = Path(folder) / root / basename
@@ -30,7 +37,7 @@ class Folders(MusicbotObject):
                     else:
                         self.files.append(path)
 
-        def worker(path: Path) -> Optional[File]:
+        def worker(path: Path) -> File | None:
             try:
                 return File(path=path)
             except OSError as e:
@@ -41,6 +48,7 @@ class Folders(MusicbotObject):
             worker,
             self.files,
             prefix='Loading musics',
+            threads=threads,
         )
 
     def __repr__(self) -> str:
