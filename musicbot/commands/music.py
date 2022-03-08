@@ -13,7 +13,7 @@ from musicbot.cli.file import (
     file_options,
     keywords_argument,
     path_argument,
-    paths_arguments,
+    paths_arguments
 )
 from musicbot.cli.folders import destination_argument
 from musicbot.cli.music_filter import link_options

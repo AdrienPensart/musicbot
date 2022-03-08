@@ -432,7 +432,7 @@ musicbot local scan
       --youtube / --no-youtube
       --spotify / --no-spotify
       --local / --no-local
-    --threads INTEGER           Number of threads  [default: 8]
+    --limit INTEGER             Limit number of music files
     -h, --help                  Show this message and exit.
 
 musicbot local sync
@@ -521,8 +521,8 @@ musicbot music
     help                               Print help
     inconsistencies (consistency)      Check music consistency
     insert (scan,upsert)               Insert music to DB
-    set-tags                           Set music title
-    tags                               Print music tags
+    set-tags (set-tag)                 Set music title
+    tags (tag)                         Print music tags
 
 musicbot music add-keywords
 ***************************
@@ -613,21 +613,21 @@ musicbot music set-tags
 ***********************
 .. code-block::
 
-  Usage: musicbot music set-tags [OPTIONS] PATH
+  Usage: musicbot music set-tags [OPTIONS] [PATHS]...
 
     Set music title
 
   Options:
-    --dry / --no-dry   Do not launch real action  [default: no-dry]
+    --dry / --no-dry        Do not launch real action  [default: no-dry]
     Music options: 
-      --keywords TEXT  Keywords
-      --artist TEXT    Artist
-      --album TEXT     Album
-      --title TEXT     Title
-      --genre TEXT     Genre
-      --track TEXT     Track number
-      --rating TEXT    Rating
-    -h, --help         Show this message and exit.
+      --keywords TEXT       Keywords
+      --artist TEXT         Artist
+      --album TEXT          Album
+      --title TEXT          Title
+      --genre TEXT          Genre
+      --track TEXT          Track number
+      --rating FLOAT RANGE  Rating  [0.0<=x<=5.0]
+    -h, --help              Show this message and exit.
 
 musicbot music tags
 *******************

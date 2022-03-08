@@ -2,28 +2,25 @@ import logging
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Sequence, Any
+from typing import Any, Sequence
 
 from beartype import beartype
-from edgedb.blocking_client import create_client
 from edgedb.asyncio_client import create_async_client
+from edgedb.blocking_client import create_client
 
 from musicbot.defaults import (
-    DEFAULT_LOCAL,
     DEFAULT_HTTP,
+    DEFAULT_LOCAL,
     DEFAULT_SFTP,
     DEFAULT_SPOTIFY,
-    DEFAULT_YOUTUBE,
-)
-from musicbot.queries import (
-    UPSERT_QUERY,
-    PLAYLIST_QUERY,
+    DEFAULT_YOUTUBE
 )
 from musicbot.file import File
 from musicbot.music import Music
 from musicbot.music_filter import MusicFilter
 from musicbot.object import MusicbotObject
 from musicbot.playlist import Playlist
+from musicbot.queries import PLAYLIST_QUERY, UPSERT_QUERY
 
 logger = logging.getLogger(__name__)
 

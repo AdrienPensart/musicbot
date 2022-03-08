@@ -11,12 +11,12 @@ from slugify import slugify
 
 from musicbot.defaults import (
     DEFAULT_CHECKS,
-    STORED_RATING_CHOICES,
+    DEFAULT_MAX_RATING,
+    DEFAULT_MIN_RATING,
     RATING_CHOICES,
     REPLACEMENTS,
     STOPWORDS,
-    DEFAULT_MIN_RATING,
-    DEFAULT_MAX_RATING,
+    STORED_RATING_CHOICES
 )
 from musicbot.helpers import current_user, public_ip
 from musicbot.object import MusicbotObject

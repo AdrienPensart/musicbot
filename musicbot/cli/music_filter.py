@@ -31,7 +31,7 @@ from musicbot.defaults import (
     DEFAULT_SHUFFLE,
     DEFAULT_SPOTIFY,
     DEFAULT_TITLES,
-    DEFAULT_YOUTUBE,
+    DEFAULT_YOUTUBE
 )
 from musicbot.music_filter import MusicFilter
 

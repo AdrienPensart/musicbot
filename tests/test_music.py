@@ -42,7 +42,7 @@ def test_music_set_tags(cli_runner):
     ])
     run_cli(cli_runner, cli, [
         '--quiet',
-        'music', 'tags',
+        'music', 'set-tags',
         str(fixtures.one_mp3),
         '--rating', 0,
         '--dry',

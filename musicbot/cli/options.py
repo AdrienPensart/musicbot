@@ -11,7 +11,7 @@ from musicbot.defaults import (
     DEFAULT_SAVE,
     DEFAULT_THREADS,
     DEFAULT_YES,
-    RATING_CHOICES,
+    RATING_CHOICES
 )
 from musicbot.object import MusicbotObject
 
