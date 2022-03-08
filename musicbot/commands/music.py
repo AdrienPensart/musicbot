@@ -14,13 +14,13 @@ from musicbot.cli.file import (
     keywords_argument,
     path_argument
 )
-from musicbot.cli.music_filter import link_options
 from musicbot.cli.folders import destination_argument
+from musicbot.cli.music_filter import link_options
 from musicbot.cli.musicdb import musicdb_options
 from musicbot.cli.options import dry_option
 from musicbot.file import File
-from musicbot.object import MusicbotObject
 from musicbot.musicdb import MusicDb
+from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
 

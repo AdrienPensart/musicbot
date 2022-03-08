@@ -16,10 +16,7 @@ from musicbot.cli.spotify import (
     print_playlists_table,
     spotify_options
 )
-from musicbot.defaults import (
-    REPLACEMENTS,
-    STOPWORDS
-)
+from musicbot.defaults import REPLACEMENTS, STOPWORDS
 from musicbot.musicdb import MusicDb
 from musicbot.spotify import Spotify
 

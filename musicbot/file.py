@@ -9,14 +9,14 @@ from click_skeleton.helpers import mysplit
 from pydub import AudioSegment  # type: ignore
 from slugify import slugify
 
-from musicbot.helpers import current_user, public_ip
-from musicbot.object import MusicbotObject
 from musicbot.defaults import (
     DEFAULT_CHECKS,
-    STOPWORDS,
-    REPLACEMENTS,
     RATING_CHOICES,
+    REPLACEMENTS,
+    STOPWORDS
 )
+from musicbot.helpers import current_user, public_ip
+from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
 

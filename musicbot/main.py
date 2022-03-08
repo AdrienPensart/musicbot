@@ -3,7 +3,7 @@
 import logging
 import os
 import sys
-from typing import Final, Any
+from typing import Any, Final
 
 import click
 import edgedb

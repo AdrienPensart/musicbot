@@ -1,13 +1,10 @@
 import json
 import logging
-from typing import Final, Any
+from typing import Any, Final
 
-from attr import frozen, asdict
-from musicbot.defaults import (
-    RATING_CHOICES,
-    MIN_INT,
-    MAX_INT,
-)
+from attr import asdict, frozen
+
+from musicbot.defaults import MAX_INT, MIN_INT, RATING_CHOICES
 
 logger = logging.getLogger(__name__)
 

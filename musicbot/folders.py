@@ -3,11 +3,7 @@ import os
 from pathlib import Path
 from typing import Iterable, Iterator
 
-from musicbot.defaults import (
-    DEFAULT_EXTENSIONS,
-    EXCEPT_DIRECTORIES
-)
-
+from musicbot.defaults import DEFAULT_EXTENSIONS, EXCEPT_DIRECTORIES
 from musicbot.file import File
 from musicbot.object import MusicbotObject
 

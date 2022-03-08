@@ -17,16 +17,9 @@ from musicbot.cli.file import (
     flat_option,
     keywords_argument
 )
-from musicbot.cli.folders import (
-    destination_argument,
-    folders_argument
-)
+from musicbot.cli.folders import destination_argument, folders_argument
 from musicbot.cli.music_filter import ordering_options
-from musicbot.cli.options import (
-    threads_option,
-    dry_option,
-    output_option
-)
+from musicbot.cli.options import dry_option, output_option, threads_option
 from musicbot.exceptions import MusicbotError
 from musicbot.file import File
 from musicbot.folders import Folders

@@ -143,10 +143,10 @@ musicbot folder flac2mp3
     Convert all files in folders to mp3
 
   Options:
-    --concurrency INTEGER  Number of threads  [default: 8]
-    --dry / --no-dry       Do not launch real action  [default: no-dry]
-    --flat                 Do not create subfolders
-    -h, --help             Show this message and exit.
+    --threads INTEGER  Number of threads  [default: 8]
+    --dry / --no-dry   Do not launch real action  [default: no-dry]
+    --flat             Do not create subfolders
+    -h, --help         Show this message and exit.
 
 musicbot folder inconsistencies
 *******************************
@@ -236,7 +236,6 @@ musicbot local bests
     Generate bests playlists with some rules
 
   Options:
-    --prefix TEXT                Append prefix before each path
     --min-playlist-size INTEGER  Minimum size of playlist to write
     --ratings FLOAT              Generate bests for those ratings
     --types TEXT                 Type of bests playlists
@@ -433,6 +432,7 @@ musicbot local scan
       --youtube / --no-youtube
       --spotify / --no-spotify
       --local / --no-local
+    --threads INTEGER           Number of threads  [default: 8]
     -h, --help                  Show this message and exit.
 
 musicbot local sync
@@ -520,6 +520,7 @@ musicbot music
     flac2mp3                           Convert flac music to mp3
     help                               Print help
     inconsistencies (consistency)      Check music consistency
+    insert (scan,upsert)               Insert music to DB
     set-tags                           Set music title
     tags                               Print music tags
 
@@ -587,6 +588,26 @@ musicbot music inconsistencies
                                                         track, invalid-title, invalid-comment, invalid-path]
       --fix                                             Fix musics
     -h, --help                                          Show this message and exit.
+
+musicbot music insert
+*********************
+.. code-block::
+
+  Usage: musicbot music insert [OPTIONS] PATH
+
+    Insert music to DB
+
+  Options:
+    MusicDB options: 
+      --dsn TEXT                DSN to MusicBot EdgeDB
+      --musicdb TEXT
+    Link options: 
+      --http / --no-http
+      --sftp / --no-sftp
+      --youtube / --no-youtube
+      --spotify / --no-spotify
+      --local / --no-local
+    -h, --help                  Show this message and exit.
 
 musicbot music set-tags
 ***********************

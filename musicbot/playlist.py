@@ -6,7 +6,7 @@ import platform
 from pathlib import Path
 from typing import Any
 
-from attr import frozen, asdict, fields_dict
+from attr import asdict, fields_dict, frozen
 from click_skeleton.helpers import seconds_to_human
 from prompt_toolkit import HTML, Application, print_formatted_text
 from prompt_toolkit.application import get_app, run_in_terminal
@@ -37,9 +37,6 @@ class Playlist(MusicbotObject):
         current_album: str | None = None,
         current_artist: str | None = None,
     ) -> None:
-        if not self.musics:
-            return
-
         table = Table(*fields_dict(Music))
         links = []
         for music in self.musics:
@@ -51,17 +48,21 @@ class Playlist(MusicbotObject):
                 links.append(link)
 
         if output == 'm3u':
+            if not self.musics:
+                return
+
             p = '#EXTM3U\n'
             p += '\n'.join(links)
             print(p)
-            return
+        elif output == 'table':
+            if not self.musics:
+                return
 
-        if output == 'table':
             self.print_table(table)
-
-        if output == 'json':
+        elif output == 'json':
             self.print_json([asdict(music) for music in self.musics])
-            return
+        else:
+            self.err(f"unknown output type : {output}")
 
     @property
     def links(self) -> frozenset[str]:

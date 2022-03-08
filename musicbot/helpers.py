@@ -1,7 +1,7 @@
-from functools import lru_cache
 import getpass
 import logging
 import socket
+from functools import lru_cache
 
 import humanize  # type: ignore
 import requests

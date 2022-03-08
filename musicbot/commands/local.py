@@ -12,32 +12,26 @@ from beartype import beartype
 from click_skeleton import AdvancedGroup
 from watchdog.observers import Observer  # type: ignore
 
-from musicbot.cli.file import (
-    extensions_option,
-    flat_option
-)
+from musicbot.cli.file import extensions_option, flat_option
 from musicbot.cli.folders import (
     destination_argument,
     folder_argument,
     folders_argument
 )
-from musicbot.cli.music_filter import (
-    link_options,
-    music_filter_options
-)
+from musicbot.cli.music_filter import link_options, music_filter_options
 from musicbot.cli.musicdb import musicdb_options
 from musicbot.cli.options import (
     clean_option,
     dry_option,
     output_option,
-    threads_option,
     sane_list,
     save_option,
+    threads_option,
     yes_option
 )
+from musicbot.defaults import EXCEPT_DIRECTORIES
 from musicbot.file import File
 from musicbot.folders import Folders
-from musicbot.defaults import EXCEPT_DIRECTORIES
 from musicbot.music_filter import MusicFilter
 from musicbot.musicdb import MusicDb
 from musicbot.object import MusicbotObject

@@ -6,10 +6,10 @@ from click_skeleton.helpers import mysplit
 
 from musicbot.defaults import (
     DEFAULT_CLEAN,
-    DEFAULT_THREADS,
     DEFAULT_DRY,
     DEFAULT_OUTPUT,
     DEFAULT_SAVE,
+    DEFAULT_THREADS,
     DEFAULT_YES
 )
 from musicbot.object import MusicbotObject

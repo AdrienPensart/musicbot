@@ -7,10 +7,10 @@ from click_skeleton.helpers import split_arguments
 
 from musicbot.cli.options import config_string, sane_list
 from musicbot.defaults import (
-    DEFAULT_EXTENSIONS,
-    DEFAULT_FLAT,
     DEFAULT_ACOUSTID_API_KEY,
     DEFAULT_CHECKS,
+    DEFAULT_EXTENSIONS,
+    DEFAULT_FLAT
 )
 
 music_options_group = optgroup('Music options')

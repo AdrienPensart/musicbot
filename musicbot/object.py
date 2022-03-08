@@ -13,10 +13,7 @@ from progressbar import NullBar, ProgressBar  # type: ignore
 from rich.console import Console
 from rich.table import Table
 
-from musicbot.config import (
-    DEFAULT_QUIET,
-    Config
-)
+from musicbot.config import DEFAULT_QUIET, Config
 from musicbot.defaults import DEFAULT_THREADS
 
 logger = logging.getLogger(__name__)

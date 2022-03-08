@@ -11,7 +11,6 @@ from click_skeleton import ExpandedPath, add_options
 from rich.table import Table
 
 from musicbot.cli.options import config_string
-from musicbot.object import MusicbotObject
 from musicbot.defaults import (
     DEFAULT_SPOTIFY_CACHE_PATH,
     DEFAULT_SPOTIFY_CLIENT_ID,
@@ -19,8 +18,9 @@ from musicbot.defaults import (
     DEFAULT_SPOTIFY_REDIRECT_URI,
     DEFAULT_SPOTIFY_SCOPE,
     DEFAULT_SPOTIFY_TOKEN,
-    DEFAULT_SPOTIFY_USERNAME,
+    DEFAULT_SPOTIFY_USERNAME
 )
+from musicbot.object import MusicbotObject
 from musicbot.spotify import Spotify
 
 logger = logging.getLogger(__name__)
