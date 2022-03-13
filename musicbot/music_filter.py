@@ -8,10 +8,8 @@ from musicbot.defaults import (
     DEFAULT_ALBUMS,
     DEFAULT_ARTISTS,
     DEFAULT_GENRES,
-    DEFAULT_HTTP,
     DEFAULT_KEYWORDS,
     DEFAULT_LIMIT,
-    DEFAULT_LOCAL,
     DEFAULT_MAX_LENGTH,
     DEFAULT_MAX_RATING,
     DEFAULT_MAX_SIZE,
@@ -24,11 +22,8 @@ from musicbot.defaults import (
     DEFAULT_NO_GENRES,
     DEFAULT_NO_KEYWORDS,
     DEFAULT_NO_TITLES,
-    DEFAULT_SFTP,
     DEFAULT_SHUFFLE,
-    DEFAULT_SPOTIFY,
     DEFAULT_TITLES,
-    DEFAULT_YOUTUBE,
     RATING_CHOICES
 )
 
@@ -38,11 +33,6 @@ logger = logging.getLogger(__name__)
 @frozen
 class MusicFilter:
     name: str | None = DEFAULT_NAME
-    sftp: bool = DEFAULT_SFTP
-    http: bool = DEFAULT_HTTP
-    local: bool = DEFAULT_LOCAL
-    spotify: bool = DEFAULT_SPOTIFY
-    youtube: bool = DEFAULT_YOUTUBE
     shuffle: bool = DEFAULT_SHUFFLE
     min_size: int = DEFAULT_MIN_SIZE
     max_size: int = DEFAULT_MAX_SIZE

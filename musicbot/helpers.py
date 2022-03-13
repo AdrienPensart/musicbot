@@ -1,7 +1,8 @@
 import getpass
 import logging
 import socket
-from functools import lru_cache
+from functools import cache
+from typing import Sequence
 
 import humanize  # type: ignore
 import requests
@@ -9,6 +10,12 @@ import requests
 from musicbot.exceptions import MusicbotError
 
 logger = logging.getLogger(__name__)
+
+
+def approx_chunks(lst: Sequence, n: int) -> list[Sequence]:
+    '''Cut a list in chunks of approximative equal length'''
+    k, m = divmod(len(lst), n)
+    return [lst[i * k + min(i, m):(i + 1) * k + min(i + 1, m)] for i in range(n)]
 
 
 def is_port_in_use(port: int) -> bool:
@@ -20,7 +27,7 @@ def bytes_to_human(b: int) -> str:
     return str(humanize.naturalsize(b))
 
 
-@lru_cache(maxsize=None)
+@cache
 def public_ip() -> str:
     try:
         return requests.get('https://api.ipify.org').text
@@ -28,6 +35,6 @@ def public_ip() -> str:
         raise MusicbotError("Unable to detect Public IP") from e
 
 
-@lru_cache(maxsize=None)
+@cache
 def current_user() -> str:
     return getpass.getuser()

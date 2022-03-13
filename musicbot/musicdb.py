@@ -1,6 +1,7 @@
+import json
 import logging
 import os
-from functools import lru_cache
+from functools import cache
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -8,19 +9,15 @@ from beartype import beartype
 from edgedb.asyncio_client import create_async_client
 from edgedb.blocking_client import create_client
 
-from musicbot.defaults import (
-    DEFAULT_HTTP,
-    DEFAULT_LOCAL,
-    DEFAULT_SFTP,
-    DEFAULT_SPOTIFY,
-    DEFAULT_YOUTUBE
-)
+from musicbot.defaults import DEFAULT_BULK
 from musicbot.file import File
+from musicbot.helpers import approx_chunks
+from musicbot.link_options import DEFAULT_LINK_OPTIONS, LinkOptions
 from musicbot.music import Music
 from musicbot.music_filter import MusicFilter
 from musicbot.object import MusicbotObject
 from musicbot.playlist import Playlist
-from musicbot.queries import PLAYLIST_QUERY, UPSERT_QUERY
+from musicbot.queries import BULK_UPSERT_QUERY, PLAYLIST_QUERY, UPSERT_QUERY
 
 logger = logging.getLogger(__name__)
 
@@ -35,11 +32,12 @@ class MusicDb(MusicbotObject):
         if not self.is_prod():
             os.environ['EDGEDB_CLIENT_SECURITY'] = 'insecure_dev_mode'
 
-    @lru_cache(maxsize=None)
+    @cache
     @beartype
     def make_playlist(
         self,
         music_filter: MusicFilter | None = None,
+        link_options: LinkOptions = DEFAULT_LINK_OPTIONS
     ) -> Playlist:
         music_filter = music_filter if music_filter is not None else MusicFilter()
         results = self.blocking_client.query(
@@ -73,19 +71,19 @@ class MusicDb(MusicbotObject):
             links = set()
             for link in result.links:
                 if 'youtube' in link:
-                    if music_filter.youtube:
+                    if link_options.youtube:
                         links.add(link)
                 elif 'http' in link:
-                    if music_filter.http:
+                    if link_options.http:
                         links.add(link)
                 elif 'spotify' in link:
-                    if music_filter.spotify:
+                    if link_options.spotify:
                         links.add(link)
                 elif 'sftp' in link:
-                    if music_filter.sftp:
+                    if link_options.sftp:
                         links.add(link)
                     continue
-                elif music_filter.local:
+                elif link_options.local:
                     path = Path(link)
                     if not path.exists():
                         self.warn(f'{link} does not exist locally, skipping')
@@ -93,8 +91,7 @@ class MusicDb(MusicbotObject):
                         links.add(link)
                     continue
                 else:
-                    self.warn(f'{link} format not recognized, keeping')
-                    links.add(link)
+                    logger.debug(f'{link} format not recognized, keeping')
 
             music = Music(
                 title=result.name,
@@ -109,7 +106,7 @@ class MusicDb(MusicbotObject):
                 links=list(links),
             )
             if not links:
-                self.warn(f'{music} : no links available')
+                logger.debug(f'{music} : no links available')
             musics.append(music)
 
         return Playlist(musics=musics, music_filter=music_filter)
@@ -125,23 +122,29 @@ class MusicDb(MusicbotObject):
     def upsert_musics(
         self,
         musics: Sequence[File],
-        sftp: bool = DEFAULT_SFTP,
-        http: bool = DEFAULT_HTTP,
-        local: bool = DEFAULT_LOCAL,
-        spotify: bool = DEFAULT_SPOTIFY,
-        youtube: bool = DEFAULT_YOUTUBE,
-    ) -> list[Any]:
+        link_options: LinkOptions = DEFAULT_LINK_OPTIONS,
+        bulk: int | None = DEFAULT_BULK,
+    ) -> list[Any] | None:
+        if bulk is not None and bulk > 1:
+            with self.progressbar(max_value=len(musics), prefix='Upserting musics') as pbar:
+                for musics_chunk in approx_chunks(musics, bulk):
+                    try:
+                        for music in musics_chunk:
+                            final_query = ''
+                            final_query += self._prepare_bulk_upsert_music(music, link_options)
+                            self.blocking_client.execute(final_query)
+                    finally:
+                        pbar.value += len(musics_chunk)
+                        pbar.update()
+            return None
+
         results = []
         with self.progressbar(max_value=len(musics), prefix='Upserting musics') as pbar:
             for music in musics:
                 try:
                     result = self.upsert_music(
                         music=music,
-                        http=http,
-                        sftp=sftp,
-                        youtube=youtube,
-                        spotify=spotify,
-                        local=local,
+                        link_options=link_options,
                     )
                     if result is not None:
                         results.append(result)
@@ -155,51 +158,22 @@ class MusicDb(MusicbotObject):
     def upsert_music(
         self,
         music: File,
-        sftp: bool = DEFAULT_SFTP,
-        http: bool = DEFAULT_HTTP,
-        local: bool = DEFAULT_LOCAL,
-        spotify: bool = DEFAULT_SPOTIFY,
-        youtube: bool = DEFAULT_YOUTUBE,
+        link_options: LinkOptions = DEFAULT_LINK_OPTIONS
     ) -> Any:
-        params = self._prepare_upsert_music(
-            music=music,
-            http=http,
-            sftp=sftp,
-            youtube=youtube,
-            spotify=spotify,
-            local=local,
-        )
-        if not params:
-            return None
-        return self.blocking_client.query(**params)
-
-    @staticmethod
-    def _prepare_upsert_music(
-        music: File,
-        local: bool = DEFAULT_LOCAL,
-        http: bool = DEFAULT_HTTP,
-        sftp: bool = DEFAULT_SFTP,
-        spotify: bool = DEFAULT_SPOTIFY,
-        youtube: bool = DEFAULT_YOUTUBE,
-    ) -> dict[str, Any] | None:
         if 'no-title' in music.inconsistencies or 'no-artist' in music.inconsistencies or 'no-album' in music.inconsistencies:
             MusicbotObject.warn(f"{music} : missing mandatory fields title/album/artist : {music.inconsistencies}")
             return None
 
-        links = set()
-        if local:
-            links.add(str(music.path))
-        if sftp and music.sftp_path:
-            links.add(music.sftp_path)
-        if http and music.http_path:
-            links.add(music.http_path)
-        if youtube and music.youtube_path:
-            links.add(music.youtube_path)
-        if spotify and music.spotify_path:
-            links.add(music.spotify_path)
-
-        return dict(
+        params = dict(
             query=UPSERT_QUERY,
-            links=list(links),
-            **music.to_dict(),
+            **music.to_dict(link_options),
         )
+        return self.blocking_client.query(**params)
+
+    @staticmethod
+    def _prepare_bulk_upsert_music(
+        music: File,
+        link_options: LinkOptions = DEFAULT_LINK_OPTIONS
+    ) -> str:
+        strings = {k: json.dumps(v) for k, v in music.to_dict(link_options).items()}
+        return BULK_UPSERT_QUERY.format(**strings)

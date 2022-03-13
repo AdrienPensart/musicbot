@@ -1,7 +1,7 @@
 import logging
 from functools import cached_property
 from pathlib import Path, PurePath
-from typing import Any, Iterable
+from typing import Any, Iterable, Set
 
 import acoustid  # type: ignore
 import mutagen  # type: ignore
@@ -19,10 +19,10 @@ from musicbot.defaults import (
     STORED_RATING_CHOICES
 )
 from musicbot.helpers import current_user, public_ip
+from musicbot.link_options import DEFAULT_LINK_OPTIONS, LinkOptions
 from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
-
 output_types = ["list", "json"]
 
 
@@ -58,7 +58,10 @@ class File(MusicbotObject):
     def __repr__(self) -> str:
         return str(self.path)
 
-    def to_dict(self) -> dict[str, Any]:
+    def to_dict(
+        self,
+        link_options: LinkOptions = DEFAULT_LINK_OPTIONS
+    ) -> dict[str, Any]:
         return dict(
             title=self.title,
             size=self.size,
@@ -69,6 +72,7 @@ class File(MusicbotObject):
             track=self.track,
             rating=self.rating,
             keywords=list(self.keywords),
+            links=list(self.links(link_options)),
         )
 
     @cached_property
@@ -388,3 +392,17 @@ class File(MusicbotObject):
 
     def close(self) -> None:
         self.handle.close()
+
+    def links(self, link_options: LinkOptions = DEFAULT_LINK_OPTIONS) -> Set[str]:
+        links = set()
+        if link_options.local:
+            links.add(str(self.path))
+        if link_options.sftp and self.sftp_path:
+            links.add(self.sftp_path)
+        if link_options.http and self.http_path:
+            links.add(self.http_path)
+        if link_options.youtube and self.youtube_path:
+            links.add(self.youtube_path)
+        if link_options.spotify and self.spotify_path:
+            links.add(self.spotify_path)
+        return links

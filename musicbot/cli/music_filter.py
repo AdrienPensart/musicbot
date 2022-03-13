@@ -11,10 +11,8 @@ from musicbot.defaults import (
     DEFAULT_ALBUMS,
     DEFAULT_ARTISTS,
     DEFAULT_GENRES,
-    DEFAULT_HTTP,
     DEFAULT_KEYWORDS,
     DEFAULT_LIMIT,
-    DEFAULT_LOCAL,
     DEFAULT_MAX_LENGTH,
     DEFAULT_MAX_RATING,
     DEFAULT_MAX_SIZE,
@@ -27,25 +25,16 @@ from musicbot.defaults import (
     DEFAULT_NO_GENRES,
     DEFAULT_NO_KEYWORDS,
     DEFAULT_NO_TITLES,
-    DEFAULT_SFTP,
     DEFAULT_SHUFFLE,
-    DEFAULT_SPOTIFY,
-    DEFAULT_TITLES,
-    DEFAULT_YOUTUBE
+    DEFAULT_TITLES
 )
 from musicbot.music_filter import MusicFilter
 
-link_options = add_options(
-    optgroup('Link options'),
-    optgroup.option('--http/--no-http', is_flag=True, default=DEFAULT_HTTP),
-    optgroup.option('--sftp/--no-sftp', is_flag=True, default=DEFAULT_SFTP),
-    optgroup.option('--youtube/--no-youtube', is_flag=True, default=DEFAULT_YOUTUBE),
-    optgroup.option('--spotify/--no-spotify', is_flag=True, default=DEFAULT_SPOTIFY),
-    optgroup.option('--local/--no-local', is_flag=True, default=DEFAULT_LOCAL),
-)
 
+def sane_music_filter(ctx: click.Context, param: click.Parameter, value: Any) -> MusicFilter:  # pylint: disable=unused-argument
+    if not param.name:
+        raise click.Abort("No param name set")
 
-def sane_music_filter(ctx: click.Context, param: click.ParamType, value: Any) -> MusicFilter:  # pylint: disable=unused-argument
     kwargs: dict[str, Any] = {}
     for field in attr.fields_dict(MusicFilter):
         if isinstance(ctx.params[field], list):
@@ -54,9 +43,9 @@ def sane_music_filter(ctx: click.Context, param: click.ParamType, value: Any) ->
             kwargs[field] = ctx.params[field]
         ctx.params.pop(field)
 
-    myfilter = MusicFilter(**kwargs)
-    ctx.params[param.name] = myfilter
-    return myfilter
+    music_filter = MusicFilter(**kwargs)
+    ctx.params[param.name] = music_filter
+    return music_filter
 
 
 shuffle_option = optgroup.option(
@@ -91,7 +80,6 @@ music_filter_options = add_options(
         default=DEFAULT_LIMIT,
     ),
     shuffle_option,
-    link_options,
     optgroup('Keywords'),
     optgroup.option(
         '--keywords', '--keyword',

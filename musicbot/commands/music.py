@@ -16,10 +16,11 @@ from musicbot.cli.file import (
     paths_arguments
 )
 from musicbot.cli.folders import destination_argument
-from musicbot.cli.music_filter import link_options
+from musicbot.cli.link_options import link_options_options
 from musicbot.cli.musicdb import musicdb_options
 from musicbot.cli.options import dry_option
 from musicbot.file import File
+from musicbot.link_options import LinkOptions
 from musicbot.musicdb import MusicDb
 from musicbot.object import MusicbotObject
 
@@ -35,16 +36,12 @@ def cli() -> None:
 @cli.command(help='Insert music to DB', aliases=['upsert', 'scan'])
 @path_argument
 @musicdb_options
-@link_options
+@link_options_options
 @beartype
 def insert(
     path: Path,
     musicdb: MusicDb,
-    http: bool,
-    sftp: bool,
-    youtube: bool,
-    spotify: bool,
-    local: bool,
+    link_options: LinkOptions,
 ) -> None:
     music = File(path=path)
     if 'no-title' in music.inconsistencies or 'no-artist' in music.inconsistencies or 'no-album' in music.inconsistencies:
@@ -53,11 +50,7 @@ def insert(
 
     musicdb.upsert_music(
         music,
-        http=http,
-        sftp=sftp,
-        youtube=youtube,
-        spotify=spotify,
-        local=local,
+        link_options=link_options
     )
 
 

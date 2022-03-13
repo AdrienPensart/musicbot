@@ -3,14 +3,11 @@ from typing import Final
 MIN_INT: Final[int] = 0
 MAX_INT: Final[int] = 2147483647
 
+DEFAULT_BULK: Final[int | None] = None
+
 RATING_CHOICES: Final[list[float]] = [x * 0.5 for x in range(0, 11)]
 STORED_RATING_CHOICES: Final[list[float]] = [float(x) / 10.0 for x in range(0, 11)]
 
-DEFAULT_SFTP: Final[bool] = False
-DEFAULT_HTTP: Final[bool] = False
-DEFAULT_LOCAL: Final[bool] = True
-DEFAULT_SPOTIFY: Final[bool] = False
-DEFAULT_YOUTUBE: Final[bool] = False
 DEFAULT_NAME: Final[str | None] = None
 DEFAULT_RELATIVE: Final[bool] = False
 DEFAULT_SHUFFLE: Final[bool] = False

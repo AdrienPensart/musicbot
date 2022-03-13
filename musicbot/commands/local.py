@@ -18,7 +18,8 @@ from musicbot.cli.folders import (
     folder_argument,
     folders_argument
 )
-from musicbot.cli.music_filter import link_options, music_filter_options
+from musicbot.cli.music_filter import music_filter_options
+from musicbot.cli.link_options import link_options_options
 from musicbot.cli.musicdb import musicdb_options
 from musicbot.cli.options import (
     clean_option,
@@ -28,9 +29,10 @@ from musicbot.cli.options import (
     save_option,
     yes_option
 )
-from musicbot.defaults import EXCEPT_DIRECTORIES
+from musicbot.defaults import DEFAULT_BULK, EXCEPT_DIRECTORIES
 from musicbot.file import File
 from musicbot.folders import Folders
+from musicbot.link_options import LinkOptions
 from musicbot.music_filter import MusicFilter
 from musicbot.musicdb import MusicDb
 from musicbot.object import MusicbotObject
@@ -59,8 +61,9 @@ def execute(musicdb: MusicDb, query: str) -> None:
 @extensions_option
 @save_option
 @clean_option
-@link_options
+@link_options_options
 @click.option('--limit', help="Limit number of music files", type=int)
+@click.option('--bulk', '--chunk', 'bulk', help="How many musics to insert at the same time", default=DEFAULT_BULK, type=int)
 @beartype
 def scan(
     musicdb: MusicDb,
@@ -69,11 +72,8 @@ def scan(
     limit: int | None,
     folders: list[Path],
     extensions: list[str],
-    http: bool,
-    sftp: bool,
-    youtube: bool,
-    spotify: bool,
-    local: bool,
+    link_options: LinkOptions,
+    bulk: int | None,
 ) -> None:
     if clean:
         musicdb.clean_musics()
@@ -84,12 +84,9 @@ def scan(
         limit=limit,
     )
     musicdb.upsert_musics(
-        _folders.musics,
-        http=http,
-        sftp=sftp,
-        youtube=youtube,
-        spotify=spotify,
-        local=local,
+        musics=_folders.musics,
+        link_options=link_options,
+        bulk=bulk,
     )
 
     if save:
@@ -132,15 +129,19 @@ def clean(musicdb: MusicDb) -> None:
 @cli.command(help='Generate a new playlist')
 @musicdb_options
 @output_option
-@link_options
+@link_options_options
 @music_filter_options
 @beartype
 def playlist(
     output: str,
     music_filter: MusicFilter,
+    link_options: LinkOptions,
     musicdb: MusicDb,
 ) -> None:
-    p = musicdb.make_playlist(music_filter)
+    p = musicdb.make_playlist(
+        music_filter=music_filter,
+        link_options=link_options,
+    )
     p.print(output=output)
 
 
@@ -152,16 +153,18 @@ def playlist(
 @dry_option
 @music_filter_options
 @musicdb_options
+@link_options_options
 @beartype
 def bests(
     musicdb: MusicDb,
     music_filter: MusicFilter,
+    link_options: LinkOptions,
     folder: Path,
     min_playlist_size: int,
     ratings: list[float],
     types: list[str],
 ) -> None:
-    prefiltered = musicdb.make_playlist(music_filter)
+    prefiltered = musicdb.make_playlist(music_filter=music_filter, link_options=link_options)
     if "genre" in types:
         with MusicbotObject.progressbar(max_value=len(prefiltered.genres), prefix="Generating bests genres") as pbar:
             for genre in prefiltered.genres:
@@ -170,7 +173,7 @@ def bests(
                         music_filter,
                         genres=frozenset([genre]),
                     )
-                    best = musicdb.make_playlist(filter_copy)
+                    best = musicdb.make_playlist(music_filter=filter_copy, link_options=link_options)
                     if len(best.musics) < min_playlist_size:
                         continue
                     filepath = Path(folder) / ('genre_' + genre.lower() + '.m3u')
@@ -187,7 +190,7 @@ def bests(
                         music_filter,
                         min_rating=rating,
                     )
-                    best = musicdb.make_playlist(filter_copy)
+                    best = musicdb.make_playlist(music_filter=filter_copy, link_options=link_options)
                     if len(best.musics) < min_playlist_size:
                         continue
                     filepath = Path(folder) / ('rating_' + str(rating) + '.m3u')
@@ -204,7 +207,7 @@ def bests(
                         music_filter,
                         keywords=frozenset([keyword]),
                     )
-                    best = musicdb.make_playlist(filter_copy)
+                    best = musicdb.make_playlist(music_filter=filter_copy, link_options=link_options)
                     if len(best.musics) < min_playlist_size:
                         continue
                     filepath = Path(folder) / ('keyword_' + keyword.lower() + '.m3u')
@@ -224,7 +227,7 @@ def bests(
                     min_rating=rating,
                     artists=frozenset([artist]),
                 )
-                best = musicdb.make_playlist(filter_copy)
+                best = musicdb.make_playlist(music_filter=filter_copy, link_options=link_options)
                 if len(best.musics) < min_playlist_size:
                     continue
                 filepath = Path(folder) / artist / ('rating_' + str(rating) + '.m3u')
@@ -237,7 +240,7 @@ def bests(
                     keywords=frozenset([keyword]),
                     artists=frozenset([artist]),
                 )
-                best = musicdb.make_playlist(filter_copy)
+                best = musicdb.make_playlist(music_filter=filter_copy, link_options=link_options)
                 if len(best.musics) < min_playlist_size:
                     continue
                 filepath = Path(folder) / artist / ('keyword_' + keyword.lower() + '.m3u')
