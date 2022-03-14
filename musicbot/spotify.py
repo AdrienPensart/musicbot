@@ -1,16 +1,16 @@
-import functools
 import itertools
 import logging
+from functools import cache
 from typing import Any
 
-import attr
 import spotipy  # type: ignore
+from attr import asdict, frozen
 from spotipy.oauth2 import CacheFileHandler  # type: ignore
 
 logger = logging.getLogger(__name__)
 
 
-@attr.s(auto_attribs=True, frozen=True)
+@frozen
 class Spotify:
     username: str
     client_id: str
@@ -20,23 +20,31 @@ class Spotify:
     redirect_uri: str
     token: str
 
-    @functools.cached_property
-    def auth_manager(self) -> spotipy.oauth2.SpotifyOAuth:
-        auth_params = attr.asdict(self)
+    @cache
+    def _auth_manager(self) -> spotipy.oauth2.SpotifyOAuth:
+        auth_params = asdict(self)
         del auth_params['token']
         del auth_params['cache_path']
         del auth_params['username']
         return spotipy.oauth2.SpotifyOAuth(**auth_params, cache_handler=self.cache_handler)
 
-    @functools.cached_property
+    @property
+    def auth_manager(self) -> spotipy.oauth2.SpotifyOAuth:
+        return self._auth_manager()
+
+    @property
     def cache_handler(self) -> CacheFileHandler:
         return CacheFileHandler(cache_path=self.cache_path, username=self.username)
 
-    @functools.cached_property
-    def api(self) -> spotipy.Spotify:
+    @cache
+    def _api(self) -> spotipy.Spotify:
         if self.token:
             return spotipy.Spotify(auth=self.token)
         return spotipy.Spotify(auth_manager=self.auth_manager)
+
+    @property
+    def api(self) -> spotipy.Spotify:
+        return self._api()
 
     def new_token(self) -> Any:
         return self.auth_manager.get_access_token(check_cache=False)

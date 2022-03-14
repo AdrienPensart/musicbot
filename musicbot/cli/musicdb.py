@@ -10,7 +10,7 @@ def sane_musicdb(ctx: click.Context, param: click.Parameter, value: str) -> Musi
     if param.name:
         ctx.params[param.name] = value
     dsn = ctx.params.pop('dsn')
-    musicdb = MusicDb(dsn=dsn)
+    musicdb = MusicDb.from_dsn(dsn)
     ctx.params['musicdb'] = musicdb
     return musicdb
 

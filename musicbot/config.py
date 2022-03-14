@@ -1,13 +1,13 @@
 import configparser
-import functools
 import logging
 import sys
+from functools import cache
 from pathlib import Path
 from typing import Final
 
-import attr
 import colorlog
 import progressbar  # type: ignore
+from attr import frozen
 
 from musicbot.exceptions import MusicbotError
 
@@ -34,7 +34,7 @@ VERBOSITIES = {
 }
 
 
-@attr.s(auto_attribs=True, frozen=True)
+@frozen(hash=True)
 class Config:
     log: str | None = DEFAULT_LOG
     color: bool = DEFAULT_COLOR
@@ -93,13 +93,17 @@ class Config:
             except PermissionError as e:
                 raise MusicbotError(f"Unable to write log file {log_path}") from e
 
-    @functools.cached_property
-    def configfile(self) -> configparser.ConfigParser:
+    @cache
+    def _configfile(self) -> configparser.ConfigParser:
         file = configparser.ConfigParser()
         file.read(Path(self.config).expanduser())
         if 'musicbot' not in file:
             logger.warning(f'[musicbot] section is not present in {self.config}')
         return file
+
+    @property
+    def configfile(self) -> configparser.ConfigParser:
+        return self._configfile()
 
     def write(self) -> None:
         with open(Path(self.config).expanduser(), 'w', encoding="utf8") as output_config:

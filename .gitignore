@@ -23,4 +23,5 @@ pip-wheel-metadata
 *.webm
 *.mp3
 *.flac
+*.part
 !tests/fixtures/*.mp3

@@ -30,7 +30,7 @@ from musicbot.defaults import (
 logger = logging.getLogger(__name__)
 
 
-@frozen
+@frozen(repr=False)
 class MusicFilter:
     name: str | None = DEFAULT_NAME
     shuffle: bool = DEFAULT_SHUFFLE

@@ -1,6 +1,6 @@
 from typing import Final
 
-from attr import define
+from attr import frozen
 
 DEFAULT_SFTP: Final[bool] = False
 DEFAULT_HTTP: Final[bool] = False
@@ -9,7 +9,7 @@ DEFAULT_SPOTIFY: Final[bool] = False
 DEFAULT_YOUTUBE: Final[bool] = False
 
 
-@define(hash=True)
+@frozen
 class LinkOptions:
     sftp: bool = DEFAULT_SFTP
     http: bool = DEFAULT_HTTP

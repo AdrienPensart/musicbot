@@ -5,10 +5,10 @@ from pathlib import Path
 from typing import Any
 
 import edgedb
-from attr import asdict
+from attr import asdict, define
 from beartype import beartype
 from deepdiff import DeepDiff  # type: ignore
-from edgedb.blocking_client import create_client
+from edgedb.blocking_client import Client, create_client
 
 from musicbot.exceptions import MusicbotError
 from musicbot.file import File
@@ -23,14 +23,18 @@ from musicbot.queries import PLAYLIST_QUERY, UPSERT_QUERY
 logger = logging.getLogger(__name__)
 
 
+@define(hash=True)
 class MusicDb(MusicbotObject):
-    def __init__(
-        self,
+    blocking_client: Client
+
+    @classmethod
+    def from_dsn(
+        cls,
         dsn: str,
-    ):
-        self.blocking_client = create_client(dsn=dsn)
-        if not self.is_prod():
+    ) -> "MusicDb":
+        if not cls.is_prod():
             os.environ['EDGEDB_CLIENT_SECURITY'] = 'insecure_dev_mode'
+        return cls(blocking_client=create_client(dsn=dsn))
 
     @cache
     @beartype

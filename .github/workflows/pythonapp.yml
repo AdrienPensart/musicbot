@@ -3,34 +3,40 @@ name: Python application
 on: [push]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  ci:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.10]
+        poetry-version: [1.1.13]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
+      - uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: ${{ matrix.python-version }}
+      - name: Run image
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: ${{ matrix.poetry-version }}
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libtag1-dev postgresql-server-dev-all ffmpeg vlc
-          pip install -r requirements-dev.txt
+          poetry install
       - name: restructured text Linting
         run: |
-          rst-lint README.rst
+          poetry run rst-lint README.rst
       - name: Pylint Linting
         run: |
-          pylint musicbot tests
+          poetry run pylint musicbot tests
       - name: Flake8 Linting
         run: |
-          flake8 --config .flake8 musicbot tests
+          poetry run flake8 --config .flake8 musicbot tests
       - name: MyPy Static type checking
         run: |
-          mypy musicbot tests
-      - name: PyType Static type checking
-        run: |
-          pytype musicbot tests -j auto -k
+          poetry run mypy musicbot tests
       - name: Test with pytest
         env:
           MB_SPOTIFY_CACHE: ${{ secrets.MB_SPOTIFY_CACHE }}
@@ -38,7 +44,7 @@ jobs:
           MB_SPOTIFY_CLIENT_SECRET: ${{ secrets.MB_SPOTIFY_CLIENT_SECRET }}
         run: |
           echo -n "$MB_SPOTIFY_CACHE" > $HOME/.spotify_cache
-          MB_SPOTIFY_CACHE_PATH=$HOME/.spotify_cache pytest
+          MB_SPOTIFY_CACHE_PATH=$HOME/.spotify_cache poetry run pytest
       - name: Build package
         if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
         run: |

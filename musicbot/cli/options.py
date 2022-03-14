@@ -18,9 +18,12 @@ from musicbot.object import MusicbotObject
 logger = logging.getLogger(__name__)
 
 
-def sane_dry(ctx: click.Context, param: Any, value: bool) -> None:  # pylint: disable=unused-argument
+def sane_dry(ctx: click.Context, param: click.Parameter, value: bool) -> None:
     '''Overwrite global dry mode'''
+    if not param.name:
+        raise click.Abort("no param name set")
     MusicbotObject.dry = value
+    ctx.params.pop(param.name, None)
 
 
 dry_option = click.option(
