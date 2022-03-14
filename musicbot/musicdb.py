@@ -2,10 +2,12 @@ import logging
 import os
 from functools import cache
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
+from attr import asdict
+from deepdiff import DeepDiff
 from beartype import beartype
-from edgedb.asyncio_client import create_async_client
+import edgedb
 from edgedb.blocking_client import create_client
 
 from musicbot.file import File
@@ -14,6 +16,8 @@ from musicbot.music import Music
 from musicbot.music_filter import MusicFilter
 from musicbot.object import MusicbotObject
 from musicbot.playlist import Playlist
+from musicbot.folders import Folders
+from musicbot.exceptions import MusicbotError
 from musicbot.queries import PLAYLIST_QUERY, UPSERT_QUERY
 
 logger = logging.getLogger(__name__)
@@ -24,7 +28,6 @@ class MusicDb(MusicbotObject):
         self,
         dsn: str,
     ):
-        self.async_client = create_async_client(dsn=dsn)
         self.blocking_client = create_client(dsn=dsn)
         if not self.is_prod():
             os.environ['EDGEDB_CLIENT_SECURITY'] = 'insecure_dev_mode'
@@ -110,29 +113,15 @@ class MusicDb(MusicbotObject):
 
     def clean_musics(self) -> Any:
         query = """delete Artist;"""
+        if self.dry:
+            return None
         return self.blocking_client.query(query)
 
     def delete_music(self, path: str) -> Any:
         query = """delete Music filter .path = <str>$path;"""
-        return self.blocking_client.query(query, path=path)
-
-    def upsert_musics(
-        self,
-        musics: Sequence[File],
-        link_options: LinkOptions = DEFAULT_LINK_OPTIONS,
-    ) -> list[Any] | None:
-        def worker(music: File) -> Any | None:
-            try:
-                return self.upsert_music(
-                    music=music,
-                    link_options=link_options,
-                )
-            except Exception as e:  # pylint: disable=broad-except
-                self.err(f"{music} : {e}")
+        if self.dry:
             return None
-
-        results = self.parallel(worker, musics, threads=1)
-        return results
+        return self.blocking_client.query(query, path=path)
 
     def upsert_music(
         self,
@@ -147,20 +136,61 @@ class MusicDb(MusicbotObject):
             query=UPSERT_QUERY,
             **music.to_dict(link_options),
         )
-        return self.blocking_client.query(**params)
+        if self.dry:
+            return None
+        try:
+            return self.blocking_client.query_required_single(**params)
+        except edgedb.errors.NoDataError as e:
+            raise MusicbotError(f"{music} : no data result for query") from e
 
     def upsert_path(
         self,
         path: Path,
         link_options: LinkOptions = DEFAULT_LINK_OPTIONS
-    ) -> File | None:
+    ) -> tuple[File, Music] | None:
         try:
-            music = File.from_path(path=path)
-            self.upsert_music(
-                music=music,
+            music_file = File.from_path(path=path)
+            result = self.upsert_music(
+                music=music_file,
                 link_options=link_options,
             )
-            return music
+            keywords = list(keyword for keyword in result.all_keywords)
+            music = Music(
+                title=result.name,
+                artist=result.artist_name,
+                album=result.album_name,
+                genre=result.genre_name,
+                size=result.size,
+                length=result.length,
+                keywords=keywords,
+                track=result.track,
+                rating=result.rating,
+                links=list(result.links),
+            )
+            return music_file, music
         except OSError as e:
             logger.error(e)
         return None
+
+    def upsert_folders(
+        self,
+        folders: Folders,
+        link_options: LinkOptions = DEFAULT_LINK_OPTIONS
+    ):
+        def worker(path: Path) -> dict[str, Any] | None:
+            result = self.upsert_path(path, link_options=link_options)
+            if not result:
+                MusicbotObject.err(f"{path} : unable to insert")
+                return None
+
+            music_file, music = result
+            music_file_dict = music_file.to_dict(link_options)
+            music_dict = asdict(music)
+            music_diff = DeepDiff(music_file_dict, music_file_dict)
+            if music_diff:
+                MusicbotObject.err(f"{path} : file and music diff detected : {music_diff}")
+                return None
+
+            return music_dict
+
+        return folders.apply(worker, prefix="Loading and inserting musics")

@@ -5,7 +5,7 @@ import shutil
 import time
 from pathlib import Path
 
-import attr
+from attr import evolve
 import click
 import progressbar  # type: ignore
 from beartype import beartype
@@ -18,17 +18,18 @@ from musicbot.cli.folders import (
     folder_argument,
     folders_argument
 )
-from musicbot.cli.music_filter import music_filter_options
 from musicbot.cli.link_options import link_options_options
+from musicbot.cli.music_filter import music_filter_options
 from musicbot.cli.musicdb import musicdb_options
 from musicbot.cli.options import (
     clean_option,
-    dry_option,
+    lazy_yes_option,
     output_option,
-    sane_list,
     save_option,
-    yes_option
+    yes_option,
+    dry_option,
 )
+from musicbot.cli.playlist import bests_options
 from musicbot.file import File
 from musicbot.folders import Folders
 from musicbot.link_options import LinkOptions
@@ -58,6 +59,7 @@ def execute(musicdb: MusicDb, query: str) -> None:
 @folders_argument
 @musicdb_options
 @save_option
+@output_option
 @clean_option
 @link_options_options
 @beartype
@@ -67,14 +69,17 @@ def scan(
     clean: bool,
     save: bool,
     link_options: LinkOptions,
+    output: str,
 ) -> None:
     if clean:
         musicdb.clean_musics()
 
-    def worker(path: Path) -> None:
-        musicdb.upsert_path(path, link_options=link_options)
-
-    folders.apply(worker, prefix="Loading and inserting musics")
+    musics = musicdb.upsert_folders(
+        folders=folders,
+        link_options=link_options,
+    )
+    if output == 'json':
+        MusicbotObject.print_json(musics)
 
     if save:
         MusicbotObject.config.configfile['musicbot']['folders'] = folders.unique_folders
@@ -130,14 +135,12 @@ def playlist(
 
 
 @cli.command(help='Generate bests playlists with some rules')
-@click.option('--min-playlist-size', help="Minimum size of playlist to write", default=1)
-@click.option('--ratings', help="Generate bests for those ratings", default=[4.0, 4.5, 5.0], multiple=True, callback=sane_list)
-@click.option('--types', help="Type of bests playlists", default=["genre", "keyword", "rating", "artist"], multiple=True, callback=sane_list)
 @folder_argument
-@dry_option
 @music_filter_options
 @musicdb_options
+@dry_option
 @link_options_options
+@bests_options
 @beartype
 def bests(
     musicdb: MusicDb,
@@ -145,15 +148,15 @@ def bests(
     link_options: LinkOptions,
     folder: Path,
     min_playlist_size: int,
-    ratings: list[float],
+    ratings: tuple[float, ...],
     types: list[str],
 ) -> None:
     prefiltered = musicdb.make_playlist(music_filter=music_filter, link_options=link_options)
-    if "genre" in types:
+    if "genre" in types and prefiltered.genres:
         with MusicbotObject.progressbar(max_value=len(prefiltered.genres), prefix="Generating bests genres") as pbar:
             for genre in prefiltered.genres:
                 try:
-                    filter_copy = attr.evolve(
+                    filter_copy = evolve(
                         music_filter,
                         genres=frozenset([genre]),
                     )
@@ -166,11 +169,11 @@ def bests(
                     pbar.value += 1
                     pbar.update()
 
-    if "rating" in types:
+    if "rating" in types and ratings:
         with MusicbotObject.progressbar(max_value=len(ratings), prefix="Generating bests ratings") as pbar:
             for rating in ratings:
                 try:
-                    filter_copy = attr.evolve(
+                    filter_copy = evolve(
                         music_filter,
                         min_rating=rating,
                     )
@@ -183,11 +186,11 @@ def bests(
                     pbar.value += 1
                     pbar.update()
 
-    if "keyword" in types:
+    if "keyword" in types and prefiltered.keywords:
         with MusicbotObject.progressbar(max_value=len(prefiltered.keywords), prefix="Generating bests keywords") as pbar:
             for keyword in prefiltered.keywords:
                 try:
-                    filter_copy = attr.evolve(
+                    filter_copy = evolve(
                         music_filter,
                         keywords=frozenset([keyword]),
                     )
@@ -204,9 +207,9 @@ def bests(
         return
 
     def worker(artist: str) -> None:
-        if "rating" in types:
+        if "rating" in types and ratings:
             for rating in ratings:
-                filter_copy = attr.evolve(
+                filter_copy = evolve(
                     music_filter,
                     min_rating=rating,
                     artists=frozenset([artist]),
@@ -217,9 +220,9 @@ def bests(
                 filepath = Path(folder) / artist / ('rating_' + str(rating) + '.m3u')
                 best.write(filepath)
 
-        if "keyword" in types:
+        if "keyword" in types and prefiltered.keywords:
             for keyword in prefiltered.keywords:
-                filter_copy = attr.evolve(
+                filter_copy = evolve(
                     music_filter,
                     keywords=frozenset([keyword]),
                     artists=frozenset([artist]),
@@ -249,9 +252,9 @@ def player(music_filter: MusicFilter, musicdb: MusicDb) -> None:
 
 @cli.command(help='Copy selected musics with filters to destination folder')
 @destination_argument
-@dry_option
-@click.option('--yes', '-y', help="Confirm file deletion on destination", is_flag=True)
 @musicdb_options
+@lazy_yes_option
+@dry_option
 @music_filter_options
 @flat_option
 @click.option('--delete', help='Delete files on destination if not present in library', is_flag=True)

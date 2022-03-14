@@ -1,8 +1,8 @@
 from typing import Any
 
 import click
-from beartype import beartype
 from attr import fields_dict
+from beartype import beartype
 from click_option_group import optgroup  # type: ignore
 from click_skeleton import add_options
 

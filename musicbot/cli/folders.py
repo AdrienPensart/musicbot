@@ -6,11 +6,9 @@ from click_option_group import optgroup  # type: ignore
 from click_skeleton import add_options
 from click_skeleton.helpers import split_arguments
 
-from musicbot.cli.options import config_list
+from musicbot.cli.options import config_list, dry_option
+from musicbot.defaults import DEFAULT_EXTENSIONS
 from musicbot.folders import Folders
-from musicbot.defaults import (
-    DEFAULT_EXTENSIONS
-)
 
 
 @beartype
@@ -40,6 +38,7 @@ folder_argument = click.argument(
 )
 
 folders_argument = add_options(
+    dry_option,
     optgroup.group("Folders options"),
     optgroup.option(
         '--limit',

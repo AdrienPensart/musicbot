@@ -1,11 +1,11 @@
 import logging
 from functools import cached_property
 from pathlib import Path, PurePath
-from typing import Any, Iterable, Set
+from typing import Any, Iterable
 
-from attr import define
 import acoustid  # type: ignore
 import mutagen  # type: ignore
+from attr import define
 from click_skeleton.helpers import mysplit
 from pydub import AudioSegment  # type: ignore
 from slugify import slugify
@@ -78,8 +78,8 @@ class File(MusicbotObject):
             length=self.length,
             track=self.track,
             rating=self.rating,
-            keywords=list(self.keywords),
-            links=list(self.links(link_options)),
+            keywords=list(sorted(self.keywords)),
+            links=list(sorted(self.links(link_options))),
         )
 
     @cached_property
@@ -339,26 +339,26 @@ class File(MusicbotObject):
             return f.save()
 
         logger.debug(f"{self} convert destination : {mp3_path}")
-        if not MusicbotObject.dry:
-            mp3_path.parent.mkdir(parents=True, exist_ok=True)
-            try:
-                flac_audio = AudioSegment.from_file(self.path, "flac")
-                mp3_file = flac_audio.export(
-                    mp3_path,
-                    format="mp3",
-                    bitrate="256k",
-                )
-                mp3_file.close()
-                f = File.from_path(mp3_path)
-                f.track = self.track
-                f.album = self.album
-                f.title = self.title
-                f.artist = self.artist
-                return f.save()
-            except Exception:
-                mp3_path.unlink()
-                raise
-        return False
+        if self.dry:
+            return True
+        mp3_path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            flac_audio = AudioSegment.from_file(self.path, "flac")
+            mp3_file = flac_audio.export(
+                mp3_path,
+                format="mp3",
+                bitrate="256k",
+            )
+            mp3_file.close()
+            f = File.from_path(mp3_path)
+            f.track = self.track
+            f.album = self.album
+            f.title = self.title
+            f.artist = self.artist
+            return f.save()
+        except Exception:
+            mp3_path.unlink()
+            raise
 
     def fingerprint(self, api_key: str) -> str:
         ids = acoustid.match(api_key, self.path)
@@ -400,7 +400,7 @@ class File(MusicbotObject):
     def close(self) -> None:
         self.handle.close()
 
-    def links(self, link_options: LinkOptions = DEFAULT_LINK_OPTIONS) -> Set[str]:
+    def links(self, link_options: LinkOptions = DEFAULT_LINK_OPTIONS) -> set[str]:
         links = set()
         if link_options.local:
             links.add(str(self.path))

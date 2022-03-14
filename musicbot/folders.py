@@ -2,13 +2,11 @@ import logging
 import os
 from functools import cached_property
 from pathlib import Path
-from typing import Callable, Any, Iterator
+from typing import Any, Callable, Iterator
 
 from attr import define
-from musicbot.defaults import (
-    DEFAULT_EXTENSIONS,
-    EXCEPT_DIRECTORIES
-)
+
+from musicbot.defaults import DEFAULT_EXTENSIONS, EXCEPT_DIRECTORIES
 from musicbot.file import File
 from musicbot.object import MusicbotObject
 

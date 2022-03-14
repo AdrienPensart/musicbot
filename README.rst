@@ -20,6 +20,7 @@ Commands
       --warning                      Warning verbosity
       --error                        Error verbosity
       --critical                     Critical verbosity
+    --dry / --no-dry                 Do not launch real action  [default: no-dry]
     -V, --version                    Show the version and exit.
     -h, --help                       Show this message and exit.
 
@@ -105,9 +106,11 @@ musicbot folder add-keywords
     Add keywords to music
 
   Options:
-    --dry / --no-dry  Do not launch real action  [default: no-dry]
-    --extension TEXT  Supported formats
-    -h, --help        Show this message and exit.
+    --dry / --no-dry    Do not launch real action  [default: no-dry]
+    Folders options: 
+      --limit INTEGER   Limit number of music files
+      --extension TEXT  Supported formats
+    -h, --help          Show this message and exit.
 
 musicbot folder delete-keywords
 *******************************
@@ -118,9 +121,11 @@ musicbot folder delete-keywords
     Delete keywords to music
 
   Options:
-    --dry / --no-dry  Do not launch real action  [default: no-dry]
-    --extension TEXT  Supported formats
-    -h, --help        Show this message and exit.
+    --dry / --no-dry    Do not launch real action  [default: no-dry]
+    Folders options: 
+      --limit INTEGER   Limit number of music files
+      --extension TEXT  Supported formats
+    -h, --help          Show this message and exit.
 
 musicbot folder find
 ********************
@@ -131,8 +136,11 @@ musicbot folder find
     Just list music files
 
   Options:
-    --extension TEXT  Supported formats
-    -h, --help        Show this message and exit.
+    --dry / --no-dry    Do not launch real action  [default: no-dry]
+    Folders options: 
+      --limit INTEGER   Limit number of music files
+      --extension TEXT  Supported formats
+    -h, --help          Show this message and exit.
 
 musicbot folder flac2mp3
 ************************
@@ -143,10 +151,13 @@ musicbot folder flac2mp3
     Convert all files in folders to mp3
 
   Options:
-    --threads INTEGER  Number of threads  [default: 8]
-    --dry / --no-dry   Do not launch real action  [default: no-dry]
-    --flat             Do not create subfolders
-    -h, --help         Show this message and exit.
+    --dry / --no-dry    Do not launch real action  [default: no-dry]
+    Folders options: 
+      --limit INTEGER   Limit number of music files
+      --extension TEXT  Supported formats
+    --threads INTEGER   Number of threads  [default: 8]
+    --flat              Do not create subfolders
+    -h, --help          Show this message and exit.
 
 musicbot folder inconsistencies
 *******************************
@@ -158,12 +169,14 @@ musicbot folder inconsistencies
 
   Options:
     --dry / --no-dry                                    Do not launch real action  [default: no-dry]
+    Folders options: 
+      --limit INTEGER                                   Limit number of music files
+      --extension TEXT                                  Supported formats
     Check options: 
       --checks [no-title|no-artist|no-album|no-genre|no-rating|no-track|invalid-title|invalid-comment|invalid-path]
                                                         Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
                                                         track, invalid-title, invalid-comment, invalid-path]
       --fix                                             Fix musics
-    --extension TEXT                                    Supported formats
     -h, --help                                          Show this message and exit.
 
 musicbot folder playlist
@@ -175,11 +188,14 @@ musicbot folder playlist
     Generate a playlist
 
   Options:
+    --dry / --no-dry           Do not launch real action  [default: no-dry]
+    Folders options: 
+      --limit INTEGER          Limit number of music files
+      --extension TEXT         Supported formats
     --output [json|table|m3u]  Output format  [default: table]
     Ordering options: 
       --shuffle                Randomize selection
       --interleave             Interleave tracks by artist
-    --extension TEXT           Supported formats
     -h, --help                 Show this message and exit.
 
 musicbot folder tags
@@ -191,8 +207,11 @@ musicbot folder tags
     Print music tags
 
   Options:
-    --extension TEXT  Supported formats
-    -h, --help        Show this message and exit.
+    --dry / --no-dry    Do not launch real action  [default: no-dry]
+    Folders options: 
+      --limit INTEGER   Limit number of music files
+      --extension TEXT  Supported formats
+    -h, --help          Show this message and exit.
 
 musicbot help
 *************
@@ -236,20 +255,10 @@ musicbot local bests
     Generate bests playlists with some rules
 
   Options:
-    --min-playlist-size INTEGER           Minimum size of playlist to write
-    --ratings FLOAT                       Generate bests for those ratings
-    --types TEXT                          Type of bests playlists
-    --dry / --no-dry                      Do not launch real action  [default: no-dry]
     Filter options: 
       --name TEXT                         Filter name
       --limit INTEGER                     Fetch a maximum limit of music
       --shuffle                           Randomize selection
-    Link options: 
-      --http / --no-http
-      --sftp / --no-sftp
-      --youtube / --no-youtube
-      --spotify / --no-spotify
-      --local / --no-local
     Keywords: 
       --keywords, --keyword TEXT          Select musics with keywords
       --no-keywords, --no-keyword TEXT    Filter musics without keywords
@@ -277,6 +286,16 @@ musicbot local bests
     MusicDB options: 
       --dsn TEXT                          DSN to MusicBot EdgeDB
       --musicdb TEXT
+    Link options: 
+      --http / --no-http                  Generate HTTP link
+      --sftp / --no-sftp                  Generate sFTP link
+      --youtube / --no-youtube            Generate YouTube link
+      --spotify / --no-spotify            Generate Spotify link
+      --local / --no-local                Generate local link
+    Bests options: 
+      --min-playlist-size INTEGER         Minimum size of playlist to write
+      --rating FLOAT RANGE                Generate bests for those ratings  [0.0<=x<=5.0]
+      --types TEXT                        Type of bests playlists
     -h, --help                            Show this message and exit.
 
 musicbot local clean
@@ -324,12 +343,6 @@ musicbot local player
       --name TEXT                         Filter name
       --limit INTEGER                     Fetch a maximum limit of music
       --shuffle                           Randomize selection
-    Link options: 
-      --http / --no-http
-      --sftp / --no-sftp
-      --youtube / --no-youtube
-      --spotify / --no-spotify
-      --local / --no-local
     Keywords: 
       --keywords, --keyword TEXT          Select musics with keywords
       --no-keywords, --no-keyword TEXT    Filter musics without keywords
@@ -370,21 +383,15 @@ musicbot local playlist
       --musicdb TEXT
     --output [json|table|m3u]             Output format  [default: table]
     Link options: 
-      --http / --no-http
-      --sftp / --no-sftp
-      --youtube / --no-youtube
-      --spotify / --no-spotify
-      --local / --no-local
+      --http / --no-http                  Generate HTTP link
+      --sftp / --no-sftp                  Generate sFTP link
+      --youtube / --no-youtube            Generate YouTube link
+      --spotify / --no-spotify            Generate Spotify link
+      --local / --no-local                Generate local link
     Filter options: 
       --name TEXT                         Filter name
       --limit INTEGER                     Fetch a maximum limit of music
       --shuffle                           Randomize selection
-    Link options: 
-      --http / --no-http
-      --sftp / --no-sftp
-      --youtube / --no-youtube
-      --spotify / --no-spotify
-      --local / --no-local
     Keywords: 
       --keywords, --keyword TEXT          Select musics with keywords
       --no-keywords, --no-keyword TEXT    Filter musics without keywords
@@ -420,20 +427,21 @@ musicbot local scan
     Load musics
 
   Options:
+    --dry / --no-dry            Do not launch real action  [default: no-dry]
+    Folders options: 
+      --limit INTEGER           Limit number of music files
+      --extension TEXT          Supported formats
     MusicDB options: 
       --dsn TEXT                DSN to MusicBot EdgeDB
       --musicdb TEXT
-    --extension TEXT            Supported formats
     -s, --save                  Save to config file  [default: False]
     --clean                     Delete musics before  [default: False]
     Link options: 
-      --http / --no-http
-      --sftp / --no-sftp
-      --youtube / --no-youtube
-      --spotify / --no-spotify
-      --local / --no-local
-    --limit INTEGER             Limit number of music files
-    --bulk, --chunk INTEGER     How many musics to insert at the same time
+      --http / --no-http        Generate HTTP link
+      --sftp / --no-sftp        Generate sFTP link
+      --youtube / --no-youtube  Generate YouTube link
+      --spotify / --no-spotify  Generate Spotify link
+      --local / --no-local      Generate local link
     -h, --help                  Show this message and exit.
 
 musicbot local sync
@@ -445,21 +453,14 @@ musicbot local sync
     Copy selected musics with filters to destination folder
 
   Options:
-    --dry / --no-dry                      Do not launch real action  [default: no-dry]
-    -y, --yes                             Confirm file deletion on destination
     MusicDB options: 
       --dsn TEXT                          DSN to MusicBot EdgeDB
       --musicdb TEXT
+    -y, --yes                             Confirm action
     Filter options: 
       --name TEXT                         Filter name
       --limit INTEGER                     Fetch a maximum limit of music
       --shuffle                           Randomize selection
-    Link options: 
-      --http / --no-http
-      --sftp / --no-sftp
-      --youtube / --no-youtube
-      --spotify / --no-spotify
-      --local / --no-local
     Keywords: 
       --keywords, --keyword TEXT          Select musics with keywords
       --no-keywords, --no-keyword TEXT    Filter musics without keywords
@@ -497,11 +498,14 @@ musicbot local watch
     Watch files changes in folders
 
   Options:
-    --extension TEXT   Supported formats
+    --dry / --no-dry    Do not launch real action  [default: no-dry]
+    Folders options: 
+      --limit INTEGER   Limit number of music files
+      --extension TEXT  Supported formats
     MusicDB options: 
-      --dsn TEXT       DSN to MusicBot EdgeDB
+      --dsn TEXT        DSN to MusicBot EdgeDB
       --musicdb TEXT
-    -h, --help         Show this message and exit.
+    -h, --help          Show this message and exit.
 
 musicbot music
 **************
@@ -529,7 +533,7 @@ musicbot music add-keywords
 ***************************
 .. code-block::
 
-  Usage: musicbot music add-keywords [OPTIONS] PATH [KEYWORDS]...
+  Usage: musicbot music add-keywords [OPTIONS] MUSIC [KEYWORDS]...
 
     Add keywords to music
 
@@ -541,7 +545,7 @@ musicbot music delete-keywords
 ******************************
 .. code-block::
 
-  Usage: musicbot music delete-keywords [OPTIONS] PATH [KEYWORDS]...
+  Usage: musicbot music delete-keywords [OPTIONS] MUSIC [KEYWORDS]...
 
     Delete keywords to music
 
@@ -553,11 +557,12 @@ musicbot music fingerprint
 **************************
 .. code-block::
 
-  Usage: musicbot music fingerprint [OPTIONS] PATH
+  Usage: musicbot music fingerprint [OPTIONS] MUSIC
 
     Print music fingerprint
 
   Options:
+    --dry / --no-dry         Do not launch real action  [default: no-dry]
     --acoustid-api-key TEXT  AcoustID API Key
     -h, --help               Show this message and exit.
 
@@ -565,7 +570,7 @@ musicbot music flac2mp3
 ***********************
 .. code-block::
 
-  Usage: musicbot music flac2mp3 [OPTIONS] PATH DESTINATION
+  Usage: musicbot music flac2mp3 [OPTIONS] MUSIC DESTINATION
 
     Convert flac music to mp3
 
@@ -577,7 +582,7 @@ musicbot music inconsistencies
 ******************************
 .. code-block::
 
-  Usage: musicbot music inconsistencies [OPTIONS] PATH
+  Usage: musicbot music inconsistencies [OPTIONS] MUSIC
 
     Check music consistency
 
@@ -594,20 +599,21 @@ musicbot music insert
 *********************
 .. code-block::
 
-  Usage: musicbot music insert [OPTIONS] PATH
+  Usage: musicbot music insert [OPTIONS] MUSIC
 
     Insert music to DB
 
   Options:
+    --dry / --no-dry            Do not launch real action  [default: no-dry]
     MusicDB options: 
       --dsn TEXT                DSN to MusicBot EdgeDB
       --musicdb TEXT
     Link options: 
-      --http / --no-http
-      --sftp / --no-sftp
-      --youtube / --no-youtube
-      --spotify / --no-spotify
-      --local / --no-local
+      --http / --no-http        Generate HTTP link
+      --sftp / --no-sftp        Generate sFTP link
+      --youtube / --no-youtube  Generate YouTube link
+      --spotify / --no-spotify  Generate Spotify link
+      --local / --no-local      Generate local link
     -h, --help                  Show this message and exit.
 
 musicbot music set-tags
@@ -634,12 +640,13 @@ musicbot music tags
 *******************
 .. code-block::
 
-  Usage: musicbot music tags [OPTIONS] PATH
+  Usage: musicbot music tags [OPTIONS] MUSIC
 
     Print music tags
 
   Options:
-    -h, --help  Show this message and exit.
+    --dry / --no-dry  Do not launch real action  [default: no-dry]
+    -h, --help        Show this message and exit.
 
 musicbot readme
 ***************
@@ -861,11 +868,12 @@ musicbot youtube find
 *********************
 .. code-block::
 
-  Usage: musicbot youtube find [OPTIONS] PATH
+  Usage: musicbot youtube find [OPTIONS] MUSIC
 
     Search a youtube link with artist and title
 
   Options:
+    --dry / --no-dry         Do not launch real action  [default: no-dry]
     --acoustid-api-key TEXT  AcoustID API Key
     -h, --help               Show this message and exit.
 

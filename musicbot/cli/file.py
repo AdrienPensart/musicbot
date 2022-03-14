@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 import click
@@ -8,9 +9,9 @@ from click_skeleton.helpers import split_arguments
 
 from musicbot.cli.options import (
     config_string,
-    sane_list,
+    dry_option,
     sane_rating,
-    sane_set,
+    sane_set
 )
 from musicbot.defaults import (
     DEFAULT_ACOUSTID_API_KEY,
@@ -20,6 +21,8 @@ from musicbot.defaults import (
     DEFAULT_MIN_RATING
 )
 from musicbot.file import File
+
+logger = logging.getLogger(__name__)
 
 music_options_group = optgroup('Music options')
 keywords_option = optgroup.option(
@@ -69,22 +72,33 @@ file_options = add_options(
 def sane_music(ctx: click.Context, param: click.Parameter, value: Path) -> File:
     if not param.name:
         raise click.Abort("no param name set")
-
-    ctx.params.pop(param.name)
     music = File.from_path(value)
     ctx.params['music'] = music
     return music
 
 
-music_argument = click.argument(
-    'path',
-    type=click.Path(
-        path_type=Path,
-        exists=True,
-        dir_okay=False,
-    ),
-    callback=sane_music,
+music_argument = add_options(
+    dry_option,
+    click.argument(
+        'music',
+        type=click.Path(
+            path_type=Path,
+            exists=True,
+            dir_okay=False,
+        ),
+        callback=sane_music,
+    )
 )
+
+
+def sane_paths(ctx: click.Context, param: click.Parameter, value: tuple[Path, ...]) -> list[Path]:
+    '''Convert Tuple when multiple=True to a list'''
+    if not param.name:
+        raise click.Abort("no param name set")
+    logger.debug(f"{param} : {value}")
+    ctx.params[param.name] = list(value)
+    return ctx.params[param.name]
+
 
 paths_arguments = click.argument(
     'paths',
@@ -93,7 +107,7 @@ paths_arguments = click.argument(
         exists=True,
         dir_okay=False,
     ),
-    callback=sane_list,
+    callback=sane_paths,
     nargs=-1,
 )
 

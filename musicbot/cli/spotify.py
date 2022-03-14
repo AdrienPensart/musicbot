@@ -4,8 +4,8 @@ import shutil
 import textwrap
 from typing import Any
 
-import attr
 import click
+from attr import fields_dict
 from beartype import beartype
 from click_option_group import optgroup  # type: ignore
 from click_skeleton import ExpandedPath, add_options
@@ -119,11 +119,11 @@ def output_tracks(output: str, tracks: list[Any]) -> None:
 
 
 @beartype
-def sane_spotify(ctx: click.Context, param: click.Parameter, value: str) -> Spotify:
+def sane_spotify(ctx: click.Context, param: click.Parameter, value: str | None) -> Spotify:
     if param.name:
         ctx.params[param.name] = value
     spotify_params = {}
-    for field in attr.fields_dict(Spotify):
+    for field in fields_dict(Spotify):
         spotify_params[field] = ctx.params['spotify_' + field]
         ctx.params.pop('spotify_' + field)
     spotify = Spotify(**spotify_params)

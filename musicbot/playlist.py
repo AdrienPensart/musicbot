@@ -102,7 +102,7 @@ class Playlist(MusicbotObject):
         if not self.links:
             return
         content = '#EXTM3U\n' + '\n'.join(self.links)
-        if MusicbotObject.dry:
+        if self.dry:
             self.success(f'DRY RUN: Writing playlist to {filepath} with content:\n{content}')
             return
         try:

@@ -17,6 +17,7 @@ import musicbot
 import musicbot.commands
 from musicbot import Config, MusicbotObject, exceptions, version
 from musicbot.cli.config import config_options
+from musicbot.cli.options import dry_option
 
 PROG_NAME: Final[str] = "musicbot"
 logger = logging.getLogger(__name__)
@@ -27,6 +28,7 @@ backtrace.hook(strip_path=False, enable_on_envvar_only=False, on_tty=False)
 @skeleton(name=PROG_NAME, version=version.__version__, auto_envvar_prefix='MB')
 @click.pass_context
 @config_options
+@dry_option
 @beartype
 def cli(
     ctx: click.Context,

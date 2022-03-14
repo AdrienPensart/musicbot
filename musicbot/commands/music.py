@@ -56,7 +56,6 @@ def insert(
 @cli.command(help='Convert flac music to mp3')
 @music_argument
 @destination_argument
-@dry_option
 @beartype
 def flac2mp3(
     music: File,
@@ -86,7 +85,6 @@ def tags(music: File) -> None:
 
 @cli.command(aliases=['consistency'], help='Check music consistency')
 @music_argument
-@dry_option
 @checks_and_fix_options
 @beartype
 def inconsistencies(music: File, fix: bool, checks: list[str]) -> None:
@@ -136,7 +134,6 @@ def set_tags(
 
 
 @cli.command(help='Add keywords to music')
-@dry_option
 @music_argument
 @keywords_arguments
 @beartype
@@ -145,7 +142,6 @@ def add_keywords(music: File, keywords: set[str]) -> None:
 
 
 @cli.command(help='Delete keywords to music', aliases=['remove-keywords'])
-@dry_option
 @music_argument
 @keywords_arguments
 @beartype

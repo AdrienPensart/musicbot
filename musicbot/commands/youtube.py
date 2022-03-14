@@ -8,10 +8,7 @@ import youtube_dl  # type: ignore
 from beartype import beartype
 from click_skeleton import AdvancedGroup
 
-from musicbot.cli.file import (
-    acoustid_api_key_option,
-    music_argument
-)
+from musicbot.cli.file import acoustid_api_key_option, music_argument
 from musicbot.file import File
 
 logger = logging.getLogger(__name__)

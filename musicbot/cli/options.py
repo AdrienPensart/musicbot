@@ -84,15 +84,21 @@ def yes_or_no(question: str, default: str | None = 'no') -> bool:
             print("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
 
 
-def sane_list(ctx: click.Context, param: Any, value: Any) -> list[Any]:
+def sane_list(ctx: click.Context, param: click.Parameter, value: Any) -> list[Any]:
     '''Convert Tuple when multiple=True to a list'''
+    if not param.name:
+        raise click.Abort("no param name set")
+    logger.debug(f"{param} : {value}")
     value = split_arguments(ctx, param, value)
     ctx.params[param.name] = list(value)
     return ctx.params[param.name]
 
 
-def sane_set(ctx: click.Context, param: Any, value: Any) -> list[Any]:
+def sane_set(ctx: click.Context, param: click.Parameter, value: Any) -> list[Any]:
     '''Convert Tuple when multiple=True to a list'''
+    if not param.name:
+        raise click.Abort("no param name set")
+    logger.debug(f"{param} : {value}")
     value = split_arguments(ctx, param, value)
     ctx.params[param.name] = set(value)
     return ctx.params[param.name]
@@ -112,6 +118,12 @@ yes_option = click.option(
     show_default=True,
     expose_value=False,
     callback=confirm,
+)
+
+lazy_yes_option = click.option(
+    '--yes', '-y',
+    help="Confirm action",
+    is_flag=True,
 )
 
 clean_option = click.option(

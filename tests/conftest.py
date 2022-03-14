@@ -1,4 +1,5 @@
 # type: ignore
+import json
 import logging
 
 import pytest
@@ -11,14 +12,17 @@ from . import fixtures
 logger = logging.getLogger(__name__)
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(scope="session")
 def testmusics(cli_runner):
-    run_cli(cli_runner, cli, [
+    output = run_cli(cli_runner, cli, [
         '--quiet',
         'local', 'scan',
+        '--clean',
+        '--output', 'json',
         *fixtures.folders,
     ])
-    yield
+    json.loads(output)
+    yield output
     run_cli(cli_runner, cli, [
         '--quiet',
         'local', 'clean',

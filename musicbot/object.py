@@ -107,7 +107,7 @@ class MusicbotObject:
     ) -> None:
         '''Print a normal message to the user'''
         file = file if file is not None else sys.stderr
-        if not quiet and not cls.config.quiet:
+        if not quiet and cls.show_echo and not cls.config.quiet:
             if cls.config.color:
                 final_message = click.style(f'\r{message}\033[K', **kwargs)
             else:

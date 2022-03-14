@@ -31,7 +31,7 @@ with
             else (select Keyword)
         )
     ),
-    select (
+    upsert_music := (
         insert Music {
             name := <str>$title,
             links := array_unpack(<array<str>>$links),
@@ -57,7 +57,20 @@ with
                 rating := <Rating>$rating
             }
         )
-    );
+    )
+    select Music {
+        name,
+        links,
+        size,
+        genre_name := .genre.name,
+        album_name := .album.name,
+        artist_name := .album.artist.name,
+        all_keywords := array_agg(.keywords.name),
+        length := <int64>duration_to_seconds(.duration),
+        track,
+        rating
+    }
+    filter .id = upsert_music.id;
 """
 
 PLAYLIST_QUERY = """

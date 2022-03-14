@@ -18,7 +18,7 @@ from musicbot.cli.file import (
 )
 from musicbot.cli.folders import destination_argument, folders_argument
 from musicbot.cli.music_filter import ordering_options
-from musicbot.cli.options import dry_option, output_option, threads_option
+from musicbot.cli.options import output_option, threads_option
 from musicbot.exceptions import MusicbotError
 from musicbot.file import File
 from musicbot.folders import Folders
@@ -52,34 +52,30 @@ def playlist(
     shuffle: bool,
     interleave: bool,
 ) -> None:
+    musics = folders.musics
     if interleave:
         tracks_by_artist = PrettyDefaultDict(list)
-        for music in folders.musics:
+        for music in musics:
             tracks_by_artist[music.artist].append(music)
-        tracks = [
-            track
-            for track in itertools.chain(*itertools.zip_longest(*tracks_by_artist.values()))
-            if track is not None
-        ]
+        musics = list(itertools.chain(*itertools.zip_longest(*tracks_by_artist.values())))
 
     if shuffle:
-        random.shuffle(tracks)
+        random.shuffle(musics)
 
     if output == 'm3u':
         p = '#EXTM3U\n'
-        p += '\n'.join([track.path for track in tracks])
+        p += '\n'.join([str(music.path) for music in musics])
         print(p)
         return
 
     if output == 'json':
-        tracks_dict = [{'title': t.title, 'artist': t.artist, 'album': t.album} for t in tracks]
-        print(json.dumps(tracks_dict))
+        print(json.dumps([music.to_dict() for music in musics]))
         return
 
     if output == 'table':
         table = Table("Track", "Title", "Artist", "Album")
-        for t in tracks:
-            table.add_row(str(t.track), t.title, t.artist, t.album)
+        for music in musics:
+            table.add_row(str(music.track), music.title, music.artist, music.album)
         MusicbotObject.console.print(table)
 
 
@@ -96,7 +92,6 @@ def tags(folders: Folders) -> None:
 @destination_argument
 @folders_argument
 @threads_option
-@dry_option
 @flat_option
 @beartype
 def flac2mp3(
@@ -127,7 +122,6 @@ def flac2mp3(
 
 @cli.command(aliases=['consistency'], help='Check music files consistency')
 @folders_argument
-@dry_option
 @checks_and_fix_options
 @beartype
 def inconsistencies(
@@ -148,7 +142,6 @@ def inconsistencies(
 
 
 @cli.command(help='Add keywords to music')
-@dry_option
 @folders_argument
 @keywords_arguments
 @beartype
@@ -161,7 +154,6 @@ def add_keywords(
 
 
 @cli.command(help='Delete keywords to music')
-@dry_option
 @folders_argument
 @keywords_arguments
 @beartype

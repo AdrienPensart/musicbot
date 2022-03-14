@@ -6,10 +6,10 @@ from watchdog.events import (  # type: ignore
     PatternMatchingEventHandler
 )
 
-from musicbot.object import MusicbotObject
 from musicbot.file import File
 from musicbot.folders import Folders
 from musicbot.musicdb import MusicDb
+from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
 

@@ -3,9 +3,9 @@ import logging
 import socket
 from functools import cache
 
-from beartype import beartype
 import humanize  # type: ignore
 import requests
+from beartype import beartype
 
 from musicbot.exceptions import MusicbotError
 
