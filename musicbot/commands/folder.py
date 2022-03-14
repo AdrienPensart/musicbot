@@ -13,9 +13,8 @@ from rich.table import Table
 
 from musicbot.cli.file import (
     checks_and_fix_options,
-    extensions_option,
     flat_option,
-    keywords_argument
+    keywords_arguments
 )
 from musicbot.cli.folders import destination_argument, folders_argument
 from musicbot.cli.music_filter import ordering_options
@@ -36,14 +35,9 @@ def cli() -> None:
 
 @cli.command(help='Just list music files')
 @folders_argument
-@extensions_option
 @beartype
-def find(
-    folders: list[Path],
-    extensions: list[str],
-) -> None:
-    files = Folders(folders=folders, extensions=extensions).files
-    for file in files:
+def find(folders: Folders) -> None:
+    for file in folders.files:
         print(file)
 
 
@@ -51,21 +45,17 @@ def find(
 @folders_argument
 @output_option
 @ordering_options
-@extensions_option
 @beartype
 def playlist(
-    folders: list[Path],
-    extensions: list[str],
+    folders: Folders,
     output: str,
     shuffle: bool,
     interleave: bool,
 ) -> None:
-    tracks = Folders(folders=folders, extensions=extensions).musics
-
     if interleave:
         tracks_by_artist = PrettyDefaultDict(list)
-        for track in tracks:
-            tracks_by_artist[track.artist].append(track)
+        for music in folders.musics:
+            tracks_by_artist[music.artist].append(music)
         tracks = [
             track
             for track in itertools.chain(*itertools.zip_longest(*tracks_by_artist.values()))
@@ -95,16 +85,11 @@ def playlist(
 
 @cli.command(help='Print music tags')
 @folders_argument
-@extensions_option
 @beartype
-def tags(
-    folders: list[Path],
-    extensions: list[str],
-) -> None:
-    musics = Folders(folders=folders, extensions=extensions).musics
-    for music in musics:
+def tags(folders: Folders) -> None:
+    for music in folders.musics:
         logger.info(music.handle.tags.keys())
-        print(music.as_dict())
+        print(music.to_dict())
 
 
 @cli.command(help='Convert all files in folders to mp3')
@@ -115,13 +100,13 @@ def tags(
 @flat_option
 @beartype
 def flac2mp3(
-    folders: list[Path],
+    folders: Folders,
     destination: Path,
     threads: int,
     flat: bool,
 ) -> None:
-    flac_musics = Folders(folders=folders, extensions=['flac']).musics
-    if not flac_musics:
+    folders.extensions = {'flac'}
+    if not folders.files:
         logger.warning(f"No flac files detected in {folders}")
         return
 
@@ -133,9 +118,8 @@ def flac2mp3(
         except Exception as e:  # pylint: disable=broad-except
             logger.error(f"{music} : unable to convert to mp3 : {e}")
 
-    MusicbotObject.parallel(
+    folders.apply(
         worker,
-        flac_musics,
         prefix="Converting flac to mp3",
         threads=threads,
     )
@@ -145,54 +129,45 @@ def flac2mp3(
 @folders_argument
 @dry_option
 @checks_and_fix_options
-@extensions_option
 @beartype
 def inconsistencies(
-    folders: list[Path],
-    extensions: list[str],
+    folders: Folders,
     fix: bool,
     checks: list[str],
 ) -> None:
-    musics = Folders(folders=folders, extensions=extensions).musics
     table = Table("Path", "Inconsistencies")
-    for m in musics:
+    for music in folders.musics:
         try:
             if fix:
-                m.fix(checks=checks)
-            if m.inconsistencies.intersection(set(checks)):
-                table.add_row(str(m.path), ', '.join(m.inconsistencies))
+                music.fix(checks=checks)
+            if music.inconsistencies.intersection(set(checks)):
+                table.add_row(str(music.path), ', '.join(music.inconsistencies))
         except (OSError, mutagen.MutagenError):
-            table.add_row(m.path, "could not open file")
+            table.add_row(str(music.path), "could not open file")
     MusicbotObject.console.print(table)
 
 
 @cli.command(help='Add keywords to music')
 @dry_option
 @folders_argument
-@keywords_argument
-@extensions_option
+@keywords_arguments
 @beartype
 def add_keywords(
-    folders: list[Path],
-    extensions: list[str],
-    keywords: list[str],
+    folders: Folders,
+    keywords: set[str],
 ) -> None:
-    musics = Folders(folders=folders, extensions=extensions).musics
-    for music in musics:
+    for music in folders.musics:
         music.add_keywords(keywords)
 
 
 @cli.command(help='Delete keywords to music')
 @dry_option
 @folders_argument
-@keywords_argument
-@extensions_option
+@keywords_arguments
 @beartype
 def delete_keywords(
-    folders: list[Path],
-    extensions: list[str],
-    keywords: list[str],
+    folders: Folders,
+    keywords: set[str],
 ) -> None:
-    musics = Folders(folders=folders, extensions=extensions).musics
-    for music in musics:
+    for music in folders.musics:
         music.delete_keywords(keywords)

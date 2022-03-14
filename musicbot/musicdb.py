@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 from functools import cache
@@ -9,15 +8,13 @@ from beartype import beartype
 from edgedb.asyncio_client import create_async_client
 from edgedb.blocking_client import create_client
 
-from musicbot.defaults import DEFAULT_BULK
 from musicbot.file import File
-from musicbot.helpers import approx_chunks
 from musicbot.link_options import DEFAULT_LINK_OPTIONS, LinkOptions
 from musicbot.music import Music
 from musicbot.music_filter import MusicFilter
 from musicbot.object import MusicbotObject
 from musicbot.playlist import Playlist
-from musicbot.queries import BULK_UPSERT_QUERY, PLAYLIST_QUERY, UPSERT_QUERY
+from musicbot.queries import PLAYLIST_QUERY, UPSERT_QUERY
 
 logger = logging.getLogger(__name__)
 
@@ -123,36 +120,18 @@ class MusicDb(MusicbotObject):
         self,
         musics: Sequence[File],
         link_options: LinkOptions = DEFAULT_LINK_OPTIONS,
-        bulk: int | None = DEFAULT_BULK,
     ) -> list[Any] | None:
-        if bulk is not None and bulk > 1:
-            with self.progressbar(max_value=len(musics), prefix='Upserting musics') as pbar:
-                for musics_chunk in approx_chunks(musics, bulk):
-                    try:
-                        for music in musics_chunk:
-                            final_query = ''
-                            final_query += self._prepare_bulk_upsert_music(music, link_options)
-                            self.blocking_client.execute(final_query)
-                    finally:
-                        pbar.value += len(musics_chunk)
-                        pbar.update()
+        def worker(music: File) -> Any | None:
+            try:
+                return self.upsert_music(
+                    music=music,
+                    link_options=link_options,
+                )
+            except Exception as e:  # pylint: disable=broad-except
+                self.err(f"{music} : {e}")
             return None
 
-        results = []
-        with self.progressbar(max_value=len(musics), prefix='Upserting musics') as pbar:
-            for music in musics:
-                try:
-                    result = self.upsert_music(
-                        music=music,
-                        link_options=link_options,
-                    )
-                    if result is not None:
-                        results.append(result)
-                except Exception as e:  # pylint: disable=broad-except
-                    self.err(f"{music} : {e}")
-                finally:
-                    pbar.value += 1
-                    pbar.update()
+        results = self.parallel(worker, musics, threads=1)
         return results
 
     def upsert_music(
@@ -170,10 +149,18 @@ class MusicDb(MusicbotObject):
         )
         return self.blocking_client.query(**params)
 
-    @staticmethod
-    def _prepare_bulk_upsert_music(
-        music: File,
+    def upsert_path(
+        self,
+        path: Path,
         link_options: LinkOptions = DEFAULT_LINK_OPTIONS
-    ) -> str:
-        strings = {k: json.dumps(v) for k, v in music.to_dict(link_options).items()}
-        return BULK_UPSERT_QUERY.format(**strings)
+    ) -> File | None:
+        try:
+            music = File.from_path(path=path)
+            self.upsert_music(
+                music=music,
+                link_options=link_options,
+            )
+            return music
+        except OSError as e:
+            logger.error(e)
+        return None

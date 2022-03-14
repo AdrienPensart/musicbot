@@ -6,6 +6,7 @@ from typing import Any
 
 import attr
 import click
+from beartype import beartype
 from click_option_group import optgroup  # type: ignore
 from click_skeleton import ExpandedPath, add_options
 from rich.table import Table
@@ -26,7 +27,8 @@ from musicbot.spotify import Spotify
 logger = logging.getLogger(__name__)
 
 
-def dump_tracks(tracks: Any) -> None:
+@beartype
+def dump_tracks(tracks: list[Any]) -> None:
     tracks = [
         {
             'title': t['track']['name'],
@@ -37,7 +39,8 @@ def dump_tracks(tracks: Any) -> None:
     print(json.dumps(tracks))
 
 
-def print_tracks_table(tracks: Any) -> None:
+@beartype
+def print_tracks_table(tracks: list[Any]) -> None:
     if not tracks:
         return
     table = Table("Track", "Artist", "Album")
@@ -50,7 +53,8 @@ def print_tracks_table(tracks: Any) -> None:
     MusicbotObject.console.print(table)
 
 
-def print_distances(distances: Any) -> None:
+@beartype
+def print_distances(distances: list[Any]) -> None:
     if not distances:
         return
     table = Table("Title", "Artist", "Album", "Distance", show_lines=True)
@@ -96,7 +100,8 @@ def print_distances(distances: Any) -> None:
     MusicbotObject.console.print(table)
 
 
-def print_playlists_table(playlists: Any) -> None:
+@beartype
+def print_playlists_table(playlists: list[Any]) -> None:
     if not playlists:
         return
     table = Table("Name", "Size", title="Spotify Playlist")
@@ -105,13 +110,15 @@ def print_playlists_table(playlists: Any) -> None:
     MusicbotObject.console.print(table)
 
 
-def output_tracks(output: str, tracks: Any) -> None:
+@beartype
+def output_tracks(output: str, tracks: list[Any]) -> None:
     if output == 'table':
         print_tracks_table(tracks)
     elif output == 'json':
         dump_tracks(tracks)
 
 
+@beartype
 def sane_spotify(ctx: click.Context, param: click.Parameter, value: str) -> Spotify:
     if param.name:
         ctx.params[param.name] = value

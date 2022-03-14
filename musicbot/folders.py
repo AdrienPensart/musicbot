@@ -1,58 +1,72 @@
 import logging
 import os
+from functools import cached_property
 from pathlib import Path
-from typing import Iterable, Iterator
+from typing import Callable, Any, Iterator
 
-from musicbot.defaults import DEFAULT_EXTENSIONS, EXCEPT_DIRECTORIES
+from attr import define
+from musicbot.defaults import (
+    DEFAULT_EXTENSIONS,
+    EXCEPT_DIRECTORIES
+)
 from musicbot.file import File
 from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
 
 
+@define(repr=False, hash=True)
 class Folders(MusicbotObject):
-    def __init__(
-        self,
-        folders: Iterable[Path],
-        extensions: Iterable[str] | None,
-        threads: int | None = None,
-        limit: int | None = None,
-    ):
-        self.supported_formats = extensions if extensions is not None else DEFAULT_EXTENSIONS
-        self.folders = [folder.resolve() for folder in folders]
-        self.files = []
-        self.other_files: list[Path] = []
+    paths: list[Path]
+    extensions: set[str] = DEFAULT_EXTENSIONS
+    except_directories: set[str] = EXCEPT_DIRECTORIES
+    other_files: set[Path] = set()
+    limit: int | None = None
 
-        for folder in self.folders:
-            for root, _, basenames in os.walk(folder):
-                if any(e in root for e in EXCEPT_DIRECTORIES):
-                    continue
-                for basename in basenames:
-                    path = Path(folder) / root / basename
-                    if not basename.endswith(tuple(self.supported_formats)):
-                        self.other_files.append(path)
-                    else:
-                        self.files.append(path)
+    def __attrs_post_init__(self) -> None:
+        self.paths = [folder.resolve() for folder in self.paths]
 
+    def apply(self, worker: Callable, **kwargs: Any) -> Any:
+        return self.parallel(
+            worker,
+            list(self.files)[:self.limit],
+            **kwargs,
+        )
+
+    @property
+    def unique_folders(self) -> str:
+        return ','.join({str(folder) for folder in self.paths})
+
+    @cached_property
+    def musics(self) -> list[File]:
         def worker(path: Path) -> File | None:
             try:
-                return File(path=path)
+                return File.from_path(path=path)
             except OSError as e:
                 logger.error(e)
             return None
+        return self.apply(worker, prefix="Loading musics")
 
-        self.musics = self.parallel(
-            worker,
-            self.files[:limit],
-            prefix='Loading musics',
-            threads=threads,
-        )
+    @cached_property
+    def files(self) -> set[Path]:
+        _files = set()
+        for folder in self.paths:
+            for root, _, basenames in os.walk(folder):
+                if any(e in root for e in self.except_directories):
+                    continue
+                for basename in basenames:
+                    path = Path(folder) / root / basename
+                    if not basename.endswith(tuple(self.extensions)):
+                        self.other_files.add(path)
+                    else:
+                        _files.add(path)
+        return _files
 
     def __repr__(self) -> str:
-        return ' '.join(str(folder) for folder in self.folders)
+        return ' '.join(str(folder) for folder in self.paths)
 
     def empty_dirs(self, recursive: bool = True) -> Iterator[str]:
-        for root_dir in self.folders:
+        for root_dir in self.paths:
             dirs_list = []
             for root, dirs, files in os.walk(root_dir, topdown=False):
                 if recursive:

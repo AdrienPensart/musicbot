@@ -12,7 +12,7 @@ from beartype import beartype
 from click_skeleton import AdvancedGroup
 from watchdog.observers import Observer  # type: ignore
 
-from musicbot.cli.file import extensions_option, flat_option
+from musicbot.cli.file import flat_option
 from musicbot.cli.folders import (
     destination_argument,
     folder_argument,
@@ -29,7 +29,6 @@ from musicbot.cli.options import (
     save_option,
     yes_option
 )
-from musicbot.defaults import DEFAULT_BULK, EXCEPT_DIRECTORIES
 from musicbot.file import File
 from musicbot.folders import Folders
 from musicbot.link_options import LinkOptions
@@ -58,57 +57,42 @@ def execute(musicdb: MusicDb, query: str) -> None:
 @cli.command(help='Load musics')
 @folders_argument
 @musicdb_options
-@extensions_option
 @save_option
 @clean_option
 @link_options_options
-@click.option('--limit', help="Limit number of music files", type=int)
-@click.option('--bulk', '--chunk', 'bulk', help="How many musics to insert at the same time", default=DEFAULT_BULK, type=int)
 @beartype
 def scan(
     musicdb: MusicDb,
+    folders: Folders,
     clean: bool,
     save: bool,
-    limit: int | None,
-    folders: list[Path],
-    extensions: list[str],
     link_options: LinkOptions,
-    bulk: int | None,
 ) -> None:
     if clean:
         musicdb.clean_musics()
 
-    _folders = Folders(
-        folders=folders,
-        extensions=extensions,
-        limit=limit,
-    )
-    musicdb.upsert_musics(
-        musics=_folders.musics,
-        link_options=link_options,
-        bulk=bulk,
-    )
+    def worker(path: Path) -> None:
+        musicdb.upsert_path(path, link_options=link_options)
+
+    folders.apply(worker, prefix="Loading and inserting musics")
 
     if save:
-        unique_folders = ','.join({str(folder) for folder in _folders.folders})
-        MusicbotObject.config.configfile['musicbot']['folders'] = unique_folders
+        MusicbotObject.config.configfile['musicbot']['folders'] = folders.unique_folders
         MusicbotObject.config.write()
 
 
 @cli.command(help='Watch files changes in folders')
 @folders_argument
-@extensions_option
 @musicdb_options
 @beartype
 def watch(
     musicdb: MusicDb,
-    folders: list[Path],
-    extensions: list[str],
+    folders: Folders,
 ) -> None:
-    event_handler = MusicWatcherHandler(musicdb=musicdb, folders=folders, extensions=extensions)
+    event_handler = MusicWatcherHandler(musicdb=musicdb, folders=folders)
     observer = Observer()
-    for folder in folders:
-        observer.schedule(event_handler, folder, recursive=True)
+    for path in folders.paths:
+        observer.schedule(event_handler, path, recursive=True)
     observer.start()
     try:
         while True:
@@ -286,7 +270,7 @@ def sync(
         click.secho('no result for filter, nothing to sync')
         return
 
-    folders = Folders(folders=[destination], extensions=[])
+    folders = Folders(paths=[destination], extensions=set())
     logger.info(f"Files : {len(folders.files)}")
     if not folders.files:
         logger.warning("no files found in destination")
@@ -299,7 +283,8 @@ def sync(
             try:
                 if link.startswith('ssh://'):
                     continue
-                musics.append(File(path=Path(link)))
+                music_to_sync = File.from_path(Path(link))
+                musics.append(music_to_sync)
             except OSError as e:
                 logger.error(e)
 
@@ -356,7 +341,7 @@ def sync(
                 pbar.update()
 
     for d in folders.empty_dirs():
-        if any(e in d for e in EXCEPT_DIRECTORIES):
+        if any(e in d for e in folders.except_directories):
             logger.debug(f"Invalid path {d}")
             continue
         if not MusicbotObject.dry:

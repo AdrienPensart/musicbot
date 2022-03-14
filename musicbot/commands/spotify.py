@@ -110,7 +110,7 @@ def diff(musicdb: MusicDb, download_playlist: bool, spotify: Spotify, output: st
     if download_playlist:
         spotify.set_download_playlist(spotify_slug_tracks.values())
 
-    output_tracks(output, spotify_slug_tracks.values())
+    output_tracks(output, list(spotify_slug_tracks.values()))
     distances_tracks = []
     for spotify_slug, spotify_track in spotify_slug_tracks.items():
         distances = {

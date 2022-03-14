@@ -1,19 +1,25 @@
 from pathlib import Path
 
 import click
+from beartype import beartype
 from click_option_group import optgroup  # type: ignore
 from click_skeleton import add_options
 from click_skeleton.helpers import split_arguments
 
-from musicbot.cli.options import config_string, sane_list, sane_rating
+from musicbot.cli.options import (
+    config_string,
+    sane_list,
+    sane_rating,
+    sane_set,
+)
 from musicbot.defaults import (
     DEFAULT_ACOUSTID_API_KEY,
     DEFAULT_CHECKS,
-    DEFAULT_EXTENSIONS,
     DEFAULT_FLAT,
     DEFAULT_MAX_RATING,
     DEFAULT_MIN_RATING
 )
+from musicbot.file import File
 
 music_options_group = optgroup('Music options')
 keywords_option = optgroup.option(
@@ -34,19 +40,10 @@ rating_option = optgroup.option(
     callback=sane_rating,
 )
 
-extensions_option = click.option(
-    '--extension',
-    'extensions',
-    help='Supported formats',
-    default=DEFAULT_EXTENSIONS,
-    multiple=str,
-    callback=sane_list,
-)
-
-keywords_argument = click.argument(
+keywords_arguments = click.argument(
     'keywords',
     nargs=-1,
-    callback=split_arguments,
+    callback=sane_set,
 )
 
 flat_option = click.option(
@@ -67,13 +64,26 @@ file_options = add_options(
     rating_option,
 )
 
-path_argument = click.argument(
+
+@beartype
+def sane_music(ctx: click.Context, param: click.Parameter, value: Path) -> File:
+    if not param.name:
+        raise click.Abort("no param name set")
+
+    ctx.params.pop(param.name)
+    music = File.from_path(value)
+    ctx.params['music'] = music
+    return music
+
+
+music_argument = click.argument(
     'path',
     type=click.Path(
         path_type=Path,
         exists=True,
         dir_okay=False,
     ),
+    callback=sane_music,
 )
 
 paths_arguments = click.argument(
@@ -96,7 +106,7 @@ checks_and_fix_options = add_options(
         default=DEFAULT_CHECKS,
         show_default=True,
         type=click.Choice(DEFAULT_CHECKS),
-        callback=sane_list,
+        callback=split_arguments,
     ),
     optgroup.option(
         '--fix',

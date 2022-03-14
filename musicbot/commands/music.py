@@ -11,8 +11,8 @@ from musicbot.cli.file import (
     acoustid_api_key_option,
     checks_and_fix_options,
     file_options,
-    keywords_argument,
-    path_argument,
+    keywords_arguments,
+    music_argument,
     paths_arguments
 )
 from musicbot.cli.folders import destination_argument
@@ -34,16 +34,15 @@ def cli() -> None:
 
 
 @cli.command(help='Insert music to DB', aliases=['upsert', 'scan'])
-@path_argument
+@music_argument
 @musicdb_options
 @link_options_options
 @beartype
 def insert(
-    path: Path,
+    music: File,
     musicdb: MusicDb,
     link_options: LinkOptions,
 ) -> None:
-    music = File(path=path)
     if 'no-title' in music.inconsistencies or 'no-artist' in music.inconsistencies or 'no-album' in music.inconsistencies:
         MusicbotObject.warn(f"{music} : missing mandatory fields title/album/artist : {music.inconsistencies}")
         return
@@ -55,48 +54,50 @@ def insert(
 
 
 @cli.command(help='Convert flac music to mp3')
-@path_argument
+@music_argument
 @destination_argument
 @dry_option
 @beartype
-def flac2mp3(path: Path, destination: Path) -> None:
-    f = File(path=path)
-    f.to_mp3(destination)
+def flac2mp3(
+    music: File,
+    destination: Path
+) -> None:
+    music.to_mp3(destination)
 
 
 @cli.command(help='Print music fingerprint')
-@path_argument
+@music_argument
 @acoustid_api_key_option
 @beartype
-def fingerprint(path: Path, acoustid_api_key: str) -> None:
-    f = File(path=path)
-    print(f.fingerprint(acoustid_api_key))
+def fingerprint(
+    music: File,
+    acoustid_api_key: str
+) -> None:
+    print(music.fingerprint(acoustid_api_key))
 
 
 @cli.command(help='Print music tags', aliases=['tag'])
-@path_argument
+@music_argument
 @beartype
-def tags(path: Path) -> None:
-    f = File(path=path)
-    logger.info(f.handle.tags.keys())
-    MusicbotObject.print_json(f.to_dict())
+def tags(music: File) -> None:
+    logger.info(music.handle.tags.keys())
+    MusicbotObject.print_json(music.to_dict())
 
 
 @cli.command(aliases=['consistency'], help='Check music consistency')
-@path_argument
+@music_argument
 @dry_option
 @checks_and_fix_options
 @beartype
-def inconsistencies(path: Path, fix: bool, checks: list[str]) -> None:
-    m = File(path=path)
+def inconsistencies(music: File, fix: bool, checks: list[str]) -> None:
     table = Table("Path", "Inconsistencies")
     try:
         if fix:
-            m.fix(checks=checks)
-        if m.inconsistencies:
-            table.add_row(str(m.path), ', '.join(m.inconsistencies))
+            music.fix(checks=checks)
+        if music.inconsistencies:
+            table.add_row(str(music.path), ', '.join(music.inconsistencies))
     except (OSError, MutagenError):
-        table.add_row(str(m.path), "could not open file")
+        table.add_row(str(music.path), "could not open file")
     MusicbotObject.console.print(table)
 
 
@@ -116,7 +117,7 @@ def set_tags(
     track: int | None = None,
 ) -> None:
     for path in paths:
-        music = File(path=path)
+        music = File.from_path(path=path)
         if title is not None:
             music.title = title
         if artist is not None:
@@ -136,19 +137,17 @@ def set_tags(
 
 @cli.command(help='Add keywords to music')
 @dry_option
-@path_argument
-@keywords_argument
+@music_argument
+@keywords_arguments
 @beartype
-def add_keywords(path: Path, keywords: list[str]) -> None:
-    f = File(path=path)
-    f.add_keywords(set(keywords))
+def add_keywords(music: File, keywords: set[str]) -> None:
+    music.add_keywords(keywords)
 
 
 @cli.command(help='Delete keywords to music', aliases=['remove-keywords'])
 @dry_option
-@path_argument
-@keywords_argument
+@music_argument
+@keywords_arguments
 @beartype
-def delete_keywords(path: Path, keywords: list[str]) -> None:
-    f = File(path=path)
-    f.delete_keywords(set(keywords))
+def delete_keywords(music: File, keywords: set[str]) -> None:
+    music.delete_keywords(keywords)

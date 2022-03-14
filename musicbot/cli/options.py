@@ -2,7 +2,7 @@ import logging
 from typing import Any
 
 import click
-from click_skeleton.helpers import mysplit
+from click_skeleton.helpers import mysplit, split_arguments
 
 from musicbot.defaults import (
     DEFAULT_CLEAN,
@@ -86,7 +86,15 @@ def yes_or_no(question: str, default: str | None = 'no') -> bool:
 
 def sane_list(ctx: click.Context, param: Any, value: Any) -> list[Any]:
     '''Convert Tuple when multiple=True to a list'''
+    value = split_arguments(ctx, param, value)
     ctx.params[param.name] = list(value)
+    return ctx.params[param.name]
+
+
+def sane_set(ctx: click.Context, param: Any, value: Any) -> list[Any]:
+    '''Convert Tuple when multiple=True to a list'''
+    value = split_arguments(ctx, param, value)
+    ctx.params[param.name] = set(value)
     return ctx.params[param.name]
 
 

@@ -1,6 +1,5 @@
 import logging
 import os
-from pathlib import Path
 
 import acoustid  # type: ignore
 import click
@@ -9,7 +8,10 @@ import youtube_dl  # type: ignore
 from beartype import beartype
 from click_skeleton import AdvancedGroup
 
-from musicbot.cli.file import acoustid_api_key_option, path_argument
+from musicbot.cli.file import (
+    acoustid_api_key_option,
+    music_argument
+)
 from musicbot.file import File
 
 logger = logging.getLogger(__name__)
@@ -69,15 +71,14 @@ def download(artist: str, title: str, path: str) -> None:
 
 
 @cli.command(help='Search a youtube link with artist and title')
-@path_argument
+@music_argument
 @acoustid_api_key_option
 @beartype
-def find(path: Path, acoustid_api_key: str) -> None:
-    f = File(path=path)
-    yt_path = f"{f.artist} - {f.title}.mp3"
+def find(music: File, acoustid_api_key: str) -> None:
+    yt_path = f"{music.artist} - {music.title}.mp3"
     try:
-        file_id = f.fingerprint(acoustid_api_key)
-        print(f'Searching for artist {f.artist} and title {f.title} and duration {humanize.naturaltime(f.length)}')
+        file_id = music.fingerprint(acoustid_api_key)
+        print(f'Searching for artist {music.artist} and title {music.title} and duration {humanize.naturaltime(music.length)}')
         ydl_opts = {
             'format': 'bestaudio/best',
             'quiet': True,
@@ -91,7 +92,7 @@ def find(path: Path, acoustid_api_key: str) -> None:
             'outtmpl': yt_path,
         }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            infos = ydl.extract_info(f"ytsearch1:'{f.artist} {f.title}'", download=True)
+            infos = ydl.extract_info(f"ytsearch1:'{music.artist} {music.title}'", download=True)
             url = None
             for entry in infos['entries']:
                 url = entry['webpage_url']

@@ -3,6 +3,7 @@ from functools import cached_property
 from pathlib import Path, PurePath
 from typing import Any, Iterable, Set
 
+from attr import define
 import acoustid  # type: ignore
 import mutagen  # type: ignore
 from click_skeleton.helpers import mysplit
@@ -26,12 +27,12 @@ logger = logging.getLogger(__name__)
 output_types = ["list", "json"]
 
 
+@define(repr=False)
 class File(MusicbotObject):
-    def __init__(self, path: Path):
-        resolved_path = path.resolve()
-        self.handle = mutagen.File(resolved_path)
-        self.inconsistencies: set[str] = set()
+    handle: mutagen.File
+    inconsistencies: set[str] = set()
 
+    def __attrs_post_init__(self) -> None:
         if not self.title:
             self.inconsistencies.add("no-title")
         if not self.genre:
@@ -54,6 +55,12 @@ class File(MusicbotObject):
         if self.track not in (-1, 0) and not str(self.path).endswith(str(self.canonic_artist_album_filename)):
             logger.debug(f"{self} : invalid-path, must have a track and should end with '{self.canonic_artist_album_filename}'")
             self.inconsistencies.add("invalid-path")
+
+    @classmethod
+    def from_path(cls, path: Path) -> "File":
+        return cls(
+            handle=mutagen.File(path.resolve())
+        )
 
     def __repr__(self) -> str:
         return str(self.path)
@@ -324,7 +331,7 @@ class File(MusicbotObject):
 
         if mp3_path.exists():
             logger.info(f"{mp3_path} already exists, overwriting only tags")
-            f = File(path=mp3_path)
+            f = File.from_path(path=mp3_path)
             f.track = self.track
             f.album = self.album
             f.title = self.title
@@ -342,7 +349,7 @@ class File(MusicbotObject):
                     bitrate="256k",
                 )
                 mp3_file.close()
-                f = File(mp3_path)
+                f = File.from_path(mp3_path)
                 f.track = self.track
                 f.album = self.album
                 f.title = self.title

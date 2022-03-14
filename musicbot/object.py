@@ -151,6 +151,28 @@ class MusicbotObject:
         quiet = len(items) <= 1 or quiet
         if prefix and (cls.is_dev() or cls.config.info or cls.config.debug):
             prefix += f" ({threads} threads)"
+        if threads == 1:
+            with (
+                cls.progressbar(
+                    max_value=len(items),
+                    quiet=quiet,
+                    redirect_stderr=True,
+                    redirect_stdout=True,
+                    prefix=prefix,
+                    **kwargs,
+                )
+            ) as pbar:
+                results = []
+                for item in items:
+                    try:
+                        result = worker(item)
+                        if result is not None:
+                            results.append(result)
+                    finally:
+                        pbar.value += 1
+                        pbar.update()
+                return results
+
         with (
             cls.progressbar(
                 max_value=len(items),
