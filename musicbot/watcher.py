@@ -8,6 +8,7 @@ from watchdog.events import (  # type: ignore
 
 from musicbot.file import File
 from musicbot.folders import Folders
+from musicbot.music import Music
 from musicbot.musicdb import MusicDb
 from musicbot.object import MusicbotObject
 
@@ -38,7 +39,7 @@ class MusicWatcherHandler(PatternMatchingEventHandler):
         self.musicdb.delete_music(event.src_path)
         self.update_music(event.dest_path)
 
-    def update_music(self, path: str) -> File | None:
+    def update_music(self, path: str) -> tuple[File, Music] | None:
         for folder_path in self.folders.paths:
             if path.startswith(str(folder_path)) and path.endswith(tuple(self.folders.extensions)):
                 MusicbotObject.success(f'Creating/modifying DB for: {path}')

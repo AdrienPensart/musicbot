@@ -286,6 +286,7 @@ musicbot local bests
     MusicDB options: 
       --dsn TEXT                          DSN to MusicBot EdgeDB
       --musicdb TEXT
+    --dry / --no-dry                      Do not launch real action  [default: no-dry]
     Link options: 
       --http / --no-http                  Generate HTTP link
       --sftp / --no-sftp                  Generate sFTP link
@@ -435,6 +436,7 @@ musicbot local scan
       --dsn TEXT                DSN to MusicBot EdgeDB
       --musicdb TEXT
     -s, --save                  Save to config file  [default: False]
+    --output [json|table|m3u]   Output format  [default: table]
     --clean                     Delete musics before  [default: False]
     Link options: 
       --http / --no-http        Generate HTTP link
@@ -457,6 +459,7 @@ musicbot local sync
       --dsn TEXT                          DSN to MusicBot EdgeDB
       --musicdb TEXT
     -y, --yes                             Confirm action
+    --dry / --no-dry                      Do not launch real action  [default: no-dry]
     Filter options: 
       --name TEXT                         Filter name
       --limit INTEGER                     Fetch a maximum limit of music

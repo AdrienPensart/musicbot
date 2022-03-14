@@ -1,4 +1,3 @@
-import collections
 import logging
 import operator
 
@@ -101,7 +100,7 @@ def diff(musicdb: MusicDb, download_playlist: bool, spotify: Spotify, output: st
     }
 
     spotify_differences = set(spotify_tracks_by_slug.keys()).difference(set(local_tracks_by_slug.keys()))
-    spotify_slug_tracks = collections.OrderedDict((d, spotify_tracks_by_slug[d]) for d in sorted(spotify_differences))
+    spotify_slug_tracks = dict((d, spotify_tracks_by_slug[d]) for d in sorted(spotify_differences))
 
     local_tracks_found = len(spotify_tracks_by_slug) - len(spotify_differences)
     if len(local_tracks.musics) == local_tracks_found:

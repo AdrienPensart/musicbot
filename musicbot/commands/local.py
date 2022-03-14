@@ -5,9 +5,9 @@ import shutil
 import time
 from pathlib import Path
 
-from attr import evolve
 import click
 import progressbar  # type: ignore
+from attr import evolve
 from beartype import beartype
 from click_skeleton import AdvancedGroup
 from watchdog.observers import Observer  # type: ignore
@@ -23,11 +23,11 @@ from musicbot.cli.music_filter import music_filter_options
 from musicbot.cli.musicdb import musicdb_options
 from musicbot.cli.options import (
     clean_option,
+    dry_option,
     lazy_yes_option,
     output_option,
     save_option,
-    yes_option,
-    dry_option,
+    yes_option
 )
 from musicbot.cli.playlist import bests_options
 from musicbot.file import File

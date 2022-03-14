@@ -13,6 +13,7 @@ click==8.0.4; python_version >= "3.8" and python_version < "4.0" and python_full
 colorama==0.4.4; python_version >= "3.8" and python_full_version < "3.0.0" and sys_platform == "win32" and python_version < "4.0" and platform_system == "Windows" or sys_platform == "win32" and python_version >= "3.8" and python_full_version >= "3.5.0" and python_version < "4.0" and platform_system == "Windows"
 colorlog==6.6.0; python_version >= "3.6"
 commonmark==0.9.1; python_full_version >= "3.6.2" and python_full_version < "4.0.0"
+deepdiff==5.7.0; python_version >= "3.6"
 edgedb==0.22.0
 fuzzywuzzy==0.18.0
 humanize==4.0.0; python_version >= "3.7"
@@ -22,6 +23,7 @@ logging-tree==1.9
 markupsafe==2.1.0; python_version >= "3.8" and python_version < "4.0"
 munch==2.5.0; python_version >= "3.8" and python_version < "4.0"
 mutagen==1.45.1; python_version >= "3.5" and python_version < "4"
+ordered-set==4.0.2; python_version >= "3.6"
 progressbar2==4.0.0; python_full_version >= "3.7.0"
 prompt-toolkit==3.0.28; python_full_version >= "3.6.2"
 pyacoustid==1.2.2

@@ -12,6 +12,7 @@ install_requires = \
  'beartype>=0.10.0,<0.11.0',
  'click-skeleton>=0.21,<0.22',
  'colorlog>=6.4.1,<7.0.0',
+ 'deepdiff>=5.7.0,<6.0.0',
  'edgedb>=0.22.0,<0.23.0',
  'fuzzywuzzy>=0.18.0,<0.19.0',
  'humanize>=4.0.0,<5.0.0',

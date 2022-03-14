@@ -4,20 +4,20 @@ from functools import cache
 from pathlib import Path
 from typing import Any
 
-from attr import asdict
-from deepdiff import DeepDiff
-from beartype import beartype
 import edgedb
+from attr import asdict
+from beartype import beartype
+from deepdiff import DeepDiff  # type: ignore
 from edgedb.blocking_client import create_client
 
+from musicbot.exceptions import MusicbotError
 from musicbot.file import File
+from musicbot.folders import Folders
 from musicbot.link_options import DEFAULT_LINK_OPTIONS, LinkOptions
 from musicbot.music import Music
 from musicbot.music_filter import MusicFilter
 from musicbot.object import MusicbotObject
 from musicbot.playlist import Playlist
-from musicbot.folders import Folders
-from musicbot.exceptions import MusicbotError
 from musicbot.queries import PLAYLIST_QUERY, UPSERT_QUERY
 
 logger = logging.getLogger(__name__)
@@ -176,7 +176,7 @@ class MusicDb(MusicbotObject):
         self,
         folders: Folders,
         link_options: LinkOptions = DEFAULT_LINK_OPTIONS
-    ):
+    ) -> list[dict[str, Any]]:
         def worker(path: Path) -> dict[str, Any] | None:
             result = self.upsert_path(path, link_options=link_options)
             if not result:
