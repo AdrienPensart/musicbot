@@ -37,18 +37,18 @@ jobs:
       - name: MyPy Static type checking
         run: |
           poetry run mypy musicbot tests
-      # - name: Test with pytest
-      #   env:
-      #     MB_SPOTIFY_CACHE: ${{ secrets.MB_SPOTIFY_CACHE }}
-      #     MB_SPOTIFY_CLIENT_ID: ${{ secrets.MB_SPOTIFY_CLIENT_ID }}
-      #     MB_SPOTIFY_CLIENT_SECRET: ${{ secrets.MB_SPOTIFY_CLIENT_SECRET }}
-      #   run: |
-      #     echo -n "$MB_SPOTIFY_CACHE" > $HOME/.spotify_cache
-      #     MB_SPOTIFY_CACHE_PATH=$HOME/.spotify_cache poetry run pytest
+      - name: Test with pytest
+        env:
+          MB_SPOTIFY_CACHE: ${{ secrets.MB_SPOTIFY_CACHE }}
+          MB_SPOTIFY_CLIENT_ID: ${{ secrets.MB_SPOTIFY_CLIENT_ID }}
+          MB_SPOTIFY_CLIENT_SECRET: ${{ secrets.MB_SPOTIFY_CLIENT_SECRET }}
+        run: |
+          echo -n "$MB_SPOTIFY_CACHE" > $HOME/.spotify_cache
+          MB_SPOTIFY_CACHE_PATH=$HOME/.spotify_cache poetry run pytest
       - name: Build package
         if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
         run: |
-          python3 setup.py bdist_wheel sdist
+          poetry build
       - name: Publish package
         if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@master

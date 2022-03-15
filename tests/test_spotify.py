@@ -34,8 +34,9 @@ def test_spotify_tracks(cli_runner):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_spotify_diff(cli_runner):
+def test_spotify_diff(cli_runner, edgedb):
     run_cli(cli_runner, cli, [
         '--quiet',
         'spotify', 'diff',
+        '--dsn', edgedb,
     ])

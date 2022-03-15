@@ -16,12 +16,8 @@ from musicbot.cli.file import (
     paths_arguments
 )
 from musicbot.cli.folders import destination_argument
-from musicbot.cli.link_options import link_options_options
-from musicbot.cli.musicdb import musicdb_options
 from musicbot.cli.options import dry_option
 from musicbot.file import File
-from musicbot.link_options import LinkOptions
-from musicbot.musicdb import MusicDb
 from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
@@ -31,26 +27,6 @@ logger = logging.getLogger(__name__)
 @beartype
 def cli() -> None:
     pass
-
-
-@cli.command(help='Insert music to DB', aliases=['upsert', 'scan'])
-@music_argument
-@musicdb_options
-@link_options_options
-@beartype
-def insert(
-    music: File,
-    musicdb: MusicDb,
-    link_options: LinkOptions,
-) -> None:
-    if 'no-title' in music.inconsistencies or 'no-artist' in music.inconsistencies or 'no-album' in music.inconsistencies:
-        MusicbotObject.warn(f"{music} : missing mandatory fields title/album/artist : {music.inconsistencies}")
-        return
-
-    musicdb.upsert_music(
-        music,
-        link_options=link_options
-    )
 
 
 @cli.command(help='Convert flac music to mp3')
