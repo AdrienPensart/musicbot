@@ -17,6 +17,7 @@ from musicbot.cli.spotify import (
 )
 from musicbot.defaults import REPLACEMENTS, STOPWORDS
 from musicbot.musicdb import MusicDb
+from musicbot.object import MusicbotObject
 from musicbot.spotify import Spotify
 
 logger = logging.getLogger(__name__)
@@ -39,8 +40,8 @@ def new_token(spotify: Spotify) -> None:
 @spotify_options
 @beartype
 def cached_token(spotify: Spotify) -> None:
-    print(spotify.cached_token())
-    print(f"Expired : {spotify.is_token_expired()}")
+    MusicbotObject.print_json(spotify.cached_token())
+    MusicbotObject.success(f"Expired : {spotify.is_token_expired()}")
 
 
 @cli.command(help='Get a new token')

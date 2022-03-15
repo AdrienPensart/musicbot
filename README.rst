@@ -528,7 +528,6 @@ musicbot music
     flac2mp3                           Convert flac music to mp3
     help                               Print help
     inconsistencies (consistency)      Check music consistency
-    insert (scan,upsert)               Insert music to DB
     set-tags (set-tag)                 Set music title
     tags (tag)                         Print music tags
 
@@ -597,27 +596,6 @@ musicbot music inconsistencies
                                                         track, invalid-title, invalid-comment, invalid-path]
       --fix                                             Fix musics
     -h, --help                                          Show this message and exit.
-
-musicbot music insert
-*********************
-.. code-block::
-
-  Usage: musicbot music insert [OPTIONS] MUSIC
-
-    Insert music to DB
-
-  Options:
-    --dry / --no-dry            Do not launch real action  [default: no-dry]
-    MusicDB options: 
-      --dsn TEXT                DSN to MusicBot EdgeDB
-      --musicdb TEXT
-    Link options: 
-      --http / --no-http        Generate HTTP link
-      --sftp / --no-sftp        Generate sFTP link
-      --youtube / --no-youtube  Generate YouTube link
-      --spotify / --no-spotify  Generate Spotify link
-      --local / --no-local      Generate local link
-    -h, --help                  Show this message and exit.
 
 musicbot music set-tags
 ***********************

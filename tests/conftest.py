@@ -1,8 +1,8 @@
 # type: ignore
-import time
 import json
-import socket
 import logging
+import socket
+import time
 
 import pytest
 from click_skeleton.testing import run_cli
