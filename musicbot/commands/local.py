@@ -82,7 +82,7 @@ def scan(
         MusicbotObject.print_json(musics)
 
     if save:
-        MusicbotObject.config.configfile['musicbot']['folders'] = folders.unique_folders
+        MusicbotObject.config.configfile['musicbot']['folders'] = folders.unique_directories
         MusicbotObject.config.write()
 
 
@@ -273,12 +273,12 @@ def sync(
         click.secho('no result for filter, nothing to sync')
         return
 
-    folders = Folders(paths=[destination], extensions=set())
+    folders = Folders(directories=[destination], extensions=set())
     logger.info(f"Files : {len(folders.files)}")
     if not folders.files:
         logger.warning("no files found in destination")
 
-    destinations = {str(file)[len(str(destination)) + 1:]: file for file in folders.files}
+    destinations = {str(path)[len(str(destination)) + 1:]: path for path in folders.paths}
 
     musics: list[File] = []
     for music in playlist.musics:
@@ -343,7 +343,7 @@ def sync(
                 pbar.value += 1
                 pbar.update()
 
-    for d in folders.empty_dirs():
+    for d in folders.flush_empty_directories():
         if any(e in d for e in folders.except_directories):
             logger.debug(f"Invalid path {d}")
             continue

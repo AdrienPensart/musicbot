@@ -127,51 +127,48 @@ class MusicDb(MusicbotObject):
             return None
         return self.blocking_client.query(query, path=path)
 
-    def upsert_music(
-        self,
-        music: File,
-        link_options: LinkOptions = DEFAULT_LINK_OPTIONS
-    ) -> Any:
-        if 'no-title' in music.inconsistencies or 'no-artist' in music.inconsistencies or 'no-album' in music.inconsistencies:
-            MusicbotObject.warn(f"{music} : missing mandatory fields title/album/artist : {music.inconsistencies}")
-            return None
-
-        params = dict(
-            query=UPSERT_QUERY,
-            **music.to_dict(link_options),
-        )
-        if self.dry:
-            return None
-        try:
-            return self.blocking_client.query_required_single(**params)
-        except edgedb.errors.NoDataError as e:
-            raise MusicbotError(f"{music} : no data result for query") from e
-
     def upsert_path(
         self,
         path: Path,
         link_options: LinkOptions = DEFAULT_LINK_OPTIONS
-    ) -> tuple[File, Music] | None:
+    ) -> File | None:
         try:
-            music_file = File.from_path(path=path)
-            result = self.upsert_music(
-                music=music_file,
-                link_options=link_options,
+            file = File.from_path(path=path)
+
+            if 'no-title' in file.inconsistencies or 'no-artist' in file.inconsistencies or 'no-album' in file.inconsistencies:
+                MusicbotObject.warn(f"{file} : missing mandatory fields title/album/artist : {file.inconsistencies}")
+                return None
+
+            if self.dry:
+                return file
+
+            input_music = file.to_music(link_options)
+            params = dict(
+                query=UPSERT_QUERY,
+                **asdict(input_music),
             )
-            keywords = list(keyword for keyword in result.all_keywords)
-            music = Music(
+            result = self.blocking_client.query_required_single(**params)
+            output_music = Music(
                 title=result.name,
                 artist=result.artist_name,
                 album=result.album_name,
                 genre=result.genre_name,
                 size=result.size,
                 length=result.length,
-                keywords=keywords,
+                keywords=list(keyword for keyword in result.all_keywords),
                 track=result.track,
                 rating=result.rating,
                 links=list(result.links),
             )
-            return music_file, music
+
+            music_diff = DeepDiff(asdict(input_music), asdict(output_music))
+            if music_diff:
+                MusicbotObject.err(f"{file} : file and music diff detected : {music_diff}")
+                return None
+
+            return file
+        except edgedb.errors.NoDataError as e:
+            raise MusicbotError(f"{file} : no data result for query") from e
         except OSError as e:
             logger.error(e)
         return None
@@ -180,21 +177,12 @@ class MusicDb(MusicbotObject):
         self,
         folders: Folders,
         link_options: LinkOptions = DEFAULT_LINK_OPTIONS
-    ) -> list[dict[str, Any]]:
-        def worker(path: Path) -> dict[str, Any] | None:
-            result = self.upsert_path(path, link_options=link_options)
-            if not result:
+    ) -> list[File]:
+        def worker(path: Path) -> File | None:
+            file = self.upsert_path(path, link_options=link_options)
+            if not file:
                 MusicbotObject.err(f"{path} : unable to insert")
                 return None
-
-            music_file, music = result
-            music_file_dict = music_file.to_dict(link_options)
-            music_dict = asdict(music)
-            music_diff = DeepDiff(music_file_dict, music_file_dict)
-            if music_diff:
-                MusicbotObject.err(f"{path} : file and music diff detected : {music_diff}")
-                return None
-
-            return music_dict
+            return file
 
         return folders.apply(worker, prefix="Loading and inserting musics")

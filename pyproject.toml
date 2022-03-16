@@ -38,8 +38,8 @@ click-skeleton = "^0.21"
 beartype = "^0.10.0"
 humanize = "^4.0.0"
 python-slugify = "^6.0.1"
-edgedb = "^0.22.0"
 deepdiff = "^5.7.0"
+edgedb = "^0.23.0"
 
 [tool.isort]
 multi_line_output = 3

@@ -14,7 +14,6 @@ from musicbot.config import (
     DEFAULT_INFO,
     DEFAULT_LOG,
     DEFAULT_QUIET,
-    DEFAULT_TIMINGS,
     DEFAULT_WARNING
 )
 
@@ -85,15 +84,6 @@ critical_option = optgroup.option(
     is_flag=True,
 )
 
-timings_option = optgroup.option(
-    '--timings', '-t', '--timing',
-    help='Set verbosity to info and show execution timings',
-    envvar='MB_TIMINGS',
-    default=DEFAULT_TIMINGS,
-    is_flag=True,
-    show_default=True,
-)
-
 quiet_option = optgroup.option(
     '-q', '--quiet/--no-quiet',
     help='Disable progress bars',
@@ -108,7 +98,6 @@ config_options = add_options(
     config_option,
     log_option,
     quiet_option,
-    timings_option,
     color_option,
     optgroup('Verbosity', cls=MutuallyExclusiveOptionGroup),
     debug_option,

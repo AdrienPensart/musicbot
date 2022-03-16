@@ -1,6 +1,5 @@
 import json
 import logging
-from typing import Any
 
 from attr import asdict, frozen
 
@@ -81,18 +80,6 @@ class MusicFilter:
 
     def __repr__(self) -> str:
         return json.dumps(asdict(self))
-
-    def diff(self) -> dict[str, Any]:
-        '''Print only differences with default filter'''
-        myself = vars(self)
-        default = vars(MusicFilter())
-        return {k: myself[k] for k in myself if default[k] != myself[k] and k != 'name'}
-
-    def common(self) -> dict[str, Any]:
-        '''Print common values with default filter'''
-        myself = vars(self)
-        default = vars(MusicFilter())
-        return {k: myself[k] for k in myself if default[k] == myself[k] and k != 'name'}
 
 
 default_filters = [

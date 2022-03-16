@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 
 import click
+from attr import asdict
 from beartype import beartype
 from click_skeleton import AdvancedGroup
 from mutagen import MutagenError  # type: ignore
@@ -29,7 +30,7 @@ def cli() -> None:
     pass
 
 
-@cli.command(help='Convert flac music to mp3')
+@cli.command(help='Convert flac music to mp3', aliases=['flac-to-mp3'])
 @music_argument
 @destination_argument
 @beartype
@@ -56,7 +57,7 @@ def fingerprint(
 @beartype
 def tags(music: File) -> None:
     logger.info(music.handle.tags.keys())
-    MusicbotObject.print_json(music.to_dict())
+    MusicbotObject.print_json(asdict(music.to_music()))
 
 
 @cli.command(aliases=['consistency'], help='Check music consistency')
@@ -91,27 +92,22 @@ def set_tags(
     track: int | None = None,
 ) -> None:
     for path in paths:
-        music = File.from_path(path=path)
-        if title is not None:
-            music.title = title
-        if artist is not None:
-            music.artist = artist
-        if album is not None:
-            music.album = album
-        if genre is not None:
-            music.genre = genre
-        if keywords is not None:
-            music.keywords = set(keywords)
-        if rating is not None:
-            music.rating = rating
-        if track is not None:
-            music.track = track
-        music.save()
+        file = File.from_path(path=path)
+        file.set_tags(
+            title=title,
+            artist=artist,
+            album=album,
+            genre=genre,
+            keywords=keywords,
+            rating=rating,
+            track=track,
+        )
 
 
 @cli.command(help='Add keywords to music')
 @music_argument
 @keywords_arguments
+@dry_option
 @beartype
 def add_keywords(music: File, keywords: set[str]) -> None:
     music.add_keywords(keywords)
@@ -120,6 +116,7 @@ def add_keywords(music: File, keywords: set[str]) -> None:
 @cli.command(help='Delete keywords to music', aliases=['remove-keywords'])
 @music_argument
 @keywords_arguments
+@dry_option
 @beartype
 def delete_keywords(music: File, keywords: set[str]) -> None:
     music.delete_keywords(keywords)

@@ -21,7 +21,6 @@ DEFAULT_INFO: Final[bool] = False
 DEFAULT_WARNING: Final[bool] = False
 DEFAULT_ERROR: Final[bool] = False
 DEFAULT_CRITICAL: Final[bool] = False
-DEFAULT_TIMINGS: Final[bool] = False
 DEFAULT_VERBOSITY: Final[str] = 'warning'
 DEFAULT_QUIET: Final[bool] = False
 
@@ -44,7 +43,6 @@ class Config:
     warning: bool = DEFAULT_WARNING
     error: bool = DEFAULT_ERROR
     critical: bool = DEFAULT_CRITICAL
-    timings: bool = DEFAULT_TIMINGS
     config: str = DEFAULT_CONFIG
     level: int = VERBOSITIES[DEFAULT_VERBOSITY]
 

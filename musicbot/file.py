@@ -1,7 +1,7 @@
 import logging
 from functools import cached_property
 from pathlib import Path, PurePath
-from typing import Any, Iterable
+from typing import Iterable, Optional
 
 import acoustid  # type: ignore
 import mutagen  # type: ignore
@@ -22,9 +22,10 @@ from musicbot.defaults import (
 from musicbot.helpers import current_user, public_ip
 from musicbot.link_options import DEFAULT_LINK_OPTIONS, LinkOptions
 from musicbot.object import MusicbotObject
+from musicbot.music import Music
+from musicbot.exceptions import MusicbotError
 
 logger = logging.getLogger(__name__)
-output_types = ["list", "json"]
 
 
 @define(repr=False)
@@ -65,11 +66,11 @@ class File(MusicbotObject):
     def __repr__(self) -> str:
         return str(self.path)
 
-    def to_dict(
+    def to_music(
         self,
         link_options: LinkOptions = DEFAULT_LINK_OPTIONS
-    ) -> dict[str, Any]:
-        return dict(
+    ) -> Music:
+        return Music(
             title=self.title,
             size=self.size,
             album=self.album,
@@ -81,6 +82,32 @@ class File(MusicbotObject):
             keywords=list(sorted(self.keywords)),
             links=list(sorted(self.links(link_options))),
         )
+
+    def set_tags(
+        self,
+        title: str | None = None,
+        artist: str | None = None,
+        album: str | None = None,
+        genre: str | None = None,
+        keywords: list[str] | None = None,
+        rating: float | None = None,
+        track: int | None = None,
+    ) -> None:
+        if title is not None:
+            self.title = title
+        if artist is not None:
+            self.artist = artist
+        if album is not None:
+            self.album = album
+        if genre is not None:
+            self.genre = genre
+        if keywords is not None:
+            self.keywords = set(keywords)
+        if rating is not None:
+            self.rating = rating
+        if track is not None:
+            self.track = track
+        self.save()
 
     @cached_property
     def size(self) -> int:
@@ -315,14 +342,14 @@ class File(MusicbotObject):
         self.keywords = new_keywords
         return self.save()
 
-    def to_mp3(self, destination: Path, flat: bool = False) -> bool:
+    def to_mp3(self, destination: Path, flat: bool = False) -> Optional["File"]:
         if self.extension != '.flac':
             self.err(f"{self} is not a flac file")
-            return False
+            return None
 
         if not flat and 'invalid-path' in self.inconsistencies:
             self.err(f"{self} does not have a canonic path like : {self.canonic_artist_album_filename}")
-            return False
+            return None
 
         if flat:
             mp3_path = destination / f'{self.flat_title}.mp3'
@@ -331,34 +358,39 @@ class File(MusicbotObject):
 
         if mp3_path.exists():
             logger.info(f"{mp3_path} already exists, overwriting only tags")
-            f = File.from_path(path=mp3_path)
-            f.track = self.track
-            f.album = self.album
-            f.title = self.title
-            f.artist = self.artist
-            return f.save()
+            mp3_file = File.from_path(path=mp3_path)
+            mp3_file.track = self.track
+            mp3_file.album = self.album
+            mp3_file.title = self.title
+            mp3_file.artist = self.artist
+            mp3_file.save()
+            return mp3_file
 
         logger.debug(f"{self} convert destination : {mp3_path}")
         if self.dry:
-            return True
+            return None
         mp3_path.parent.mkdir(parents=True, exist_ok=True)
         try:
             flac_audio = AudioSegment.from_file(self.path, "flac")
-            mp3_file = flac_audio.export(
+            mp3_export = flac_audio.export(
                 mp3_path,
                 format="mp3",
                 bitrate="256k",
             )
-            mp3_file.close()
-            f = File.from_path(mp3_path)
-            f.track = self.track
-            f.album = self.album
-            f.title = self.title
-            f.artist = self.artist
-            return f.save()
-        except Exception:
+            mp3_export.close()
+            mp3_file = File.from_path(mp3_path)
+            mp3_file.track = self.track
+
+            # rewrite some metadatas
+            mp3_file.album = self.album
+            mp3_file.title = self.title
+            mp3_file.artist = self.artist
+            if mp3_file.save():
+                return mp3_file
+        except Exception as e:
             mp3_path.unlink()
-            raise
+            raise MusicbotError(f"{self} : unable to convert to mp3") from e
+        return None
 
     def fingerprint(self, api_key: str) -> str:
         ids = acoustid.match(api_key, self.path)
@@ -390,9 +422,9 @@ class File(MusicbotObject):
 
     def save(self) -> bool:
         try:
-            if not self.dry:
-                self.handle.save()
-            return True
+            if self.dry:
+                return True
+            self.handle.save()
         except mutagen.MutagenError as e:
             self.err(e)
         return False

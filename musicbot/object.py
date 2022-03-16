@@ -27,7 +27,6 @@ class MusicbotObject:
     show_err: bool = True
     show_tip: bool = True
     show_echo: bool = True
-    show_timing: bool = True
     show_header: bool = True
     show_success: bool = True
     already_printed: list[str] = []
@@ -53,12 +52,6 @@ class MusicbotObject:
     def is_prod(cls) -> bool:
         '''Are we executing the prod version?'''
         return not cls.is_dev() and not cls.is_test()
-
-    @classmethod
-    def timing(cls, message: Any, **options: Any) -> None:
-        '''Print timing informations'''
-        if cls.show_timing:
-            cls.echo(message, fg="magenta", bold=True, **options)
 
     @classmethod
     def header(cls, message: Any, **options: Any) -> None:

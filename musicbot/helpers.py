@@ -1,6 +1,5 @@
 import getpass
 import logging
-import socket
 from functools import cache
 
 import humanize  # type: ignore
@@ -13,11 +12,6 @@ logger = logging.getLogger(__name__)
 
 
 @beartype
-def is_port_in_use(port: int) -> bool:
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        return s.connect_ex(('localhost', port)) == 0
-
-
 def bytes_to_human(b: int) -> str:
     return str(humanize.naturalsize(b))
 

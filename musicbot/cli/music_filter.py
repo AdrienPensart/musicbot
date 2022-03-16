@@ -1,5 +1,4 @@
 from typing import Any
-
 import attr
 import click
 from click_option_group import optgroup  # type: ignore
@@ -31,7 +30,7 @@ from musicbot.defaults import (
 from musicbot.music_filter import MusicFilter
 
 
-def sane_music_filter(ctx: click.Context, param: click.Parameter, value: Any) -> MusicFilter:  # pylint: disable=unused-argument
+def sane_music_filter(ctx: click.Context, param: click.Parameter, value: str | None) -> MusicFilter:  # pylint: disable=unused-argument
     if not param.name:
         raise click.Abort("No param name set")
 

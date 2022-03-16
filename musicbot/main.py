@@ -40,7 +40,6 @@ def cli(
     warning: bool,
     error: bool,
     critical: bool,
-    timings: bool,
     config: str,
 ) -> Any:
     """Music swiss knife, new gen."""
@@ -53,7 +52,6 @@ def cli(
         warning=warning,
         error=error,
         critical=critical,
-        timings=timings,
         config=config,
     )
     ctx.color = MusicbotObject.config.color

@@ -1,4 +1,5 @@
 import codecs
+import random
 import itertools
 import logging
 import os
@@ -7,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from attr import asdict, frozen
-from click_skeleton.helpers import seconds_to_human
+from click_skeleton.helpers import seconds_to_human, PrettyDefaultDict
 from prompt_toolkit import HTML, Application, print_formatted_text
 from prompt_toolkit.application import get_app, run_in_terminal
 from prompt_toolkit.key_binding import KeyBindings
@@ -17,8 +18,9 @@ from prompt_toolkit.layout.layout import Layout
 from rich.table import Table
 from rich.text import Text
 
-from musicbot.music import Music
 from musicbot.music_filter import MusicFilter
+from musicbot.music import Music
+from musicbot.file import File
 from musicbot.object import MusicbotObject
 
 logging.getLogger("vlc").setLevel(logging.NOTSET)
@@ -30,16 +32,34 @@ class Playlist(MusicbotObject):
     musics: list[Music]
     music_filter: MusicFilter | None = None
 
+    @classmethod
+    def from_files(cls, files: list[File]) -> "Playlist":
+        return cls(
+            musics=[file.to_music() for file in files]
+        )
+
     def print(
         self,
         output: str,
         current_title: str | None = None,
         current_album: str | None = None,
         current_artist: str | None = None,
+        shuffle: bool = False,
+        interleave: bool = False,
     ) -> None:
+        musics = self.musics
+        if interleave:
+            musics_by_artist = PrettyDefaultDict(list)
+            for music in self.musics:
+                musics_by_artist[music.artist].append(music)
+            musics = list(itertools.chain(*itertools.zip_longest(*musics_by_artist.values())))
+
+        if shuffle:
+            random.shuffle(musics)
+
         table = Table("Title", "Artist", "Album", "Genre", "Rating", "Keywords", "Links", "Size", "Length", "Track")
         links = []
-        for music in self.musics:
+        for music in musics:
             raw_row: list[str] = [
                 music.title,
                 music.artist,

@@ -1,26 +1,29 @@
-import itertools
-import json
 import logging
-import random
 from pathlib import Path
 
+from rich.table import Table
 import click
 import mutagen  # type: ignore
 from beartype import beartype
 from click_skeleton import AdvancedGroup
-from click_skeleton.helpers import PrettyDefaultDict
-from rich.table import Table
 
 from musicbot.cli.file import (
     checks_and_fix_options,
     flat_option,
-    keywords_arguments
+    keywords_arguments,
+    file_options,
 )
-from musicbot.cli.folders import destination_argument, folders_argument
+from musicbot.cli.folders import (
+    destination_argument,
+    folders_argument
+)
 from musicbot.cli.music_filter import ordering_options
-from musicbot.cli.options import output_option, threads_option
-from musicbot.exceptions import MusicbotError
-from musicbot.file import File
+from musicbot.cli.options import (
+    output_option,
+    threads_option,
+    dry_option
+)
+from musicbot.playlist import Playlist
 from musicbot.folders import Folders
 from musicbot.object import MusicbotObject
 
@@ -41,7 +44,7 @@ def find(folders: Folders) -> None:
         print(file)
 
 
-@cli.command(help='Generate a playlist', aliases=['tracks'])
+@cli.command(help='Generates a playlist', aliases=['tags', 'musics', 'tracks'])
 @folders_argument
 @output_option
 @ordering_options
@@ -52,72 +55,35 @@ def playlist(
     shuffle: bool,
     interleave: bool,
 ) -> None:
-    musics = folders.musics
-    if interleave:
-        tracks_by_artist = PrettyDefaultDict(list)
-        for music in musics:
-            tracks_by_artist[music.artist].append(music)
-        musics = list(itertools.chain(*itertools.zip_longest(*tracks_by_artist.values())))
-
-    if shuffle:
-        random.shuffle(musics)
-
-    if output == 'm3u':
-        p = '#EXTM3U\n'
-        p += '\n'.join([str(music.path) for music in musics])
-        print(p)
-        return
-
-    if output == 'json':
-        print(json.dumps([music.to_dict() for music in musics]))
-        return
-
-    if output == 'table':
-        table = Table("Track", "Title", "Artist", "Album")
-        for music in musics:
-            table.add_row(str(music.track), music.title, music.artist, music.album)
-        MusicbotObject.console.print(table)
+    playlist = Playlist(musics=folders.musics)
+    playlist.print(
+        output=output,
+        interleave=interleave,
+        shuffle=shuffle,
+    )
 
 
-@cli.command(help='Print music tags')
-@folders_argument
-@beartype
-def tags(folders: Folders) -> None:
-    for music in folders.musics:
-        logger.info(music.handle.tags.keys())
-        print(music.to_dict())
-
-
-@cli.command(help='Convert all files in folders to mp3')
+@cli.command(help='Convert all files in folders to mp3', aliases=['flac-to-mp3'])
 @destination_argument
 @folders_argument
 @threads_option
 @flat_option
+@output_option
 @beartype
 def flac2mp3(
     folders: Folders,
     destination: Path,
+    output: str,
     threads: int,
     flat: bool,
 ) -> None:
-    folders.extensions = {'flac'}
-    if not folders.files:
-        logger.warning(f"No flac files detected in {folders}")
-        return
-
-    def worker(music: File) -> None:
-        try:
-            music.to_mp3(flat=flat, destination=destination)
-        except MusicbotError as e:
-            logger.error(e)
-        except Exception as e:  # pylint: disable=broad-except
-            logger.error(f"{music} : unable to convert to mp3 : {e}")
-
-    folders.apply(
-        worker,
-        prefix="Converting flac to mp3",
+    mp3_files = folders.flac_to_mp3(
+        destination=destination,
         threads=threads,
+        flat=flat,
     )
+    playlist = Playlist.from_files(mp3_files)
+    playlist.print(output=output)
 
 
 @cli.command(aliases=['consistency'], help='Check music files consistency')
@@ -130,36 +96,65 @@ def inconsistencies(
     checks: list[str],
 ) -> None:
     table = Table("Path", "Inconsistencies")
-    for music in folders.musics:
+    for file in folders.files:
         try:
             if fix:
-                music.fix(checks=checks)
-            if music.inconsistencies.intersection(set(checks)):
-                table.add_row(str(music.path), ', '.join(music.inconsistencies))
+                file.fix(checks=checks)
+            if file.inconsistencies.intersection(set(checks)):
+                table.add_row(str(file.path), ', '.join(file.inconsistencies))
         except (OSError, mutagen.MutagenError):
-            table.add_row(str(music.path), "could not open file")
+            table.add_row(str(file.path), "could not open file")
     MusicbotObject.console.print(table)
+
+
+@cli.command(help='Set music title', aliases=['set-tag'])
+@folders_argument
+@dry_option
+@file_options
+@beartype
+def set_tags(
+    folders: Folders,
+    title: str | None = None,
+    artist: str | None = None,
+    album: str | None = None,
+    genre: str | None = None,
+    keywords: list[str] | None = None,
+    rating: float | None = None,
+    track: int | None = None,
+) -> None:
+    for file in folders.files:
+        file.set_tags(
+            title=title,
+            artist=artist,
+            album=album,
+            genre=genre,
+            keywords=keywords,
+            rating=rating,
+            track=track,
+        )
 
 
 @cli.command(help='Add keywords to music')
 @folders_argument
 @keywords_arguments
+@dry_option
 @beartype
 def add_keywords(
     folders: Folders,
     keywords: set[str],
 ) -> None:
-    for music in folders.musics:
-        music.add_keywords(keywords)
+    for file in folders.files:
+        file.add_keywords(keywords)
 
 
 @cli.command(help='Delete keywords to music')
 @folders_argument
 @keywords_arguments
+@dry_option
 @beartype
 def delete_keywords(
     folders: Folders,
     keywords: set[str],
 ) -> None:
-    for music in folders.musics:
-        music.delete_keywords(keywords)
+    for file in folders.files:
+        file.delete_keywords(keywords)

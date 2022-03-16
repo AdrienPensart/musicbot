@@ -29,10 +29,10 @@ def test_folder_flac2mp3(cli_runner):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_folder_tracks(cli_runner):
+def test_folder_playlist(cli_runner):
     run_cli(cli_runner, cli, [
         '--quiet',
-        'folder', 'tracks',
+        'folder', 'playlist',
         *fixtures.folders,
     ])
 
