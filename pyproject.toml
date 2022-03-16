@@ -63,7 +63,7 @@ vulture = "^2.3"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--timeout 600 --cov-report term-missing --durations=0 --cov musicbot --docker-compose-no-build -x --use-running-containers "
+addopts = "--timeout 600 --cov-report term-missing --durations=0 --cov musicbot -x --use-running-containers "
 
 [tool.pylint.master]
 jobs = 4
