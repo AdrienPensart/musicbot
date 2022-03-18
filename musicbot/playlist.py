@@ -22,6 +22,7 @@ from musicbot.file import File
 from musicbot.music import Music
 from musicbot.music_filter import MusicFilter
 from musicbot.object import MusicbotObject
+from musicbot.defaults import DEFAULT_VLC_PARAMS
 
 logging.getLogger("vlc").setLevel(logging.NOTSET)
 logger = logging.getLogger(__name__)
@@ -133,26 +134,21 @@ class Playlist(MusicbotObject):
         except (OSError, LookupError, ValueError, UnicodeError) as e:
             logger.warning(f'Unable to write playlist to {filepath} because of {e}')
 
-    def play(self) -> None:
+    def play(self, vlc_params: str = DEFAULT_VLC_PARAMS) -> None:
         if not self.musics:
             logger.warning('Empty playlist')
             return
 
         try:
             if platform.system() == 'Windows':
-                os.add_dll_directory(r'C:\Program Files\VideoLAN\VLC')  # type: ignore
+                vlc_path = r'C:\Program Files\VideoLAN\VLC'
+                logger.debug(f"Adding DLL folder {vlc_path}")
+                os.add_dll_directory(vlc_path)  # type: ignore
             import vlc  # type: ignore
-            instance = vlc.Instance("--vout=dummy --aout=pulse")
-            # devices = instance.audio_output_enumerate_devices()
-            # if not devices:
-            #     logger.error('no audio output')
-            #     return
-
-            # if all(device['name'] != b'pulse' for device in devices):
-            #     logger.error('pulse audio is not available, available devices : ')
-            #     for device in devices:
-            #         logger.error(device['name'])
-            #     return
+            instance = vlc.Instance(vlc_params)
+            devices = instance.audio_output_enumerate_devices()
+            if not devices:
+                logger.warn('maybe no audio output detected...')
 
             if not instance:
                 logger.critical('Unable to start VLC instance')
@@ -163,8 +159,7 @@ class Playlist(MusicbotObject):
                 logger.critical('Unable to create VLC player')
                 return
 
-            links = [music.links for music in self.musics]
-            media_list = instance.media_list_new(links)
+            media_list = instance.media_list_new(list(self.links))
             if not media_list:
                 logger.critical('Unable to create VLC media list')
                 return

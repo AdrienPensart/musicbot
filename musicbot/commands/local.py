@@ -37,6 +37,7 @@ from musicbot.music_filter import MusicFilter
 from musicbot.musicdb import MusicDb
 from musicbot.object import MusicbotObject
 from musicbot.watcher import MusicWatcherHandler
+from musicbot.defaults import DEFAULT_VLC_PARAMS
 
 logger = logging.getLogger(__name__)
 
@@ -127,6 +128,7 @@ def playlist(
     link_options: LinkOptions,
     musicdb: MusicDb,
 ) -> None:
+    musicdb.set_readonly()
     p = musicdb.make_playlist(
         music_filter=music_filter,
         link_options=link_options,
@@ -151,6 +153,7 @@ def bests(
     ratings: tuple[float, ...],
     types: list[str],
 ) -> None:
+    musicdb.set_readonly()
     prefiltered = musicdb.make_playlist(music_filter=music_filter, link_options=link_options)
     if "genre" in types and prefiltered.genres:
         with MusicbotObject.progressbar(max_value=len(prefiltered.genres), prefix="Generating bests genres") as pbar:
@@ -239,13 +242,14 @@ def bests(
 @cli.command(aliases=['play'], help='Music player')
 @musicdb_options
 @music_filter_options
+@click.option('--vlc-params', help="VLC params", default=DEFAULT_VLC_PARAMS, show_default=True)
 @beartype
-def player(music_filter: MusicFilter, musicdb: MusicDb) -> None:
+def player(music_filter: MusicFilter, musicdb: MusicDb, vlc_params: str) -> None:
     if not MusicbotObject.config.quiet:
         progressbar.streams.unwrap(stderr=True, stdout=True)
     try:
         playlist = musicdb.make_playlist(music_filter)
-        playlist.play()
+        playlist.play(vlc_params)
     except io.UnsupportedOperation:
         logger.critical('Unable to load UI')
 

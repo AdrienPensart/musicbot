@@ -10,7 +10,7 @@ from attr import asdict, define
 from beartype import beartype
 from deepdiff import DeepDiff  # type: ignore
 from edgedb.blocking_client import Client, create_client
-from edgedb.options import RetryOptions
+from edgedb.options import RetryOptions, TransactionOptions
 
 from musicbot.exceptions import MusicbotError
 from musicbot.file import File
@@ -32,6 +32,11 @@ class MusicDb(MusicbotObject):
     def __attrs_post_init__(self) -> None:
         self.blocking_client = self.blocking_client.with_retry_options(
             RetryOptions(attempts=10)
+        )
+
+    def set_readonly(self):
+        self.blocking_client = self.blocking_client.with_transaction_options(
+            TransactionOptions(readonly=True)
         )
 
     @classmethod

@@ -35,6 +35,8 @@ def sane_music_filter(ctx: click.Context, param: click.Parameter, value: str | N
     if not param.name:
         raise click.Abort("No param name set")
 
+    rating = ctx.params.pop('rating', None)
+
     kwargs: dict[str, Any] = {}
     for field in attr.fields_dict(MusicFilter):
         if isinstance(ctx.params[field], list):
@@ -42,6 +44,10 @@ def sane_music_filter(ctx: click.Context, param: click.Parameter, value: str | N
         else:
             kwargs[field] = ctx.params[field]
         ctx.params.pop(field)
+
+    if rating is not None:
+        kwargs['min_rating'] = rating
+        kwargs['max_rating'] = rating
 
     music_filter = MusicFilter(**kwargs)
     ctx.params[param.name] = music_filter
@@ -189,8 +195,13 @@ music_filter_options = add_options(
     ),
     optgroup('Rating'),
     optgroup.option(
-        '--min-rating', '--rating',
-        'min_rating',
+        '--rating',
+        help='Fixed rating',
+        type=click.FloatRange(DEFAULT_MIN_RATING, DEFAULT_MAX_RATING, clamp=True),
+        callback=sane_rating,
+    ),
+    optgroup.option(
+        '--min-rating',
         help='Minimum rating',
         default=DEFAULT_MIN_RATING,
         show_default=True,

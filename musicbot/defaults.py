@@ -3,6 +3,8 @@ from typing import Final
 MIN_INT: Final[int] = 0
 MAX_INT: Final[int] = 2147483647
 
+DEFAULT_VLC_PARAMS: Final[str] = "--vout=dummy --aout=pulse"
+
 RATING_CHOICES: Final[list[float]] = [x * 0.5 for x in range(0, 11)]
 STORED_RATING_CHOICES: Final[list[float]] = [float(x) / 10.0 for x in range(0, 11)]
 DEFAULT_RATINGS: Final[list[float]] = [4.0, 4.5, 5.0]
