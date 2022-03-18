@@ -1,4 +1,5 @@
 from typing import Any
+
 import attr
 import click
 from click_option_group import optgroup  # type: ignore

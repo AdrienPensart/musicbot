@@ -16,9 +16,9 @@ from click_skeleton import backtrace, doc, helpers, skeleton, version_checker
 import musicbot
 import musicbot.commands
 from musicbot import Config, MusicbotObject, version
-from musicbot.exceptions import MusicbotError
 from musicbot.cli.config import config_options
 from musicbot.cli.options import dry_option
+from musicbot.exceptions import MusicbotError
 
 PROG_NAME: Final[str] = "musicbot"
 logger = logging.getLogger(__name__)

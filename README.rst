@@ -12,7 +12,6 @@ Commands
       -c, --config FILE              Config file path  [default: ~/musicbot.ini]
       -l, --log FILE                 Log file path
       -q, --quiet / --no-quiet       Disable progress bars  [default: no-quiet]
-      -t, --timings, --timing        Set verbosity to info and show execution timings  [default: False]
       --color / --no-color           Enable or disable color in output  [default: color]
     Verbosity: [mutually_exclusive]
       --debug                        Debug verbosity
@@ -91,11 +90,11 @@ musicbot folder
     add-keywords                   Add keywords to music
     delete-keywords                Delete keywords to music
     find                           Just list music files
-    flac2mp3                       Convert all files in folders to mp3
+    flac2mp3 (flac-to-mp3)         Convert all files in folders to mp3
     help                           Print help
     inconsistencies (consistency)  Check music files consistency
-    playlist (tracks)              Generate a playlist
-    tags                           Print music tags
+    playlist (musics,tags,tracks)  Generates a playlist
+    set-tags (set-tag)             Set music title
 
 musicbot folder add-keywords
 ****************************
@@ -110,6 +109,7 @@ musicbot folder add-keywords
     Folders options: 
       --limit INTEGER   Limit number of music files
       --extension TEXT  Supported formats
+    --dry / --no-dry    Do not launch real action  [default: no-dry]
     -h, --help          Show this message and exit.
 
 musicbot folder delete-keywords
@@ -125,6 +125,7 @@ musicbot folder delete-keywords
     Folders options: 
       --limit INTEGER   Limit number of music files
       --extension TEXT  Supported formats
+    --dry / --no-dry    Do not launch real action  [default: no-dry]
     -h, --help          Show this message and exit.
 
 musicbot folder find
@@ -151,13 +152,14 @@ musicbot folder flac2mp3
     Convert all files in folders to mp3
 
   Options:
-    --dry / --no-dry    Do not launch real action  [default: no-dry]
+    --dry / --no-dry           Do not launch real action  [default: no-dry]
     Folders options: 
-      --limit INTEGER   Limit number of music files
-      --extension TEXT  Supported formats
-    --threads INTEGER   Number of threads  [default: 8]
-    --flat              Do not create subfolders
-    -h, --help          Show this message and exit.
+      --limit INTEGER          Limit number of music files
+      --extension TEXT         Supported formats
+    --threads INTEGER          Number of threads  [default: 8]
+    --flat                     Do not create subfolders
+    --output [json|table|m3u]  Output format  [default: table]
+    -h, --help                 Show this message and exit.
 
 musicbot folder inconsistencies
 *******************************
@@ -185,7 +187,7 @@ musicbot folder playlist
 
   Usage: musicbot folder playlist [OPTIONS] [FOLDERS]...
 
-    Generate a playlist
+    Generates a playlist
 
   Options:
     --dry / --no-dry           Do not launch real action  [default: no-dry]
@@ -198,20 +200,29 @@ musicbot folder playlist
       --interleave             Interleave tracks by artist
     -h, --help                 Show this message and exit.
 
-musicbot folder tags
-********************
+musicbot folder set-tags
+************************
 .. code-block::
 
-  Usage: musicbot folder tags [OPTIONS] [FOLDERS]...
+  Usage: musicbot folder set-tags [OPTIONS] [FOLDERS]...
 
-    Print music tags
+    Set music title
 
   Options:
-    --dry / --no-dry    Do not launch real action  [default: no-dry]
+    --dry / --no-dry        Do not launch real action  [default: no-dry]
     Folders options: 
-      --limit INTEGER   Limit number of music files
-      --extension TEXT  Supported formats
-    -h, --help          Show this message and exit.
+      --limit INTEGER       Limit number of music files
+      --extension TEXT      Supported formats
+    --dry / --no-dry        Do not launch real action  [default: no-dry]
+    Music options: 
+      --keywords TEXT       Keywords
+      --artist TEXT         Artist
+      --album TEXT          Album
+      --title TEXT          Title
+      --genre TEXT          Genre
+      --track TEXT          Track number
+      --rating FLOAT RANGE  Rating  [0.0<=x<=5.0]
+    -h, --help              Show this message and exit.
 
 musicbot help
 *************
@@ -525,7 +536,7 @@ musicbot music
     add-keywords                       Add keywords to music
     delete-keywords (remove-keywords)  Delete keywords to music
     fingerprint                        Print music fingerprint
-    flac2mp3                           Convert flac music to mp3
+    flac2mp3 (flac-to-mp3)             Convert flac music to mp3
     help                               Print help
     inconsistencies (consistency)      Check music consistency
     set-tags (set-tag)                 Set music title
@@ -541,6 +552,7 @@ musicbot music add-keywords
 
   Options:
     --dry / --no-dry  Do not launch real action  [default: no-dry]
+    --dry / --no-dry  Do not launch real action  [default: no-dry]
     -h, --help        Show this message and exit.
 
 musicbot music delete-keywords
@@ -552,6 +564,7 @@ musicbot music delete-keywords
     Delete keywords to music
 
   Options:
+    --dry / --no-dry  Do not launch real action  [default: no-dry]
     --dry / --no-dry  Do not launch real action  [default: no-dry]
     -h, --help        Show this message and exit.
 

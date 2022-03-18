@@ -1,14 +1,14 @@
 import codecs
-import random
 import itertools
 import logging
 import os
 import platform
+import random
 from pathlib import Path
 from typing import Any
 
 from attr import asdict, frozen
-from click_skeleton.helpers import seconds_to_human, PrettyDefaultDict
+from click_skeleton.helpers import PrettyDefaultDict, seconds_to_human
 from prompt_toolkit import HTML, Application, print_formatted_text
 from prompt_toolkit.application import get_app, run_in_terminal
 from prompt_toolkit.key_binding import KeyBindings
@@ -18,9 +18,9 @@ from prompt_toolkit.layout.layout import Layout
 from rich.table import Table
 from rich.text import Text
 
-from musicbot.music_filter import MusicFilter
-from musicbot.music import Music
 from musicbot.file import File
+from musicbot.music import Music
+from musicbot.music_filter import MusicFilter
 from musicbot.object import MusicbotObject
 
 logging.getLogger("vlc").setLevel(logging.NOTSET)

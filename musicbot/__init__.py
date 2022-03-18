@@ -1,12 +1,12 @@
 from musicbot.config import Config
-from musicbot.object import MusicbotObject
 from musicbot.file import File
 from musicbot.folders import Folders
+from musicbot.link_options import LinkOptions
 from musicbot.music import Music
 from musicbot.music_filter import MusicFilter
-from musicbot.playlist import Playlist
 from musicbot.musicdb import MusicDb
-from musicbot.link_options import LinkOptions
+from musicbot.object import MusicbotObject
+from musicbot.playlist import Playlist
 
 __all__ = [
     "MusicbotObject",

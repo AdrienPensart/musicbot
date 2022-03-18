@@ -19,11 +19,11 @@ from musicbot.defaults import (
     STOPWORDS,
     STORED_RATING_CHOICES
 )
+from musicbot.exceptions import MusicbotError
 from musicbot.helpers import current_user, public_ip
 from musicbot.link_options import DEFAULT_LINK_OPTIONS, LinkOptions
-from musicbot.object import MusicbotObject
 from musicbot.music import Music
-from musicbot.exceptions import MusicbotError
+from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
 

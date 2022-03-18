@@ -1,31 +1,24 @@
 import logging
 from pathlib import Path
 
-from rich.table import Table
 import click
 import mutagen  # type: ignore
 from beartype import beartype
 from click_skeleton import AdvancedGroup
+from rich.table import Table
 
 from musicbot.cli.file import (
     checks_and_fix_options,
-    flat_option,
-    keywords_arguments,
     file_options,
+    flat_option,
+    keywords_arguments
 )
-from musicbot.cli.folders import (
-    destination_argument,
-    folders_argument
-)
+from musicbot.cli.folders import destination_argument, folders_argument
 from musicbot.cli.music_filter import ordering_options
-from musicbot.cli.options import (
-    output_option,
-    threads_option,
-    dry_option
-)
-from musicbot.playlist import Playlist
+from musicbot.cli.options import dry_option, output_option, threads_option
 from musicbot.folders import Folders
 from musicbot.object import MusicbotObject
+from musicbot.playlist import Playlist
 
 logger = logging.getLogger(__name__)
 
