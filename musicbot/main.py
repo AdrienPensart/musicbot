@@ -15,7 +15,8 @@ from click_skeleton import backtrace, doc, helpers, skeleton, version_checker
 
 import musicbot
 import musicbot.commands
-from musicbot import Config, MusicbotObject, exceptions, version
+from musicbot import Config, MusicbotObject, version
+from musicbot.exceptions import MusicbotError
 from musicbot.cli.config import config_options
 from musicbot.cli.options import dry_option
 
@@ -80,9 +81,10 @@ def main(**kwargs: Any) -> int:
     try:
         exit_code = cli.main(prog_name=PROG_NAME, **kwargs)
         return exit_code
+    except MusicbotError as e:
+        MusicbotObject.err(e)
     except (
         mutagen.MutagenError,
-        exceptions.MusicbotError,
         spotipy.client.SpotifyException,
         requests.exceptions.ConnectionError,
         edgedb.errors.AuthenticationError

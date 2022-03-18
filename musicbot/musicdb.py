@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 from functools import cache
 from pathlib import Path
 from typing import Any
@@ -9,6 +10,7 @@ from attr import asdict, define
 from beartype import beartype
 from deepdiff import DeepDiff  # type: ignore
 from edgedb.blocking_client import Client, create_client
+from edgedb.options import RetryOptions
 
 from musicbot.exceptions import MusicbotError
 from musicbot.file import File
@@ -26,6 +28,11 @@ logger = logging.getLogger(__name__)
 @define(hash=True)
 class MusicDb(MusicbotObject):
     blocking_client: Client
+
+    def __attrs_post_init__(self) -> None:
+        self.blocking_client = self.blocking_client.with_retry_options(
+            RetryOptions(attempts=10)
+        )
 
     @classmethod
     def from_dsn(
@@ -104,10 +111,10 @@ class MusicDb(MusicbotObject):
                 genre=result.genre_name,
                 size=result.size,
                 length=result.length,
-                keywords=keywords,
+                keywords=set(keywords),
                 track=result.track,
                 rating=result.rating,
-                links=list(links),
+                links=set(links),
             )
             if not links:
                 logger.debug(f'{music} : no links available')
@@ -155,20 +162,22 @@ class MusicDb(MusicbotObject):
                 genre=result.genre_name,
                 size=result.size,
                 length=result.length,
-                keywords=list(keyword for keyword in result.all_keywords),
+                keywords=set(result.all_keywords),
                 track=result.track,
                 rating=result.rating,
-                links=list(result.links),
+                links=set(result.links),
             )
 
-            music_diff = DeepDiff(asdict(input_music), asdict(output_music))
+            music_diff = DeepDiff(asdict(input_music), asdict(output_music), ignore_order=True)
             if music_diff:
-                MusicbotObject.err(f"{file} : file and music diff detected : {music_diff}")
-                return None
+                MusicbotObject.err(f"{file} : file and music diff detected : ")
+                MusicbotObject.print_json(music_diff, file=sys.stderr)
 
             return file
+        except edgedb.errors.TransactionSerializationError as e:
+            raise MusicbotError(f"{path} : transaction error : {e}") from e
         except edgedb.errors.NoDataError as e:
-            raise MusicbotError(f"{file} : no data result for query") from e
+            raise MusicbotError(f"{path} : no data result for query : {e}") from e
         except OSError as e:
             logger.error(e)
         return None
@@ -179,10 +188,14 @@ class MusicDb(MusicbotObject):
         link_options: LinkOptions = DEFAULT_LINK_OPTIONS
     ) -> list[File]:
         def worker(path: Path) -> File | None:
-            file = self.upsert_path(path, link_options=link_options)
-            if not file:
-                MusicbotObject.err(f"{path} : unable to insert")
-                return None
-            return file
+            try:
+                file = self.upsert_path(path, link_options=link_options)
+                if not file:
+                    MusicbotObject.err(f"{path} : unable to insert")
+                    return None
+                return file
+            except MusicbotError as e:
+                self.err(e)
+            return None
 
         return folders.apply(worker, prefix="Loading and inserting musics")

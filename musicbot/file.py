@@ -79,8 +79,8 @@ class File(MusicbotObject):
             length=self.length,
             track=self.track,
             rating=self.rating,
-            keywords=list(sorted(self.keywords)),
-            links=list(sorted(self.links(link_options))),
+            keywords=self.keywords,
+            links=self.links(link_options),
         )
 
     def set_tags(
