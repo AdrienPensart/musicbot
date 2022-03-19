@@ -60,13 +60,9 @@ class MusicbotObject:
             cls.echo(message, fg='cyan', bold=True, **options)
 
     @classmethod
-    def err(cls, message: Any, only_once: bool = False, **options: Any) -> None:
+    def err(cls, message: Any, **options: Any) -> None:
         '''Print error to the user'''
         if cls.show_err:
-            if only_once:
-                if message in cls.already_printed:
-                    return
-                cls.already_printed.append(message)
             cls.echo(message, fg='red', **options)
 
     @classmethod
@@ -76,7 +72,7 @@ class MusicbotObject:
             cls.echo(message, fg='yellow', **options)
 
     @classmethod
-    def tip(cls, message: Any, **options: Any) -> None:
+    def tip(cls, message: Any, only_once=True, **options: Any) -> None:
         '''Give a useful tip to the user'''
         if cls.show_tip and message not in cls.already_printed:
             cls.echo(message, fg='bright_blue', **options)
@@ -96,6 +92,7 @@ class MusicbotObject:
         file: IO | None = None,
         end: str = '\n',
         flush: bool = True,
+        only_once: bool = False,
         **kwargs: Any,
     ) -> None:
         '''Print a normal message to the user'''
@@ -106,6 +103,10 @@ class MusicbotObject:
             else:
                 final_message = f'\r{message}\033[K'
             with cls.print_lock:
+                if only_once:
+                    if message in cls.already_printed:
+                        return
+                    cls.already_printed.append(message)
                 print(final_message, file=file, flush=flush, end=end)
 
     @classmethod

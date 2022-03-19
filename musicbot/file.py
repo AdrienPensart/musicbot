@@ -251,7 +251,7 @@ class File(MusicbotObject):
                 return DEFAULT_MAX_RATING
             return rating
         except ValueError:
-            self.err(f"{self} : cannot convert rating to float : '{rating_str}'", only_once=True)
+            self.warn(f"{self} : cannot convert rating to float : '{rating_str}'", only_once=True)
             return 0.0
 
     @rating.setter
@@ -363,6 +363,9 @@ class File(MusicbotObject):
             mp3_file.album = self.album
             mp3_file.title = self.title
             mp3_file.artist = self.artist
+            mp3_file.genre = self.genre
+            mp3_file.rating = self.rating
+            mp3_file.keywords = self.keywords
             mp3_file.save()
             return mp3_file
 
@@ -382,9 +385,13 @@ class File(MusicbotObject):
             mp3_file.track = self.track
 
             # rewrite some metadatas
+            mp3_file.track = self.track
             mp3_file.album = self.album
             mp3_file.title = self.title
+            mp3_file.genre = self.genre
             mp3_file.artist = self.artist
+            mp3_file.rating = self.rating
+            mp3_file.keywords = self.keywords
             if mp3_file.save():
                 return mp3_file
         except Exception as e:

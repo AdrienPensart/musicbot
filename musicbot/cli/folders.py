@@ -53,6 +53,7 @@ folders_argument = add_options(
         default=DEFAULT_EXTENSIONS,
         multiple=True,
         callback=split_arguments,
+        show_default=True,
         is_eager=True,
     ),
     click.argument(

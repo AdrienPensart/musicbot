@@ -23,6 +23,7 @@ from musicbot.file import File
 from musicbot.music import Music
 from musicbot.music_filter import MusicFilter
 from musicbot.object import MusicbotObject
+from musicbot.helpers import bytes_to_human, seconds_to_human
 
 logging.getLogger("vlc").setLevel(logging.NOTSET)
 logger = logging.getLogger(__name__)
@@ -60,6 +61,8 @@ class Playlist(MusicbotObject):
 
         table = Table("Title", "Artist", "Album", "Genre", "Rating", "Keywords", "Links", "Size", "Length", "Track")
         links = []
+        total_length = 0
+        total_size = 0
         for music in musics:
             raw_row: list[str] = [
                 music.title,
@@ -69,8 +72,8 @@ class Playlist(MusicbotObject):
                 str(music.rating),
                 ' '.join(music.keywords),
                 '\n'.join(music.links),
-                str(music.size),
-                str(music.length),
+                bytes_to_human(music.size),
+                seconds_to_human(music.length),
                 str(music.track),
             ]
             if music.title == current_title and music.album == current_album and music.artist == current_artist:
@@ -82,22 +85,20 @@ class Playlist(MusicbotObject):
             for link in music.links:
                 links.append(link)
 
-        if output == 'm3u':
-            if not self.musics:
-                return
+            total_length += music.length
+            total_size += music.size
 
+        if output == 'm3u' and self.musics:
             p = '#EXTM3U\n'
             p += '\n'.join(links)
             print(p)
-        elif output == 'table':
-            if not self.musics:
-                return
-
+        elif output == 'table' and self.musics:
             self.print_table(table)
         elif output == 'json':
             self.print_json([asdict(music) for music in self.musics])
         else:
             self.err(f"unknown output type : {output}")
+        self.success(f"Total length: {seconds_to_human(total_length)} | Total size: {bytes_to_human(total_size)}")
 
     @property
     def links(self) -> frozenset[str]:
