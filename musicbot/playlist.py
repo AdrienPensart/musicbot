@@ -18,11 +18,11 @@ from prompt_toolkit.layout.layout import Layout
 from rich.table import Table
 from rich.text import Text
 
+from musicbot.defaults import DEFAULT_VLC_PARAMS
 from musicbot.file import File
 from musicbot.music import Music
 from musicbot.music_filter import MusicFilter
 from musicbot.object import MusicbotObject
-from musicbot.defaults import DEFAULT_VLC_PARAMS
 
 logging.getLogger("vlc").setLevel(logging.NOTSET)
 logger = logging.getLogger(__name__)
@@ -136,7 +136,7 @@ class Playlist(MusicbotObject):
 
     def play(self, vlc_params: str = DEFAULT_VLC_PARAMS) -> None:
         if not self.musics:
-            logger.warning('Empty playlist')
+            self.warn('Empty playlist')
             return
 
         try:
@@ -148,7 +148,7 @@ class Playlist(MusicbotObject):
             instance = vlc.Instance(vlc_params)
             devices = instance.audio_output_enumerate_devices()
             if not devices:
-                logger.warn('maybe no audio output detected...')
+                logger.warning('maybe no audio output detected...')
 
             if not instance:
                 logger.critical('Unable to start VLC instance')

@@ -30,6 +30,7 @@ from musicbot.cli.options import (
     yes_option
 )
 from musicbot.cli.playlist import bests_options
+from musicbot.defaults import DEFAULT_VLC_PARAMS
 from musicbot.file import File
 from musicbot.folders import Folders
 from musicbot.link_options import LinkOptions
@@ -37,7 +38,6 @@ from musicbot.music_filter import MusicFilter
 from musicbot.musicdb import MusicDb
 from musicbot.object import MusicbotObject
 from musicbot.watcher import MusicWatcherHandler
-from musicbot.defaults import DEFAULT_VLC_PARAMS
 
 logger = logging.getLogger(__name__)
 

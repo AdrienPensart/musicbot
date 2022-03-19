@@ -34,7 +34,8 @@ class MusicDb(MusicbotObject):
             RetryOptions(attempts=10)
         )
 
-    def set_readonly(self):
+    def set_readonly(self) -> None:
+        '''set client to read only mode'''
         self.blocking_client = self.blocking_client.with_transaction_options(
             TransactionOptions(readonly=True)
         )
