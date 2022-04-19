@@ -6,10 +6,10 @@ import click
 import youtube_dl  # type: ignore
 from beartype import beartype
 from click_skeleton import AdvancedGroup
+from click_skeleton.helpers import seconds_to_human
 
 from musicbot.cli.file import acoustid_api_key_option, music_argument
 from musicbot.file import File
-from musicbot.helpers import seconds_to_human
 
 logger = logging.getLogger(__name__)
 

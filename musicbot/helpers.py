@@ -18,7 +18,7 @@ def bytes_to_human(b: int) -> str:
 
 
 @beartype
-def seconds_to_human(s: int) -> str:
+def precise_seconds_to_human(s: int) -> str:
     delta = dt.timedelta(seconds=s)
     return humanize.precisedelta(delta)
 

@@ -20,10 +20,10 @@ from rich.text import Text
 
 from musicbot.defaults import DEFAULT_VLC_PARAMS
 from musicbot.file import File
+from musicbot.helpers import bytes_to_human, precise_seconds_to_human
 from musicbot.music import Music
 from musicbot.music_filter import MusicFilter
 from musicbot.object import MusicbotObject
-from musicbot.helpers import bytes_to_human, seconds_to_human
 
 logging.getLogger("vlc").setLevel(logging.NOTSET)
 logger = logging.getLogger(__name__)
@@ -98,7 +98,7 @@ class Playlist(MusicbotObject):
             self.print_json([asdict(music) for music in self.musics])
         else:
             self.err(f"unknown output type : {output}")
-        self.success(f"Total length: {seconds_to_human(total_length)} | Total size: {bytes_to_human(total_size)}")
+        self.success(f"Total length: {precise_seconds_to_human(total_length)} | Total size: {bytes_to_human(total_size)}")
 
     @property
     def links(self) -> frozenset[str]:

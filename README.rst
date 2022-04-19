@@ -108,7 +108,7 @@ musicbot folder add-keywords
     --dry / --no-dry    Do not launch real action  [default: no-dry]
     Folders options: 
       --limit INTEGER   Limit number of music files
-      --extension TEXT  Supported formats
+      --extension TEXT  Supported formats  [default: {'mp3', 'flac'}]
     --dry / --no-dry    Do not launch real action  [default: no-dry]
     -h, --help          Show this message and exit.
 
@@ -124,7 +124,7 @@ musicbot folder delete-keywords
     --dry / --no-dry    Do not launch real action  [default: no-dry]
     Folders options: 
       --limit INTEGER   Limit number of music files
-      --extension TEXT  Supported formats
+      --extension TEXT  Supported formats  [default: {'mp3', 'flac'}]
     --dry / --no-dry    Do not launch real action  [default: no-dry]
     -h, --help          Show this message and exit.
 
@@ -140,7 +140,7 @@ musicbot folder find
     --dry / --no-dry    Do not launch real action  [default: no-dry]
     Folders options: 
       --limit INTEGER   Limit number of music files
-      --extension TEXT  Supported formats
+      --extension TEXT  Supported formats  [default: {'mp3', 'flac'}]
     -h, --help          Show this message and exit.
 
 musicbot folder flac2mp3
@@ -155,7 +155,7 @@ musicbot folder flac2mp3
     --dry / --no-dry           Do not launch real action  [default: no-dry]
     Folders options: 
       --limit INTEGER          Limit number of music files
-      --extension TEXT         Supported formats
+      --extension TEXT         Supported formats  [default: {'mp3', 'flac'}]
     --threads INTEGER          Number of threads  [default: 8]
     --flat                     Do not create subfolders
     --output [json|table|m3u]  Output format  [default: table]
@@ -173,7 +173,7 @@ musicbot folder inconsistencies
     --dry / --no-dry                                    Do not launch real action  [default: no-dry]
     Folders options: 
       --limit INTEGER                                   Limit number of music files
-      --extension TEXT                                  Supported formats
+      --extension TEXT                                  Supported formats  [default: {'mp3', 'flac'}]
     Check options: 
       --checks [no-title|no-artist|no-album|no-genre|no-rating|no-track|invalid-title|invalid-comment|invalid-path]
                                                         Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
@@ -193,7 +193,7 @@ musicbot folder playlist
     --dry / --no-dry           Do not launch real action  [default: no-dry]
     Folders options: 
       --limit INTEGER          Limit number of music files
-      --extension TEXT         Supported formats
+      --extension TEXT         Supported formats  [default: {'mp3', 'flac'}]
     --output [json|table|m3u]  Output format  [default: table]
     Ordering options: 
       --shuffle                Randomize selection
@@ -212,7 +212,7 @@ musicbot folder set-tags
     --dry / --no-dry        Do not launch real action  [default: no-dry]
     Folders options: 
       --limit INTEGER       Limit number of music files
-      --extension TEXT      Supported formats
+      --extension TEXT      Supported formats  [default: {'mp3', 'flac'}]
     --dry / --no-dry        Do not launch real action  [default: no-dry]
     Music options: 
       --keywords TEXT       Keywords
@@ -323,7 +323,7 @@ musicbot local clean
     MusicDB options: 
       --dsn TEXT       DSN to MusicBot EdgeDB
       --musicdb TEXT
-    -y, --yes          Confirm action  [default: False]
+    -y, --yes          Confirm action
     -h, --help         Show this message and exit.
 
 musicbot local execute
@@ -446,13 +446,13 @@ musicbot local scan
     --dry / --no-dry            Do not launch real action  [default: no-dry]
     Folders options: 
       --limit INTEGER           Limit number of music files
-      --extension TEXT          Supported formats
+      --extension TEXT          Supported formats  [default: {'mp3', 'flac'}]
     MusicDB options: 
       --dsn TEXT                DSN to MusicBot EdgeDB
       --musicdb TEXT
-    -s, --save                  Save to config file  [default: False]
+    -s, --save                  Save to config file
     --output [json|table|m3u]   Output format  [default: table]
-    --clean                     Delete musics before  [default: False]
+    --clean                     Delete musics before
     Link options: 
       --http / --no-http        Generate HTTP link
       --sftp / --no-sftp        Generate sFTP link
@@ -520,7 +520,7 @@ musicbot local watch
     --dry / --no-dry    Do not launch real action  [default: no-dry]
     Folders options: 
       --limit INTEGER   Limit number of music files
-      --extension TEXT  Supported formats
+      --extension TEXT  Supported formats  [default: {'mp3', 'flac'}]
     MusicDB options: 
       --dsn TEXT        DSN to MusicBot EdgeDB
       --musicdb TEXT

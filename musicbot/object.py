@@ -72,10 +72,10 @@ class MusicbotObject:
             cls.echo(message, fg='yellow', **options)
 
     @classmethod
-    def tip(cls, message: Any, only_once=True, **options: Any) -> None:
+    def tip(cls, message: Any, only_once: bool = True, **options: Any) -> None:
         '''Give a useful tip to the user'''
         if cls.show_tip and message not in cls.already_printed:
-            cls.echo(message, fg='bright_blue', **options)
+            cls.echo(message, fg='bright_blue', only_once=only_once, **options)
             cls.already_printed.append(message)
 
     @classmethod
