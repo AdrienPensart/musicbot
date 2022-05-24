@@ -91,8 +91,10 @@ def inconsistencies(
     table = Table("Path", "Inconsistencies")
     for file in folders.files:
         try:
-            if fix:
-                file.fix(checks=checks)
+            if fix and not file.fix(checks=checks):
+                MusicbotObject.err(f"{file} : unable to fix inconsistencies")
+                continue
+
             if file.inconsistencies.intersection(set(checks)):
                 table.add_row(str(file.path), ', '.join(file.inconsistencies))
         except (OSError, mutagen.MutagenError):
@@ -116,7 +118,7 @@ def set_tags(
     track: int | None = None,
 ) -> None:
     for file in folders.files:
-        file.set_tags(
+        if not file.set_tags(
             title=title,
             artist=artist,
             album=album,
@@ -124,7 +126,8 @@ def set_tags(
             keywords=keywords,
             rating=rating,
             track=track,
-        )
+        ):
+            MusicbotObject.err(f"{file} : unable to set tags")
 
 
 @cli.command(help='Add keywords to music')
@@ -137,7 +140,8 @@ def add_keywords(
     keywords: set[str],
 ) -> None:
     for file in folders.files:
-        file.add_keywords(keywords)
+        if not file.add_keywords(keywords):
+            MusicbotObject.err(f"{file} : unable to add keywords")
 
 
 @cli.command(help='Delete keywords to music')
@@ -150,4 +154,5 @@ def delete_keywords(
     keywords: set[str],
 ) -> None:
     for file in folders.files:
-        file.delete_keywords(keywords)
+        if not file.delete_keywords(keywords):
+            MusicbotObject.err(f"{file} : unable to delete keywords")

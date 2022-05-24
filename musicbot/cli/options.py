@@ -23,7 +23,7 @@ def sane_dry(ctx: click.Context, param: click.Parameter, value: bool) -> None:
     if not param.name:
         raise click.Abort("no param name set")
     MusicbotObject.dry = value
-    ctx.params.pop(param.name, None)
+    _ = ctx.params.pop(param.name, None)
 
 
 dry_option = click.option(
@@ -165,6 +165,7 @@ def config_string(ctx: click.Context, param: click.Parameter, value: str | None)
     arg_value = value
     logger.info(f"{param.name} : try string loading with arg value : {arg_value}")
 
+    config_value = None
     if param.name:
         config_value = MusicbotObject.config.configfile.get('musicbot', param.name, fallback=None)
         logger.info(f"{param.name} : try string loading with config key from {MusicbotObject.config.config} : {config_value}")

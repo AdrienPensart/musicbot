@@ -92,7 +92,7 @@ class File(MusicbotObject):
         keywords: list[str] | None = None,
         rating: float | None = None,
         track: int | None = None,
-    ) -> None:
+    ) -> bool:
         if title is not None:
             self.title = title
         if artist is not None:
@@ -107,7 +107,7 @@ class File(MusicbotObject):
             self.rating = rating
         if track is not None:
             self.track = track
-        self.save()
+        return self.save()
 
     @cached_property
     def size(self) -> int:
@@ -366,7 +366,8 @@ class File(MusicbotObject):
             mp3_file.genre = self.genre
             mp3_file.rating = self.rating
             mp3_file.keywords = self.keywords
-            mp3_file.save()
+            if not mp3_file.save():
+                return None
             return mp3_file
 
         logger.debug(f"{self} convert destination : {mp3_path}")

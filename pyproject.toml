@@ -40,6 +40,7 @@ humanize = "^4.0.0"
 python-slugify = "^6.0.1"
 deepdiff = "^5.7.0"
 edgedb = "^0.23.0"
+pyright = "^1.1.248"
 
 [tool.isort]
 multi_line_output = 3
@@ -60,6 +61,13 @@ isort = "^5.10.1"
 bandit = "^1.7.2"
 safety = "^1.10.3"
 vulture = "^2.3"
+
+[tool.pyright]
+include = [
+    "musicbot"
+]
+reportGeneralTypeIssues = false
+reportUnusedCallResult = true
 
 [tool.pytest.ini_options]
 minversion = "6.0"

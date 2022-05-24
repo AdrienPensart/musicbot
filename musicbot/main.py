@@ -70,7 +70,7 @@ cli.add_groups_from_package(musicbot.commands)
 
 
 def main(**kwargs: Any) -> int:
-    helpers.raise_limits()
+    _ = helpers.raise_limits()
     check_version = helpers.str2bool(os.environ.get('MB_CHECK_VERSION', MusicbotObject.is_prod()))
     version_check = version_checker.VersionCheckerThread(
         prog_name=PROG_NAME,

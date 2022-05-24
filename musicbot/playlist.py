@@ -176,7 +176,7 @@ class Playlist(MusicbotObject):
                 def play() -> None:
                     """Play song"""
                     player.play()
-                run_in_terminal(play)
+                _ = run_in_terminal(play)
 
             @bindings.add('q')
             def _quit_binding(event: Any) -> None:
@@ -198,7 +198,7 @@ class Playlist(MusicbotObject):
                     current_album = media.get_meta(vlc.Meta.Album)
                     current_title = media.get_meta(vlc.Meta.Title)
                     self.print(output='table', current_artist=current_artist, current_album=current_album, current_title=current_title)
-                run_in_terminal(playlist)
+                _ = run_in_terminal(playlist)
 
             @bindings.add('right')
             def _next_binding(event: Any) -> None:  # pylint: disable=unused-argument
@@ -212,7 +212,7 @@ class Playlist(MusicbotObject):
             def _help(event: Any) -> None:  # pylint: disable=unused-argument
                 def _print_help() -> None:
                     print_help()
-                run_in_terminal(_print_help)
+                _ = run_in_terminal(_print_help)
                 get_app().invalidate()
 
             def bottom_toolbar() -> Any:

@@ -193,7 +193,7 @@ class MusicbotObject:
                     future = executor.submit(worker, item, *args)
                     future.add_done_callback(update_pbar)
                     futures.append(future)
-                cf.wait(futures)
+                _, _ = cf.wait(futures)
                 return [future.result() for future in futures if future.result() is not None]
             except KeyboardInterrupt as e:
                 logger.error(f"interrupted : {e}")

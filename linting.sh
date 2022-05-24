@@ -12,3 +12,6 @@ poetry run flake8 musicbot tests
 
 echo "static type checking : mypy..."
 poetry run mypy musicbot tests
+
+echo "static type checking : pyright..."
+poetry run pyright

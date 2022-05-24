@@ -335,7 +335,7 @@ def sync(
                 logger.info(f"Copying {path_to_copy.name} to {final_destination}")
 
                 Path(final_destination).parent.mkdir(exist_ok=True)
-                shutil.copyfile(path_to_copy, final_destination)
+                _ = shutil.copyfile(path_to_copy, final_destination)
             except KeyboardInterrupt:
                 logger.debug(f"Cleanup {final_destination}")
                 try:

@@ -38,7 +38,8 @@ def flac2mp3(
     music: File,
     destination: Path
 ) -> None:
-    music.to_mp3(destination)
+    if not music.to_mp3(destination):
+        MusicbotObject.err(f"{music} : unable to convert to MP3")
 
 
 @cli.command(help='Print music fingerprint')
@@ -67,8 +68,9 @@ def tags(music: File) -> None:
 def inconsistencies(music: File, fix: bool, checks: list[str]) -> None:
     table = Table("Path", "Inconsistencies")
     try:
-        if fix:
-            music.fix(checks=checks)
+        if fix and not music.fix(checks=checks):
+            MusicbotObject.err(f"{music} : unable to fix inconsistencies")
+
         if music.inconsistencies:
             table.add_row(str(music.path), ', '.join(music.inconsistencies))
     except (OSError, MutagenError):
@@ -93,7 +95,7 @@ def set_tags(
 ) -> None:
     for path in paths:
         file = File.from_path(path=path)
-        file.set_tags(
+        if not file.set_tags(
             title=title,
             artist=artist,
             album=album,
@@ -101,7 +103,8 @@ def set_tags(
             keywords=keywords,
             rating=rating,
             track=track,
-        )
+        ):
+            MusicbotObject.err(f"{file} : unable to set tags")
 
 
 @cli.command(help='Add keywords to music')
@@ -110,7 +113,8 @@ def set_tags(
 @dry_option
 @beartype
 def add_keywords(music: File, keywords: set[str]) -> None:
-    music.add_keywords(keywords)
+    if not music.add_keywords(keywords):
+        MusicbotObject.err(f"{music} : unable to add keywords")
 
 
 @cli.command(help='Delete keywords to music', aliases=['remove-keywords'])
@@ -119,4 +123,5 @@ def add_keywords(music: File, keywords: set[str]) -> None:
 @dry_option
 @beartype
 def delete_keywords(music: File, keywords: set[str]) -> None:
-    music.delete_keywords(keywords)
+    if not music.delete_keywords(keywords):
+        MusicbotObject.err(f"{music} : unable to delete keywords")

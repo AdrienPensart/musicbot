@@ -94,7 +94,7 @@ class Config:
     @cache
     def _configfile(self) -> configparser.ConfigParser:
         file = configparser.ConfigParser()
-        file.read(Path(self.config).expanduser())
+        _ = file.read(Path(self.config).expanduser())
         if 'musicbot' not in file:
             logger.warning(f'[musicbot] section is not present in {self.config}')
         return file
