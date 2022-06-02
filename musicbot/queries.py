@@ -71,7 +71,7 @@ with
     }
 """
 
-PLAYLIST_QUERY = """
+PLAYLIST_QUERY: Final[str] = """
 with
     artists := (
         select Artist
