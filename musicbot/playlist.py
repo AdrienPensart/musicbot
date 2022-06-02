@@ -8,14 +8,15 @@ from pathlib import Path
 from typing import Any
 
 from attr import asdict, frozen
-from click_skeleton.helpers import PrettyDefaultDict, seconds_to_human
+from click_skeleton.helpers import PrettyDefaultDict
+from click_skeleton.helpers import seconds_to_human as formatted_seconds_to_human
 from prompt_toolkit import HTML, Application, print_formatted_text
 from prompt_toolkit.application import get_app, run_in_terminal
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout.containers import HSplit, Window
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.layout.layout import Layout
-from rich.table import Table
+from rich.table import Table, Column
 from rich.text import Text
 
 from musicbot.defaults import DEFAULT_VLC_PARAMS
@@ -32,6 +33,7 @@ logger = logging.getLogger(__name__)
 @frozen
 class Playlist(MusicbotObject):
     musics: list[Music]
+    name: str | None = None
     music_filter: MusicFilter | None = None
 
     @classmethod
@@ -59,22 +61,35 @@ class Playlist(MusicbotObject):
         if shuffle:
             random.shuffle(musics)
 
-        table = Table("Title", "Artist", "Album", "Genre", "Rating", "Keywords", "Links", "Size", "Length", "Track")
+        table = Table(
+            Column("T/N", vertical="middle", justify="center"),
+            Column("Title", vertical="middle"),
+            Column("Artist", vertical="middle", justify="center"),
+            Column("Album", vertical="middle", justify="center"),
+            Column("Genre", vertical="middle", justify="center"),
+            Column("Rating", vertical="middle", justify="center"),
+            Column("Keywords", vertical="middle"),
+            Column("Links", no_wrap=True),
+            Column("Infos", vertical="middle"),
+            show_lines=True,
+        )
         links = []
         total_length = 0
         total_size = 0
         for music in musics:
+            infos = formatted_seconds_to_human(music.length)
+            infos += "\n"
+            infos += bytes_to_human(music.size)
             raw_row: list[str] = [
+                str(music.track),
                 music.title,
                 music.artist,
                 music.album,
                 music.genre,
                 str(music.rating),
-                ' '.join(music.keywords),
-                '\n'.join(music.links),
-                bytes_to_human(music.size),
-                seconds_to_human(music.length),
-                str(music.track),
+                ' '.join(sorted(music.keywords)),
+                '\n'.join(sorted(music.links)),
+                infos,
             ]
             if music.title == current_title and music.album == current_album and music.artist == current_artist:
                 colored_row = [Text(elem, style="green") for elem in raw_row]
@@ -219,8 +234,8 @@ class Playlist(MusicbotObject):
                 media_player = player.get_media_player()
                 media = media_player.get_media()
                 media.parse()
-                media_time = seconds_to_human(round(media_player.get_time() / 1000))
-                media_length = seconds_to_human(round(media_player.get_length() / 1000))
+                media_time = formatted_seconds_to_human(round(media_player.get_time() / 1000))
+                media_length = formatted_seconds_to_human(round(media_player.get_length() / 1000))
                 artist = media.get_meta(vlc.Meta.Artist)
                 album = media.get_meta(vlc.Meta.Album)
                 title = media.get_meta(vlc.Meta.Title)

@@ -81,6 +81,8 @@ def main(**kwargs: Any) -> int:
     try:
         exit_code = cli.main(prog_name=PROG_NAME, **kwargs)
         return exit_code
+    except click.ClickException as e:
+        e.show()
     except MusicbotError as e:
         MusicbotObject.err(e)
     except (

@@ -21,7 +21,8 @@ logger = logging.getLogger(__name__)
 def sane_dry(ctx: click.Context, param: click.Parameter, value: bool) -> None:
     '''Overwrite global dry mode'''
     if not param.name:
-        raise click.Abort("no param name set")
+        logger.error("no param name set")
+        raise click.Abort()
     MusicbotObject.dry = value
     _ = ctx.params.pop(param.name, None)
 
@@ -41,13 +42,15 @@ false_values = ('', 'none', 'disabled', 'n', 'no', 'f', 'false', 'off', '0')
 
 
 def sane_rating(ctx: click.Context, param: click.Parameter, value: float | None) -> float | None:
+    if not param.name:
+        logger.error("no param name set")
+        raise click.Abort()
     if value is not None:
         if value not in RATING_CHOICES:
             raise ValueError(f"Invalid rating choice {value}, it should be in {RATING_CHOICES}")
     elif param.required:
         raise ValueError("Rating is mandatory")
-    if param.name:
-        ctx.params[param.name] = value
+    ctx.params[param.name] = value
     return value
 
 
@@ -90,7 +93,8 @@ def yes_or_no(question: str, default: str | None = 'no') -> bool:
 def sane_list(ctx: click.Context, param: click.Parameter, value: Any) -> list[Any]:
     '''Convert Tuple when multiple=True to a list'''
     if not param.name:
-        raise click.Abort("no param name set")
+        logger.error("no param name set")
+        raise click.Abort()
     logger.debug(f"{param} : {value}")
     value = split_arguments(ctx, param, value)
     ctx.params[param.name] = list(value)
@@ -100,7 +104,8 @@ def sane_list(ctx: click.Context, param: click.Parameter, value: Any) -> list[An
 def sane_set(ctx: click.Context, param: click.Parameter, value: Any) -> list[Any]:
     '''Convert Tuple when multiple=True to a list'''
     if not param.name:
-        raise click.Abort("no param name set")
+        logger.error("no param name set")
+        raise click.Abort()
     logger.debug(f"{param} : {value}")
     value = split_arguments(ctx, param, value)
     ctx.params[param.name] = set(value)

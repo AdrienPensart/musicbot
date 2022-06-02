@@ -8,19 +8,15 @@ import mutagen  # type: ignore
 from attr import define
 from click_skeleton.helpers import mysplit
 from pydub import AudioSegment  # type: ignore
-from slugify import slugify
 
 from musicbot.defaults import (
     DEFAULT_CHECKS,
     DEFAULT_MAX_RATING,
     DEFAULT_MIN_RATING,
     RATING_CHOICES,
-    REPLACEMENTS,
-    STOPWORDS,
     STORED_RATING_CHOICES
 )
 from musicbot.exceptions import MusicbotError
-from musicbot.helpers import current_user, public_ip
 from musicbot.link_options import DEFAULT_LINK_OPTIONS, LinkOptions
 from musicbot.music import Music
 from musicbot.object import MusicbotObject
@@ -117,21 +113,28 @@ class File(MusicbotObject):
     def path(self) -> Path:
         return Path(self.handle.filename)
 
-    @property
-    def http_path(self) -> str:
-        return f"http://{public_ip()}/{self.canonic_artist_album_filename}"
+    def http_path(self, link_options: LinkOptions) -> str:
+        # return requote_uri(f"http://{public_ip()}/{self.canonic_artist_album_filename}")
+        path = f"http://{link_options.public_ip}"
+        if link_options.http_port:
+            path += f":{link_options.http_port}"
+        if link_options.root:
+            path += f"/{link_options.root}"
+        path += f"/{self.canonic_artist_album_filename}"
+        return path
 
-    @property
-    def sftp_path(self) -> str:
-        return f"sftp://{current_user()}@{public_ip()}:{self.path}"
+    def sftp_path(self, link_options: LinkOptions) -> str:
+        path = str(self.path).replace(" ", "\\ ")
+        return f"sftp://{link_options.ssh_user}@{link_options.public_ip}:'{path}'"
+        # return f"sftp://{link_options.ssh_user}@{link_options.public_ip}:'{path}'"
 
-    @property
-    def youtube_path(self) -> str:
-        return ''
+    # @property
+    # def youtube_path(self) -> str:
+    #     return ''
 
-    @property
-    def spotify_path(self) -> str:
-        return ''
+    # @property
+    # def spotify_path(self) -> str:
+    #     return ''
 
     @property
     def extension(self) -> str:
@@ -156,10 +159,6 @@ class File(MusicbotObject):
     @property
     def flat_filename(self) -> str:
         return f'{self.artist} - {self.album} - {self.canonic_title}{self.extension}'
-
-    @property
-    def slug(self) -> str:
-        return slugify(f"""{self.artist}-{self.title}""", stopwords=STOPWORDS, replacements=REPLACEMENTS)
 
     def _get_first(self, tag: str, default: str = '') -> str:
         if tag not in self.handle:
@@ -263,7 +262,8 @@ class File(MusicbotObject):
         if self.extension == '.flac':
             self.handle['fmps_rating'] = str(rating)
         else:
-            self.handle.tags.add(mutagen.id3.TXXX(desc='FMPS_Rating', text=str(rating)))
+            txxx = mutagen.id3.TXXX(desc='FMPS_Rating', text=str(rating))
+            self.handle.tags.add(txxx)
 
     @property
     def _comment(self) -> str:
@@ -272,7 +272,8 @@ class File(MusicbotObject):
     @_comment.setter
     def _comment(self, comment: str) -> None:
         self.handle.tags.delall('COMM')
-        self.handle.tags.add(mutagen.id3.COMM(desc='ID3v1 Comment', lang='eng', text=comment))
+        comm = mutagen.id3.COMM(desc='ID3v1 Comment', lang='eng', text=comment)
+        self.handle.tags.add(comm)
 
     @property
     def _description(self) -> str:
@@ -307,7 +308,8 @@ class File(MusicbotObject):
             self.handle.tags['tracknumber'] = str(number)
         else:
             self.handle.tags.delall('TRCK')
-            self.handle.tags.add(mutagen.id3.TRCK(text=str(number)))
+            trck = mutagen.id3.TRCK(text=str(number))
+            self.handle.tags.add(trck)
 
     @property
     def keywords(self) -> set[str]:
@@ -445,11 +447,11 @@ class File(MusicbotObject):
         if link_options.local:
             links.add(str(self.path))
         if link_options.sftp and self.sftp_path:
-            links.add(self.sftp_path)
+            links.add(self.sftp_path(link_options))
         if link_options.http and self.http_path:
-            links.add(self.http_path)
-        if link_options.youtube and self.youtube_path:
-            links.add(self.youtube_path)
-        if link_options.spotify and self.spotify_path:
-            links.add(self.spotify_path)
+            links.add(self.http_path(link_options))
+        # if link_options.youtube and self.youtube_path:
+        #     links.add(self.youtube_path)
+        # if link_options.spotify and self.spotify_path:
+        #     links.add(self.spotify_path)
         return links

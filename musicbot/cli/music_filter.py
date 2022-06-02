@@ -1,3 +1,4 @@
+import logging
 from typing import Any
 
 import attr
@@ -30,10 +31,13 @@ from musicbot.defaults import (
 )
 from musicbot.music_filter import MusicFilter
 
+logger = logging.getLogger(__name__)
+
 
 def sane_music_filter(ctx: click.Context, param: click.Parameter, value: str | None) -> MusicFilter:  # pylint: disable=unused-argument
     if not param.name:
-        raise click.Abort("No param name set")
+        logger.error("no param name set")
+        raise click.Abort()
 
     rating = ctx.params.pop('rating', None)
 

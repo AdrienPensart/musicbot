@@ -79,7 +79,8 @@ class Config:
                 },
             )
         )
-        root_logger.handlers = []
+        for handler in root_logger.handlers:  # type: ignore
+            logger.removeHandler(handler)
         root_logger.addHandler(handler)
         if self.log:
             log_path = Path(self.log).expanduser()

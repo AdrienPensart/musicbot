@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 import click
@@ -10,11 +11,14 @@ from musicbot.cli.options import config_list, dry_option
 from musicbot.defaults import DEFAULT_EXTENSIONS
 from musicbot.folders import Folders
 
+logger = logging.getLogger(__name__)
+
 
 @beartype
 def sane_folders(ctx: click.Context, param: click.Parameter, value: tuple[str, ...]) -> Folders:
     if not param.name:
-        raise click.Abort("no param name set")
+        logger.error("no param name set")
+        raise click.Abort()
     value = config_list(ctx, param, value)
     limit = ctx.params.pop('limit', None)
     extensions = ctx.params.pop('extensions', DEFAULT_EXTENSIONS)

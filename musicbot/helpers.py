@@ -25,7 +25,7 @@ def precise_seconds_to_human(s: int) -> str:
 
 @cache
 @beartype
-def public_ip() -> str:
+def get_public_ip() -> str:
     try:
         return requests.get('https://api.ipify.org').text
     except Exception as e:  # pylint: disable=broad-except

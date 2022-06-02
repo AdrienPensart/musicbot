@@ -87,14 +87,14 @@ class MusicDb(MusicbotObject):
             keywords = list(keyword for keyword in result.all_keywords)
             links = set()
             for link in result.links:
-                if 'youtube' in link:
-                    if link_options.youtube:
-                        links.add(link)
-                elif 'http' in link:
+                # elif 'youtube' in link:
+                #     if link_options.youtube:
+                #         links.add(link)
+                # elif 'spotify' in link:
+                #     if link_options.spotify:
+                #         links.add(link)
+                if 'http' in link:
                     if link_options.http:
-                        links.add(link)
-                elif 'spotify' in link:
-                    if link_options.spotify:
                         links.add(link)
                 elif 'sftp' in link:
                     if link_options.sftp:

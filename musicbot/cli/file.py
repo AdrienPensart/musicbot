@@ -69,24 +69,25 @@ file_options = add_options(
 
 
 @beartype
-def sane_music(ctx: click.Context, param: click.Parameter, value: Path) -> File:
+def sane_file(ctx: click.Context, param: click.Parameter, value: Path) -> File:
     if not param.name:
-        raise click.Abort("no param name set")
-    music = File.from_path(value)
-    ctx.params['music'] = music
-    return music
+        logger.error("no param name set")
+        raise click.Abort()
+    file = File.from_path(value)
+    ctx.params[param.name] = file
+    return file
 
 
 music_argument = add_options(
     dry_option,
     click.argument(
-        'music',
+        'file',
         type=click.Path(
             path_type=Path,
             exists=True,
             dir_okay=False,
         ),
-        callback=sane_music,
+        callback=sane_file,
     )
 )
 
@@ -94,7 +95,8 @@ music_argument = add_options(
 def sane_paths(ctx: click.Context, param: click.Parameter, value: tuple[Path, ...]) -> list[Path]:
     '''Convert Tuple when multiple=True to a list'''
     if not param.name:
-        raise click.Abort("no param name set")
+        logger.error("no param name set")
+        raise click.Abort()
     logger.debug(f"{param} : {value}")
     ctx.params[param.name] = list(value)
     return ctx.params[param.name]

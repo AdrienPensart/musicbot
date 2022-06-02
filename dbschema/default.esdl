@@ -23,6 +23,7 @@ module default {
             constraint exclusive;
         }
         multi link albums := .<artist[is Album]
+        link musics := (select .albums.musics);
     }
 
     type Album extending Entity {

@@ -36,6 +36,7 @@ DEFAULT_SPOTIFY_TOKEN: str | None = None
 DEFAULT_SPOTIFY_CACHE_PATH = '~/.spotify_cache'
 DEFAULT_SPOTIFY_SCOPE = 'user-library-read,user-library-modify,user-follow-read,user-top-read,user-modify-playback-state,user-read-currently-playing,user-read-playback-state,playlist-modify-public,playlist-read-private,playlist-modify-private'
 DEFAULT_SPOTIFY_REDIRECT_URI = 'http://localhost:8888/spotify/callback'
+DEFAULT_SPOTIFY_DOWNLOAD_PLAYLIST: Final[str] = "To Download"
 
 DEFAULT_ACOUSTID_API_KEY: Final[str | None] = None
 DEFAULT_THREADS: Final[int] = 8

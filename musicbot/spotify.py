@@ -6,12 +6,14 @@ from typing import Any
 import spotipy  # type: ignore
 from attr import asdict, frozen
 from spotipy.oauth2 import CacheFileHandler  # type: ignore
+from musicbot.defaults import DEFAULT_SPOTIFY_DOWNLOAD_PLAYLIST
+from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
 
 
 @frozen
-class Spotify:
+class Spotify(MusicbotObject):
     username: str
     client_id: str
     client_secret: str
@@ -68,15 +70,23 @@ class Spotify:
             return None
         return self.auth_manager.refresh_access_token(token['refresh_token'])
 
-    def get_download_playlist(self) -> dict[Any, Any]:
-        name = "To Download"
+    def get_download_playlist(self, name: str = DEFAULT_SPOTIFY_DOWNLOAD_PLAYLIST) -> dict[Any, Any] | None:
         download_playlist = self.playlist(name)
         if download_playlist:
             return download_playlist
-        return self.api.user_playlist_create(self.username, name, public=False)
+        result = self.api.user_playlist_create(self.username, name, public=False)
+        logger.debug(result)
+        download_playlist = self.playlist(name)
+        if download_playlist:
+            return download_playlist
+        return None
 
-    def set_download_playlist(self, tracks: Any) -> Any:
+    def set_download_playlist(self, tracks: Any) -> None:
         download_playlist = self.get_download_playlist()
+        if not download_playlist:
+            self.err("Cannot get download playlist, so we can't update it")
+            return
+
         track_ids = [track['track']['id'] for track in tracks]
 
         # erase playlist first
@@ -86,20 +96,6 @@ class Spotify:
         for i in range(0, len(track_ids), 100):
             self.api.user_playlist_add_tracks(self.username, download_playlist['id'], track_ids[i:i + 100])
 
-    def tracks(self) -> list[Any]:
-        offset = 0
-        limit = 50
-        objects = []
-        while True:
-            new_objects = self.api.current_user_saved_tracks(limit=limit, offset=offset)
-            objects.append(new_objects['items'])
-            length = len(new_objects['items'])
-            logger.info(f"chunk size: {length}")
-            offset += len(new_objects['items'])
-            if len(new_objects['items']) < limit:
-                break
-        return list(itertools.chain(*objects))
-
     def playlists(self) -> list[Any]:
         offset = 0
         limit = 50
@@ -108,19 +104,30 @@ class Spotify:
             new_objects = self.api.current_user_playlists(limit=limit, offset=offset)
             length = len(new_objects['items'])
             objects.append(new_objects['items'])
-            logger.info(f"chunk size: {length}")
             offset += length
             if length < limit:
                 break
-        logger.debug(f"length: {offset}")
         return list(itertools.chain(*objects))
 
-    def playlist(self, name: str) -> Any:
+    def playlist(self, name: str) -> Any | None:
         playlists = self.playlists()
         for p in playlists:
             if p['name'] == name:
                 return p
         return None
+
+    def liked_tracks(self) -> list[Any]:
+        offset = 0
+        limit = 50
+        objects = []
+        while True:
+            new_objects = self.api.current_user_saved_tracks(limit=limit, offset=offset)
+            length = len(new_objects['items'])
+            objects.append(new_objects['items'])
+            offset += length
+            if length < limit:
+                break
+        return list(itertools.chain(*objects))
 
     def playlist_tracks(self, name: str) -> list[Any]:
         playlists = self.playlists()
@@ -132,6 +139,6 @@ class Spotify:
                 tracks.append(new_tracks['items'])
                 while new_tracks['next']:
                     new_tracks = self.api.next(new_tracks)
-                    tracks.append(new_tracks['tracks']['items'])
+                    tracks.append(new_tracks['items'])
                 return list(itertools.chain(*tracks))
         return []
