@@ -8,6 +8,7 @@ from click_skeleton import AdvancedGroup
 from mutagen import MutagenError  # type: ignore
 from rich.table import Table
 
+from musicbot import MusicbotObject
 from musicbot.cli.file import (
     acoustid_api_key_option,
     checks_and_fix_options,
@@ -16,14 +17,10 @@ from musicbot.cli.file import (
     music_argument,
     paths_arguments
 )
-from musicbot.cli.link_options import link_options_options
 from musicbot.cli.folders import destination_argument
-from musicbot.cli.options import (
-    dry_option,
-    output_option,
-)
+from musicbot.cli.link_options import link_options_options
+from musicbot.cli.options import dry_option, output_option
 from musicbot.file import File
-from musicbot import MusicbotObject
 from musicbot.link_options import LinkOptions
 
 logger = logging.getLogger(__name__)

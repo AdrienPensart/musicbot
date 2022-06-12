@@ -1,15 +1,11 @@
 import logging
+
+import yaml
 from attr import asdict, frozen
 from slugify import slugify
-import yaml
-from musicbot.helpers import (
-    bytes_to_human,
-    precise_seconds_to_human,
-)
-from musicbot.defaults import (
-    STOPWORDS,
-    REPLACEMENTS,
-)
+
+from musicbot.defaults import REPLACEMENTS, STOPWORDS
+from musicbot.helpers import bytes_to_human, precise_seconds_to_human
 from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)

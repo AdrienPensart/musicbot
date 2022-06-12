@@ -1,5 +1,5 @@
-from typing import Any
 import logging
+from typing import Any
 
 import click
 from attr import fields_dict
@@ -7,12 +7,10 @@ from beartype import beartype
 from click_option_group import optgroup  # type: ignore
 from click_skeleton import add_options
 
-from musicbot.link_options import (
+from musicbot.link_options import (  # DEFAULT_SPOTIFY,; DEFAULT_YOUTUBE,
     DEFAULT_HTTP,
     DEFAULT_LOCAL,
     DEFAULT_SFTP,
-    # DEFAULT_SPOTIFY,
-    # DEFAULT_YOUTUBE,
     LinkOptions
 )
 

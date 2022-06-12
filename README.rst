@@ -300,11 +300,9 @@ musicbot local bests
       --musicdb TEXT
     --dry / --no-dry                    Do not launch real action  [default: no-dry]
     Link options: 
-      --http / --no-http                Generate HTTP link
-      --sftp / --no-sftp                Generate sFTP link
-      --youtube / --no-youtube          Generate YouTube link
-      --spotify / --no-spotify          Generate Spotify link
-      --local / --no-local              Generate local link
+      --http / --no-http                Generate HTTP link  [default: no-http]
+      --sftp / --no-sftp                Generate sFTP link  [default: no-sftp]
+      --local / --no-local              Generate local link  [default: local]
     Bests options: 
       --min-playlist-size INTEGER       Minimum size of playlist to write
       --rating FLOAT RANGE              Generate bests for those ratings  [0.0<=x<=5.0]
@@ -398,11 +396,9 @@ musicbot local playlist
       --musicdb TEXT
     --output [json|table|m3u]           Output format  [default: table]
     Link options: 
-      --http / --no-http                Generate HTTP link
-      --sftp / --no-sftp                Generate sFTP link
-      --youtube / --no-youtube          Generate YouTube link
-      --spotify / --no-spotify          Generate Spotify link
-      --local / --no-local              Generate local link
+      --http / --no-http                Generate HTTP link  [default: no-http]
+      --sftp / --no-sftp                Generate sFTP link  [default: no-sftp]
+      --local / --no-local              Generate local link  [default: local]
     Filter options: 
       --name TEXT                       Filter name
       --limit INTEGER                   Fetch a maximum limit of music
@@ -443,23 +439,21 @@ musicbot local scan
     Load musics
 
   Options:
-    --dry / --no-dry            Do not launch real action  [default: no-dry]
+    --dry / --no-dry           Do not launch real action  [default: no-dry]
     Folders options: 
-      --limit INTEGER           Limit number of music files
-      --extension TEXT          Supported formats  [default: {'flac', 'mp3'}]
+      --limit INTEGER          Limit number of music files
+      --extension TEXT         Supported formats  [default: {'flac', 'mp3'}]
     MusicDB options: 
-      --dsn TEXT                DSN to MusicBot EdgeDB
+      --dsn TEXT               DSN to MusicBot EdgeDB
       --musicdb TEXT
-    -s, --save                  Save to config file
-    --output [json|table|m3u]   Output format  [default: table]
-    --clean                     Delete musics before
+    -s, --save                 Save to config file
+    --output [json|table|m3u]  Output format  [default: table]
+    --clean                    Delete musics before
     Link options: 
-      --http / --no-http        Generate HTTP link
-      --sftp / --no-sftp        Generate sFTP link
-      --youtube / --no-youtube  Generate YouTube link
-      --spotify / --no-spotify  Generate Spotify link
-      --local / --no-local      Generate local link
-    -h, --help                  Show this message and exit.
+      --http / --no-http       Generate HTTP link  [default: no-http]
+      --sftp / --no-sftp       Generate sFTP link  [default: no-sftp]
+      --local / --no-local     Generate local link  [default: local]
+    -h, --help                 Show this message and exit.
 
 musicbot local sync
 *******************
@@ -551,7 +545,7 @@ musicbot music add-keywords
 ***************************
 .. code-block::
 
-  Usage: musicbot music add-keywords [OPTIONS] MUSIC [KEYWORDS]...
+  Usage: musicbot music add-keywords [OPTIONS] FILE [KEYWORDS]...
 
     Add keywords to music
 
@@ -564,7 +558,7 @@ musicbot music delete-keywords
 ******************************
 .. code-block::
 
-  Usage: musicbot music delete-keywords [OPTIONS] MUSIC [KEYWORDS]...
+  Usage: musicbot music delete-keywords [OPTIONS] FILE [KEYWORDS]...
 
     Delete keywords to music
 
@@ -577,7 +571,7 @@ musicbot music fingerprint
 **************************
 .. code-block::
 
-  Usage: musicbot music fingerprint [OPTIONS] MUSIC
+  Usage: musicbot music fingerprint [OPTIONS] FILE
 
     Print music fingerprint
 
@@ -590,7 +584,7 @@ musicbot music flac2mp3
 ***********************
 .. code-block::
 
-  Usage: musicbot music flac2mp3 [OPTIONS] MUSIC DESTINATION
+  Usage: musicbot music flac2mp3 [OPTIONS] FILE DESTINATION
 
     Convert flac music to mp3
 
@@ -602,7 +596,7 @@ musicbot music inconsistencies
 ******************************
 .. code-block::
 
-  Usage: musicbot music inconsistencies [OPTIONS] MUSIC
+  Usage: musicbot music inconsistencies [OPTIONS] FILE
 
     Check music consistency
 
@@ -639,13 +633,18 @@ musicbot music tags
 *******************
 .. code-block::
 
-  Usage: musicbot music tags [OPTIONS] MUSIC
+  Usage: musicbot music tags [OPTIONS] FILE
 
     Print music tags
 
   Options:
-    --dry / --no-dry  Do not launch real action  [default: no-dry]
-    -h, --help        Show this message and exit.
+    --dry / --no-dry           Do not launch real action  [default: no-dry]
+    Link options: 
+      --http / --no-http       Generate HTTP link  [default: no-http]
+      --sftp / --no-sftp       Generate sFTP link  [default: no-sftp]
+      --local / --no-local     Generate local link  [default: local]
+    --output [json|table|m3u]  Output format  [default: table]
+    -h, --help                 Show this message and exit.
 
 musicbot readme
 ***************
@@ -678,6 +677,7 @@ musicbot spotify
     playlist          Show playlist
     playlists         List playlists
     refresh-token     Get a new token
+    to-download       Show download playlist
     tracks            Show tracks
 
 musicbot spotify cached-token
@@ -802,6 +802,26 @@ musicbot spotify refresh-token
       --spotify-token TEXT          Spotify token
     -h, --help                      Show this message and exit.
 
+musicbot spotify to-download
+****************************
+.. code-block::
+
+  Usage: musicbot spotify to-download [OPTIONS]
+
+    Show download playlist
+
+  Options:
+    Spotify options: 
+      --spotify-username TEXT       Spotify username
+      --spotify-client-id TEXT      Spotify client ID
+      --spotify-client-secret TEXT  Spotify client secret
+      --spotify-cache-path FILE     Spotify cache path
+      --spotify-scope TEXT          Spotify OAuth scopes, comma separated
+      --spotify-redirect-uri TEXT   Spotify redirect URI
+      --spotify-token TEXT          Spotify token
+    --output [json|table|m3u]       Output format  [default: table]
+    -h, --help                      Show this message and exit.
+
 musicbot spotify tracks
 ***********************
 .. code-block::
@@ -867,7 +887,7 @@ musicbot youtube find
 *********************
 .. code-block::
 
-  Usage: musicbot youtube find [OPTIONS] MUSIC
+  Usage: musicbot youtube find [OPTIONS] FILE
 
     Search a youtube link with artist and title
 

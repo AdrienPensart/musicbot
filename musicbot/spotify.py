@@ -6,6 +6,7 @@ from typing import Any
 import spotipy  # type: ignore
 from attr import asdict, frozen
 from spotipy.oauth2 import CacheFileHandler  # type: ignore
+
 from musicbot.defaults import DEFAULT_SPOTIFY_DOWNLOAD_PLAYLIST
 from musicbot.object import MusicbotObject
 

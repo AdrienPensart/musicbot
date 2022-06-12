@@ -9,14 +9,15 @@ from typing import Any
 
 from attr import asdict, frozen
 from click_skeleton.helpers import PrettyDefaultDict
-from click_skeleton.helpers import seconds_to_human as formatted_seconds_to_human
+from click_skeleton.helpers import \
+    seconds_to_human as formatted_seconds_to_human
 from prompt_toolkit import HTML, Application, print_formatted_text
 from prompt_toolkit.application import get_app, run_in_terminal
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout.containers import HSplit, Window
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.layout.layout import Layout
-from rich.table import Table, Column
+from rich.table import Column, Table
 from rich.text import Text
 
 from musicbot.defaults import DEFAULT_VLC_PARAMS

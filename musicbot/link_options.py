@@ -1,10 +1,8 @@
 from typing import Final, Optional
 
 from attr import frozen
-from musicbot.helpers import (
-    current_user,
-    get_public_ip,
-)
+
+from musicbot.helpers import current_user, get_public_ip
 
 DEFAULT_SFTP: Final[bool] = False
 DEFAULT_HTTP: Final[bool] = False

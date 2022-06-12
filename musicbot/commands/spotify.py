@@ -16,9 +16,9 @@ from musicbot.cli.spotify import (
     spotify_options
 )
 from musicbot.defaults import (
+    DEFAULT_SPOTIFY_DOWNLOAD_PLAYLIST,
     REPLACEMENTS,
-    STOPWORDS,
-    DEFAULT_SPOTIFY_DOWNLOAD_PLAYLIST
+    STOPWORDS
 )
 from musicbot.musicdb import MusicDb
 from musicbot.object import MusicbotObject
