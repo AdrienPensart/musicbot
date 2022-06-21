@@ -80,6 +80,7 @@ class MusicDb(MusicbotObject):
             max_length=music_filter.max_length,
             min_rating=music_filter.min_rating,
             max_rating=music_filter.max_rating,
+            shuffle=not music_filter.shuffle,
         )
 
         musics = []

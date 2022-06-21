@@ -124,5 +124,6 @@ with
                 contains(.all_keywords, yes_keyword)
             )
         )))
+    order by max({<float64>$shuffle, random()})
     ;
 """
