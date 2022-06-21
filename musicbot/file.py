@@ -435,6 +435,7 @@ class File(MusicbotObject):
             if self.dry:
                 return True
             self.handle.save()
+            return True
         except mutagen.MutagenError as e:
             self.err(e)
         return False

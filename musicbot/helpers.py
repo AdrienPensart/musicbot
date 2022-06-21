@@ -3,7 +3,7 @@ import getpass
 import logging
 from functools import cache
 
-import humanize  # type: ignore
+import humanize
 import requests
 from beartype import beartype
 
