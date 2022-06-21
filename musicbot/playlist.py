@@ -63,15 +63,12 @@ class Playlist(MusicbotObject):
             random.shuffle(musics)
 
         table = Table(
-            Column("T/N", vertical="middle", justify="center"),
-            Column("Title", vertical="middle"),
-            Column("Artist", vertical="middle", justify="center"),
-            Column("Album", vertical="middle", justify="center"),
-            Column("Genre", vertical="middle", justify="center"),
-            Column("Rating", vertical="middle", justify="center"),
+            Column("T/N", vertical="middle", justify="center", no_wrap=True),
+            Column("Artist/Album/Title/Genre", vertical="middle", no_wrap=True),
+            Column("Rating", vertical="middle", justify="center", no_wrap=True),
             Column("Keywords", vertical="middle"),
             Column("Links", no_wrap=True),
-            Column("Infos", vertical="middle"),
+            Column("Infos", vertical="middle", no_wrap=True),
             show_lines=True,
         )
         links = []
@@ -83,12 +80,9 @@ class Playlist(MusicbotObject):
             infos += bytes_to_human(music.size)
             raw_row: list[str] = [
                 str(music.track),
-                music.title,
-                music.artist,
-                music.album,
-                music.genre,
+                '\n'.join([music.title, music.artist, music.album, music.genre]),
                 str(music.rating),
-                ' '.join(sorted(music.keywords)),
+                '\n'.join(sorted(music.keywords)),
                 '\n'.join(sorted(music.links)),
                 infos,
             ]
