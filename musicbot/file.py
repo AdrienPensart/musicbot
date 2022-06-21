@@ -250,7 +250,10 @@ class File(MusicbotObject):
                 return DEFAULT_MAX_RATING
             return rating
         except ValueError:
-            self.warn(f"{self} : cannot convert rating to float : '{rating_str}'", only_once=True)
+            self.warn(f"{self} : cannot convert rating to float : '{rating_str}', try fixing")
+            self.rating = 0.0
+            if not self.save():
+                self.err(f"{self} : unable to fix rating")
             return 0.0
 
     @rating.setter

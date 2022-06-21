@@ -97,8 +97,8 @@ def watch(
 ) -> None:
     event_handler = MusicWatcherHandler(musicdb=musicdb, folders=folders)
     observer = Observer()
-    for path in folders.paths:
-        observer.schedule(event_handler, path, recursive=True)
+    for directory in folders.directories:
+        observer.schedule(event_handler, directory, recursive=True)
     observer.start()
     try:
         while True:

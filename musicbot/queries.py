@@ -1,5 +1,9 @@
 from typing import Final
 
+DELETE_QUERY: Final[str] = """
+   delete Music filter contains(.links, <str>$path)
+"""
+
 UPSERT_QUERY: Final[str] = """
 with
     upsert_artist := (

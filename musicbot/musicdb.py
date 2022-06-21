@@ -20,7 +20,11 @@ from musicbot.music import Music
 from musicbot.music_filter import MusicFilter
 from musicbot.object import MusicbotObject
 from musicbot.playlist import Playlist
-from musicbot.queries import PLAYLIST_QUERY, UPSERT_QUERY
+from musicbot.queries import (
+    PLAYLIST_QUERY,
+    UPSERT_QUERY,
+    DELETE_QUERY
+)
 
 logger = logging.getLogger(__name__)
 
@@ -136,10 +140,9 @@ class MusicDb(MusicbotObject):
         return self.blocking_client.query(query)
 
     def delete_music(self, path: str) -> Any:
-        query = """delete Music filter .path = <str>$path;"""
         if self.dry:
             return None
-        return self.blocking_client.query(query, path=path)
+        return self.blocking_client.query(DELETE_QUERY, path=path)
 
     def upsert_path(
         self,
