@@ -121,19 +121,20 @@ def clean(musicdb: MusicDb) -> None:
 @output_option
 @link_options_options
 @music_filter_options
-@beartype
+@click.argument('out', type=click.File('w', lazy=True), default='-')
 def playlist(
     output: str,
     music_filter: MusicFilter,
     link_options: LinkOptions,
     musicdb: MusicDb,
+    out: progressbar.utils.WrappingIO,
 ) -> None:
     musicdb.set_readonly()
     p = musicdb.make_playlist(
         music_filter=music_filter,
         link_options=link_options,
     )
-    p.print(output=output)
+    p.print(output=output, file=out)
 
 
 @cli.command(help='Generate bests playlists with some rules')

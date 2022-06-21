@@ -20,11 +20,7 @@ from musicbot.music import Music
 from musicbot.music_filter import MusicFilter
 from musicbot.object import MusicbotObject
 from musicbot.playlist import Playlist
-from musicbot.queries import (
-    PLAYLIST_QUERY,
-    UPSERT_QUERY,
-    DELETE_QUERY
-)
+from musicbot.queries import DELETE_QUERY, PLAYLIST_QUERY, UPSERT_QUERY
 
 logger = logging.getLogger(__name__)
 

@@ -1,4 +1,5 @@
 import concurrent.futures as cf
+import io
 import json
 import logging
 import os
@@ -204,8 +205,15 @@ class MusicbotObject:
                     os.killpg(os.getpid(), signal.SIGKILL)
 
     @classmethod
-    def print_table(cls, table: Table) -> None:
+    def print_table(cls, table: Table, file: IO | None = None) -> None:
         '''Print rich table'''
+        if file is not None:
+            console = Console(file=io.StringIO(), width=300)
+            console.print(table)
+            output = console.file.getvalue()  # type: ignore  # pylint: disable=no-member
+            print(output, file=file)
+            return
+
         with cls.print_lock:
             print('\r\033[K', end='')
             cls.console.print(table)

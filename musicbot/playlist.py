@@ -5,7 +5,7 @@ import os
 import platform
 import random
 from pathlib import Path
-from typing import Any
+from typing import IO, Any
 
 from attr import asdict, frozen
 from click_skeleton.helpers import PrettyDefaultDict
@@ -51,6 +51,7 @@ class Playlist(MusicbotObject):
         current_artist: str | None = None,
         shuffle: bool = False,
         interleave: bool = False,
+        file: IO | None = None,
     ) -> None:
         musics = self.musics
         if interleave:
@@ -98,14 +99,17 @@ class Playlist(MusicbotObject):
             total_length += music.length
             total_size += music.size
 
-        if output == 'm3u' and self.musics:
+        if not musics and output != 'json':
+            return
+
+        if output == 'm3u':
             p = '#EXTM3U\n'
             p += '\n'.join(links)
-            print(p)
-        elif output == 'table' and self.musics:
-            self.print_table(table)
+            print(p, file=file)
+        elif output == 'table':
+            self.print_table(table, file=file)
         elif output == 'json':
-            self.print_json([asdict(music) for music in self.musics])
+            self.print_json([asdict(music) for music in self.musics], file=file)
         else:
             self.err(f"unknown output type : {output}")
         self.success(f"Total length: {precise_seconds_to_human(total_length)} | Total size: {bytes_to_human(total_size)}")
