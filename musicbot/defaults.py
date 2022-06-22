@@ -46,8 +46,8 @@ DEFAULT_YES: Final[bool] = False
 DEFAULT_SAVE: Final[bool] = False
 DEFAULT_OUTPUT: Final[str] = 'table'
 DEFAULT_FLAT: Final[bool] = False
-DEFAULT_EXTENSIONS: Final[set[str]] = {"mp3", "flac"}
-EXCEPT_DIRECTORIES: Final[set[str]] = {'.Spotlight-V100', '.zfs', 'Android', 'LOST.DIR'}
+DEFAULT_EXTENSIONS: Final[frozenset[str]] = frozenset({"mp3", "flac"})
+EXCEPT_DIRECTORIES: Final[frozenset[str]] = frozenset({'.Spotlight-V100', '.zfs', 'Android', 'LOST.DIR'})
 
 STOPWORDS: Final[list[str]] = [
     'the',

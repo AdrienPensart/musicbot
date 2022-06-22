@@ -18,8 +18,8 @@ logger = logging.getLogger(__name__)
 @define(repr=False, hash=True)
 class Folders(MusicbotObject):
     directories: list[Path]
-    extensions: set[str] = DEFAULT_EXTENSIONS
-    except_directories: set[str] = EXCEPT_DIRECTORIES
+    extensions: set[str] = set(DEFAULT_EXTENSIONS)
+    except_directories: frozenset[str] = EXCEPT_DIRECTORIES
     other_files: set[Path] = set()
     limit: int | None = None
 

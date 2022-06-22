@@ -54,7 +54,7 @@ folders_argument = add_options(
         '--extension',
         'extensions',
         help='Supported formats',
-        default=DEFAULT_EXTENSIONS,
+        default=sorted(DEFAULT_EXTENSIONS),
         multiple=True,
         callback=split_arguments,
         show_default=True,
