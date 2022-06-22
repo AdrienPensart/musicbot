@@ -105,7 +105,7 @@ def diff(musicdb: MusicDb, download_playlist: bool, spotify: Spotify, output: st
         t for t in spotify_tracks
     }
 
-    local = musicdb.make_playlist()
+    local = musicdb.sync_make_playlist()
     local_music_by_slug = {music.slug: music for music in local.musics}
 
     spotify_differences = set(spotify_tracks_by_slug.keys()).difference(set(local_music_by_slug.keys()))

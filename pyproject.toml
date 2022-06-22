@@ -63,6 +63,7 @@ isort = "^5.10.1"
 bandit = "^1.7.2"
 safety = "^1.10.3"
 vulture = "^2.3"
+pytest-asyncio = "^0.18.3"
 
 [tool.pyright]
 include = [
@@ -73,7 +74,7 @@ reportUnusedCallResult = true
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--timeout 600 --cov-report term-missing --durations=0 --cov musicbot -x --use-running-containers --docker-compose-no-build "
+addopts = "--asyncio-mode=strict --timeout 600 --cov-report term-missing --durations=0 --cov musicbot -x --use-running-containers --docker-compose-no-build "
 
 [tool.pylint.master]
 jobs = 4

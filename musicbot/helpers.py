@@ -1,7 +1,9 @@
+import asyncio
 import datetime as dt
 import getpass
 import logging
 from functools import cache
+from typing import Any
 
 import humanize
 import requests
@@ -10,6 +12,35 @@ from beartype import beartype
 from musicbot.exceptions import MusicbotError
 
 logger = logging.getLogger(__name__)
+
+
+@cache
+def async_loop() -> Any:
+    try:
+        loop = asyncio.get_running_loop()
+        if loop.is_running():
+            return loop
+    except RuntimeError:
+        pass
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    return loop
+
+
+def async_run(fn: Any) -> Any:
+    loop = async_loop()
+    return loop.run_until_complete(fn)
+
+
+def async_gather(fn: Any, objects: Any) -> Any:
+    loop = async_loop()
+    futures = []
+    for o in objects:
+        future = fn(o)
+        futures.append(future)
+
+    final_future = asyncio.gather(*futures)
+    return loop.run_until_complete(final_future)
 
 
 @beartype

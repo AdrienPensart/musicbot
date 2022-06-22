@@ -1,4 +1,3 @@
-# import codecs
 import io
 import logging
 import shutil
@@ -33,6 +32,7 @@ from musicbot.cli.playlist import bests_options
 from musicbot.defaults import DEFAULT_VLC_PARAMS
 from musicbot.file import File
 from musicbot.folders import Folders
+from musicbot.helpers import async_gather, async_run
 from musicbot.link_options import LinkOptions
 from musicbot.music_filter import MusicFilter
 from musicbot.musicdb import MusicDb
@@ -53,7 +53,7 @@ def cli() -> None:
 @musicdb_options
 @beartype
 def execute(musicdb: MusicDb, query: str) -> None:
-    print(musicdb.blocking_client.query_json(query))
+    print(musicdb.sync_query(query))
 
 
 @cli.command(help='Load musics')
@@ -73,9 +73,9 @@ def scan(
     output: str,
 ) -> None:
     if clean:
-        musicdb.clean_musics()
+        musicdb.sync_clean_musics()
 
-    musics = musicdb.upsert_folders(
+    musics = musicdb.sync_upsert_folders(
         folders=folders,
         link_options=link_options,
     )
@@ -99,6 +99,7 @@ def watch(
     observer = Observer()
     for directory in folders.directories:
         observer.schedule(event_handler, directory, recursive=True)
+        MusicbotObject.success(f"{directory} : watching")
     observer.start()
     try:
         while True:
@@ -113,7 +114,7 @@ def watch(
 @yes_option
 @beartype
 def clean(musicdb: MusicDb) -> None:
-    musicdb.clean_musics()
+    musicdb.sync_clean_musics()
 
 
 @cli.command(help='Generate a new playlist')
@@ -130,7 +131,7 @@ def playlist(
     out: progressbar.utils.WrappingIO,
 ) -> None:
     musicdb.set_readonly()
-    p = musicdb.make_playlist(
+    p = musicdb.sync_make_playlist(
         music_filter=music_filter,
         link_options=link_options,
     )
@@ -155,89 +156,97 @@ def bests(
     types: list[str],
 ) -> None:
     musicdb.set_readonly()
-    prefiltered = musicdb.make_playlist(music_filter=music_filter, link_options=link_options)
+    prefiltered = musicdb.sync_make_playlist(music_filter=music_filter, link_options=link_options)
+
     if "genre" in types and prefiltered.genres:
         with MusicbotObject.progressbar(max_value=len(prefiltered.genres), prefix="Generating bests genres") as pbar:
-            for genre in prefiltered.genres:
+            async def genre_worker(genre: str) -> None:
                 try:
                     filter_copy = evolve(
                         music_filter,
                         genres=frozenset([genre]),
                     )
-                    best = musicdb.make_playlist(music_filter=filter_copy, link_options=link_options)
+                    best = await musicdb.make_playlist(music_filter=filter_copy, link_options=link_options)
                     if len(best.musics) < min_playlist_size:
-                        continue
+                        return
                     filepath = Path(folder) / ('genre_' + genre.lower() + '.m3u')
                     best.write(filepath)
                 finally:
                     pbar.value += 1
                     pbar.update()
 
+            _ = async_gather(genre_worker, prefiltered.genres)
+
     if "rating" in types and ratings:
         with MusicbotObject.progressbar(max_value=len(ratings), prefix="Generating bests ratings") as pbar:
-            for rating in ratings:
+            async def rating_worker(rating: float) -> None:
                 try:
                     filter_copy = evolve(
                         music_filter,
                         min_rating=rating,
                     )
-                    best = musicdb.make_playlist(music_filter=filter_copy, link_options=link_options)
+                    best = await musicdb.make_playlist(music_filter=filter_copy, link_options=link_options)
                     if len(best.musics) < min_playlist_size:
-                        continue
+                        return
                     filepath = Path(folder) / ('rating_' + str(rating) + '.m3u')
                     best.write(filepath)
                 finally:
                     pbar.value += 1
                     pbar.update()
 
+            _ = async_gather(rating_worker, ratings)
+
     if "keyword" in types and prefiltered.keywords:
         with MusicbotObject.progressbar(max_value=len(prefiltered.keywords), prefix="Generating bests keywords") as pbar:
-            for keyword in prefiltered.keywords:
+            async def keyword_worker(keyword: str) -> None:
                 try:
                     filter_copy = evolve(
                         music_filter,
                         keywords=frozenset([keyword]),
                     )
-                    best = musicdb.make_playlist(music_filter=filter_copy, link_options=link_options)
+                    best = await musicdb.make_playlist(music_filter=filter_copy, link_options=link_options)
                     if len(best.musics) < min_playlist_size:
-                        continue
+                        return
                     filepath = Path(folder) / ('keyword_' + keyword.lower() + '.m3u')
                     best.write(filepath)
                 finally:
                     pbar.value += 1
                     pbar.update()
 
+            _ = async_gather(keyword_worker, prefiltered.keywords)
+
     if "artist" not in types:
         return
 
-    def worker(artist: str) -> None:
-        if "rating" in types and ratings:
-            for rating in ratings:
-                filter_copy = evolve(
-                    music_filter,
-                    min_rating=rating,
-                    artists=frozenset([artist]),
-                )
-                best = musicdb.make_playlist(music_filter=filter_copy, link_options=link_options)
-                if len(best.musics) < min_playlist_size:
-                    continue
-                filepath = Path(folder) / artist / ('rating_' + str(rating) + '.m3u')
-                best.write(filepath)
+    with MusicbotObject.progressbar(max_value=len(prefiltered.artists), prefix="Generating bests artists") as pbar:
+        async def artist_worker(artist: str) -> None:
+            if "rating" in types and ratings:
+                for rating in ratings:
+                    filter_copy = evolve(
+                        music_filter,
+                        min_rating=rating,
+                        artists=frozenset([artist]),
+                    )
+                    best = await musicdb.make_playlist(music_filter=filter_copy, link_options=link_options)
+                    if len(best.musics) < min_playlist_size:
+                        continue
+                    filepath = Path(folder) / artist / ('rating_' + str(rating) + '.m3u')
+                    best.write(filepath)
 
-        if "keyword" in types and prefiltered.keywords:
-            for keyword in prefiltered.keywords:
-                filter_copy = evolve(
-                    music_filter,
-                    keywords=frozenset([keyword]),
-                    artists=frozenset([artist]),
-                )
-                best = musicdb.make_playlist(music_filter=filter_copy, link_options=link_options)
-                if len(best.musics) < min_playlist_size:
-                    continue
-                filepath = Path(folder) / artist / ('keyword_' + keyword.lower() + '.m3u')
-                best.write(filepath)
+            if "keyword" in types and prefiltered.keywords:
+                for keyword in prefiltered.keywords:
+                    filter_copy = evolve(
+                        music_filter,
+                        keywords=frozenset([keyword]),
+                        artists=frozenset([artist]),
+                    )
+                    best = await musicdb.make_playlist(music_filter=filter_copy, link_options=link_options)
+                    if len(best.musics) < min_playlist_size:
+                        continue
+                    filepath = Path(folder) / artist / ('keyword_' + keyword.lower() + '.m3u')
+                    best.write(filepath)
 
-    MusicbotObject.parallel(worker, list(prefiltered.artists), prefix="Generating bests artists")
+        _ = async_gather(artist_worker, prefiltered.artists)
 
 
 @cli.command(aliases=['play'], help='Music player')
@@ -249,7 +258,8 @@ def player(music_filter: MusicFilter, musicdb: MusicDb, vlc_params: str) -> None
     if not MusicbotObject.config.quiet:
         progressbar.streams.unwrap(stderr=True, stdout=True)
     try:
-        playlist = musicdb.make_playlist(music_filter)
+        future = musicdb.make_playlist(music_filter)
+        playlist = async_run(future)
         playlist.play(vlc_params)
     except io.UnsupportedOperation:
         logger.critical('Unable to load UI')
@@ -273,7 +283,8 @@ def sync(
     flat: bool,
 ) -> None:
     logger.info(f'Destination: {destination}')
-    playlist = musicdb.make_playlist(music_filter)
+    future = musicdb.make_playlist(music_filter)
+    playlist = async_run(future)
     if not playlist.musics:
         click.secho('no result for filter, nothing to sync')
         return

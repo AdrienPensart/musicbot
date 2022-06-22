@@ -129,5 +129,6 @@ with
             )
         )))
     order by max({<float64>$shuffle, random()})
+    limit <int64>$limit
     ;
 """

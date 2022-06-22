@@ -9,12 +9,13 @@ import edgedb
 from attr import asdict, define
 from beartype import beartype
 from deepdiff import DeepDiff  # type: ignore
-from edgedb.blocking_client import Client, create_client
+from edgedb.asyncio_client import AsyncIOClient, create_async_client
 from edgedb.options import RetryOptions, TransactionOptions
 
 from musicbot.exceptions import MusicbotError
 from musicbot.file import File
 from musicbot.folders import Folders
+from musicbot.helpers import async_gather, async_run
 from musicbot.link_options import DEFAULT_LINK_OPTIONS, LinkOptions
 from musicbot.music import Music
 from musicbot.music_filter import MusicFilter
@@ -27,16 +28,16 @@ logger = logging.getLogger(__name__)
 
 @define(hash=True)
 class MusicDb(MusicbotObject):
-    blocking_client: Client
+    client: AsyncIOClient
 
     def __attrs_post_init__(self) -> None:
-        self.blocking_client = self.blocking_client.with_retry_options(
+        self.client = self.client.with_retry_options(
             RetryOptions(attempts=10)
         )
 
     def set_readonly(self) -> None:
         '''set client to read only mode'''
-        self.blocking_client = self.blocking_client.with_transaction_options(
+        self.client = self.client.with_transaction_options(
             TransactionOptions(readonly=True)
         )
 
@@ -47,17 +48,21 @@ class MusicDb(MusicbotObject):
     ) -> "MusicDb":
         if not cls.is_prod():
             os.environ['EDGEDB_CLIENT_SECURITY'] = 'insecure_dev_mode'
-        return cls(blocking_client=create_client(dsn=dsn))
+        return cls(client=create_async_client(dsn=dsn))
 
-    @cache
     @beartype
-    def make_playlist(
+    def sync_query(self, query: str) -> Any:
+        future = self.client.query_json(query)
+        return async_run(future)
+
+    @beartype
+    async def make_playlist(
         self,
         music_filter: MusicFilter | None = None,
         link_options: LinkOptions = DEFAULT_LINK_OPTIONS
     ) -> Playlist:
         music_filter = music_filter if music_filter is not None else MusicFilter()
-        results = self.blocking_client.query(
+        results = await self.client.query(
             PLAYLIST_QUERY,
             titles=list(music_filter.titles),
             no_titles=list(music_filter.no_titles),
@@ -81,6 +86,7 @@ class MusicDb(MusicbotObject):
             min_rating=music_filter.min_rating,
             max_rating=music_filter.max_rating,
             shuffle=not music_filter.shuffle,
+            limit=music_filter.limit,
         )
 
         musics = []
@@ -129,18 +135,32 @@ class MusicDb(MusicbotObject):
 
         return Playlist(musics=musics, music_filter=music_filter)
 
-    def clean_musics(self) -> Any:
+    @cache
+    def sync_make_playlist(
+        self,
+        music_filter: MusicFilter | None = None,
+        link_options: LinkOptions = DEFAULT_LINK_OPTIONS
+    ) -> Playlist:
+        return async_run(self.make_playlist(music_filter=music_filter, link_options=link_options))
+
+    async def clean_musics(self) -> Any:
         query = """delete Artist;"""
         if self.dry:
             return None
-        return self.blocking_client.query(query)
+        return await self.client.query(query)
 
-    def delete_music(self, path: str) -> Any:
+    def sync_clean_musics(self) -> Any:
+        return async_run(self.clean_musics())
+
+    async def delete_music(self, path: str) -> Any:
         if self.dry:
             return None
-        return self.blocking_client.query(DELETE_QUERY, path=path)
+        return await self.client.query(DELETE_QUERY, path=path)
 
-    def upsert_path(
+    def sync_delete_music(self, path: str) -> Any:
+        return async_run(self.delete_music(path))
+
+    async def upsert_path(
         self,
         path: Path,
         link_options: LinkOptions = DEFAULT_LINK_OPTIONS
@@ -160,7 +180,7 @@ class MusicDb(MusicbotObject):
                 query=UPSERT_QUERY,
                 **asdict(input_music),
             )
-            result = self.blocking_client.query_required_single(**params)
+            result = await self.client.query_required_single(**params)
             output_music = Music(
                 title=result.name,
                 artist=result.artist_name,
@@ -188,20 +208,33 @@ class MusicDb(MusicbotObject):
             logger.error(e)
         return None
 
-    def upsert_folders(
+    def sync_upsert_path(
+        self,
+        path: Path,
+        link_options: LinkOptions = DEFAULT_LINK_OPTIONS
+    ) -> File | None:
+        return async_run(self.upsert_path(path=path, link_options=link_options))
+
+    def sync_upsert_folders(
         self,
         folders: Folders,
         link_options: LinkOptions = DEFAULT_LINK_OPTIONS
     ) -> list[File]:
-        def worker(path: Path) -> File | None:
-            try:
-                file = self.upsert_path(path, link_options=link_options)
-                if not file:
-                    MusicbotObject.err(f"{path} : unable to insert")
-                    return None
-                return file
-            except MusicbotError as e:
-                self.err(e)
-            return None
+        files = []
 
-        return folders.apply(worker, prefix="Loading and inserting musics")
+        with self.progressbar(prefix="Loading and inserting musics", max_value=len(folders.paths)) as pbar:
+            async def upsert_worker(path: Path) -> None:
+                try:
+                    file = await self.upsert_path(path, link_options=link_options)
+                    if not file:
+                        MusicbotObject.err(f"{path} : unable to insert")
+                    else:
+                        files.append(file)
+                except MusicbotError as e:
+                    self.err(e)
+                finally:
+                    pbar.value += 1
+                    pbar.update()
+
+            async_gather(upsert_worker, folders.paths)
+            return files

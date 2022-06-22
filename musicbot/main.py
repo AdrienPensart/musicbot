@@ -2,7 +2,6 @@
 '''Main module, import commands and start CLI'''
 import logging
 import os
-import sys
 from typing import Any, Final
 
 import click
@@ -16,6 +15,7 @@ from click_skeleton import backtrace, doc, helpers, skeleton, version_checker
 import musicbot
 import musicbot.commands
 from musicbot import Config, MusicbotObject, version
+# from musicbot.helpers import async_run
 from musicbot.cli.config import config_options
 from musicbot.cli.options import dry_option
 from musicbot.exceptions import MusicbotError
@@ -69,7 +69,7 @@ def readme(ctx: click.Context, output: str) -> None:
 cli.add_groups_from_package(musicbot.commands)
 
 
-def main(**kwargs: Any) -> int:
+def main() -> None:
     if not helpers.raise_limits():
         MusicbotObject.err("unable to raise ulimit")
     check_version = helpers.str2bool(os.environ.get('MB_CHECK_VERSION', MusicbotObject.is_prod()))
@@ -78,10 +78,8 @@ def main(**kwargs: Any) -> int:
         current_version=version.__version__,
         autostart=check_version,
     )
-    exit_code = 1
     try:
-        exit_code = cli.main(prog_name=PROG_NAME, **kwargs)
-        return exit_code
+        cli.main(prog_name=PROG_NAME, standalone_mode=False)
     except click.ClickException as e:
         e.show()
     except MusicbotError as e:
@@ -97,8 +95,7 @@ def main(**kwargs: Any) -> int:
             logger.exception(e)
     finally:
         version_check.print()
-    return exit_code
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    main()
