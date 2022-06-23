@@ -1,6 +1,7 @@
 import logging
 import os
 from functools import cached_property
+from itertools import islice
 from pathlib import Path
 from typing import Any, Callable, Iterator
 
@@ -45,7 +46,7 @@ class Folders(MusicbotObject):
             except OSError as e:
                 logger.error(e)
             return None
-        return self.apply(worker, prefix="Loading musics")
+        return self.apply(worker, prefix="Loading musics")[:self.limit]
 
     @cached_property
     def musics(self) -> list[Music]:
@@ -64,7 +65,7 @@ class Folders(MusicbotObject):
                         self.other_files.add(path)
                     else:
                         _files.add(path)
-        return _files
+        return set(islice(_files, self.limit))
 
     def __repr__(self) -> str:
         return ' '.join(str(folder) for folder in self.directories)

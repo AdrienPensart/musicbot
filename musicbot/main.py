@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 '''Main module, import commands and start CLI'''
+import gc
 import logging
 import os
 from typing import Any, Final
@@ -9,6 +10,7 @@ import edgedb
 import mutagen  # type: ignore
 import requests
 import spotipy  # type: ignore
+import uvloop
 from beartype import beartype
 from click_skeleton import backtrace, doc, helpers, skeleton, version_checker
 
@@ -70,8 +72,14 @@ cli.add_groups_from_package(musicbot.commands)
 
 
 def main() -> None:
+    uvloop.install()
     if not helpers.raise_limits():
         MusicbotObject.err("unable to raise ulimit")
+
+    disable_gc: bool = helpers.str2bool(os.environ.get('MB_DISABLE_GC', False))
+    if disable_gc:
+        gc.disable()
+
     check_version = helpers.str2bool(os.environ.get('MB_CHECK_VERSION', MusicbotObject.is_prod()))
     version_check = version_checker.VersionCheckerThread(
         prog_name=PROG_NAME,

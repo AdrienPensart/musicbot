@@ -43,6 +43,7 @@ edgedb = "^0.23.0"
 pyright = "^1.1.248"
 Pygments = "^2.11.2"
 types-PyYAML = "^6.0.8"
+uvloop = "^0.16.0"
 
 [tool.isort]
 multi_line_output = 3

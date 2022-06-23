@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 import sys
@@ -12,6 +13,7 @@ from deepdiff import DeepDiff  # type: ignore
 from edgedb.asyncio_client import AsyncIOClient, create_async_client
 from edgedb.options import RetryOptions, TransactionOptions
 
+from musicbot.defaults import DEFAULT_COROUTINES
 from musicbot.exceptions import MusicbotError
 from musicbot.file import File
 from musicbot.folders import Folders
@@ -218,23 +220,26 @@ class MusicDb(MusicbotObject):
     def sync_upsert_folders(
         self,
         folders: Folders,
-        link_options: LinkOptions = DEFAULT_LINK_OPTIONS
+        link_options: LinkOptions = DEFAULT_LINK_OPTIONS,
+        coroutines: int = DEFAULT_COROUTINES,
     ) -> list[File]:
         files = []
+        sem = asyncio.Semaphore(coroutines)
 
         with self.progressbar(prefix="Loading and inserting musics", max_value=len(folders.paths)) as pbar:
             async def upsert_worker(path: Path) -> None:
-                try:
-                    file = await self.upsert_path(path, link_options=link_options)
-                    if not file:
-                        MusicbotObject.err(f"{path} : unable to insert")
-                    else:
-                        files.append(file)
-                except MusicbotError as e:
-                    self.err(e)
-                finally:
-                    pbar.value += 1
-                    pbar.update()
+                async with sem:
+                    try:
+                        file = await self.upsert_path(path, link_options=link_options)
+                        if not file:
+                            MusicbotObject.err(f"{path} : unable to insert")
+                        else:
+                            files.append(file)
+                    except MusicbotError as e:
+                        self.err(e)
+                    finally:
+                        pbar.value += 1
+                        pbar.update()
 
             async_gather(upsert_worker, folders.paths)
             return files

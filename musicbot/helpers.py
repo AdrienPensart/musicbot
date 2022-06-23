@@ -2,8 +2,9 @@ import asyncio
 import datetime as dt
 import getpass
 import logging
+import warnings
 from functools import cache
-from typing import Any
+from typing import Any, Callable
 
 import humanize
 import requests
@@ -32,15 +33,20 @@ def async_run(fn: Any) -> Any:
     return loop.run_until_complete(fn)
 
 
-def async_gather(fn: Any, objects: Any) -> Any:
-    loop = async_loop()
-    futures = []
-    for o in objects:
-        future = fn(o)
-        futures.append(future)
+def async_gather(fn: Any, objects: Any, callback: Callable | None = None) -> Any:
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        loop = async_loop()
+        futures = []
+        for o in objects:
+            coroutine = fn(o)
+            future = asyncio.ensure_future(coroutine)
+            if callback:
+                future.add_done_callback(callback)
+            futures.append(future)
 
-    final_future = asyncio.gather(*futures)
-    return loop.run_until_complete(final_future)
+        final_future = asyncio.gather(*futures)
+        return loop.run_until_complete(final_future)
 
 
 @beartype

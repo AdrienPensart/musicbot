@@ -40,6 +40,7 @@ DEFAULT_SPOTIFY_DOWNLOAD_PLAYLIST: Final[str] = "To Download"
 
 DEFAULT_ACOUSTID_API_KEY: Final[str | None] = None
 DEFAULT_THREADS: Final[int] = 8
+DEFAULT_COROUTINES: Final[int] = 64
 DEFAULT_CLEAN: Final[bool] = False
 DEFAULT_DRY: Final[bool] = False
 DEFAULT_YES: Final[bool] = False

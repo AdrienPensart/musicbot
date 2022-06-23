@@ -63,6 +63,7 @@ def execute(musicdb: MusicDb, query: str) -> None:
 @output_option
 @clean_option
 @link_options_options
+@click.option("--coroutines", help="Limit number of coroutines", default=64, show_default=True)
 @beartype
 def scan(
     musicdb: MusicDb,
@@ -71,6 +72,7 @@ def scan(
     save: bool,
     link_options: LinkOptions,
     output: str,
+    coroutines: int,
 ) -> None:
     if clean:
         musicdb.sync_clean_musics()
@@ -78,6 +80,7 @@ def scan(
     musics = musicdb.sync_upsert_folders(
         folders=folders,
         link_options=link_options,
+        coroutines=coroutines,
     )
     if output == 'json':
         MusicbotObject.print_json(musics)

@@ -453,6 +453,7 @@ musicbot local scan
       --http / --no-http       Generate HTTP link  [default: no-http]
       --sftp / --no-sftp       Generate sFTP link  [default: no-sftp]
       --local / --no-local     Generate local link  [default: local]
+    --coroutines INTEGER       Limit number of coroutines  [default: 64]
     -h, --help                 Show this message and exit.
 
 musicbot local sync
