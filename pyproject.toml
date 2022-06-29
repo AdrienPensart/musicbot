@@ -62,9 +62,9 @@ mypy = "^0.961"
 pytest-click = "^1.0.2"
 isort = "^5.10.1"
 bandit = "^1.7.2"
-safety = "^1.10.3"
 vulture = "^2.3"
 pytest-asyncio = "^0.18.3"
+safety = "^2.0.0"
 
 [tool.pyright]
 include = [

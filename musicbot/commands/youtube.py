@@ -3,7 +3,6 @@ import os
 
 import acoustid  # type: ignore
 import click
-import youtube_dl  # type: ignore
 from beartype import beartype
 from click_skeleton import AdvancedGroup
 from click_skeleton.helpers import seconds_to_human
@@ -26,6 +25,7 @@ def cli() -> None:
 @beartype
 def search(artist: str, title: str) -> None:
     '''Search a youtube link with artist and title'''
+    import youtube_dl  # type: ignore
     ydl_opts = {
         'format': 'bestaudio',
         'ignoreerrors': True,
@@ -48,6 +48,7 @@ def search(artist: str, title: str) -> None:
 @click.option('--path', default=None)
 @beartype
 def download(artist: str, title: str, path: str) -> None:
+    import youtube_dl
     try:
         if not path:
             path = f"{artist} - {title}.mp3"
@@ -72,6 +73,7 @@ def download(artist: str, title: str, path: str) -> None:
 @acoustid_api_key_option
 @beartype
 def find(file: File, acoustid_api_key: str) -> None:
+    import youtube_dl
     yt_path = f"{file.artist} - {file.title}.mp3"
     try:
         file_id = file.fingerprint(acoustid_api_key)
@@ -122,6 +124,7 @@ def find(file: File, acoustid_api_key: str) -> None:
 @acoustid_api_key_option
 @beartype
 def fingerprint(url: str, acoustid_api_key: str) -> None:
+    import youtube_dl
     yt_path = "intermediate.mp3"
     ydl_opts = {
         'format': 'bestaudio/best',
