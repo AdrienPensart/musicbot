@@ -151,6 +151,9 @@ class MusicDb(MusicbotObject):
             return None
         return await self.client.query(query)
 
+    def sync_ensure_connected(self) -> None:
+        async_run(self.client.ensure_connected())
+
     def sync_clean_musics(self) -> Any:
         return async_run(self.clean_musics())
 

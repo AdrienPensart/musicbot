@@ -25,10 +25,13 @@ from musicbot.exceptions import MusicbotError
 PROG_NAME: Final[str] = "musicbot"
 logger = logging.getLogger(__name__)
 
-backtrace.hook(strip_path=False, enable_on_envvar_only=False, on_tty=False)
 
-
-@skeleton(name=PROG_NAME, version=version.__version__, auto_envvar_prefix='MB')
+@skeleton(
+    name=PROG_NAME,
+    version=version.__version__,
+    auto_envvar_prefix='MB',
+    groups_package=musicbot.commands
+)
 @click.pass_context
 @config_options
 @dry_option
@@ -46,6 +49,7 @@ def cli(
     config: str,
 ) -> Any:
     """Music swiss knife, new gen."""
+    backtrace.hook(strip_path=False, enable_on_envvar_only=False, on_tty=False)
     MusicbotObject.config = Config(
         log=log,
         color=color,
@@ -66,9 +70,6 @@ def cli(
 def readme(ctx: click.Context, output: str) -> None:
     '''Generates a complete readme'''
     doc.readme(cli, ctx.obj.prog_name, ctx.obj.context_settings, output)
-
-
-cli.add_groups_from_package(musicbot.commands)
 
 
 def main() -> None:

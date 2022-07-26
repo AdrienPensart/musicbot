@@ -112,8 +112,8 @@ def diff(musicdb: MusicDb, download_playlist: bool, spotify: Spotify, output: st
     spotify_slug_tracks = dict((d, spotify_tracks_by_slug[d]) for d in sorted(spotify_differences))
 
     local_tracks_found = len(spotify_tracks_by_slug) - len(spotify_differences)
-    if len(local.musics) == local_tracks_found:
-        return
+    # if len(local.musics) == local_tracks_found:
+    #     return
 
     if download_playlist:
         spotify.set_download_playlist(spotify_slug_tracks.values())
