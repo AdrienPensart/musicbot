@@ -89,6 +89,8 @@ def main() -> None:
     )
     try:
         cli.main(prog_name=PROG_NAME, standalone_mode=False)
+    except (KeyboardInterrupt, click.exceptions.Abort):
+        pass
     except click.ClickException as e:
         e.show()
     except MusicbotError as e:

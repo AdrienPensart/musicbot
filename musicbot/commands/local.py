@@ -1,6 +1,7 @@
 import io
 import logging
 import shutil
+import threading
 import time
 from pathlib import Path
 
@@ -91,22 +92,30 @@ def scan(
 @cli.command(help='Watch files changes in folders')
 @folders_argument
 @musicdb_options
+@click.option('--sleep', help="Clean music every X seconds", type=int, default=3600, show_default=True)
 @beartype
 def watch(
     musicdb: MusicDb,
     folders: Folders,
+    sleep: int,
 ) -> None:
+    def soft_clean_periodically():
+        try:
+            while True:
+                musicdb.sync_soft_clean()
+                time.sleep(sleep)
+        except KeyboardInterrupt:
+            pass
+
+    periodic_soft_clean = threading.Thread(target=soft_clean_periodically, daemon=True)
+    periodic_soft_clean.start()
+
     event_handler = MusicWatcherHandler(musicdb=musicdb, folders=folders)
     observer = Observer()
     for directory in folders.directories:
         observer.schedule(event_handler, directory, recursive=True)
         MusicbotObject.success(f"{directory} : watching")
     observer.start()
-    try:
-        while True:
-            time.sleep(50)
-    except KeyboardInterrupt:
-        observer.stop()
     observer.join()
 
 

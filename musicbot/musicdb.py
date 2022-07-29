@@ -141,6 +141,7 @@ class MusicDb(MusicbotObject):
         """
         if self.dry:
             return None
+        self.success("cleaning orphan keywords, albums, artists, genres")
         return await self.client.execute(query)
 
     def sync_soft_clean(self) -> Any:
