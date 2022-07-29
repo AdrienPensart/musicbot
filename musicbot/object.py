@@ -16,6 +16,7 @@ from rich.table import Table
 
 from musicbot.config import DEFAULT_QUIET, Config
 from musicbot.defaults import DEFAULT_THREADS
+from musicbot.one_way_bool import OneWayBool
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +32,8 @@ class MusicbotObject:
     show_header: bool = True
     show_success: bool = True
     already_printed: list[str] = []
-    config = Config()
-    dry = False
+    config = Config(quiet=False)
+    dry = OneWayBool("dry", default=False)
 
     def __repr__(self) -> str:
         return '[DRY]' if self.dry else '[DOING]'

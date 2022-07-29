@@ -17,6 +17,7 @@ from rich.text import Text
 from musicbot.defaults import DEFAULT_VLC_PARAMS
 from musicbot.file import File
 from musicbot.helpers import bytes_to_human, precise_seconds_to_human
+from musicbot.link_options import DEFAULT_LINK_OPTIONS, LinkOptions
 from musicbot.music import Music
 from musicbot.music_filter import MusicFilter
 from musicbot.object import MusicbotObject
@@ -36,6 +37,60 @@ class Playlist(MusicbotObject):
         return cls(
             musics=[file.to_music() for file in files]
         )
+
+    @classmethod
+    def from_edgedb(
+        cls,
+        results: Any,
+        name: str | None = None,
+        music_filter: MusicFilter | None = None,
+        link_options: LinkOptions = DEFAULT_LINK_OPTIONS,
+    ) -> "Playlist":
+        musics = []
+        for result in results:
+            keywords = list(keyword.name for keyword in result.keywords)
+            links = set()
+            for link in result.links:
+                # elif 'youtube' in link:
+                #     if link_options.youtube:
+                #         links.add(link)
+                # elif 'spotify' in link:
+                #     if link_options.spotify:
+                #         links.add(link)
+                if 'http' in link:
+                    if link_options.http:
+                        links.add(link)
+                elif 'sftp' in link:
+                    if link_options.sftp:
+                        links.add(link)
+                    continue
+                elif link_options.local:
+                    path = Path(link)
+                    if not path.exists():
+                        MusicbotObject.warn(f'{link} does not exist locally, skipping')
+                    else:
+                        links.add(link)
+                    continue
+                else:
+                    logger.debug(f'{link} format not recognized, keeping')
+
+            music = Music(
+                title=result.name,
+                artist=result.artist.name,
+                album=result.album.name,
+                genre=result.genre.name,
+                size=result.size,
+                length=result.length,
+                keywords=set(keywords),
+                track=result.track,
+                rating=result.rating,
+                links=set(links),
+            )
+            if not links:
+                logger.debug(f'{music} : no links available')
+            musics.append(music)
+
+        return cls(name=name, musics=musics, music_filter=music_filter)
 
     def print(
         self,

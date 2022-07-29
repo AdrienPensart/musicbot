@@ -6,7 +6,6 @@ from pathlib import Path
 
 import click
 import progressbar  # type: ignore
-from attr import evolve
 from beartype import beartype
 from click_skeleton import AdvancedGroup
 from watchdog.observers import Observer  # type: ignore
@@ -32,7 +31,6 @@ from musicbot.cli.playlist import bests_options
 from musicbot.defaults import DEFAULT_VLC_PARAMS
 from musicbot.file import File
 from musicbot.folders import Folders
-from musicbot.helpers import async_gather, async_run
 from musicbot.link_options import LinkOptions
 from musicbot.music_filter import MusicFilter
 from musicbot.musicdb import MusicDb
@@ -112,12 +110,19 @@ def watch(
     observer.join()
 
 
-@cli.command(help='Clean all musics')
+@cli.command(help='Clean all musics', aliases=["clean-musics"])
 @musicdb_options
 @yes_option
 @beartype
 def clean(musicdb: MusicDb) -> None:
     musicdb.sync_clean_musics()
+
+
+@cli.command(help='Clean entities without musics associated')
+@musicdb_options
+@beartype
+def soft_clean(musicdb: MusicDb) -> None:
+    musicdb.sync_soft_clean()
 
 
 @cli.command(help='Generate a new playlist')
@@ -155,101 +160,16 @@ def bests(
     link_options: LinkOptions,
     folder: Path,
     min_playlist_size: int,
-    ratings: tuple[float, ...],
-    types: list[str],
 ) -> None:
     musicdb.set_readonly()
-    prefiltered = musicdb.sync_make_playlist(music_filter=music_filter, link_options=link_options)
-
-    if "genre" in types and prefiltered.genres:
-        with MusicbotObject.progressbar(max_value=len(prefiltered.genres), prefix="Generating bests genres") as pbar:
-            async def genre_worker(genre: str) -> None:
-                try:
-                    filter_copy = evolve(
-                        music_filter,
-                        genres=frozenset([genre]),
-                    )
-                    best = await musicdb.make_playlist(music_filter=filter_copy, link_options=link_options)
-                    if len(best.musics) < min_playlist_size:
-                        return
-                    filepath = Path(folder) / ('genre_' + genre.lower() + '.m3u')
-                    best.write(filepath)
-                finally:
-                    pbar.value += 1
-                    pbar.update()
-
-            _ = async_gather(genre_worker, prefiltered.genres)
-
-    if "rating" in types and ratings:
-        with MusicbotObject.progressbar(max_value=len(ratings), prefix="Generating bests ratings") as pbar:
-            async def rating_worker(rating: float) -> None:
-                try:
-                    filter_copy = evolve(
-                        music_filter,
-                        min_rating=rating,
-                    )
-                    best = await musicdb.make_playlist(music_filter=filter_copy, link_options=link_options)
-                    if len(best.musics) < min_playlist_size:
-                        return
-                    filepath = Path(folder) / ('rating_' + str(rating) + '.m3u')
-                    best.write(filepath)
-                finally:
-                    pbar.value += 1
-                    pbar.update()
-
-            _ = async_gather(rating_worker, ratings)
-
-    if "keyword" in types and prefiltered.keywords:
-        with MusicbotObject.progressbar(max_value=len(prefiltered.keywords), prefix="Generating bests keywords") as pbar:
-            async def keyword_worker(keyword: str) -> None:
-                try:
-                    filter_copy = evolve(
-                        music_filter,
-                        keywords=frozenset([keyword]),
-                    )
-                    best = await musicdb.make_playlist(music_filter=filter_copy, link_options=link_options)
-                    if len(best.musics) < min_playlist_size:
-                        return
-                    filepath = Path(folder) / ('keyword_' + keyword.lower() + '.m3u')
-                    best.write(filepath)
-                finally:
-                    pbar.value += 1
-                    pbar.update()
-
-            _ = async_gather(keyword_worker, prefiltered.keywords)
-
-    if "artist" not in types:
-        return
-
-    with MusicbotObject.progressbar(max_value=len(prefiltered.artists), prefix="Generating bests artists") as pbar:
-        async def artist_worker(artist: str) -> None:
-            if "rating" in types and ratings:
-                for rating in ratings:
-                    filter_copy = evolve(
-                        music_filter,
-                        min_rating=rating,
-                        artists=frozenset([artist]),
-                    )
-                    best = await musicdb.make_playlist(music_filter=filter_copy, link_options=link_options)
-                    if len(best.musics) < min_playlist_size:
-                        continue
-                    filepath = Path(folder) / artist / ('rating_' + str(rating) + '.m3u')
-                    best.write(filepath)
-
-            if "keyword" in types and prefiltered.keywords:
-                for keyword in prefiltered.keywords:
-                    filter_copy = evolve(
-                        music_filter,
-                        keywords=frozenset([keyword]),
-                        artists=frozenset([artist]),
-                    )
-                    best = await musicdb.make_playlist(music_filter=filter_copy, link_options=link_options)
-                    if len(best.musics) < min_playlist_size:
-                        continue
-                    filepath = Path(folder) / artist / ('keyword_' + keyword.lower() + '.m3u')
-                    best.write(filepath)
-
-        _ = async_gather(artist_worker, prefiltered.artists)
+    bests = musicdb.sync_make_bests(music_filter=music_filter, link_options=link_options)
+    for best in bests:
+        if len(best.musics) < min_playlist_size:
+            return
+        if best.name:
+            filepath = Path(folder) / (best.name + '.m3u')
+            best.write(filepath)
+    MusicbotObject.success(f"Playlists: {len(bests)}")
 
 
 @cli.command(aliases=['play'], help='Music player')
@@ -258,11 +178,11 @@ def bests(
 @click.option('--vlc-params', help="VLC params", default=DEFAULT_VLC_PARAMS, show_default=True)
 @beartype
 def player(music_filter: MusicFilter, musicdb: MusicDb, vlc_params: str) -> None:
+    musicdb.set_readonly()
     if not MusicbotObject.config.quiet:
         progressbar.streams.unwrap(stderr=True, stdout=True)
     try:
-        future = musicdb.make_playlist(music_filter)
-        playlist = async_run(future)
+        playlist = musicdb.sync_make_playlist(music_filter=music_filter)
         playlist.play(vlc_params)
     except io.UnsupportedOperation:
         logger.critical('Unable to load UI')
@@ -285,9 +205,9 @@ def sync(
     yes: bool,
     flat: bool,
 ) -> None:
+    musicdb.set_readonly()
     logger.info(f'Destination: {destination}')
-    future = musicdb.make_playlist(music_filter)
-    playlist = async_run(future)
+    playlist = musicdb.sync_make_playlist(music_filter=music_filter)
     if not playlist.musics:
         click.secho('no result for filter, nothing to sync')
         return
@@ -314,7 +234,7 @@ def sync(
     if flat:
         sources = {music.flat_filename: music.path for music in musics}
     else:
-        sources = {music.filename: music.path for music in musics}
+        sources = {str(music.canonic_artist_album_filename): music.path for music in musics}
 
     logger.info(f"Sources : {len(sources)}")
     to_delete = set(destinations.keys()) - set(sources.keys())
@@ -325,10 +245,10 @@ def sync(
                     path_to_delete = Path(destinations[d])
                     pbar.desc = f"Deleting musics and playlists: {path_to_delete.name}"
                     if MusicbotObject.dry:
-                        logger.info(f"[DRY-RUN] Deleting {path_to_delete}")
+                        MusicbotObject.success(f"[DRY-RUN] Deleting {path_to_delete}")
                         continue
                     try:
-                        logger.info(f"Deleting {path_to_delete}")
+                        MusicbotObject.success(f"Deleting {path_to_delete}")
                         path_to_delete.unlink()
                     except OSError as e:
                         logger.error(e)
@@ -345,10 +265,10 @@ def sync(
                 path_to_copy = Path(sources[c])
                 pbar.desc = f'Copying {path_to_copy.name} to {destination}'
                 if MusicbotObject.dry:
-                    logger.info(f"[DRY-RUN] Copying {path_to_copy.name} to {final_destination}")
+                    MusicbotObject.success(f"[DRY-RUN] Copying {path_to_copy.name} to {final_destination}")
                     continue
-                logger.info(f"Copying {path_to_copy.name} to {final_destination}")
 
+                MusicbotObject.success(f"Copying {path_to_copy.name} to {final_destination}")
                 Path(final_destination).parent.mkdir(exist_ok=True)
                 _ = shutil.copyfile(path_to_copy, final_destination)
             except KeyboardInterrupt:
@@ -368,4 +288,4 @@ def sync(
             continue
         if not MusicbotObject.dry:
             shutil.rmtree(d)
-        logger.info(f"[DRY-RUN] Removing empty dir {d}")
+        MusicbotObject.success(f"[DRY-RUN] Removing empty dir {d}")

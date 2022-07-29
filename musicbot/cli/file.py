@@ -54,6 +54,7 @@ flat_option = click.option(
     help="Do not create subfolders",
     is_flag=True,
     default=DEFAULT_FLAT,
+    show_default=True,
 )
 
 file_options = add_options(

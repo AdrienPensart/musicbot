@@ -141,3 +141,16 @@ def add_keywords(file: File, keywords: set[str]) -> None:
 def delete_keywords(file: File, keywords: set[str]) -> None:
     if not file.delete_keywords(keywords):
         MusicbotObject.err(f"{file} : unable to delete keywords")
+
+
+@cli.command(help='Replace one keyword in music')
+@music_argument
+@dry_option
+@beartype
+@click.argument('old_keyword')
+@click.argument('new_keyword')
+def replace_keyword(file: File, old_keyword: str, new_keyword: str) -> None:
+    if not file.delete_keywords({old_keyword}):
+        MusicbotObject.err(f"{file} : unable to delete keyword {old_keyword}")
+    if not file.add_keywords({new_keyword}):
+        MusicbotObject.err(f"{file} : unable to add keyword {new_keyword}")

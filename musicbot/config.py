@@ -64,11 +64,11 @@ class Config:
         root_logger.setLevel(level)
         if not self.quiet and "pytest" not in sys.modules:
             progressbar.streams.wrap(stderr=True, stdout=True)
-        handler = logging.StreamHandler()
-        handler.setLevel(level)
-        handler.setFormatter(
+        stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(level)
+        stream_handler.setFormatter(
             colorlog.ColoredFormatter(
-                fmt='%(log_color)s%(name)s | %(asctime)s | %(levelname)s | %(message)s',
+                fmt='\r%(log_color)s%(name)s | %(asctime)s | %(levelname)s | %(message)s\033[K',
                 datefmt='%Y-%d-%d %H:%M:%S',
                 log_colors={
                     'DEBUG': 'cyan',
@@ -79,18 +79,15 @@ class Config:
                 },
             )
         )
-        for handler in root_logger.handlers:  # type: ignore
-            logger.removeHandler(handler)
-        root_logger.addHandler(handler)
+        root_logger.handlers = []
         if self.log:
             log_path = Path(self.log).expanduser()
             try:
-                fh = logging.FileHandler(log_path)
-                fh.setLevel(logging.DEBUG)
-                logging.getLogger().addHandler(fh)
-                logger.debug(self)
+                file_handler = logging.FileHandler(log_path)
+                root_logger.addHandler(file_handler)
             except PermissionError as e:
                 raise MusicbotError(f"Unable to write log file {log_path}") from e
+        root_logger.addHandler(stream_handler)
 
     @cache
     def _configfile(self) -> configparser.ConfigParser:

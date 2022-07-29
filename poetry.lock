@@ -878,7 +878,7 @@ diagrams = ["railroad-diagrams", "jinja2"]
 
 [[package]]
 name = "pyright"
-version = "1.1.263"
+version = "1.1.264"
 description = "Command line wrapper for pyright"
 category = "main"
 optional = false

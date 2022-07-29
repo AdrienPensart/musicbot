@@ -40,10 +40,10 @@ with
             name := <str>$title,
             links := array_unpack(<array<str>>$links),
             size := <Size>$size,
+            length := <Length>$length,
             genre := upsert_genre,
             album := upsert_album,
             keywords := upsert_keywords,
-            duration := to_duration(seconds := <float64>$length),
             track := <int16>$track,
             rating := <Rating>$rating
         }
@@ -56,7 +56,7 @@ with
                 genre := upsert_genre,
                 album := upsert_album,
                 keywords := upsert_keywords,
-                duration := to_duration(seconds := <float64>$length),
+                length := <Length>$length,
                 track := <int16>$track,
                 rating := <Rating>$rating
             }
@@ -65,15 +65,72 @@ with
         name,
         links,
         size,
-        genre_name := .genre.name,
-        album_name := .album.name,
-        artist_name := .album.artist.name,
-        all_keywords := array_agg(.keywords.name),
-        length := <int64>duration_to_seconds(.duration),
+        genre: {name},
+        album: {name},
+        artist: {name},
+        keywords: {name},
+        length,
         track,
         rating
     }
 """
+
+BESTS_QUERY: Final[str] = """
+with
+    musics := ({filtered_playlist}),
+    unique_keywords := (select distinct (for music in musics union (music.keywords)))
+select {{
+    genres := (
+        group musics {{ name, links, size, genre: {{name}}, album: {{name}}, artist: {{name}}, keywords: {{name}}, length, track, rating }}
+        by .genre
+    ),
+    keywords := (
+        for unique_keyword in unique_keywords
+        union (
+            select Keyword {{
+                name,
+                musics := (
+                    select musics {{ name, links, size, genre: {{name}}, album: {{name}}, artist: {{name}}, keywords: {{name}}, length, track, rating }}
+                    filter unique_keyword.name in .keywords.name
+                )
+            }}
+            filter .name = unique_keyword.name
+        )
+    ),
+    ratings := (
+        group musics {{ name, links, size, genre: {{name}}, album: {{name}}, artist: {{name}}, keywords: {{name}}, length, track, rating }}
+        by .rating
+    ),
+    keywords_for_artist := (
+        for artist in (select distinct musics.artist)
+        union (
+            select {{
+                artist := artist.name,
+                keywords := (
+                    with
+                    artist_musics := (select musics filter .artist = artist),
+                    artist_keywords := (select distinct (for music in artist_musics union (music.keywords)))
+                    for artist_keyword in (select artist_keywords)
+                    union (
+                        select {{
+                            keyword := artist_keyword.name,
+                            musics := (
+                                select artist_musics {{ name, links, size, genre: {{name}}, album: {{name}}, artist: {{name}}, keywords: {{name}}, length, track, rating }}
+                                filter artist_keyword in .keywords
+                            )
+                        }}
+                    )
+                )
+            }}
+        )
+    ),
+    ratings_for_artist := (
+        group musics {{ name, links, size, genre: {{name}}, album: {{name}}, artist: {{name}}, keywords: {{name}}, length, track, rating }}
+        by .artist, .rating
+    )
+}}
+"""
+
 
 PLAYLIST_QUERY: Final[str] = """
 with
@@ -97,14 +154,15 @@ with
             (len(<array<str>>$no_genres) = 0 or not contains(<array<str>>$no_genres, .name))
     ),
     select Music {
+        id,
         name,
         links,
         size,
-        genre_name := .genre.name,
-        album_name := .album.name,
-        artist_name := .album.artist.name,
-        all_keywords := array_agg(.keywords.name),
-        length := <int64>duration_to_seconds(.duration),
+        genre: {name},
+        album: {name},
+        artist: {name},
+        keywords: {name},
+        length,
         track,
         rating
     }
@@ -119,16 +177,15 @@ with
         and (len(<array<str>>$no_keywords) = 0 or all((
             for no_keyword in array_unpack(<array<str>>$no_keywords)
             union (
-                not contains(.all_keywords, no_keyword)
+                not contains(.keywords.name, no_keyword)
             )
         )))
         and (len(<array<str>>$keywords) = 0 or all((
             for yes_keyword in array_unpack(<array<str>>$keywords)
             union (
-                contains(.all_keywords, yes_keyword)
+                contains(.keywords.name, yes_keyword)
             )
         )))
     order by max({<float64>$shuffle, random()})
     limit <int64>$limit
-    ;
 """

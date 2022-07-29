@@ -248,12 +248,13 @@ musicbot local
 
   Commands:
     bests                  Generate bests playlists with some rules
-    clean                  Clean all musics
+    clean (clean-musics)   Clean all musics
     execute (fetch,query)  Raw query
     help                   Print help
     player (play)          Music player
     playlist               Generate a new playlist
     scan                   Load musics
+    soft-clean             Clean entities without musics associated
     sync                   Copy selected musics with filters to destination folder
     watch                  Watch files changes in folders
 
@@ -305,8 +306,6 @@ musicbot local bests
       --local / --no-local              Generate local link  [default: local]
     Bests options: 
       --min-playlist-size INTEGER       Minimum size of playlist to write
-      --rating FLOAT RANGE              Generate bests for those ratings  [0.0<=x<=5.0]
-      --types TEXT                      Type of bests playlists
     -h, --help                          Show this message and exit.
 
 musicbot local clean
@@ -456,6 +455,20 @@ musicbot local scan
     --coroutines INTEGER       Limit number of coroutines  [default: 64]
     -h, --help                 Show this message and exit.
 
+musicbot local soft-clean
+*************************
+.. code-block::
+
+  Usage: musicbot local soft-clean [OPTIONS]
+
+    Clean entities without musics associated
+
+  Options:
+    MusicDB options: 
+      --dsn TEXT       DSN to MusicBot EdgeDB
+      --musicdb TEXT
+    -h, --help         Show this message and exit.
+
 musicbot local sync
 *******************
 .. code-block::
@@ -539,6 +552,7 @@ musicbot music
     flac2mp3 (flac-to-mp3)             Convert flac music to mp3
     help                               Print help
     inconsistencies (consistency)      Check music consistency
+    replace-keyword                    Replace one keyword in music
     set-tags (set-tag)                 Set music title
     tags (tag)                         Print music tags
 
@@ -609,6 +623,19 @@ musicbot music inconsistencies
                                                         track, invalid-title, invalid-comment, invalid-path]
       --fix                                             Fix musics
     -h, --help                                          Show this message and exit.
+
+musicbot music replace-keyword
+******************************
+.. code-block::
+
+  Usage: musicbot music replace-keyword [OPTIONS] FILE OLD_KEYWORD NEW_KEYWORD
+
+    Replace one keyword in music
+
+  Options:
+    --dry / --no-dry  Do not launch real action  [default: no-dry]
+    --dry / --no-dry  Do not launch real action  [default: no-dry]
+    -h, --help        Show this message and exit.
 
 musicbot music set-tags
 ***********************

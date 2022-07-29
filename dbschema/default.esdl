@@ -18,12 +18,20 @@ module default {
         constraint min_value(0);
     }
 
+    scalar type Length extending int64 {
+        constraint min_value(0);
+    }
+
     type Artist extending Entity {
         overloaded required property name -> str {
             constraint exclusive;
         }
-        multi link albums := .<artist[is Album]
+        multi link albums := .<artist[is Album];
         link musics := (select .albums.musics);
+        link keywords := (select .musics.keywords);
+        property rating := (select <float64>round(<decimal>math::mean(.musics.rating), 2));
+        property length := (select sum(.musics.length));
+        property duration := (select to_duration(seconds := <float64>.length));
     }
 
     type Album extending Entity {
@@ -32,7 +40,11 @@ module default {
         }
         constraint exclusive on ( (.name, .artist ) );
 
-        multi link musics := .<album[is Music]
+        multi link musics := .<album[is Music];
+        property length := (select sum(.musics.length));
+        property duration := (select to_duration(seconds := <float64>.length));
+        property rating := (select <float64>round(<decimal>math::mean(.musics.rating), 2));
+        link keywords := (select .musics.keywords);
     }
 
     type Music extending Entity {
@@ -40,13 +52,15 @@ module default {
         required property rating -> Rating {
             default := 0.0
         }
-        required property duration -> duration;
+        required property length -> Length;
+        property duration := (select to_duration(seconds := <float64>.length));
         required property size -> Size;
         property track -> int16;
 
         required link album -> Album {
             on target delete delete source;
         }
+        link artist := (select .album.artist);
 
         required link genre -> Genre {
             on target delete delete source;
@@ -61,14 +75,19 @@ module default {
         overloaded required property name -> str {
             constraint exclusive;
         }
-        multi link musics := .<keywords[is Music]
+        multi link musics := .<keywords[is Music];
+        property rating := (select <float64>round(<decimal>math::mean(.musics.rating), 2));
     }
 
     type Genre extending Entity {
         overloaded required property name -> str {
             constraint exclusive;
         }
-        multi link musics := .<genre[is Music]
+        multi link musics := .<genre[is Music];
+        property rating := (select <float64>round(<decimal>math::mean(.musics.rating), 2));
+        link keywords := (select .musics.keywords);
+        property length := (select sum(.musics.length));
+        property duration := (select to_duration(seconds := <float64>.length));
     }
 }
 

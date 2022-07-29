@@ -31,7 +31,6 @@ class MusicWatcherHandler(PatternMatchingEventHandler):
 
     def on_deleted(self, event: FileSystemEvent) -> None:
         logger.debug(f'Deleting entry in DB for: {event.src_path} {event.event_type}')
-        self.musicdb.sync_ensure_connected()
         self.musicdb.sync_delete_music(event.src_path)
 
     def on_moved(self, event: FileSystemEvent) -> None:
@@ -40,7 +39,6 @@ class MusicWatcherHandler(PatternMatchingEventHandler):
         _ = self.update_music(event.dest_path)
 
     def update_music(self, path: str) -> File | None:
-        self.musicdb.sync_ensure_connected()
         for folder_path in self.folders.paths:
             if path.startswith(str(folder_path)) and path.endswith(tuple(self.folders.extensions)):
                 MusicbotObject.success(f'{path} : updated')
