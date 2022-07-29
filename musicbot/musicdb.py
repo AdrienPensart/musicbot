@@ -293,14 +293,14 @@ class MusicDb(MusicbotObject):
             artist_name = artist.artist
             for keyword in artist.keywords:
                 keyword_name = keyword.keyword
-                artist_keyword = f"{artist_name}{os.sep}{keyword_name.lower()}"
+                artist_keyword = f"{artist_name}{os.sep}keyword_{keyword_name.lower()}"
                 self.success(f"Keyword by artist {artist_keyword} : {len(keyword.musics)}")
                 playlist = Playlist.from_edgedb(name=artist_keyword, results=keyword.musics, music_filter=music_filter, link_options=link_options)
                 playlists.append(playlist)
         for ratings_for_artist in result.ratings_for_artist:
             artist_name = ratings_for_artist.key.artist.name
             rating_name = ratings_for_artist.key.rating
-            artist_rating = f"{artist_name}{os.sep}{rating_name}"
+            artist_rating = f"{artist_name}{os.sep}rating_{rating_name}"
             self.success(f"Rating by artist {artist_rating} : {len(ratings_for_artist.elements)}")
             playlist = Playlist.from_edgedb(name=artist_rating, results=ratings_for_artist.elements, music_filter=music_filter, link_options=link_options)
             playlists.append(playlist)
