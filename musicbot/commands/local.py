@@ -134,6 +134,16 @@ def soft_clean(musicdb: MusicDb) -> None:
     musicdb.sync_soft_clean()
 
 
+@cli.command(help='Search musics by full-text search')
+@musicdb_options
+@output_option
+@click.argument('pattern')
+@beartype
+def search(musicdb: MusicDb, output: str, pattern: str) -> None:
+    p = musicdb.sync_search(pattern)
+    p.print(output=output)
+
+
 @cli.command(help='Generate a new playlist')
 @musicdb_options
 @output_option

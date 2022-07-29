@@ -18,6 +18,16 @@ def test_local_query(cli_runner, edgedb):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
+def test_local_search(cli_runner, edgedb):
+    run_cli(cli_runner, cli, [
+        '--quiet',
+        'local', 'search',
+        '1995',
+        '--dsn', edgedb,
+    ])
+
+
+@pytest.mark.runner_setup(mix_stderr=False)
 def test_local_sync(cli_runner, edgedb):
     run_cli(cli_runner, cli, [
         '--quiet',

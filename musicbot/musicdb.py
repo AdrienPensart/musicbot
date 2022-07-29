@@ -27,7 +27,9 @@ from musicbot.queries import (
     BESTS_QUERY,
     DELETE_QUERY,
     PLAYLIST_QUERY,
-    UPSERT_QUERY
+    UPSERT_QUERY,
+    SOFT_CLEAN_QUERY,
+    SEARCH_QUERY
 )
 
 logger = logging.getLogger(__name__)
@@ -42,6 +44,7 @@ class MusicDb(MusicbotObject):
             RetryOptions(attempts=10)
         )
 
+    @beartype
     def set_readonly(self, readonly: bool = True) -> None:
         '''set client to read only mode'''
         self.client = self.client.with_transaction_options(
@@ -69,6 +72,7 @@ class MusicDb(MusicbotObject):
         music_filter: MusicFilter | None = None,
     ) -> Any:
         music_filter = music_filter if music_filter is not None else MusicFilter()
+        logger.info(query)
         results = await self.client.query(
             query,
             titles=list(music_filter.titles),
@@ -122,44 +126,46 @@ class MusicDb(MusicbotObject):
         self.sync_ensure_connected()
         return async_run(self.make_playlist(name=name, music_filter=music_filter, link_options=link_options))
 
+    @beartype
     async def clean_musics(self) -> Any:
         query = """delete Artist;"""
         if self.dry:
             return None
         return await self.client.query(query)
 
+    @beartype
     def sync_clean_musics(self) -> Any:
         self.sync_ensure_connected()
         return async_run(self.clean_musics())
 
+    @beartype
     async def soft_clean(self) -> Any:
-        query = """
-            delete Keyword filter not exists .musics;
-            delete Album filter not exists .musics;
-            delete Artist filter not exists .musics;
-            delete Genre filter not exists .musics;
-        """
         if self.dry:
             return None
         self.success("cleaning orphan keywords, albums, artists, genres")
-        return await self.client.execute(query)
+        return await self.client.execute(SOFT_CLEAN_QUERY)
 
+    @beartype
     def sync_soft_clean(self) -> Any:
         self.sync_ensure_connected()
         return async_run(self.soft_clean())
 
+    @beartype
     def sync_ensure_connected(self) -> None:
         async_run(self.client.ensure_connected())
 
+    @beartype
     async def delete_music(self, path: str) -> Any:
         if self.dry:
             return None
         return await self.client.query(DELETE_QUERY, path=path)
 
+    @beartype
     def sync_delete_music(self, path: str) -> Any:
         self.sync_ensure_connected()
         return async_run(self.delete_music(path))
 
+    @beartype
     async def upsert_path(
         self,
         path: Path,
@@ -209,6 +215,7 @@ class MusicDb(MusicbotObject):
             logger.error(e)
         return None
 
+    @beartype
     def sync_upsert_path(
         self,
         path: Path,
@@ -217,6 +224,7 @@ class MusicDb(MusicbotObject):
         self.sync_ensure_connected()
         return async_run(self.upsert_path(path=path, link_options=link_options))
 
+    @beartype
     def sync_upsert_folders(
         self,
         folders: Folders,
@@ -308,6 +316,7 @@ class MusicDb(MusicbotObject):
             playlists.append(playlist)
         return playlists
 
+    @beartype
     def sync_make_bests(
         self,
         music_filter: MusicFilter | None = None,
@@ -315,3 +324,23 @@ class MusicDb(MusicbotObject):
     ) -> list[Playlist]:
         self.sync_ensure_connected()
         return async_run(self.make_bests(music_filter=music_filter, link_options=link_options))
+
+    @beartype
+    async def search(
+        self,
+        pattern: str,
+    ) -> Playlist:
+        query = SEARCH_QUERY.format(pattern=pattern)
+        results = await self.client.query(query=query)
+        return Playlist.from_edgedb(
+            name=pattern,
+            results=results,
+        )
+
+    @beartype
+    def sync_search(
+        self,
+        pattern: str,
+    ) -> Playlist:
+        self.sync_ensure_connected()
+        return async_run(self.search(pattern=pattern))

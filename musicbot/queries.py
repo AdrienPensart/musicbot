@@ -1,7 +1,26 @@
 from typing import Final
 
+SOFT_CLEAN_QUERY: Final[str] = """
+delete Keyword filter not exists .musics;
+delete Album filter not exists .musics;
+delete Artist filter not exists .musics;
+delete Genre filter not exists .musics;
+"""
+
+SEARCH_QUERY: Final[str] = """
+select Music {{
+    name, links, size, genre: {{name}}, album: {{name}}, artist: {{name}}, keywords: {{name}}, length, track, rating
+}}
+filter
+.name ilike "{pattern}" or
+.genre.name ilike "{pattern}" or
+.album.name ilike "{pattern}" or
+.artist.name ilike "{pattern}" or
+.keywords.name ilike "{pattern}"
+"""
+
 DELETE_QUERY: Final[str] = """
-   delete Music filter contains(.links, <str>$path)
+delete Music filter contains(.links, <str>$path)
 """
 
 UPSERT_QUERY: Final[str] = """
