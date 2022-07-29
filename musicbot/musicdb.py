@@ -137,6 +137,7 @@ class MusicDb(MusicbotObject):
             delete Keyword filter not exists .musics;
             delete Album filter not exists .musics;
             delete Artist filter not exists .musics;
+            delete Genre filter not exists .musics;
         """
         if self.dry:
             return None
