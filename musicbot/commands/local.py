@@ -99,7 +99,7 @@ def watch(
     folders: Folders,
     sleep: int,
 ) -> None:
-    def soft_clean_periodically():
+    def soft_clean_periodically() -> None:
         try:
             while True:
                 musicdb.sync_soft_clean()
