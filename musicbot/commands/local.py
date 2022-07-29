@@ -119,7 +119,7 @@ def watch(
     observer.join()
 
 
-@cli.command(help='Clean all musics', aliases=["clean-musics"])
+@cli.command(help='Clean all musics in DB', aliases=["clean-db", "erase"])
 @musicdb_options
 @yes_option
 @beartype

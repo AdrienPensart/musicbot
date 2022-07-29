@@ -247,16 +247,16 @@ musicbot local
     -h, --help  Show this message and exit.
 
   Commands:
-    bests                  Generate bests playlists with some rules
-    clean (clean-musics)   Clean all musics
-    execute (fetch,query)  Raw query
-    help                   Print help
-    player (play)          Music player
-    playlist               Generate a new playlist
-    scan                   Load musics
-    soft-clean             Clean entities without musics associated
-    sync                   Copy selected musics with filters to destination folder
-    watch                  Watch files changes in folders
+    bests                   Generate bests playlists with some rules
+    clean (clean-db,erase)  Clean all musics in DB
+    execute (fetch,query)   Raw query
+    help                    Print help
+    player (play)           Music player
+    playlist                Generate a new playlist
+    scan                    Load musics
+    soft-clean              Clean entities without musics associated
+    sync                    Copy selected musics with filters to destination folder
+    watch                   Watch files changes in folders
 
 musicbot local bests
 ********************
@@ -314,7 +314,7 @@ musicbot local clean
 
   Usage: musicbot local clean [OPTIONS]
 
-    Clean all musics
+    Clean all musics in DB
 
   Options:
     MusicDB options: 
@@ -532,6 +532,7 @@ musicbot local watch
     MusicDB options: 
       --dsn TEXT        DSN to MusicBot EdgeDB
       --musicdb TEXT
+    --sleep INTEGER     Clean music every X seconds  [default: 3600]
     -h, --help          Show this message and exit.
 
 musicbot music
