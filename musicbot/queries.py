@@ -1,3 +1,4 @@
+import string
 from typing import Final
 
 SOFT_CLEAN_QUERY: Final[str] = """
@@ -8,24 +9,24 @@ delete Genre filter not exists .musics;
 """
 
 SEARCH_QUERY: Final[str] = """
-select Music {{
+select Music {
     name,
     links,
     size,
-    genre: {{name}},
-    album: {{name}},
-    artist: {{name}},
-    keywords: {{name}},
+    genre: {name},
+    album: {name},
+    artist: {name},
+    keywords: {name},
     length,
     track,
     rating
-}}
+}
 filter
-.name ilike "{pattern}" or
-.genre.name ilike "{pattern}" or
-.album.name ilike "{pattern}" or
-.artist.name ilike "{pattern}" or
-.keywords.name ilike "{pattern}"
+.name ilike <str>$pattern or
+.genre.name ilike <str>$pattern or
+.album.name ilike <str>$pattern or
+.artist.name ilike <str>$pattern or
+.keywords.name ilike <str>$pattern
 """
 
 DELETE_QUERY: Final[str] = """
@@ -103,36 +104,36 @@ with
     }
 """
 
-BESTS_QUERY: Final[str] = """
+BESTS_QUERY = string.Template("""
 with
-    musics := ({filtered_playlist}),
+    musics := ($filtered_playlist),
     unique_keywords := (select distinct (for music in musics union (music.keywords)))
-select {{
+select {
     genres := (
-        group musics {{ name, links, size, genre: {{name}}, album: {{name}}, artist: {{name}}, keywords: {{name}}, length, track, rating }}
+        group musics { name, links, size, genre: {name}, album: {name}, artist: {name}, keywords: {name}, length, track, rating }
         by .genre
     ),
     keywords := (
         for unique_keyword in unique_keywords
         union (
-            select Keyword {{
+            select Keyword {
                 name,
                 musics := (
-                    select musics {{ name, links, size, genre: {{name}}, album: {{name}}, artist: {{name}}, keywords: {{name}}, length, track, rating }}
+                    select musics { name, links, size, genre: {name}, album: {name}, artist: {name}, keywords: {name}, length, track, rating }
                     filter unique_keyword.name in .keywords.name
                 )
-            }}
+            }
             filter .name = unique_keyword.name
         )
     ),
     ratings := (
-        group musics {{ name, links, size, genre: {{name}}, album: {{name}}, artist: {{name}}, keywords: {{name}}, length, track, rating }}
+        group musics { name, links, size, genre: {name}, album: {name}, artist: {name}, keywords: {name}, length, track, rating }
         by .rating
     ),
     keywords_for_artist := (
         for artist in (select distinct musics.artist)
         union (
-            select {{
+            select {
                 artist := artist.name,
                 keywords := (
                     with
@@ -140,24 +141,24 @@ select {{
                     artist_keywords := (select distinct (for music in artist_musics union (music.keywords)))
                     for artist_keyword in (select artist_keywords)
                     union (
-                        select {{
+                        select {
                             keyword := artist_keyword.name,
                             musics := (
-                                select artist_musics {{ name, links, size, genre: {{name}}, album: {{name}}, artist: {{name}}, keywords: {{name}}, length, track, rating }}
+                                select artist_musics { name, links, size, genre: {name}, album: {name}, artist: {name}, keywords: {name}, length, track, rating }
                                 filter artist_keyword in .keywords
                             )
-                        }}
+                        }
                     )
                 )
-            }}
+            }
         )
     ),
     ratings_for_artist := (
-        group musics {{ name, links, size, genre: {{name}}, album: {{name}}, artist: {{name}}, keywords: {{name}}, length, track, rating }}
+        group musics { name, links, size, genre: {name}, album: {name}, artist: {name}, keywords: {name}, length, track, rating }
         by .artist, .rating
     )
-}}
-"""
+}
+""")
 
 
 PLAYLIST_QUERY: Final[str] = """

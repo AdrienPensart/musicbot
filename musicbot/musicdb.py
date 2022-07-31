@@ -184,7 +184,7 @@ class MusicDb(MusicbotObject):
             input_music = file.to_music(link_options)
             params = dict(
                 query=UPSERT_QUERY,
-                **asdict(input_music),
+                **asdict(input_music),  # type: ignore
             )
             result = await self.client.query_required_single(**params)
             keywords = set(keyword.name for keyword in result.keywords)
@@ -201,7 +201,11 @@ class MusicDb(MusicbotObject):
                 links=set(result.links),
             )
 
-            music_diff = DeepDiff(asdict(input_music), asdict(output_music), ignore_order=True)
+            music_diff = DeepDiff(
+                asdict(input_music),  # type: ignore
+                asdict(output_music),  # type: ignore
+                ignore_order=True,
+            )
             if music_diff:
                 MusicbotObject.err(f"{file} : file and music diff detected : ")
                 MusicbotObject.print_json(music_diff, file=sys.stderr)
@@ -279,7 +283,7 @@ class MusicDb(MusicbotObject):
         music_filter: MusicFilter | None = None,
         link_options: LinkOptions = DEFAULT_LINK_OPTIONS
     ) -> list[Playlist]:
-        query = BESTS_QUERY.format(filtered_playlist=PLAYLIST_QUERY)
+        query = BESTS_QUERY.substitute(filtered_playlist=PLAYLIST_QUERY)
         logger.info(query)
         results = await self.execute_music_filter(query, music_filter)
         result = results[0]
@@ -330,8 +334,7 @@ class MusicDb(MusicbotObject):
         self,
         pattern: str,
     ) -> Playlist:
-        query = SEARCH_QUERY.format(pattern=pattern)
-        results = await self.client.query(query=query)
+        results = await self.client.query(query=SEARCH_QUERY, pattern=pattern)
         return Playlist.from_edgedb(
             name=pattern,
             results=results,

@@ -68,7 +68,7 @@ def tags(
     logger.info(file.handle.tags.keys())
     music = file.to_music(link_options)
     if output == 'json':
-        MusicbotObject.print_json(asdict(music))
+        MusicbotObject.print_json(asdict(music))  # type: ignore
         return
     print(music)
 
