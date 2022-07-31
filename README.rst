@@ -254,6 +254,7 @@ musicbot local
     player (play)           Music player
     playlist                Generate a new playlist
     scan                    Load musics
+    search                  Search musics by full-text search
     soft-clean              Clean entities without musics associated
     sync                    Copy selected musics with filters to destination folder
     watch                   Watch files changes in folders
@@ -453,6 +454,21 @@ musicbot local scan
       --sftp / --no-sftp       Generate sFTP link  [default: no-sftp]
       --local / --no-local     Generate local link  [default: local]
     --coroutines INTEGER       Limit number of coroutines  [default: 64]
+    -h, --help                 Show this message and exit.
+
+musicbot local search
+*********************
+.. code-block::
+
+  Usage: musicbot local search [OPTIONS] PATTERN
+
+    Search musics by full-text search
+
+  Options:
+    MusicDB options: 
+      --dsn TEXT               DSN to MusicBot EdgeDB
+      --musicdb TEXT
+    --output [json|table|m3u]  Output format  [default: table]
     -h, --help                 Show this message and exit.
 
 musicbot local soft-clean

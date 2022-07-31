@@ -27,9 +27,9 @@ from musicbot.queries import (
     BESTS_QUERY,
     DELETE_QUERY,
     PLAYLIST_QUERY,
-    UPSERT_QUERY,
+    SEARCH_QUERY,
     SOFT_CLEAN_QUERY,
-    SEARCH_QUERY
+    UPSERT_QUERY
 )
 
 logger = logging.getLogger(__name__)

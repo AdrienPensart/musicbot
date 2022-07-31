@@ -9,7 +9,16 @@ delete Genre filter not exists .musics;
 
 SEARCH_QUERY: Final[str] = """
 select Music {{
-    name, links, size, genre: {{name}}, album: {{name}}, artist: {{name}}, keywords: {{name}}, length, track, rating
+    name,
+    links,
+    size,
+    genre: {{name}},
+    album: {{name}},
+    artist: {{name}},
+    keywords: {{name}},
+    length,
+    track,
+    rating
 }}
 filter
 .name ilike "{pattern}" or
