@@ -184,7 +184,7 @@ class MusicDb(MusicbotObject):
             input_music = file.to_music(link_options)
             params = dict(
                 query=UPSERT_QUERY,
-                **asdict(input_music),  # type: ignore
+                **asdict(input_music),
             )
             result = await self.client.query_required_single(**params)
             keywords = set(keyword.name for keyword in result.keywords)
@@ -202,8 +202,8 @@ class MusicDb(MusicbotObject):
             )
 
             music_diff = DeepDiff(
-                asdict(input_music),  # type: ignore
-                asdict(output_music),  # type: ignore
+                asdict(input_music),
+                asdict(output_music),
                 ignore_order=True,
             )
             if music_diff:

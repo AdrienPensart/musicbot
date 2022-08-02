@@ -68,9 +68,9 @@ def tags(
     logger.info(file.handle.tags.keys())
     music = file.to_music(link_options)
     if output == 'json':
-        MusicbotObject.print_json(asdict(music))  # type: ignore
+        MusicbotObject.print_json(asdict(music))
         return
-    print(music)
+    print(music.human_repr())
 
 
 @cli.command(aliases=['consistency'], help='Check music consistency')

@@ -463,7 +463,7 @@ test = ["pycodestyle (>=2.6.0,<2.7.0)", "pyflakes (>=2.2.0,<2.3.0)", "flake8-bug
 
 [[package]]
 name = "flake8"
-version = "5.0.0"
+version = "5.0.3"
 description = "the modular source code checker: pep8 pyflakes and co"
 category = "dev"
 optional = false
@@ -1272,7 +1272,7 @@ python-versions = "*"
 
 [[package]]
 name = "types-requests"
-version = "2.28.6"
+version = "2.28.7"
 description = "Typing stubs for requests"
 category = "main"
 optional = false
@@ -1283,7 +1283,7 @@ types-urllib3 = "<1.27"
 
 [[package]]
 name = "types-urllib3"
-version = "1.26.19"
+version = "1.26.20"
 description = "Typing stubs for urllib3"
 category = "main"
 optional = false

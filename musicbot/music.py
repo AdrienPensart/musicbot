@@ -11,7 +11,7 @@ from musicbot.object import MusicbotObject
 logger = logging.getLogger(__name__)
 
 
-@frozen(repr=False)
+@frozen
 class Music(MusicbotObject):
     title: str
     album: str
@@ -24,7 +24,7 @@ class Music(MusicbotObject):
     keywords: set[str]
     links: set[str]
 
-    def __repr__(self) -> str:
+    def human_repr(self) -> str:
         d = asdict(self)
         d['links'] = [link.removeprefix('sftp://') for link in d['links']]
         d['size'] = bytes_to_human(d['size'])
