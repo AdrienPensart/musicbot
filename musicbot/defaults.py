@@ -5,6 +5,9 @@ MAX_INT: Final[int] = 2147483647
 
 DEFAULT_VLC_PARAMS: Final[str] = "--vout=dummy --aout=pulse"
 
+LINK_CHOICES: Final[list[str]] = ['ssh', 'local', 'http']
+DEFAULT_LINK: Final[list[str]] = ['local']
+
 RATING_CHOICES: Final[list[float]] = [x * 0.5 for x in range(0, 11)]
 STORED_RATING_CHOICES: Final[list[float]] = [float(x) / 10.0 for x in range(0, 11)]
 DEFAULT_NAME: Final[str | None] = None
@@ -28,6 +31,7 @@ DEFAULT_NO_TITLES: Final[frozenset[str]] = frozenset()
 DEFAULT_ALBUMS: Final[frozenset[str]] = frozenset()
 DEFAULT_NO_ALBUMS: Final[frozenset[str]] = frozenset()
 
+DEFAULT_SPOTIFY_TIMEOUT: Final[int] = 10
 DEFAULT_SPOTIFY_USERNAME: Final[str | None] = None
 DEFAULT_SPOTIFY_CLIENT_ID: Final[str | None] = None
 DEFAULT_SPOTIFY_CLIENT_SECRET: Final[str | None] = None

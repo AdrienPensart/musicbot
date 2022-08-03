@@ -53,6 +53,7 @@ def playlist(
         output=output,
         interleave=interleave,
         shuffle=shuffle,
+        types=['local']
     )
 
 
@@ -76,7 +77,10 @@ def flac2mp3(
         flat=flat,
     )
     playlist = Playlist.from_files(mp3_files)
-    playlist.print(output=output)
+    playlist.print(
+        output=output,
+        types=['local']
+    )
 
 
 @cli.command(aliases=['consistency'], help='Check music files consistency')

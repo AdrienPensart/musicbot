@@ -1,9 +1,11 @@
+import codecs
 import io
 import logging
 import shutil
 import threading
 import time
 from pathlib import Path
+from typing import Any
 
 import click
 import progressbar  # type: ignore
@@ -28,7 +30,7 @@ from musicbot.cli.options import (
     save_option,
     yes_option
 )
-from musicbot.cli.playlist import bests_options
+from musicbot.cli.playlist import bests_options, links_option
 from musicbot.defaults import DEFAULT_VLC_PARAMS
 from musicbot.file import File
 from musicbot.folders import Folders
@@ -89,11 +91,13 @@ def scan(
 @folders_argument
 @musicdb_options
 @click.option('--sleep', help="Clean music every X seconds", type=int, default=3600, show_default=True)
+@click.option('--timeout', help="How many seconds until we terminate", type=int, show_default=True)
 @beartype
 def watch(
     musicdb: MusicDb,
     folders: Folders,
     sleep: int,
+    timeout: int | None,
 ) -> None:
     def soft_clean_periodically() -> None:
         try:
@@ -112,7 +116,7 @@ def watch(
         observer.schedule(event_handler, directory, recursive=True)
         MusicbotObject.success(f"{directory} : watching")
     observer.start()
-    observer.join()
+    observer.join(timeout=timeout)
 
 
 @cli.command(help='Clean all musics in DB', aliases=["clean-db", "erase"])
@@ -133,29 +137,38 @@ def soft_clean(musicdb: MusicDb) -> None:
 @cli.command(help='Search musics by full-text search')
 @musicdb_options
 @output_option
+@links_option
 @click.argument('pattern')
 @beartype
-def search(musicdb: MusicDb, output: str, pattern: str) -> None:
+def search(
+    musicdb: MusicDb,
+    output: str,
+    pattern: str,
+    links: list[str],
+) -> None:
     p = musicdb.sync_search(pattern)
-    p.print(output=output)
+    p.print(output=output, types=links)
 
 
 @cli.command(help='Generate a new playlist')
 @musicdb_options
 @output_option
 @music_filter_options
+@links_option
 @click.argument('out', type=click.File('w', lazy=True), default='-')
+@beartype
 def playlist(
     output: str,
     music_filter: MusicFilter,
     musicdb: MusicDb,
-    out: progressbar.utils.WrappingIO,
+    out: Any,
+    links: list[str],
 ) -> None:
     musicdb.set_readonly()
     p = musicdb.sync_make_playlist(
         music_filter=music_filter,
     )
-    p.print(output=output, file=out)
+    p.print(output=output, file=out, types=links)
 
 
 @cli.command(help='Generate bests playlists with some rules')
@@ -163,6 +176,7 @@ def playlist(
 @music_filter_options
 @musicdb_options
 @dry_option
+@links_option
 @bests_options
 @beartype
 def bests(
@@ -170,30 +184,48 @@ def bests(
     music_filter: MusicFilter,
     folder: Path,
     min_playlist_size: int,
+    links: list[str],
 ) -> None:
     musicdb.set_readonly()
-    bests = musicdb.sync_make_bests(music_filter=music_filter)
+    bests = musicdb.sync_make_bests(
+        music_filter=music_filter,
+    )
     for best in bests:
         if len(best.musics) < min_playlist_size:
             return
         if best.name:
             filepath = Path(folder) / (best.name + '.m3u')
-            best.write(filepath)
+            if MusicbotObject.dry:
+                MusicbotObject.success(f'DRY RUN: Writing playlist {best.name} to {filepath}')
+                continue
+            try:
+                filepath.parent.mkdir(parents=True, exist_ok=True)
+                with codecs.open(str(filepath), 'w', "utf-8-sig") as playlist_file:
+                    best.print(output="m3u", file=playlist_file, types=links)
+            except (OSError, LookupError, ValueError, UnicodeError) as e:
+                logger.warning(f'Unable to write playlist {best.name} to {filepath} because of {e}')
+
     MusicbotObject.success(f"Playlists: {len(bests)}")
 
 
 @cli.command(aliases=['play'], help='Music player')
 @musicdb_options
+@links_option
 @music_filter_options
 @click.option('--vlc-params', help="VLC params", default=DEFAULT_VLC_PARAMS, show_default=True)
 @beartype
-def player(music_filter: MusicFilter, musicdb: MusicDb, vlc_params: str) -> None:
+def player(
+    music_filter: MusicFilter,
+    musicdb: MusicDb,
+    vlc_params: str,
+    links: list[str],
+) -> None:
     musicdb.set_readonly()
     if not MusicbotObject.config.quiet:
         progressbar.streams.unwrap(stderr=True, stdout=True)
     try:
         playlist = musicdb.sync_make_playlist(music_filter=music_filter)
-        playlist.play(vlc_params)
+        playlist.play(vlc_params=vlc_params, types=links)
     except io.UnsupportedOperation:
         logger.critical('Unable to load UI')
 
@@ -231,10 +263,8 @@ def sync(
 
     musics: list[File] = []
     for music in playlist.musics:
-        for link in music.links:
+        for link in music.links(types=['local']):
             try:
-                # if link.startswith('ssh://'):
-                #     continue
                 path = Path(link)
                 music_to_sync = File.from_path(folder=path.parent, path=path)
                 musics.append(music_to_sync)

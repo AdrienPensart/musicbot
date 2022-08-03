@@ -28,6 +28,16 @@ def test_local_search(cli_runner, edgedb):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
+def test_local_watch(cli_runner, edgedb):
+    run_cli(cli_runner, cli, [
+        '--quiet',
+        'local', 'watch',
+        '--dsn', edgedb,
+        '--timeout', 5,
+    ])
+
+
+@pytest.mark.runner_setup(mix_stderr=False)
 def test_local_soft_clean(cli_runner, edgedb):
     run_cli(cli_runner, cli, [
         '--quiet',
@@ -43,6 +53,8 @@ def test_local_sync(cli_runner, edgedb):
         '--quiet',
         'local', 'sync',
         '--dsn', edgedb,
+        '--delete',
+        '--yes',
         '/tmp',
         '--dry',
     ])

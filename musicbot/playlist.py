@@ -1,13 +1,12 @@
-import codecs
 import itertools
 import logging
 import os
 import platform
 import random
-from pathlib import Path
-from typing import IO, Any
+from typing import Any
 
 from attr import asdict, frozen
+from beartype import beartype
 from click_skeleton.helpers import PrettyDefaultDict
 from click_skeleton.helpers import \
     seconds_to_human as formatted_seconds_to_human
@@ -64,15 +63,17 @@ class Playlist(MusicbotObject):
 
         return cls(name=name, musics=musics, music_filter=music_filter)
 
+    @beartype
     def print(
         self,
         output: str,
+        types: list[str],
         current_title: str | None = None,
         current_album: str | None = None,
         current_artist: str | None = None,
         shuffle: bool = False,
         interleave: bool = False,
-        file: IO | None = None,
+        file: Any = None,
     ) -> None:
         musics = self.musics
         if interleave:
@@ -93,7 +94,6 @@ class Playlist(MusicbotObject):
             Column("Infos", vertical="middle", no_wrap=True),
             show_lines=True,
         )
-        links = []
         total_length = 0
         total_size = 0
         for music in musics:
@@ -105,7 +105,7 @@ class Playlist(MusicbotObject):
                 '\n'.join([music.title, music.artist, music.album, music.genre]),
                 str(music.rating),
                 '\n'.join(sorted(music.keywords)),
-                '\n'.join([f"{folder}" for folder in music.folders]),
+                '\n'.join(music.links(types)),
                 infos,
             ]
             if music.title == current_title and music.album == current_album and music.artist == current_artist:
@@ -113,9 +113,6 @@ class Playlist(MusicbotObject):
                 table.add_row(*colored_row)
             else:
                 table.add_row(*raw_row)
-
-            for link in music.links:
-                links.append(link)
 
             total_length += music.length
             total_size += music.size
@@ -125,7 +122,7 @@ class Playlist(MusicbotObject):
 
         if output == 'm3u':
             p = '#EXTM3U\n'
-            p += '\n'.join(links)
+            p += '\n'.join(self.links(types))
             print(p, file=file)
         elif output == 'table':
             self.print_table(table, file=file)
@@ -134,10 +131,6 @@ class Playlist(MusicbotObject):
         else:
             self.err(f"unknown output type : {output}")
         self.success(f"Total length: {precise_seconds_to_human(total_length)} | Total size: {bytes_to_human(total_size)}")
-
-    @property
-    def links(self) -> frozenset[str]:
-        return frozenset(itertools.chain(*[music.links for music in self.musics]))
 
     @property
     def genres(self) -> frozenset[str]:
@@ -155,22 +148,16 @@ class Playlist(MusicbotObject):
     def ratings(self) -> frozenset[float]:
         return frozenset(set(music.rating for music in self.musics))
 
-    def write(self, filepath: Path) -> None:
-        if not self.links:
-            return
-        content = '#EXTM3U\n' + '\n'.join(self.links)
-        if self.dry:
-            self.success(f'DRY RUN: Writing playlist to {filepath} with content:\n{content}')
-            return
-        try:
-            filepath.parent.mkdir(parents=True, exist_ok=True)
-            with codecs.open(str(filepath), 'w', "utf-8-sig") as playlist_file:
-                logger.debug(f'Writing playlist to {filepath} with content:\n{content}')
-                playlist_file.write(content)
-        except (OSError, LookupError, ValueError, UnicodeError) as e:
-            logger.warning(f'Unable to write playlist to {filepath} because of {e}')
+    @beartype
+    def links(self, types: list[str]) -> list[str]:
+        return list(itertools.chain(*[music.links(types) for music in self.musics]))
 
-    def play(self, vlc_params: str = DEFAULT_VLC_PARAMS) -> None:
+    @beartype
+    def play(
+        self,
+        types: list[str],
+        vlc_params: str = DEFAULT_VLC_PARAMS,
+    ) -> None:
         from prompt_toolkit import HTML, Application, print_formatted_text
         from prompt_toolkit.application import get_app, run_in_terminal
         from prompt_toolkit.key_binding import KeyBindings
@@ -201,7 +188,7 @@ class Playlist(MusicbotObject):
                 logger.critical('Unable to create VLC player')
                 return
 
-            media_list = instance.media_list_new(list(self.links))
+            media_list = instance.media_list_new(self.links(types))
             if not media_list:
                 logger.critical('Unable to create VLC media list')
                 return
@@ -238,7 +225,13 @@ class Playlist(MusicbotObject):
                     current_artist = media.get_meta(vlc.Meta.Artist)
                     current_album = media.get_meta(vlc.Meta.Album)
                     current_title = media.get_meta(vlc.Meta.Title)
-                    self.print(output='table', current_artist=current_artist, current_album=current_album, current_title=current_title)
+                    self.print(
+                        output='table',
+                        types=types,
+                        current_artist=current_artist,
+                        current_album=current_album,
+                        current_title=current_title,
+                    )
                 _ = run_in_terminal(playlist)
 
             @bindings.add('right')

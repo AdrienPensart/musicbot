@@ -39,4 +39,5 @@ def test_spotify_diff(cli_runner, edgedb):
         '--quiet',
         'spotify', 'diff',
         '--dsn', edgedb,
+        '--min-threshold', 50,
     ])

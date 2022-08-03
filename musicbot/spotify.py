@@ -7,7 +7,10 @@ import spotipy  # type: ignore
 from attr import asdict, frozen
 from spotipy.oauth2 import CacheFileHandler  # type: ignore
 
-from musicbot.defaults import DEFAULT_SPOTIFY_DOWNLOAD_PLAYLIST
+from musicbot.defaults import (
+    DEFAULT_SPOTIFY_DOWNLOAD_PLAYLIST,
+    DEFAULT_SPOTIFY_TIMEOUT
+)
 from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
@@ -40,10 +43,10 @@ class Spotify(MusicbotObject):
         return CacheFileHandler(cache_path=self.cache_path, username=self.username)
 
     @cache
-    def _api(self) -> spotipy.Spotify:
+    def _api(self, requests_timeout: int = DEFAULT_SPOTIFY_TIMEOUT) -> spotipy.Spotify:
         if self.token:
-            return spotipy.Spotify(auth=self.token)
-        return spotipy.Spotify(auth_manager=self.auth_manager)
+            return spotipy.Spotify(auth=self.token, requests_timeout=requests_timeout)
+        return spotipy.Spotify(auth_manager=self.auth_manager, requests_timeout=requests_timeout)
 
     @property
     def api(self) -> spotipy.Spotify:

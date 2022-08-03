@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import os
-import sys
 from functools import cache
 from pathlib import Path
 from typing import Any
@@ -9,7 +8,7 @@ from typing import Any
 import edgedb
 from attr import asdict, define
 from beartype import beartype
-from deepdiff import DeepDiff  # type: ignore
+# from deepdiff import DeepDiff  # type: ignore
 from edgedb.asyncio_client import AsyncIOClient, create_async_client
 from edgedb.options import RetryOptions, TransactionOptions
 
@@ -25,7 +24,6 @@ from musicbot.playlist import Playlist
 from musicbot.queries import (
     BESTS_QUERY,
     DELETE_QUERY,
-    MUSIC_FIELDS,
     PLAYLIST_QUERY,
     SEARCH_QUERY,
     SOFT_CLEAN_QUERY,
@@ -271,9 +269,7 @@ class MusicDb(MusicbotObject):
         self,
         music_filter: MusicFilter | None = None,
     ) -> list[Playlist]:
-        query = BESTS_QUERY.substitute(filtered_playlist=PLAYLIST_QUERY, music_fields=MUSIC_FIELDS)
-        logger.info(query)
-        results = await self.execute_music_filter(query, music_filter)
+        results = await self.execute_music_filter(BESTS_QUERY, music_filter)
         result = results[0]
         playlists = []
         for genre in result.genres:

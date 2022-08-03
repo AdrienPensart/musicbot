@@ -1,6 +1,92 @@
 import string
 from typing import Final
 
+
+class CustomStringTemplate(string.Template):
+    delimiter = "#"
+
+
+MUSIC_FIELDS = """
+name,
+size,
+genre: {name},
+album: {name},
+artist: {name},
+keywords: {name},
+length,
+track,
+rating,
+folders: {
+    name,
+    ipv4,
+    user,
+    path := @path
+}
+"""
+
+PLAYLIST_QUERY: Final[str] = """
+with
+    artists := (
+        select Artist
+        filter
+            (len(<array<str>>$artists) = 0 or contains(<array<str>>$artists, .name)) and
+            (len(<array<str>>$no_artists) = 0 or not contains(<array<str>>$no_artists, .name))
+    ),
+    albums := (
+        select Album
+        filter
+            (len(<array<str>>$albums) = 0 or contains(<array<str>>$albums, .name)) and
+            (len(<array<str>>$no_albums) = 0 or not contains(<array<str>>$no_albums, .name)) and
+            .artist in artists
+    ),
+    genres := (
+        select Genre
+        filter
+            (len(<array<str>>$genres) = 0 or contains(<array<str>>$genres, .name)) and
+            (len(<array<str>>$no_genres) = 0 or not contains(<array<str>>$no_genres, .name))
+    ),
+    select Music {
+        id,
+        name,
+        size,
+        genre: {name},
+        album: {name},
+        artist: {name},
+        keywords: {name},
+        length,
+        track,
+        rating,
+        folders: {
+            name,
+            ipv4,
+            user,
+            path := @path
+        }
+    }
+    filter
+        .length >= <int64>$min_length and .length <= <int64>$max_length
+        and .size >= <int64>$min_size and .size <= <int64>$max_size
+        and .rating >= <Rating>$min_rating and .rating <= <Rating>$max_rating
+        and (len(<array<str>>$titles) = 0 or contains(<array<str>>$titles, .name))
+        and (len(<array<str>>$no_titles) = 0 or not contains(<array<str>>$no_titles, .name))
+        and .genre in genres
+        and .album in albums
+        and (len(<array<str>>$no_keywords) = 0 or all((
+            for no_keyword in array_unpack(<array<str>>$no_keywords)
+            union (
+                not contains(.keywords.name, no_keyword)
+            )
+        )))
+        and (len(<array<str>>$keywords) = 0 or all((
+            for yes_keyword in array_unpack(<array<str>>$keywords)
+            union (
+                contains(.keywords.name, yes_keyword)
+            )
+        )))
+    order by max({<float64>$shuffle, random()})
+    limit <int64>$limit
+"""
+
 SOFT_CLEAN_QUERY: Final[str] = """
 delete Keyword filter not exists .musics;
 delete Album filter not exists .musics;
@@ -8,23 +94,9 @@ delete Artist filter not exists .musics;
 delete Genre filter not exists .musics;
 """
 
-SEARCH_QUERY: Final[str] = """
+SEARCH_QUERY: Final[str] = CustomStringTemplate("""
 select Music {
-    name,
-    size,
-    genre: {name},
-    album: {name},
-    artist: {name},
-    keywords: {name},
-    length,
-    track,
-    rating,
-    folders: {
-        name,
-        ipv4,
-        user,
-        path := @path
-    }
+    #music_fields
 }
 filter
 .name ilike <str>$pattern or
@@ -32,13 +104,13 @@ filter
 .album.name ilike <str>$pattern or
 .artist.name ilike <str>$pattern or
 .keywords.name ilike <str>$pattern
-"""
+""").substitute(music_fields=MUSIC_FIELDS)
 
 DELETE_QUERY: Final[str] = """
 delete Music filter contains(.links, <str>$path)
 """
 
-UPSERT_QUERY: Final[str] = """
+UPSERT_QUERY: Final[str] = CustomStringTemplate("""
 with
     upsert_artist := (
         insert Artist {
@@ -112,50 +184,18 @@ with
             }
         )
     ) {
-        name,
-        size,
-        genre: {name},
-        album: {name},
-        artist: {name},
-        keywords: {name},
-        folders: {
-            name,
-            ipv4,
-            user,
-            path := @path
-        },
-        length,
-        track,
-        rating
+        #music_fields
     }
-"""
+""").substitute(music_fields=MUSIC_FIELDS)
 
-MUSIC_FIELDS = """
-name,
-size,
-genre: {name},
-album: {name},
-artist: {name},
-keywords: {name},
-length,
-track,
-rating,
-folders: {
-    name,
-    ipv4,
-    user,
-    path := @path
-}
-"""
-
-BESTS_QUERY = string.Template("""
+BESTS_QUERY: Final[str] = CustomStringTemplate("""
 with
-    musics := ($filtered_playlist),
+    musics := (#filtered_playlist),
     unique_keywords := (select distinct (for music in musics union (music.keywords)))
 select {
     genres := (
         group musics {
-            $music_fields
+            #music_fields
         }
         by .genre
     ),
@@ -166,7 +206,7 @@ select {
                 name,
                 musics := (
                     select musics {
-                        $music_fields
+                        #music_fields
                     }
                     filter unique_keyword.name in .keywords.name
                 )
@@ -176,7 +216,7 @@ select {
     ),
     ratings := (
         group musics {
-            $music_fields
+            #music_fields
         }
         by .rating
     ),
@@ -195,7 +235,7 @@ select {
                             keyword := artist_keyword.name,
                             musics := (
                                 select artist_musics {
-                                    $music_fields
+                                    #music_fields
                                 }
                                 filter artist_keyword in .keywords
                             )
@@ -207,73 +247,9 @@ select {
     ),
     ratings_for_artist := (
         group musics {
-            $music_fields
+            #music_fields
         }
         by .artist, .rating
     )
 }
-""")
-
-
-PLAYLIST_QUERY: Final[str] = """
-with
-    artists := (
-        select Artist
-        filter
-            (len(<array<str>>$artists) = 0 or contains(<array<str>>$artists, .name)) and
-            (len(<array<str>>$no_artists) = 0 or not contains(<array<str>>$no_artists, .name))
-    ),
-    albums := (
-        select Album
-        filter
-            (len(<array<str>>$albums) = 0 or contains(<array<str>>$albums, .name)) and
-            (len(<array<str>>$no_albums) = 0 or not contains(<array<str>>$no_albums, .name)) and
-            .artist in artists
-    ),
-    genres := (
-        select Genre
-        filter
-            (len(<array<str>>$genres) = 0 or contains(<array<str>>$genres, .name)) and
-            (len(<array<str>>$no_genres) = 0 or not contains(<array<str>>$no_genres, .name))
-    ),
-    select Music {
-        id,
-        name,
-        size,
-        genre: {name},
-        album: {name},
-        artist: {name},
-        keywords: {name},
-        length,
-        track,
-        rating,
-        folders: {
-            name,
-            ipv4,
-            user,
-            path := @path
-        }
-    }
-    filter
-        .length >= <int64>$min_length and .length <= <int64>$max_length
-        and .size >= <int64>$min_size and .size <= <int64>$max_size
-        and .rating >= <Rating>$min_rating and .rating <= <Rating>$max_rating
-        and (len(<array<str>>$titles) = 0 or contains(<array<str>>$titles, .name))
-        and (len(<array<str>>$no_titles) = 0 or not contains(<array<str>>$no_titles, .name))
-        and .genre in genres
-        and .album in albums
-        and (len(<array<str>>$no_keywords) = 0 or all((
-            for no_keyword in array_unpack(<array<str>>$no_keywords)
-            union (
-                not contains(.keywords.name, no_keyword)
-            )
-        )))
-        and (len(<array<str>>$keywords) = 0 or all((
-            for yes_keyword in array_unpack(<array<str>>$keywords)
-            union (
-                contains(.keywords.name, yes_keyword)
-            )
-        )))
-    order by max({<float64>$shuffle, random()})
-    limit <int64>$limit
-"""
+""").substitute(music_fields=MUSIC_FIELDS, filtered_playlist=PLAYLIST_QUERY)

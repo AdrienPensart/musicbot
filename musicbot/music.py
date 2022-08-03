@@ -1,5 +1,6 @@
 import itertools
 import logging
+import os
 import sys
 from typing import Any
 
@@ -26,8 +27,23 @@ class Folder(MusicbotObject):
         return f"{self.name} {self.ipv4} {self.user}"
 
     @property
-    def links(self) -> frozenset[str]:
-        return frozenset({self.path})
+    def http_link(self) -> str:
+        return f"http://{self.ipv4}/{self.path}"
+
+    @property
+    def ssh_link(self) -> str:
+        return f"{self.user}@{self.ipv4}:{self.path}"
+
+    def links(self, types: list[str]) -> frozenset[str]:
+        paths = []
+        if 'ssh' in types:
+            paths.append(self.ssh_link)
+        if 'local' in types:
+            if os.path.isfile(self.path):
+                paths.append(self.path)
+        if 'http' in types:
+            paths.append(self.http_link)
+        return frozenset(paths)
 
 
 @frozen
@@ -52,9 +68,8 @@ class Music(MusicbotObject):
         data['length'] = precise_seconds_to_human(data['length'])
         return yaml.dump(data, sort_keys=False, width=sys.maxsize)
 
-    @property
-    def links(self) -> frozenset[str]:
-        return frozenset(itertools.chain(*[folder.links for folder in self.folders]))
+    def links(self, types: list[str]) -> frozenset[str]:
+        return frozenset(itertools.chain(*[folder.links(types) for folder in self.folders]))
 
     @property
     def slug(self) -> str:

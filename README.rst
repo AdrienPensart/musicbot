@@ -175,9 +175,9 @@ musicbot folder inconsistencies
       --limit INTEGER                                   Limit number of music files
       --extension TEXT                                  Supported formats  [default: flac, mp3]
     Check options: 
-      --checks [no-album|invalid-path|no-track|no-rating|no-title|invalid-title|invalid-comment|no-artist|no-genre]
-                                                        Consistency tests  [default: frozenset({'no-album', 'invalid-path', 'no-track', 'no-
-                                                        rating', 'no-title', 'invalid-title', 'invalid-comment', 'no-artist', 'no-genre'})]
+      --checks [no-genre|invalid-title|no-title|no-artist|no-album|invalid-comment|no-track|invalid-path|no-rating]
+                                                        Consistency tests  [default: frozenset({'no-genre', 'invalid-title', 'no-title', 'no-
+                                                        artist', 'no-album', 'invalid-comment', 'no-track', 'invalid-path', 'no-rating'})]
       --fix                                             Fix musics
     -h, --help                                          Show this message and exit.
 
@@ -301,6 +301,7 @@ musicbot local bests
       --dsn TEXT                        DSN to MusicBot EdgeDB
       --musicdb TEXT
     --dry / --no-dry                    Do not launch real action  [default: no-dry]
+    --link, --links [ssh|local|http]    Generate playlist link of kind  [default: local]
     Bests options: 
       --min-playlist-size INTEGER       Minimum size of playlist to write
     -h, --help                          Show this message and exit.
@@ -346,6 +347,7 @@ musicbot local player
     MusicDB options: 
       --dsn TEXT                        DSN to MusicBot EdgeDB
       --musicdb TEXT
+    --link, --links [ssh|local|http]    Generate playlist link of kind  [default: local]
     Filter options: 
       --name TEXT                       Filter name
       --limit INTEGER                   Fetch a maximum limit of music
@@ -420,6 +422,7 @@ musicbot local playlist
       --rating FLOAT RANGE              Fixed rating  [0.0<=x<=5.0]
       --min-rating FLOAT RANGE          Minimum rating  [default: 0.0; 0.0<=x<=5.0]
       --max-rating FLOAT RANGE          Maximum rating  [default: 5.0; 0.0<=x<=5.0]
+    --link, --links [ssh|local|http]    Generate playlist link of kind  [default: local]
     -h, --help                          Show this message and exit.
 
 musicbot local scan
@@ -454,10 +457,11 @@ musicbot local search
 
   Options:
     MusicDB options: 
-      --dsn TEXT               DSN to MusicBot EdgeDB
+      --dsn TEXT                      DSN to MusicBot EdgeDB
       --musicdb TEXT
-    --output [json|table|m3u]  Output format  [default: table]
-    -h, --help                 Show this message and exit.
+    --output [json|table|m3u]         Output format  [default: table]
+    --link, --links [ssh|local|http]  Generate playlist link of kind  [default: local]
+    -h, --help                        Show this message and exit.
 
 musicbot local soft-clean
 *************************
@@ -623,9 +627,9 @@ musicbot music inconsistencies
   Options:
     --dry / --no-dry                                    Do not launch real action  [default: no-dry]
     Check options: 
-      --checks [no-album|invalid-path|no-track|no-rating|no-title|invalid-title|invalid-comment|no-artist|no-genre]
-                                                        Consistency tests  [default: frozenset({'no-album', 'invalid-path', 'no-track', 'no-
-                                                        rating', 'no-title', 'invalid-title', 'invalid-comment', 'no-artist', 'no-genre'})]
+      --checks [no-genre|invalid-title|no-title|no-artist|no-album|invalid-comment|no-track|invalid-path|no-rating]
+                                                        Consistency tests  [default: frozenset({'no-genre', 'invalid-title', 'no-title', 'no-
+                                                        artist', 'no-album', 'invalid-comment', 'no-track', 'invalid-path', 'no-rating'})]
       --fix                                             Fix musics
     -h, --help                                          Show this message and exit.
 
