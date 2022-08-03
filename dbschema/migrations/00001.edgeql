@@ -1,4 +1,4 @@
-CREATE MIGRATION m13q3uwrqe5wfiku47tk6jehoptbzt5kqhdf4beni352pwa5onslaq
+CREATE MIGRATION m1flc2pfe5xahy324s7lsau5oqv5wo74w3iiiplkekpnhuxyp2axaq
     ONTO initial
 {
   CREATE EXTENSION edgeql_http VERSION '1.0';
@@ -55,7 +55,6 @@ CREATE MIGRATION m13q3uwrqe5wfiku47tk6jehoptbzt5kqhdf4beni352pwa5onslaq
       CREATE PROPERTY duration := (SELECT
           std::to_duration(seconds := <std::float64>.length)
       );
-      CREATE MULTI PROPERTY links -> std::str;
       CREATE REQUIRED PROPERTY size -> default::Size;
       CREATE PROPERTY track -> std::int16;
   };
@@ -106,6 +105,11 @@ CREATE MIGRATION m13q3uwrqe5wfiku47tk6jehoptbzt5kqhdf4beni352pwa5onslaq
           <std::float64>std::round(<std::decimal>math::mean(.musics.rating), 2)
       );
   };
+  CREATE TYPE default::Folder EXTENDING default::Entity {
+      CREATE REQUIRED PROPERTY ipv4 -> std::str;
+      CREATE CONSTRAINT std::exclusive ON ((.name, .ipv4));
+      CREATE REQUIRED PROPERTY user -> std::str;
+  };
   CREATE TYPE default::Genre EXTENDING default::Entity {
       ALTER PROPERTY name {
           SET OWNED;
@@ -115,9 +119,15 @@ CREATE MIGRATION m13q3uwrqe5wfiku47tk6jehoptbzt5kqhdf4beni352pwa5onslaq
       };
   };
   ALTER TYPE default::Music {
+      CREATE MULTI LINK folders -> default::Folder {
+          CREATE PROPERTY path -> std::str;
+      };
       CREATE REQUIRED LINK genre -> default::Genre {
           ON TARGET DELETE DELETE SOURCE;
       };
+  };
+  ALTER TYPE default::Folder {
+      CREATE MULTI LINK musics := (.<folders[IS default::Music]);
   };
   ALTER TYPE default::Genre {
       CREATE MULTI LINK musics := (.<genre[IS default::Music]);

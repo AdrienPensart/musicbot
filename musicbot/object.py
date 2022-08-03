@@ -117,6 +117,8 @@ class MusicbotObject:
                         return
                     cls.already_printed.append(message)
                 print(final_message, file=file, flush=flush, end=end)
+                # if cls.config.log:
+                #     logger.info(message)
 
     @classmethod
     def progressbar(

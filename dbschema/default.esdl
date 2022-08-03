@@ -47,8 +47,15 @@ module default {
         link keywords := (select .musics.keywords);
     }
 
+    type Folder extending Entity {
+        required property user -> str;
+        required property ipv4 -> str;
+        constraint exclusive on ( (.name, .ipv4 ) );
+        multi link musics := .<folders[is Music];
+    }
+
+    # define a local music
     type Music extending Entity {
-        multi property links -> str;
         required property rating -> Rating {
             default := 0.0
         }
@@ -66,7 +73,13 @@ module default {
             on target delete delete source;
         }
 
+        # property youtube -> str;
+        # property spotify -> str;
+
         multi link keywords -> Keyword;
+        multi link folders -> Folder {
+            property path -> str;
+        }
 
         constraint exclusive on ( (.name, .album ) );
     }

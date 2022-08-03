@@ -1,11 +1,12 @@
 import logging
 from functools import cached_property
 from pathlib import Path, PurePath
-from typing import Iterable, Optional
+from typing import Optional
 
 import acoustid  # type: ignore
 import mutagen  # type: ignore
 from attr import define
+from beartype import beartype
 from click_skeleton.helpers import mysplit
 from pydub import AudioSegment  # type: ignore
 
@@ -17,8 +18,8 @@ from musicbot.defaults import (
     STORED_RATING_CHOICES
 )
 from musicbot.exceptions import MusicbotError
-from musicbot.link_options import DEFAULT_LINK_OPTIONS, LinkOptions
-from musicbot.music import Music
+from musicbot.helpers import current_user, get_public_ip
+from musicbot.music import Folder, Music
 from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
@@ -26,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 @define(repr=False)
 class File(MusicbotObject):
+    folder: Path
     handle: mutagen.File
     inconsistencies: set[str] = set()
 
@@ -54,18 +56,25 @@ class File(MusicbotObject):
             self.inconsistencies.add("invalid-path")
 
     @classmethod
-    def from_path(cls, path: Path) -> "File":
+    def from_path(cls, folder: Path, path: Path) -> "File":
         return cls(
+            folder=folder.resolve(),
             handle=mutagen.File(path.resolve())
         )
 
     def __repr__(self) -> str:
         return str(self.path)
 
+    @beartype
     def to_music(
         self,
-        link_options: LinkOptions = DEFAULT_LINK_OPTIONS
     ) -> Music:
+        folder = Folder(
+            name=str(self.folder),
+            path=str(self.path),
+            user=current_user(),
+            ipv4=get_public_ip(),
+        )
         return Music(
             title=self.title,
             size=self.size,
@@ -75,10 +84,11 @@ class File(MusicbotObject):
             length=self.length,
             track=self.track,
             rating=self.rating,
-            keywords=self.keywords,
-            links=self.links(link_options),
+            keywords=frozenset(self.keywords),
+            folders=frozenset({folder}),
         )
 
+    @beartype
     def set_tags(
         self,
         title: str | None = None,
@@ -113,28 +123,34 @@ class File(MusicbotObject):
     def path(self) -> Path:
         return Path(self.handle.filename)
 
-    def http_path(self, link_options: LinkOptions) -> str:
-        # return requote_uri(f"http://{public_ip()}/{self.canonic_artist_album_filename}")
-        path = f"http://{link_options.public_ip}"
-        if link_options.http_port:
-            path += f":{link_options.http_port}"
-        if link_options.root:
-            path += f"/{link_options.root}"
-        path += f"/{self.canonic_artist_album_filename}"
-        return path
+    # @beartype
+    # def http_path(self, link_options: LinkOptions) -> str:
+    #     if 'invalid-path' in self.inconsistencies:
+    #         self.warn(f"{self} : invalid path, so we use original path")
+    #         path = PurePath(self.artist, self.album, self.filename)
+    #     else:
+    #         path = self.canonic_artist_album_filename
+    #     return link_options.http_schema.format(
+    #         ip=link_options.public_ip,
+    #         path=path,
+    #     )
 
-    def sftp_path(self, link_options: LinkOptions) -> str:
-        path = str(self.path).replace(" ", "\\ ")
-        return f"sftp://{link_options.ssh_user}@{link_options.public_ip}:'{path}'"
-        # return f"sftp://{link_options.ssh_user}@{link_options.public_ip}:'{path}'"
+    # @beartype
+    # def ssh_path(self, link_options: LinkOptions) -> str:
+    #     path = str(self.path).replace(" ", r"\ ")
+    #     return link_options.ssh_schema.format(
+    #         ip=link_options.public_ip,
+    #         user=link_options.ssh_user,
+    #         path=path,
+    #     )
 
-    # @property
-    # def youtube_path(self) -> str:
-    #     return ''
+    @property
+    def youtube(self) -> str | None:
+        return None
 
-    # @property
-    # def spotify_path(self) -> str:
-    #     return ''
+    @property
+    def spotify(self) -> str | None:
+        return None
 
     @property
     def extension(self) -> str:
@@ -326,7 +342,7 @@ class File(MusicbotObject):
         return set()
 
     @keywords.setter
-    def keywords(self, keywords: Iterable[str]) -> None:
+    def keywords(self, keywords: set[str]) -> None:
         if self.extension == '.mp3':
             logger.info(f'{self} : new mp3 keywords : {keywords}')
             self._comment = ' '.join(keywords)
@@ -336,17 +352,20 @@ class File(MusicbotObject):
         else:
             self.err(f'{self} : unknown extension {self.extension}')
 
+    @beartype
     def add_keywords(self, keywords: set[str]) -> bool:
         self.keywords = self.keywords.union(keywords)
         logger.info(f'{self} : adding {keywords}, new keywords {self.keywords}')
         return self.save()
 
+    @beartype
     def delete_keywords(self, keywords: set[str]) -> bool:
         new_keywords = self.keywords - set(keywords)
         logger.info(f'{self} : deleting {keywords}, new keywords {new_keywords}')
         self.keywords = new_keywords
         return self.save()
 
+    @beartype
     def to_mp3(self, destination: Path, flat: bool = False) -> Optional["File"]:
         if self.extension != '.flac':
             self.err(f"{self} is not a flac file")
@@ -363,7 +382,7 @@ class File(MusicbotObject):
 
         if mp3_path.exists():
             logger.info(f"{mp3_path} already exists, overwriting only tags")
-            mp3_file = File.from_path(path=mp3_path)
+            mp3_file = File.from_path(folder=destination, path=mp3_path)
             mp3_file.track = self.track
             mp3_file.album = self.album
             mp3_file.title = self.title
@@ -387,7 +406,7 @@ class File(MusicbotObject):
                 bitrate="256k",
             )
             mp3_export.close()
-            mp3_file = File.from_path(mp3_path)
+            mp3_file = File.from_path(folder=destination, path=mp3_path)
             mp3_file.track = self.track
 
             # rewrite some metadatas
@@ -405,15 +424,17 @@ class File(MusicbotObject):
             raise MusicbotError(f"{self} : unable to convert to mp3") from e
         return None
 
-    def fingerprint(self, api_key: str) -> str:
+    @beartype
+    def fingerprint(self, api_key: str) -> str | None:
         ids = acoustid.match(api_key, self.path)
         for score, recording_id, title, artist in ids:
             logger.info(f"{self} score : {score} | recording_id : {recording_id} | title : {title} | artist : {artist}")
             return str(recording_id)
         logger.info(f'{self} : fingerprint cannot be detected')
-        return ''
+        return None
 
-    def fix(self, checks: Iterable[str] | None = None) -> bool:
+    @beartype
+    def fix(self, checks: frozenset[str] | None = None) -> bool:
         checks = checks if checks is not None else DEFAULT_CHECKS
         if 'no-rating' in checks:
             self.rating = 0.0
@@ -433,6 +454,7 @@ class File(MusicbotObject):
             self.inconsistencies.remove('invalid-title')
         return self.save()
 
+    @beartype
     def save(self) -> bool:
         try:
             if self.dry:
@@ -443,19 +465,6 @@ class File(MusicbotObject):
             self.err(e)
         return False
 
+    @beartype
     def close(self) -> None:
         self.handle.close()
-
-    def links(self, link_options: LinkOptions = DEFAULT_LINK_OPTIONS) -> set[str]:
-        links = set()
-        if link_options.local:
-            links.add(str(self.path))
-        if link_options.sftp and self.sftp_path:
-            links.add(self.sftp_path(link_options))
-        if link_options.http and self.http_path:
-            links.add(self.http_path(link_options))
-        # if link_options.youtube and self.youtube_path:
-        #     links.add(self.youtube_path)
-        # if link_options.spotify and self.spotify_path:
-        #     links.add(self.spotify_path)
-        return links

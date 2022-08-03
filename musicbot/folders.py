@@ -30,7 +30,7 @@ class Folders(MusicbotObject):
     def apply(self, worker: Callable, **kwargs: Any) -> Any:
         return self.parallel(
             worker,
-            list(self.paths)[:self.limit],
+            list(self.folders_and_paths),
             **kwargs,
         )
 
@@ -40,9 +40,10 @@ class Folders(MusicbotObject):
 
     @cached_property
     def files(self) -> list[File]:
-        def worker(path: Path) -> File | None:
+        def worker(folder_and_path: tuple[Path, Path]) -> File | None:
             try:
-                return File.from_path(path=path)
+                folder, path = folder_and_path
+                return File.from_path(folder=folder, path=path)
             except OSError as e:
                 logger.error(e)
             return None
@@ -53,7 +54,7 @@ class Folders(MusicbotObject):
         return [file.to_music() for file in self.files]
 
     @cached_property
-    def paths(self) -> set[Path]:
+    def folders_and_paths(self) -> set[tuple[Path, Path]]:
         _files = set()
         for folder in self.directories:
             for root, _, basenames in os.walk(folder):
@@ -64,8 +65,12 @@ class Folders(MusicbotObject):
                     if not basename.endswith(tuple(self.extensions)):
                         self.other_files.add(path)
                     else:
-                        _files.add(path)
+                        _files.add((folder, path))
         return set(islice(_files, self.limit))
+
+    @cached_property
+    def paths(self) -> set[Path]:
+        return {folder_and_path[1] for folder_and_path in self.folders_and_paths}
 
     def __repr__(self) -> str:
         return ' '.join(str(folder) for folder in self.directories)
@@ -98,9 +103,10 @@ class Folders(MusicbotObject):
             logger.warning(f"{self} : no flac files detected")
             return []
 
-        def worker(path: Path) -> File | None:
+        def worker(folder_and_path: tuple[Path, Path]) -> File | None:
+            folder, path = folder_and_path
             try:
-                file = File.from_path(path=path)
+                file = File.from_path(folder=folder, path=path)
                 return file.to_mp3(flat=flat, destination=destination)
             except MusicbotError as e:
                 self.err(e)

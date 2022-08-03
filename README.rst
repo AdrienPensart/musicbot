@@ -175,9 +175,9 @@ musicbot folder inconsistencies
       --limit INTEGER                                   Limit number of music files
       --extension TEXT                                  Supported formats  [default: flac, mp3]
     Check options: 
-      --checks [no-title|no-artist|no-album|no-genre|no-rating|no-track|invalid-title|invalid-comment|invalid-path]
-                                                        Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
-                                                        track, invalid-title, invalid-comment, invalid-path]
+      --checks [no-album|invalid-path|no-track|no-rating|no-title|invalid-title|invalid-comment|no-artist|no-genre]
+                                                        Consistency tests  [default: frozenset({'no-album', 'invalid-path', 'no-track', 'no-
+                                                        rating', 'no-title', 'invalid-title', 'invalid-comment', 'no-artist', 'no-genre'})]
       --fix                                             Fix musics
     -h, --help                                          Show this message and exit.
 
@@ -257,7 +257,7 @@ musicbot local
     search                  Search musics by full-text search
     soft-clean              Clean entities without musics associated
     sync                    Copy selected musics with filters to destination folder
-    watch                   Watch files changes in folders
+    watch (watcher)         Watch files changes in folders
 
 musicbot local bests
 ********************
@@ -301,10 +301,6 @@ musicbot local bests
       --dsn TEXT                        DSN to MusicBot EdgeDB
       --musicdb TEXT
     --dry / --no-dry                    Do not launch real action  [default: no-dry]
-    Link options: 
-      --http / --no-http                Generate HTTP link  [default: no-http]
-      --sftp / --no-sftp                Generate sFTP link  [default: no-sftp]
-      --local / --no-local              Generate local link  [default: local]
     Bests options: 
       --min-playlist-size INTEGER       Minimum size of playlist to write
     -h, --help                          Show this message and exit.
@@ -395,10 +391,6 @@ musicbot local playlist
       --dsn TEXT                        DSN to MusicBot EdgeDB
       --musicdb TEXT
     --output [json|table|m3u]           Output format  [default: table]
-    Link options: 
-      --http / --no-http                Generate HTTP link  [default: no-http]
-      --sftp / --no-sftp                Generate sFTP link  [default: no-sftp]
-      --local / --no-local              Generate local link  [default: local]
     Filter options: 
       --name TEXT                       Filter name
       --limit INTEGER                   Fetch a maximum limit of music
@@ -449,10 +441,6 @@ musicbot local scan
     -s, --save                 Save to config file
     --output [json|table|m3u]  Output format  [default: table]
     --clean                    Delete musics before
-    Link options: 
-      --http / --no-http       Generate HTTP link  [default: no-http]
-      --sftp / --no-sftp       Generate sFTP link  [default: no-sftp]
-      --local / --no-local     Generate local link  [default: local]
     --coroutines INTEGER       Limit number of coroutines  [default: 64]
     -h, --help                 Show this message and exit.
 
@@ -635,9 +623,9 @@ musicbot music inconsistencies
   Options:
     --dry / --no-dry                                    Do not launch real action  [default: no-dry]
     Check options: 
-      --checks [no-title|no-artist|no-album|no-genre|no-rating|no-track|invalid-title|invalid-comment|invalid-path]
-                                                        Consistency tests  [default: no-title, no-artist, no-album, no-genre, no-rating, no-
-                                                        track, invalid-title, invalid-comment, invalid-path]
+      --checks [no-album|invalid-path|no-track|no-rating|no-title|invalid-title|invalid-comment|no-artist|no-genre]
+                                                        Consistency tests  [default: frozenset({'no-album', 'invalid-path', 'no-track', 'no-
+                                                        rating', 'no-title', 'invalid-title', 'invalid-comment', 'no-artist', 'no-genre'})]
       --fix                                             Fix musics
     -h, --help                                          Show this message and exit.
 
@@ -684,10 +672,6 @@ musicbot music tags
 
   Options:
     --dry / --no-dry           Do not launch real action  [default: no-dry]
-    Link options: 
-      --http / --no-http       Generate HTTP link  [default: no-http]
-      --sftp / --no-sftp       Generate sFTP link  [default: no-sftp]
-      --local / --no-local     Generate local link  [default: local]
     --output [json|table|m3u]  Output format  [default: table]
     -h, --help                 Show this message and exit.
 

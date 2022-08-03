@@ -11,7 +11,6 @@ delete Genre filter not exists .musics;
 SEARCH_QUERY: Final[str] = """
 select Music {
     name,
-    links,
     size,
     genre: {name},
     album: {name},
@@ -19,7 +18,13 @@ select Music {
     keywords: {name},
     length,
     track,
-    rating
+    rating,
+    folders: {
+        name,
+        ipv4,
+        user,
+        path := @path
+    }
 }
 filter
 .name ilike <str>$pattern or
@@ -64,44 +69,83 @@ with
             else (select Keyword)
         )
     ),
+    upsert_folder := (
+        insert Folder {
+            name := <str>$folder,
+            user := <str>$user,
+            ipv4 := <str>$ipv4
+        }
+        unless conflict on (.name, .ipv4) else (select Folder)
+    )
     select (
         insert Music {
             name := <str>$title,
-            links := array_unpack(<array<str>>$links),
             size := <Size>$size,
             length := <Length>$length,
             genre := upsert_genre,
             album := upsert_album,
             keywords := upsert_keywords,
             track := <int16>$track,
-            rating := <Rating>$rating
+            rating := <Rating>$rating,
+            folders := (
+                select upsert_folder {
+                    @path := <str>$path
+                }
+            )
         }
         unless conflict on (.name, .album)
         else (
             update Music
             set {
-                links := array_unpack(<array<str>>$links),
                 size := <Size>$size,
                 genre := upsert_genre,
                 album := upsert_album,
                 keywords := upsert_keywords,
                 length := <Length>$length,
                 track := <int16>$track,
-                rating := <Rating>$rating
+                rating := <Rating>$rating,
+                folders += (
+                    select upsert_folder {
+                        @path := <str>$path
+                    }
+                )
             }
         )
     ) {
         name,
-        links,
         size,
         genre: {name},
         album: {name},
         artist: {name},
         keywords: {name},
+        folders: {
+            name,
+            ipv4,
+            user,
+            path := @path
+        },
         length,
         track,
         rating
     }
+"""
+
+MUSIC_FIELDS = """
+name,
+size,
+genre: {name},
+album: {name},
+artist: {name},
+keywords: {name},
+length,
+track,
+rating,
+folders: {
+    name,
+    ipv4,
+    user,
+    path := @path
+}
 """
 
 BESTS_QUERY = string.Template("""
@@ -110,7 +154,9 @@ with
     unique_keywords := (select distinct (for music in musics union (music.keywords)))
 select {
     genres := (
-        group musics { name, links, size, genre: {name}, album: {name}, artist: {name}, keywords: {name}, length, track, rating }
+        group musics {
+            $music_fields
+        }
         by .genre
     ),
     keywords := (
@@ -119,7 +165,9 @@ select {
             select Keyword {
                 name,
                 musics := (
-                    select musics { name, links, size, genre: {name}, album: {name}, artist: {name}, keywords: {name}, length, track, rating }
+                    select musics {
+                        $music_fields
+                    }
                     filter unique_keyword.name in .keywords.name
                 )
             }
@@ -127,7 +175,9 @@ select {
         )
     ),
     ratings := (
-        group musics { name, links, size, genre: {name}, album: {name}, artist: {name}, keywords: {name}, length, track, rating }
+        group musics {
+            $music_fields
+        }
         by .rating
     ),
     keywords_for_artist := (
@@ -144,7 +194,9 @@ select {
                         select {
                             keyword := artist_keyword.name,
                             musics := (
-                                select artist_musics { name, links, size, genre: {name}, album: {name}, artist: {name}, keywords: {name}, length, track, rating }
+                                select artist_musics {
+                                    $music_fields
+                                }
                                 filter artist_keyword in .keywords
                             )
                         }
@@ -154,7 +206,9 @@ select {
         )
     ),
     ratings_for_artist := (
-        group musics { name, links, size, genre: {name}, album: {name}, artist: {name}, keywords: {name}, length, track, rating }
+        group musics {
+            $music_fields
+        }
         by .artist, .rating
     )
 }
@@ -185,7 +239,6 @@ with
     select Music {
         id,
         name,
-        links,
         size,
         genre: {name},
         album: {name},
@@ -193,7 +246,13 @@ with
         keywords: {name},
         length,
         track,
-        rating
+        rating,
+        folders: {
+            name,
+            ipv4,
+            user,
+            path := @path
+        }
     }
     filter
         .length >= <int64>$min_length and .length <= <int64>$max_length

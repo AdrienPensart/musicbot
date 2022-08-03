@@ -75,5 +75,6 @@ def test_local_player(cli_runner, edgedb):
     run_cli(cli_runner, cli, [
         '--quiet',
         'local', 'player',
+        '--vlc-params', '--vout=dummy --aout=dummy',
         '--dsn', edgedb,
     ])

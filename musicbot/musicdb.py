@@ -18,14 +18,14 @@ from musicbot.exceptions import MusicbotError
 from musicbot.file import File
 from musicbot.folders import Folders
 from musicbot.helpers import async_gather, async_run
-from musicbot.link_options import DEFAULT_LINK_OPTIONS, LinkOptions
-from musicbot.music import Music
+from musicbot.music import Folder, Music
 from musicbot.music_filter import MusicFilter
 from musicbot.object import MusicbotObject
 from musicbot.playlist import Playlist
 from musicbot.queries import (
     BESTS_QUERY,
     DELETE_QUERY,
+    MUSIC_FIELDS,
     PLAYLIST_QUERY,
     SEARCH_QUERY,
     SOFT_CLEAN_QUERY,
@@ -106,14 +106,12 @@ class MusicDb(MusicbotObject):
         self,
         name: str | None = None,
         music_filter: MusicFilter | None = None,
-        link_options: LinkOptions = DEFAULT_LINK_OPTIONS
     ) -> Playlist:
         results = await self.execute_music_filter(PLAYLIST_QUERY, music_filter)
         return Playlist.from_edgedb(
             name=name,
             results=results,
             music_filter=music_filter,
-            link_options=link_options,
         )
 
     @cache
@@ -121,10 +119,9 @@ class MusicDb(MusicbotObject):
         self,
         name: str | None = None,
         music_filter: MusicFilter | None = None,
-        link_options: LinkOptions = DEFAULT_LINK_OPTIONS
     ) -> Playlist:
         self.sync_ensure_connected()
-        return async_run(self.make_playlist(name=name, music_filter=music_filter, link_options=link_options))
+        return async_run(self.make_playlist(name=name, music_filter=music_filter))
 
     @beartype
     async def clean_musics(self) -> Any:
@@ -168,26 +165,37 @@ class MusicDb(MusicbotObject):
     @beartype
     async def upsert_path(
         self,
-        path: Path,
-        link_options: LinkOptions = DEFAULT_LINK_OPTIONS
+        folder_and_path: tuple[Path, Path],
     ) -> File | None:
+        folder, path = folder_and_path
         try:
-            file = File.from_path(path=path)
+            file = File.from_path(folder=folder, path=path)
 
             if 'no-title' in file.inconsistencies or 'no-artist' in file.inconsistencies or 'no-album' in file.inconsistencies:
                 MusicbotObject.warn(f"{file} : missing mandatory fields title/album/artist : {file.inconsistencies}")
                 return None
 
+            input_music = file.to_music()
+            if not input_music.folders:
+                self.err(f"{file} : no folder set")
+            folder_obj, *_ = input_music.folders
+            data = asdict(input_music)
+            data['ipv4'] = folder_obj.ipv4
+            data['user'] = folder_obj.user
+            data['folder'] = folder_obj.name
+            data['path'] = folder_obj.path
+            del data['folders']
+            params = dict(
+                query=UPSERT_QUERY,
+                **data,
+            )
+
             if self.dry:
                 return file
 
-            input_music = file.to_music(link_options)
-            params = dict(
-                query=UPSERT_QUERY,
-                **asdict(input_music),
-            )
             result = await self.client.query_required_single(**params)
-            keywords = set(keyword.name for keyword in result.keywords)
+            keywords = frozenset(keyword.name for keyword in result.keywords)
+            folders = frozenset(Folder(path=folder.path, name=folder.name, ipv4=folder.ipv4, user=folder.user) for folder in result.folders)
             output_music = Music(
                 title=result.name,
                 artist=result.artist.name,
@@ -198,7 +206,7 @@ class MusicDb(MusicbotObject):
                 keywords=keywords,
                 track=result.track,
                 rating=result.rating,
-                links=set(result.links),
+                folders=folders,
             )
 
             music_diff = DeepDiff(
@@ -222,68 +230,47 @@ class MusicDb(MusicbotObject):
     @beartype
     def sync_upsert_path(
         self,
-        path: Path,
-        link_options: LinkOptions = DEFAULT_LINK_OPTIONS
+        folder_and_path: tuple[Path, Path],
     ) -> File | None:
         self.sync_ensure_connected()
-        return async_run(self.upsert_path(path=path, link_options=link_options))
+        return async_run(self.upsert_path(folder_and_path=folder_and_path))
 
     @beartype
     def sync_upsert_folders(
         self,
         folders: Folders,
-        link_options: LinkOptions = DEFAULT_LINK_OPTIONS,
         coroutines: int = DEFAULT_COROUTINES,
     ) -> list[File]:
         self.sync_ensure_connected()
         files = []
-        failed: set[Path] = set()
+        failed: set[tuple[Path, Path]] = set()
         sem = asyncio.Semaphore(coroutines)
 
-        with self.progressbar(prefix="Loading and inserting musics", max_value=len(folders.paths)) as pbar:
-            async def upsert_worker(path: Path) -> None:
+        with self.progressbar(prefix="Loading and inserting musics", max_value=len(folders.folders_and_paths)) as pbar:
+            async def upsert_worker(folder_and_path: tuple[Path, Path]) -> None:
                 async with sem:
                     try:
-                        file = await self.upsert_path(path, link_options=link_options)
+                        file = await self.upsert_path(folder_and_path=folder_and_path)
                         if not file:
-                            self.err(f"{path} : unable to insert")
+                            self.err(f"{folder_and_path} : unable to insert")
                         else:
                             files.append(file)
                     except MusicbotError as e:
                         self.err(e)
-                        failed.add(path)
+                        failed.add(folder_and_path)
                     finally:
                         pbar.value += 1
                         pbar.update()
 
-            async_gather(upsert_worker, folders.paths)
-
-        if failed:
-            with self.progressbar(prefix="Retry failed inserts", max_value=len(failed)) as pbar:
-                async def retry_upsert_worker(path: Path) -> None:
-                    async with sem:
-                        try:
-                            file = await self.upsert_path(path, link_options=link_options)
-                            if not file:
-                                self.err(f"{path} : unable to retry insert")
-                            else:
-                                files.append(file)
-                        except MusicbotError as e:
-                            self.err(e)
-                        finally:
-                            pbar.value += 1
-                            pbar.update()
-                async_gather(retry_upsert_worker, failed)
-
+            async_gather(upsert_worker, folders.folders_and_paths)
         return files
 
     @beartype
     async def make_bests(
         self,
         music_filter: MusicFilter | None = None,
-        link_options: LinkOptions = DEFAULT_LINK_OPTIONS
     ) -> list[Playlist]:
-        query = BESTS_QUERY.substitute(filtered_playlist=PLAYLIST_QUERY)
+        query = BESTS_QUERY.substitute(filtered_playlist=PLAYLIST_QUERY, music_fields=MUSIC_FIELDS)
         logger.info(query)
         results = await self.execute_music_filter(query, music_filter)
         result = results[0]
@@ -291,17 +278,17 @@ class MusicDb(MusicbotObject):
         for genre in result.genres:
             genre_name = f"genre_{genre.key.genre.name.lower()}"
             self.success(f"Genre {genre_name} : {len(genre.elements)}")
-            playlist = Playlist.from_edgedb(name=genre_name, results=genre.elements, music_filter=music_filter, link_options=link_options)
+            playlist = Playlist.from_edgedb(name=genre_name, results=genre.elements, music_filter=music_filter)
             playlists.append(playlist)
         for keyword in result.keywords:
             keyword_name = f"keyword_{keyword.name.lower()}"
             self.success(f"Keyword {keyword_name} : {len(keyword.musics)}")
-            playlist = Playlist.from_edgedb(name=keyword_name, results=keyword.musics, music_filter=music_filter, link_options=link_options)
+            playlist = Playlist.from_edgedb(name=keyword_name, results=keyword.musics, music_filter=music_filter)
             playlists.append(playlist)
         for rating in result.ratings:
             rating_name = f"rating_{rating.key.rating}"
             self.success(f"Rating {rating_name} : {len(rating.elements)}")
-            playlist = Playlist.from_edgedb(name=rating_name, results=rating.elements, music_filter=music_filter, link_options=link_options)
+            playlist = Playlist.from_edgedb(name=rating_name, results=rating.elements, music_filter=music_filter)
             playlists.append(playlist)
         for artist in result.keywords_for_artist:
             artist_name = artist.artist
@@ -309,14 +296,14 @@ class MusicDb(MusicbotObject):
                 keyword_name = keyword.keyword
                 artist_keyword = f"{artist_name}{os.sep}keyword_{keyword_name.lower()}"
                 self.success(f"Keyword by artist {artist_keyword} : {len(keyword.musics)}")
-                playlist = Playlist.from_edgedb(name=artist_keyword, results=keyword.musics, music_filter=music_filter, link_options=link_options)
+                playlist = Playlist.from_edgedb(name=artist_keyword, results=keyword.musics, music_filter=music_filter)
                 playlists.append(playlist)
         for ratings_for_artist in result.ratings_for_artist:
             artist_name = ratings_for_artist.key.artist.name
             rating_name = ratings_for_artist.key.rating
             artist_rating = f"{artist_name}{os.sep}rating_{rating_name}"
             self.success(f"Rating by artist {artist_rating} : {len(ratings_for_artist.elements)}")
-            playlist = Playlist.from_edgedb(name=artist_rating, results=ratings_for_artist.elements, music_filter=music_filter, link_options=link_options)
+            playlist = Playlist.from_edgedb(name=artist_rating, results=ratings_for_artist.elements, music_filter=music_filter)
             playlists.append(playlist)
         return playlists
 
@@ -324,10 +311,9 @@ class MusicDb(MusicbotObject):
     def sync_make_bests(
         self,
         music_filter: MusicFilter | None = None,
-        link_options: LinkOptions = DEFAULT_LINK_OPTIONS
     ) -> list[Playlist]:
         self.sync_ensure_connected()
-        return async_run(self.make_bests(music_filter=music_filter, link_options=link_options))
+        return async_run(self.make_bests(music_filter=music_filter))
 
     @beartype
     async def search(

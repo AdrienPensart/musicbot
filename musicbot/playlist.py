@@ -17,8 +17,7 @@ from rich.text import Text
 from musicbot.defaults import DEFAULT_VLC_PARAMS
 from musicbot.file import File
 from musicbot.helpers import bytes_to_human, precise_seconds_to_human
-from musicbot.link_options import DEFAULT_LINK_OPTIONS, LinkOptions
-from musicbot.music import Music
+from musicbot.music import Folder, Music
 from musicbot.music_filter import MusicFilter
 from musicbot.object import MusicbotObject
 
@@ -44,36 +43,11 @@ class Playlist(MusicbotObject):
         results: Any,
         name: str | None = None,
         music_filter: MusicFilter | None = None,
-        link_options: LinkOptions = DEFAULT_LINK_OPTIONS,
     ) -> "Playlist":
         musics = []
         for result in results:
-            keywords = list(keyword.name for keyword in result.keywords)
-            links = set()
-            for link in result.links:
-                # elif 'youtube' in link:
-                #     if link_options.youtube:
-                #         links.add(link)
-                # elif 'spotify' in link:
-                #     if link_options.spotify:
-                #         links.add(link)
-                if 'http' in link:
-                    if link_options.http:
-                        links.add(link)
-                elif 'sftp' in link:
-                    if link_options.sftp:
-                        links.add(link)
-                    continue
-                elif link_options.local:
-                    path = Path(link)
-                    if not path.exists():
-                        MusicbotObject.warn(f'{link} does not exist locally, skipping')
-                    else:
-                        links.add(link)
-                    continue
-                else:
-                    logger.debug(f'{link} format not recognized, keeping')
-
+            keywords = frozenset(keyword.name for keyword in result.keywords)
+            folders = frozenset(Folder(path=folder.path, name=folder.name, ipv4=folder.ipv4, user=folder.user) for folder in result.folders)
             music = Music(
                 title=result.name,
                 artist=result.artist.name,
@@ -81,13 +55,11 @@ class Playlist(MusicbotObject):
                 genre=result.genre.name,
                 size=result.size,
                 length=result.length,
-                keywords=set(keywords),
+                keywords=keywords,
                 track=result.track,
                 rating=result.rating,
-                links=set(links),
+                folders=folders,
             )
-            if not links:
-                logger.debug(f'{music} : no links available')
             musics.append(music)
 
         return cls(name=name, musics=musics, music_filter=music_filter)
@@ -133,7 +105,7 @@ class Playlist(MusicbotObject):
                 '\n'.join([music.title, music.artist, music.album, music.genre]),
                 str(music.rating),
                 '\n'.join(sorted(music.keywords)),
-                '\n'.join(sorted(music.links)),
+                '\n'.join([f"{folder}" for folder in music.folders]),
                 infos,
             ]
             if music.title == current_title and music.album == current_album and music.artist == current_artist:

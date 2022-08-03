@@ -7,13 +7,13 @@ last_name = "last_test"
 email = "test@test.com"
 password = "test_test"
 
-folder1 = my_dir / "fixtures" / "folder1"
-folder2 = my_dir / "fixtures" / "folder2"
-folders = [str(folder1), str(folder2)]
+folder_flac = my_dir / "fixtures" / "folder1"
+folder_mp3 = my_dir / "fixtures" / "folder2"
+folders = [str(folder_flac), str(folder_mp3)]
 youtube_url = "https://www.youtube.com/watch?v=rIlLqmI_VkE"
 
-one_flac = folder1 / "Buckethead" / "1994 - Giant Robot" / "02 - Welcome To Bucketheadland.flac"
-one_mp3 = folder2 / "1995" / "La Source" / "La Flemme.mp3"
+one_flac = folder_flac / "Buckethead" / "1994 - Giant Robot" / "02 - Welcome To Bucketheadland.flac"
+one_mp3 = folder_mp3 / "1995" / "La Source" / "La Flemme.mp3"
 
 teststats = {
     'id': 1,

@@ -39,8 +39,8 @@ class MusicWatcherHandler(PatternMatchingEventHandler):
         _ = self.update_music(event.dest_path)
 
     def update_music(self, path: str) -> File | None:
-        for folder_path in self.folders.paths:
-            if path.startswith(str(folder_path)) and path.endswith(tuple(self.folders.extensions)):
+        for directory in self.folders.directories:
+            if path.startswith(str(directory)) and path.endswith(tuple(self.folders.extensions)):
                 MusicbotObject.success(f'{path} : updated')
-                return self.musicdb.sync_upsert_path(Path(path))
+                return self.musicdb.sync_upsert_path((directory, Path(path)))
         return None

@@ -91,7 +91,7 @@ def inconsistencies(
     table = Table("Path", "Inconsistencies")
     for file in folders.files:
         try:
-            if fix and not file.fix(checks=checks):
+            if fix and not file.fix(checks=frozenset(checks)):
                 MusicbotObject.err(f"{file} : unable to fix inconsistencies")
                 continue
 

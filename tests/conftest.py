@@ -1,13 +1,13 @@
 # type: ignore
-import json
 import logging
 import socket
 import time
+from pathlib import Path
 
 import pytest
-from click_skeleton.testing import run_cli
 
-from musicbot.main import cli
+from musicbot.folders import Folders
+from musicbot.musicdb import MusicDb
 
 from . import fixtures
 
@@ -28,29 +28,20 @@ def wait_for_service(service, timeout=60):
                 raise TimeoutError(f'Waited too long for the port {service.host_port} on host {service.hostname} to start accepting connections.') from e
 
 
-@pytest.fixture
-def edgedb(function_scoped_container_getter):
-    service = function_scoped_container_getter.get("edgedb").network_info[0]
+@pytest.fixture(scope="session")
+def edgedb(session_scoped_container_getter):
+    service = session_scoped_container_getter.get("edgedb").network_info[0]
     dsn = f"""edgedb://edgedb:musicbot@{service.hostname}:{service.host_port}"""
     wait_for_service(service)
     return dsn
 
 
-@pytest.fixture(scope="session")
-def testmusics(cli_runner, edgedb):
-    output = run_cli(cli_runner, cli, [
-        '--quiet',
-        'local', 'scan',
-        '--clean',
-        '--dsn', edgedb,
-        '--output', 'json',
-        *fixtures.folders,
-    ])
-    json.loads(output)
-    yield output
-    run_cli(cli_runner, cli, [
-        '--quiet',
-        'local', 'clean',
-        '--dsn', edgedb,
-        '--yes',
-    ])
+@pytest.fixture(scope="session", autouse=True)
+def testmusics(edgedb):
+    musicdb = MusicDb.from_dsn(edgedb)
+    musicdb.sync_clean_musics()
+    folders = Folders([Path(folder) for folder in fixtures.folders])
+    files = musicdb.sync_upsert_folders(folders=folders)
+    assert files, "Empty music db"
+    yield files
+    musicdb.sync_clean_musics()

@@ -7,6 +7,7 @@ from pathlib import Path
 
 import click
 import progressbar  # type: ignore
+from attr import asdict
 from beartype import beartype
 from click_skeleton import AdvancedGroup
 from watchdog.observers import Observer  # type: ignore
@@ -17,7 +18,6 @@ from musicbot.cli.folders import (
     folder_argument,
     folders_argument
 )
-from musicbot.cli.link_options import link_options_options
 from musicbot.cli.music_filter import music_filter_options
 from musicbot.cli.musicdb import musicdb_options
 from musicbot.cli.options import (
@@ -32,7 +32,6 @@ from musicbot.cli.playlist import bests_options
 from musicbot.defaults import DEFAULT_VLC_PARAMS
 from musicbot.file import File
 from musicbot.folders import Folders
-from musicbot.link_options import LinkOptions
 from musicbot.music_filter import MusicFilter
 from musicbot.musicdb import MusicDb
 from musicbot.object import MusicbotObject
@@ -61,7 +60,6 @@ def execute(musicdb: MusicDb, query: str) -> None:
 @save_option
 @output_option
 @clean_option
-@link_options_options
 @click.option("--coroutines", help="Limit number of coroutines", default=64, show_default=True)
 @beartype
 def scan(
@@ -69,27 +67,25 @@ def scan(
     folders: Folders,
     clean: bool,
     save: bool,
-    link_options: LinkOptions,
     output: str,
     coroutines: int,
 ) -> None:
     if clean:
         musicdb.sync_clean_musics()
 
-    musics = musicdb.sync_upsert_folders(
+    files = musicdb.sync_upsert_folders(
         folders=folders,
-        link_options=link_options,
         coroutines=coroutines,
     )
     if output == 'json':
-        MusicbotObject.print_json(musics)
+        MusicbotObject.print_json([asdict(file.to_music()) for file in files])
 
     if save:
         MusicbotObject.config.configfile['musicbot']['folders'] = folders.unique_directories
         MusicbotObject.config.write()
 
 
-@cli.command(help='Watch files changes in folders')
+@cli.command(help='Watch files changes in folders', aliases=['watcher'])
 @folders_argument
 @musicdb_options
 @click.option('--sleep', help="Clean music every X seconds", type=int, default=3600, show_default=True)
@@ -147,20 +143,17 @@ def search(musicdb: MusicDb, output: str, pattern: str) -> None:
 @cli.command(help='Generate a new playlist')
 @musicdb_options
 @output_option
-@link_options_options
 @music_filter_options
 @click.argument('out', type=click.File('w', lazy=True), default='-')
 def playlist(
     output: str,
     music_filter: MusicFilter,
-    link_options: LinkOptions,
     musicdb: MusicDb,
     out: progressbar.utils.WrappingIO,
 ) -> None:
     musicdb.set_readonly()
     p = musicdb.sync_make_playlist(
         music_filter=music_filter,
-        link_options=link_options,
     )
     p.print(output=output, file=out)
 
@@ -170,18 +163,16 @@ def playlist(
 @music_filter_options
 @musicdb_options
 @dry_option
-@link_options_options
 @bests_options
 @beartype
 def bests(
     musicdb: MusicDb,
     music_filter: MusicFilter,
-    link_options: LinkOptions,
     folder: Path,
     min_playlist_size: int,
 ) -> None:
     musicdb.set_readonly()
-    bests = musicdb.sync_make_bests(music_filter=music_filter, link_options=link_options)
+    bests = musicdb.sync_make_bests(music_filter=music_filter)
     for best in bests:
         if len(best.musics) < min_playlist_size:
             return
@@ -242,9 +233,10 @@ def sync(
     for music in playlist.musics:
         for link in music.links:
             try:
-                if link.startswith('ssh://'):
-                    continue
-                music_to_sync = File.from_path(Path(link))
+                # if link.startswith('ssh://'):
+                #     continue
+                path = Path(link)
+                music_to_sync = File.from_path(folder=path.parent, path=path)
                 musics.append(music_to_sync)
             except OSError as e:
                 logger.error(e)
@@ -256,19 +248,19 @@ def sync(
         sources = {str(music.canonic_artist_album_filename): music.path for music in musics}
 
     logger.info(f"Sources : {len(sources)}")
-    to_delete = set(destinations.keys()) - set(sources.keys())
-    if delete and (yes or click.confirm(f'Do you really want to delete {len(to_delete)} files and playlists ?')):
-        with MusicbotObject.progressbar(max_value=len(to_delete)) as pbar:
-            for d in to_delete:
+    paths_to_delete = set(destinations.keys()) - set(sources.keys())
+    if delete and (yes or click.confirm(f'Do you really want to delete {len(paths_to_delete)} files and playlists ?')):
+        with MusicbotObject.progressbar(max_value=len(paths_to_delete)) as pbar:
+            for path_to_delete in paths_to_delete:
                 try:
-                    path_to_delete = Path(destinations[d])
-                    pbar.desc = f"Deleting musics and playlists: {path_to_delete.name}"
+                    final_path_to_delete = Path(destinations[path_to_delete])
+                    pbar.desc = f"Deleting musics and playlists: {final_path_to_delete.name}"
                     if MusicbotObject.dry:
-                        MusicbotObject.success(f"[DRY-RUN] Deleting {path_to_delete}")
+                        MusicbotObject.success(f"[DRY-RUN] Deleting {final_path_to_delete}")
                         continue
                     try:
-                        MusicbotObject.success(f"Deleting {path_to_delete}")
-                        path_to_delete.unlink()
+                        MusicbotObject.success(f"Deleting {final_path_to_delete}")
+                        final_path_to_delete.unlink()
                     except OSError as e:
                         logger.error(e)
                 finally:

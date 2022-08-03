@@ -18,10 +18,8 @@ from musicbot.cli.file import (
     paths_arguments
 )
 from musicbot.cli.folders import destination_argument
-from musicbot.cli.link_options import link_options_options
 from musicbot.cli.options import dry_option, output_option
 from musicbot.file import File
-from musicbot.link_options import LinkOptions
 
 logger = logging.getLogger(__name__)
 
@@ -57,16 +55,14 @@ def fingerprint(
 
 @cli.command(help='Print music tags', aliases=['tag'])
 @music_argument
-@link_options_options
 @output_option
 @beartype
 def tags(
     file: File,
-    link_options: LinkOptions,
     output: str,
 ) -> None:
     logger.info(file.handle.tags.keys())
-    music = file.to_music(link_options)
+    music = file.to_music()
     if output == 'json':
         MusicbotObject.print_json(asdict(music))
         return
@@ -84,7 +80,7 @@ def inconsistencies(
 ) -> None:
     table = Table("Path", "Inconsistencies")
     try:
-        if fix and not file.fix(checks=checks):
+        if fix and not file.fix(checks=frozenset(checks)):
             MusicbotObject.err(f"{file} : unable to fix inconsistencies")
 
         if file.inconsistencies:
@@ -110,7 +106,7 @@ def set_tags(
     track: int | None = None,
 ) -> None:
     for path in paths:
-        file = File.from_path(path=path)
+        file = File.from_path(folder=path.parent, path=path)
         if not file.set_tags(
             title=title,
             artist=artist,

@@ -74,7 +74,7 @@ def sane_file(ctx: click.Context, param: click.Parameter, value: Path) -> File:
     if not param.name:
         logger.error("no param name set")
         raise click.Abort()
-    file = File.from_path(value)
+    file = File.from_path(folder=value.parent, path=value)
     ctx.params[param.name] = file
     return file
 
@@ -122,7 +122,7 @@ checks_and_fix_options = add_options(
         multiple=True,
         default=DEFAULT_CHECKS,
         show_default=True,
-        type=click.Choice(DEFAULT_CHECKS),
+        type=click.Choice(list(DEFAULT_CHECKS)),
         callback=split_arguments,
     ),
     optgroup.option(

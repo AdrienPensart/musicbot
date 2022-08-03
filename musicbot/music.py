@@ -1,7 +1,11 @@
+import itertools
 import logging
+import sys
+from typing import Any
 
 import yaml
 from attr import asdict, frozen
+from beartype import beartype
 from slugify import slugify
 
 from musicbot.defaults import REPLACEMENTS, STOPWORDS
@@ -9,6 +13,21 @@ from musicbot.helpers import bytes_to_human, precise_seconds_to_human
 from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
+
+
+@frozen(repr=False)
+class Folder(MusicbotObject):
+    name: str
+    ipv4: str
+    user: str
+    path: str
+
+    def __repr__(self) -> str:
+        return f"{self.name} {self.ipv4} {self.user}"
+
+    @property
+    def links(self) -> frozenset[str]:
+        return frozenset({self.path})
 
 
 @frozen
@@ -21,20 +40,27 @@ class Music(MusicbotObject):
     size: int
     rating: float
     length: int
-    keywords: set[str]
-    links: set[str]
+    keywords: frozenset[str]
+    folders: frozenset[Folder]
+    # youtube: str | None
+    # spotify: str | None
 
+    @beartype
     def human_repr(self) -> str:
-        d = asdict(self)
-        d['links'] = [link.removeprefix('sftp://') for link in d['links']]
-        d['size'] = bytes_to_human(d['size'])
-        d['length'] = precise_seconds_to_human(d['length'])
-        return yaml.dump(d, sort_keys=False)
+        data: dict[str, Any] = asdict(self)
+        data['size'] = bytes_to_human(data['size'])
+        data['length'] = precise_seconds_to_human(data['length'])
+        return yaml.dump(data, sort_keys=False, width=sys.maxsize)
 
-    # def sftp_links(self):
-    #     for link in links:
+    @property
+    def links(self) -> frozenset[str]:
+        return frozenset(itertools.chain(*[folder.links for folder in self.folders]))
 
     @property
     def slug(self) -> str:
         '''Slugify music'''
-        return slugify(f"""{self.artist}-{self.title}""", stopwords=STOPWORDS, replacements=REPLACEMENTS)
+        return slugify(
+            f"""{self.artist}-{self.title}""",
+            stopwords=STOPWORDS,
+            replacements=REPLACEMENTS,
+        )
