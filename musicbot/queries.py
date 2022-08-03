@@ -71,18 +71,8 @@ with
         and (len(<array<str>>$no_titles) = 0 or not contains(<array<str>>$no_titles, .name))
         and .genre in genres
         and .album in albums
-        and (len(<array<str>>$no_keywords) = 0 or all((
-            for no_keyword in array_unpack(<array<str>>$no_keywords)
-            union (
-                not contains(.keywords.name, no_keyword)
-            )
-        )))
-        and (len(<array<str>>$keywords) = 0 or all((
-            for yes_keyword in array_unpack(<array<str>>$keywords)
-            union (
-                contains(.keywords.name, yes_keyword)
-            )
-        )))
+        and (len(<array<str>>$no_keywords) = 0 or not any(array_unpack(<array<str>>$no_keywords) in .keywords.name))
+        and (len(<array<str>>$keywords) = 0 or all(array_unpack(<array<str>>$keywords) in .keywords.name))
     order by max({<float64>$shuffle, random()})
     limit <int64>$limit
 """

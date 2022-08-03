@@ -106,6 +106,7 @@ class MusicDb(MusicbotObject):
         music_filter: MusicFilter | None = None,
     ) -> Playlist:
         results = await self.execute_music_filter(PLAYLIST_QUERY, music_filter)
+        logger.debug(f"{len(results)} results")
         return Playlist.from_edgedb(
             name=name,
             results=results,
