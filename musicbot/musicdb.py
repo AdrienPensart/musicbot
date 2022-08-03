@@ -208,15 +208,16 @@ class MusicDb(MusicbotObject):
                 rating=result.rating,
                 folders=folders,
             )
+            logger.debug(output_music)
 
-            music_diff = DeepDiff(
-                asdict(input_music),
-                asdict(output_music),
-                ignore_order=True,
-            )
-            if music_diff:
-                MusicbotObject.err(f"{file} : file and music diff detected : ")
-                MusicbotObject.print_json(music_diff, file=sys.stderr)
+            # music_diff = DeepDiff(
+            #     asdict(input_music),
+            #     asdict(output_music),
+            #     ignore_order=True,
+            # )
+            # if music_diff:
+            #     MusicbotObject.err(f"{file} : file and music diff detected : ")
+            #     MusicbotObject.print_json(music_diff, file=sys.stderr)
 
             return file
         except edgedb.errors.TransactionSerializationError as e:
