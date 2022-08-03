@@ -130,7 +130,7 @@ class Playlist(MusicbotObject):
             self.print_json([asdict(music) for music in self.musics], file=file)
         else:
             self.err(f"unknown output type : {output}")
-        self.success(f"Songs: {len(musics)} | Total length: {precise_seconds_to_human(total_length)} | Total size: {bytes_to_human(total_size)}")
+        self.success(f"{self.name} : Songs: {len(musics)} | Total length: {precise_seconds_to_human(total_length)} | Total size: {bytes_to_human(total_size)}")
 
     @property
     def genres(self) -> frozenset[str]:

@@ -175,9 +175,9 @@ musicbot folder inconsistencies
       --limit INTEGER                                   Limit number of music files
       --extension TEXT                                  Supported formats  [default: flac, mp3]
     Check options: 
-      --checks [no-genre|invalid-title|no-title|no-artist|no-album|invalid-comment|no-track|invalid-path|no-rating]
-                                                        Consistency tests  [default: frozenset({'no-genre', 'invalid-title', 'no-title', 'no-
-                                                        artist', 'no-album', 'invalid-comment', 'no-track', 'invalid-path', 'no-rating'})]
+      --checks [invalid-comment|invalid-path|invalid-title|no-album|no-artist|no-genre|no-rating|no-title|no-track]
+                                                        Consistency tests  [default: no-rating, no-artist, invalid-path, no-track, invalid-
+                                                        title, no-album, invalid-comment, no-genre, no-title]
       --fix                                             Fix musics
     -h, --help                                          Show this message and exit.
 
@@ -541,6 +541,7 @@ musicbot local watch
       --dsn TEXT        DSN to MusicBot EdgeDB
       --musicdb TEXT
     --sleep INTEGER     Clean music every X seconds  [default: 3600]
+    --timeout INTEGER   How many seconds until we terminate
     -h, --help          Show this message and exit.
 
 musicbot music
@@ -627,9 +628,9 @@ musicbot music inconsistencies
   Options:
     --dry / --no-dry                                    Do not launch real action  [default: no-dry]
     Check options: 
-      --checks [no-genre|invalid-title|no-title|no-artist|no-album|invalid-comment|no-track|invalid-path|no-rating]
-                                                        Consistency tests  [default: frozenset({'no-genre', 'invalid-title', 'no-title', 'no-
-                                                        artist', 'no-album', 'invalid-comment', 'no-track', 'invalid-path', 'no-rating'})]
+      --checks [invalid-comment|invalid-path|invalid-title|no-album|no-artist|no-genre|no-rating|no-title|no-track]
+                                                        Consistency tests  [default: no-rating, no-artist, invalid-path, no-track, invalid-
+                                                        title, no-album, invalid-comment, no-genre, no-title]
       --fix                                             Fix musics
     -h, --help                                          Show this message and exit.
 

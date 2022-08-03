@@ -24,7 +24,7 @@ folders: {
 }
 """
 
-PLAYLIST_QUERY: Final[str] = """
+PLAYLIST_QUERY: Final[str] = CustomStringTemplate("""
 with
     artists := (
         select Artist
@@ -46,22 +46,7 @@ with
             (len(<array<str>>$no_genres) = 0 or not contains(<array<str>>$no_genres, .name))
     ),
     select Music {
-        id,
-        name,
-        size,
-        genre: {name},
-        album: {name},
-        artist: {name},
-        keywords: {name},
-        length,
-        track,
-        rating,
-        folders: {
-            name,
-            ipv4,
-            user,
-            path := @path
-        }
+        #music_fields
     }
     filter
         .length >= <int64>$min_length and .length <= <int64>$max_length
@@ -75,7 +60,7 @@ with
         and (len(<array<str>>$keywords) = 0 or all(array_unpack(<array<str>>$keywords) in .keywords.name))
     order by max({<float64>$shuffle, random()})
     limit <int64>$limit
-"""
+""").substitute(music_fields=MUSIC_FIELDS)
 
 SOFT_CLEAN_QUERY: Final[str] = """
 delete Keyword filter not exists .musics;
