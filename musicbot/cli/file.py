@@ -75,6 +75,8 @@ def sane_file(ctx: click.Context, param: click.Parameter, value: Path) -> File:
         logger.error("no param name set")
         raise click.Abort()
     file = File.from_path(folder=value.parent, path=value)
+    if not file:
+        raise click.Abort()
     ctx.params[param.name] = file
     return file
 

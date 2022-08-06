@@ -107,6 +107,8 @@ def set_tags(
 ) -> None:
     for path in paths:
         file = File.from_path(folder=path.parent, path=path)
+        if not file:
+            continue
         if not file.set_tags(
             title=title,
             artist=artist,

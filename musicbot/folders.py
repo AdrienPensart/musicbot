@@ -98,15 +98,12 @@ class Folders(MusicbotObject):
         threads: int,
         flat: bool,
     ) -> list[File]:
-        self.extensions = {'flac'}
-        if not self.files:
-            logger.warning(f"{self} : no flac files detected")
-            return []
-
         def worker(folder_and_path: tuple[Path, Path]) -> File | None:
             folder, path = folder_and_path
             try:
                 file = File.from_path(folder=folder, path=path)
+                if not file:
+                    return None
                 return file.to_mp3(flat=flat, destination=destination)
             except MusicbotError as e:
                 self.err(e)

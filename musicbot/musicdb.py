@@ -190,9 +190,11 @@ class MusicDb(MusicbotObject):
         folder, path = folder_and_path
         try:
             file = File.from_path(folder=folder, path=path)
+            if not file:
+                return None
 
             if 'no-title' in file.inconsistencies or 'no-artist' in file.inconsistencies or 'no-album' in file.inconsistencies:
-                MusicbotObject.warn(f"{file} : missing mandatory fields title/album/artist : {file.inconsistencies}")
+                self.warn(f"{file} : missing mandatory fields title/album/artist : {file.inconsistencies}")
                 return None
 
             input_music = file.to_music()

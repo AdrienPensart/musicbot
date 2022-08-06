@@ -86,27 +86,18 @@ class Playlist(MusicbotObject):
             random.shuffle(musics)
 
         table = Table(
-            Column("T/N", vertical="middle", justify="center", no_wrap=True),
-            Column("Artist/Album/Title/Genre", vertical="middle", no_wrap=True),
-            Column("Rating", vertical="middle", justify="center", no_wrap=True),
-            Column("Keywords", vertical="middle"),
-            Column("Links", no_wrap=True),
+            Column("Music", vertical="middle", no_wrap=True),
             Column("Infos", vertical="middle", no_wrap=True),
+            Column("Links", no_wrap=True),
             show_lines=True,
         )
         total_length = 0
         total_size = 0
         for music in musics:
-            infos = formatted_seconds_to_human(music.length)
-            infos += "\n"
-            infos += bytes_to_human(music.size)
             raw_row: list[str] = [
-                str(music.track),
-                '\n'.join([music.title, music.artist, music.album, music.genre]),
-                str(music.rating),
-                '\n'.join(sorted(music.keywords)),
+                '\n'.join([f"{music.track} - {music.title}", music.artist, music.album, music.genre]),
+                '\n'.join([str(music.rating), ','.join(sorted(music.keywords)), formatted_seconds_to_human(music.length), bytes_to_human(music.size)]),
                 '\n'.join(music.links(types)),
-                infos,
             ]
             if music.title == current_title and music.album == current_album and music.artist == current_artist:
                 colored_row = [Text(elem, style="green") for elem in raw_row]

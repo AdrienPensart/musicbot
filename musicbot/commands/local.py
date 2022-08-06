@@ -288,6 +288,8 @@ def sync(
             try:
                 path = Path(link)
                 music_to_sync = File.from_path(folder=path.parent, path=path)
+                if not music_to_sync:
+                    continue
                 musics.append(music_to_sync)
             except OSError as e:
                 logger.error(e)

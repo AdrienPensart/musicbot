@@ -1,4 +1,5 @@
 import logging
+import shutil
 from functools import cached_property
 from pathlib import Path, PurePath
 from typing import Optional
@@ -12,6 +13,7 @@ from pydub import AudioSegment  # type: ignore
 
 from musicbot.defaults import (
     DEFAULT_CHECKS,
+    DEFAULT_EXTENSIONS,
     DEFAULT_MAX_RATING,
     DEFAULT_MIN_RATING,
     RATING_CHOICES,
@@ -56,7 +58,11 @@ class File(MusicbotObject):
             self.inconsistencies.add("invalid-path")
 
     @classmethod
-    def from_path(cls, folder: Path, path: Path) -> "File":
+    def from_path(cls, folder: Path, path: Path) -> Optional["File"]:
+        if not str(path).endswith(tuple(DEFAULT_EXTENSIONS)):
+            cls.err(f"{path} : not supported ({DEFAULT_EXTENSIONS})")
+            return None
+
         return cls(
             folder=folder.resolve(),
             handle=mutagen.File(path.resolve())
@@ -367,10 +373,6 @@ class File(MusicbotObject):
 
     @beartype
     def to_mp3(self, destination: Path, flat: bool = False) -> Optional["File"]:
-        if self.extension != '.flac':
-            self.err(f"{self} is not a flac file")
-            return None
-
         if not flat and 'invalid-path' in self.inconsistencies:
             self.err(f"{self} does not have a canonic path like : {self.canonic_artist_album_filename}")
             return None
@@ -383,6 +385,10 @@ class File(MusicbotObject):
         if mp3_path.exists():
             logger.info(f"{mp3_path} already exists, overwriting only tags")
             mp3_file = File.from_path(folder=destination, path=mp3_path)
+            if not mp3_file:
+                self.err("unable to load existing mp3 file")
+                return None
+
             mp3_file.track = self.track
             mp3_file.album = self.album
             mp3_file.title = self.title
@@ -392,6 +398,14 @@ class File(MusicbotObject):
             mp3_file.keywords = self.keywords
             if not mp3_file.save():
                 return None
+            return mp3_file
+
+        if self.extension == '.mp3':
+            self.warn(f"{self} is already an MP3")
+            _ = shutil.copyfile(self.path, str(mp3_path))
+            if self.dry:
+                return None
+            mp3_file = File.from_path(folder=destination, path=mp3_path)
             return mp3_file
 
         logger.debug(f"{self} convert destination : {mp3_path}")
@@ -407,6 +421,10 @@ class File(MusicbotObject):
             )
             mp3_export.close()
             mp3_file = File.from_path(folder=destination, path=mp3_path)
+            if not mp3_file:
+                self.err("unable to load freshly converted mp3 file")
+                return None
+
             mp3_file.track = self.track
 
             # rewrite some metadatas
