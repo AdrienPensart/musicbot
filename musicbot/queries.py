@@ -63,10 +63,11 @@ with
 """).substitute(music_fields=MUSIC_FIELDS)
 
 SOFT_CLEAN_QUERY: Final[str] = """
-delete Keyword filter not exists .musics;
+delete Music filter not exists .folders;
 delete Album filter not exists .musics;
 delete Artist filter not exists .musics;
 delete Genre filter not exists .musics;
+delete Keyword filter not exists .musics;
 """
 
 SEARCH_QUERY: Final[str] = CustomStringTemplate("""
@@ -81,8 +82,8 @@ filter
 .keywords.name ilike <str>$pattern
 """).substitute(music_fields=MUSIC_FIELDS)
 
-DELETE_QUERY: Final[str] = """
-delete Music filter contains(.links, <str>$path)
+REMOVE_PATH_QUERY: Final[str] = """
+update Music filter contains(.folders@path, <str>$path) set {folders := (select .folders filter @path != <str>$path)};
 """
 
 UPSERT_QUERY: Final[str] = CustomStringTemplate("""

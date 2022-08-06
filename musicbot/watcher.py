@@ -31,11 +31,11 @@ class MusicWatcherHandler(PatternMatchingEventHandler):
 
     def on_deleted(self, event: FileSystemEvent) -> None:
         logger.debug(f'Deleting entry in DB for: {event.src_path} {event.event_type}')
-        self.musicdb.sync_delete_music(event.src_path)
+        self.musicdb.sync_remove_music_path(event.src_path)
 
     def on_moved(self, event: FileSystemEvent) -> None:
         logger.debug(f'Moving entry in DB for: {event.src_path} {event.event_type}')
-        self.musicdb.sync_delete_music(event.src_path)
+        self.musicdb.sync_remove_music_path(event.src_path)
         _ = self.update_music(event.dest_path)
 
     def update_music(self, path: str) -> File | None:

@@ -24,8 +24,8 @@ from musicbot.object import MusicbotObject
 from musicbot.playlist import Playlist
 from musicbot.queries import (
     BESTS_QUERY,
-    DELETE_QUERY,
     PLAYLIST_QUERY,
+    REMOVE_PATH_QUERY,
     SEARCH_QUERY,
     SOFT_CLEAN_QUERY,
     UPSERT_QUERY
@@ -172,15 +172,15 @@ class MusicDb(MusicbotObject):
         async_run(self.client.ensure_connected())
 
     @beartype
-    async def delete_music(self, path: str) -> Any:
+    async def remove_music_path(self, path: str) -> Any:
         if self.dry:
             return None
-        return await self.client.query(DELETE_QUERY, path=path)
+        return await self.client.query(REMOVE_PATH_QUERY, path=path)
 
     @beartype
-    def sync_delete_music(self, path: str) -> Any:
+    def sync_remove_music_path(self, path: str) -> Any:
         self.sync_ensure_connected()
-        return async_run(self.delete_music(path))
+        return async_run(self.remove_music_path(path))
 
     @beartype
     async def upsert_path(
