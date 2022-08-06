@@ -10,7 +10,8 @@ def sane_musicdb(ctx: click.Context, param: click.Parameter, value: str) -> Musi
     if param.name:
         ctx.params[param.name] = value
     dsn = ctx.params.pop('dsn')
-    musicdb = MusicDb.from_dsn(dsn)
+    graphql = ctx.params.pop('graphql')
+    musicdb = MusicDb.from_dsn(dsn=dsn, graphql=graphql)
     ctx.params['musicdb'] = musicdb
     return musicdb
 
@@ -23,7 +24,14 @@ musicdb_options = add_options(
         callback=config_string,
     ),
     optgroup.option(
+        '--graphql',
+        help='DSN to MusicBot GrapQL',
+        callback=config_string,
+    ),
+    optgroup.option(
         '--musicdb',
+        help="MusicDB object injection",
+        hidden=True,
         expose_value=False,
         callback=sane_musicdb,
     ),

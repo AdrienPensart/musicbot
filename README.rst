@@ -176,8 +176,8 @@ musicbot folder inconsistencies
       --extension TEXT                                  Supported formats  [default: flac, mp3]
     Check options: 
       --checks [invalid-comment|invalid-path|invalid-title|no-album|no-artist|no-genre|no-rating|no-title|no-track]
-                                                        Consistency tests  [default: no-rating, no-artist, invalid-path, no-track, invalid-
-                                                        title, no-album, invalid-comment, no-genre, no-title]
+                                                        Consistency tests  [default: invalid-comment, invalid-path, invalid-title, no-album,
+                                                        no-artist, no-genre, no-rating, no-title, no-track]
       --fix                                             Fix musics
     -h, --help                                          Show this message and exit.
 
@@ -249,7 +249,9 @@ musicbot local
   Commands:
     bests                   Generate bests playlists with some rules
     clean (clean-db,erase)  Clean all musics in DB
-    execute (fetch,query)   Raw query
+    execute (fetch,query)   EdgeDB raw query
+    explore                 Explore with GraphiQL
+    graphql                 GraphQL query
     help                    Print help
     player (play)           Music player
     playlist                Generate a new playlist
@@ -299,7 +301,7 @@ musicbot local bests
       --max-rating FLOAT RANGE          Maximum rating  [default: 5.0; 0.0<=x<=5.0]
     MusicDB options: 
       --dsn TEXT                        DSN to MusicBot EdgeDB
-      --musicdb TEXT
+      --graphql TEXT                    DSN to MusicBot GrapQL
     --dry / --no-dry                    Do not launch real action  [default: no-dry]
     --link, --links [ssh|local|http]    Generate playlist link of kind  [default: local]
     Bests options: 
@@ -317,7 +319,7 @@ musicbot local clean
   Options:
     MusicDB options: 
       --dsn TEXT       DSN to MusicBot EdgeDB
-      --musicdb TEXT
+      --graphql TEXT   DSN to MusicBot GrapQL
     -y, --yes          Confirm action
     -h, --help         Show this message and exit.
 
@@ -327,12 +329,40 @@ musicbot local execute
 
   Usage: musicbot local execute [OPTIONS] QUERY
 
-    Raw query
+    EdgeDB raw query
 
   Options:
     MusicDB options: 
       --dsn TEXT       DSN to MusicBot EdgeDB
-      --musicdb TEXT
+      --graphql TEXT   DSN to MusicBot GrapQL
+    -h, --help         Show this message and exit.
+
+musicbot local explore
+**********************
+.. code-block::
+
+  Usage: musicbot local explore [OPTIONS]
+
+    Explore with GraphiQL
+
+  Options:
+    MusicDB options: 
+      --dsn TEXT       DSN to MusicBot EdgeDB
+      --graphql TEXT   DSN to MusicBot GrapQL
+    -h, --help         Show this message and exit.
+
+musicbot local graphql
+**********************
+.. code-block::
+
+  Usage: musicbot local graphql [OPTIONS] QUERY
+
+    GraphQL query
+
+  Options:
+    MusicDB options: 
+      --dsn TEXT       DSN to MusicBot EdgeDB
+      --graphql TEXT   DSN to MusicBot GrapQL
     -h, --help         Show this message and exit.
 
 musicbot local player
@@ -346,7 +376,7 @@ musicbot local player
   Options:
     MusicDB options: 
       --dsn TEXT                        DSN to MusicBot EdgeDB
-      --musicdb TEXT
+      --graphql TEXT                    DSN to MusicBot GrapQL
     --link, --links [ssh|local|http]    Generate playlist link of kind  [default: local]
     Filter options: 
       --name TEXT                       Filter name
@@ -391,7 +421,7 @@ musicbot local playlist
   Options:
     MusicDB options: 
       --dsn TEXT                        DSN to MusicBot EdgeDB
-      --musicdb TEXT
+      --graphql TEXT                    DSN to MusicBot GrapQL
     --output [json|table|m3u]           Output format  [default: table]
     Filter options: 
       --name TEXT                       Filter name
@@ -440,7 +470,7 @@ musicbot local scan
       --extension TEXT         Supported formats  [default: flac, mp3]
     MusicDB options: 
       --dsn TEXT               DSN to MusicBot EdgeDB
-      --musicdb TEXT
+      --graphql TEXT           DSN to MusicBot GrapQL
     -s, --save                 Save to config file
     --output [json|table|m3u]  Output format  [default: table]
     --clean                    Delete musics before
@@ -458,7 +488,7 @@ musicbot local search
   Options:
     MusicDB options: 
       --dsn TEXT                      DSN to MusicBot EdgeDB
-      --musicdb TEXT
+      --graphql TEXT                  DSN to MusicBot GrapQL
     --output [json|table|m3u]         Output format  [default: table]
     --link, --links [ssh|local|http]  Generate playlist link of kind  [default: local]
     -h, --help                        Show this message and exit.
@@ -474,7 +504,7 @@ musicbot local soft-clean
   Options:
     MusicDB options: 
       --dsn TEXT       DSN to MusicBot EdgeDB
-      --musicdb TEXT
+      --graphql TEXT   DSN to MusicBot GrapQL
     -h, --help         Show this message and exit.
 
 musicbot local sync
@@ -488,7 +518,7 @@ musicbot local sync
   Options:
     MusicDB options: 
       --dsn TEXT                        DSN to MusicBot EdgeDB
-      --musicdb TEXT
+      --graphql TEXT                    DSN to MusicBot GrapQL
     -y, --yes                           Confirm action
     --dry / --no-dry                    Do not launch real action  [default: no-dry]
     Filter options: 
@@ -539,7 +569,7 @@ musicbot local watch
       --extension TEXT  Supported formats  [default: flac, mp3]
     MusicDB options: 
       --dsn TEXT        DSN to MusicBot EdgeDB
-      --musicdb TEXT
+      --graphql TEXT    DSN to MusicBot GrapQL
     --sleep INTEGER     Clean music every X seconds  [default: 3600]
     --timeout INTEGER   How many seconds until we terminate
     -h, --help          Show this message and exit.
@@ -629,8 +659,8 @@ musicbot music inconsistencies
     --dry / --no-dry                                    Do not launch real action  [default: no-dry]
     Check options: 
       --checks [invalid-comment|invalid-path|invalid-title|no-album|no-artist|no-genre|no-rating|no-title|no-track]
-                                                        Consistency tests  [default: no-rating, no-artist, invalid-path, no-track, invalid-
-                                                        title, no-album, invalid-comment, no-genre, no-title]
+                                                        Consistency tests  [default: invalid-comment, invalid-path, invalid-title, no-album,
+                                                        no-artist, no-genre, no-rating, no-title, no-track]
       --fix                                             Fix musics
     -h, --help                                          Show this message and exit.
 
@@ -752,7 +782,7 @@ musicbot spotify diff
       --spotify-token TEXT          Spotify token
     MusicDB options: 
       --dsn TEXT                    DSN to MusicBot EdgeDB
-      --musicdb TEXT
+      --graphql TEXT                DSN to MusicBot GrapQL
     --output [json|table|m3u]       Output format  [default: table]
     --download-playlist             Create the download playlist
     --min-threshold FLOAT RANGE     Minimum distance threshold  [0<=x<=100]

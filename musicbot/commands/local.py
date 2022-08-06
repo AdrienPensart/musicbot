@@ -4,6 +4,7 @@ import logging
 import shutil
 import threading
 import time
+import webbrowser
 from pathlib import Path
 from typing import Any
 
@@ -48,12 +49,32 @@ def cli() -> None:
     pass
 
 
-@cli.command(help='Raw query', aliases=['query', 'fetch'])
+@cli.command(help='EdgeDB raw query', aliases=['query', 'fetch'])
 @click.argument('query')
 @musicdb_options
 @beartype
 def execute(musicdb: MusicDb, query: str) -> None:
     print(musicdb.sync_query(query))
+
+
+@cli.command(help='GraphQL query')
+@click.argument('query')
+@musicdb_options
+@beartype
+def graphql(musicdb: MusicDb, query: str) -> None:
+    result = musicdb.graphql_query(query)
+    if result is not None:
+        MusicbotObject.print_json(result)
+
+
+@cli.command(help='Explore with GraphiQL')
+@musicdb_options
+@beartype
+def explore(musicdb: MusicDb) -> None:
+    if musicdb.graphql:
+        url = f"{musicdb.graphql}/explore"
+        MusicbotObject.success(url)
+        _ = webbrowser.open(url)
 
 
 @cli.command(help='Load musics')

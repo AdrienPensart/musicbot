@@ -4,11 +4,12 @@ import os
 from functools import cache
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 import edgedb
+import requests
 from attr import asdict, define
 from beartype import beartype
-# from deepdiff import DeepDiff  # type: ignore
 from edgedb.asyncio_client import AsyncIOClient, create_async_client
 from edgedb.options import RetryOptions, TransactionOptions
 
@@ -36,11 +37,16 @@ logger = logging.getLogger(__name__)
 @define(hash=True)
 class MusicDb(MusicbotObject):
     client: AsyncIOClient
+    session: requests.Session = requests.Session()
+    graphql: str | None = None
 
     def __attrs_post_init__(self) -> None:
         self.client = self.client.with_retry_options(
             RetryOptions(attempts=10)
         )
+        if self.graphql is None:
+            parsed = urlparse(self.client._impl._connect_args['dsn'])
+            self.graphql = f"http://{parsed.hostname}:{parsed.port}/db/edgedb/graphql"
 
     @beartype
     def set_readonly(self, readonly: bool = True) -> None:
@@ -53,15 +59,30 @@ class MusicDb(MusicbotObject):
     def from_dsn(
         cls,
         dsn: str,
+        graphql: str | None = None,
     ) -> "MusicDb":
         if not cls.is_prod():
             os.environ['EDGEDB_CLIENT_SECURITY'] = 'insecure_dev_mode'
-        return cls(client=create_async_client(dsn=dsn))
+        return cls(client=create_async_client(dsn=dsn), graphql=graphql)
 
     @beartype
     def sync_query(self, query: str) -> Any:
         future = self.client.query_json(query)
         return async_run(future)
+
+    @beartype
+    def graphql_query(self, query: str) -> Any:
+        if not self.graphql:
+            return None
+        operation = {
+            'query': query
+        }
+        response = self.session.post(
+            self.graphql,
+            json=operation,
+        )
+        logger.debug(response)
+        return response.json()
 
     @beartype
     async def execute_music_filter(
@@ -209,6 +230,7 @@ class MusicDb(MusicbotObject):
             )
             logger.debug(output_music)
 
+            # from deepdiff import DeepDiff  # type: ignore
             # music_diff = DeepDiff(
             #     asdict(input_music),
             #     asdict(output_music),

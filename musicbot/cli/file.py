@@ -120,7 +120,7 @@ checks_and_fix_options = add_options(
         '--checks',
         help='Consistency tests',
         multiple=True,
-        default=list(DEFAULT_CHECKS),
+        default=list(sorted(DEFAULT_CHECKS)),
         show_default=True,
         type=click.Choice(list(sorted(DEFAULT_CHECKS))),
         callback=split_arguments,
