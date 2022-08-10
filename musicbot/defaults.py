@@ -5,13 +5,16 @@ MAX_INT: Final[int] = 2147483647
 
 DEFAULT_VLC_PARAMS: Final[str] = "--vout=dummy --aout=pulse"
 
-LINK_CHOICES: Final[list[str]] = ['ssh', 'local', 'http']
-DEFAULT_LINK: Final[list[str]] = ['local']
+KINDS_CHOICES: Final[frozenset[str]] = frozenset(['local', 'remote', 'remote-ssh', 'local-ssh', 'local-http', 'remote-http', 'all'])
+DEFAULT_KINDS: Final[frozenset[str]] = frozenset(['local'])
+
+DEFAULT_RELATIVE: Final[bool] = False
+DEFAULT_SHUFFLE: Final[bool] = False
+DEFAULT_INTERLEAVE: Final[bool] = False
 
 RATING_CHOICES: Final[list[float]] = [x * 0.5 for x in range(0, 11)]
 STORED_RATING_CHOICES: Final[list[float]] = [float(x) / 10.0 for x in range(0, 11)]
 DEFAULT_NAME: Final[str | None] = None
-DEFAULT_SHUFFLE: Final[bool] = False
 DEFAULT_LIMIT: Final[int] = MAX_INT
 DEFAULT_MIN_LENGTH: Final[int] = MIN_INT
 DEFAULT_MAX_LENGTH: Final[int] = MAX_INT

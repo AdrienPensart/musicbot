@@ -31,13 +31,14 @@ from musicbot.cli.options import (
     save_option,
     yes_option
 )
-from musicbot.cli.playlist import bests_options, links_option
+from musicbot.cli.playlist import bests_options, playlist_options
 from musicbot.defaults import DEFAULT_VLC_PARAMS
 from musicbot.file import File
 from musicbot.folders import Folders
 from musicbot.music_filter import MusicFilter
 from musicbot.musicdb import MusicDb
 from musicbot.object import MusicbotObject
+from musicbot.playlist_options import PlaylistOptions
 from musicbot.watcher import MusicWatcherHandler
 
 logger = logging.getLogger(__name__)
@@ -158,38 +159,45 @@ def soft_clean(musicdb: MusicDb) -> None:
 @cli.command(help='Search musics by full-text search')
 @musicdb_options
 @output_option
-@links_option
+@playlist_options
 @click.argument('pattern')
 @beartype
 def search(
     musicdb: MusicDb,
     output: str,
     pattern: str,
-    links: list[str],
+    playlist_options: PlaylistOptions,
 ) -> None:
     p = musicdb.sync_search(pattern)
-    p.print(output=output, types=links)
+    p.print(
+        output=output,
+        playlist_options=playlist_options,
+    )
 
 
 @cli.command(help='Generate a new playlist')
 @musicdb_options
 @output_option
 @music_filter_options
-@links_option
+@playlist_options
 @click.argument('out', type=click.File('w', lazy=True), default='-')
 @beartype
 def playlist(
     output: str,
     music_filter: MusicFilter,
+    playlist_options: PlaylistOptions,
     musicdb: MusicDb,
     out: Any,
-    links: list[str],
 ) -> None:
     musicdb.set_readonly()
     p = musicdb.sync_make_playlist(
         music_filter=music_filter,
     )
-    p.print(output=output, file=out, types=links)
+    p.print(
+        output=output,
+        file=out,
+        playlist_options=playlist_options,
+    )
 
 
 @cli.command(help='Generate bests playlists with some rules')
@@ -197,7 +205,7 @@ def playlist(
 @music_filter_options
 @musicdb_options
 @dry_option
-@links_option
+@playlist_options
 @bests_options
 @beartype
 def bests(
@@ -205,7 +213,7 @@ def bests(
     music_filter: MusicFilter,
     folder: Path,
     min_playlist_size: int,
-    links: list[str],
+    playlist_options: PlaylistOptions,
 ) -> None:
     musicdb.set_readonly()
     bests = musicdb.sync_make_bests(
@@ -222,7 +230,11 @@ def bests(
             try:
                 filepath.parent.mkdir(parents=True, exist_ok=True)
                 with codecs.open(str(filepath), 'w', "utf-8-sig") as playlist_file:
-                    best.print(output="m3u", file=playlist_file, types=links)
+                    best.print(
+                        output="m3u",
+                        file=playlist_file,
+                        playlist_options=playlist_options,
+                    )
             except (OSError, LookupError, ValueError, UnicodeError) as e:
                 logger.warning(f'Unable to write playlist {best.name} to {filepath} because of {e}')
 
@@ -231,22 +243,25 @@ def bests(
 
 @cli.command(aliases=['play'], help='Music player')
 @musicdb_options
-@links_option
 @music_filter_options
+@playlist_options
 @click.option('--vlc-params', help="VLC params", default=DEFAULT_VLC_PARAMS, show_default=True)
 @beartype
 def player(
     music_filter: MusicFilter,
     musicdb: MusicDb,
     vlc_params: str,
-    links: list[str],
+    playlist_options: PlaylistOptions,
 ) -> None:
     musicdb.set_readonly()
     if not MusicbotObject.config.quiet:
         progressbar.streams.unwrap(stderr=True, stdout=True)
     try:
         playlist = musicdb.sync_make_playlist(music_filter=music_filter)
-        playlist.play(vlc_params=vlc_params, types=links)
+        playlist.play(
+            vlc_params=vlc_params,
+            playlist_options=playlist_options,
+        )
     except io.UnsupportedOperation:
         logger.critical('Unable to load UI')
 
@@ -284,7 +299,7 @@ def sync(
 
     musics: list[File] = []
     for music in playlist.musics:
-        for link in music.links(types=['local']):
+        for link in music.links():
             try:
                 path = Path(link)
                 music_to_sync = File.from_path(folder=path.parent, path=path)

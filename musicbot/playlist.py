@@ -10,6 +10,7 @@ from beartype import beartype
 from click_skeleton.helpers import PrettyDefaultDict
 from click_skeleton.helpers import \
     seconds_to_human as formatted_seconds_to_human
+from more_itertools import interleave_evenly
 from rich.table import Column, Table
 from rich.text import Text
 
@@ -19,6 +20,7 @@ from musicbot.helpers import bytes_to_human, precise_seconds_to_human
 from musicbot.music import Folder, Music
 from musicbot.music_filter import MusicFilter
 from musicbot.object import MusicbotObject
+from musicbot.playlist_options import PlaylistOptions
 
 logging.getLogger("vlc").setLevel(logging.NOTSET)
 logger = logging.getLogger(__name__)
@@ -67,27 +69,26 @@ class Playlist(MusicbotObject):
     def print(
         self,
         output: str,
-        types: list[str],
         current_title: str | None = None,
         current_album: str | None = None,
         current_artist: str | None = None,
-        shuffle: bool = False,
-        interleave: bool = False,
         file: Any = None,
+        playlist_options: PlaylistOptions | None = None,
     ) -> None:
+        playlist_options = playlist_options if playlist_options is not None else PlaylistOptions()
         musics = self.musics
-        if interleave:
+        if playlist_options.interleave:
             musics_by_artist = PrettyDefaultDict(list)
             for music in self.musics:
                 musics_by_artist[music.artist].append(music)
-            musics = list(itertools.chain(*itertools.zip_longest(*musics_by_artist.values())))
+            musics = list(interleave_evenly([list(value) for value in musics_by_artist.values()]))
 
-        if shuffle:
+        if playlist_options.shuffle:
             random.shuffle(musics)
 
         table = Table(
-            Column("Music", vertical="middle", no_wrap=True),
-            Column("Infos", vertical="middle", no_wrap=True),
+            Column("Music", vertical="middle"),
+            Column("Infos", vertical="middle"),
             Column("Links", no_wrap=True),
             show_lines=True,
         )
@@ -97,7 +98,7 @@ class Playlist(MusicbotObject):
             raw_row: list[str] = [
                 '\n'.join([f"{music.track} - {music.title}", music.artist, music.album, music.genre]),
                 '\n'.join([str(music.rating), ','.join(sorted(music.keywords)), formatted_seconds_to_human(music.length), bytes_to_human(music.size)]),
-                '\n'.join(music.links(types)),
+                '\n'.join(sorted(music.links(playlist_options))),
             ]
             if music.title == current_title and music.album == current_album and music.artist == current_artist:
                 colored_row = [Text(elem, style="green") for elem in raw_row]
@@ -113,7 +114,7 @@ class Playlist(MusicbotObject):
 
         if output == 'm3u':
             p = '#EXTM3U\n'
-            p += '\n'.join(self.links(types))
+            p += '\n'.join(self.links(playlist_options))
             print(p, file=file)
         elif output == 'table':
             self.print_table(table, file=file)
@@ -140,13 +141,13 @@ class Playlist(MusicbotObject):
         return frozenset(set(music.rating for music in self.musics))
 
     @beartype
-    def links(self, types: list[str]) -> list[str]:
-        return list(itertools.chain(*[music.links(types) for music in self.musics]))
+    def links(self, playlist_options: PlaylistOptions) -> list[str]:
+        return list(itertools.chain(*[music.links(playlist_options) for music in self.musics]))
 
     @beartype
     def play(
         self,
-        types: list[str],
+        playlist_options: PlaylistOptions | None = None,
         vlc_params: str = DEFAULT_VLC_PARAMS,
     ) -> None:
         from prompt_toolkit import HTML, Application, print_formatted_text
@@ -155,6 +156,7 @@ class Playlist(MusicbotObject):
         from prompt_toolkit.layout.containers import HSplit, Window
         from prompt_toolkit.layout.controls import FormattedTextControl
         from prompt_toolkit.layout.layout import Layout
+        playlist_options = playlist_options if playlist_options is not None else PlaylistOptions()
         if not self.musics:
             self.warn('Empty playlist')
             return
@@ -179,7 +181,7 @@ class Playlist(MusicbotObject):
                 logger.critical('Unable to create VLC player')
                 return
 
-            media_list = instance.media_list_new(self.links(types))
+            media_list = instance.media_list_new(self.links(playlist_options))
             if not media_list:
                 logger.critical('Unable to create VLC media list')
                 return
@@ -218,10 +220,10 @@ class Playlist(MusicbotObject):
                     current_title = media.get_meta(vlc.Meta.Title)
                     self.print(
                         output='table',
-                        types=types,
                         current_artist=current_artist,
                         current_album=current_album,
                         current_title=current_title,
+                        playlist_options=playlist_options,
                     )
                 _ = run_in_terminal(playlist)
 

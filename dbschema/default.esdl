@@ -80,6 +80,7 @@ module default {
         multi link folders -> Folder {
             property path -> str;
         }
+        property paths := (select .folders@path);
 
         constraint exclusive on ( (.name, .album ) );
     }

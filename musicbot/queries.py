@@ -58,7 +58,11 @@ with
         and .album in albums
         and (len(<array<str>>$no_keywords) = 0 or not any(array_unpack(<array<str>>$no_keywords) in .keywords.name))
         and (len(<array<str>>$keywords) = 0 or all(array_unpack(<array<str>>$keywords) in .keywords.name))
-    order by max({<float64>$shuffle, random()})
+    order by
+        .artist.name then
+        .album.name then
+        .track then
+        .name
     limit <int64>$limit
 """).substitute(music_fields=MUSIC_FIELDS)
 
@@ -83,7 +87,7 @@ filter
 """).substitute(music_fields=MUSIC_FIELDS)
 
 REMOVE_PATH_QUERY: Final[str] = """
-update Music filter contains(.folders@path, <str>$path) set {folders := (select .folders filter @path != <str>$path)};
+update Music filter contains(.paths, <str>$path) set {folders := (select .folders filter @path != <str>$path)};
 """
 
 UPSERT_QUERY: Final[str] = CustomStringTemplate("""

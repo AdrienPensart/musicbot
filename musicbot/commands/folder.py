@@ -14,7 +14,6 @@ from musicbot.cli.file import (
     keywords_arguments
 )
 from musicbot.cli.folders import destination_argument, folders_argument
-from musicbot.cli.music_filter import ordering_options
 from musicbot.cli.options import dry_option, output_option, threads_option
 from musicbot.folders import Folders
 from musicbot.object import MusicbotObject
@@ -40,20 +39,14 @@ def find(folders: Folders) -> None:
 @cli.command(help='Generates a playlist', aliases=['tags', 'musics', 'tracks'])
 @folders_argument
 @output_option
-@ordering_options
 @beartype
 def playlist(
     folders: Folders,
     output: str,
-    shuffle: bool,
-    interleave: bool,
 ) -> None:
     playlist = Playlist(musics=folders.musics)
     playlist.print(
         output=output,
-        interleave=interleave,
-        shuffle=shuffle,
-        types=['local']
     )
 
 
@@ -79,7 +72,6 @@ def flac2mp3(
     playlist = Playlist.from_files(mp3_files)
     playlist.print(
         output=output,
-        types=['local']
     )
 
 

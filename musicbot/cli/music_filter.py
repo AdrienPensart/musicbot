@@ -1,8 +1,8 @@
 import logging
 from typing import Any
 
-import attr
 import click
+from attr import evolve, fields
 from click_option_group import optgroup  # type: ignore
 from click_skeleton import add_options
 from click_skeleton.helpers import split_arguments
@@ -26,10 +26,9 @@ from musicbot.defaults import (
     DEFAULT_NO_GENRES,
     DEFAULT_NO_KEYWORDS,
     DEFAULT_NO_TITLES,
-    DEFAULT_SHUFFLE,
     DEFAULT_TITLES
 )
-from musicbot.music_filter import MusicFilter
+from musicbot.music_filter import DEFAULT_FILTERS, MusicFilter
 
 logger = logging.getLogger(__name__)
 
@@ -39,49 +38,36 @@ def sane_music_filter(ctx: click.Context, param: click.Parameter, value: str | N
         logger.error("no param name set")
         raise click.Abort()
 
+    name = ctx.params.pop('name', None)
     rating = ctx.params.pop('rating', None)
 
     kwargs: dict[str, Any] = {}
-    for field in attr.fields_dict(MusicFilter):
-        if isinstance(ctx.params[field], list):
-            kwargs[field] = frozenset(ctx.params[field])
-        else:
-            kwargs[field] = ctx.params[field]
-        ctx.params.pop(field)
+    for field in fields(MusicFilter):  # pylint: disable=not-an-iterable
+        if isinstance(ctx.params[field.name], list) and ctx.params[field.name] != field.default:
+            kwargs[field.name] = frozenset(ctx.params[field.name])
+        elif ctx.params[field.name] != field.default:
+            kwargs[field.name] = ctx.params[field.name]
+        ctx.params.pop(field.name)
 
     if rating is not None:
         kwargs['min_rating'] = rating
         kwargs['max_rating'] = rating
 
-    music_filter = MusicFilter(**kwargs)
+    if name is not None:
+        music_filter = DEFAULT_FILTERS[name]
+        music_filter = evolve(music_filter, **kwargs)
+    else:
+        music_filter = MusicFilter(**kwargs)
     ctx.params[param.name] = music_filter
     return music_filter
 
-
-shuffle_option = optgroup.option(
-    '--shuffle',
-    help='Randomize selection',
-    default=DEFAULT_SHUFFLE,
-    is_flag=True,
-)
-
-interleave_option = optgroup.option(
-    '--interleave',
-    help='Interleave tracks by artist',
-    is_flag=True,
-)
-
-ordering_options = add_options(
-    optgroup('Ordering options'),
-    shuffle_option,
-    interleave_option,
-)
 
 music_filter_options = add_options(
     optgroup('Filter options'),
     optgroup.option(
         '--name',
         help='Filter name',
+        type=click.Choice(list(DEFAULT_FILTERS.keys())),
         default=DEFAULT_NAME,
     ),
     optgroup.option(
@@ -89,7 +75,6 @@ music_filter_options = add_options(
         help='Fetch a maximum limit of music',
         default=DEFAULT_LIMIT,
     ),
-    shuffle_option,
     optgroup('Keywords'),
     optgroup.option(
         '--keywords', '--keyword',

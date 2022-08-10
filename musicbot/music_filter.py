@@ -15,13 +15,11 @@ from musicbot.defaults import (
     DEFAULT_MIN_LENGTH,
     DEFAULT_MIN_RATING,
     DEFAULT_MIN_SIZE,
-    DEFAULT_NAME,
     DEFAULT_NO_ALBUMS,
     DEFAULT_NO_ARTISTS,
     DEFAULT_NO_GENRES,
     DEFAULT_NO_KEYWORDS,
     DEFAULT_NO_TITLES,
-    DEFAULT_SHUFFLE,
     DEFAULT_TITLES,
     RATING_CHOICES
 )
@@ -31,8 +29,6 @@ logger = logging.getLogger(__name__)
 
 @frozen(repr=False)
 class MusicFilter:
-    name: str | None = DEFAULT_NAME
-    shuffle: bool = DEFAULT_SHUFFLE
     min_size: int = DEFAULT_MIN_SIZE
     max_size: int = DEFAULT_MAX_SIZE
     min_length: int = DEFAULT_MIN_LENGTH
@@ -82,16 +78,13 @@ class MusicFilter:
         return json.dumps(asdict(self))
 
 
-default_filters = [
-    MusicFilter(name="default"),
-    MusicFilter(name="no artist set", artists=frozenset("")),
-    MusicFilter(name="no album set", albums=frozenset("")),
-    MusicFilter(name="no title set", titles=frozenset("")),
-    MusicFilter(name="no genre set", genres=frozenset("")),
-    MusicFilter(name="no rating", min_rating=0.0, max_rating=0.0),
-    MusicFilter(name="best (4.0+)", min_rating=4.0, no_keywords=frozenset(("cutoff", "bad", "demo", "intro"))),
-    MusicFilter(name="best (4.5+)", min_rating=4.5, no_keywords=frozenset(("cutoff", "bad", "demo", "intro"))),
-    MusicFilter(name="best (5.0+)", min_rating=5.0, no_keywords=frozenset(("cutoff", "bad", "demo", "intro"))),
-    MusicFilter(name="no live", no_keywords=frozenset("live")),
-    MusicFilter(name="only live", keywords=frozenset("live")),
-]
+DEFAULT_FILTERS = {
+    'no-artist': MusicFilter(artists=frozenset("")),
+    'no-album': MusicFilter(albums=frozenset("")),
+    'no-title': MusicFilter(titles=frozenset("")),
+    'no-genre': MusicFilter(genres=frozenset("")),
+    'no-rating': MusicFilter(min_rating=0.0, max_rating=0.0),
+    'bests-4.0': MusicFilter(min_rating=4.0, no_keywords=frozenset(("cutoff", "bad", "demo", "intro"))),
+    'bests-4.5': MusicFilter(min_rating=4.5, no_keywords=frozenset(("cutoff", "bad", "demo", "intro"))),
+    'bests-5.0': MusicFilter(min_rating=5.0, no_keywords=frozenset(("cutoff", "bad", "demo", "intro"))),
+}
