@@ -110,9 +110,8 @@ class Playlist(MusicbotObject):
             total_size += music.size
 
         if not musics and output != 'json':
-            return
-
-        if output == 'm3u':
+            pass
+        elif output == 'm3u':
             p = '#EXTM3U\n'
             p += '\n'.join(self.links(playlist_options))
             print(p, file=file)

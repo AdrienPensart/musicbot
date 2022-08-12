@@ -94,28 +94,7 @@ class MusicDb(MusicbotObject):
         logger.info(query)
         results = await self.client.query(
             query,
-            titles=list(music_filter.titles),
-            no_titles=list(music_filter.no_titles),
-
-            artists=list(music_filter.artists),
-            no_artists=list(music_filter.no_artists),
-
-            albums=list(music_filter.albums),
-            no_albums=list(music_filter.no_albums),
-
-            genres=list(music_filter.genres),
-            no_genres=list(music_filter.no_genres),
-
-            keywords=list(music_filter.keywords),
-            no_keywords=list(music_filter.no_keywords),
-
-            min_size=music_filter.min_size,
-            max_size=music_filter.max_size,
-            min_length=music_filter.min_length,
-            max_length=music_filter.max_length,
-            min_rating=music_filter.min_rating,
-            max_rating=music_filter.max_rating,
-            limit=music_filter.limit,
+            **asdict(music_filter)
         )
         return results
 
@@ -196,19 +175,14 @@ class MusicDb(MusicbotObject):
                 self.warn(f"{file} : missing mandatory fields title/album/artist : {file.inconsistencies}")
                 return None
 
-            input_music = file.to_music()
-            if not input_music.folders:
-                self.err(f"{file} : no folder set")
-            folder_obj, *_ = input_music.folders
-            data = asdict(input_music)
-            data['ipv4'] = folder_obj.ipv4
-            data['user'] = folder_obj.user
-            data['folder'] = folder_obj.name
-            data['path'] = folder_obj.path
-            del data['folders']
+            input_music = file.to_music_input()
+            if not input_music:
+                self.err(f"{file} : cannot upsert music without physical folder !")
+                return None
+
             params = dict(
                 query=UPSERT_QUERY,
-                **data,
+                **input_music,
             )
 
             if self.dry:

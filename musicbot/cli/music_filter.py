@@ -5,14 +5,9 @@ import click
 from attr import evolve, fields
 from click_option_group import optgroup  # type: ignore
 from click_skeleton import add_options
-from click_skeleton.helpers import split_arguments
 
 from musicbot.cli.options import sane_rating
 from musicbot.defaults import (
-    DEFAULT_ALBUMS,
-    DEFAULT_ARTISTS,
-    DEFAULT_GENRES,
-    DEFAULT_KEYWORDS,
     DEFAULT_LIMIT,
     DEFAULT_MAX_LENGTH,
     DEFAULT_MAX_RATING,
@@ -21,12 +16,7 @@ from musicbot.defaults import (
     DEFAULT_MIN_RATING,
     DEFAULT_MIN_SIZE,
     DEFAULT_NAME,
-    DEFAULT_NO_ALBUMS,
-    DEFAULT_NO_ARTISTS,
-    DEFAULT_NO_GENRES,
-    DEFAULT_NO_KEYWORDS,
-    DEFAULT_NO_TITLES,
-    DEFAULT_TITLES
+    MATCH_ALL
 )
 from musicbot.music_filter import DEFAULT_FILTERS, MusicFilter
 
@@ -43,9 +33,7 @@ def sane_music_filter(ctx: click.Context, param: click.Parameter, value: str | N
 
     kwargs: dict[str, Any] = {}
     for field in fields(MusicFilter):  # pylint: disable=not-an-iterable
-        if isinstance(ctx.params[field.name], list) and ctx.params[field.name] != field.default:
-            kwargs[field.name] = frozenset(ctx.params[field.name])
-        elif ctx.params[field.name] != field.default:
+        if ctx.params[field.name] != field.default:
             kwargs[field.name] = ctx.params[field.name]
         ctx.params.pop(field.name)
 
@@ -69,118 +57,74 @@ music_filter_options = add_options(
         help='Filter name',
         type=click.Choice(list(DEFAULT_FILTERS.keys())),
         default=DEFAULT_NAME,
+        show_default=True,
     ),
     optgroup.option(
         '--limit',
         help='Fetch a maximum limit of music',
         default=DEFAULT_LIMIT,
+        show_default=True,
     ),
-    optgroup('Keywords'),
     optgroup.option(
         '--keywords', '--keyword',
-        'keywords',
-        help='Select musics with keywords',
-        multiple=True,
-        default=DEFAULT_KEYWORDS,
-        callback=split_arguments,
+        'keyword',
+        help='Select musics with keyword regex',
+        default=MATCH_ALL,
+        show_default=True,
     ),
-    optgroup.option(
-        '--no-keywords', '--no-keyword',
-        'no_keywords',
-        help='Filter musics without keywords',
-        multiple=True,
-        default=DEFAULT_NO_KEYWORDS,
-        callback=split_arguments,
-    ),
-    optgroup('Artists'),
     optgroup.option(
         '--artists', '--artist',
-        'artists',
-        help='Select musics with artists',
-        multiple=True,
-        default=DEFAULT_ARTISTS,
-        callback=split_arguments,
+        'artist',
+        help='Select musics with artist regex',
+        default=MATCH_ALL,
+        show_default=True,
     ),
-    optgroup.option(
-        '--no-artists', '--no-artist',
-        'no_artists',
-        help='Filter musics without artists',
-        multiple=True,
-        default=DEFAULT_NO_ARTISTS,
-        callback=split_arguments,
-    ),
-    optgroup('Albums'),
     optgroup.option(
         '--albums', '--album',
-        'albums',
-        help='Select musics with albums',
-        multiple=True,
-        default=DEFAULT_ALBUMS,
-        callback=split_arguments,
+        'album',
+        help='Select musics with album regex',
+        default=MATCH_ALL,
+        show_default=True,
     ),
-    optgroup.option(
-        '--no-albums', '--no-album',
-        'no_albums',
-        help='Filter musics without albums',
-        multiple=True,
-        default=DEFAULT_NO_ALBUMS,
-        callback=split_arguments,
-    ),
-    optgroup('Titles'),
     optgroup.option(
         '--titles', '--title',
-        'titles',
-        help='Select musics with titles',
-        multiple=True,
-        default=DEFAULT_TITLES,
-        callback=split_arguments,
+        'title',
+        help='Select musics with title regex',
+        default=MATCH_ALL,
+        show_default=True,
     ),
-    optgroup.option(
-        '--no-titles', '--no-title',
-        'no_titles',
-        help='Filter musics without titless',
-        multiple=True,
-        default=DEFAULT_NO_TITLES,
-        callback=split_arguments,
-    ),
-    optgroup('Genres'),
     optgroup.option(
         '--genres', '--genre',
-        'genres',
-        help='Select musics with genres',
-        multiple=True,
-        default=DEFAULT_GENRES,
-        callback=split_arguments,
-    ),
-    optgroup.option(
-        '--no-genres', '--no-genre',
-        'no_genres',
-        help='Filter musics without genres',
-        multiple=True,
-        default=DEFAULT_NO_GENRES,
-        callback=split_arguments,
+        'genre',
+        help='Select musics with genre regex',
+        default=MATCH_ALL,
+        show_default=True,
     ),
     optgroup('Length'),
     optgroup.option(
         '--min-length',
         help='Minimum length filter in seconds',
         default=DEFAULT_MIN_LENGTH,
+        show_default=True,
     ),
     optgroup.option(
         '--max-length',
         help='Maximum length filter in seconds',
         default=DEFAULT_MAX_LENGTH,
+        show_default=True,
     ),
     optgroup('Size'),
     optgroup.option(
         '--min-size',
         help='Minimum file size',
         default=DEFAULT_MIN_SIZE,
+        show_default=True,
     ),
     optgroup.option(
         '--max-size',
         help='Maximum file size',
         default=DEFAULT_MAX_SIZE,
+        show_default=True,
     ),
     optgroup('Rating'),
     optgroup.option(
@@ -188,6 +132,7 @@ music_filter_options = add_options(
         help='Fixed rating',
         type=click.FloatRange(DEFAULT_MIN_RATING, DEFAULT_MAX_RATING, clamp=True),
         callback=sane_rating,
+        show_default=True,
     ),
     optgroup.option(
         '--min-rating',

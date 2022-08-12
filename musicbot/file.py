@@ -2,11 +2,11 @@ import logging
 import shutil
 from functools import cached_property
 from pathlib import Path, PurePath
-from typing import Optional
+from typing import Any, Optional
 
 import acoustid  # type: ignore
 import mutagen  # type: ignore
-from attr import define
+from attr import asdict, define
 from beartype import beartype
 from click_skeleton.helpers import mysplit
 from pydub import AudioSegment  # type: ignore
@@ -72,9 +72,7 @@ class File(MusicbotObject):
         return str(self.path)
 
     @beartype
-    def to_music(
-        self,
-    ) -> Music:
+    def to_music(self) -> Music:
         folder = Folder(
             name=str(self.folder),
             path=str(self.path),
@@ -93,6 +91,22 @@ class File(MusicbotObject):
             keywords=frozenset(self.keywords),
             folders=frozenset({folder}),
         )
+
+    @beartype
+    def to_music_input(self) -> dict[str, Any] | None:
+        input_music = self.to_music()
+        if not input_music.folders:
+            self.err(f"{self} : no folder set")
+            return None
+
+        folder_obj, *_ = input_music.folders
+        data = asdict(input_music)
+        data['ipv4'] = folder_obj.ipv4
+        data['user'] = folder_obj.user
+        data['folder'] = folder_obj.name
+        data['path'] = folder_obj.path
+        del data['folders']
+        return data
 
     @beartype
     def set_tags(

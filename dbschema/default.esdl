@@ -22,6 +22,10 @@ module default {
         constraint min_value(0);
     }
 
+    scalar type `Limit` extending int64 {
+        constraint min_value(0);
+    }
+
     type Artist extending Entity {
         overloaded required property name -> str {
             constraint exclusive;

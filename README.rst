@@ -268,30 +268,20 @@ musicbot local bests
 
   Options:
     Filter options: 
-      --name [no-artist|no-album|no-title|no-genre|no-rating|bests-4.0|bests-4.5|bests-5.0]
+      --name [no-artist|no-album|no-title|no-genre|no-keyword|no-rating|bests-4.0|bests-4.5|bests-5.0]
                                                         Filter name
-      --limit INTEGER                                   Fetch a maximum limit of music
-    Keywords: 
-      --keywords, --keyword TEXT                        Select musics with keywords
-      --no-keywords, --no-keyword TEXT                  Filter musics without keywords
-    Artists: 
-      --artists, --artist TEXT                          Select musics with artists
-      --no-artists, --no-artist TEXT                    Filter musics without artists
-    Albums: 
-      --albums, --album TEXT                            Select musics with albums
-      --no-albums, --no-album TEXT                      Filter musics without albums
-    Titles: 
-      --titles, --title TEXT                            Select musics with titles
-      --no-titles, --no-title TEXT                      Filter musics without titless
-    Genres: 
-      --genres, --genre TEXT                            Select musics with genres
-      --no-genres, --no-genre TEXT                      Filter musics without genres
+      --limit INTEGER                                   Fetch a maximum limit of music  [default: 2147483647]
+      --keywords, --keyword TEXT                        Select musics with keyword regex  [default: (.*?)]
+      --artists, --artist TEXT                          Select musics with artist regex  [default: (.*?)]
+      --albums, --album TEXT                            Select musics with album regex  [default: (.*?)]
+      --titles, --title TEXT                            Select musics with title regex  [default: (.*?)]
+      --genres, --genre TEXT                            Select musics with genre regex  [default: (.*?)]
     Length: 
-      --min-length INTEGER                              Minimum length filter in seconds
-      --max-length INTEGER                              Maximum length filter in seconds
+      --min-length INTEGER                              Minimum length filter in seconds  [default: 0]
+      --max-length INTEGER                              Maximum length filter in seconds  [default: 2147483647]
     Size: 
-      --min-size INTEGER                                Minimum file size
-      --max-size INTEGER                                Maximum file size
+      --min-size INTEGER                                Minimum file size  [default: 0]
+      --max-size INTEGER                                Maximum file size  [default: 2147483647]
     Rating: 
       --rating FLOAT RANGE                              Fixed rating  [0.0<=x<=5.0]
       --min-rating FLOAT RANGE                          Minimum rating  [default: 0.0; 0.0<=x<=5.0]
@@ -301,12 +291,12 @@ musicbot local bests
       --graphql TEXT                                    DSN to MusicBot GrapQL
     --dry / --no-dry                                    Do not launch real action  [default: no-dry]
     Links options: 
-      --kind, --kinds [local|remote-http|local-http|remote-ssh|local-ssh|all|remote]
+      --kind, --kinds [remote-ssh|local-ssh|local-http|all|remote-http|remote|local]
                                                         Generate musics paths of types  [default: local]
-      --relative / --no-relative                        Generate relative links
+      --relative / --no-relative                        Generate relative links  [default: no-relative]
     Ordering options: [mutually_exclusive]
-      --shuffle / --no-shuffle                          Randomize selection
-      --interleave / --no-interleave                    Interleave tracks by artist
+      --shuffle / --no-shuffle                          Randomize selection  [default: no-shuffle]
+      --interleave / --no-interleave                    Interleave tracks by artist  [default: no-interleave]
     Bests options: 
       --min-playlist-size INTEGER                       Minimum size of playlist to write
     -h, --help                                          Show this message and exit.
@@ -381,41 +371,31 @@ musicbot local player
       --dsn TEXT                                        DSN to MusicBot EdgeDB
       --graphql TEXT                                    DSN to MusicBot GrapQL
     Filter options: 
-      --name [no-artist|no-album|no-title|no-genre|no-rating|bests-4.0|bests-4.5|bests-5.0]
+      --name [no-artist|no-album|no-title|no-genre|no-keyword|no-rating|bests-4.0|bests-4.5|bests-5.0]
                                                         Filter name
-      --limit INTEGER                                   Fetch a maximum limit of music
-    Keywords: 
-      --keywords, --keyword TEXT                        Select musics with keywords
-      --no-keywords, --no-keyword TEXT                  Filter musics without keywords
-    Artists: 
-      --artists, --artist TEXT                          Select musics with artists
-      --no-artists, --no-artist TEXT                    Filter musics without artists
-    Albums: 
-      --albums, --album TEXT                            Select musics with albums
-      --no-albums, --no-album TEXT                      Filter musics without albums
-    Titles: 
-      --titles, --title TEXT                            Select musics with titles
-      --no-titles, --no-title TEXT                      Filter musics without titless
-    Genres: 
-      --genres, --genre TEXT                            Select musics with genres
-      --no-genres, --no-genre TEXT                      Filter musics without genres
+      --limit INTEGER                                   Fetch a maximum limit of music  [default: 2147483647]
+      --keywords, --keyword TEXT                        Select musics with keyword regex  [default: (.*?)]
+      --artists, --artist TEXT                          Select musics with artist regex  [default: (.*?)]
+      --albums, --album TEXT                            Select musics with album regex  [default: (.*?)]
+      --titles, --title TEXT                            Select musics with title regex  [default: (.*?)]
+      --genres, --genre TEXT                            Select musics with genre regex  [default: (.*?)]
     Length: 
-      --min-length INTEGER                              Minimum length filter in seconds
-      --max-length INTEGER                              Maximum length filter in seconds
+      --min-length INTEGER                              Minimum length filter in seconds  [default: 0]
+      --max-length INTEGER                              Maximum length filter in seconds  [default: 2147483647]
     Size: 
-      --min-size INTEGER                                Minimum file size
-      --max-size INTEGER                                Maximum file size
+      --min-size INTEGER                                Minimum file size  [default: 0]
+      --max-size INTEGER                                Maximum file size  [default: 2147483647]
     Rating: 
       --rating FLOAT RANGE                              Fixed rating  [0.0<=x<=5.0]
       --min-rating FLOAT RANGE                          Minimum rating  [default: 0.0; 0.0<=x<=5.0]
       --max-rating FLOAT RANGE                          Maximum rating  [default: 5.0; 0.0<=x<=5.0]
     Links options: 
-      --kind, --kinds [local|remote-http|local-http|remote-ssh|local-ssh|all|remote]
+      --kind, --kinds [remote-ssh|local-ssh|local-http|all|remote-http|remote|local]
                                                         Generate musics paths of types  [default: local]
-      --relative / --no-relative                        Generate relative links
+      --relative / --no-relative                        Generate relative links  [default: no-relative]
     Ordering options: [mutually_exclusive]
-      --shuffle / --no-shuffle                          Randomize selection
-      --interleave / --no-interleave                    Interleave tracks by artist
+      --shuffle / --no-shuffle                          Randomize selection  [default: no-shuffle]
+      --interleave / --no-interleave                    Interleave tracks by artist  [default: no-interleave]
     --vlc-params TEXT                                   VLC params  [default: --vout=dummy --aout=pulse]
     -h, --help                                          Show this message and exit.
 
@@ -433,41 +413,31 @@ musicbot local playlist
       --graphql TEXT                                    DSN to MusicBot GrapQL
     --output [json|table|m3u]                           Output format  [default: table]
     Filter options: 
-      --name [no-artist|no-album|no-title|no-genre|no-rating|bests-4.0|bests-4.5|bests-5.0]
+      --name [no-artist|no-album|no-title|no-genre|no-keyword|no-rating|bests-4.0|bests-4.5|bests-5.0]
                                                         Filter name
-      --limit INTEGER                                   Fetch a maximum limit of music
-    Keywords: 
-      --keywords, --keyword TEXT                        Select musics with keywords
-      --no-keywords, --no-keyword TEXT                  Filter musics without keywords
-    Artists: 
-      --artists, --artist TEXT                          Select musics with artists
-      --no-artists, --no-artist TEXT                    Filter musics without artists
-    Albums: 
-      --albums, --album TEXT                            Select musics with albums
-      --no-albums, --no-album TEXT                      Filter musics without albums
-    Titles: 
-      --titles, --title TEXT                            Select musics with titles
-      --no-titles, --no-title TEXT                      Filter musics without titless
-    Genres: 
-      --genres, --genre TEXT                            Select musics with genres
-      --no-genres, --no-genre TEXT                      Filter musics without genres
+      --limit INTEGER                                   Fetch a maximum limit of music  [default: 2147483647]
+      --keywords, --keyword TEXT                        Select musics with keyword regex  [default: (.*?)]
+      --artists, --artist TEXT                          Select musics with artist regex  [default: (.*?)]
+      --albums, --album TEXT                            Select musics with album regex  [default: (.*?)]
+      --titles, --title TEXT                            Select musics with title regex  [default: (.*?)]
+      --genres, --genre TEXT                            Select musics with genre regex  [default: (.*?)]
     Length: 
-      --min-length INTEGER                              Minimum length filter in seconds
-      --max-length INTEGER                              Maximum length filter in seconds
+      --min-length INTEGER                              Minimum length filter in seconds  [default: 0]
+      --max-length INTEGER                              Maximum length filter in seconds  [default: 2147483647]
     Size: 
-      --min-size INTEGER                                Minimum file size
-      --max-size INTEGER                                Maximum file size
+      --min-size INTEGER                                Minimum file size  [default: 0]
+      --max-size INTEGER                                Maximum file size  [default: 2147483647]
     Rating: 
       --rating FLOAT RANGE                              Fixed rating  [0.0<=x<=5.0]
       --min-rating FLOAT RANGE                          Minimum rating  [default: 0.0; 0.0<=x<=5.0]
       --max-rating FLOAT RANGE                          Maximum rating  [default: 5.0; 0.0<=x<=5.0]
     Links options: 
-      --kind, --kinds [local|remote-http|local-http|remote-ssh|local-ssh|all|remote]
+      --kind, --kinds [remote-ssh|local-ssh|local-http|all|remote-http|remote|local]
                                                         Generate musics paths of types  [default: local]
-      --relative / --no-relative                        Generate relative links
+      --relative / --no-relative                        Generate relative links  [default: no-relative]
     Ordering options: [mutually_exclusive]
-      --shuffle / --no-shuffle                          Randomize selection
-      --interleave / --no-interleave                    Interleave tracks by artist
+      --shuffle / --no-shuffle                          Randomize selection  [default: no-shuffle]
+      --interleave / --no-interleave                    Interleave tracks by artist  [default: no-interleave]
     -h, --help                                          Show this message and exit.
 
 musicbot local scan
@@ -506,12 +476,12 @@ musicbot local search
       --graphql TEXT                                    DSN to MusicBot GrapQL
     --output [json|table|m3u]                           Output format  [default: table]
     Links options: 
-      --kind, --kinds [local|remote-http|local-http|remote-ssh|local-ssh|all|remote]
+      --kind, --kinds [remote-ssh|local-ssh|local-http|all|remote-http|remote|local]
                                                         Generate musics paths of types  [default: local]
-      --relative / --no-relative                        Generate relative links
+      --relative / --no-relative                        Generate relative links  [default: no-relative]
     Ordering options: [mutually_exclusive]
-      --shuffle / --no-shuffle                          Randomize selection
-      --interleave / --no-interleave                    Interleave tracks by artist
+      --shuffle / --no-shuffle                          Randomize selection  [default: no-shuffle]
+      --interleave / --no-interleave                    Interleave tracks by artist  [default: no-interleave]
     -h, --help                                          Show this message and exit.
 
 musicbot local soft-clean
@@ -543,30 +513,20 @@ musicbot local sync
     -y, --yes                                           Confirm action
     --dry / --no-dry                                    Do not launch real action  [default: no-dry]
     Filter options: 
-      --name [no-artist|no-album|no-title|no-genre|no-rating|bests-4.0|bests-4.5|bests-5.0]
+      --name [no-artist|no-album|no-title|no-genre|no-keyword|no-rating|bests-4.0|bests-4.5|bests-5.0]
                                                         Filter name
-      --limit INTEGER                                   Fetch a maximum limit of music
-    Keywords: 
-      --keywords, --keyword TEXT                        Select musics with keywords
-      --no-keywords, --no-keyword TEXT                  Filter musics without keywords
-    Artists: 
-      --artists, --artist TEXT                          Select musics with artists
-      --no-artists, --no-artist TEXT                    Filter musics without artists
-    Albums: 
-      --albums, --album TEXT                            Select musics with albums
-      --no-albums, --no-album TEXT                      Filter musics without albums
-    Titles: 
-      --titles, --title TEXT                            Select musics with titles
-      --no-titles, --no-title TEXT                      Filter musics without titless
-    Genres: 
-      --genres, --genre TEXT                            Select musics with genres
-      --no-genres, --no-genre TEXT                      Filter musics without genres
+      --limit INTEGER                                   Fetch a maximum limit of music  [default: 2147483647]
+      --keywords, --keyword TEXT                        Select musics with keyword regex  [default: (.*?)]
+      --artists, --artist TEXT                          Select musics with artist regex  [default: (.*?)]
+      --albums, --album TEXT                            Select musics with album regex  [default: (.*?)]
+      --titles, --title TEXT                            Select musics with title regex  [default: (.*?)]
+      --genres, --genre TEXT                            Select musics with genre regex  [default: (.*?)]
     Length: 
-      --min-length INTEGER                              Minimum length filter in seconds
-      --max-length INTEGER                              Maximum length filter in seconds
+      --min-length INTEGER                              Minimum length filter in seconds  [default: 0]
+      --max-length INTEGER                              Maximum length filter in seconds  [default: 2147483647]
     Size: 
-      --min-size INTEGER                                Minimum file size
-      --max-size INTEGER                                Maximum file size
+      --min-size INTEGER                                Minimum file size  [default: 0]
+      --max-size INTEGER                                Maximum file size  [default: 2147483647]
     Rating: 
       --rating FLOAT RANGE                              Fixed rating  [0.0<=x<=5.0]
       --min-rating FLOAT RANGE                          Minimum rating  [default: 0.0; 0.0<=x<=5.0]

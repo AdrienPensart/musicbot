@@ -24,46 +24,38 @@ folders: {
 }
 """
 
+# PLAYLIST_QUERY: Final[str] = CustomStringTemplate("""
+# with
+#     filtered_artists := (
+#         select Artist
+#         filter
+#             len(<array<str>>$artists) = 0 or all((for re_artist in array_unpack(<array<str>>$artists) union (re_test(re_artist, .name))))
+#     ),
+#     select Music {
+#         #music_fields
+#     }
+#     filter
+#         .album.artist in filtered_artists
+# """).substitute(music_fields=MUSIC_FIELDS)
 PLAYLIST_QUERY: Final[str] = CustomStringTemplate("""
-with
-    artists := (
-        select Artist
-        filter
-            (len(<array<str>>$artists) = 0 or contains(<array<str>>$artists, .name)) and
-            (len(<array<str>>$no_artists) = 0 or not contains(<array<str>>$no_artists, .name))
-    ),
-    albums := (
-        select Album
-        filter
-            (len(<array<str>>$albums) = 0 or contains(<array<str>>$albums, .name)) and
-            (len(<array<str>>$no_albums) = 0 or not contains(<array<str>>$no_albums, .name)) and
-            .artist in artists
-    ),
-    genres := (
-        select Genre
-        filter
-            (len(<array<str>>$genres) = 0 or contains(<array<str>>$genres, .name)) and
-            (len(<array<str>>$no_genres) = 0 or not contains(<array<str>>$no_genres, .name))
-    ),
     select Music {
         #music_fields
     }
     filter
-        .length >= <int64>$min_length and .length <= <int64>$max_length
-        and .size >= <int64>$min_size and .size <= <int64>$max_size
+        .length >= <Length>$min_length and .length <= <Length>$max_length
+        and .size >= <Size>$min_size and .size <= <Size>$max_size
         and .rating >= <Rating>$min_rating and .rating <= <Rating>$max_rating
-        and (len(<array<str>>$titles) = 0 or contains(<array<str>>$titles, .name))
-        and (len(<array<str>>$no_titles) = 0 or not contains(<array<str>>$no_titles, .name))
-        and .genre in genres
-        and .album in albums
-        and (len(<array<str>>$no_keywords) = 0 or not any(array_unpack(<array<str>>$no_keywords) in .keywords.name))
-        and (len(<array<str>>$keywords) = 0 or all(array_unpack(<array<str>>$keywords) in .keywords.name))
+        and re_test(<str>$artist, .artist.name)
+        and re_test(<str>$album, .album.name)
+        and re_test(<str>$genre, .genre.name)
+        and re_test(<str>$title, .name)
+        and re_test(<str>$keyword, array_join(array_agg((select .keywords.name)), " "))
     order by
         .artist.name then
         .album.name then
         .track then
         .name
-    limit <int64>$limit
+    limit <`Limit`>$limit
 """).substitute(music_fields=MUSIC_FIELDS)
 
 SOFT_CLEAN_QUERY: Final[str] = """

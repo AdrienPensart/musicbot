@@ -4,10 +4,6 @@ import logging
 from attr import asdict, frozen
 
 from musicbot.defaults import (
-    DEFAULT_ALBUMS,
-    DEFAULT_ARTISTS,
-    DEFAULT_GENRES,
-    DEFAULT_KEYWORDS,
     DEFAULT_LIMIT,
     DEFAULT_MAX_LENGTH,
     DEFAULT_MAX_RATING,
@@ -15,12 +11,7 @@ from musicbot.defaults import (
     DEFAULT_MIN_LENGTH,
     DEFAULT_MIN_RATING,
     DEFAULT_MIN_SIZE,
-    DEFAULT_NO_ALBUMS,
-    DEFAULT_NO_ARTISTS,
-    DEFAULT_NO_GENRES,
-    DEFAULT_NO_KEYWORDS,
-    DEFAULT_NO_TITLES,
-    DEFAULT_TITLES,
+    MATCH_ALL,
     RATING_CHOICES
 )
 
@@ -37,16 +28,11 @@ class MusicFilter:
     max_rating: float = DEFAULT_MAX_RATING
     limit: int = DEFAULT_LIMIT
 
-    genres: frozenset[str] = DEFAULT_GENRES
-    no_genres: frozenset[str] = DEFAULT_NO_GENRES
-    keywords: frozenset[str] = DEFAULT_KEYWORDS
-    no_keywords: frozenset[str] = DEFAULT_NO_KEYWORDS
-    artists: frozenset[str] = DEFAULT_ARTISTS
-    no_artists: frozenset[str] = DEFAULT_NO_ARTISTS
-    titles: frozenset[str] = DEFAULT_TITLES
-    no_titles: frozenset[str] = DEFAULT_NO_TITLES
-    albums: frozenset[str] = DEFAULT_ALBUMS
-    no_albums: frozenset[str] = DEFAULT_NO_ALBUMS
+    genre: str = MATCH_ALL
+    keyword: str = MATCH_ALL
+    artist: str = MATCH_ALL
+    title: str = MATCH_ALL
+    album: str = MATCH_ALL
 
     def __attrs_post_init__(self) -> None:
         if self.min_rating not in RATING_CHOICES:
@@ -64,27 +50,20 @@ class MusicFilter:
         if self.min_size > self.max_size:
             raise ValueError(f"Invalid minimum ({self.min_size}) or maximum ({self.max_size}) size")
 
-        is_bad_artists = self.artists.intersection(self.no_artists)
-        is_bad_genres = self.genres.intersection(self.no_genres)
-        is_bad_albums = self.albums.intersection(self.no_albums)
-        is_bad_titles = self.titles.intersection(self.no_titles)
-        is_bad_keywords = self.keywords.intersection(self.no_keywords)
-        not_empty_set = is_bad_artists or is_bad_genres or is_bad_albums or is_bad_titles or is_bad_keywords
-        if not_empty_set:
-            raise ValueError(f"You can't have duplicates value in filters {self}")
-        logger.debug(f'Filter: {self}')
-
     def __repr__(self) -> str:
         return json.dumps(asdict(self))
 
 
+NO_KEYWORD = '^((?!cutoff|bad|demo|intro).)$'
+
 DEFAULT_FILTERS = {
-    'no-artist': MusicFilter(artists=frozenset("")),
-    'no-album': MusicFilter(albums=frozenset("")),
-    'no-title': MusicFilter(titles=frozenset("")),
-    'no-genre': MusicFilter(genres=frozenset("")),
+    'no-artist': MusicFilter(artist="^$"),
+    'no-album': MusicFilter(album="^$"),
+    'no-title': MusicFilter(title="^$"),
+    'no-genre': MusicFilter(genre="^$"),
+    'no-keyword': MusicFilter(keyword="^$"),
     'no-rating': MusicFilter(min_rating=0.0, max_rating=0.0),
-    'bests-4.0': MusicFilter(min_rating=4.0, no_keywords=frozenset(("cutoff", "bad", "demo", "intro"))),
-    'bests-4.5': MusicFilter(min_rating=4.5, no_keywords=frozenset(("cutoff", "bad", "demo", "intro"))),
-    'bests-5.0': MusicFilter(min_rating=5.0, no_keywords=frozenset(("cutoff", "bad", "demo", "intro"))),
+    'bests-4.0': MusicFilter(min_rating=4.0, keyword=NO_KEYWORD),
+    'bests-4.5': MusicFilter(min_rating=4.5, keyword=NO_KEYWORD),
+    'bests-5.0': MusicFilter(min_rating=5.0, keyword=NO_KEYWORD),
 }

@@ -1,5 +1,7 @@
 from typing import Final
 
+MATCH_ALL = "(.*?)"
+# MATCH_ALL = ""
 MIN_INT: Final[int] = 0
 MAX_INT: Final[int] = 2147483647
 
@@ -22,17 +24,6 @@ DEFAULT_MIN_SIZE: Final[int] = MIN_INT
 DEFAULT_MAX_SIZE: Final[int] = MAX_INT
 DEFAULT_MIN_RATING: Final[float] = min(RATING_CHOICES)
 DEFAULT_MAX_RATING: Final[float] = max(RATING_CHOICES)
-
-DEFAULT_GENRES: Final[frozenset[str]] = frozenset()
-DEFAULT_NO_GENRES: Final[frozenset[str]] = frozenset()
-DEFAULT_KEYWORDS: Final[frozenset[str]] = frozenset()
-DEFAULT_NO_KEYWORDS: Final[frozenset[str]] = frozenset()
-DEFAULT_ARTISTS: Final[frozenset[str]] = frozenset()
-DEFAULT_NO_ARTISTS: Final[frozenset[str]] = frozenset()
-DEFAULT_TITLES: Final[frozenset[str]] = frozenset()
-DEFAULT_NO_TITLES: Final[frozenset[str]] = frozenset()
-DEFAULT_ALBUMS: Final[frozenset[str]] = frozenset()
-DEFAULT_NO_ALBUMS: Final[frozenset[str]] = frozenset()
 
 DEFAULT_SPOTIFY_TIMEOUT: Final[int] = 10
 DEFAULT_SPOTIFY_USERNAME: Final[str | None] = None
