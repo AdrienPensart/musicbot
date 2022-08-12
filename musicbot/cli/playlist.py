@@ -3,7 +3,10 @@ from typing import Any
 
 import click
 from attrs import fields
-from click_option_group import optgroup  # type: ignore
+from click_option_group import (  # type: ignore
+    MutuallyExclusiveOptionGroup,
+    optgroup
+)
 from click_skeleton import add_options
 from click_skeleton.helpers import split_arguments
 
@@ -45,13 +48,13 @@ def sane_playlist_options(ctx: click.Context, param: click.Parameter, value: str
 
 
 playlist_options = add_options(
-    optgroup('Playlist options'),
+    optgroup('Links options'),
     optgroup.option(
         '--kind', '--kinds',
         'kinds',
         help="Generate musics paths of types",
         multiple=True,
-        default=DEFAULT_KINDS,
+        default=list(DEFAULT_KINDS),
         show_default=True,
         type=click.Choice(list(KINDS_CHOICES)),
         callback=split_arguments,
@@ -62,6 +65,7 @@ playlist_options = add_options(
         default=DEFAULT_RELATIVE,
         is_flag=True,
     ),
+    optgroup('Ordering options', cls=MutuallyExclusiveOptionGroup),
     optgroup.option(
         '--shuffle/--no-shuffle',
         help='Randomize selection',
@@ -74,6 +78,7 @@ playlist_options = add_options(
         default=DEFAULT_INTERLEAVE,
         is_flag=True,
     ),
+    optgroup('Playlist object'),
     optgroup.option(
         '--playlist-options',
         help='Playlist Options',

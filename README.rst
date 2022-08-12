@@ -300,10 +300,11 @@ musicbot local bests
       --dsn TEXT                                        DSN to MusicBot EdgeDB
       --graphql TEXT                                    DSN to MusicBot GrapQL
     --dry / --no-dry                                    Do not launch real action  [default: no-dry]
-    Playlist options: 
-      --kind, --kinds [local-http|remote|local|all|remote-ssh|local-ssh|remote-http]
-                                                        Generate musics paths of types  [default: frozenset({'local'})]
+    Links options: 
+      --kind, --kinds [local|remote-http|local-http|remote-ssh|local-ssh|all|remote]
+                                                        Generate musics paths of types  [default: local]
       --relative / --no-relative                        Generate relative links
+    Ordering options: [mutually_exclusive]
       --shuffle / --no-shuffle                          Randomize selection
       --interleave / --no-interleave                    Interleave tracks by artist
     Bests options: 
@@ -408,10 +409,11 @@ musicbot local player
       --rating FLOAT RANGE                              Fixed rating  [0.0<=x<=5.0]
       --min-rating FLOAT RANGE                          Minimum rating  [default: 0.0; 0.0<=x<=5.0]
       --max-rating FLOAT RANGE                          Maximum rating  [default: 5.0; 0.0<=x<=5.0]
-    Playlist options: 
-      --kind, --kinds [local-http|remote|local|all|remote-ssh|local-ssh|remote-http]
-                                                        Generate musics paths of types  [default: frozenset({'local'})]
+    Links options: 
+      --kind, --kinds [local|remote-http|local-http|remote-ssh|local-ssh|all|remote]
+                                                        Generate musics paths of types  [default: local]
       --relative / --no-relative                        Generate relative links
+    Ordering options: [mutually_exclusive]
       --shuffle / --no-shuffle                          Randomize selection
       --interleave / --no-interleave                    Interleave tracks by artist
     --vlc-params TEXT                                   VLC params  [default: --vout=dummy --aout=pulse]
@@ -459,10 +461,11 @@ musicbot local playlist
       --rating FLOAT RANGE                              Fixed rating  [0.0<=x<=5.0]
       --min-rating FLOAT RANGE                          Minimum rating  [default: 0.0; 0.0<=x<=5.0]
       --max-rating FLOAT RANGE                          Maximum rating  [default: 5.0; 0.0<=x<=5.0]
-    Playlist options: 
-      --kind, --kinds [local-http|remote|local|all|remote-ssh|local-ssh|remote-http]
-                                                        Generate musics paths of types  [default: frozenset({'local'})]
+    Links options: 
+      --kind, --kinds [local|remote-http|local-http|remote-ssh|local-ssh|all|remote]
+                                                        Generate musics paths of types  [default: local]
       --relative / --no-relative                        Generate relative links
+    Ordering options: [mutually_exclusive]
       --shuffle / --no-shuffle                          Randomize selection
       --interleave / --no-interleave                    Interleave tracks by artist
     -h, --help                                          Show this message and exit.
@@ -502,10 +505,11 @@ musicbot local search
       --dsn TEXT                                        DSN to MusicBot EdgeDB
       --graphql TEXT                                    DSN to MusicBot GrapQL
     --output [json|table|m3u]                           Output format  [default: table]
-    Playlist options: 
-      --kind, --kinds [local-http|remote|local|all|remote-ssh|local-ssh|remote-http]
-                                                        Generate musics paths of types  [default: frozenset({'local'})]
+    Links options: 
+      --kind, --kinds [local|remote-http|local-http|remote-ssh|local-ssh|all|remote]
+                                                        Generate musics paths of types  [default: local]
       --relative / --no-relative                        Generate relative links
+    Ordering options: [mutually_exclusive]
       --shuffle / --no-shuffle                          Randomize selection
       --interleave / --no-interleave                    Interleave tracks by artist
     -h, --help                                          Show this message and exit.
