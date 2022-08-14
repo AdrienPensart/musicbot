@@ -54,9 +54,9 @@ playlist_options = add_options(
         'kinds',
         help="Generate musics paths of types",
         multiple=True,
-        default=list(DEFAULT_KINDS),
+        default=list(sorted(DEFAULT_KINDS)),
         show_default=True,
-        type=click.Choice(list(KINDS_CHOICES)),
+        type=click.Choice(list(sorted(KINDS_CHOICES))),
         callback=split_arguments,
     ),
     optgroup.option(

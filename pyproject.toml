@@ -23,7 +23,6 @@ prompt_toolkit = "^3.0.2"
 mutagen = "^1.44.0"
 requests = "^2.24.0"
 spotipy = "^2.16.0"
-youtube_dl = "^2021.3.3"
 watchdog = "^2.0.2"
 pydub = "^0.25.1"
 fuzzywuzzy = "^0.18.0"
@@ -45,6 +44,7 @@ types-PyYAML = "^6.0.8"
 uvloop = "^0.16.0"
 types-python-slugify = "^6.1.0"
 more-itertools = "^8.14.0"
+yt-dlp = "^2022.8.8"
 
 [tool.isort]
 multi_line_output = 3

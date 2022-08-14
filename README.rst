@@ -291,7 +291,7 @@ musicbot local bests
       --graphql TEXT                                    DSN to MusicBot GrapQL
     --dry / --no-dry                                    Do not launch real action  [default: no-dry]
     Links options: 
-      --kind, --kinds [remote-ssh|local-ssh|local-http|all|remote-http|remote|local]
+      --kind, --kinds [all|local|local-http|local-ssh|remote|remote-http|remote-ssh]
                                                         Generate musics paths of types  [default: local]
       --relative / --no-relative                        Generate relative links  [default: no-relative]
     Ordering options: [mutually_exclusive]
@@ -390,7 +390,7 @@ musicbot local player
       --min-rating FLOAT RANGE                          Minimum rating  [default: 0.0; 0.0<=x<=5.0]
       --max-rating FLOAT RANGE                          Maximum rating  [default: 5.0; 0.0<=x<=5.0]
     Links options: 
-      --kind, --kinds [remote-ssh|local-ssh|local-http|all|remote-http|remote|local]
+      --kind, --kinds [all|local|local-http|local-ssh|remote|remote-http|remote-ssh]
                                                         Generate musics paths of types  [default: local]
       --relative / --no-relative                        Generate relative links  [default: no-relative]
     Ordering options: [mutually_exclusive]
@@ -432,7 +432,7 @@ musicbot local playlist
       --min-rating FLOAT RANGE                          Minimum rating  [default: 0.0; 0.0<=x<=5.0]
       --max-rating FLOAT RANGE                          Maximum rating  [default: 5.0; 0.0<=x<=5.0]
     Links options: 
-      --kind, --kinds [remote-ssh|local-ssh|local-http|all|remote-http|remote|local]
+      --kind, --kinds [all|local|local-http|local-ssh|remote|remote-http|remote-ssh]
                                                         Generate musics paths of types  [default: local]
       --relative / --no-relative                        Generate relative links  [default: no-relative]
     Ordering options: [mutually_exclusive]
@@ -476,7 +476,7 @@ musicbot local search
       --graphql TEXT                                    DSN to MusicBot GrapQL
     --output [json|table|m3u]                           Output format  [default: table]
     Links options: 
-      --kind, --kinds [remote-ssh|local-ssh|local-http|all|remote-http|remote|local]
+      --kind, --kinds [all|local|local-http|local-ssh|remote|remote-http|remote-ssh]
                                                         Generate musics paths of types  [default: local]
       --relative / --no-relative                        Generate relative links  [default: no-relative]
     Ordering options: [mutually_exclusive]
