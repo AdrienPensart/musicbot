@@ -101,7 +101,7 @@ class MusicDb(MusicbotObject):
     @beartype
     async def make_playlist(
         self,
-        name: str | None = None,
+        name: str,
         music_filter: MusicFilter | None = None,
     ) -> Playlist:
         results = await self.execute_music_filter(PLAYLIST_QUERY, music_filter)
@@ -115,7 +115,7 @@ class MusicDb(MusicbotObject):
     @cache
     def sync_make_playlist(
         self,
-        name: str | None = None,
+        name: str,
         music_filter: MusicFilter | None = None,
     ) -> Playlist:
         self.sync_ensure_connected()

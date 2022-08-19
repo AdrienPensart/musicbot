@@ -191,6 +191,7 @@ def playlist(
 ) -> None:
     musicdb.set_readonly()
     p = musicdb.sync_make_playlist(
+        name=playlist_options.name,
         music_filter=music_filter,
     )
     p.print(

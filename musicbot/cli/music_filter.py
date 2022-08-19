@@ -15,10 +15,12 @@ from musicbot.defaults import (
     DEFAULT_MIN_LENGTH,
     DEFAULT_MIN_RATING,
     DEFAULT_MIN_SIZE,
-    DEFAULT_NAME,
     MATCH_ALL
 )
-from musicbot.music_filter import DEFAULT_FILTERS, MusicFilter
+from musicbot.music_filter import (
+    DEFAULT_PRE_FILTERS,
+    MusicFilter
+)
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +30,7 @@ def sane_music_filter(ctx: click.Context, param: click.Parameter, value: str | N
         logger.error("no param name set")
         raise click.Abort()
 
-    name = ctx.params.pop('name', None)
+    prefilter = ctx.params.pop('prefilter', None)
     rating = ctx.params.pop('rating', None)
 
     kwargs: dict[str, Any] = {}
@@ -41,8 +43,8 @@ def sane_music_filter(ctx: click.Context, param: click.Parameter, value: str | N
         kwargs['min_rating'] = rating
         kwargs['max_rating'] = rating
 
-    if name is not None:
-        music_filter = DEFAULT_FILTERS[name]
+    if prefilter is not None:
+        music_filter = DEFAULT_PRE_FILTERS[prefilter]
         music_filter = evolve(music_filter, **kwargs)
     else:
         music_filter = MusicFilter(**kwargs)
@@ -53,10 +55,9 @@ def sane_music_filter(ctx: click.Context, param: click.Parameter, value: str | N
 music_filter_options = add_options(
     optgroup('Filter options'),
     optgroup.option(
-        '--name',
+        '--prefilter',
         help='Filter name',
-        type=click.Choice(list(DEFAULT_FILTERS.keys())),
-        default=DEFAULT_NAME,
+        type=click.Choice(list(DEFAULT_PRE_FILTERS.keys())),
         show_default=True,
     ),
     optgroup.option(

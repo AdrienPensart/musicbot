@@ -1,5 +1,6 @@
 import itertools
 import logging
+import json
 import os
 import platform
 import random
@@ -26,23 +27,28 @@ logging.getLogger("vlc").setLevel(logging.NOTSET)
 logger = logging.getLogger(__name__)
 
 
-@frozen
+@frozen(repr=False)
 class Playlist(MusicbotObject):
+    name: str
     musics: list[Music]
-    name: str | None = None
     music_filter: MusicFilter | None = None
 
     @classmethod
-    def from_files(cls, files: list[File]) -> "Playlist":
+    def from_files(
+        cls,
+        name: str,
+        files: list[File],
+    ) -> "Playlist":
         return cls(
+            name=name,
             musics=[file.to_music() for file in files]
         )
 
     @classmethod
     def from_edgedb(
         cls,
+        name: str,
         results: Any,
-        name: str | None = None,
         music_filter: MusicFilter | None = None,
     ) -> "Playlist":
         musics = []
@@ -63,7 +69,11 @@ class Playlist(MusicbotObject):
             )
             musics.append(music)
 
-        return cls(name=name, musics=musics, music_filter=music_filter)
+        return cls(
+            name=name,
+            musics=musics,
+            music_filter=music_filter
+        )
 
     @beartype
     def print(
@@ -113,15 +123,20 @@ class Playlist(MusicbotObject):
             pass
         elif output == 'm3u':
             p = '#EXTM3U\n'
+            if self.music_filter:
+                p += ('#EXTREM:' + str(self.music_filter))
             p += '\n'.join(self.links(playlist_options))
             print(p, file=file)
         elif output == 'table':
             self.print_table(table, file=file)
         elif output == 'json':
-            self.print_json([asdict(music) for music in self.musics], file=file)
+            self.print_json(asdict(self, recurse=True), file=file)
         else:
             self.err(f"unknown output type : {output}")
         self.success(f"{self.name} : Songs: {len(musics)} | Total length: {precise_seconds_to_human(total_length)} | Total size: {bytes_to_human(total_size)}")
+
+    def __repr__(self) -> str:
+        return json.dumps(asdict(self, recurse=True))
 
     @property
     def genres(self) -> frozenset[str]:

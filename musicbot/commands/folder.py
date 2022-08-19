@@ -44,7 +44,11 @@ def playlist(
     folders: Folders,
     output: str,
 ) -> None:
-    playlist = Playlist(musics=folders.musics)
+    name = str(folders)
+    playlist = Playlist(
+        name=name,
+        musics=folders.musics
+    )
     playlist.print(
         output=output,
     )
@@ -69,7 +73,11 @@ def flac2mp3(
         threads=threads,
         flat=flat,
     )
-    playlist = Playlist.from_files(mp3_files)
+    name = str(folders)
+    playlist = Playlist.from_files(
+        name=name,
+        files=mp3_files,
+    )
     playlist.print(
         output=output,
     )

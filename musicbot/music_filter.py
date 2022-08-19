@@ -56,7 +56,7 @@ class MusicFilter:
 
 NO_KEYWORD = '^((?!cutoff|bad|demo|intro).)$'
 
-DEFAULT_FILTERS = {
+DEFAULT_PRE_FILTERS = {
     'no-artist': MusicFilter(artist="^$"),
     'no-album': MusicFilter(album="^$"),
     'no-title': MusicFilter(title="^$"),
