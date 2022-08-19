@@ -10,7 +10,6 @@ from musicbot.defaults import (
 
 @frozen
 class PlaylistOptions:
-    name: str
     relative: bool = DEFAULT_RELATIVE
     shuffle: bool = DEFAULT_SHUFFLE
     interleave: bool = DEFAULT_INTERLEAVE

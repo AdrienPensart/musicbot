@@ -1,6 +1,6 @@
 import itertools
-import logging
 import json
+import logging
 import os
 import platform
 import random
@@ -19,7 +19,6 @@ from musicbot.defaults import DEFAULT_VLC_PARAMS
 from musicbot.file import File
 from musicbot.helpers import bytes_to_human, precise_seconds_to_human
 from musicbot.music import Folder, Music
-from musicbot.music_filter import MusicFilter
 from musicbot.object import MusicbotObject
 from musicbot.playlist_options import PlaylistOptions
 
@@ -31,13 +30,12 @@ logger = logging.getLogger(__name__)
 class Playlist(MusicbotObject):
     name: str
     musics: list[Music]
-    music_filter: MusicFilter | None = None
 
     @classmethod
     def from_files(
         cls,
-        name: str,
         files: list[File],
+        name: str,
     ) -> "Playlist":
         return cls(
             name=name,
@@ -49,12 +47,15 @@ class Playlist(MusicbotObject):
         cls,
         name: str,
         results: Any,
-        music_filter: MusicFilter | None = None,
     ) -> "Playlist":
         musics = []
         for result in results:
             keywords = frozenset(keyword.name for keyword in result.keywords)
-            folders = frozenset(Folder(path=folder.path, name=folder.name, ipv4=folder.ipv4, user=folder.user) for folder in result.folders)
+            folders = frozenset(Folder(
+                path=folder.path,
+                name=folder.name,
+                ipv4=folder.ipv4,
+                user=folder.user) for folder in result.folders)
             music = Music(
                 title=result.name,
                 artist=result.artist.name,
@@ -72,7 +73,6 @@ class Playlist(MusicbotObject):
         return cls(
             name=name,
             musics=musics,
-            music_filter=music_filter
         )
 
     @beartype
@@ -123,8 +123,7 @@ class Playlist(MusicbotObject):
             pass
         elif output == 'm3u':
             p = '#EXTM3U\n'
-            if self.music_filter:
-                p += ('#EXTREM:' + str(self.music_filter))
+            p += ('#EXTREM:' + self.name)
             p += '\n'.join(self.links(playlist_options))
             print(p, file=file)
         elif output == 'table':

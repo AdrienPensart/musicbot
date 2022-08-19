@@ -11,7 +11,6 @@ from click_skeleton import add_options
 from click_skeleton.helpers import split_arguments
 
 from musicbot.defaults import (
-    DEFAULT_NAME,
     DEFAULT_INTERLEAVE,
     DEFAULT_KINDS,
     DEFAULT_RELATIVE,
@@ -83,12 +82,6 @@ playlist_options = add_options(
         is_flag=True,
     ),
     optgroup('Playlist object'),
-    optgroup.option(
-        '--name',
-        help='Playlist name',
-        default=DEFAULT_NAME,
-        show_default=True,
-    ),
     optgroup.option(
         '--playlist-options',
         help='Playlist Options',

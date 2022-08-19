@@ -17,10 +17,7 @@ from musicbot.defaults import (
     DEFAULT_MIN_SIZE,
     MATCH_ALL
 )
-from musicbot.music_filter import (
-    DEFAULT_PRE_FILTERS,
-    MusicFilter
-)
+from musicbot.music_filter import DEFAULT_PRE_FILTERS, MusicFilter
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +54,7 @@ music_filter_options = add_options(
     optgroup.option(
         '--prefilter',
         help='Filter name',
-        type=click.Choice(list(DEFAULT_PRE_FILTERS.keys())),
+        type=click.Choice(list(sorted(DEFAULT_PRE_FILTERS.keys()))),
         show_default=True,
     ),
     optgroup.option(

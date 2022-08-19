@@ -268,7 +268,7 @@ musicbot local bests
 
   Options:
     Filter options: 
-      --name [no-artist|no-album|no-title|no-genre|no-keyword|no-rating|bests-4.0|bests-4.5|bests-5.0]
+      --prefilter [bests-4.0|bests-4.5|bests-5.0|no-album|no-artist|no-genre|no-keyword|no-rating|no-title]
                                                         Filter name
       --limit INTEGER                                   Fetch a maximum limit of music  [default: 2147483647]
       --keywords, --keyword TEXT                        Select musics with keyword regex  [default: (.*?)]
@@ -371,7 +371,7 @@ musicbot local player
       --dsn TEXT                                        DSN to MusicBot EdgeDB
       --graphql TEXT                                    DSN to MusicBot GrapQL
     Filter options: 
-      --name [no-artist|no-album|no-title|no-genre|no-keyword|no-rating|bests-4.0|bests-4.5|bests-5.0]
+      --prefilter [bests-4.0|bests-4.5|bests-5.0|no-album|no-artist|no-genre|no-keyword|no-rating|no-title]
                                                         Filter name
       --limit INTEGER                                   Fetch a maximum limit of music  [default: 2147483647]
       --keywords, --keyword TEXT                        Select musics with keyword regex  [default: (.*?)]
@@ -413,7 +413,7 @@ musicbot local playlist
       --graphql TEXT                                    DSN to MusicBot GrapQL
     --output [json|table|m3u]                           Output format  [default: table]
     Filter options: 
-      --name [no-artist|no-album|no-title|no-genre|no-keyword|no-rating|bests-4.0|bests-4.5|bests-5.0]
+      --prefilter [bests-4.0|bests-4.5|bests-5.0|no-album|no-artist|no-genre|no-keyword|no-rating|no-title]
                                                         Filter name
       --limit INTEGER                                   Fetch a maximum limit of music  [default: 2147483647]
       --keywords, --keyword TEXT                        Select musics with keyword regex  [default: (.*?)]
@@ -513,7 +513,7 @@ musicbot local sync
     -y, --yes                                           Confirm action
     --dry / --no-dry                                    Do not launch real action  [default: no-dry]
     Filter options: 
-      --name [no-artist|no-album|no-title|no-genre|no-keyword|no-rating|bests-4.0|bests-4.5|bests-5.0]
+      --prefilter [bests-4.0|bests-4.5|bests-5.0|no-album|no-artist|no-genre|no-keyword|no-rating|no-title]
                                                         Filter name
       --limit INTEGER                                   Fetch a maximum limit of music  [default: 2147483647]
       --keywords, --keyword TEXT                        Select musics with keyword regex  [default: (.*?)]
