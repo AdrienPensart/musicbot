@@ -7,7 +7,7 @@ import signal
 import sys
 from datetime import datetime
 from threading import Lock
-from typing import IO, Any, Callable, Sequence, Union
+from typing import IO, Any, Callable, NoReturn, Sequence, Union
 
 import click
 import rich
@@ -104,7 +104,7 @@ class MusicbotObject:
         timing = ""
         if cls.config.debug:
             now = datetime.now()
-            timing = now.strftime("%H:%M:%S | ")
+            timing = now.strftime("%Y-%d-%d %H:%M:%S | ")
 
         if not quiet and cls.show_echo and not cls.config.quiet:
             if cls.config.color:
@@ -149,11 +149,13 @@ class MusicbotObject:
         *args: Any,
         quiet: bool = DEFAULT_QUIET,
         prefix: str | None = None,
+        limit: int | None = None,
         threads: int | None = None,
         **kwargs: Any
-    ) -> Any:
+    ) -> list[Any]:
         threads = threads if threads not in (None, 0) else DEFAULT_THREADS
         quiet = len(items) <= 1 or quiet
+        results: list[Any] = []
         if prefix and (cls.is_dev() or cls.config.info or cls.config.debug):
             prefix += f" ({threads} threads)"
         if threads == 1:
@@ -176,43 +178,51 @@ class MusicbotObject:
                     finally:
                         pbar.value += 1
                         pbar.update()
-                return results
+        else:
+            with (
+                cls.progressbar(
+                    max_value=len(items),
+                    quiet=quiet,
+                    redirect_stderr=True,
+                    redirect_stdout=True,
+                    prefix=prefix,
+                    **kwargs,
+                ) as pbar,
+                cf.ThreadPoolExecutor(max_workers=threads) as executor
+            ):
+                try:
+                    def update_pbar(_: Any) -> None:
+                        try:
+                            pbar.value += 1
+                            pbar.update()
+                        except KeyboardInterrupt as e:
+                            logger.error(f"interrupted : {e}")
+                            while True:
+                                os.kill(os.getpid(), signal.SIGKILL)
+                                os.killpg(os.getpid(), signal.SIGKILL)
+                    futures = []
+                    for item in items:
+                        future = executor.submit(worker, item, *args)
+                        future.add_done_callback(update_pbar)
+                        futures.append(future)
+                    _, _ = cf.wait(futures)
+                    return [future.result() for future in futures if future.result() is not None]
+                except KeyboardInterrupt as e:
+                    if cls.is_test():
+                        raise e
+                    cls.fast_kill()
+        return results[:limit]
 
-        with (
-            cls.progressbar(
-                max_value=len(items),
-                quiet=quiet,
-                redirect_stderr=True,
-                redirect_stdout=True,
-                prefix=prefix,
-                **kwargs,
-            ) as pbar,
-            cf.ThreadPoolExecutor(max_workers=threads) as executor
-        ):
-            try:
-                def update_pbar(_: Any) -> None:
-                    try:
-                        pbar.value += 1
-                        pbar.update()
-                    except KeyboardInterrupt as e:
-                        logger.error(f"interrupted : {e}")
-                        while True:
-                            os.kill(os.getpid(), signal.SIGKILL)
-                            os.killpg(os.getpid(), signal.SIGKILL)
-                futures = []
-                for item in items:
-                    future = executor.submit(worker, item, *args)
-                    future.add_done_callback(update_pbar)
-                    futures.append(future)
-                _, _ = cf.wait(futures)
-                return [future.result() for future in futures if future.result() is not None]
-            except KeyboardInterrupt as e:
-                logger.error(f"interrupted : {e}")
-                if cls.is_test():
-                    raise e
-                while True:
-                    os.kill(os.getpid(), signal.SIGKILL)
-                    os.killpg(os.getpid(), signal.SIGKILL)
+    @classmethod
+    def fast_kill(cls) -> NoReturn:  # pylint: disable=unused-argument
+        '''We don't do anything silly in unity, like open or writing files, etc
+        so let's hard kill ourself to avoid multiple ctrl+c by user
+        if a thread received the SIGKILL, it may kill the process,
+        so we send them in continue until it reaches the main thread'''
+        cls.err("interrupted, fast-killing process", only_once=True)
+        while True:
+            os.kill(os.getpid(), signal.SIGKILL)
+            os.killpg(os.getpid(), signal.SIGKILL)
 
     @classmethod
     def print_table(cls, table: Table, file: IO | None = None) -> None:
