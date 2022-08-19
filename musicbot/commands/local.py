@@ -101,6 +101,7 @@ def scan(
         folders=folders,
         coroutines=coroutines,
     )
+    musicdb.sync_soft_clean()
     if output == 'json':
         MusicbotObject.print_json([asdict(file.to_music()) for file in files])
 

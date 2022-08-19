@@ -306,6 +306,9 @@ class File(MusicbotObject):
 
     @property
     def _comment(self) -> str:
+        comm = self.handle.get('COMM::XXX', None)
+        if comm is not None and len(comm.text) > 0:
+            return comm.text[0]
         return self._get_first('COMM:ID3v1 Comment:eng')
 
     @_comment.setter
