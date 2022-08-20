@@ -1,7 +1,6 @@
 from typing import Final
 
 MATCH_ALL = "(.*?)"
-# MATCH_ALL = ""
 MIN_INT: Final[int] = 0
 MAX_INT: Final[int] = 2147483647
 
@@ -10,7 +9,6 @@ DEFAULT_VLC_PARAMS: Final[str] = "--vout=dummy --aout=pulse"
 KINDS_CHOICES: Final[frozenset[str]] = frozenset(['local', 'remote', 'remote-ssh', 'local-ssh', 'local-http', 'remote-http', 'all'])
 DEFAULT_KINDS: Final[frozenset[str]] = frozenset(['local'])
 
-DEFAULT_NAME: Final[str] = "unnamed"
 DEFAULT_RELATIVE: Final[bool] = False
 DEFAULT_SHUFFLE: Final[bool] = False
 DEFAULT_INTERLEAVE: Final[bool] = False

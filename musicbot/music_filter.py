@@ -72,7 +72,7 @@ class MusicFilter:
 
 NO_KEYWORD = '^((?!cutoff|bad|demo|intro).)$'
 
-DEFAULT_PRE_FILTERS = {
+DEFAULT_PREFILTERS = {
     'to-fix': MusicFilter(keyword="(tofix|todo|spotify-error)"),
     'no-artist': MusicFilter(artist="^$"),
     'no-album': MusicFilter(album="^$"),

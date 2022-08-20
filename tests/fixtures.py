@@ -2,11 +2,6 @@ from pathlib import Path
 
 my_dir = Path(__file__).resolve().parent
 
-first_name = "first_test"
-last_name = "last_test"
-email = "test@test.com"
-password = "test_test"
-
 folder_flac = my_dir / "fixtures" / "folder1"
 folder_mp3 = my_dir / "fixtures" / "folder2"
 folders = [str(folder_flac), str(folder_mp3)]

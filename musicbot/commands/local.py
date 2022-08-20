@@ -21,7 +21,7 @@ from musicbot.cli.folders import (
     folder_argument,
     folders_argument
 )
-from musicbot.cli.music_filter import music_filters_option
+from musicbot.cli.music_filter import music_filters_options
 from musicbot.cli.musicdb import musicdb_options
 from musicbot.cli.options import (
     clean_option,
@@ -31,7 +31,10 @@ from musicbot.cli.options import (
     save_option,
     yes_option
 )
-from musicbot.cli.playlist import bests_options, playlist_options
+from musicbot.cli.playlist import (
+    bests_options,
+    playlist_options,
+)
 from musicbot.defaults import DEFAULT_VLC_PARAMS
 from musicbot.file import File
 from musicbot.folders import Folders
@@ -179,7 +182,7 @@ def search(
 @cli.command(help='Generate a new playlist')
 @musicdb_options
 @output_option
-@music_filters_option
+@music_filters_options
 @playlist_options
 @click.argument('out', type=click.File('w', lazy=True), default='-')
 @beartype
@@ -203,7 +206,7 @@ def playlist(
 
 @cli.command(help='Generate bests playlists with some rules')
 @folder_argument
-@music_filters_option
+@music_filters_options
 @musicdb_options
 @dry_option
 @playlist_options
@@ -244,7 +247,7 @@ def bests(
 
 @cli.command(aliases=['play'], help='Music player')
 @musicdb_options
-@music_filters_option
+@music_filters_options
 @playlist_options
 @click.option('--vlc-params', help="VLC params", default=DEFAULT_VLC_PARAMS, show_default=True)
 @beartype
@@ -272,7 +275,7 @@ def player(
 @musicdb_options
 @lazy_yes_option
 @dry_option
-@music_filters_option
+@music_filters_options
 @flat_option
 @click.option('--delete', help='Delete files on destination if not present in library', is_flag=True)
 @beartype

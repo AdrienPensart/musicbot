@@ -3,9 +3,14 @@ from typing import Any
 
 import click
 from attr import fields
+from click_option_group import optgroup  # type: ignore
+from click_skeleton import add_options
 from click_skeleton.helpers import mysplit
 
-from musicbot.music_filter import MusicFilter
+from musicbot.music_filter import (
+    MusicFilter,
+    DEFAULT_PREFILTERS
+)
 from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
@@ -20,6 +25,14 @@ def sane_music_filters(ctx: click.Context, param: click.Parameter, value: Any) -
         return []
 
     and_filters = []
+    prefilters = ctx.params.pop('music_prefilters', [])
+    for prefilter in prefilters:
+        if prefilter in DEFAULT_PREFILTERS:
+            and_filters.append(DEFAULT_PREFILTERS[prefilter])
+        else:
+            MusicbotObject.err(f'Unknown prefilter {prefilter}')
+            raise click.Abort()
+
     for val in value:
         properties = {}
         for comma_separated in mysplit(val, ","):
@@ -39,12 +52,23 @@ def sane_music_filters(ctx: click.Context, param: click.Parameter, value: Any) -
     return ctx.params[param.name]
 
 
-fields_names = ','.join([field.name for field in fields(MusicFilter)])
+fields_names = ','.join([field.name for field in fields(MusicFilter)])  # pylint: disable=not-an-iterable
 
-music_filters_option = click.option(
-    '--filter',
-    'music_filters',
-    help=f"Music filters (repeatable), fields: {fields_names}",
-    multiple=True,
-    callback=sane_music_filters,
+music_filters_options = add_options(
+    optgroup('Filter options'),
+    optgroup.option(
+        '--prefilter',
+        'music_prefilters',
+        help="Music pre filters (repeatable)",
+        type=click.Choice(list(sorted(DEFAULT_PREFILTERS.keys()))),
+        show_default=True,
+        multiple=True,
+    ),
+    optgroup.option(
+        '--filter',
+        'music_filters',
+        help=f"Music filters (repeatable), fields: {fields_names}",
+        multiple=True,
+        callback=sane_music_filters,
+    ),
 )

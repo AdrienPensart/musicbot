@@ -267,7 +267,10 @@ musicbot local bests
     Generate bests playlists with some rules
 
   Options:
-    --filter TEXT                                       Music filters (repeatable), fields: genre,keyword,artist,title,album,min_size,max_size
+    Filter options: 
+      --prefilter [bests-4.0|bests-4.5|bests-5.0|no-album|no-artist|no-genre|no-keyword|no-rating|no-title|to-fix]
+                                                        Music pre filters (repeatable)
+      --filter TEXT                                     Music filters (repeatable), fields: genre,keyword,artist,title,album,min_size,max_size
                                                         ,min_length,max_length,min_rating,max_rating,limit
     MusicDB options: 
       --dsn TEXT                                        DSN to MusicBot EdgeDB
@@ -353,7 +356,10 @@ musicbot local player
     MusicDB options: 
       --dsn TEXT                                        DSN to MusicBot EdgeDB
       --graphql TEXT                                    DSN to MusicBot GrapQL
-    --filter TEXT                                       Music filters (repeatable), fields: genre,keyword,artist,title,album,min_size,max_size
+    Filter options: 
+      --prefilter [bests-4.0|bests-4.5|bests-5.0|no-album|no-artist|no-genre|no-keyword|no-rating|no-title|to-fix]
+                                                        Music pre filters (repeatable)
+      --filter TEXT                                     Music filters (repeatable), fields: genre,keyword,artist,title,album,min_size,max_size
                                                         ,min_length,max_length,min_rating,max_rating,limit
     Links options: 
       --kind, --kinds [all|local|local-http|local-ssh|remote|remote-http|remote-ssh]
@@ -378,7 +384,10 @@ musicbot local playlist
       --dsn TEXT                                        DSN to MusicBot EdgeDB
       --graphql TEXT                                    DSN to MusicBot GrapQL
     --output [json|table|m3u]                           Output format  [default: table]
-    --filter TEXT                                       Music filters (repeatable), fields: genre,keyword,artist,title,album,min_size,max_size
+    Filter options: 
+      --prefilter [bests-4.0|bests-4.5|bests-5.0|no-album|no-artist|no-genre|no-keyword|no-rating|no-title|to-fix]
+                                                        Music pre filters (repeatable)
+      --filter TEXT                                     Music filters (repeatable), fields: genre,keyword,artist,title,album,min_size,max_size
                                                         ,min_length,max_length,min_rating,max_rating,limit
     Links options: 
       --kind, --kinds [all|local|local-http|local-ssh|remote|remote-http|remote-ssh]
@@ -457,15 +466,18 @@ musicbot local sync
 
   Options:
     MusicDB options: 
-      --dsn TEXT       DSN to MusicBot EdgeDB
-      --graphql TEXT   DSN to MusicBot GrapQL
-    -y, --yes          Confirm action
-    --dry / --no-dry   Do not launch real action  [default: no-dry]
-    --filter TEXT      Music filters (repeatable), fields:
-                       genre,keyword,artist,title,album,min_size,max_size,min_length,max_length,min_rating,max_rating,limit
-    --flat             Do not create subfolders
-    --delete           Delete files on destination if not present in library
-    -h, --help         Show this message and exit.
+      --dsn TEXT                                        DSN to MusicBot EdgeDB
+      --graphql TEXT                                    DSN to MusicBot GrapQL
+    -y, --yes                                           Confirm action
+    --dry / --no-dry                                    Do not launch real action  [default: no-dry]
+    Filter options: 
+      --prefilter [bests-4.0|bests-4.5|bests-5.0|no-album|no-artist|no-genre|no-keyword|no-rating|no-title|to-fix]
+                                                        Music pre filters (repeatable)
+      --filter TEXT                                     Music filters (repeatable), fields: genre,keyword,artist,title,album,min_size,max_size
+                                                        ,min_length,max_length,min_rating,max_rating,limit
+    --flat                                              Do not create subfolders
+    --delete                                            Delete files on destination if not present in library
+    -h, --help                                          Show this message and exit.
 
 musicbot local watch
 ********************
