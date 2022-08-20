@@ -2,7 +2,7 @@ import json
 import logging
 from typing import Any
 
-from attr import asdict, field, frozen
+from attr import asdict, fields, field, frozen
 
 from musicbot.defaults import (
     DEFAULT_LIMIT,
@@ -63,7 +63,11 @@ class MusicFilter:
             raise ValueError(f"Invalid minimum ({self.min_size}) or maximum ({self.max_size}) size")
 
     def __repr__(self) -> str:
-        return json.dumps(asdict(self))
+        self_dict = asdict(self)
+        for field in fields(MusicFilter):  # pylint: disable=not-an-iterable
+            if self_dict[field.name] == field.default:
+                del self_dict[field.name]
+        return json.dumps(self_dict)
 
 
 NO_KEYWORD = '^((?!cutoff|bad|demo|intro).)$'
