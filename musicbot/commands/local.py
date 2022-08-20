@@ -21,7 +21,7 @@ from musicbot.cli.folders import (
     folder_argument,
     folders_argument
 )
-from musicbot.cli.music_filter import music_filter_options
+from musicbot.cli.music_filter import music_filters_option
 from musicbot.cli.musicdb import musicdb_options
 from musicbot.cli.options import (
     clean_option,
@@ -179,20 +179,20 @@ def search(
 @cli.command(help='Generate a new playlist')
 @musicdb_options
 @output_option
-@music_filter_options
+@music_filters_option
 @playlist_options
 @click.argument('out', type=click.File('w', lazy=True), default='-')
 @beartype
 def playlist(
     output: str,
-    music_filter: MusicFilter,
+    music_filters: list[MusicFilter],
     playlist_options: PlaylistOptions,
     musicdb: MusicDb,
     out: Any,
 ) -> None:
     musicdb.set_readonly()
     p = musicdb.sync_make_playlist(
-        music_filter=music_filter,
+        music_filters=frozenset(music_filters),
     )
     p.print(
         output=output,
@@ -203,7 +203,7 @@ def playlist(
 
 @cli.command(help='Generate bests playlists with some rules')
 @folder_argument
-@music_filter_options
+@music_filters_option
 @musicdb_options
 @dry_option
 @playlist_options
@@ -211,14 +211,14 @@ def playlist(
 @beartype
 def bests(
     musicdb: MusicDb,
-    music_filter: MusicFilter,
+    music_filters: list[MusicFilter],
     folder: Path,
     min_playlist_size: int,
     playlist_options: PlaylistOptions,
 ) -> None:
     musicdb.set_readonly()
     bests = musicdb.sync_make_bests(
-        music_filter=music_filter,
+        music_filters=frozenset(music_filters),
     )
     for best in bests:
         if len(best.musics) < min_playlist_size:
@@ -244,12 +244,12 @@ def bests(
 
 @cli.command(aliases=['play'], help='Music player')
 @musicdb_options
-@music_filter_options
+@music_filters_option
 @playlist_options
 @click.option('--vlc-params', help="VLC params", default=DEFAULT_VLC_PARAMS, show_default=True)
 @beartype
 def player(
-    music_filter: MusicFilter,
+    music_filters: list[MusicFilter],
     musicdb: MusicDb,
     vlc_params: str,
     playlist_options: PlaylistOptions,
@@ -258,7 +258,7 @@ def player(
     if not MusicbotObject.config.quiet:
         progressbar.streams.unwrap(stderr=True, stdout=True)
     try:
-        playlist = musicdb.sync_make_playlist(music_filter=music_filter)
+        playlist = musicdb.sync_make_playlist(music_filters=frozenset(music_filters))
         playlist.play(
             vlc_params=vlc_params,
             playlist_options=playlist_options,
@@ -272,13 +272,13 @@ def player(
 @musicdb_options
 @lazy_yes_option
 @dry_option
-@music_filter_options
+@music_filters_option
 @flat_option
 @click.option('--delete', help='Delete files on destination if not present in library', is_flag=True)
 @beartype
 def sync(
     musicdb: MusicDb,
-    music_filter: MusicFilter,
+    music_filters: list[MusicFilter],
     delete: bool,
     destination: Path,
     yes: bool,
@@ -286,7 +286,7 @@ def sync(
 ) -> None:
     musicdb.set_readonly()
     logger.info(f'Destination: {destination}')
-    playlist = musicdb.sync_make_playlist(music_filter=music_filter)
+    playlist = musicdb.sync_make_playlist(music_filters=frozenset(music_filters))
     if not playlist.musics:
         click.secho('no result for filter, nothing to sync')
         return

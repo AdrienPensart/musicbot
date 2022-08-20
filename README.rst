@@ -267,25 +267,8 @@ musicbot local bests
     Generate bests playlists with some rules
 
   Options:
-    Filter options: 
-      --prefilter [bests-4.0|bests-4.5|bests-5.0|no-album|no-artist|no-genre|no-keyword|no-rating|no-title]
-                                                        Filter name
-      --limit INTEGER                                   Fetch a maximum limit of music  [default: 2147483647]
-      --keywords, --keyword TEXT                        Select musics with keyword regex  [default: (.*?)]
-      --artists, --artist TEXT                          Select musics with artist regex  [default: (.*?)]
-      --albums, --album TEXT                            Select musics with album regex  [default: (.*?)]
-      --titles, --title TEXT                            Select musics with title regex  [default: (.*?)]
-      --genres, --genre TEXT                            Select musics with genre regex  [default: (.*?)]
-    Length: 
-      --min-length INTEGER                              Minimum length filter in seconds  [default: 0]
-      --max-length INTEGER                              Maximum length filter in seconds  [default: 2147483647]
-    Size: 
-      --min-size INTEGER                                Minimum file size  [default: 0]
-      --max-size INTEGER                                Maximum file size  [default: 2147483647]
-    Rating: 
-      --rating FLOAT RANGE                              Fixed rating  [0.0<=x<=5.0]
-      --min-rating FLOAT RANGE                          Minimum rating  [default: 0.0; 0.0<=x<=5.0]
-      --max-rating FLOAT RANGE                          Maximum rating  [default: 5.0; 0.0<=x<=5.0]
+    --filter TEXT                                       Music filters (repeatable), fields: genre,keyword,artist,title,album,min_size,max_size
+                                                        ,min_length,max_length,min_rating,max_rating,limit
     MusicDB options: 
       --dsn TEXT                                        DSN to MusicBot EdgeDB
       --graphql TEXT                                    DSN to MusicBot GrapQL
@@ -370,25 +353,8 @@ musicbot local player
     MusicDB options: 
       --dsn TEXT                                        DSN to MusicBot EdgeDB
       --graphql TEXT                                    DSN to MusicBot GrapQL
-    Filter options: 
-      --prefilter [bests-4.0|bests-4.5|bests-5.0|no-album|no-artist|no-genre|no-keyword|no-rating|no-title]
-                                                        Filter name
-      --limit INTEGER                                   Fetch a maximum limit of music  [default: 2147483647]
-      --keywords, --keyword TEXT                        Select musics with keyword regex  [default: (.*?)]
-      --artists, --artist TEXT                          Select musics with artist regex  [default: (.*?)]
-      --albums, --album TEXT                            Select musics with album regex  [default: (.*?)]
-      --titles, --title TEXT                            Select musics with title regex  [default: (.*?)]
-      --genres, --genre TEXT                            Select musics with genre regex  [default: (.*?)]
-    Length: 
-      --min-length INTEGER                              Minimum length filter in seconds  [default: 0]
-      --max-length INTEGER                              Maximum length filter in seconds  [default: 2147483647]
-    Size: 
-      --min-size INTEGER                                Minimum file size  [default: 0]
-      --max-size INTEGER                                Maximum file size  [default: 2147483647]
-    Rating: 
-      --rating FLOAT RANGE                              Fixed rating  [0.0<=x<=5.0]
-      --min-rating FLOAT RANGE                          Minimum rating  [default: 0.0; 0.0<=x<=5.0]
-      --max-rating FLOAT RANGE                          Maximum rating  [default: 5.0; 0.0<=x<=5.0]
+    --filter TEXT                                       Music filters (repeatable), fields: genre,keyword,artist,title,album,min_size,max_size
+                                                        ,min_length,max_length,min_rating,max_rating,limit
     Links options: 
       --kind, --kinds [all|local|local-http|local-ssh|remote|remote-http|remote-ssh]
                                                         Generate musics paths of types  [default: local]
@@ -412,25 +378,8 @@ musicbot local playlist
       --dsn TEXT                                        DSN to MusicBot EdgeDB
       --graphql TEXT                                    DSN to MusicBot GrapQL
     --output [json|table|m3u]                           Output format  [default: table]
-    Filter options: 
-      --prefilter [bests-4.0|bests-4.5|bests-5.0|no-album|no-artist|no-genre|no-keyword|no-rating|no-title]
-                                                        Filter name
-      --limit INTEGER                                   Fetch a maximum limit of music  [default: 2147483647]
-      --keywords, --keyword TEXT                        Select musics with keyword regex  [default: (.*?)]
-      --artists, --artist TEXT                          Select musics with artist regex  [default: (.*?)]
-      --albums, --album TEXT                            Select musics with album regex  [default: (.*?)]
-      --titles, --title TEXT                            Select musics with title regex  [default: (.*?)]
-      --genres, --genre TEXT                            Select musics with genre regex  [default: (.*?)]
-    Length: 
-      --min-length INTEGER                              Minimum length filter in seconds  [default: 0]
-      --max-length INTEGER                              Maximum length filter in seconds  [default: 2147483647]
-    Size: 
-      --min-size INTEGER                                Minimum file size  [default: 0]
-      --max-size INTEGER                                Maximum file size  [default: 2147483647]
-    Rating: 
-      --rating FLOAT RANGE                              Fixed rating  [0.0<=x<=5.0]
-      --min-rating FLOAT RANGE                          Minimum rating  [default: 0.0; 0.0<=x<=5.0]
-      --max-rating FLOAT RANGE                          Maximum rating  [default: 5.0; 0.0<=x<=5.0]
+    --filter TEXT                                       Music filters (repeatable), fields: genre,keyword,artist,title,album,min_size,max_size
+                                                        ,min_length,max_length,min_rating,max_rating,limit
     Links options: 
       --kind, --kinds [all|local|local-http|local-ssh|remote|remote-http|remote-ssh]
                                                         Generate musics paths of types  [default: local]
@@ -508,32 +457,15 @@ musicbot local sync
 
   Options:
     MusicDB options: 
-      --dsn TEXT                                        DSN to MusicBot EdgeDB
-      --graphql TEXT                                    DSN to MusicBot GrapQL
-    -y, --yes                                           Confirm action
-    --dry / --no-dry                                    Do not launch real action  [default: no-dry]
-    Filter options: 
-      --prefilter [bests-4.0|bests-4.5|bests-5.0|no-album|no-artist|no-genre|no-keyword|no-rating|no-title]
-                                                        Filter name
-      --limit INTEGER                                   Fetch a maximum limit of music  [default: 2147483647]
-      --keywords, --keyword TEXT                        Select musics with keyword regex  [default: (.*?)]
-      --artists, --artist TEXT                          Select musics with artist regex  [default: (.*?)]
-      --albums, --album TEXT                            Select musics with album regex  [default: (.*?)]
-      --titles, --title TEXT                            Select musics with title regex  [default: (.*?)]
-      --genres, --genre TEXT                            Select musics with genre regex  [default: (.*?)]
-    Length: 
-      --min-length INTEGER                              Minimum length filter in seconds  [default: 0]
-      --max-length INTEGER                              Maximum length filter in seconds  [default: 2147483647]
-    Size: 
-      --min-size INTEGER                                Minimum file size  [default: 0]
-      --max-size INTEGER                                Maximum file size  [default: 2147483647]
-    Rating: 
-      --rating FLOAT RANGE                              Fixed rating  [0.0<=x<=5.0]
-      --min-rating FLOAT RANGE                          Minimum rating  [default: 0.0; 0.0<=x<=5.0]
-      --max-rating FLOAT RANGE                          Maximum rating  [default: 5.0; 0.0<=x<=5.0]
-    --flat                                              Do not create subfolders
-    --delete                                            Delete files on destination if not present in library
-    -h, --help                                          Show this message and exit.
+      --dsn TEXT       DSN to MusicBot EdgeDB
+      --graphql TEXT   DSN to MusicBot GrapQL
+    -y, --yes          Confirm action
+    --dry / --no-dry   Do not launch real action  [default: no-dry]
+    --filter TEXT      Music filters (repeatable), fields:
+                       genre,keyword,artist,title,album,min_size,max_size,min_length,max_length,min_rating,max_rating,limit
+    --flat             Do not create subfolders
+    --delete           Delete files on destination if not present in library
+    -h, --help         Show this message and exit.
 
 musicbot local watch
 ********************

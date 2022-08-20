@@ -85,39 +85,42 @@ class MusicDb(MusicbotObject):
         return response.json()
 
     @beartype
-    async def execute_music_filter(
+    async def execute_music_filters(
         self,
         query: str,
-        music_filter: MusicFilter | None = None,
-    ) -> Any:
-        music_filter = music_filter if music_filter is not None else MusicFilter()
-        logger.info(query)
-        results = await self.client.query(
-            query,
-            **asdict(music_filter)
-        )
+        music_filters: frozenset[MusicFilter] = frozenset(),
+    ) -> set[Any]:
+        logger.debug(query)
+        results = set()
+        for music_filter in music_filters:
+            intermediate_results = await self.client.query(
+                query,
+                **asdict(music_filter)
+            )
+            logger.debug(f"{len(intermediate_results)} intermediate results for {music_filter}")
+            results.update(intermediate_results)
+        logger.debug(f"{len(results)} results")
         return results
 
     @beartype
     async def make_playlist(
         self,
-        music_filter: MusicFilter | None = None,
+        music_filters: frozenset[MusicFilter] = frozenset(),
     ) -> Playlist:
-        results = await self.execute_music_filter(PLAYLIST_QUERY, music_filter)
-        logger.debug(f"{len(results)} results")
+        results = await self.execute_music_filters(PLAYLIST_QUERY, music_filters)
         return Playlist.from_edgedb(
-            name=str(music_filter),
+            name=str(list(music_filters)),
             results=results,
         )
 
     @cache
     def sync_make_playlist(
         self,
-        music_filter: MusicFilter | None = None,
+        music_filters: frozenset[MusicFilter] = frozenset(),
     ) -> Playlist:
         self.sync_ensure_connected()
         return async_run(self.make_playlist(
-            music_filter=music_filter
+            music_filters=music_filters
         ))
 
     @beartype
@@ -204,16 +207,6 @@ class MusicDb(MusicbotObject):
             )
             logger.debug(output_music)
 
-            # from deepdiff import DeepDiff  # type: ignore
-            # music_diff = DeepDiff(
-            #     asdict(input_music),
-            #     asdict(output_music),
-            #     ignore_order=True,
-            # )
-            # if music_diff:
-            #     MusicbotObject.err(f"{file} : file and music diff detected : ")
-            #     MusicbotObject.print_json(music_diff, file=sys.stderr)
-
             return file
         except edgedb.errors.TransactionSerializationError as e:
             raise MusicbotError(f"{path} : transaction error : {e}") from e
@@ -264,50 +257,50 @@ class MusicDb(MusicbotObject):
     @beartype
     async def make_bests(
         self,
-        music_filter: MusicFilter | None = None,
+        music_filters: frozenset[MusicFilter] = frozenset(),
     ) -> list[Playlist]:
-        results = await self.execute_music_filter(BESTS_QUERY, music_filter)
-        result = results[0]
+        results = await self.execute_music_filters(BESTS_QUERY, music_filters)
         playlists = []
-        for genre in result.genres:
-            genre_name = f"genre_{genre.key.genre.name.lower()}"
-            self.success(f"Genre {genre_name} : {len(genre.elements)}")
-            playlist = Playlist.from_edgedb(name=genre_name, results=genre.elements)
-            playlists.append(playlist)
-        for keyword in result.keywords:
-            keyword_name = f"keyword_{keyword.name.lower()}"
-            self.success(f"Keyword {keyword_name} : {len(keyword.musics)}")
-            playlist = Playlist.from_edgedb(name=keyword_name, results=keyword.musics)
-            playlists.append(playlist)
-        for rating in result.ratings:
-            rating_name = f"rating_{rating.key.rating}"
-            self.success(f"Rating {rating_name} : {len(rating.elements)}")
-            playlist = Playlist.from_edgedb(name=rating_name, results=rating.elements)
-            playlists.append(playlist)
-        for artist in result.keywords_for_artist:
-            artist_name = artist.artist
-            for keyword in artist.keywords:
-                keyword_name = keyword.keyword
-                artist_keyword = f"{artist_name}{os.sep}keyword_{keyword_name.lower()}"
-                self.success(f"Keyword by artist {artist_keyword} : {len(keyword.musics)}")
-                playlist = Playlist.from_edgedb(name=artist_keyword, results=keyword.musics)
+        for result in results:
+            for genre in result.genres:
+                genre_name = f"genre_{genre.key.genre.name.lower()}"
+                self.success(f"Genre {genre_name} : {len(genre.elements)}")
+                playlist = Playlist.from_edgedb(name=genre_name, results=genre.elements)
                 playlists.append(playlist)
-        for ratings_for_artist in result.ratings_for_artist:
-            artist_name = ratings_for_artist.key.artist.name
-            rating_name = ratings_for_artist.key.rating
-            artist_rating = f"{artist_name}{os.sep}rating_{rating_name}"
-            self.success(f"Rating by artist {artist_rating} : {len(ratings_for_artist.elements)}")
-            playlist = Playlist.from_edgedb(name=artist_rating, results=ratings_for_artist.elements)
-            playlists.append(playlist)
+            for keyword in result.keywords:
+                keyword_name = f"keyword_{keyword.name.lower()}"
+                self.success(f"Keyword {keyword_name} : {len(keyword.musics)}")
+                playlist = Playlist.from_edgedb(name=keyword_name, results=keyword.musics)
+                playlists.append(playlist)
+            for rating in result.ratings:
+                rating_name = f"rating_{rating.key.rating}"
+                self.success(f"Rating {rating_name} : {len(rating.elements)}")
+                playlist = Playlist.from_edgedb(name=rating_name, results=rating.elements)
+                playlists.append(playlist)
+            for artist in result.keywords_for_artist:
+                artist_name = artist.artist
+                for keyword in artist.keywords:
+                    keyword_name = keyword.keyword
+                    artist_keyword = f"{artist_name}{os.sep}keyword_{keyword_name.lower()}"
+                    self.success(f"Keyword by artist {artist_keyword} : {len(keyword.musics)}")
+                    playlist = Playlist.from_edgedb(name=artist_keyword, results=keyword.musics)
+                    playlists.append(playlist)
+            for ratings_for_artist in result.ratings_for_artist:
+                artist_name = ratings_for_artist.key.artist.name
+                rating_name = ratings_for_artist.key.rating
+                artist_rating = f"{artist_name}{os.sep}rating_{rating_name}"
+                self.success(f"Rating by artist {artist_rating} : {len(ratings_for_artist.elements)}")
+                playlist = Playlist.from_edgedb(name=artist_rating, results=ratings_for_artist.elements)
+                playlists.append(playlist)
         return playlists
 
     @beartype
     def sync_make_bests(
         self,
-        music_filter: MusicFilter | None = None,
+        music_filters: frozenset[MusicFilter] = frozenset(),
     ) -> list[Playlist]:
         self.sync_ensure_connected()
-        return async_run(self.make_bests(music_filter=music_filter))
+        return async_run(self.make_bests(music_filters=music_filters))
 
     @beartype
     async def search(
