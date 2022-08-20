@@ -123,7 +123,7 @@ class Playlist(MusicbotObject):
             pass
         elif output == 'm3u':
             p = '#EXTM3U\n'
-            p += ('#EXTREM:' + self.name)
+            p += ('#EXTREM:' + self.name + '\n')
             p += '\n'.join(self.links(playlist_options))
             print(p, file=file)
         elif output == 'table':
