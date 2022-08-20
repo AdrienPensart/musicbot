@@ -221,23 +221,23 @@ def bests(
         music_filters=frozenset(music_filters),
     )
     for best in bests:
-        if len(best.musics) < min_playlist_size:
-            return
-        if best.name:
-            filepath = Path(folder) / (best.name + '.m3u')
-            if MusicbotObject.dry:
-                MusicbotObject.success(f'DRY RUN: Writing playlist {best.name} to {filepath}')
-                continue
-            try:
-                filepath.parent.mkdir(parents=True, exist_ok=True)
-                with codecs.open(str(filepath), 'w', "utf-8-sig") as playlist_file:
-                    best.print(
-                        output="m3u",
-                        file=playlist_file,
-                        playlist_options=playlist_options,
-                    )
-            except (OSError, LookupError, ValueError, UnicodeError) as e:
-                logger.warning(f'Unable to write playlist {best.name} to {filepath} because of {e}')
+        if len(best.musics) < min_playlist_size or not best.name:
+            MusicbotObject.warn(f'{best.name} : size < {min_playlist_size}')
+            continue
+        filepath = Path(folder) / (best.name + '.m3u')
+        if MusicbotObject.dry:
+            MusicbotObject.success(f'DRY RUN: Writing playlist {best.name} to {filepath}')
+            continue
+        try:
+            filepath.parent.mkdir(parents=True, exist_ok=True)
+            with codecs.open(str(filepath), 'w', "utf-8-sig") as playlist_file:
+                best.print(
+                    output="m3u",
+                    file=playlist_file,
+                    playlist_options=playlist_options,
+                )
+        except (OSError, LookupError, ValueError, UnicodeError) as e:
+            logger.warning(f'Unable to write playlist {best.name} to {filepath} because of {e}')
 
     MusicbotObject.success(f"Playlists: {len(bests)}")
 
