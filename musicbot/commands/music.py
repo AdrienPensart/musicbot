@@ -131,7 +131,7 @@ def add_keywords(file: File, keywords: set[str]) -> None:
         MusicbotObject.err(f"{file} : unable to add keywords")
 
 
-@cli.command(help='Delete keywords to music', aliases=['remove-keywords'])
+@cli.command(help='Delete keywords to music', aliases=['delete-keyword', 'remove-keywords', 'remove-keyword'])
 @music_argument
 @keywords_arguments
 @dry_option

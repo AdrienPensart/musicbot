@@ -567,15 +567,16 @@ musicbot music
     -h, --help  Show this message and exit.
 
   Commands:
-    add-keywords                       Add keywords to music
-    delete-keywords (remove-keywords)  Delete keywords to music
-    fingerprint                        Print music fingerprint
-    flac2mp3 (flac-to-mp3)             Convert flac music to mp3
-    help                               Print help
-    inconsistencies (consistency)      Check music consistency
-    replace-keyword                    Replace one keyword in music
-    set-tags (set-tag)                 Set music title
-    tags (tag)                         Print music tags
+    add-keywords                                        Add keywords to music
+    delete-keywords (delete-keyword,remove-keyword,remove-keywords)
+                                                        Delete keywords to music
+    fingerprint                                         Print music fingerprint
+    flac2mp3 (flac-to-mp3)                              Convert flac music to mp3
+    help                                                Print help
+    inconsistencies (consistency)                       Check music consistency
+    replace-keyword                                     Replace one keyword in music
+    set-tags (set-tag)                                  Set music title
+    tags (tag)                                          Print music tags
 
 musicbot music add-keywords
 ***************************
