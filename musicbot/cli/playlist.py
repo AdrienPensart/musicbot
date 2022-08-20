@@ -15,6 +15,7 @@ from musicbot.defaults import (
     DEFAULT_KINDS,
     DEFAULT_RELATIVE,
     DEFAULT_SHUFFLE,
+    DEFAULT_MINIMUM_PLAYLIST_SIZE,
     KINDS_CHOICES
 )
 from musicbot.playlist_options import PlaylistOptions
@@ -27,7 +28,8 @@ bests_options = add_options(
     optgroup.option(
         '--min-playlist-size',
         help="Minimum size of playlist to write",
-        default=1
+        default=DEFAULT_MINIMUM_PLAYLIST_SIZE,
+        show_default=True,
     ),
 )
 

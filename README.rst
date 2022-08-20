@@ -281,7 +281,7 @@ musicbot local bests
       --shuffle / --no-shuffle                          Randomize selection  [default: no-shuffle]
       --interleave / --no-interleave                    Interleave tracks by artist  [default: no-interleave]
     Bests options: 
-      --min-playlist-size INTEGER                       Minimum size of playlist to write
+      --min-playlist-size INTEGER                       Minimum size of playlist to write  [default: 1]
     -h, --help                                          Show this message and exit.
 
 musicbot local clean

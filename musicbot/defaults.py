@@ -14,6 +14,7 @@ DEFAULT_NAME: Final[str] = "unnamed"
 DEFAULT_RELATIVE: Final[bool] = False
 DEFAULT_SHUFFLE: Final[bool] = False
 DEFAULT_INTERLEAVE: Final[bool] = False
+DEFAULT_MINIMUM_PLAYLIST_SIZE: Final[int] = 1
 
 RATING_CHOICES: Final[list[float]] = [x * 0.5 for x in range(0, 11)]
 STORED_RATING_CHOICES: Final[list[float]] = [float(x) / 10.0 for x in range(0, 11)]
