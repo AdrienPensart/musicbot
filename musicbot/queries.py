@@ -24,19 +24,6 @@ folders: {
 }
 """
 
-# PLAYLIST_QUERY: Final[str] = CustomStringTemplate("""
-# with
-#     filtered_artists := (
-#         select Artist
-#         filter
-#             len(<array<str>>$artists) = 0 or all((for re_artist in array_unpack(<array<str>>$artists) union (re_test(re_artist, .name))))
-#     ),
-#     select Music {
-#         #music_fields
-#     }
-#     filter
-#         .album.artist in filtered_artists
-# """).substitute(music_fields=MUSIC_FIELDS)
 PLAYLIST_QUERY: Final[str] = CustomStringTemplate("""
     select Music {
         #music_fields
@@ -79,7 +66,9 @@ filter
 """).substitute(music_fields=MUSIC_FIELDS)
 
 REMOVE_PATH_QUERY: Final[str] = """
-update Music filter contains(.paths, <str>$path) set {folders := (select .folders filter @path != <str>$path)};
+update Music
+filter contains(.paths, <str>$path)
+set {folders := (select .folders filter @path != <str>$path)};
 """
 
 UPSERT_QUERY: Final[str] = CustomStringTemplate("""
