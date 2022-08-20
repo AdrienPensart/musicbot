@@ -57,6 +57,7 @@ class MusicFilter:
 NO_KEYWORD = '^((?!cutoff|bad|demo|intro).)$'
 
 DEFAULT_PRE_FILTERS = {
+    'to-fix': MusicFilter(keyword="(tofix|todo|spotify-error)"),
     'no-artist': MusicFilter(artist="^$"),
     'no-album': MusicFilter(album="^$"),
     'no-title': MusicFilter(title="^$"),
