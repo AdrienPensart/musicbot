@@ -34,9 +34,10 @@ from musicbot.queries import (
 logger = logging.getLogger(__name__)
 
 
-@define(hash=True)
+@define(repr=False, hash=True)
 class MusicDb(MusicbotObject):
     client: AsyncIOClient
+    dsn: str
     session: requests.Session = requests.Session()
     graphql: str | None = None
 
@@ -47,6 +48,9 @@ class MusicDb(MusicbotObject):
         if self.graphql is None:
             parsed = urlparse(self.client._impl._connect_args['dsn'])
             self.graphql = f"http://{parsed.hostname}:{parsed.port}/db/edgedb/graphql"
+
+    def __repr__(self) -> str:
+        return self.dsn
 
     @beartype
     def set_readonly(self, readonly: bool = True) -> None:
@@ -63,7 +67,11 @@ class MusicDb(MusicbotObject):
     ) -> "MusicDb":
         if not cls.is_prod():
             os.environ['EDGEDB_CLIENT_SECURITY'] = 'insecure_dev_mode'
-        return cls(client=create_async_client(dsn=dsn), graphql=graphql)
+        return cls(
+            client=create_async_client(dsn=dsn),
+            dsn=dsn,
+            graphql=graphql
+        )
 
     @beartype
     def sync_query(self, query: str) -> Any:
@@ -232,7 +240,7 @@ class MusicDb(MusicbotObject):
     ) -> list[File]:
         self.sync_ensure_connected()
         files = []
-        failed: set[tuple[Path, Path]] = set()
+        failed_files: set[tuple[Path, Path]] = set()
         sem = asyncio.Semaphore(coroutines)
 
         with self.progressbar(prefix="Loading and inserting musics", max_value=len(folders.folders_and_paths)) as pbar:
@@ -241,17 +249,19 @@ class MusicDb(MusicbotObject):
                     try:
                         file = await self.upsert_path(folder_and_path=folder_and_path)
                         if not file:
-                            self.err(f"{folder_and_path} : unable to insert")
+                            self.err(f"{self} : unable to insert {folder_and_path}")
                         else:
                             files.append(file)
                     except MusicbotError as e:
                         self.err(e)
-                        failed.add(folder_and_path)
+                        failed_files.add(folder_and_path)
                     finally:
                         pbar.value += 1
                         pbar.update()
 
             async_gather(upsert_worker, folders.folders_and_paths)
+        if failed_files:
+            self.warn("Unable to insert {len(failed)} files")
         return files
 
     @beartype

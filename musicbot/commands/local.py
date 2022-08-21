@@ -31,10 +31,7 @@ from musicbot.cli.options import (
     save_option,
     yes_option
 )
-from musicbot.cli.playlist import (
-    bests_options,
-    playlist_options,
-)
+from musicbot.cli.playlist import bests_options, playlist_options
 from musicbot.defaults import DEFAULT_VLC_PARAMS
 from musicbot.file import File
 from musicbot.folders import Folders
@@ -258,7 +255,7 @@ def player(
     playlist_options: PlaylistOptions,
 ) -> None:
     musicdb.set_readonly()
-    if not MusicbotObject.config.quiet:
+    if not MusicbotObject.config.quiet or not MusicbotObject.is_test():
         progressbar.streams.unwrap(stderr=True, stdout=True)
     try:
         playlist = musicdb.sync_make_playlist(music_filters=frozenset(music_filters))

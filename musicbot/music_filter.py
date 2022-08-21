@@ -2,7 +2,7 @@ import json
 import logging
 from typing import Any
 
-from attr import asdict, fields, field, frozen
+from attr import asdict, field, fields, frozen
 
 from musicbot.defaults import (
     DEFAULT_LIMIT,
@@ -64,9 +64,9 @@ class MusicFilter:
 
     def __repr__(self) -> str:
         self_dict = asdict(self)
-        for field in fields(MusicFilter):  # pylint: disable=not-an-iterable
-            if self_dict[field.name] == field.default:
-                del self_dict[field.name]
+        for field_attribute in fields(MusicFilter):  # pylint: disable=not-an-iterable
+            if self_dict[field_attribute.name] == field_attribute.default:
+                del self_dict[field_attribute.name]
         return json.dumps(self_dict)
 
 

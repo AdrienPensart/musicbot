@@ -7,10 +7,7 @@ from click_option_group import optgroup  # type: ignore
 from click_skeleton import add_options
 from click_skeleton.helpers import mysplit
 
-from musicbot.music_filter import (
-    MusicFilter,
-    DEFAULT_PREFILTERS
-)
+from musicbot.music_filter import DEFAULT_PREFILTERS, MusicFilter
 from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
@@ -48,6 +45,8 @@ def sane_music_filters(ctx: click.Context, param: click.Parameter, value: Any) -
         mf = MusicFilter(**properties)
         and_filters.append(mf)
 
+    if not and_filters:
+        and_filters.append(MusicFilter())
     ctx.params[param.name] = and_filters
     return ctx.params[param.name]
 
@@ -62,6 +61,7 @@ music_filters_options = add_options(
         help="Music pre filters (repeatable)",
         type=click.Choice(list(sorted(DEFAULT_PREFILTERS.keys()))),
         show_default=True,
+        expose_value=False,
         multiple=True,
     ),
     optgroup.option(

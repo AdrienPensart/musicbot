@@ -62,6 +62,9 @@ def cli(
         config=config,
     )
     ctx.color = MusicbotObject.config.color
+    if not MusicbotObject.config.quiet and not MusicbotObject.is_test():
+        import progressbar  # type: ignore
+        progressbar.streams.wrap(stderr=True, stdout=True)
 
 
 @cli.command(short_help='Generates a README.rst', aliases=['doc'])

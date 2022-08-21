@@ -13,9 +13,9 @@ from click_skeleton.helpers import split_arguments
 from musicbot.defaults import (
     DEFAULT_INTERLEAVE,
     DEFAULT_KINDS,
+    DEFAULT_MINIMUM_PLAYLIST_SIZE,
     DEFAULT_RELATIVE,
     DEFAULT_SHUFFLE,
-    DEFAULT_MINIMUM_PLAYLIST_SIZE,
     KINDS_CHOICES
 )
 from musicbot.playlist_options import PlaylistOptions

@@ -1,12 +1,10 @@
 import configparser
 import logging
-import sys
 from functools import cache
 from pathlib import Path
 from typing import Final
 
 import colorlog
-import progressbar  # type: ignore
 from attr import frozen
 
 from musicbot.exceptions import MusicbotError
@@ -62,8 +60,6 @@ class Config:
         level = VERBOSITIES.get(verbosity, logging.WARNING)
         root_logger = logging.getLogger()
         root_logger.setLevel(level)
-        if not self.quiet and "pytest" not in sys.modules:
-            progressbar.streams.wrap(stderr=True, stdout=True)
         stream_handler = logging.StreamHandler()
         stream_handler.setLevel(level)
         stream_handler.setFormatter(

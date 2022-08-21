@@ -76,6 +76,7 @@ reportUnusedCallResult = true
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "--asyncio-mode=strict --timeout 600 --cov-report term-missing --durations=0 --cov musicbot -x --use-running-containers --docker-compose-no-build "
+log_cli = true
 
 [tool.pylint.master]
 jobs = 4
