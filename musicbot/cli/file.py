@@ -15,7 +15,6 @@ from musicbot.cli.options import (
 )
 from musicbot.defaults import (
     DEFAULT_ACOUSTID_API_KEY,
-    DEFAULT_CHECKS,
     DEFAULT_FLAT,
     DEFAULT_MAX_RATING,
     DEFAULT_MIN_RATING
@@ -116,22 +115,11 @@ paths_arguments = click.argument(
     nargs=-1,
 )
 
-checks_and_fix_options = add_options(
-    optgroup('Check options'),
-    optgroup.option(
-        '--checks',
-        help='Consistency tests',
-        multiple=True,
-        default=list(sorted(DEFAULT_CHECKS)),
-        show_default=True,
-        type=click.Choice(list(sorted(DEFAULT_CHECKS))),
-        callback=split_arguments,
-    ),
-    optgroup.option(
-        '--fix',
-        help="Fix musics",
-        is_flag=True,
-    ),
+fix_option = click.option(
+    '--fix/--no-fix',
+    help="Fix musics",
+    is_flag=True,
+    show_default=True,
 )
 
 acoustid_api_key_option = click.option(

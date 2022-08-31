@@ -76,15 +76,3 @@ REPLACEMENTS: Final[list[list[str]]] = [
     ['praxis', 'buckethead'],
     ['lawson-rollins', 'buckethead'],
 ]
-
-DEFAULT_CHECKS: Final[frozenset[str]] = frozenset({
-    'no-title',
-    'no-artist',
-    'no-album',
-    'no-genre',
-    'no-rating',
-    'no-track',
-    'invalid-title',
-    'invalid-comment',
-    'invalid-path',
-})

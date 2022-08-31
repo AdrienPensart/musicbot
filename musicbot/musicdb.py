@@ -15,7 +15,7 @@ from edgedb.options import RetryOptions, TransactionOptions
 
 from musicbot.defaults import DEFAULT_COROUTINES
 from musicbot.exceptions import MusicbotError
-from musicbot.file import File
+from musicbot.file import File, Issue
 from musicbot.folders import Folders
 from musicbot.helpers import async_gather, async_run
 from musicbot.music import Folder, Music
@@ -181,11 +181,11 @@ class MusicDb(MusicbotObject):
             if not file:
                 return None
 
-            if 'no-title' in file.inconsistencies or 'no-artist' in file.inconsistencies or 'no-album' in file.inconsistencies:
-                self.warn(f"{file} : missing mandatory fields title/album/artist : {file.inconsistencies}")
+            if Issue.NO_TITLE in file.issues or Issue.NO_ARTIST in file.issues or Issue.NO_ALBUM in file.issues:
+                self.warn(f"{file} : missing mandatory fields title/album/artist : {file.issues}")
                 return None
 
-            input_music = file.to_music_input()
+            input_music = file.music_input
             if not input_music:
                 self.err(f"{file} : cannot upsert music without physical folder !")
                 return None

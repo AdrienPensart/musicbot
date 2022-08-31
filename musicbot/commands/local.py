@@ -103,7 +103,7 @@ def scan(
     )
     musicdb.sync_soft_clean()
     if output == 'json':
-        MusicbotObject.print_json([asdict(file.to_music()) for file in files])
+        MusicbotObject.print_json([asdict(file.music) for file in files])
 
     if save:
         MusicbotObject.config.configfile['musicbot']['folders'] = folders.unique_directories

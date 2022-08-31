@@ -92,7 +92,8 @@ musicbot folder
     find                           Just list music files
     flac2mp3 (flac-to-mp3)         Convert all files in folders to mp3
     help                           Print help
-    inconsistencies (consistency)  Check music files consistency
+    issues                         Check music files consistency
+    manual-fix                     Check music files consistency
     playlist (musics,tags,tracks)  Generates a playlist
     set-tags (set-tag)             Set music title
 
@@ -161,25 +162,36 @@ musicbot folder flac2mp3
     --output [json|table|m3u]  Output format  [default: table]
     -h, --help                 Show this message and exit.
 
-musicbot folder inconsistencies
-*******************************
+musicbot folder issues
+**********************
 .. code-block::
 
-  Usage: musicbot folder inconsistencies [OPTIONS] [FOLDERS]...
+  Usage: musicbot folder issues [OPTIONS] [FOLDERS]...
 
     Check music files consistency
 
   Options:
-    --dry / --no-dry                                    Do not launch real action  [default: no-dry]
+    --dry / --no-dry    Do not launch real action  [default: no-dry]
     Folders options: 
-      --limit INTEGER                                   Limit number of music files
-      --extension TEXT                                  Supported formats  [default: flac, mp3]
-    Check options: 
-      --checks [invalid-comment|invalid-path|invalid-title|no-album|no-artist|no-genre|no-rating|no-title|no-track]
-                                                        Consistency tests  [default: invalid-comment, invalid-path, invalid-title, no-album,
-                                                        no-artist, no-genre, no-rating, no-title, no-track]
-      --fix                                             Fix musics
-    -h, --help                                          Show this message and exit.
+      --limit INTEGER   Limit number of music files
+      --extension TEXT  Supported formats  [default: flac, mp3]
+    --fix / --no-fix    Fix musics  [default: no-fix]
+    -h, --help          Show this message and exit.
+
+musicbot folder manual-fix
+**************************
+.. code-block::
+
+  Usage: musicbot folder manual-fix [OPTIONS] [FOLDERS]...
+
+    Check music files consistency
+
+  Options:
+    --dry / --no-dry    Do not launch real action  [default: no-dry]
+    Folders options: 
+      --limit INTEGER   Limit number of music files
+      --extension TEXT  Supported formats  [default: flac, mp3]
+    -h, --help          Show this message and exit.
 
 musicbot folder playlist
 ************************
@@ -517,9 +529,10 @@ musicbot music
     fingerprint                                         Print music fingerprint
     flac2mp3 (flac-to-mp3)                              Convert flac music to mp3
     help                                                Print help
-    inconsistencies (consistency)                       Check music consistency
+    issues                                              Check music consistency
     replace-keyword                                     Replace one keyword in music
     set-tags (set-tag)                                  Set music title
+    show                                                Show music
     tags (tag)                                          Print music tags
 
 musicbot music add-keywords
@@ -573,22 +586,18 @@ musicbot music flac2mp3
     --dry / --no-dry  Do not launch real action  [default: no-dry]
     -h, --help        Show this message and exit.
 
-musicbot music inconsistencies
-******************************
+musicbot music issues
+*********************
 .. code-block::
 
-  Usage: musicbot music inconsistencies [OPTIONS] FILE
+  Usage: musicbot music issues [OPTIONS] FILE
 
     Check music consistency
 
   Options:
-    --dry / --no-dry                                    Do not launch real action  [default: no-dry]
-    Check options: 
-      --checks [invalid-comment|invalid-path|invalid-title|no-album|no-artist|no-genre|no-rating|no-title|no-track]
-                                                        Consistency tests  [default: invalid-comment, invalid-path, invalid-title, no-album,
-                                                        no-artist, no-genre, no-rating, no-title, no-track]
-      --fix                                             Fix musics
-    -h, --help                                          Show this message and exit.
+    --dry / --no-dry  Do not launch real action  [default: no-dry]
+    --fix / --no-fix  Fix musics  [default: no-fix]
+    -h, --help        Show this message and exit.
 
 musicbot music replace-keyword
 ******************************
@@ -622,6 +631,18 @@ musicbot music set-tags
       --track TEXT          Track number
       --rating FLOAT RANGE  Rating  [0.0<=x<=5.0]
     -h, --help              Show this message and exit.
+
+musicbot music show
+*******************
+.. code-block::
+
+  Usage: musicbot music show [OPTIONS] FILE
+
+    Show music
+
+  Options:
+    --dry / --no-dry  Do not launch real action  [default: no-dry]
+    -h, --help        Show this message and exit.
 
 musicbot music tags
 *******************

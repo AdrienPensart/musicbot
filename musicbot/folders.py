@@ -28,7 +28,7 @@ class Folders(MusicbotObject):
         self.directories = [directory.resolve() for directory in self.directories]
 
     def apply(self, worker: Callable, **kwargs: Any) -> Any:
-        return self.parallel(
+        return self.parallel_gather(
             worker,
             list(self.folders_and_paths),
             **kwargs,
@@ -51,7 +51,7 @@ class Folders(MusicbotObject):
 
     @cached_property
     def musics(self) -> list[Music]:
-        return [file.to_music() for file in self.files]
+        return [file.music for file in self.files]
 
     @cached_property
     def folders_and_paths(self) -> set[tuple[Path, Path]]:

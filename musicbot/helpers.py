@@ -64,7 +64,7 @@ def precise_seconds_to_human(s: int) -> str:
 @beartype
 def get_public_ip() -> str:
     try:
-        return requests.get('https://api.ipify.org').text
+        return requests.get('https://api.ipify.org', timeout=5).text
     except Exception as e:  # pylint: disable=broad-except
         raise MusicbotError("Unable to detect Public IP") from e
 

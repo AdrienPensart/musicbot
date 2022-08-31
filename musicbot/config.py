@@ -80,10 +80,10 @@ class Config:
             log_path = Path(self.log).expanduser()
             try:
                 file_handler = logging.FileHandler(log_path)
-                root_logger.addHandler(file_handler)
+                root_logger.handlers.append(file_handler)
             except PermissionError as e:
                 raise MusicbotError(f"Unable to write log file {log_path}") from e
-        root_logger.addHandler(stream_handler)
+        root_logger.handlers.append(stream_handler)
 
     @cache
     def _configfile(self) -> configparser.ConfigParser:

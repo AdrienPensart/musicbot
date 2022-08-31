@@ -39,7 +39,7 @@ class Playlist(MusicbotObject):
     ) -> "Playlist":
         return cls(
             name=name,
-            musics=[file.to_music() for file in files]
+            musics=[file.music for file in files]
         )
 
     @classmethod

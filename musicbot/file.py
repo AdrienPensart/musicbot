@@ -1,5 +1,6 @@
 import logging
 import shutil
+from enum import Enum, unique
 from functools import cached_property
 from pathlib import Path, PurePath
 from typing import Any, Optional
@@ -12,7 +13,6 @@ from click_skeleton.helpers import mysplit
 from pydub import AudioSegment  # type: ignore
 
 from musicbot.defaults import (
-    DEFAULT_CHECKS,
     DEFAULT_EXTENSIONS,
     DEFAULT_MAX_RATING,
     DEFAULT_MIN_RATING,
@@ -27,35 +27,23 @@ from musicbot.object import MusicbotObject
 logger = logging.getLogger(__name__)
 
 
+@unique
+class Issue(str, Enum):
+    NO_TITLE = "no-title"
+    NO_GENRE = "no-genre"
+    NO_ALBUM = "no-album"
+    NO_ARTIST = "no-artist"
+    NO_RATING = "no-rating"
+    NO_TRACK = "no-track"
+    INVALID_COMMENT = "invalid-comment"
+    INVALID_TITLE = "invalid-title"
+    INVALID_PATH = "invalid-path"
+
+
 @define(repr=False)
 class File(MusicbotObject):
     folder: Path
     handle: mutagen.File
-    inconsistencies: set[str] = set()
-
-    def __attrs_post_init__(self) -> None:
-        if not self.title:
-            self.inconsistencies.add("no-title")
-        if not self.genre:
-            self.inconsistencies.add("no-genre")
-        if not self.album:
-            self.inconsistencies.add("no-album")
-        if not self.artist:
-            self.inconsistencies.add("no-artist")
-        if self.rating == -1:
-            self.inconsistencies.add("no-rating")
-        if self.track == -1:
-            self.inconsistencies.add("no-track")
-        if self.extension == '.flac' and self._comment and not self._description:
-            self.inconsistencies.add('invalid-comment')
-        if self.extension == '.mp3' and self._description and not self._comment:
-            self.inconsistencies.add('invalid-comment')
-        if self.track not in (-1, 0) and self.title != self.canonic_title:
-            logger.debug(f"{self} : invalid-title, '{self.title}' should be '{self.canonic_title}'")
-            self.inconsistencies.add("invalid-title")
-        if self.track not in (-1, 0) and not str(self.path).endswith(str(self.canonic_artist_album_filename)):
-            logger.debug(f"{self} : invalid-path, must have a track and should end with '{self.canonic_artist_album_filename}'")
-            self.inconsistencies.add("invalid-path")
 
     @classmethod
     def from_path(cls, folder: Path, path: Path) -> Optional["File"]:
@@ -71,8 +59,35 @@ class File(MusicbotObject):
     def __repr__(self) -> str:
         return str(self.path)
 
-    @beartype
-    def to_music(self) -> Music:
+    @property
+    def issues(self) -> set[Issue]:
+        issues = set()
+        if not self.title:
+            issues.add(Issue.NO_TITLE)
+        if not self.genre:
+            issues.add(Issue.NO_GENRE)
+        if not self.album:
+            issues.add(Issue.NO_ALBUM)
+        if not self.artist:
+            issues.add(Issue.NO_ARTIST)
+        if self.rating == -1:
+            issues.add(Issue.NO_RATING)
+        if self.track == -1:
+            issues.add(Issue.NO_TRACK)
+        if self.extension == '.flac' and self._comment and not self._description:
+            issues.add(Issue.INVALID_COMMENT)
+        if self.extension == '.mp3' and self._description and not self._comment:
+            issues.add(Issue.INVALID_COMMENT)
+        if self.track not in (-1, 0) and self.title != self.canonic_title:
+            logger.debug(f"{self} : invalid title, '{self.title}' should be '{self.canonic_title}'")
+            issues.add(Issue.INVALID_TITLE)
+        if self.track not in (-1, 0) and not str(self.path).endswith(str(self.canonic_artist_album_filename)):
+            logger.debug(f"{self} : invalid path, must have a track and should end with '{self.canonic_artist_album_filename}'")
+            issues.add(Issue.INVALID_PATH)
+        return issues
+
+    @property
+    def music(self) -> Music:
         folder = Folder(
             name=str(self.folder),
             path=str(self.path),
@@ -92,20 +107,18 @@ class File(MusicbotObject):
             folders=frozenset({folder}),
         )
 
-    @beartype
-    def to_music_input(self) -> dict[str, Any] | None:
-        input_music = self.to_music()
-        if not input_music.folders:
+    @property
+    def music_input(self) -> dict[str, Any] | None:
+        data = asdict(self.music)
+        if not data['folders']:
             self.err(f"{self} : no folder set")
             return None
 
-        folder_obj, *_ = input_music.folders
-        data = asdict(input_music)
-        data['ipv4'] = folder_obj.ipv4
-        data['user'] = folder_obj.user
-        data['folder'] = folder_obj.name
-        data['path'] = folder_obj.path
-        del data['folders']
+        folders = data.pop('folders')
+        data['ipv4'] = folders[0]['ipv4']
+        data['user'] = folders[0]['user']
+        data['folder'] = folders[0]['name']
+        data['path'] = folders[0]['path']
         return data
 
     @beartype
@@ -143,26 +156,9 @@ class File(MusicbotObject):
     def path(self) -> Path:
         return Path(self.handle.filename)
 
-    # @beartype
-    # def http_path(self, link_options: LinkOptions) -> str:
-    #     if 'invalid-path' in self.inconsistencies:
-    #         self.warn(f"{self} : invalid path, so we use original path")
-    #         path = PurePath(self.artist, self.album, self.filename)
-    #     else:
-    #         path = self.canonic_artist_album_filename
-    #     return link_options.http_schema.format(
-    #         ip=link_options.public_ip,
-    #         path=path,
-    #     )
-
-    # @beartype
-    # def ssh_path(self, link_options: LinkOptions) -> str:
-    #     path = str(self.path).replace(" ", r"\ ")
-    #     return link_options.ssh_schema.format(
-    #         ip=link_options.public_ip,
-    #         user=link_options.ssh_user,
-    #         path=path,
-    #     )
+    @property
+    def canonic_path(self) -> Path:
+        return self.folder / self.canonic_artist_album_filename
 
     @property
     def youtube(self) -> str | None:
@@ -195,6 +191,10 @@ class File(MusicbotObject):
     @property
     def flat_filename(self) -> str:
         return f'{self.artist} - {self.album} - {self.canonic_title}{self.extension}'
+
+    @property
+    def flat_path(self) -> Path:
+        return self.folder / self.flat_filename
 
     def _get_first(self, tag: str, default: str = '') -> str:
         if tag not in self.handle:
@@ -390,7 +390,7 @@ class File(MusicbotObject):
 
     @beartype
     def to_mp3(self, destination: Path, flat: bool = False) -> Optional["File"]:
-        if not flat and 'invalid-path' in self.inconsistencies:
+        if not flat and Issue.INVALID_PATH in self.issues:
             self.err(f"{self} does not have a canonic path like : {self.canonic_artist_album_filename}")
             return None
 
@@ -469,24 +469,59 @@ class File(MusicbotObject):
         return None
 
     @beartype
-    def fix(self, checks: frozenset[str] | None = None) -> bool:
-        checks = checks if checks is not None else DEFAULT_CHECKS
-        if 'no-rating' in checks:
-            self.rating = 0.0
-            self.inconsistencies.remove('no-rating')
-        if 'no-track' in checks:
-            self.track = 0
-            self.inconsistencies.remove('no-track')
-        if 'invalid-comment' in checks:
-            if self.extension == '.flac' and self._comment and not self._description:
-                self._description = ''
-            if self.extension == '.mp3' and self._description and not self._comment:
-                self._comment = ''
-            self.inconsistencies.remove('invalid-comment')
-        if 'invalid-title' in checks:
-            logger.info(f"{self} : {self.title} => {self.canonic_title}")
-            self.title = self.canonic_title
-            self.inconsistencies.remove('invalid-title')
+    def fix(self) -> bool:
+        for issue in self.issues:
+            match issue:
+                case Issue.NO_ARTIST:
+                    self.success(f"{self} : give new artist (old '{self.artist}')")
+                    self.artist = input()
+                    if not self.save():
+                        return False
+                case Issue.NO_TITLE:
+                    self.success(f"{self} : give new title (old '{self.title}')")
+                    self.title = input()
+                    if not self.save():
+                        return False
+                case Issue.NO_GENRE:
+                    self.success(f"{self} : give new genre (old '{self.genre}')")
+                    self.genre = input()
+                    if not self.save():
+                        return False
+                case Issue.NO_ALBUM:
+                    self.success(f"{self} : give new album (old '{self.album}')")
+                    self.album = input()
+                    if not self.save():
+                        return False
+                case Issue.NO_RATING:
+                    if not self.dry:
+                        self.rating = 0.0
+                    if not self.save():
+                        return False
+                case Issue.NO_TRACK:
+                    if not self.dry:
+                        self.track = 0
+                    if not self.save():
+                        return False
+                case Issue.INVALID_COMMENT:
+                    logger.info(f"{self} : fixing comment")
+                    if self.extension == '.flac' and self._comment and not self._description and not self.dry:
+                        self._description = ''
+                    if self.extension == '.mp3' and self._description and not self._comment and not self.dry:
+                        self._comment = ''
+                    if not self.save():
+                        return False
+                case Issue.INVALID_TITLE:
+                    logger.info(f"{self} : {self.title} => {self.canonic_title}")
+                    if not self.dry:
+                        self.title = self.canonic_title
+                    if not self.save():
+                        return False
+                case Issue.INVALID_PATH:
+                    logger.info(f"{self} : moving from {self.path} to {self.canonic_path}")
+                    if not self.dry:
+                        self.close()
+                        shutil.move(self.path, self.canonic_path)
+                        self.handle = mutagen.File(self.canonic_path)
         return self.save()
 
     @beartype

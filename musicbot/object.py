@@ -5,8 +5,8 @@ import logging
 import os
 import signal
 import sys
+import threading
 from datetime import datetime
-from threading import Lock
 from typing import IO, Any, Callable, NoReturn, Sequence, Union
 
 import click
@@ -22,8 +22,19 @@ from musicbot.one_way_bool import OneWayBool
 logger = logging.getLogger(__name__)
 
 
+# def _start_background_loop(loop: Any) -> None:
+#     '''Start background loop'''
+#     asyncio.set_event_loop(loop)
+#     loop.run_forever()
+#
+#
+# _LOOP = asyncio.new_event_loop()
+# _LOOP_THREAD = threading.Thread(target=_start_background_loop, args=(_LOOP,), daemon=True)
+# _LOOP_THREAD.start()
+
+
 class MusicbotObject:
-    print_lock = Lock()
+    print_lock = threading.Lock()
     is_tty = sys.stderr.isatty()
     console = Console()
     show_warn: bool = True
@@ -142,7 +153,7 @@ class MusicbotObject:
         )
 
     @classmethod
-    def parallel(
+    def parallel_gather(
         cls,
         worker: Callable,
         items: Sequence,
@@ -212,6 +223,57 @@ class MusicbotObject:
                         raise e
                     cls.fast_kill()
         return results[:limit]
+
+#     @classmethod
+#     def async_gather(
+#         cls,
+#         worker: Callable,
+#         items: Collection[Any],
+#         quiet: bool = False,
+#         prefix: str | None = None,
+#         limit: int | None = None,
+#         merge: bool = False,
+#         return_exceptions: bool = False,
+#         timeout: int | None = None,
+#         **kwargs: Any,
+#     ) -> List[Any]:
+#         """
+#         A version of asyncio.gather that runs on the internal event loop
+#         """
+#         quiet = len(items) <= 1 or quiet
+#         with cls.progressbar(max_value=len(items), quiet=quiet, prefix=prefix, **kwargs) as pbar:
+#             try:
+#                 async def _worker(worker_item: Any) -> Any:
+#                     try:
+#                         return await worker(worker_item)
+#                     finally:
+#                         pbar.value += 1
+#                         pbar.update()
+#                 futures = []
+#                 for future_item in items:
+#                     future = _worker(future_item)
+#                     futures.append(future)
+#                 async def _gather() -> List[Any]:
+#                     return await asyncio.gather(  # pylint: disable=deprecated-argument
+#                         *futures,
+#                         loop=_LOOP,
+#                         return_exceptions=return_exceptions
+#                     )
+#
+#                 results = cls.async_run(_gather(), timeout=timeout)
+#                 results = [result for result in results if result is not None]
+#                 if not merge:
+#                     return results[:limit]
+#
+#                 final_results = []
+#                 for sublist in results:
+#                     if isinstance(sublist, Iterable):
+#                         final_results.extend([item for item in sublist if item is not None])
+#             except KeyboardInterrupt as e:
+#                 if cls.is_test():
+#                     raise e
+#                 cls.fast_kill()
+#         return final_results[:limit]
 
     @classmethod
     def fast_kill(cls) -> NoReturn:  # pylint: disable=unused-argument

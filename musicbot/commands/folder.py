@@ -8,13 +8,14 @@ from click_skeleton import AdvancedGroup
 from rich.table import Table
 
 from musicbot.cli.file import (
-    checks_and_fix_options,
     file_options,
+    fix_option,
     flat_option,
     keywords_arguments
 )
 from musicbot.cli.folders import destination_argument, folders_argument
 from musicbot.cli.options import dry_option, output_option, threads_option
+from musicbot.file import File
 from musicbot.folders import Folders
 from musicbot.object import MusicbotObject
 from musicbot.playlist import Playlist
@@ -83,27 +84,48 @@ def flac2mp3(
     )
 
 
-@cli.command(aliases=['consistency'], help='Check music files consistency')
+@cli.command(help='Check music files consistency')
 @folders_argument
-@checks_and_fix_options
+@fix_option
 @beartype
-def inconsistencies(
+def issues(
     folders: Folders,
     fix: bool,
-    checks: list[str],
 ) -> None:
-    table = Table("Path", "Inconsistencies")
+    table = Table("Path", "Issues")
+    count = 0
     for file in folders.files:
         try:
-            if fix and not file.fix(checks=frozenset(checks)):
-                MusicbotObject.err(f"{file} : unable to fix inconsistencies")
+            if fix and not file.fix():
+                MusicbotObject.err(f"{file} : unable to fix issues")
                 continue
 
-            if file.inconsistencies.intersection(set(checks)):
-                table.add_row(str(file.path), ', '.join(file.inconsistencies))
+            if file.issues:
+                table.add_row(str(file.path), ', '.join(file.issues))
+                count += 1
         except (OSError, mutagen.MutagenError):
             table.add_row(str(file.path), "could not open file")
     MusicbotObject.console.print(table)
+    MusicbotObject.success(f"{folders} : {count} inconsistencies")
+
+
+@cli.command(help='Check music files consistency')
+@folders_argument
+@beartype
+def manual_fix(
+    folders: Folders,
+) -> None:
+    def _manual_fix(file: File) -> None:
+        if not file.issues:
+            return
+        print(file.music.human_repr())
+        print(file.issues)
+        while file.issues:
+            if not file.fix() or file.dry:
+                return
+
+    for file in folders.files:
+        _manual_fix(file)
 
 
 @cli.command(help='Set music title', aliases=['set-tag'])

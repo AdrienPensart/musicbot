@@ -11,8 +11,8 @@ from rich.table import Table
 from musicbot import MusicbotObject
 from musicbot.cli.file import (
     acoustid_api_key_option,
-    checks_and_fix_options,
     file_options,
+    fix_option,
     keywords_arguments,
     music_argument,
     paths_arguments
@@ -28,6 +28,35 @@ logger = logging.getLogger(__name__)
 @beartype
 def cli() -> None:
     pass
+
+
+@cli.command(help='Show music')
+@music_argument
+@beartype
+def show(
+    file: File,
+) -> None:
+    MusicbotObject.success(f"{file.folder=}")
+    MusicbotObject.success(f"{file.path=}")
+    MusicbotObject.success(f"{file.filename=}")
+    MusicbotObject.success(f"{file.extension=}")
+    MusicbotObject.success(f"{file.title=}")
+    MusicbotObject.success(f"{file.artist=}")
+    MusicbotObject.success(f"{file.album=}")
+    MusicbotObject.success(f"{file.genre=}")
+    MusicbotObject.success(f"{file.rating=}")
+    MusicbotObject.success(f"{file.track=}")
+    MusicbotObject.success(f"{file.keywords=}")
+    MusicbotObject.success(f"{file.issues=}")
+    MusicbotObject.success(f"{file.size=}")
+    MusicbotObject.success(f"{file.length=} ")
+    MusicbotObject.success(f"{file.canonic_artist_album_filename=}")
+    MusicbotObject.success(f"{file.canonic_title=}")
+    MusicbotObject.success(f"{file.canonic_filename=}")
+    MusicbotObject.success(f"{file.canonic_path=}")
+    MusicbotObject.success(f"{file.flat_title=}")
+    MusicbotObject.success(f"{file.flat_filename=}")
+    MusicbotObject.success(f"{file.flat_path=}")
 
 
 @cli.command(help='Convert flac music to mp3', aliases=['flac-to-mp3'])
@@ -62,29 +91,27 @@ def tags(
     output: str,
 ) -> None:
     logger.info(file.handle.tags.keys())
-    music = file.to_music()
     if output == 'json':
-        MusicbotObject.print_json(asdict(music))
+        MusicbotObject.print_json(asdict(file.music))
         return
-    print(music.human_repr())
+    print(file.music.human_repr())
 
 
-@cli.command(aliases=['consistency'], help='Check music consistency')
+@cli.command(help='Check music consistency')
 @music_argument
-@checks_and_fix_options
+@fix_option
 @beartype
-def inconsistencies(
+def issues(
     file: File,
     fix: bool,
-    checks: list[str],
 ) -> None:
     table = Table("Path", "Inconsistencies")
     try:
-        if fix and not file.fix(checks=frozenset(checks)):
+        if fix and not file.fix():
             MusicbotObject.err(f"{file} : unable to fix inconsistencies")
 
-        if file.inconsistencies:
-            table.add_row(str(file.path), ', '.join(file.inconsistencies))
+        if file.issues:
+            table.add_row(str(file.path), ', '.join(file.issues))
     except (OSError, MutagenError):
         table.add_row(str(file.path), "could not open file")
     MusicbotObject.console.print(table)

@@ -38,9 +38,9 @@ def test_folder_playlist(cli_runner):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_folder_check_consistency(cli_runner):
+def test_folder_issues(cli_runner):
     run_cli(cli_runner, cli, [
         '--quiet',
-        'folder', 'consistency',
+        'folder', 'issues',
         *fixtures.folders,
     ])

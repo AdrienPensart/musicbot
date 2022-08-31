@@ -50,15 +50,15 @@ def test_music_set_tags(cli_runner):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_music_check_consistency(cli_runner):
+def test_music_issues(cli_runner):
     run_cli(cli_runner, cli, [
         '--quiet',
-        'music', 'consistency',
+        'music', 'issues',
         str(fixtures.one_flac),
     ])
     run_cli(cli_runner, cli, [
         '--quiet',
-        'music', 'consistency',
+        'music', 'issues',
         str(fixtures.one_mp3),
     ])
 
