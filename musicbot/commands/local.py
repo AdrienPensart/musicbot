@@ -16,7 +16,7 @@ from click_skeleton import AdvancedGroup
 from watchdog.observers import Observer  # type: ignore
 
 from musicbot.cli.file import flat_option
-from musicbot.cli.folders import (
+from musicbot.cli.folder import (
     destination_argument,
     folder_argument,
     folders_argument
@@ -63,9 +63,9 @@ def execute(musicdb: MusicDb, query: str) -> None:
 @musicdb_options
 @beartype
 def graphql(musicdb: MusicDb, query: str) -> None:
-    result = musicdb.graphql_query(query)
-    if result is not None:
-        MusicbotObject.print_json(result)
+    response = musicdb.graphql_query(query)
+    if response is not None:
+        MusicbotObject.print_json(response.json())
 
 
 @cli.command(help='Explore with GraphiQL')

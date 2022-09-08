@@ -75,19 +75,17 @@ class Spotify(MusicbotObject):
         return self.auth_manager.refresh_access_token(token['refresh_token'])
 
     def get_download_playlist(self, name: str = DEFAULT_SPOTIFY_DOWNLOAD_PLAYLIST) -> dict[Any, Any] | None:
-        download_playlist = self.playlist(name)
-        if download_playlist:
+        if download_playlist := self.playlist(name):
             return download_playlist
         result = self.api.user_playlist_create(self.username, name, public=False)
         logger.debug(result)
-        download_playlist = self.playlist(name)
-        if download_playlist:
+        if download_playlist := self.playlist(name):
             return download_playlist
         return None
 
     def set_download_playlist(self, tracks: Any) -> None:
         download_playlist = self.get_download_playlist()
-        if not download_playlist:
+        if download_playlist is None:
             self.err("Cannot get download playlist, so we can't update it")
             return
 
@@ -104,8 +102,7 @@ class Spotify(MusicbotObject):
         offset = 0
         limit = 50
         objects = []
-        while True:
-            new_objects = self.api.current_user_playlists(limit=limit, offset=offset)
+        while new_objects := self.api.current_user_playlists(limit=limit, offset=offset):
             length = len(new_objects['items'])
             objects.append(new_objects['items'])
             offset += length
@@ -114,10 +111,9 @@ class Spotify(MusicbotObject):
         return list(itertools.chain(*objects))
 
     def playlist(self, name: str) -> Any | None:
-        playlists = self.playlists()
-        for p in playlists:
-            if p['name'] == name:
-                return p
+        for playlist in self.playlists():
+            if playlist['name'] == name:
+                return playlist
         return None
 
     def liked_tracks(self) -> list[Any]:

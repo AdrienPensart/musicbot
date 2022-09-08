@@ -7,7 +7,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 import edgedb
-import requests
+from requests import Session, Response
 from attr import asdict, define
 from beartype import beartype
 from edgedb.asyncio_client import AsyncIOClient, create_async_client
@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 class MusicDb(MusicbotObject):
     client: AsyncIOClient
     dsn: str
-    session: requests.Session = requests.Session()
+    session: Session = Session()
     graphql: str | None = None
 
     def __attrs_post_init__(self) -> None:
@@ -79,7 +79,7 @@ class MusicDb(MusicbotObject):
         return async_run(future)
 
     @beartype
-    def graphql_query(self, query: str) -> Any:
+    def graphql_query(self, query: str) -> Response | None:
         if not self.graphql:
             return None
         operation = {
@@ -90,7 +90,7 @@ class MusicDb(MusicbotObject):
             json=operation,
         )
         logger.debug(response)
-        return response.json()
+        return response
 
     @beartype
     async def execute_music_filters(
@@ -145,9 +145,9 @@ class MusicDb(MusicbotObject):
 
     @beartype
     async def soft_clean(self) -> Any:
+        self.success("cleaning orphan keywords, albums, artists, genres")
         if self.dry:
             return None
-        self.success("cleaning orphan keywords, albums, artists, genres")
         return await self.client.execute(SOFT_CLEAN_QUERY)
 
     @beartype

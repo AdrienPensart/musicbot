@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Callable, Iterator
 
 from attr import define
+from natsort import os_sorted
 
 from musicbot.defaults import DEFAULT_EXTENSIONS, EXCEPT_DIRECTORIES
 from musicbot.exceptions import MusicbotError
@@ -47,7 +48,7 @@ class Folders(MusicbotObject):
             except OSError as e:
                 logger.error(e)
             return None
-        return self.apply(worker, prefix="Loading musics")[:self.limit]
+        return list(os_sorted(self.apply(worker, prefix="Loading musics"), lambda f: f.path))[:self.limit]
 
     @cached_property
     def musics(self) -> list[Music]:
@@ -101,10 +102,8 @@ class Folders(MusicbotObject):
         def worker(folder_and_path: tuple[Path, Path]) -> File | None:
             folder, path = folder_and_path
             try:
-                file = File.from_path(folder=folder, path=path)
-                if not file:
-                    return None
-                return file.to_mp3(flat=flat, destination=destination)
+                if file := File.from_path(folder=folder, path=path):
+                    return file.to_mp3(flat=flat, destination=destination)
             except MusicbotError as e:
                 self.err(e)
             except Exception as e:  # pylint: disable=broad-except

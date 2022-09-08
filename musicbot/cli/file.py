@@ -1,4 +1,6 @@
 import logging
+import functools
+from typing import Any
 from pathlib import Path
 
 import click
@@ -7,6 +9,7 @@ from click_option_group import optgroup  # type: ignore
 from click_skeleton import add_options
 from click_skeleton.helpers import split_arguments
 
+from musicbot.cli.folder import folder_argument
 from musicbot.cli.options import (
     config_string,
     dry_option,
@@ -69,29 +72,24 @@ file_options = add_options(
 
 
 @beartype
-def sane_file(ctx: click.Context, param: click.Parameter, value: Path) -> File:
-    if not param.name:
-        logger.error("no param name set")
-        raise click.Abort()
-    file = File.from_path(folder=value.parent, path=value)
-    if not file:
-        raise click.Abort()
-    ctx.params[param.name] = file
-    return file
-
-
-music_argument = add_options(
-    dry_option,
-    click.argument(
+def file_argument(func: Any) -> Any:
+    '''Generates a valid list of Instance objects'''
+    @folder_argument
+    @click.argument(
         'file',
         type=click.Path(
             path_type=Path,
             exists=True,
             dir_okay=False,
         ),
-        callback=sane_file,
     )
-)
+    @dry_option
+    @functools.wraps(func)
+    def wrapper(folder: Path, file: Path, *args: Any, **kwargs: Any) -> Any:
+        if music_file := File.from_path(folder=folder, path=file):
+            return func(file=music_file, *args, **kwargs)
+        raise click.Abort()
+    return wrapper
 
 
 def sane_paths(ctx: click.Context, param: click.Parameter, value: tuple[Path, ...]) -> list[Path]:

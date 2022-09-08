@@ -9,7 +9,10 @@ from beartype import beartype
 from click_skeleton import AdvancedGroup
 from click_skeleton.helpers import seconds_to_human
 
-from musicbot.cli.file import acoustid_api_key_option, music_argument
+from musicbot.cli.file import (
+    acoustid_api_key_option,
+    file_argument
+)
 from musicbot.file import File
 from musicbot.object import MusicbotObject
 
@@ -96,7 +99,7 @@ def download(artist: str, title: str, path: str) -> None:
 
 
 @cli.command(help='Search a youtube link with artist and title')
-@music_argument
+@file_argument
 @acoustid_api_key_option
 @beartype
 def find(file: File, acoustid_api_key: str) -> None:

@@ -9,11 +9,10 @@ from rich.table import Table
 
 from musicbot.cli.file import (
     file_options,
-    fix_option,
     flat_option,
     keywords_arguments
 )
-from musicbot.cli.folders import destination_argument, folders_argument
+from musicbot.cli.folder import destination_argument, folders_argument
 from musicbot.cli.options import dry_option, output_option, threads_option
 from musicbot.file import File
 from musicbot.folders import Folders
@@ -84,22 +83,16 @@ def flac2mp3(
     )
 
 
-@cli.command(help='Check music files consistency')
+@cli.command(help='Show music files issues in folders')
 @folders_argument
-@fix_option
 @beartype
 def issues(
     folders: Folders,
-    fix: bool,
 ) -> None:
     table = Table("Path", "Issues")
     count = 0
     for file in folders.files:
         try:
-            if fix and not file.fix():
-                MusicbotObject.err(f"{file} : unable to fix issues")
-                continue
-
             if file.issues:
                 table.add_row(str(file.path), ', '.join(file.issues))
                 count += 1
@@ -109,23 +102,29 @@ def issues(
     MusicbotObject.success(f"{folders} : {count} inconsistencies")
 
 
-@cli.command(help='Check music files consistency')
+@cli.command(help='Fix music files in folders')
 @folders_argument
 @beartype
 def manual_fix(
     folders: Folders,
 ) -> None:
     def _manual_fix(file: File) -> None:
+        MusicbotObject.warn(f"{file} : has issues : {file.issues}")
+        if not file.fix():
+            MusicbotObject.warn(f"{file} : unable to fixed !")
+
         if not file.issues:
+            MusicbotObject.success(f"{file} : fixed !")
             return
-        print(file.music.human_repr())
-        print(file.issues)
-        while file.issues:
-            if not file.fix() or file.dry:
-                return
+        MusicbotObject.err(f"{file} : still issues : {file.issues}")
 
     for file in folders.files:
+        print(file.music.human_repr())
+        if not file.issues:
+            continue
         _manual_fix(file)
+        MusicbotObject.tip('Wait for Enter...')
+        _ = input('')
 
 
 @cli.command(help='Set music title', aliases=['set-tag'])

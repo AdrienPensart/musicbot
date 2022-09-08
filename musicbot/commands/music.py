@@ -11,13 +11,12 @@ from rich.table import Table
 from musicbot import MusicbotObject
 from musicbot.cli.file import (
     acoustid_api_key_option,
+    file_argument,
     file_options,
-    fix_option,
     keywords_arguments,
-    music_argument,
     paths_arguments
 )
-from musicbot.cli.folders import destination_argument
+from musicbot.cli.folder import destination_argument
 from musicbot.cli.options import dry_option, output_option
 from musicbot.file import File
 
@@ -31,7 +30,7 @@ def cli() -> None:
 
 
 @cli.command(help='Show music')
-@music_argument
+@file_argument
 @beartype
 def show(
     file: File,
@@ -60,7 +59,7 @@ def show(
 
 
 @cli.command(help='Convert flac music to mp3', aliases=['flac-to-mp3'])
-@music_argument
+@file_argument
 @destination_argument
 @beartype
 def flac2mp3(
@@ -72,7 +71,7 @@ def flac2mp3(
 
 
 @cli.command(help='Print music fingerprint')
-@music_argument
+@file_argument
 @acoustid_api_key_option
 @beartype
 def fingerprint(
@@ -83,7 +82,7 @@ def fingerprint(
 
 
 @cli.command(help='Print music tags', aliases=['tag'])
-@music_argument
+@file_argument
 @output_option
 @beartype
 def tags(
@@ -98,23 +97,39 @@ def tags(
 
 
 @cli.command(help='Check music consistency')
-@music_argument
-@fix_option
+@file_argument
 @beartype
 def issues(
     file: File,
-    fix: bool,
 ) -> None:
-    table = Table("Path", "Inconsistencies")
+    table = Table("Path", "Issues")
     try:
-        if fix and not file.fix():
-            MusicbotObject.err(f"{file} : unable to fix inconsistencies")
-
         if file.issues:
             table.add_row(str(file.path), ', '.join(file.issues))
     except (OSError, MutagenError):
         table.add_row(str(file.path), "could not open file")
     MusicbotObject.console.print(table)
+
+
+@cli.command(help='Fix music file')
+@file_argument
+@beartype
+def manual_fix(
+    file: File,
+) -> None:
+    print(file.music.human_repr())
+    if file.issues:
+        MusicbotObject.warn(f"{file} : has issues : {file.issues}")
+    else:
+        return
+
+    if not file.fix():
+        MusicbotObject.warn(f"{file} : unable to fix !")
+
+    if file.issues:
+        MusicbotObject.err(f"{file} : still issues : {file.issues}")
+    else:
+        MusicbotObject.success(f"{file} : fixed !")
 
 
 @cli.command(help='Set music title', aliases=['set-tag'])
@@ -149,7 +164,7 @@ def set_tags(
 
 
 @cli.command(help='Add keywords to music')
-@music_argument
+@file_argument
 @keywords_arguments
 @dry_option
 @beartype
@@ -159,7 +174,7 @@ def add_keywords(file: File, keywords: set[str]) -> None:
 
 
 @cli.command(help='Delete keywords to music', aliases=['delete-keyword', 'remove-keywords', 'remove-keyword'])
-@music_argument
+@file_argument
 @keywords_arguments
 @dry_option
 @beartype
@@ -169,7 +184,7 @@ def delete_keywords(file: File, keywords: set[str]) -> None:
 
 
 @cli.command(help='Replace one keyword in music')
-@music_argument
+@file_argument
 @dry_option
 @beartype
 @click.argument('old_keyword')

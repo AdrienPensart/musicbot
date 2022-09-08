@@ -51,10 +51,14 @@ class File(MusicbotObject):
             cls.err(f"{path} : not supported ({DEFAULT_EXTENSIONS})")
             return None
 
-        return cls(
-            folder=folder.resolve(),
-            handle=mutagen.File(path.resolve())
-        )
+        try:
+            return cls(
+                folder=folder.resolve(),
+                handle=mutagen.File(path.resolve())
+            )
+        except mutagen.MutagenError as e:
+            cls.err(f'{path} : {e}')
+        return None
 
     def __repr__(self) -> str:
         return str(self.path)
@@ -222,7 +226,10 @@ class File(MusicbotObject):
 
     @property
     def canonic_title(self) -> str:
-        return f"{str(self.track).zfill(2)} - {self.title}"
+        prefix = f"{str(self.track).zfill(2)} - "
+        if not self.title.startswith(prefix):
+            return f"{prefix}{self.title}"
+        return self.title
 
     @property
     def album(self) -> str:
@@ -519,7 +526,7 @@ class File(MusicbotObject):
                 case Issue.INVALID_PATH:
                     logger.info(f"{self} : moving from {self.path} to {self.canonic_path}")
                     if not self.dry:
-                        self.close()
+                        self.canonic_path.parent.mkdir(parents=True, exist_ok=True)
                         shutil.move(self.path, self.canonic_path)
                         self.handle = mutagen.File(self.canonic_path)
         return self.save()
@@ -534,7 +541,3 @@ class File(MusicbotObject):
         except mutagen.MutagenError as e:
             self.err(e)
         return False
-
-    @beartype
-    def close(self) -> None:
-        self.handle.close()

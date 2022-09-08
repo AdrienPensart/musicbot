@@ -25,3 +25,4 @@ pip-wheel-metadata
 *.flac
 *.part
 !tests/fixtures/*.mp3
+.tool-versions
