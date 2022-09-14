@@ -48,5 +48,6 @@ def test_youtube_find(cli_runner):
     run_cli(cli_runner, cli, [
         '--quiet',
         'youtube', 'find',
+        str(fixtures.folder_flac),
         str(fixtures.one_mp3),
     ])

@@ -7,11 +7,11 @@ from typing import Any
 from urllib.parse import urlparse
 
 import edgedb
-from requests import Session, Response
 from attr import asdict, define
 from beartype import beartype
 from edgedb.asyncio_client import AsyncIOClient, create_async_client
 from edgedb.options import RetryOptions, TransactionOptions
+from requests import Response, Session
 
 from musicbot.defaults import DEFAULT_COROUTINES
 from musicbot.exceptions import MusicbotError

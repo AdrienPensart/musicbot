@@ -92,8 +92,8 @@ musicbot folder
     find                           Just list music files
     flac2mp3 (flac-to-mp3)         Convert all files in folders to mp3
     help                           Print help
-    issues                         Check music files consistency
-    manual-fix                     Check music files consistency
+    issues                         Show music files issues in folders
+    manual-fix                     Fix music files in folders
     playlist (musics,tags,tracks)  Generates a playlist
     set-tags (set-tag)             Set music title
 
@@ -168,14 +168,13 @@ musicbot folder issues
 
   Usage: musicbot folder issues [OPTIONS] [FOLDERS]...
 
-    Check music files consistency
+    Show music files issues in folders
 
   Options:
     --dry / --no-dry    Do not launch real action  [default: no-dry]
     Folders options: 
       --limit INTEGER   Limit number of music files
       --extension TEXT  Supported formats  [default: flac, mp3]
-    --fix / --no-fix    Fix musics  [default: no-fix]
     -h, --help          Show this message and exit.
 
 musicbot folder manual-fix
@@ -184,7 +183,7 @@ musicbot folder manual-fix
 
   Usage: musicbot folder manual-fix [OPTIONS] [FOLDERS]...
 
-    Check music files consistency
+    Fix music files in folders
 
   Options:
     --dry / --no-dry    Do not launch real action  [default: no-dry]
@@ -530,6 +529,7 @@ musicbot music
     flac2mp3 (flac-to-mp3)                              Convert flac music to mp3
     help                                                Print help
     issues                                              Check music consistency
+    manual-fix                                          Fix music file
     replace-keyword                                     Replace one keyword in music
     set-tags (set-tag)                                  Set music title
     show                                                Show music
@@ -539,7 +539,7 @@ musicbot music add-keywords
 ***************************
 .. code-block::
 
-  Usage: musicbot music add-keywords [OPTIONS] FILE [KEYWORDS]...
+  Usage: musicbot music add-keywords [OPTIONS] FOLDER FILE [KEYWORDS]...
 
     Add keywords to music
 
@@ -552,7 +552,7 @@ musicbot music delete-keywords
 ******************************
 .. code-block::
 
-  Usage: musicbot music delete-keywords [OPTIONS] FILE [KEYWORDS]...
+  Usage: musicbot music delete-keywords [OPTIONS] FOLDER FILE [KEYWORDS]...
 
     Delete keywords to music
 
@@ -565,7 +565,7 @@ musicbot music fingerprint
 **************************
 .. code-block::
 
-  Usage: musicbot music fingerprint [OPTIONS] FILE
+  Usage: musicbot music fingerprint [OPTIONS] FOLDER FILE
 
     Print music fingerprint
 
@@ -578,7 +578,7 @@ musicbot music flac2mp3
 ***********************
 .. code-block::
 
-  Usage: musicbot music flac2mp3 [OPTIONS] FILE DESTINATION
+  Usage: musicbot music flac2mp3 [OPTIONS] FOLDER FILE DESTINATION
 
     Convert flac music to mp3
 
@@ -590,20 +590,31 @@ musicbot music issues
 *********************
 .. code-block::
 
-  Usage: musicbot music issues [OPTIONS] FILE
+  Usage: musicbot music issues [OPTIONS] FOLDER FILE
 
     Check music consistency
 
   Options:
     --dry / --no-dry  Do not launch real action  [default: no-dry]
-    --fix / --no-fix  Fix musics  [default: no-fix]
+    -h, --help        Show this message and exit.
+
+musicbot music manual-fix
+*************************
+.. code-block::
+
+  Usage: musicbot music manual-fix [OPTIONS] FOLDER FILE
+
+    Fix music file
+
+  Options:
+    --dry / --no-dry  Do not launch real action  [default: no-dry]
     -h, --help        Show this message and exit.
 
 musicbot music replace-keyword
 ******************************
 .. code-block::
 
-  Usage: musicbot music replace-keyword [OPTIONS] FILE OLD_KEYWORD NEW_KEYWORD
+  Usage: musicbot music replace-keyword [OPTIONS] FOLDER FILE OLD_KEYWORD NEW_KEYWORD
 
     Replace one keyword in music
 
@@ -636,7 +647,7 @@ musicbot music show
 *******************
 .. code-block::
 
-  Usage: musicbot music show [OPTIONS] FILE
+  Usage: musicbot music show [OPTIONS] FOLDER FILE
 
     Show music
 
@@ -648,7 +659,7 @@ musicbot music tags
 *******************
 .. code-block::
 
-  Usage: musicbot music tags [OPTIONS] FILE
+  Usage: musicbot music tags [OPTIONS] FOLDER FILE
 
     Print music tags
 
@@ -898,7 +909,7 @@ musicbot youtube find
 *********************
 .. code-block::
 
-  Usage: musicbot youtube find [OPTIONS] FILE
+  Usage: musicbot youtube find [OPTIONS] FOLDER FILE
 
     Search a youtube link with artist and title
 

@@ -9,10 +9,7 @@ from beartype import beartype
 from click_skeleton import AdvancedGroup
 from click_skeleton.helpers import seconds_to_human
 
-from musicbot.cli.file import (
-    acoustid_api_key_option,
-    file_argument
-)
+from musicbot.cli.file import acoustid_api_key_option, file_argument
 from musicbot.file import File
 from musicbot.object import MusicbotObject
 

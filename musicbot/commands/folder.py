@@ -7,11 +7,7 @@ from beartype import beartype
 from click_skeleton import AdvancedGroup
 from rich.table import Table
 
-from musicbot.cli.file import (
-    file_options,
-    flat_option,
-    keywords_arguments
-)
+from musicbot.cli.file import file_options, flat_option, keywords_arguments
 from musicbot.cli.folder import destination_argument, folders_argument
 from musicbot.cli.options import dry_option, output_option, threads_option
 from musicbot.file import File

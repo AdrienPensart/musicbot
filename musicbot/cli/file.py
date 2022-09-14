@@ -1,7 +1,7 @@
-import logging
 import functools
-from typing import Any
+import logging
 from pathlib import Path
+from typing import Any
 
 import click
 from beartype import beartype
