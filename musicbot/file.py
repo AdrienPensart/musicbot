@@ -164,13 +164,13 @@ class File(MusicbotObject):
     def canonic_path(self) -> Path:
         return self.folder / self.canonic_artist_album_filename
 
-    @property
-    def youtube(self) -> str | None:
-        return None
+    # @property
+    # def youtube(self) -> str | None:
+    #     return None
 
-    @property
-    def spotify(self) -> str | None:
-        return None
+    # @property
+    # def spotify(self) -> str | None:
+    #     return None
 
     @property
     def extension(self) -> str:

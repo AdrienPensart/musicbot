@@ -113,13 +113,6 @@ paths_arguments = click.argument(
     nargs=-1,
 )
 
-fix_option = click.option(
-    '--fix/--no-fix',
-    help="Fix musics",
-    is_flag=True,
-    show_default=True,
-)
-
 acoustid_api_key_option = click.option(
     '--acoustid-api-key',
     help='AcoustID API Key',

@@ -41,7 +41,6 @@ class MusicbotObject:
     show_err: bool = True
     show_tip: bool = True
     show_echo: bool = True
-    show_header: bool = True
     show_success: bool = True
     already_printed: list[str] = []
     config = Config(quiet=False)
@@ -66,12 +65,6 @@ class MusicbotObject:
     def is_prod(cls) -> bool:
         '''Are we executing the prod version?'''
         return not cls.is_dev() and not cls.is_test()
-
-    @classmethod
-    def header(cls, message: Any, **options: Any) -> None:
-        '''Print information about sequential executions'''
-        if cls.show_header:
-            cls.echo(message, fg='cyan', bold=True, **options)
 
     @classmethod
     def err(cls, message: Any, **options: Any) -> None:
