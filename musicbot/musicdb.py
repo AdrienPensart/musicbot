@@ -200,7 +200,7 @@ class MusicDb(MusicbotObject):
 
             result = await self.client.query_required_single(**params)
             keywords = frozenset(keyword.name for keyword in result.keywords)
-            folders = frozenset(Folder(path=folder.path, name=folder.name, ipv4=folder.ipv4, user=folder.user) for folder in result.folders)
+            folders = [Folder(path=folder.path, name=folder.name, ipv4=folder.ipv4, user=folder.user) for folder in result.folders]
             output_music = Music(
                 title=result.name,
                 artist=result.artist.name,
@@ -211,7 +211,7 @@ class MusicDb(MusicbotObject):
                 keywords=keywords,
                 track=result.track,
                 rating=result.rating,
-                folders=folders,
+                folders=frozenset(folders),
             )
             logger.debug(output_music)
 
@@ -243,7 +243,8 @@ class MusicDb(MusicbotObject):
         failed_files: set[tuple[Path, Path]] = set()
         sem = asyncio.Semaphore(coroutines)
 
-        with self.progressbar(prefix="Loading and inserting musics", max_value=len(folders.folders_and_paths)) as pbar:
+        max_value = len(folders.folders_and_paths)
+        with self.progressbar(prefix="Loading and inserting musics", max_value=max_value) as pbar:
             async def upsert_worker(folder_and_path: tuple[Path, Path]) -> None:
                 async with sem:
                     try:

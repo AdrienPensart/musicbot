@@ -37,7 +37,6 @@ def test_cli_help(cli_runner):
 def test_config(cli_runner):
     run_cli(cli_runner, cli, ['--quiet', 'config', 'show'])
     run_cli(cli_runner, cli, ['--quiet', 'config', 'print'])
-    run_cli(cli_runner, cli, ['--quiet', 'config', 'logging'])
 
 
 @pytest.mark.runner_setup(mix_stderr=False)

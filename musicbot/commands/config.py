@@ -3,7 +3,6 @@ import logging
 import click
 from beartype import beartype
 from click_skeleton import AdvancedGroup
-from logging_tree import printout  # type: ignore
 
 from musicbot.object import MusicbotObject
 
@@ -42,9 +41,3 @@ def _print() -> None:
         for (each_key, each_val) in MusicbotObject.config.configfile.items(each_section):
             print(f"    {each_key} = {each_val}")
         print()
-
-
-@cli.command('logging', help='Print logging config')
-@beartype
-def _logging() -> None:
-    printout()
