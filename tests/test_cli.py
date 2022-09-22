@@ -34,11 +34,5 @@ def test_cli_help(cli_runner):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_config(cli_runner):
-    run_cli(cli_runner, cli, ['--quiet', 'config', 'show'])
-    run_cli(cli_runner, cli, ['--quiet', 'config', 'print'])
-
-
-@pytest.mark.runner_setup(mix_stderr=False)
 def test_completion_show(cli_runner):
     run_cli(cli_runner, cli, ['--quiet', "completion", "show", "zsh"])
