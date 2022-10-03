@@ -1,4 +1,3 @@
-import json
 import logging
 import shutil
 import textwrap
@@ -37,7 +36,7 @@ def dump_tracks(tracks: list[Any]) -> None:
             'album': t['track']['album']['name'],
         } for t in tracks
     ]
-    print(json.dumps(tracks))
+    MusicbotObject.print_json(tracks)
 
 
 @beartype

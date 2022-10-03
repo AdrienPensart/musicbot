@@ -1,5 +1,4 @@
 import itertools
-import json
 import logging
 import os
 import platform
@@ -135,7 +134,12 @@ class Playlist(MusicbotObject):
         self.success(f"{self.name} : Songs: {len(musics)} | Total length: {precise_seconds_to_human(total_length)} | Total size: {bytes_to_human(total_size)}")
 
     def __repr__(self) -> str:
-        return json.dumps(asdict(self, recurse=True))
+        self_dict = asdict(self, recurse=True)
+        representation = self.dumps_json(self_dict)
+        if representation is not None:
+            return representation
+        self.err(f'Unable to convert to json : {self_dict}')
+        return '{}'
 
     @property
     def genres(self) -> frozenset[str]:

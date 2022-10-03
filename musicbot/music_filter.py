@@ -1,4 +1,3 @@
-import json
 import logging
 from typing import Any
 
@@ -15,12 +14,13 @@ from musicbot.defaults import (
     MATCH_ALL,
     RATING_CHOICES
 )
+from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
 
 
 @frozen(repr=False)
-class MusicFilter:
+class MusicFilter(MusicbotObject):
     genre: str = field(default=MATCH_ALL)
     keyword: str = field(default=MATCH_ALL)
     artist: str = field(default=MATCH_ALL)
@@ -67,7 +67,11 @@ class MusicFilter:
         for field_attribute in fields(MusicFilter):  # pylint: disable=not-an-iterable
             if self_dict[field_attribute.name] == field_attribute.default:
                 del self_dict[field_attribute.name]
-        return json.dumps(self_dict)
+        representation = self.dumps_json(self_dict)
+        if representation is not None:
+            return representation
+        self.err(f'Unable to convert to json : {self_dict}')
+        return '{}'
 
 
 NO_KEYWORD = '^((?!cutoff|bad|demo|intro).)$'

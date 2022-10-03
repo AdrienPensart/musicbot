@@ -1,17 +1,18 @@
 import concurrent.futures as cf
 import io
-import json
 import logging
 import os
 import signal
 import sys
 import threading
 from datetime import datetime
-from typing import IO, Any, Callable, NoReturn, Sequence, Union
+from typing import IO, Any, Callable, NoReturn, Sequence
 
 import click
+import orjson
 import rich
 from progressbar import NullBar, ProgressBar  # type: ignore
+from requests.structures import CaseInsensitiveDict
 from rich.console import Console
 from rich.table import Table
 
@@ -22,15 +23,14 @@ from musicbot.one_way_bool import OneWayBool
 logger = logging.getLogger(__name__)
 
 
-# def _start_background_loop(loop: Any) -> None:
-#     '''Start background loop'''
-#     asyncio.set_event_loop(loop)
-#     loop.run_forever()
-#
-#
-# _LOOP = asyncio.new_event_loop()
-# _LOOP_THREAD = threading.Thread(target=_start_background_loop, args=(_LOOP,), daemon=True)
-# _LOOP_THREAD.start()
+def default_encoder(data: Any) -> Any:
+    '''Encode in json structure which cannot'''
+    if isinstance(data, set):
+        return list(data)
+    # if isinstance(data, (frozendict, CaseInsensitiveDict)):
+    if isinstance(data, CaseInsensitiveDict):
+        return dict(data)
+    raise TypeError
 
 
 class MusicbotObject:
@@ -133,7 +133,7 @@ class MusicbotObject:
         redirect_stdout: bool = True,
         term_width: int | None = 150,
         **kwargs: Any,
-    ) -> Union[NullBar, ProgressBar]:
+    ) -> NullBar | ProgressBar:
         pbar = NullBar if (quiet or cls.config.quiet) else ProgressBar
         if prefix:
             prefix += ' : '
@@ -298,15 +298,47 @@ class MusicbotObject:
         cls,
         data: Any,
         file: IO | None = None,
-        **kwargs: Any,
-    ) -> Any:
+        option: int | None = orjson.OPT_INDENT_2 | orjson.OPT_SORT_KEYS | orjson.OPT_NON_STR_KEYS,  # pylint: disable=maybe-no-member
+        default: Callable | None = default_encoder,
+    ) -> None:
         '''Print highlighted json to stdout depending if we are in a TTY'''
         file = file if file is not None else sys.stdout
+        encoded = cls.dumps_json(data, option=option, default=default)
+        if encoded is None:
+            return None
         if file.isatty():
+            decoded = cls.loads_json(encoded)
             rich.print_json(
-                data=data,
+                data=decoded,
                 highlight=cls.config.color,
-                **kwargs,
+                indent=2,
             )
         else:
-            print(json.dumps(data, **kwargs), file=file)
+            print(encoded, file=file)
+        return None
+
+    @classmethod
+    def dumps_json(
+        cls,
+        data: Any,
+        option: int | None = orjson.OPT_INDENT_2 | orjson.OPT_SORT_KEYS | orjson.OPT_NON_STR_KEYS,  # pylint: disable=maybe-no-member
+        default: Callable | None = default_encoder,
+        **kwargs: Any
+    ) -> str | None:
+        '''dumps json using global library'''
+        try:
+            return orjson.dumps(data, option=option, default=default, **kwargs).decode('utf-8')  # pylint: disable=maybe-no-member
+        except orjson.JSONEncodeError as e:  # pylint: disable=maybe-no-member
+            cls.err(f"unable to encode json : {e}")
+            logger.debug(data)
+        return None
+
+    @classmethod
+    def loads_json(cls, data: bytes | bytearray | memoryview | str) -> Any | None:
+        '''loads json using global library'''
+        try:
+            return orjson.loads(data)  # pylint: disable=maybe-no-member
+        except orjson.JSONDecodeError as e:  # pylint: disable=maybe-no-member
+            cls.err(f"unable to decode json : {e}")
+            logger.debug(data)
+        return None
