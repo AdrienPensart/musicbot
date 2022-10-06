@@ -244,7 +244,7 @@ class MusicDb(MusicbotObject):
         sem = asyncio.Semaphore(coroutines)
 
         max_value = len(folders.folders_and_paths)
-        with self.progressbar(prefix="Loading and inserting musics", max_value=max_value) as pbar:
+        with self.progressbar(desc="Loading and inserting musics", max_value=max_value) as pbar:
             async def upsert_worker(folder_and_path: tuple[Path, Path]) -> None:
                 async with sem:
                     try:

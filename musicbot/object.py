@@ -128,17 +128,17 @@ class MusicbotObject:
     def progressbar(
         cls,
         quiet: bool = DEFAULT_QUIET,
-        prefix: str | None = None,
+        desc: str | None = None,
         redirect_stderr: bool = True,
         redirect_stdout: bool = True,
         term_width: int | None = 150,
         **kwargs: Any,
     ) -> NullBar | ProgressBar:
         pbar = NullBar if (quiet or cls.config.quiet) else ProgressBar
-        if prefix:
-            prefix += ' : '
+        if desc:
+            desc += ' : '
         return pbar(
-            prefix=prefix,
+            prefix=desc,
             redirect_stderr=redirect_stderr,
             redirect_stdout=redirect_stdout,
             term_width=term_width,
@@ -152,7 +152,7 @@ class MusicbotObject:
         items: Sequence,
         *args: Any,
         quiet: bool = DEFAULT_QUIET,
-        prefix: str | None = None,
+        desc: str | None = None,
         limit: int | None = None,
         threads: int | None = None,
         **kwargs: Any
@@ -160,8 +160,8 @@ class MusicbotObject:
         threads = threads if threads not in (None, 0) else DEFAULT_THREADS
         quiet = len(items) <= 1 or quiet
         results: list[Any] = []
-        if prefix and (cls.is_dev() or cls.config.info or cls.config.debug):
-            prefix += f" ({threads} threads)"
+        if desc and (cls.is_dev() or cls.config.info or cls.config.debug):
+            desc += f" ({threads} threads)"
         if threads == 1:
             with (
                 cls.progressbar(
@@ -169,7 +169,7 @@ class MusicbotObject:
                     quiet=quiet,
                     redirect_stderr=True,
                     redirect_stdout=True,
-                    prefix=prefix,
+                    desc=desc,
                     **kwargs,
                 )
             ) as pbar:
@@ -189,7 +189,7 @@ class MusicbotObject:
                     quiet=quiet,
                     redirect_stderr=True,
                     redirect_stdout=True,
-                    prefix=prefix,
+                    desc=desc,
                     **kwargs,
                 ) as pbar,
                 cf.ThreadPoolExecutor(max_workers=threads) as executor
@@ -223,7 +223,7 @@ class MusicbotObject:
 #         worker: Callable,
 #         items: Collection[Any],
 #         quiet: bool = False,
-#         prefix: str | None = None,
+#         desc: str | None = None,
 #         limit: int | None = None,
 #         merge: bool = False,
 #         return_exceptions: bool = False,
@@ -234,7 +234,7 @@ class MusicbotObject:
 #         A version of asyncio.gather that runs on the internal event loop
 #         """
 #         quiet = len(items) <= 1 or quiet
-#         with cls.progressbar(max_value=len(items), quiet=quiet, prefix=prefix, **kwargs) as pbar:
+#         with cls.progressbar(max_value=len(items), quiet=quiet, desc=desc, **kwargs) as pbar:
 #             try:
 #                 async def _worker(worker_item: Any) -> Any:
 #                     try:

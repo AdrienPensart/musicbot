@@ -48,7 +48,7 @@ class Folders(MusicbotObject):
             except OSError as e:
                 logger.error(e)
             return None
-        return list(os_sorted(self.apply(worker, prefix="Loading musics"), lambda f: f.path))[:self.limit]
+        return list(os_sorted(self.apply(worker, desc="Loading musics"), lambda f: f.path))[:self.limit]
 
     @cached_property
     def musics(self) -> list[Music]:
@@ -112,6 +112,6 @@ class Folders(MusicbotObject):
 
         return self.apply(
             worker,
-            prefix="Converting flac to mp3",
+            desc="Converting flac to mp3",
             threads=threads,
         )

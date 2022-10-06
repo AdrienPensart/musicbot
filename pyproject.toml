@@ -61,7 +61,7 @@ docker = { version = "^6.0", markers = "sys_platform != 'win32'" }
 pytest-cov = "^4.0.0"
 pytest-timeout = "^2.0.1"
 flake8 = "^5.0.0"
-mypy = "^0.981"
+mypy = "^0.982"
 pytest-click = "^1.0.2"
 isort = "^5.10.1"
 bandit = "^1.7.2"
