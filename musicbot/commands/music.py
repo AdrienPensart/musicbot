@@ -5,7 +5,7 @@ import click
 from attr import asdict
 from beartype import beartype
 from click_skeleton import AdvancedGroup
-from mutagen import MutagenError  # type: ignore
+from mutagen import MutagenError
 from rich.table import Table
 
 from musicbot import MusicbotObject

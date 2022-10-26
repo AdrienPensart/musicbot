@@ -6,7 +6,7 @@ from pathlib import Path, PurePath
 from typing import Any, Optional
 
 import acoustid  # type: ignore
-import mutagen  # type: ignore
+import mutagen
 from attr import asdict, define
 from beartype import beartype
 from click_skeleton.helpers import mysplit
@@ -43,7 +43,7 @@ class Issue(str, Enum):
 @define(repr=False)
 class File(MusicbotObject):
     folder: Path
-    handle: mutagen.File
+    handle: Any
 
     @classmethod
     def from_path(cls, folder: Path, path: Path) -> Optional["File"]:

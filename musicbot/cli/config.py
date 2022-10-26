@@ -1,5 +1,5 @@
 import click
-from click_option_group import (  # type: ignore
+from click_option_group import (
     MutuallyExclusiveOptionGroup,
     optgroup
 )

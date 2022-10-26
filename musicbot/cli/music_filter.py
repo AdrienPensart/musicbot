@@ -3,7 +3,7 @@ from typing import Any
 
 import click
 from attr import fields
-from click_option_group import optgroup  # type: ignore
+from click_option_group import optgroup
 from click_skeleton import add_options
 from click_skeleton.helpers import mysplit
 

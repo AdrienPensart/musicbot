@@ -7,7 +7,7 @@ from typing import Any, Final
 
 import click
 import edgedb
-import mutagen  # type: ignore
+import mutagen
 import requests
 import spotipy  # type: ignore
 import uvloop

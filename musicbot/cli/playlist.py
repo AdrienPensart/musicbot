@@ -3,7 +3,7 @@ from typing import Any
 
 import click
 from attrs import fields
-from click_option_group import (  # type: ignore
+from click_option_group import (
     MutuallyExclusiveOptionGroup,
     optgroup
 )

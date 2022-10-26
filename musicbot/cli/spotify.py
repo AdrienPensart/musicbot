@@ -6,7 +6,7 @@ from typing import Any
 import click
 from attr import fields_dict
 from beartype import beartype
-from click_option_group import optgroup  # type: ignore
+from click_option_group import optgroup
 from click_skeleton import ExpandedPath, add_options
 from rich.table import Table
 from rich.text import Text

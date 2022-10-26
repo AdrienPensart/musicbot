@@ -1,5 +1,5 @@
 import click
-from click_option_group import optgroup  # type: ignore
+from click_option_group import optgroup
 from click_skeleton import add_options
 
 from musicbot.cli.options import config_string

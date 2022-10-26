@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 
 import click
-import mutagen  # type: ignore
+import mutagen
 from beartype import beartype
 from click_skeleton import AdvancedGroup
 from rich.table import Table

@@ -270,7 +270,7 @@ class MusicbotObject:
 
     @classmethod
     def fast_kill(cls) -> NoReturn:  # pylint: disable=unused-argument
-        '''We don't do anything silly in unity, like open or writing files, etc
+        '''We don't do anything silly in musicbot, like open or writing files, etc
         so let's hard kill ourself to avoid multiple ctrl+c by user
         if a thread received the SIGKILL, it may kill the process,
         so we send them in continue until it reaches the main thread'''
