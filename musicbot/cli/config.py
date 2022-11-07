@@ -1,8 +1,5 @@
 import click
-from click_option_group import (
-    MutuallyExclusiveOptionGroup,
-    optgroup
-)
+from click_option_group import MutuallyExclusiveOptionGroup, optgroup
 from click_skeleton import add_options
 
 from musicbot.config import (
