@@ -1,4 +1,5 @@
 # type: ignore
+import json
 import logging
 
 import pytest
@@ -34,10 +35,21 @@ def test_spotify_tracks(cli_runner):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_spotify_diff(cli_runner, edgedb):
+def test_spotify_artist_diff(cli_runner, edgedb):
     run_cli(cli_runner, cli, [
         '--quiet',
-        'spotify', 'diff',
+        'spotify', 'artist-diff',
+        '--dsn', edgedb,
+    ])
+
+
+@pytest.mark.runner_setup(mix_stderr=False)
+def test_spotify_track_diff(cli_runner, edgedb):
+    output = run_cli(cli_runner, cli, [
+        '--quiet',
+        'spotify', 'track-diff',
         '--dsn', edgedb,
         '--min-threshold', 50,
+        '--output', 'json',
     ])
+    json.loads(output)

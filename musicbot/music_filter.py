@@ -62,16 +62,23 @@ class MusicFilter(MusicbotObject):
         if self.min_size > value:
             raise ValueError(f"Invalid minimum ({self.min_size}) or maximum ({self.max_size}) size")
 
-    def __repr__(self) -> str:
+    def _short_repr(self) -> dict[str, str]:
         self_dict = asdict(self)
         for field_attribute in fields(MusicFilter):  # pylint: disable=not-an-iterable
             if self_dict[field_attribute.name] == field_attribute.default:
                 del self_dict[field_attribute.name]
-        representation = self.dumps_json(self_dict)
+        return self_dict
+
+    def __repr__(self) -> str:
+        short_repr = self._short_repr()
+        representation = self.dumps_json(short_repr)
         if representation is not None:
             return representation
-        self.err(f'Unable to convert to json : {self_dict}')
+        self.err(f'Unable to convert to json : {short_repr}')
         return '{}'
+
+    def help_repr(self) -> str:
+        return ",".join([f"{k}={v}" for k, v in self._short_repr().items()])
 
 
 NO_KEYWORD = '^((?!cutoff|bad|demo|intro).)$'

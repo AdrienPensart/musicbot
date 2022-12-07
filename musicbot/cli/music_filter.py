@@ -52,6 +52,8 @@ def sane_music_filters(ctx: click.Context, param: click.Parameter, value: Any) -
 
 
 fields_names = ','.join([field.name for field in fields(MusicFilter)])  # pylint: disable=not-an-iterable
+filters_reprs = """\b
+""" + "\n".join([f"{k}: {v.help_repr()}" for k, v in DEFAULT_PREFILTERS.items()])
 
 music_filters_options = add_options(
     optgroup('Filter options'),

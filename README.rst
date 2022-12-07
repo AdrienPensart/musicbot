@@ -275,7 +275,16 @@ musicbot local bests
 
   Usage: musicbot local bests [OPTIONS] FOLDER
 
-    Generate bests playlists with some rules
+    to-fix: keyword=(tofix|todo|spotify-error)
+    no-artist: artist=^$
+    no-album: album=^$
+    no-title: title=^$
+    no-genre: genre=^$
+    no-keyword: keyword=^$
+    no-rating: max_rating=0.0
+    bests-4.0: keyword=^((?!cutoff|bad|demo|intro).)$,min_rating=4.0
+    bests-4.5: keyword=^((?!cutoff|bad|demo|intro).)$,min_rating=4.5
+    bests-5.0: keyword=^((?!cutoff|bad|demo|intro).)$,min_rating=5.0
 
   Options:
     Filter options: 
@@ -361,7 +370,16 @@ musicbot local player
 
   Usage: musicbot local player [OPTIONS]
 
-    Music player
+    to-fix: keyword=(tofix|todo|spotify-error)
+    no-artist: artist=^$
+    no-album: album=^$
+    no-title: title=^$
+    no-genre: genre=^$
+    no-keyword: keyword=^$
+    no-rating: max_rating=0.0
+    bests-4.0: keyword=^((?!cutoff|bad|demo|intro).)$,min_rating=4.0
+    bests-4.5: keyword=^((?!cutoff|bad|demo|intro).)$,min_rating=4.5
+    bests-5.0: keyword=^((?!cutoff|bad|demo|intro).)$,min_rating=5.0
 
   Options:
     MusicDB options: 
@@ -388,7 +406,16 @@ musicbot local playlist
 
   Usage: musicbot local playlist [OPTIONS] [OUT]
 
-    Generate a new playlist
+    to-fix: keyword=(tofix|todo|spotify-error)
+    no-artist: artist=^$
+    no-album: album=^$
+    no-title: title=^$
+    no-genre: genre=^$
+    no-keyword: keyword=^$
+    no-rating: max_rating=0.0
+    bests-4.0: keyword=^((?!cutoff|bad|demo|intro).)$,min_rating=4.0
+    bests-4.5: keyword=^((?!cutoff|bad|demo|intro).)$,min_rating=4.5
+    bests-5.0: keyword=^((?!cutoff|bad|demo|intro).)$,min_rating=5.0
 
   Options:
     MusicDB options: 
@@ -473,7 +500,16 @@ musicbot local sync
 
   Usage: musicbot local sync [OPTIONS] DESTINATION
 
-    Copy selected musics with filters to destination folder
+    to-fix: keyword=(tofix|todo|spotify-error)
+    no-artist: artist=^$
+    no-album: album=^$
+    no-title: title=^$
+    no-genre: genre=^$
+    no-keyword: keyword=^$
+    no-rating: max_rating=0.0
+    bests-4.0: keyword=^((?!cutoff|bad|demo|intro).)$,min_rating=4.0
+    bests-4.5: keyword=^((?!cutoff|bad|demo|intro).)$,min_rating=4.5
+    bests-5.0: keyword=^((?!cutoff|bad|demo|intro).)$,min_rating=5.0
 
   Options:
     MusicDB options: 
@@ -692,15 +728,38 @@ musicbot spotify
     -h, --help  Show this message and exit.
 
   Commands:
+    artist-diff       Artists diff between local and spotify
     cached-token      Token informations
-    diff              Diff between local and spotify
     help              Print help
     new-token (auth)  Generate a new token
     playlist          Show playlist
     playlists         List playlists
     refresh-token     Get a new token
     to-download       Show download playlist
+    track-diff        Diff between local and spotify
     tracks            Show tracks
+
+musicbot spotify artist-diff
+****************************
+.. code-block::
+
+  Usage: musicbot spotify artist-diff [OPTIONS]
+
+    Artists diff between local and spotify
+
+  Options:
+    Spotify options: 
+      --spotify-username TEXT       Spotify username
+      --spotify-client-id TEXT      Spotify client ID
+      --spotify-client-secret TEXT  Spotify client secret
+      --spotify-cache-path FILE     Spotify cache path
+      --spotify-scope TEXT          Spotify OAuth scopes, comma separated
+      --spotify-redirect-uri TEXT   Spotify redirect URI
+      --spotify-token TEXT          Spotify token
+    MusicDB options: 
+      --dsn TEXT                    DSN to MusicBot EdgeDB
+      --graphql TEXT                DSN to MusicBot GrapQL
+    -h, --help                      Show this message and exit.
 
 musicbot spotify cached-token
 *****************************
@@ -719,32 +778,6 @@ musicbot spotify cached-token
       --spotify-scope TEXT          Spotify OAuth scopes, comma separated
       --spotify-redirect-uri TEXT   Spotify redirect URI
       --spotify-token TEXT          Spotify token
-    -h, --help                      Show this message and exit.
-
-musicbot spotify diff
-*********************
-.. code-block::
-
-  Usage: musicbot spotify diff [OPTIONS]
-
-    Diff between local and spotify
-
-  Options:
-    Spotify options: 
-      --spotify-username TEXT       Spotify username
-      --spotify-client-id TEXT      Spotify client ID
-      --spotify-client-secret TEXT  Spotify client secret
-      --spotify-cache-path FILE     Spotify cache path
-      --spotify-scope TEXT          Spotify OAuth scopes, comma separated
-      --spotify-redirect-uri TEXT   Spotify redirect URI
-      --spotify-token TEXT          Spotify token
-    MusicDB options: 
-      --dsn TEXT                    DSN to MusicBot EdgeDB
-      --graphql TEXT                DSN to MusicBot GrapQL
-    --output [json|table|m3u]       Output format  [default: table]
-    --download-playlist             Create the download playlist
-    --min-threshold FLOAT RANGE     Minimum distance threshold  [0<=x<=100]
-    --max-threshold FLOAT RANGE     Maximum distance threshold  [0<=x<=100]
     -h, --help                      Show this message and exit.
 
 musicbot spotify new-token
@@ -842,6 +875,32 @@ musicbot spotify to-download
       --spotify-redirect-uri TEXT   Spotify redirect URI
       --spotify-token TEXT          Spotify token
     --output [json|table|m3u]       Output format  [default: table]
+    -h, --help                      Show this message and exit.
+
+musicbot spotify track-diff
+***************************
+.. code-block::
+
+  Usage: musicbot spotify track-diff [OPTIONS]
+
+    Diff between local and spotify
+
+  Options:
+    Spotify options: 
+      --spotify-username TEXT       Spotify username
+      --spotify-client-id TEXT      Spotify client ID
+      --spotify-client-secret TEXT  Spotify client secret
+      --spotify-cache-path FILE     Spotify cache path
+      --spotify-scope TEXT          Spotify OAuth scopes, comma separated
+      --spotify-redirect-uri TEXT   Spotify redirect URI
+      --spotify-token TEXT          Spotify token
+    MusicDB options: 
+      --dsn TEXT                    DSN to MusicBot EdgeDB
+      --graphql TEXT                DSN to MusicBot GrapQL
+    --output [json|table|m3u]       Output format  [default: table]
+    --download-playlist             Create the download playlist
+    --min-threshold FLOAT RANGE     Minimum distance threshold  [default: 90; 0<=x<=100]
+    --max-threshold FLOAT RANGE     Maximum distance threshold  [default: 100; 0<=x<=100]
     -h, --help                      Show this message and exit.
 
 musicbot spotify tracks

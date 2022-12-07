@@ -55,6 +55,8 @@ STOPWORDS: Final[list[str]] = [
     'cut',
     'part',
     'edition',
+    'feat',
+    'featuring',
     'version',
     'mix',
     'deluxe',
@@ -75,4 +77,5 @@ STOPWORDS: Final[list[str]] = [
 REPLACEMENTS: Final[list[list[str]]] = [
     ['praxis', 'buckethead'],
     ['lawson-rollins', 'buckethead'],
+    ['-M-', 'M'],
 ]

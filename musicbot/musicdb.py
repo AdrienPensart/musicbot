@@ -100,6 +100,8 @@ class MusicDb(MusicbotObject):
     ) -> set[Any]:
         logger.debug(query)
         results = set()
+        if not music_filters:
+            music_filters = frozenset([MusicFilter()])
         for music_filter in music_filters:
             intermediate_results = await self.client.query(
                 query,

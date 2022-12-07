@@ -1,5 +1,6 @@
 import logging
 import shutil
+import sys
 import textwrap
 from typing import Any
 
@@ -43,7 +44,12 @@ def dump_tracks(tracks: list[Any]) -> None:
 def print_tracks_table(tracks: list[Any]) -> None:
     if not tracks:
         return
-    table = Table("Track", "Artist", "Album")
+    table = Table(
+        "Track",
+        "Artist",
+        "Album",
+        title="Tracks",
+    )
     width = shutil.get_terminal_size().columns // 3
     for t in tracks:
         title = '\n'.join(textwrap.wrap(t['track']['name'], width))
@@ -57,7 +63,14 @@ def print_tracks_table(tracks: list[Any]) -> None:
 def print_distances(distances: list[Any]) -> None:
     if not distances:
         return
-    table = Table("Title", "Artist", "Album", "Distance", show_lines=True)
+    table = Table(
+        "Title",
+        "Artist",
+        "Album",
+        "Distance",
+        show_lines=True,
+        title="Distances"
+    )
     for distance in distances:
         st = distance['spotify_track']
         stitle = st['track']['name']
@@ -97,7 +110,7 @@ def print_distances(distances: list[Any]) -> None:
 
         d = distance['distance']
         table.add_row(final_title, final_artist, final_album, str(d))
-    MusicbotObject.print_table(table)
+    MusicbotObject.print_table(table, file=sys.stderr)
 
 
 @beartype
@@ -123,7 +136,7 @@ def sane_spotify(ctx: click.Context, param: click.Parameter, value: str | None) 
     if param.name:
         ctx.params[param.name] = value
     spotify_params = {}
-    for field in fields_dict(Spotify):
+    for field in fields_dict(Spotify):  # type: ignore
         spotify_params[field] = ctx.params['spotify_' + field]
         ctx.params.pop('spotify_' + field)
     spotify = Spotify(**spotify_params)

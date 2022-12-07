@@ -21,7 +21,7 @@ from musicbot.cli.folder import (
     folder_argument,
     folders_argument
 )
-from musicbot.cli.music_filter import music_filters_options
+from musicbot.cli.music_filter import filters_reprs, music_filters_options
 from musicbot.cli.musicdb import musicdb_options
 from musicbot.cli.options import (
     clean_option,
@@ -103,7 +103,7 @@ def scan(
     )
     musicdb.sync_soft_clean()
     if output == 'json':
-        MusicbotObject.print_json([asdict(file.music) for file in files])
+        MusicbotObject.print_json([asdict(file.music) for file in files])  # type: ignore
 
     if save:
         MusicbotObject.config.configfile['musicbot']['folders'] = folders.unique_directories
@@ -176,7 +176,7 @@ def search(
     )
 
 
-@cli.command(help='Generate a new playlist')
+@cli.command(short_help='Generate a new playlist', help=filters_reprs)
 @musicdb_options
 @output_option
 @music_filters_options
@@ -201,7 +201,7 @@ def playlist(
     )
 
 
-@cli.command(help='Generate bests playlists with some rules')
+@cli.command(short_help='Generate bests playlists with some rules', help=filters_reprs)
 @folder_argument
 @music_filters_options
 @musicdb_options
@@ -242,7 +242,7 @@ def bests(
     MusicbotObject.success(f"Playlists: {len(bests)}")
 
 
-@cli.command(aliases=['play'], help='Music player')
+@cli.command(aliases=['play'], short_help='Music player', help=filters_reprs)
 @musicdb_options
 @music_filters_options
 @playlist_options
@@ -267,7 +267,7 @@ def player(
         logger.critical('Unable to load UI')
 
 
-@cli.command(help='Copy selected musics with filters to destination folder')
+@cli.command(short_help='Copy selected musics with filters to destination folder', help=filters_reprs)
 @destination_argument
 @musicdb_options
 @lazy_yes_option

@@ -4,6 +4,7 @@ import operator
 import click
 from beartype import beartype
 from click_skeleton import AdvancedGroup
+from click_skeleton.helpers import PrettyDefaultDict
 from fuzzywuzzy import fuzz  # type: ignore
 from slugify import slugify
 
@@ -90,15 +91,40 @@ def tracks(spotify: Spotify, output: str) -> None:
     output_tracks(output, tracks)
 
 
+@cli.command(help='Artists diff between local and spotify')
+@spotify_options
+@musicdb_options
+@beartype
+def artist_diff(musicdb: MusicDb, spotify: Spotify) -> None:
+    spotify_tracks = spotify.liked_tracks()
+    spotify_tracks_by_artist = PrettyDefaultDict(list)
+    for spotify_track in spotify_tracks:
+        spotify_artist_slug = slugify(spotify_track['track']['artists'][0]['name'])
+        spotify_tracks_by_artist[spotify_artist_slug].append(spotify_track['track'])
+
+    local_playlist = musicdb.sync_make_playlist()
+    local_tracks_by_artist = PrettyDefaultDict(list)
+    for local_track in local_playlist.musics:
+        local_artist_slug = slugify(local_track.artist)
+        local_tracks_by_artist[local_artist_slug].append(local_track)
+
+    spotify_differences = set(spotify_tracks_by_artist.keys()).difference(set(local_tracks_by_artist.keys()))
+    for spotify_difference in sorted(spotify_differences):
+        print(spotify_difference)
+
+    MusicbotObject.success(f"spotify artists : {len(spotify_tracks_by_artist)}")
+    MusicbotObject.success(f"local artists : {len(local_tracks_by_artist)}")
+
+
 @cli.command(help='Diff between local and spotify')
 @spotify_options
 @musicdb_options
 @output_option
 @click.option('--download-playlist', help='Create the download playlist', is_flag=True)
-@click.option('--min-threshold', help='Minimum distance threshold', type=click.FloatRange(0, 100), default=90)
-@click.option('--max-threshold', help='Maximum distance threshold', type=click.FloatRange(0, 100), default=100)
+@click.option('--min-threshold', help='Minimum distance threshold', type=click.FloatRange(0, 100), default=90, show_default=True)
+@click.option('--max-threshold', help='Maximum distance threshold', type=click.FloatRange(0, 100), default=100, show_default=True)
 @beartype
-def diff(musicdb: MusicDb, download_playlist: bool, spotify: Spotify, output: str, min_threshold: float, max_threshold: float) -> None:
+def track_diff(musicdb: MusicDb, download_playlist: bool, spotify: Spotify, output: str, min_threshold: float, max_threshold: float) -> None:
     spotify_tracks = spotify.liked_tracks()
     spotify_tracks_by_slug = {
         slugify(f"""{t['track']['artists'][0]['name']}-{t['track']['name']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS):
@@ -142,9 +168,9 @@ def diff(musicdb: MusicDb, download_playlist: bool, spotify: Spotify, output: st
                 'distance': closest_distance,
             })
     print_distances(distances_tracks)
-    print(f"spotify tracks : {len(spotify_tracks)}")
-    print(f"spotify slugs: {len(spotify_tracks_by_slug)}")
-    print(f"local tracks : {len(local.musics)}")
-    print(f"local tracks slugs : {len(local_music_by_slug)}")
-    print(f"found in local     : {local_tracks_found}")
-    print(f"not found in local : {len(spotify_differences)}")
+    MusicbotObject.success(f"spotify tracks : {len(spotify_tracks)}")
+    MusicbotObject.success(f"spotify slugs: {len(spotify_tracks_by_slug)}")
+    MusicbotObject.success(f"local tracks : {len(local.musics)}")
+    MusicbotObject.success(f"local tracks slugs : {len(local_music_by_slug)}")
+    MusicbotObject.success(f"found in local     : {local_tracks_found}")
+    MusicbotObject.success(f"not found in local : {len(spotify_differences)}")
