@@ -7,10 +7,7 @@ from functools import cache
 from typing import Any, Callable
 
 import humanize
-import requests
 from beartype import beartype
-
-from musicbot.exceptions import MusicbotError
 
 logger = logging.getLogger(__name__)
 
@@ -58,15 +55,6 @@ def bytes_to_human(b: int) -> str:
 def precise_seconds_to_human(s: int) -> str:
     delta = dt.timedelta(seconds=s)
     return humanize.precisedelta(delta)
-
-
-@cache
-@beartype
-def get_public_ip() -> str:
-    try:
-        return requests.get('https://api.ipify.org', timeout=5).text
-    except Exception as e:  # pylint: disable=broad-except
-        raise MusicbotError("Unable to detect Public IP") from e
 
 
 @cache

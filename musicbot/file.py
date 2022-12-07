@@ -20,7 +20,7 @@ from musicbot.defaults import (
     STORED_RATING_CHOICES
 )
 from musicbot.exceptions import MusicbotError
-from musicbot.helpers import current_user, get_public_ip
+from musicbot.helpers import current_user
 from musicbot.music import Folder, Music
 from musicbot.object import MusicbotObject
 
@@ -91,12 +91,16 @@ class File(MusicbotObject):
         return issues
 
     @property
-    def music(self) -> Music:
+    def music(self) -> Music | None:
+        public_ip = self.public_ip()
+        if public_ip is None:
+            return None
+
         folder = Folder(
             name=str(self.folder),
             path=str(self.path),
             user=current_user(),
-            ipv4=get_public_ip(),
+            ipv4=public_ip,
         )
         return Music(
             title=self.title,

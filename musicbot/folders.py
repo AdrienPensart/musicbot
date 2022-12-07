@@ -52,7 +52,7 @@ class Folders(MusicbotObject):
 
     @cached_property
     def musics(self) -> list[Music]:
-        return [file.music for file in self.files]
+        return [file.music for file in self.files if file.music is not None]
 
     @cached_property
     def folders_and_paths(self) -> set[tuple[Path, Path]]:

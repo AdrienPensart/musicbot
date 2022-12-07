@@ -38,7 +38,7 @@ class Playlist(MusicbotObject):
     ) -> "Playlist":
         return cls(
             name=name,
-            musics=[file.music for file in files]
+            musics=[file.music for file in files if file.music is not None]
         )
 
     @classmethod

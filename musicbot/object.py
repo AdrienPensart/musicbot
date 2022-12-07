@@ -6,11 +6,14 @@ import signal
 import sys
 import threading
 from datetime import datetime
+from functools import cache
 from typing import IO, Any, Callable, NoReturn, Sequence
 
 import click
 import orjson
+import requests
 import rich
+from beartype import beartype
 from progressbar import NullBar, ProgressBar  # type: ignore
 from requests.structures import CaseInsensitiveDict
 from rich.console import Console
@@ -33,6 +36,16 @@ def default_encoder(data: Any) -> Any:
     raise TypeError
 
 
+@cache
+@beartype
+def public_ip() -> str | None:
+    try:
+        return requests.get('https://api.ipify.org', timeout=5).text
+    except Exception as e:  # pylint: disable=broad-except
+        MusicbotObject.err(f"Unable to detect Public IP : {e}")
+    return None
+
+
 class MusicbotObject:
     print_lock = threading.Lock()
     is_tty = sys.stderr.isatty()
@@ -45,9 +58,14 @@ class MusicbotObject:
     already_printed: list[str] = []
     config = Config(quiet=False)
     dry = OneWayBool("dry", default=False)
+    _public_ip: str | None = None
 
     def __repr__(self) -> str:
         return '[DRY]' if self.dry else '[DOING]'
+
+    @classmethod
+    def public_ip(cls) -> str | None:
+        return public_ip()
 
     @staticmethod
     def is_dev() -> bool:

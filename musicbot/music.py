@@ -12,7 +12,6 @@ from slugify import slugify
 from musicbot.defaults import REPLACEMENTS, STOPWORDS
 from musicbot.helpers import (
     bytes_to_human,
-    get_public_ip,
     precise_seconds_to_human
 )
 from musicbot.object import MusicbotObject
@@ -47,14 +46,14 @@ class Folder(MusicbotObject):
         if 'all' in playlist_options.kinds:
             return frozenset({self.ssh_link(), self.http_link(playlist_options.relative), self.effective_path(playlist_options.relative)})
 
-        if 'local-ssh' in playlist_options.kinds and self.ipv4 == get_public_ip():
+        if 'local-ssh' in playlist_options.kinds and self.ipv4 == self.public_ip():
             paths.append(self.ssh_link())
-        if 'remote-ssh' in playlist_options.kinds and self.ipv4 != get_public_ip():
+        if 'remote-ssh' in playlist_options.kinds and self.ipv4 != self.public_ip():
             paths.append(self.ssh_link())
 
-        if 'local-http' in playlist_options.kinds and self.ipv4 == get_public_ip():
+        if 'local-http' in playlist_options.kinds and self.ipv4 == self.public_ip():
             paths.append(self.http_link(playlist_options.relative))
-        if 'remote-http' in playlist_options.kinds and self.ipv4 != get_public_ip():
+        if 'remote-http' in playlist_options.kinds and self.ipv4 != self.public_ip():
             paths.append(self.http_link(playlist_options.relative))
 
         if 'local' in playlist_options.kinds and os.path.isfile(self.path):

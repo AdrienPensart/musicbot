@@ -90,6 +90,9 @@ def tags(
     output: str,
 ) -> None:
     logger.info(file.handle.tags.keys())
+    if file.music is None:
+        raise click.ClickException("unable to continue")
+
     if output == 'json':
         MusicbotObject.print_json(asdict(file.music))  # type: ignore
         return
@@ -117,6 +120,9 @@ def issues(
 def manual_fix(
     file: File,
 ) -> None:
+    if file.music is None:
+        raise click.ClickException("unable to continue")
+
     print(file.music.human_repr())
     if file.issues:
         MusicbotObject.warn(f"{file} : has issues : {file.issues}")

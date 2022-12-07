@@ -115,6 +115,8 @@ def manual_fix(
         MusicbotObject.err(f"{file} : still issues : {file.issues}")
 
     for file in folders.files:
+        if file.music is None:
+            continue
         print(file.music.human_repr())
         if not file.issues:
             continue
