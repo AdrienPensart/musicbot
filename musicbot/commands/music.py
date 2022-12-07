@@ -91,7 +91,7 @@ def tags(
 ) -> None:
     logger.info(file.handle.tags.keys())
     if output == 'json':
-        MusicbotObject.print_json(asdict(file.music))
+        MusicbotObject.print_json(asdict(file.music))  # type: ignore
         return
     print(file.music.human_repr())
 

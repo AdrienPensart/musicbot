@@ -105,7 +105,7 @@ class MusicDb(MusicbotObject):
         for music_filter in music_filters:
             intermediate_results = await self.client.query(
                 query,
-                **asdict(music_filter)
+                **asdict(music_filter)  # type: ignore
             )
             logger.debug(f"{len(intermediate_results)} intermediate results for {music_filter}")
             results.update(intermediate_results)
@@ -264,7 +264,7 @@ class MusicDb(MusicbotObject):
 
             async_gather(upsert_worker, folders.folders_and_paths)
         if failed_files:
-            self.warn("Unable to insert {len(failed)} files")
+            self.warn(f"Unable to insert {len(failed_files)} files")
         return files
 
     @beartype

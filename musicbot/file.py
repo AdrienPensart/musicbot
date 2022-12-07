@@ -113,7 +113,7 @@ class File(MusicbotObject):
 
     @property
     def music_input(self) -> dict[str, Any] | None:
-        data = asdict(self.music)
+        data = asdict(self.music)  # type: ignore
         if not data['folders']:
             self.err(f"{self} : no folder set")
             return None
@@ -326,11 +326,12 @@ class File(MusicbotObject):
 
     @property
     def _description(self) -> str:
-        return self._get_first('description')
+        return ' '.join([self._get_first('description'), self._get_first('comment')]).strip()
 
     @_description.setter
     def _description(self, description: str) -> None:
         self.handle.tags['description'] = description
+        self.handle.tags['comment'] = description
 
     @property
     def track(self) -> int:
