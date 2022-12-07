@@ -136,7 +136,7 @@ def sane_spotify(ctx: click.Context, param: click.Parameter, value: str | None) 
     if param.name:
         ctx.params[param.name] = value
     spotify_params = {}
-    for field in fields_dict(Spotify):  # type: ignore
+    for field in fields_dict(Spotify):  # type: ignore[arg-type]
         spotify_params[field] = ctx.params['spotify_' + field]
         ctx.params.pop('spotify_' + field)
     spotify = Spotify(**spotify_params)

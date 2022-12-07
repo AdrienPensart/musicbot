@@ -94,7 +94,7 @@ def tags(
         raise click.ClickException("unable to continue")
 
     if output == 'json':
-        MusicbotObject.print_json(asdict(file.music))  # type: ignore
+        MusicbotObject.print_json(asdict(file.music))  # type: ignore[arg-type]
         return
     print(file.music.human_repr())
 

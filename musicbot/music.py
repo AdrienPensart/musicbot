@@ -10,10 +10,7 @@ from beartype import beartype
 from slugify import slugify
 
 from musicbot.defaults import REPLACEMENTS, STOPWORDS
-from musicbot.helpers import (
-    bytes_to_human,
-    precise_seconds_to_human
-)
+from musicbot.helpers import bytes_to_human, precise_seconds_to_human
 from musicbot.object import MusicbotObject
 from musicbot.playlist_options import PlaylistOptions
 

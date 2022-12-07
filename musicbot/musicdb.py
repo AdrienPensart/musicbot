@@ -105,7 +105,7 @@ class MusicDb(MusicbotObject):
         for music_filter in music_filters:
             intermediate_results = await self.client.query(
                 query,
-                **asdict(music_filter)  # type: ignore
+                **asdict(music_filter),  # type: ignore[arg-type]
             )
             logger.debug(f"{len(intermediate_results)} intermediate results for {music_filter}")
             results.update(intermediate_results)
