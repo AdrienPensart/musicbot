@@ -117,7 +117,7 @@ class File(MusicbotObject):
 
     @property
     def music_input(self) -> dict[str, Any] | None:
-        data = asdict(self.music)  # type: ignore
+        data = asdict(self.music)
         if not data['folders']:
             self.err(f"{self} : no folder set")
             return None
