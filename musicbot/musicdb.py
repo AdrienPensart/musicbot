@@ -145,7 +145,7 @@ class MusicDb(MusicbotObject):
     ) -> Playlist:
         results = await self.execute_music_filters(PLAYLIST_QUERY, music_filters)
         return Playlist.from_edgedb(
-            name=str(list(music_filters)),
+            name=" | ".join([music_filter.help_repr() for music_filter in music_filters]),
             results=results,
         )
 

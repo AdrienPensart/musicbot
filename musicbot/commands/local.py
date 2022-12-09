@@ -203,7 +203,7 @@ def playlist(
     )
 
 
-@cli.command(short_help='Artists descriptions', help=filters_reprs)
+@cli.command(short_help='Artists descriptions')
 @musicdb_options
 @output_option
 @beartype

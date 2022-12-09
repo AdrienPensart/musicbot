@@ -100,6 +100,7 @@ class Playlist(MusicbotObject):
             Column("Infos", vertical="middle"),
             Column("Links", no_wrap=True),
             show_lines=True,
+            title=f"Playlist: {self.name}"
         )
         total_length = 0
         total_size = 0
@@ -118,6 +119,9 @@ class Playlist(MusicbotObject):
             total_length += music.length
             total_size += music.size
 
+        caption = f"Songs: {len(musics)} | Total length: {precise_seconds_to_human(total_length)} | Total size: {bytes_to_human(total_size)}"
+        table.caption = caption
+
         if not musics and output != 'json':
             pass
         elif output == 'm3u':
@@ -125,13 +129,14 @@ class Playlist(MusicbotObject):
             p += ('#EXTREM:' + self.name + '\n')
             p += '\n'.join(self.links(playlist_options))
             print(p, file=file)
+            self.success(caption)
         elif output == 'table':
             self.print_table(table, file=file)
         elif output == 'json':
             self.print_json(asdict(self, recurse=True), file=file)
+            self.success(caption)
         else:
             self.err(f"unknown output type : {output}")
-        self.success(f"{self.name} : Songs: {len(musics)} | Total length: {precise_seconds_to_human(total_length)} | Total size: {bytes_to_human(total_size)}")
 
     def __repr__(self) -> str:
         self_dict = asdict(self, recurse=True)

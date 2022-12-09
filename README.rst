@@ -276,17 +276,6 @@ musicbot local artists
 
   Usage: musicbot local artists [OPTIONS]
 
-    to-fix: keyword=(tofix|todo|spotify-error)
-    no-artist: artist=^$
-    no-album: album=^$
-    no-title: title=^$
-    no-genre: genre=^$
-    no-keyword: keyword=^$
-    no-rating: max_rating=0.0
-    bests-4.0: keyword=^((?!cutoff|bad|demo|intro).)$,min_rating=4.0
-    bests-4.5: keyword=^((?!cutoff|bad|demo|intro).)$,min_rating=4.5
-    bests-5.0: keyword=^((?!cutoff|bad|demo|intro).)$,min_rating=5.0
-
   Options:
     MusicDB options: 
       --dsn TEXT               DSN to MusicBot EdgeDB
