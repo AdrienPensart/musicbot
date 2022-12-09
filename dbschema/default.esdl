@@ -33,6 +33,8 @@ module default {
         multi link albums := .<artist[is Album];
         link musics := (select .albums.musics);
         link keywords := (select .musics.keywords);
+        link genres := (select .musics.genre);
+        property size := (select sum(.musics.size));
         property rating := (select <float64>round(<decimal>math::mean(.musics.rating), 2));
         property length := (select sum(.musics.length));
         property duration := (select to_duration(seconds := <float64>.length));
@@ -46,6 +48,7 @@ module default {
 
         multi link musics := .<album[is Music];
         property length := (select sum(.musics.length));
+        property size := (select sum(.musics.size));
         property duration := (select to_duration(seconds := <float64>.length));
         property rating := (select <float64>round(<decimal>math::mean(.musics.rating), 2));
         link keywords := (select .musics.keywords);

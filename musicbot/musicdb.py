@@ -13,6 +13,7 @@ from edgedb.asyncio_client import AsyncIOClient, create_async_client
 from edgedb.options import RetryOptions, TransactionOptions
 from requests import Response, Session
 
+from musicbot.artist import Artist
 from musicbot.defaults import DEFAULT_COROUTINES
 from musicbot.exceptions import MusicbotError
 from musicbot.file import File, Issue
@@ -23,6 +24,7 @@ from musicbot.music_filter import MusicFilter
 from musicbot.object import MusicbotObject
 from musicbot.playlist import Playlist
 from musicbot.queries import (
+    ARTISTS_QUERY,
     BESTS_QUERY,
     PLAYLIST_QUERY,
     REMOVE_PATH_QUERY,
@@ -91,6 +93,30 @@ class MusicDb(MusicbotObject):
         )
         logger.debug(response)
         return response
+
+    @beartype
+    async def artists(self) -> list[Artist]:
+        results = await self.client.query(ARTISTS_QUERY)
+        artists_list = []
+        for result in results:
+            keywords = frozenset(result.all_keywords)
+            artist = Artist(
+                name=result.name,
+                length=result.length,
+                size=result.size,
+                keywords=keywords,
+                rating=result.rating,
+                albums=result.n_albums,
+                musics=result.n_musics,
+                genres=result.all_genres,
+            )
+            artists_list.append(artist)
+        return artists_list
+
+    @cache
+    def sync_artists(self) -> list[Artist]:
+        self.sync_ensure_connected()
+        return async_run(self.artists())
 
     @beartype
     async def execute_music_filters(

@@ -255,6 +255,7 @@ musicbot local
     -h, --help  Show this message and exit.
 
   Commands:
+    artists                 Artists descriptions
     bests                   Generate bests playlists with some rules
     clean (clean-db,erase)  Clean all musics in DB
     execute (fetch,query)   EdgeDB raw query
@@ -268,6 +269,30 @@ musicbot local
     soft-clean              Clean entities without musics associated
     sync                    Copy selected musics with filters to destination folder
     watch (watcher)         Watch files changes in folders
+
+musicbot local artists
+**********************
+.. code-block::
+
+  Usage: musicbot local artists [OPTIONS]
+
+    to-fix: keyword=(tofix|todo|spotify-error)
+    no-artist: artist=^$
+    no-album: album=^$
+    no-title: title=^$
+    no-genre: genre=^$
+    no-keyword: keyword=^$
+    no-rating: max_rating=0.0
+    bests-4.0: keyword=^((?!cutoff|bad|demo|intro).)$,min_rating=4.0
+    bests-4.5: keyword=^((?!cutoff|bad|demo|intro).)$,min_rating=4.5
+    bests-5.0: keyword=^((?!cutoff|bad|demo|intro).)$,min_rating=5.0
+
+  Options:
+    MusicDB options: 
+      --dsn TEXT               DSN to MusicBot EdgeDB
+      --graphql TEXT           DSN to MusicBot GrapQL
+    --output [json|table|m3u]  Output format  [default: table]
+    -h, --help                 Show this message and exit.
 
 musicbot local bests
 ********************

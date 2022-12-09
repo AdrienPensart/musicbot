@@ -146,6 +146,10 @@ class Playlist(MusicbotObject):
         return frozenset(set(music.genre for music in self.musics))
 
     @property
+    def albums(self) -> frozenset[str]:
+        return frozenset(set(music.album for music in self.musics))
+
+    @property
     def artists(self) -> frozenset[str]:
         return frozenset(set(music.artist for music in self.musics))
 

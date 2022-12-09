@@ -38,6 +38,17 @@ def test_local_watch(cli_runner, edgedb):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
+def test_local_artists(cli_runner, edgedb):
+    output = run_cli(cli_runner, cli, [
+        '--quiet',
+        'local', 'artists',
+        '--dsn', edgedb,
+        '--output', 'json',
+    ])
+    json.loads(output)
+
+
+@pytest.mark.runner_setup(mix_stderr=False)
 def test_local_soft_clean(cli_runner, edgedb):
     run_cli(cli_runner, cli, [
         '--quiet',

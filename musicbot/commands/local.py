@@ -13,6 +13,7 @@ import progressbar  # type: ignore
 from attr import asdict
 from beartype import beartype
 from click_skeleton import AdvancedGroup
+from rich.table import Table
 from watchdog.observers import Observer  # type: ignore
 
 from musicbot.cli.file import flat_option
@@ -35,6 +36,7 @@ from musicbot.cli.playlist import bests_options, playlist_options
 from musicbot.defaults import DEFAULT_VLC_PARAMS
 from musicbot.file import File
 from musicbot.folders import Folders
+from musicbot.helpers import bytes_to_human, precise_seconds_to_human
 from musicbot.music_filter import MusicFilter
 from musicbot.musicdb import MusicDb
 from musicbot.object import MusicbotObject
@@ -199,6 +201,48 @@ def playlist(
         file=out,
         playlist_options=playlist_options,
     )
+
+
+@cli.command(short_help='Artists descriptions', help=filters_reprs)
+@musicdb_options
+@output_option
+@beartype
+def artists(
+    output: str,
+    musicdb: MusicDb,
+) -> None:
+    musicdb.set_readonly()
+    all_artists = musicdb.sync_artists()
+    table = Table(
+        "Name",
+        "Rating",
+        "Size",
+        "Length",
+        "Albums",
+        "Musics",
+        "Keywords",
+        "Genres",
+        title="Artists",
+    )
+    for artist in all_artists:
+        size = bytes_to_human(artist.size)
+        length = precise_seconds_to_human(artist.length)
+        table.add_row(
+            artist.name,
+            str(artist.rating),
+            size,
+            length,
+            str(artist.albums),
+            str(artist.musics),
+            ', '.join(artist.keywords),
+            ', '.join(artist.genres),
+        )
+    table.caption = f"{len(all_artists)} listed"
+
+    if output == 'table':
+        MusicbotObject.print_table(table)
+    elif output == 'json':
+        MusicbotObject.print_json([asdict(artist) for artist in all_artists])
 
 
 @cli.command(short_help='Generate bests playlists with some rules', help=filters_reprs)
