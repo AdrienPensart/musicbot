@@ -115,7 +115,7 @@ def scan(
 @cli.command(help='Watch files changes in folders', aliases=['watcher'])
 @folders_argument
 @musicdb_options
-@click.option('--sleep', help="Clean music every X seconds", type=int, default=3600, show_default=True)
+@click.option('--sleep', help="Clean music every X seconds", type=int, default=1800, show_default=True)
 @click.option('--timeout', help="How many seconds until we terminate", type=int, show_default=True)
 @beartype
 def watch(
@@ -127,7 +127,9 @@ def watch(
     def soft_clean_periodically() -> None:
         try:
             while True:
-                musicdb.sync_soft_clean()
+                cleaned = musicdb.sync_soft_clean()
+                MusicbotObject.success(cleaned)
+                MusicbotObject.success(f"DB cleaned, waiting {sleep} seconds.")
                 time.sleep(sleep)
         except KeyboardInterrupt:
             pass

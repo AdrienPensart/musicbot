@@ -46,11 +46,13 @@ PLAYLIST_QUERY: Final[str] = CustomStringTemplate("""
 """).substitute(music_fields=MUSIC_FIELDS)
 
 SOFT_CLEAN_QUERY: Final[str] = """
-delete Music filter not exists .folders;
-delete Album filter not exists .musics;
-delete Artist filter not exists .musics;
-delete Genre filter not exists .musics;
-delete Keyword filter not exists .musics;
+select {
+    musics_deleted := count((delete Music filter not exists .folders)),
+    albums_deleted := count((delete Album filter not exists .musics)),
+    artists_deleted := count((delete Artist filter not exists .musics)),
+    genres_deleted := count((delete Genre filter not exists .musics)),
+    keywords_deleted := count((delete Keyword filter not exists .musics))
+};
 """
 
 SEARCH_QUERY: Final[str] = CustomStringTemplate("""
@@ -141,7 +143,8 @@ with
                     select upsert_folder {
                         @path := <str>$path
                     }
-                )
+                ),
+                updated_at := std::datetime_current()
             }
         )
     ) {

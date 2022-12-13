@@ -556,7 +556,7 @@ musicbot local watch
     MusicDB options: 
       --dsn TEXT        DSN to MusicBot EdgeDB
       --graphql TEXT    DSN to MusicBot GrapQL
-    --sleep INTEGER     Clean music every X seconds  [default: 3600]
+    --sleep INTEGER     Clean music every X seconds  [default: 1800]
     --timeout INTEGER   How many seconds until we terminate
     -h, --help          Show this message and exit.
 

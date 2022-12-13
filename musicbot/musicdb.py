@@ -173,10 +173,10 @@ class MusicDb(MusicbotObject):
 
     @beartype
     async def soft_clean(self) -> Any:
-        self.success("cleaning orphan keywords, albums, artists, genres")
+        self.success("cleaning orphan musics, artists, albums, genres, keywords")
         if self.dry:
             return None
-        return await self.client.execute(SOFT_CLEAN_QUERY)
+        return await self.client.query_single(SOFT_CLEAN_QUERY)
 
     @beartype
     def sync_soft_clean(self) -> Any:
