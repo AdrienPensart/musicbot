@@ -5,6 +5,7 @@ from typing import Any
 
 import spotipy  # type: ignore
 from attr import asdict, frozen
+from natsort import natsorted
 from spotipy.oauth2 import CacheFileHandler  # type: ignore
 
 from musicbot.defaults import (
@@ -127,7 +128,7 @@ class Spotify(MusicbotObject):
             offset += length
             if length < limit:
                 break
-        return list(itertools.chain(*objects))
+        return list(natsorted(itertools.chain(*objects), lambda st: st['track']['artists'][0]['name']))
 
     def playlist_tracks(self, name: str) -> list[Any]:
         playlists = self.playlists()

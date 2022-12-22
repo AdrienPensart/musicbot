@@ -751,7 +751,7 @@ musicbot spotify
     refresh-token     Get a new token
     to-download       Show download playlist
     track-diff        Diff between local and spotify
-    tracks            Show tracks
+    tracks (liked)    Show liked tracks
 
 musicbot spotify artist-diff
 ****************************
@@ -923,7 +923,7 @@ musicbot spotify tracks
 
   Usage: musicbot spotify tracks [OPTIONS]
 
-    Show tracks
+    Show liked tracks
 
   Options:
     Spotify options: 

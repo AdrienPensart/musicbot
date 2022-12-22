@@ -82,7 +82,7 @@ def to_download(spotify: Spotify, output: str) -> None:
     output_tracks(output, tracks)
 
 
-@cli.command(help='Show tracks')
+@cli.command(help='Show liked tracks', aliases=['liked'])
 @spotify_options
 @output_option
 @beartype

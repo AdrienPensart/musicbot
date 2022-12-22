@@ -117,6 +117,8 @@ class File(MusicbotObject):
 
     @property
     def music_input(self) -> dict[str, Any] | None:
+        if self.music is None:
+            return None
         data = asdict(self.music)
         if not data['folders']:
             self.err(f"{self} : no folder set")
@@ -483,7 +485,7 @@ class File(MusicbotObject):
     @beartype
     def fix(self) -> bool:
         for issue in self.issues:
-            match issue:
+            match issue:  # noqa
                 case Issue.NO_ARTIST:
                     self.success(f"{self} : give new artist (old '{self.artist}')")
                     self.artist = input()

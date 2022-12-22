@@ -4,6 +4,9 @@ export SETUPTOOLS_USE_DISTUTILS=stdlib
 
 set -e
 
+echo "linting : ruff..."
+poetry run ruff musicbot tests
+
 echo "linting : pylint..."
 poetry run pylint musicbot tests
 
