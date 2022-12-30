@@ -1,9 +1,9 @@
-from attr import fields, frozen
+from attr import define, fields
 
 from musicbot.object import MusicbotObject
 
 
-@frozen
+@define(frozen=True)
 class Artist(MusicbotObject):
     name: str
     rating: float

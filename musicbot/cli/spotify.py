@@ -56,6 +56,7 @@ def print_tracks_table(tracks: list[Any]) -> None:
         artist = '\n'.join(textwrap.wrap(t['track']['artists'][0]['name'], width))
         album = '\n'.join(textwrap.wrap(t['track']['album']['name'], width))
         table.add_row(title, artist, album)
+    table.caption = f"{table.row_count} tracks listed"
     MusicbotObject.print_table(table)
 
 
@@ -137,8 +138,9 @@ def sane_spotify(ctx: click.Context, param: click.Parameter, value: str | None) 
         ctx.params[param.name] = value
     spotify_params = {}
     for field in fields_dict(Spotify):
-        spotify_params[field] = ctx.params['spotify_' + field]
-        ctx.params.pop('spotify_' + field)
+        # spotify_params[field] = ctx.params['spotify_' + field]
+        # ctx.params.pop('spotify_' + field)
+        spotify_params[field] = ctx.params.pop('spotify_' + field)
     spotify = Spotify(**spotify_params)
     ctx.params['spotify'] = spotify
     return spotify

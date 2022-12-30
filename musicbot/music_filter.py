@@ -1,7 +1,7 @@
 import logging
 from typing import Any
 
-from attr import asdict, field, fields, frozen
+from attr import asdict, define, field, fields
 
 from musicbot.defaults import (
     DEFAULT_LIMIT,
@@ -19,7 +19,7 @@ from musicbot.object import MusicbotObject
 logger = logging.getLogger(__name__)
 
 
-@frozen(repr=False)
+@define(frozen=True)
 class MusicFilter(MusicbotObject):
     genre: str = field(default=MATCH_ALL)
     keyword: str = field(default=MATCH_ALL)

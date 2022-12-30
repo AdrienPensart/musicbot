@@ -25,6 +25,7 @@ Commands
 
   Commands:
     completion    Shell completion
+    console       Starts interpreter
     folder        Manage folders
     help          Print help
     local         Local music management
@@ -74,6 +75,17 @@ musicbot completion show
   Options:
     -i, --case-insensitive  Case insensitive completion
     -h, --help              Show this message and exit.
+
+musicbot console
+****************
+.. code-block::
+
+  Usage: musicbot console [OPTIONS]
+
+    Starts an embedded ipython interpreter
+
+  Options:
+    -h, --help  Show this message and exit.
 
 musicbot folder
 ***************

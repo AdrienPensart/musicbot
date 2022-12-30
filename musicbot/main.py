@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 '''Main module, import commands and start CLI'''
-import gc
 import logging
 import os
 from typing import Any, Final
@@ -10,7 +9,6 @@ import edgedb
 import mutagen
 import requests
 import spotipy  # type: ignore
-import uvloop
 from beartype import beartype
 from click_skeleton import backtrace, doc, helpers, skeleton, version_checker
 
@@ -61,29 +59,41 @@ def cli(
         critical=critical,
         config=config,
     )
+
+    use_uvloop: bool = helpers.str2bool(os.environ.get('MB_USE_UVLOOP', True))
+    if use_uvloop:
+        import uvloop
+        uvloop.install()
+
+    disable_gc: bool = helpers.str2bool(os.environ.get('MB_DISABLE_GC', False))
+    if disable_gc:
+        import gc
+        gc.disable()
+
+    if not helpers.raise_limits():
+        MusicbotObject.err("unable to raise ulimit")
+
     ctx.color = MusicbotObject.config.color
-    if not MusicbotObject.config.quiet and not MusicbotObject.is_test():
-        import progressbar  # type: ignore
-        progressbar.streams.wrap(stderr=True, stdout=True)
+
+
+@cli.command(short_help='Starts interpreter')
+@beartype
+def console() -> None:
+    '''Starts an embedded ipython interpreter'''
+    from IPython import embed
+    embed()
 
 
 @cli.command(short_help='Generates a README.rst', aliases=['doc'])
 @click.pass_context
 @click.option('--output', help='README output format', type=click.Choice(['rst', 'markdown']), default='rst', show_default=True)
+@beartype
 def readme(ctx: click.Context, output: str) -> None:
     '''Generates a complete readme'''
     doc.readme(cli, ctx.obj.prog_name, ctx.obj.context_settings, output)
 
 
 def main() -> None:
-    uvloop.install()
-    if not helpers.raise_limits():
-        MusicbotObject.err("unable to raise ulimit")
-
-    disable_gc: bool = helpers.str2bool(os.environ.get('MB_DISABLE_GC', False))
-    if disable_gc:
-        gc.disable()
-
     check_version = helpers.str2bool(os.environ.get('MB_CHECK_VERSION', MusicbotObject.is_prod()))
     version_check = version_checker.VersionCheckerThread(
         prog_name=PROG_NAME,

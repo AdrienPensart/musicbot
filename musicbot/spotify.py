@@ -4,7 +4,7 @@ from functools import cache
 from typing import Any
 
 import spotipy  # type: ignore
-from attr import asdict, frozen
+from attr import asdict, define
 from natsort import natsorted
 from spotipy.oauth2 import CacheFileHandler  # type: ignore
 
@@ -17,7 +17,7 @@ from musicbot.object import MusicbotObject
 logger = logging.getLogger(__name__)
 
 
-@frozen
+@define(frozen=True)
 class Spotify(MusicbotObject):
     username: str
     client_id: str

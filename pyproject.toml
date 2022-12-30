@@ -30,7 +30,7 @@ attrs = "^22.2.0"
 types-requests = "^2.25.0"
 colorlog = "^6.4.1"
 progressbar2 = "^4.0.0"
-rich = "^12.0.0"
+rich = "^13.0.0"
 click-skeleton = "^0.26"
 beartype = "^0.11.0"
 humanize = "^4.0.0"
@@ -46,6 +46,7 @@ beets = "^1.6.0"
 natsort = "^8.1.0"
 PyICU = "^2.9"
 orjson = "^3.8.0"
+ipython = "^8.7.0"
 
 [tool.isort]
 multi_line_output = 3
@@ -71,7 +72,7 @@ bandit = "^1.7.2"
 vulture = "^2.3"
 pytest-asyncio = "^0.20.0"
 safety = "^2.0.0"
-ruff = "^0.0.190"
+ruff = "<0.1"
 
 [tool.pyright]
 include = [
@@ -93,3 +94,29 @@ jobs = 4
 disable = """
 method-cache-max-size-none,too-few-public-methods,logging-format-interpolation,line-too-long,too-many-arguments,protected-access,missing-docstring,invalid-name,too-many-public-methods,too-many-instance-attributes,duplicate-code,too-many-nested-blocks,too-many-branches,too-many-return-statements,too-many-statements,too-many-locals,too-many-ancestors,abstract-method,anomalous-backslash-in-string,import-outside-toplevel,redefined-outer-name,unnecessary-lambda,c-extension-no-member,logging-fstring-interpolation,too-many-boolean-expressions
 """
+
+[tool.mypy]
+allow_redefinition = false
+disallow_untyped_defs = true
+ignore_errors = false
+implicit_reexport = false
+local_partial_types = true
+strict_optional = true
+strict_equality = true
+no_implicit_optional = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unused_configs = true
+warn_unreachable = true
+warn_no_return = true
+
+[[tool.mypy.overrides]]
+module = [
+    "mutagen.*",
+    "beartype.*"
+]
+implicit_reexport = true
+
+[[tool.mypy.overrides]]
+module = "IPython.*"
+ignore_missing_imports = true
