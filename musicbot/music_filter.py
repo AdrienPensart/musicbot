@@ -71,8 +71,7 @@ class MusicFilter(MusicbotObject):
 
     def __repr__(self) -> str:
         short_repr = self._short_repr()
-        representation = self.dumps_json(short_repr)
-        if representation is not None:
+        if (representation := self.dumps_json(short_repr)) is not None:
             return representation
         self.err(f'Unable to convert to json : {short_repr}')
         return '{}'

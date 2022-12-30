@@ -109,14 +109,15 @@ warn_redundant_casts = true
 warn_unused_configs = true
 warn_unreachable = true
 warn_no_return = true
+no_incremental = true
 
 [[tool.mypy.overrides]]
 module = [
     "mutagen.*",
-    "beartype.*"
+    "beartype"
 ]
 implicit_reexport = true
 
 [[tool.mypy.overrides]]
-module = "IPython.*"
+module = "IPython"
 ignore_missing_imports = true

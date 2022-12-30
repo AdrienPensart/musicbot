@@ -205,16 +205,15 @@ class MusicDb(MusicbotObject):
     ) -> File | None:
         folder, path = folder_and_path
         try:
-            file = File.from_path(folder=folder, path=path)
-            if not file:
+            if not (file := File.from_path(folder=folder, path=path)):
                 return None
 
-            if Issue.NO_TITLE in file.issues or Issue.NO_ARTIST in file.issues or Issue.NO_ALBUM in file.issues:
-                self.warn(f"{file} : missing mandatory fields title/album/artist : {file.issues}")
+            issues = file.issues
+            if Issue.NO_TITLE in issues or Issue.NO_ARTIST in issues or Issue.NO_ALBUM in issues:
+                self.warn(f"{file} : missing mandatory fields title/album/artist : {issues}")
                 return None
 
-            input_music = file.music_input
-            if not input_music:
+            if not (input_music := file.music_input):
                 self.err(f"{file} : cannot upsert music without physical folder !")
                 return None
 
@@ -276,8 +275,7 @@ class MusicDb(MusicbotObject):
             async def upsert_worker(folder_and_path: tuple[Path, Path]) -> None:
                 async with sem:
                     try:
-                        file = await self.upsert_path(folder_and_path=folder_and_path)
-                        if not file:
+                        if not (file := await self.upsert_path(folder_and_path=folder_and_path)):
                             self.err(f"{self} : unable to insert {folder_and_path}")
                         else:
                             files.append(file)

@@ -140,8 +140,7 @@ class Playlist(MusicbotObject):
 
     def __repr__(self) -> str:
         self_dict = asdict(self, recurse=True)
-        representation = self.dumps_json(self_dict)
-        if representation is not None:
+        if (representation := self.dumps_json(self_dict)) is not None:
             return representation
         self.err(f'Unable to convert to json : {self_dict}')
         return '{}'
@@ -194,21 +193,18 @@ class Playlist(MusicbotObject):
                 os.add_dll_directory(vlc_path)  # type: ignore
             import vlc  # type: ignore
             instance = vlc.Instance(vlc_params)
-            devices = instance.audio_output_enumerate_devices()
-            if not devices:
-                logger.warning('maybe no audio output detected...')
-
             if not instance:
                 logger.critical('Unable to start VLC instance')
                 return
 
-            player = instance.media_list_player_new()
-            if not player:
+            if not instance.audio_output_enumerate_devices():
+                logger.warning('maybe no audio output detected...')
+
+            if not (player := instance.media_list_player_new()):
                 logger.critical('Unable to create VLC player')
                 return
 
-            media_list = instance.media_list_new(self.links(playlist_options))
-            if not media_list:
+            if not (media_list := instance.media_list_new(self.links(playlist_options))):
                 logger.critical('Unable to create VLC media list')
                 return
 

@@ -86,16 +86,14 @@ def issues(
     folders: Folders,
 ) -> None:
     table = Table("Path", "Issues")
-    count = 0
     for file in folders.files:
         try:
-            if file.issues:
-                table.add_row(str(file.path), ', '.join(file.issues))
-                count += 1
+            if (issues := file.issues):
+                table.add_row(str(file.path), ', '.join(issues))
         except (OSError, mutagen.MutagenError):
             table.add_row(str(file.path), "could not open file")
-    MusicbotObject.console.print(table)
-    MusicbotObject.success(f"{folders} : {count} inconsistencies")
+    table.caption = f"{folders} : {table.row_count} inconsistencies listed"
+    MusicbotObject.print_table(table)
 
 
 @cli.command(help='Fix music files in folders')
@@ -109,10 +107,10 @@ def manual_fix(
         if not file.fix():
             MusicbotObject.warn(f"{file} : unable to fixed !")
 
-        if not file.issues:
+        if not (issues := file.issues):
             MusicbotObject.success(f"{file} : fixed !")
             return
-        MusicbotObject.err(f"{file} : still issues : {file.issues}")
+        MusicbotObject.err(f"{file} : still issues : {issues}")
 
     for file in folders.files:
         if file.music is None:

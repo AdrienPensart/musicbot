@@ -122,7 +122,6 @@ class MusicbotObject:
     ) -> None:
         '''Print a normal message to the user'''
         file = file if file is not None else sys.stderr
-
         timing = ""
         if cls.config.debug:
             now = datetime.now()
@@ -321,8 +320,7 @@ class MusicbotObject:
     ) -> None:
         '''Print highlighted json to stdout depending if we are in a TTY'''
         file = file if file is not None else sys.stdout
-        encoded = cls.dumps_json(data, option=option, default=default)
-        if encoded is None:
+        if (encoded := cls.dumps_json(data, option=option, default=default)) is None:
             return None
         if file.isatty():
             decoded = cls.loads_json(encoded)

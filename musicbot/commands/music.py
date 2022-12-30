@@ -90,13 +90,13 @@ def tags(
     output: str,
 ) -> None:
     logger.info(file.handle.tags.keys())
-    if file.music is None:
+    if (music := file.music) is None:
         raise click.ClickException("unable to continue")
 
     if output == 'json':
-        MusicbotObject.print_json(asdict(file.music))
+        MusicbotObject.print_json(asdict(music))
         return
-    print(file.music.human_repr())
+    print(music.human_repr())
 
 
 @cli.command(help='Check music consistency')
@@ -107,8 +107,8 @@ def issues(
 ) -> None:
     table = Table("Path", "Issues")
     try:
-        if file.issues:
-            table.add_row(str(file.path), ', '.join(file.issues))
+        if (issues := file.issues):
+            table.add_row(str(file.path), ', '.join(issues))
     except (OSError, MutagenError):
         table.add_row(str(file.path), "could not open file")
     MusicbotObject.console.print(table)
@@ -120,20 +120,19 @@ def issues(
 def manual_fix(
     file: File,
 ) -> None:
-    if file.music is None:
+    if (music := file.music) is None:
         raise click.ClickException("unable to continue")
 
-    print(file.music.human_repr())
-    if file.issues:
-        MusicbotObject.warn(f"{file} : has issues : {file.issues}")
-    else:
+    print(music.human_repr())
+    if not (issues := file.issues):
         return
+    MusicbotObject.warn(f"{file} : has issues : {issues}")
 
     if not file.fix():
         MusicbotObject.warn(f"{file} : unable to fix !")
 
-    if file.issues:
-        MusicbotObject.err(f"{file} : still issues : {file.issues}")
+    if issues:
+        MusicbotObject.err(f"{file} : still issues : {issues}")
     else:
         MusicbotObject.success(f"{file} : fixed !")
 

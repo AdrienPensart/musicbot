@@ -92,10 +92,8 @@ class File(MusicbotObject):
 
     @property
     def music(self) -> Music | None:
-        public_ip = self.public_ip()
-        if public_ip is None:
+        if (public_ip := self.public_ip()) is None:
             return None
-
         folder = Folder(
             name=str(self.folder),
             path=str(self.path),
@@ -341,14 +339,12 @@ class File(MusicbotObject):
 
     @property
     def track(self) -> int:
-        if self.extension == '.flac':
-            s = self._get_first('tracknumber')
-        else:
-            s = self._get_first('TRCK')
+        track_tag = 'tracknumber' if self.extension == '.flac' else 'TRCK'
+        track = self._get_first(track_tag)
         try:
-            if '/' in s:
-                s = s.split('/', maxsplit=1)[0]
-            n = int(s)
+            if '/' in track:
+                track = track.split('/', maxsplit=1)[0]
+            n = int(track)
             if n < 0:
                 return -1
             if n > 2 ** 31 - 1:
@@ -451,8 +447,7 @@ class File(MusicbotObject):
                 bitrate="256k",
             )
             mp3_export.close()
-            mp3_file = File.from_path(folder=destination, path=mp3_path)
-            if not mp3_file:
+            if not (mp3_file := File.from_path(folder=destination, path=mp3_path)):
                 self.err("unable to load freshly converted mp3 file")
                 return None
 

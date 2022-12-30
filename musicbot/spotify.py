@@ -57,21 +57,18 @@ class Spotify(MusicbotObject):
         return self.auth_manager.get_access_token(check_cache=False)
 
     def cached_token(self) -> Any:
-        token = self.cache_handler.get_cached_token()
-        if not token:
+        if not (token := self.cache_handler.get_cached_token()):
             logger.warning("no cached token")
         self.auth_manager.validate_token(token)
         return token
 
     def is_token_expired(self) -> bool:
-        token = self.cached_token()
-        if not token:
+        if not (token := self.cached_token()):
             return True
         return self.auth_manager.is_token_expired(token)
 
     def refresh_token(self) -> Any:
-        token = self.cached_token()
-        if not token:
+        if not (token := self.cached_token()):
             return None
         return self.auth_manager.refresh_access_token(token['refresh_token'])
 
@@ -85,8 +82,7 @@ class Spotify(MusicbotObject):
         return None
 
     def set_download_playlist(self, tracks: Any) -> None:
-        download_playlist = self.get_download_playlist()
-        if download_playlist is None:
+        if (download_playlist := self.get_download_playlist()) is None:
             self.err("Cannot get download playlist, so we can't update it")
             return
 
