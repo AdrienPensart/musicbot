@@ -1,8 +1,12 @@
 import logging
 from pathlib import Path
 
-from watchdog.events import (  # type: ignore
-    FileSystemEvent,
+from beartype import beartype
+from watchdog.events import (
+    FileCreatedEvent,
+    FileDeletedEvent,
+    FileModifiedEvent,
+    FileMovedEvent,
     PatternMatchingEventHandler
 )
 
@@ -23,21 +27,26 @@ class MusicWatcherHandler(PatternMatchingEventHandler):
         self.folders = folders
         self.musicdb = musicdb
 
-    def on_modified(self, event: FileSystemEvent) -> None:
+    @beartype
+    def on_modified(self, event: FileModifiedEvent) -> None:
         _ = self.update_music(event.src_path)
 
-    def on_created(self, event: FileSystemEvent) -> None:
+    @beartype
+    def on_created(self, event: FileCreatedEvent) -> None:
         _ = self.update_music(event.src_path)
 
-    def on_deleted(self, event: FileSystemEvent) -> None:
+    @beartype
+    def on_deleted(self, event: FileDeletedEvent) -> None:
         logger.debug(f'Deleting entry in DB for: {event.src_path} {event.event_type}')
         self.musicdb.sync_remove_music_path(event.src_path)
 
-    def on_moved(self, event: FileSystemEvent) -> None:
+    @beartype
+    def on_moved(self, event: FileMovedEvent) -> None:
         logger.debug(f'Moving entry in DB for: {event.src_path} {event.event_type}')
         self.musicdb.sync_remove_music_path(event.src_path)
         _ = self.update_music(event.dest_path)
 
+    @beartype
     def update_music(self, path: str) -> File | None:
         for directory in self.folders.directories:
             if path.startswith(str(directory)) and path.endswith(tuple(self.folders.extensions)):

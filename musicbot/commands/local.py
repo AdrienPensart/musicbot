@@ -14,7 +14,7 @@ from attr import asdict
 from beartype import beartype
 from click_skeleton import AdvancedGroup
 from rich.table import Table
-from watchdog.observers import Observer  # type: ignore
+from watchdog.observers import Observer
 
 from musicbot.cli.file import flat_option
 from musicbot.cli.folder import (
@@ -140,8 +140,8 @@ def watch(
     event_handler = MusicWatcherHandler(musicdb=musicdb, folders=folders)
     observer = Observer()
     for directory in folders.directories:
-        observer.schedule(event_handler, directory, recursive=True)
-        MusicbotObject.success(f"{directory} : watching")
+        watcher = observer.schedule(event_handler, directory, recursive=True)
+        MusicbotObject.success(f"{directory} : watching {watcher}")
     observer.start()
     observer.join(timeout=timeout)
 

@@ -80,8 +80,8 @@ def cli(
 @beartype
 def console() -> None:
     '''Starts an embedded ipython interpreter'''
-    from IPython import embed
-    embed()
+    import IPython
+    IPython.start_ipython(argv=[], user_ns=dict(musicbot=musicbot))
 
 
 @cli.command(short_help='Generates a README.rst', aliases=['doc'])
