@@ -88,7 +88,7 @@ class Folders(MusicbotObject):
                             all_subs_empty = False
                             break
                 else:
-                    all_subs_empty = (not dirs)
+                    all_subs_empty = not dirs
                 if all_subs_empty and not files:
                     dirs_list.append(root)
                     yield root

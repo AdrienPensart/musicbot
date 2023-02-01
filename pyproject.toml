@@ -32,14 +32,14 @@ colorlog = "^6.4.1"
 progressbar2 = "^4.0.0"
 rich = "^13.0.0"
 click-skeleton = "^0.26"
-beartype = "^0.11.0"
+beartype = "^0.12.0"
 humanize = "^4.0.0"
-python-slugify = "^7.0.0"
+python-slugify = "^8.0.0"
 edgedb = "^1.0.0"
 Pygments = "^2.11.2"
 types-PyYAML = "^6.0.8"
 uvloop = "^0.17.0"
-types-python-slugify = "^7.0.0"
+types-python-slugify = "^8.0.0"
 more-itertools = "^9.0.0"
 yt-dlp = "^2023.1.2"
 beets = "^1.6.0"
@@ -92,7 +92,7 @@ log_cli = true
 jobs = 4
 [tool.pylint.messages_control]
 disable = """
-method-cache-max-size-none,too-few-public-methods,logging-format-interpolation,line-too-long,too-many-arguments,protected-access,missing-docstring,invalid-name,too-many-public-methods,too-many-instance-attributes,duplicate-code,too-many-nested-blocks,too-many-branches,too-many-return-statements,too-many-statements,too-many-locals,too-many-ancestors,abstract-method,anomalous-backslash-in-string,import-outside-toplevel,redefined-outer-name,unnecessary-lambda,c-extension-no-member,logging-fstring-interpolation,too-many-boolean-expressions
+method-cache-max-size-none,too-few-public-methods,logging-format-interpolation,line-too-long,too-many-arguments,protected-access,missing-docstring,invalid-name,too-many-public-methods,too-many-instance-attributes,duplicate-code,too-many-nested-blocks,too-many-branches,too-many-return-statements,too-many-statements,too-many-locals,too-many-ancestors,abstract-method,anomalous-backslash-in-string,import-outside-toplevel,redefined-outer-name,unnecessary-lambda,c-extension-no-member,logging-fstring-interpolation,too-many-boolean-expressions,use-dict-literal
 """
 
 [tool.mypy]
@@ -114,7 +114,6 @@ no_incremental = true
 [[tool.mypy.overrides]]
 module = [
     "mutagen.*",
-    "beartype"
 ]
 implicit_reexport = true
 
