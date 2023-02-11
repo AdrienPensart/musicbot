@@ -17,11 +17,7 @@ from rich.table import Table
 from watchdog.observers import Observer
 
 from musicbot.cli.file import flat_option
-from musicbot.cli.folder import (
-    destination_argument,
-    folder_argument,
-    folders_argument
-)
+from musicbot.cli.folder import destination_argument, folder_argument, folders_argument
 from musicbot.cli.music_filter import filters_reprs, music_filters_options
 from musicbot.cli.musicdb import musicdb_options
 from musicbot.cli.options import (
@@ -30,7 +26,7 @@ from musicbot.cli.options import (
     lazy_yes_option,
     output_option,
     save_option,
-    yes_option
+    yes_option,
 )
 from musicbot.cli.playlist import bests_options, playlist_options
 from musicbot.defaults import DEFAULT_VLC_PARAMS
@@ -46,22 +42,22 @@ from musicbot.watcher import MusicWatcherHandler
 logger = logging.getLogger(__name__)
 
 
-@click.group('local', help='Local music management', cls=AdvancedGroup)
+@click.group("local", help="Local music management", cls=AdvancedGroup)
 @beartype
 def cli() -> None:
     pass
 
 
-@cli.command(help='EdgeDB raw query', aliases=['query', 'fetch'])
-@click.argument('query')
+@cli.command(help="EdgeDB raw query", aliases=["query", "fetch"])
+@click.argument("query")
 @musicdb_options
 @beartype
 def execute(musicdb: MusicDb, query: str) -> None:
     print(musicdb.sync_query(query))
 
 
-@cli.command(help='GraphQL query')
-@click.argument('query')
+@cli.command(help="GraphQL query")
+@click.argument("query")
 @musicdb_options
 @beartype
 def graphql(musicdb: MusicDb, query: str) -> None:
@@ -70,7 +66,7 @@ def graphql(musicdb: MusicDb, query: str) -> None:
         MusicbotObject.print_json(response.json())
 
 
-@cli.command(help='List folders and some stats')
+@cli.command(help="List folders and some stats")
 @musicdb_options
 @beartype
 def folders(musicdb: MusicDb) -> None:
@@ -79,7 +75,7 @@ def folders(musicdb: MusicDb) -> None:
         MusicbotObject.print_json([asdict(folder) for folder in response])
 
 
-@cli.command(help='Explore with GraphiQL')
+@cli.command(help="Explore with GraphiQL")
 @musicdb_options
 @beartype
 def explore(musicdb: MusicDb) -> None:
@@ -89,7 +85,7 @@ def explore(musicdb: MusicDb) -> None:
         _ = webbrowser.open(url)
 
 
-@cli.command(help='Load musics')
+@cli.command(help="Load musics")
 @folders_argument
 @musicdb_options
 @save_option
@@ -113,19 +109,19 @@ def scan(
         coroutines=coroutines,
     )
     musicdb.sync_soft_clean()
-    if output == 'json':
+    if output == "json":
         MusicbotObject.print_json([asdict(file.music) for file in files if file.music is not None])
 
     if save:
-        MusicbotObject.config.configfile['musicbot']['folders'] = folders.unique_directories
+        MusicbotObject.config.configfile["musicbot"]["folders"] = folders.unique_directories
         MusicbotObject.config.write()
 
 
-@cli.command(help='Watch files changes in folders', aliases=['watcher'])
+@cli.command(help="Watch files changes in folders", aliases=["watcher"])
 @folders_argument
 @musicdb_options
-@click.option('--sleep', help="Clean music every X seconds", type=int, default=1800, show_default=True)
-@click.option('--timeout', help="How many seconds until we terminate", type=int, show_default=True)
+@click.option("--sleep", help="Clean music every X seconds", type=int, default=1800, show_default=True)
+@click.option("--timeout", help="How many seconds until we terminate", type=int, show_default=True)
 @beartype
 def watch(
     musicdb: MusicDb,
@@ -155,7 +151,7 @@ def watch(
     observer.join(timeout=timeout)
 
 
-@cli.command(help='Clean all musics in DB', aliases=["clean-db", "erase"])
+@cli.command(help="Clean all musics in DB", aliases=["clean-db", "erase"])
 @musicdb_options
 @yes_option
 @beartype
@@ -163,18 +159,18 @@ def clean(musicdb: MusicDb) -> None:
     musicdb.sync_clean_musics()
 
 
-@cli.command(help='Clean entities without musics associated')
+@cli.command(help="Clean entities without musics associated")
 @musicdb_options
 @beartype
 def soft_clean(musicdb: MusicDb) -> None:
     musicdb.sync_soft_clean()
 
 
-@cli.command(help='Search musics by full-text search')
+@cli.command(help="Search musics by full-text search")
 @musicdb_options
 @output_option
 @playlist_options
-@click.argument('pattern')
+@click.argument("pattern")
 @beartype
 def search(
     musicdb: MusicDb,
@@ -189,12 +185,12 @@ def search(
     )
 
 
-@cli.command(short_help='Generate a new playlist', help=filters_reprs)
+@cli.command(short_help="Generate a new playlist", help=filters_reprs)
 @musicdb_options
 @output_option
 @music_filters_options
 @playlist_options
-@click.argument('out', type=click.File('w', lazy=True), default='-')
+@click.argument("out", type=click.File("w", lazy=True), default="-")
 @beartype
 def playlist(
     output: str,
@@ -214,7 +210,7 @@ def playlist(
     )
 
 
-@cli.command(short_help='Artists descriptions')
+@cli.command(short_help="Artists descriptions")
 @musicdb_options
 @output_option
 @beartype
@@ -245,18 +241,18 @@ def artists(
             length,
             str(artist.albums),
             str(artist.musics),
-            ', '.join(artist.keywords),
-            ', '.join(artist.genres),
+            ", ".join(artist.keywords),
+            ", ".join(artist.genres),
         )
     table.caption = f"{len(all_artists)} listed"
 
-    if output == 'table':
+    if output == "table":
         MusicbotObject.print_table(table)
-    elif output == 'json':
+    elif output == "json":
         MusicbotObject.print_json([asdict(artist) for artist in all_artists])
 
 
-@cli.command(short_help='Generate bests playlists with some rules', help=filters_reprs)
+@cli.command(short_help="Generate bests playlists with some rules", help=filters_reprs)
 @folder_argument
 @music_filters_options
 @musicdb_options
@@ -277,31 +273,31 @@ def bests(
     )
     for best in bests:
         if len(best.musics) < min_playlist_size or not best.name:
-            MusicbotObject.warn(f'{best.name} : size < {min_playlist_size}')
+            MusicbotObject.warn(f"{best.name} : size < {min_playlist_size}")
             continue
-        filepath = Path(folder) / (best.name + '.m3u')
+        filepath = Path(folder) / (best.name + ".m3u")
         if MusicbotObject.dry:
-            MusicbotObject.success(f'DRY RUN: Writing playlist {best.name} to {filepath}')
+            MusicbotObject.success(f"DRY RUN: Writing playlist {best.name} to {filepath}")
             continue
         try:
             filepath.parent.mkdir(parents=True, exist_ok=True)
-            with codecs.open(str(filepath), 'w', "utf-8-sig") as playlist_file:
+            with codecs.open(str(filepath), "w", "utf-8-sig") as playlist_file:
                 best.print(
                     output="m3u",
                     file=playlist_file,
                     playlist_options=playlist_options,
                 )
         except (OSError, LookupError, ValueError, UnicodeError) as e:
-            logger.warning(f'Unable to write playlist {best.name} to {filepath} because of {e}')
+            logger.warning(f"Unable to write playlist {best.name} to {filepath} because of {e}")
 
     MusicbotObject.success(f"Playlists: {len(bests)}")
 
 
-@cli.command(aliases=['play'], short_help='Music player', help=filters_reprs)
+@cli.command(aliases=["play"], short_help="Music player", help=filters_reprs)
 @musicdb_options
 @music_filters_options
 @playlist_options
-@click.option('--vlc-params', help="VLC params", default=DEFAULT_VLC_PARAMS, show_default=True)
+@click.option("--vlc-params", help="VLC params", default=DEFAULT_VLC_PARAMS, show_default=True)
 @beartype
 def player(
     music_filters: list[MusicFilter],
@@ -319,17 +315,17 @@ def player(
             playlist_options=playlist_options,
         )
     except io.UnsupportedOperation:
-        logger.critical('Unable to load UI')
+        logger.critical("Unable to load UI")
 
 
-@cli.command(short_help='Copy selected musics with filters to destination folder', help=filters_reprs)
+@cli.command(short_help="Copy selected musics with filters to destination folder", help=filters_reprs)
 @destination_argument
 @musicdb_options
 @lazy_yes_option
 @dry_option
 @music_filters_options
 @flat_option
-@click.option('--delete', help='Delete files on destination if not present in library', is_flag=True)
+@click.option("--delete", help="Delete files on destination if not present in library", is_flag=True)
 @beartype
 def sync(
     musicdb: MusicDb,
@@ -340,10 +336,10 @@ def sync(
     flat: bool,
 ) -> None:
     musicdb.set_readonly()
-    logger.info(f'Destination: {destination}')
+    logger.info(f"Destination: {destination}")
     playlist = musicdb.sync_make_playlist(music_filters=frozenset(music_filters))
     if not playlist.musics:
-        click.secho('no result for filter, nothing to sync')
+        click.secho("no result for filter, nothing to sync")
         return
 
     folders = Folders(directories=[destination], extensions=set())
@@ -351,7 +347,7 @@ def sync(
     if not folders.files:
         logger.warning("no files found in destination")
 
-    destinations = {str(path)[len(str(destination)) + 1:]: path for path in folders.paths}
+    destinations = {str(path)[len(str(destination)) + 1 :]: path for path in folders.paths}
 
     musics: list[File] = []
     for music in playlist.musics:
@@ -373,7 +369,7 @@ def sync(
 
     logger.info(f"Sources : {len(sources)}")
     paths_to_delete = set(destinations.keys()) - set(sources.keys())
-    if delete and (yes or click.confirm(f'Do you really want to delete {len(paths_to_delete)} files and playlists ?')):
+    if delete and (yes or click.confirm(f"Do you really want to delete {len(paths_to_delete)} files and playlists ?")):
         with MusicbotObject.progressbar(max_value=len(paths_to_delete)) as pbar:
             for path_to_delete in paths_to_delete:
                 try:
@@ -398,7 +394,7 @@ def sync(
             final_destination = destination / c
             try:
                 path_to_copy = Path(sources[c])
-                pbar.desc = f'Copying {path_to_copy.name} to {destination}'
+                pbar.desc = f"Copying {path_to_copy.name} to {destination}"
                 if MusicbotObject.dry:
                     MusicbotObject.success(f"[DRY-RUN] Copying {path_to_copy.name} to {final_destination}")
                     continue

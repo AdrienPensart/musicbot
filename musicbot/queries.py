@@ -6,7 +6,9 @@ class CustomStringTemplate(string.Template):
     delimiter = "#"
 
 
-FOLDER_QUERY: Final[str] = """
+FOLDER_QUERY: Final[
+    str
+] = """
 select Folder {
     name,
     user,
@@ -33,7 +35,8 @@ folders: {
 }
 """
 
-PLAYLIST_QUERY: Final[str] = CustomStringTemplate("""
+PLAYLIST_QUERY: Final[str] = CustomStringTemplate(
+    """
     select Music {
         #music_fields
     }
@@ -52,9 +55,12 @@ PLAYLIST_QUERY: Final[str] = CustomStringTemplate("""
         .track then
         .name
     limit <`Limit`>$limit
-""").substitute(music_fields=MUSIC_FIELDS)
+"""
+).substitute(music_fields=MUSIC_FIELDS)
 
-SOFT_CLEAN_QUERY: Final[str] = """
+SOFT_CLEAN_QUERY: Final[
+    str
+] = """
 select {
     musics_deleted := count((delete Music filter not exists .folders)),
     albums_deleted := count((delete Album filter not exists .musics)),
@@ -64,7 +70,8 @@ select {
 };
 """
 
-SEARCH_QUERY: Final[str] = CustomStringTemplate("""
+SEARCH_QUERY: Final[str] = CustomStringTemplate(
+    """
 select Music {
     #music_fields
 }
@@ -74,15 +81,19 @@ filter
 .album.name ilike <str>$pattern or
 .artist.name ilike <str>$pattern or
 .keywords.name ilike <str>$pattern
-""").substitute(music_fields=MUSIC_FIELDS)
+"""
+).substitute(music_fields=MUSIC_FIELDS)
 
-REMOVE_PATH_QUERY: Final[str] = """
+REMOVE_PATH_QUERY: Final[
+    str
+] = """
 update Music
 filter contains(.paths, <str>$path)
 set {folders := (select .folders filter @path != <str>$path)};
 """
 
-UPSERT_QUERY: Final[str] = CustomStringTemplate("""
+UPSERT_QUERY: Final[str] = CustomStringTemplate(
+    """
 with
     upsert_artist := (
         insert Artist {
@@ -159,9 +170,12 @@ with
     ) {
         #music_fields
     }
-""").substitute(music_fields=MUSIC_FIELDS)
+"""
+).substitute(music_fields=MUSIC_FIELDS)
 
-ARTISTS_QUERY: Final[str] = """
+ARTISTS_QUERY: Final[
+    str
+] = """
 select Artist {
     name,
     rating,
@@ -176,7 +190,8 @@ select Artist {
 order by .name
 """
 
-BESTS_QUERY: Final[str] = CustomStringTemplate("""
+BESTS_QUERY: Final[str] = CustomStringTemplate(
+    """
 with
     musics := (#filtered_playlist),
     unique_keywords := (select distinct (for music in musics union (music.keywords)))
@@ -240,4 +255,5 @@ select {
         by .artist, .rating
     )
 }
-""").substitute(music_fields=MUSIC_FIELDS, filtered_playlist=PLAYLIST_QUERY)
+"""
+).substitute(music_fields=MUSIC_FIELDS, filtered_playlist=PLAYLIST_QUERY)

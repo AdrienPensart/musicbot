@@ -12,7 +12,7 @@ from musicbot.defaults import (
     DEFAULT_MIN_RATING,
     DEFAULT_MIN_SIZE,
     MATCH_ALL,
-    RATING_CHOICES
+    RATING_CHOICES,
 )
 from musicbot.object import MusicbotObject
 
@@ -37,13 +37,13 @@ class MusicFilter(MusicbotObject):
 
     @min_rating.validator
     def _check_min_rating(self, attribute: Any, value: float) -> None:  # pylint: disable=unused-argument
-        '''min rating validator'''
+        """min rating validator"""
         if value not in RATING_CHOICES:
             raise ValueError(f"Invalid minimum rating {self.min_rating}, it should be one of {RATING_CHOICES}")
 
     @max_rating.validator
     def _check_max_rating(self, attribute: Any, value: float) -> None:  # pylint: disable=unused-argument
-        '''max rating validator'''
+        """max rating validator"""
         if value not in RATING_CHOICES:
             raise ValueError(f"Invalid maximum rating {self.max_rating}, it should be one of {RATING_CHOICES}")
 
@@ -52,13 +52,13 @@ class MusicFilter(MusicbotObject):
 
     @max_length.validator
     def _check_max_length(self, attribute: Any, value: int) -> None:  # pylint: disable=unused-argument
-        '''max length validator'''
+        """max length validator"""
         if self.min_length > value:
             raise ValueError(f"Invalid minimum ({self.min_length}) or maximum ({self.max_length}) length")
 
     @max_size.validator
     def _check_max_size(self, attribute: Any, value: int) -> None:  # pylint: disable=unused-argument
-        '''max size validator'''
+        """max size validator"""
         if self.min_size > value:
             raise ValueError(f"Invalid minimum ({self.min_size}) or maximum ({self.max_size}) size")
 
@@ -73,24 +73,24 @@ class MusicFilter(MusicbotObject):
         short_repr = self._short_repr()
         if (representation := self.dumps_json(short_repr)) is not None:
             return representation
-        self.err(f'Unable to convert to json : {short_repr}')
-        return '{}'
+        self.err(f"Unable to convert to json : {short_repr}")
+        return "{}"
 
     def help_repr(self) -> str:
         return ",".join([f"{k}={v}" for k, v in self._short_repr().items()])
 
 
-NO_KEYWORD = '^((?!cutoff|bad|demo|intro).)$'
+NO_KEYWORD = "^((?!cutoff|bad|demo|intro).)$"
 
 DEFAULT_PREFILTERS = {
-    'to-fix': MusicFilter(keyword="(tofix|todo|spotify-error)"),
-    'no-artist': MusicFilter(artist="^$"),
-    'no-album': MusicFilter(album="^$"),
-    'no-title': MusicFilter(title="^$"),
-    'no-genre': MusicFilter(genre="^$"),
-    'no-keyword': MusicFilter(keyword="^$"),
-    'no-rating': MusicFilter(min_rating=0.0, max_rating=0.0),
-    'bests-4.0': MusicFilter(min_rating=4.0, keyword=NO_KEYWORD),
-    'bests-4.5': MusicFilter(min_rating=4.5, keyword=NO_KEYWORD),
-    'bests-5.0': MusicFilter(min_rating=5.0, keyword=NO_KEYWORD),
+    "to-fix": MusicFilter(keyword="(tofix|todo|spotify-error)"),
+    "no-artist": MusicFilter(artist="^$"),
+    "no-album": MusicFilter(album="^$"),
+    "no-title": MusicFilter(title="^$"),
+    "no-genre": MusicFilter(genre="^$"),
+    "no-keyword": MusicFilter(keyword="^$"),
+    "no-rating": MusicFilter(min_rating=0.0, max_rating=0.0),
+    "bests-4.0": MusicFilter(min_rating=4.0, keyword=NO_KEYWORD),
+    "bests-4.5": MusicFilter(min_rating=4.5, keyword=NO_KEYWORD),
+    "bests-5.0": MusicFilter(min_rating=5.0, keyword=NO_KEYWORD),
 }

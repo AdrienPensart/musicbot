@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 def default_encoder(data: Any) -> Any:
-    '''Encode in json structure which cannot'''
+    """Encode in json structure which cannot"""
     if isinstance(data, set):
         return list(data)
     # if isinstance(data, (frozendict, CaseInsensitiveDict)):
@@ -40,7 +40,7 @@ def default_encoder(data: Any) -> Any:
 @beartype
 def public_ip() -> str | None:
     try:
-        return requests.get('https://api.ipify.org', timeout=5).text
+        return requests.get("https://api.ipify.org", timeout=5).text
     except Exception as e:  # pylint: disable=broad-except
         MusicbotObject.err(f"Unable to detect Public IP : {e}")
     return None
@@ -61,7 +61,7 @@ class MusicbotObject:
     _public_ip: str | None = None
 
     def __repr__(self) -> str:
-        return '[DRY]' if self.dry else '[DOING]'
+        return "[DRY]" if self.dry else "[DOING]"
 
     @classmethod
     def public_ip(cls) -> str | None:
@@ -69,45 +69,45 @@ class MusicbotObject:
 
     @staticmethod
     def is_dev() -> bool:
-        '''Do we execute Unity from a dev folder?'''
-        if 'poetry' in os.environ.get('VIRTUAL_ENV', ''):
+        """Do we execute Unity from a dev folder?"""
+        if "poetry" in os.environ.get("VIRTUAL_ENV", ""):
             return True
         return bool(sys.flags.dev_mode) or "main.py" in sys.argv[0]
 
     @staticmethod
     def is_test() -> bool:
-        '''Are we in a test session ?'''
+        """Are we in a test session ?"""
         return "pytest" in sys.modules
 
     @classmethod
     def is_prod(cls) -> bool:
-        '''Are we executing the prod version?'''
+        """Are we executing the prod version?"""
         return not cls.is_dev() and not cls.is_test()
 
     @classmethod
     def err(cls, message: Any, **options: Any) -> None:
-        '''Print error to the user'''
+        """Print error to the user"""
         if cls.show_err:
-            cls.echo(message, fg='red', **options)
+            cls.echo(message, fg="red", **options)
 
     @classmethod
     def warn(cls, message: Any, **options: Any) -> None:
-        '''Print warning to the user'''
+        """Print warning to the user"""
         if cls.show_warn:
-            cls.echo(message, fg='yellow', **options)
+            cls.echo(message, fg="yellow", **options)
 
     @classmethod
     def tip(cls, message: Any, only_once: bool = True, **options: Any) -> None:
-        '''Give a useful tip to the user'''
+        """Give a useful tip to the user"""
         if cls.show_tip and message not in cls.already_printed:
-            cls.echo(message, fg='bright_blue', only_once=only_once, **options)
+            cls.echo(message, fg="bright_blue", only_once=only_once, **options)
             cls.already_printed.append(message)
 
     @classmethod
     def success(cls, message: Any, **options: Any) -> None:
-        '''Print a successful operation to the user'''
+        """Print a successful operation to the user"""
         if cls.show_success:
-            cls.echo(message, fg='green', **options)
+            cls.echo(message, fg="green", **options)
 
     @classmethod
     def echo(
@@ -115,12 +115,12 @@ class MusicbotObject:
         message: Any,
         quiet: bool = DEFAULT_QUIET,
         file: IO | None = None,
-        end: str = '\n',
+        end: str = "\n",
         flush: bool = True,
         only_once: bool = False,
         **kwargs: Any,
     ) -> None:
-        '''Print a normal message to the user'''
+        """Print a normal message to the user"""
         file = file if file is not None else sys.stderr
         timing = ""
         if cls.config.debug:
@@ -129,9 +129,9 @@ class MusicbotObject:
 
         if not quiet and cls.show_echo and not cls.config.quiet:
             if cls.config.color:
-                final_message = click.style(f'\r{timing}{message}\033[K', **kwargs)
+                final_message = click.style(f"\r{timing}{message}\033[K", **kwargs)
             else:
-                final_message = f'\r{message}\033[K'
+                final_message = f"\r{message}\033[K"
             with cls.print_lock:
                 if only_once:
                     if message in cls.already_printed:
@@ -153,7 +153,7 @@ class MusicbotObject:
     ) -> NullBar | ProgressBar:
         pbar = NullBar if (quiet or cls.config.quiet) else ProgressBar
         if desc:
-            desc += ' : '
+            desc += " : "
         return pbar(
             prefix=desc,
             redirect_stderr=redirect_stderr,
@@ -172,7 +172,7 @@ class MusicbotObject:
         desc: str | None = None,
         limit: int | None = None,
         threads: int | None = None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> list[Any]:
         threads = threads if threads not in (None, 0) else DEFAULT_THREADS
         quiet = len(items) <= 1 or quiet
@@ -180,15 +180,13 @@ class MusicbotObject:
         if desc and (cls.is_dev() or cls.config.info or cls.config.debug):
             desc += f" ({threads} threads)"
         if threads == 1:
-            with (
-                cls.progressbar(
-                    max_value=len(items),
-                    quiet=quiet,
-                    redirect_stderr=True,
-                    redirect_stdout=True,
-                    desc=desc,
-                    **kwargs,
-                )
+            with cls.progressbar(
+                max_value=len(items),
+                quiet=quiet,
+                redirect_stderr=True,
+                redirect_stdout=True,
+                desc=desc,
+                **kwargs,
             ) as pbar:
                 results = []
                 for item in items:
@@ -209,9 +207,10 @@ class MusicbotObject:
                     desc=desc,
                     **kwargs,
                 ) as pbar,
-                cf.ThreadPoolExecutor(max_workers=threads) as executor
+                cf.ThreadPoolExecutor(max_workers=threads) as executor,
             ):
                 try:
+
                     def update_pbar(_: Any) -> None:
                         try:
                             pbar.value += 1
@@ -221,6 +220,7 @@ class MusicbotObject:
                             while True:
                                 os.kill(os.getpid(), signal.SIGKILL)
                                 os.killpg(os.getpid(), signal.SIGKILL)
+
                     futures = []
                     for item in items:
                         future = executor.submit(worker, item, *args)
@@ -234,63 +234,63 @@ class MusicbotObject:
                     cls.fast_kill()
         return results[:limit]
 
-#     @classmethod
-#     def async_gather(
-#         cls,
-#         worker: Callable,
-#         items: Collection[Any],
-#         quiet: bool = False,
-#         desc: str | None = None,
-#         limit: int | None = None,
-#         merge: bool = False,
-#         return_exceptions: bool = False,
-#         timeout: int | None = None,
-#         **kwargs: Any,
-#     ) -> List[Any]:
-#         """
-#         A version of asyncio.gather that runs on the internal event loop
-#         """
-#         quiet = len(items) <= 1 or quiet
-#         with cls.progressbar(max_value=len(items), quiet=quiet, desc=desc, **kwargs) as pbar:
-#             try:
-#                 async def _worker(worker_item: Any) -> Any:
-#                     try:
-#                         return await worker(worker_item)
-#                     finally:
-#                         pbar.value += 1
-#                         pbar.update()
-#                 futures = []
-#                 for future_item in items:
-#                     future = _worker(future_item)
-#                     futures.append(future)
-#                 async def _gather() -> List[Any]:
-#                     return await asyncio.gather(  # pylint: disable=deprecated-argument
-#                         *futures,
-#                         loop=_LOOP,
-#                         return_exceptions=return_exceptions
-#                     )
-#
-#                 results = cls.async_run(_gather(), timeout=timeout)
-#                 results = [result for result in results if result is not None]
-#                 if not merge:
-#                     return results[:limit]
-#
-#                 final_results = []
-#                 for sublist in results:
-#                     if isinstance(sublist, Iterable):
-#                         final_results.extend([item for item in sublist if item is not None])
-#             except KeyboardInterrupt as e:
-#                 if cls.is_test():
-#                     raise e
-#                 cls.fast_kill()
-#         return final_results[:limit]
+    #     @classmethod
+    #     def async_gather(
+    #         cls,
+    #         worker: Callable,
+    #         items: Collection[Any],
+    #         quiet: bool = False,
+    #         desc: str | None = None,
+    #         limit: int | None = None,
+    #         merge: bool = False,
+    #         return_exceptions: bool = False,
+    #         timeout: int | None = None,
+    #         **kwargs: Any,
+    #     ) -> List[Any]:
+    #         """
+    #         A version of asyncio.gather that runs on the internal event loop
+    #         """
+    #         quiet = len(items) <= 1 or quiet
+    #         with cls.progressbar(max_value=len(items), quiet=quiet, desc=desc, **kwargs) as pbar:
+    #             try:
+    #                 async def _worker(worker_item: Any) -> Any:
+    #                     try:
+    #                         return await worker(worker_item)
+    #                     finally:
+    #                         pbar.value += 1
+    #                         pbar.update()
+    #                 futures = []
+    #                 for future_item in items:
+    #                     future = _worker(future_item)
+    #                     futures.append(future)
+    #                 async def _gather() -> List[Any]:
+    #                     return await asyncio.gather(  # pylint: disable=deprecated-argument
+    #                         *futures,
+    #                         loop=_LOOP,
+    #                         return_exceptions=return_exceptions
+    #                     )
+    #
+    #                 results = cls.async_run(_gather(), timeout=timeout)
+    #                 results = [result for result in results if result is not None]
+    #                 if not merge:
+    #                     return results[:limit]
+    #
+    #                 final_results = []
+    #                 for sublist in results:
+    #                     if isinstance(sublist, Iterable):
+    #                         final_results.extend([item for item in sublist if item is not None])
+    #             except KeyboardInterrupt as e:
+    #                 if cls.is_test():
+    #                     raise e
+    #                 cls.fast_kill()
+    #         return final_results[:limit]
 
     @classmethod
     def fast_kill(cls) -> NoReturn:  # pylint: disable=unused-argument
-        '''We don't do anything silly in musicbot, like open or writing files, etc
+        """We don't do anything silly in musicbot, like open or writing files, etc
         so let's hard kill ourself to avoid multiple ctrl+c by user
         if a thread received the SIGKILL, it may kill the process,
-        so we send them in continue until it reaches the main thread'''
+        so we send them in continue until it reaches the main thread"""
         cls.err("interrupted, fast-killing process", only_once=True)
         while True:
             os.kill(os.getpid(), signal.SIGKILL)
@@ -298,7 +298,7 @@ class MusicbotObject:
 
     @classmethod
     def print_table(cls, table: Table, file: IO | None = None) -> None:
-        '''Print rich table'''
+        """Print rich table"""
         if file is not None:
             console = Console(file=io.StringIO(), width=300)
             console.print(table)
@@ -307,7 +307,7 @@ class MusicbotObject:
             return
 
         with cls.print_lock:
-            print('\r\033[K', end='')
+            print("\r\033[K", end="")
             cls.console.print(table)
 
     @classmethod
@@ -318,7 +318,7 @@ class MusicbotObject:
         option: int | None = orjson.OPT_INDENT_2 | orjson.OPT_SORT_KEYS | orjson.OPT_NON_STR_KEYS,  # pylint: disable=maybe-no-member
         default: Callable | None = default_encoder,
     ) -> None:
-        '''Print highlighted json to stdout depending if we are in a TTY'''
+        """Print highlighted json to stdout depending if we are in a TTY"""
         file = file if file is not None else sys.stdout
         if (encoded := cls.dumps_json(data, option=option, default=default)) is None:
             return None
@@ -339,11 +339,11 @@ class MusicbotObject:
         data: Any,
         option: int | None = orjson.OPT_INDENT_2 | orjson.OPT_SORT_KEYS | orjson.OPT_NON_STR_KEYS,  # pylint: disable=maybe-no-member
         default: Callable | None = default_encoder,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> str | None:
-        '''dumps json using global library'''
+        """dumps json using global library"""
         try:
-            return orjson.dumps(data, option=option, default=default, **kwargs).decode('utf-8')  # pylint: disable=maybe-no-member
+            return orjson.dumps(data, option=option, default=default, **kwargs).decode("utf-8")  # pylint: disable=maybe-no-member
         except orjson.JSONEncodeError as e:  # pylint: disable=maybe-no-member
             cls.err(f"unable to encode json : {e}")
             logger.debug(data)
@@ -351,7 +351,7 @@ class MusicbotObject:
 
     @classmethod
     def loads_json(cls, data: bytes | bytearray | memoryview | str) -> Any | None:
-        '''loads json using global library'''
+        """loads json using global library"""
         try:
             return orjson.loads(data)  # pylint: disable=maybe-no-member
         except orjson.JSONDecodeError as e:  # pylint: disable=maybe-no-member

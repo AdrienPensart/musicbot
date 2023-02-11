@@ -37,7 +37,7 @@ class Folders(MusicbotObject):
 
     @property
     def unique_directories(self) -> str:
-        return ','.join({str(directory) for directory in self.directories})
+        return ",".join({str(directory) for directory in self.directories})
 
     @cached_property
     def files(self) -> list[File]:
@@ -48,7 +48,8 @@ class Folders(MusicbotObject):
             except OSError as e:
                 logger.error(e)
             return None
-        return list(os_sorted(self.apply(worker, desc="Loading musics"), lambda f: f.path))[:self.limit]
+
+        return list(os_sorted(self.apply(worker, desc="Loading musics"), lambda f: f.path))[: self.limit]
 
     @cached_property
     def musics(self) -> list[Music]:
@@ -74,7 +75,7 @@ class Folders(MusicbotObject):
         return {folder_and_path[1] for folder_and_path in self.folders_and_paths}
 
     def __repr__(self) -> str:
-        return ' '.join(str(folder) for folder in self.directories)
+        return " ".join(str(folder) for folder in self.directories)
 
     def flush_empty_directories(self, recursive: bool = True) -> Iterator[str]:
         for root_dir in self.directories:

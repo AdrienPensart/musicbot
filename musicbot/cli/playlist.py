@@ -13,7 +13,7 @@ from musicbot.defaults import (
     DEFAULT_MINIMUM_PLAYLIST_SIZE,
     DEFAULT_RELATIVE,
     DEFAULT_SHUFFLE,
-    KINDS_CHOICES
+    KINDS_CHOICES,
 )
 from musicbot.playlist_options import PlaylistOptions
 
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 bests_options = add_options(
     optgroup.group("Bests options"),
     optgroup.option(
-        '--min-playlist-size',
+        "--min-playlist-size",
         help="Minimum size of playlist to write",
         default=DEFAULT_MINIMUM_PLAYLIST_SIZE,
         show_default=True,
@@ -47,10 +47,11 @@ def sane_playlist_options(ctx: click.Context, param: click.Parameter, value: str
 
 
 playlist_options = add_options(
-    optgroup('Links options'),
+    optgroup("Links options"),
     optgroup.option(
-        '--kind', '--kinds',
-        'kinds',
+        "--kind",
+        "--kinds",
+        "kinds",
         help="Generate musics paths of types",
         multiple=True,
         default=list(sorted(DEFAULT_KINDS)),
@@ -59,31 +60,31 @@ playlist_options = add_options(
         callback=split_arguments,
     ),
     optgroup.option(
-        '--relative/--no-relative',
-        help='Generate relative links',
+        "--relative/--no-relative",
+        help="Generate relative links",
         default=DEFAULT_RELATIVE,
         show_default=True,
         is_flag=True,
     ),
-    optgroup('Ordering options', cls=MutuallyExclusiveOptionGroup),
+    optgroup("Ordering options", cls=MutuallyExclusiveOptionGroup),
     optgroup.option(
-        '--shuffle/--no-shuffle',
-        help='Randomize selection',
+        "--shuffle/--no-shuffle",
+        help="Randomize selection",
         default=DEFAULT_SHUFFLE,
         show_default=True,
         is_flag=True,
     ),
     optgroup.option(
-        '--interleave/--no-interleave',
-        help='Interleave tracks by artist',
+        "--interleave/--no-interleave",
+        help="Interleave tracks by artist",
         default=DEFAULT_INTERLEAVE,
         show_default=True,
         is_flag=True,
     ),
-    optgroup('Playlist object'),
+    optgroup("Playlist object"),
     optgroup.option(
-        '--playlist-options',
-        help='Playlist Options',
+        "--playlist-options",
+        help="Playlist Options",
         expose_value=False,
         callback=sane_playlist_options,
         hidden=True,

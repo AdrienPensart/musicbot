@@ -18,13 +18,13 @@ from musicbot.playlist import Playlist
 logger = logging.getLogger(__name__)
 
 
-@click.group('folder', help='Manage folders', cls=AdvancedGroup)
+@click.group("folder", help="Manage folders", cls=AdvancedGroup)
 @beartype
 def cli() -> None:
     pass
 
 
-@cli.command(help='Just list music files')
+@cli.command(help="Just list music files")
 @folders_argument
 @beartype
 def find(folders: Folders) -> None:
@@ -32,7 +32,7 @@ def find(folders: Folders) -> None:
         print(file)
 
 
-@cli.command(help='Generates a playlist', aliases=['tags', 'musics', 'tracks'])
+@cli.command(help="Generates a playlist", aliases=["tags", "musics", "tracks"])
 @folders_argument
 @output_option
 @beartype
@@ -41,16 +41,13 @@ def playlist(
     output: str,
 ) -> None:
     name = str(folders)
-    playlist = Playlist(
-        name=name,
-        musics=folders.musics
-    )
+    playlist = Playlist(name=name, musics=folders.musics)
     playlist.print(
         output=output,
     )
 
 
-@cli.command(help='Convert all files in folders to mp3', aliases=['flac-to-mp3'])
+@cli.command(help="Convert all files in folders to mp3", aliases=["flac-to-mp3"])
 @destination_argument
 @folders_argument
 @threads_option
@@ -79,7 +76,7 @@ def flac2mp3(
     )
 
 
-@cli.command(help='Show music files issues in folders')
+@cli.command(help="Show music files issues in folders")
 @folders_argument
 @beartype
 def issues(
@@ -88,15 +85,15 @@ def issues(
     table = Table("Path", "Issues")
     for file in folders.files:
         try:
-            if (issues := file.issues):
-                table.add_row(str(file.path), ', '.join(issues))
+            if issues := file.issues:
+                table.add_row(str(file.path), ", ".join(issues))
         except (OSError, mutagen.MutagenError):
             table.add_row(str(file.path), "could not open file")
     table.caption = f"{folders} : {table.row_count} inconsistencies listed"
     MusicbotObject.print_table(table)
 
 
-@cli.command(help='Fix music files in folders')
+@cli.command(help="Fix music files in folders")
 @folders_argument
 @beartype
 def manual_fix(
@@ -119,11 +116,11 @@ def manual_fix(
         if not file.issues:
             continue
         _manual_fix(file)
-        MusicbotObject.tip('Wait for Enter...')
-        _ = input('')
+        MusicbotObject.tip("Wait for Enter...")
+        _ = input("")
 
 
-@cli.command(help='Set music title', aliases=['set-tag'])
+@cli.command(help="Set music title", aliases=["set-tag"])
 @folders_argument
 @dry_option
 @file_options
@@ -151,7 +148,7 @@ def set_tags(
             MusicbotObject.err(f"{file} : unable to set tags")
 
 
-@cli.command(help='Add keywords to music')
+@cli.command(help="Add keywords to music")
 @folders_argument
 @keywords_arguments
 @dry_option
@@ -165,7 +162,7 @@ def add_keywords(
             MusicbotObject.err(f"{file} : unable to add keywords")
 
 
-@cli.command(help='Delete keywords to music')
+@cli.command(help="Delete keywords to music")
 @folders_argument
 @keywords_arguments
 @dry_option

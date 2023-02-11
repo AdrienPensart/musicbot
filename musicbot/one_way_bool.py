@@ -1,4 +1,4 @@
-'''Helper module to secure dry mode'''
+"""Helper module to secure dry mode"""
 import traceback
 from typing import Any, List, Optional, Union
 
@@ -6,7 +6,8 @@ from musicbot.exceptions import MusicbotError
 
 
 class OneWayBool:
-    '''A bool value that go from False=>True or True=>False but only once'''
+    """A bool value that go from False=>True or True=>False but only once"""
+
     def __init__(self, name: str, default: bool):
         self.name: str = name
         self.mode: Optional[bool] = None
@@ -14,8 +15,9 @@ class OneWayBool:
         self.first_set_trace: List[Any] = []
 
     def set_mode(self, mode: bool, force: Union["OneWayBool", bool] = False) -> None:
-        '''Will set a value only once, or many times to same value, else raise error'''
+        """Will set a value only once, or many times to same value, else raise error"""
         from musicbot.object import MusicbotObject
+
         if force:
             MusicbotObject.success(f"SETTING {self.name} MODE TO {mode} (forced)")
             self.mode = mode

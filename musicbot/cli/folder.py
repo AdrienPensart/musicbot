@@ -20,8 +20,8 @@ def sane_folders(ctx: click.Context, param: click.Parameter, value: tuple[str, .
         logger.error("no param name set")
         raise click.Abort()
     value = config_list(ctx, param, value)
-    limit = ctx.params.pop('limit', None)
-    extensions = ctx.params.pop('extensions', DEFAULT_EXTENSIONS)
+    limit = ctx.params.pop("limit", None)
+    extensions = ctx.params.pop("extensions", DEFAULT_EXTENSIONS)
     paths = [Path(path) for path in value]
     folders = Folders(
         directories=paths,
@@ -33,27 +33,27 @@ def sane_folders(ctx: click.Context, param: click.Parameter, value: tuple[str, .
 
 
 folder_argument = click.argument(
-    'folder',
+    "folder",
     type=click.Path(
         path_type=Path,
         exists=True,
         file_okay=False,
-    )
+    ),
 )
 
 folders_argument = add_options(
     dry_option,
     optgroup.group("Folders options"),
     optgroup.option(
-        '--limit',
+        "--limit",
         help="Limit number of music files",
         type=int,
         is_eager=True,
     ),
     optgroup.option(
-        '--extension',
-        'extensions',
-        help='Supported formats',
+        "--extension",
+        "extensions",
+        help="Supported formats",
         default=sorted(DEFAULT_EXTENSIONS),
         multiple=True,
         callback=split_arguments,
@@ -61,15 +61,15 @@ folders_argument = add_options(
         is_eager=True,
     ),
     click.argument(
-        'folders',
+        "folders",
         nargs=-1,
         callback=sane_folders,
-    )
+    ),
 )
 
 
 destination_argument = click.argument(
-    'destination',
+    "destination",
     type=click.Path(
         path_type=Path,
         exists=True,

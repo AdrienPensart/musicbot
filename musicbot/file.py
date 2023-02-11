@@ -17,7 +17,7 @@ from musicbot.defaults import (
     DEFAULT_MAX_RATING,
     DEFAULT_MIN_RATING,
     RATING_CHOICES,
-    STORED_RATING_CHOICES
+    STORED_RATING_CHOICES,
 )
 from musicbot.exceptions import MusicbotError
 from musicbot.helpers import current_user
@@ -52,12 +52,9 @@ class File(MusicbotObject):
             return None
 
         try:
-            return cls(
-                folder=folder.resolve(),
-                handle=mutagen.File(path.resolve())
-            )
+            return cls(folder=folder.resolve(), handle=mutagen.File(path.resolve()))
         except mutagen.MutagenError as e:
-            cls.err(f'{path} : {e}')
+            cls.err(f"{path} : {e}")
         return None
 
     def __repr__(self) -> str:
@@ -78,9 +75,9 @@ class File(MusicbotObject):
             issues.add(Issue.NO_RATING)
         if self.track == -1:
             issues.add(Issue.NO_TRACK)
-        if self.extension == '.flac' and self._comment and not self._description:
+        if self.extension == ".flac" and self._comment and not self._description:
             issues.add(Issue.INVALID_COMMENT)
-        if self.extension == '.mp3' and self._description and not self._comment:
+        if self.extension == ".mp3" and self._description and not self._comment:
             issues.add(Issue.INVALID_COMMENT)
         if self.track not in (-1, 0) and self.title != self.canonic_title:
             logger.debug(f"{self} : invalid title, '{self.title}' should be '{self.canonic_title}'")
@@ -118,15 +115,15 @@ class File(MusicbotObject):
         if self.music is None:
             return None
         data = asdict(self.music)
-        if not data['folders']:
+        if not data["folders"]:
             self.err(f"{self} : no folder set")
             return None
 
-        folders = data.pop('folders')
-        data['ipv4'] = folders[0]['ipv4']
-        data['user'] = folders[0]['user']
-        data['folder'] = folders[0]['name']
-        data['path'] = folders[0]['path']
+        folders = data.pop("folders")
+        data["ipv4"] = folders[0]["ipv4"]
+        data["user"] = folders[0]["user"]
+        data["folder"] = folders[0]["name"]
+        data["path"] = folders[0]["path"]
         return data
 
     @beartype
@@ -194,17 +191,17 @@ class File(MusicbotObject):
 
     @property
     def flat_title(self) -> str:
-        return f'{self.artist} - {self.album} - {self.canonic_title}'
+        return f"{self.artist} - {self.album} - {self.canonic_title}"
 
     @property
     def flat_filename(self) -> str:
-        return f'{self.artist} - {self.album} - {self.canonic_title}{self.extension}'
+        return f"{self.artist} - {self.album} - {self.canonic_title}{self.extension}"
 
     @property
     def flat_path(self) -> Path:
         return self.folder / self.flat_filename
 
-    def _get_first(self, tag: str, default: str = '') -> str:
+    def _get_first(self, tag: str, default: str = "") -> str:
         if tag not in self.handle:
             return default
         for item in self.handle[tag]:
@@ -217,14 +214,14 @@ class File(MusicbotObject):
 
     @property
     def title(self) -> str:
-        if self.extension == '.flac':
-            return self._get_first('title')
-        return self._get_first('TIT2')
+        if self.extension == ".flac":
+            return self._get_first("title")
+        return self._get_first("TIT2")
 
     @title.setter
     def title(self, title: str) -> None:
-        if self.extension == '.flac':
-            self.handle.tags['title'] = title
+        if self.extension == ".flac":
+            self.handle.tags["title"] = title
         else:
             self.handle.tags.add(mutagen.id3.TIT2(text=title))
 
@@ -237,53 +234,53 @@ class File(MusicbotObject):
 
     @property
     def album(self) -> str:
-        if self.extension == '.flac':
-            return self._get_first('album')
-        return self._get_first('TALB')
+        if self.extension == ".flac":
+            return self._get_first("album")
+        return self._get_first("TALB")
 
     @album.setter
     def album(self, album: str) -> None:
-        if self.extension == '.flac':
-            self.handle.tags['album'] = album
+        if self.extension == ".flac":
+            self.handle.tags["album"] = album
         else:
             self.handle.tags.add(mutagen.id3.TALB(text=album))
 
     @property
     def artist(self) -> str:
-        if self.extension == '.flac':
-            return self._get_first('artist')
-        return self._get_first('TPE1')
+        if self.extension == ".flac":
+            return self._get_first("artist")
+        return self._get_first("TPE1")
 
     @artist.setter
     def artist(self, artist: str) -> None:
-        if self.extension == '.flac':
-            self.handle.tags['artist'] = artist
+        if self.extension == ".flac":
+            self.handle.tags["artist"] = artist
         else:
             self.handle.tags.add(mutagen.id3.TPE1(text=artist))
 
     @property
     def genre(self) -> str:
-        if self.extension == '.flac':
-            genre = self._get_first('genre')
+        if self.extension == ".flac":
+            genre = self._get_first("genre")
         else:
-            genre = self._get_first('TCON')
+            genre = self._get_first("TCON")
         if not genre:
             logger.debug(f"{self} : no genre set")
         return genre
 
     @genre.setter
     def genre(self, genre: str) -> None:
-        if self.extension == '.flac':
-            self.handle.tags['genre'] = genre
+        if self.extension == ".flac":
+            self.handle.tags["genre"] = genre
         else:
             self.handle.tags.add(mutagen.id3.TCON(text=genre))
 
     @property
     def rating(self) -> float:
-        if self.extension == '.flac':
-            rating_str = self._get_first('fmps_rating')
+        if self.extension == ".flac":
+            rating_str = self._get_first("fmps_rating")
         else:
-            rating_str = self._get_first('TXXX:FMPS_Rating')
+            rating_str = self._get_first("TXXX:FMPS_Rating")
         try:
             rating = float(rating_str)
             if rating not in STORED_RATING_CHOICES:
@@ -309,45 +306,45 @@ class File(MusicbotObject):
             self.err(f"{self} : tried to set a bad rating : {rating}")
             return
         rating /= 5.0
-        if self.extension == '.flac':
-            self.handle['fmps_rating'] = str(rating)
+        if self.extension == ".flac":
+            self.handle["fmps_rating"] = str(rating)
         else:
-            txxx = mutagen.id3.TXXX(desc='FMPS_Rating', text=str(rating))
+            txxx = mutagen.id3.TXXX(desc="FMPS_Rating", text=str(rating))
             self.handle.tags.add(txxx)
 
     @property
     def _comment(self) -> str:
-        comm = self.handle.get('COMM::XXX', None)
+        comm = self.handle.get("COMM::XXX", None)
         if comm is not None and len(comm.text) > 0:
             return comm.text[0]
-        return self._get_first('COMM:ID3v1 Comment:eng')
+        return self._get_first("COMM:ID3v1 Comment:eng")
 
     @_comment.setter
     def _comment(self, comment: str) -> None:
-        self.handle.tags.delall('COMM')
-        comm = mutagen.id3.COMM(desc='ID3v1 Comment', lang='eng', text=comment)
+        self.handle.tags.delall("COMM")
+        comm = mutagen.id3.COMM(desc="ID3v1 Comment", lang="eng", text=comment)
         self.handle.tags.add(comm)
 
     @property
     def _description(self) -> str:
-        return ' '.join([self._get_first('description'), self._get_first('comment')]).strip()
+        return " ".join([self._get_first("description"), self._get_first("comment")]).strip()
 
     @_description.setter
     def _description(self, description: str) -> None:
-        self.handle.tags['description'] = description
-        self.handle.tags['comment'] = description
+        self.handle.tags["description"] = description
+        self.handle.tags["comment"] = description
 
     @property
     def track(self) -> int:
-        track_tag = 'tracknumber' if self.extension == '.flac' else 'TRCK'
+        track_tag = "tracknumber" if self.extension == ".flac" else "TRCK"
         track = self._get_first(track_tag)
         try:
-            if '/' in track:
-                track = track.split('/', maxsplit=1)[0]
+            if "/" in track:
+                track = track.split("/", maxsplit=1)[0]
             n = int(track)
             if n < 0:
                 return -1
-            if n > 2 ** 31 - 1:
+            if n > 2**31 - 1:
                 logger.warning(f"{self} : invalid track number {n}")
                 return 0
             return n
@@ -356,45 +353,45 @@ class File(MusicbotObject):
 
     @track.setter
     def track(self, number: int) -> None:
-        if self.extension == '.flac':
-            self.handle.tags['tracknumber'] = str(number)
+        if self.extension == ".flac":
+            self.handle.tags["tracknumber"] = str(number)
         else:
-            self.handle.tags.delall('TRCK')
+            self.handle.tags.delall("TRCK")
             trck = mutagen.id3.TRCK(text=str(number))
             self.handle.tags.add(trck)
 
     @property
     def keywords(self) -> set[str]:
-        if self.extension == '.mp3':
-            return set(mysplit(self._comment, ' '))
-        if self.extension == '.flac':
+        if self.extension == ".mp3":
+            return set(mysplit(self._comment, " "))
+        if self.extension == ".flac":
             if self._comment and not self._description:
-                logger.warning(f'{self} : fixing flac keywords with mp3 comment')
+                logger.warning(f"{self} : fixing flac keywords with mp3 comment")
                 self._description = self._comment
-            return set(mysplit(self._description, ' '))
+            return set(mysplit(self._description, " "))
         return set()
 
     @keywords.setter
     def keywords(self, keywords: set[str]) -> None:
-        if self.extension == '.mp3':
-            logger.info(f'{self} : new mp3 keywords : {keywords}')
-            self._comment = ' '.join(keywords)
-        elif self.extension == '.flac':
-            logger.info(f'{self} : new flac keywords : {keywords}')
-            self._description = ' '.join(keywords)
+        if self.extension == ".mp3":
+            logger.info(f"{self} : new mp3 keywords : {keywords}")
+            self._comment = " ".join(keywords)
+        elif self.extension == ".flac":
+            logger.info(f"{self} : new flac keywords : {keywords}")
+            self._description = " ".join(keywords)
         else:
-            self.err(f'{self} : unknown extension {self.extension}')
+            self.err(f"{self} : unknown extension {self.extension}")
 
     @beartype
     def add_keywords(self, keywords: set[str]) -> bool:
         self.keywords = self.keywords.union(keywords)
-        logger.info(f'{self} : adding {keywords}, new keywords {self.keywords}')
+        logger.info(f"{self} : adding {keywords}, new keywords {self.keywords}")
         return self.save()
 
     @beartype
     def delete_keywords(self, keywords: set[str]) -> bool:
         new_keywords = self.keywords - set(keywords)
-        logger.info(f'{self} : deleting {keywords}, new keywords {new_keywords}')
+        logger.info(f"{self} : deleting {keywords}, new keywords {new_keywords}")
         self.keywords = new_keywords
         return self.save()
 
@@ -405,9 +402,9 @@ class File(MusicbotObject):
             return None
 
         if flat:
-            mp3_path = destination / f'{self.flat_title}.mp3'
+            mp3_path = destination / f"{self.flat_title}.mp3"
         else:
-            mp3_path = destination / self.artist / self.album / (self.canonic_title + '.mp3')
+            mp3_path = destination / self.artist / self.album / (self.canonic_title + ".mp3")
 
         if mp3_path.exists():
             logger.info(f"{mp3_path} already exists, overwriting only tags")
@@ -427,7 +424,7 @@ class File(MusicbotObject):
                 return None
             return mp3_file
 
-        if self.extension == '.mp3':
+        if self.extension == ".mp3":
             self.warn(f"{self} is already an MP3")
             _ = shutil.copyfile(self.path, str(mp3_path))
             if self.dry:
@@ -474,7 +471,7 @@ class File(MusicbotObject):
         for score, recording_id, title, artist in ids:
             logger.info(f"{self} score : {score} | recording_id : {recording_id} | title : {title} | artist : {artist}")
             return str(recording_id)
-        logger.info(f'{self} : fingerprint cannot be detected')
+        logger.info(f"{self} : fingerprint cannot be detected")
         return None
 
     @beartype
@@ -513,10 +510,10 @@ class File(MusicbotObject):
                         return False
                 case Issue.INVALID_COMMENT:
                     logger.info(f"{self} : fixing comment")
-                    if self.extension == '.flac' and self._comment and not self._description and not self.dry:
-                        self._description = ''
-                    if self.extension == '.mp3' and self._description and not self._comment and not self.dry:
-                        self._comment = ''
+                    if self.extension == ".flac" and self._comment and not self._description and not self.dry:
+                        self._description = ""
+                    if self.extension == ".mp3" and self._description and not self._comment and not self.dry:
+                        self._comment = ""
                     if not self.save():
                         return False
                 case Issue.INVALID_TITLE:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-'''Main module, import commands and start CLI'''
+"""Main module, import commands and start CLI"""
 import logging
 import os
 from typing import Any, Final
@@ -15,6 +15,7 @@ from click_skeleton import backtrace, doc, helpers, skeleton, version_checker
 import musicbot
 import musicbot.commands
 from musicbot import Config, MusicbotObject, version
+
 # from musicbot.helpers import async_run
 from musicbot.cli.config import config_options
 from musicbot.cli.options import dry_option
@@ -24,12 +25,7 @@ PROG_NAME: Final[str] = "musicbot"
 logger = logging.getLogger(__name__)
 
 
-@skeleton(
-    name=PROG_NAME,
-    version=version.__version__,
-    auto_envvar_prefix='MB',
-    groups_package=musicbot.commands
-)
+@skeleton(name=PROG_NAME, version=version.__version__, auto_envvar_prefix="MB", groups_package=musicbot.commands)
 @click.pass_context
 @config_options
 @dry_option
@@ -60,14 +56,16 @@ def cli(
         config=config,
     )
 
-    use_uvloop: bool = helpers.str2bool(os.environ.get('MB_USE_UVLOOP', True))
+    use_uvloop: bool = helpers.str2bool(os.environ.get("MB_USE_UVLOOP", True))
     if use_uvloop:
         import uvloop
+
         uvloop.install()
 
-    disable_gc: bool = helpers.str2bool(os.environ.get('MB_DISABLE_GC', False))
+    disable_gc: bool = helpers.str2bool(os.environ.get("MB_DISABLE_GC", False))
     if disable_gc:
         import gc
+
         gc.disable()
 
     if not helpers.raise_limits():
@@ -76,25 +74,26 @@ def cli(
     ctx.color = MusicbotObject.config.color
 
 
-@cli.command(short_help='Starts interpreter')
+@cli.command(short_help="Starts interpreter")
 @beartype
 def console() -> None:
-    '''Starts an embedded ipython interpreter'''
+    """Starts an embedded ipython interpreter"""
     import IPython
+
     IPython.start_ipython(argv=[], user_ns=dict(musicbot=musicbot))
 
 
-@cli.command(short_help='Generates a README.rst', aliases=['doc'])
+@cli.command(short_help="Generates a README.rst", aliases=["doc"])
 @click.pass_context
-@click.option('--output', help='README output format', type=click.Choice(['rst', 'markdown']), default='rst', show_default=True)
+@click.option("--output", help="README output format", type=click.Choice(["rst", "markdown"]), default="rst", show_default=True)
 @beartype
 def readme(ctx: click.Context, output: str) -> None:
-    '''Generates a complete readme'''
+    """Generates a complete readme"""
     doc.readme(cli, ctx.obj.prog_name, ctx.obj.context_settings, output)
 
 
 def main() -> None:
-    check_version = helpers.str2bool(os.environ.get('MB_CHECK_VERSION', MusicbotObject.is_prod()))
+    check_version = helpers.str2bool(os.environ.get("MB_CHECK_VERSION", MusicbotObject.is_prod()))
     version_check = version_checker.VersionCheckerThread(
         prog_name=PROG_NAME,
         current_version=version.__version__,
@@ -108,12 +107,7 @@ def main() -> None:
         e.show()
     except MusicbotError as e:
         MusicbotObject.err(e)
-    except (
-        mutagen.MutagenError,
-        spotipy.client.SpotifyException,
-        requests.exceptions.ConnectionError,
-        edgedb.errors.AuthenticationError
-    ) as e:
+    except (mutagen.MutagenError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError, edgedb.errors.AuthenticationError) as e:
         logger.error(e)
         if MusicbotObject.config and MusicbotObject.config.debug:
             logger.exception(e)
@@ -121,5 +115,5 @@ def main() -> None:
         version_check.print()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

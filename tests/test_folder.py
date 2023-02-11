@@ -10,37 +10,57 @@ from . import fixtures
 
 @pytest.mark.runner_setup(mix_stderr=False)
 def test_folder_find(cli_runner):
-    musics = run_cli(cli_runner, cli, [
-        '--quiet',
-        'folder', 'find',
-        *fixtures.folders,
-    ])
+    musics = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "folder",
+            "find",
+            *fixtures.folders,
+        ],
+    )
     assert len(mysplit(musics, "\n")) == 5
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
 def test_folder_flac2mp3(cli_runner):
-    run_cli(cli_runner, cli, [
-        '--quiet',
-        'folder', 'flac2mp3',
-        '--dry',
-        *fixtures.folders,
-    ])
+    run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "folder",
+            "flac2mp3",
+            "--dry",
+            *fixtures.folders,
+        ],
+    )
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
 def test_folder_playlist(cli_runner):
-    run_cli(cli_runner, cli, [
-        '--quiet',
-        'folder', 'playlist',
-        *fixtures.folders,
-    ])
+    run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "folder",
+            "playlist",
+            *fixtures.folders,
+        ],
+    )
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
 def test_folder_issues(cli_runner):
-    run_cli(cli_runner, cli, [
-        '--quiet',
-        'folder', 'issues',
-        *fixtures.folders,
-    ])
+    run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "folder",
+            "issues",
+            *fixtures.folders,
+        ],
+    )

@@ -14,7 +14,7 @@ from musicbot.cli.file import (
     file_argument,
     file_options,
     keywords_arguments,
-    paths_arguments
+    paths_arguments,
 )
 from musicbot.cli.folder import destination_argument
 from musicbot.cli.options import dry_option, output_option
@@ -23,13 +23,13 @@ from musicbot.file import File
 logger = logging.getLogger(__name__)
 
 
-@click.group('music', help='Music file', cls=AdvancedGroup, aliases=['file'])
+@click.group("music", help="Music file", cls=AdvancedGroup, aliases=["file"])
 @beartype
 def cli() -> None:
     pass
 
 
-@cli.command(help='Show music')
+@cli.command(help="Show music")
 @file_argument
 @beartype
 def show(
@@ -58,30 +58,24 @@ def show(
     MusicbotObject.success(f"{file.flat_path=}")
 
 
-@cli.command(help='Convert flac music to mp3', aliases=['flac-to-mp3'])
+@cli.command(help="Convert flac music to mp3", aliases=["flac-to-mp3"])
 @file_argument
 @destination_argument
 @beartype
-def flac2mp3(
-    file: File,
-    destination: Path
-) -> None:
+def flac2mp3(file: File, destination: Path) -> None:
     if not file.to_mp3(destination):
         MusicbotObject.err(f"{file} : unable to convert to MP3")
 
 
-@cli.command(help='Print music fingerprint')
+@cli.command(help="Print music fingerprint")
 @file_argument
 @acoustid_api_key_option
 @beartype
-def fingerprint(
-    file: File,
-    acoustid_api_key: str
-) -> None:
+def fingerprint(file: File, acoustid_api_key: str) -> None:
     print(file.fingerprint(acoustid_api_key))
 
 
-@cli.command(help='Print music tags', aliases=['tag'])
+@cli.command(help="Print music tags", aliases=["tag"])
 @file_argument
 @output_option
 @beartype
@@ -93,13 +87,13 @@ def tags(
     if (music := file.music) is None:
         raise click.ClickException("unable to continue")
 
-    if output == 'json':
+    if output == "json":
         MusicbotObject.print_json(asdict(music))
         return
     print(music.human_repr())
 
 
-@cli.command(help='Check music consistency')
+@cli.command(help="Check music consistency")
 @file_argument
 @beartype
 def issues(
@@ -107,14 +101,14 @@ def issues(
 ) -> None:
     table = Table("Path", "Issues")
     try:
-        if (issues := file.issues):
-            table.add_row(str(file.path), ', '.join(issues))
+        if issues := file.issues:
+            table.add_row(str(file.path), ", ".join(issues))
     except (OSError, MutagenError):
         table.add_row(str(file.path), "could not open file")
     MusicbotObject.console.print(table)
 
 
-@cli.command(help='Fix music file')
+@cli.command(help="Fix music file")
 @file_argument
 @beartype
 def manual_fix(
@@ -137,7 +131,7 @@ def manual_fix(
         MusicbotObject.success(f"{file} : fixed !")
 
 
-@cli.command(help='Set music title', aliases=['set-tag'])
+@cli.command(help="Set music title", aliases=["set-tag"])
 @paths_arguments
 @dry_option
 @file_options
@@ -168,7 +162,7 @@ def set_tags(
             MusicbotObject.err(f"{file} : unable to set tags")
 
 
-@cli.command(help='Add keywords to music')
+@cli.command(help="Add keywords to music")
 @file_argument
 @keywords_arguments
 @dry_option
@@ -178,7 +172,7 @@ def add_keywords(file: File, keywords: set[str]) -> None:
         MusicbotObject.err(f"{file} : unable to add keywords")
 
 
-@cli.command(help='Delete keywords to music', aliases=['delete-keyword', 'remove-keywords', 'remove-keyword'])
+@cli.command(help="Delete keywords to music", aliases=["delete-keyword", "remove-keywords", "remove-keyword"])
 @file_argument
 @keywords_arguments
 @dry_option
@@ -188,12 +182,12 @@ def delete_keywords(file: File, keywords: set[str]) -> None:
         MusicbotObject.err(f"{file} : unable to delete keywords")
 
 
-@cli.command(help='Replace one keyword in music')
+@cli.command(help="Replace one keyword in music")
 @file_argument
 @dry_option
 @beartype
-@click.argument('old_keyword')
-@click.argument('new_keyword')
+@click.argument("old_keyword")
+@click.argument("new_keyword")
 def replace_keyword(file: File, old_keyword: str, new_keyword: str) -> None:
     if not file.delete_keywords({old_keyword}):
         MusicbotObject.err(f"{file} : unable to delete keyword {old_keyword}")

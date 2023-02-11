@@ -8,8 +8,7 @@ from typing import Any
 from attr import asdict, frozen
 from beartype import beartype
 from click_skeleton.helpers import PrettyDefaultDict
-from click_skeleton.helpers import \
-    seconds_to_human as formatted_seconds_to_human
+from click_skeleton.helpers import seconds_to_human as formatted_seconds_to_human
 from more_itertools import interleave_evenly
 from rich.table import Column, Table
 from rich.text import Text
@@ -36,10 +35,7 @@ class Playlist(MusicbotObject):
         files: list[File],
         name: str,
     ) -> "Playlist":
-        return cls(
-            name=name,
-            musics=[file.music for file in files if file.music is not None]
-        )
+        return cls(name=name, musics=[file.music for file in files if file.music is not None])
 
     @classmethod
     def from_edgedb(
@@ -50,11 +46,7 @@ class Playlist(MusicbotObject):
         musics = []
         for result in results:
             keywords = frozenset(keyword.name for keyword in result.keywords)
-            folders = frozenset(Folder(
-                path=folder.path,
-                name=folder.name,
-                ipv4=folder.ipv4,
-                user=folder.user) for folder in result.folders)
+            folders = frozenset(Folder(path=folder.path, name=folder.name, ipv4=folder.ipv4, user=folder.user) for folder in result.folders)
             music = Music(
                 title=result.name,
                 artist=result.artist.name,
@@ -95,20 +87,14 @@ class Playlist(MusicbotObject):
         if playlist_options.shuffle:
             random.shuffle(musics)
 
-        table = Table(
-            Column("Music", vertical="middle"),
-            Column("Infos", vertical="middle"),
-            Column("Links", no_wrap=True),
-            show_lines=True,
-            title=f"Playlist: {self.name}"
-        )
+        table = Table(Column("Music", vertical="middle"), Column("Infos", vertical="middle"), Column("Links", no_wrap=True), show_lines=True, title=f"Playlist: {self.name}")
         total_length = 0
         total_size = 0
         for music in musics:
             raw_row: list[str] = [
-                '\n'.join([f"{music.track} - {music.title}", music.artist, music.album, music.genre]),
-                '\n'.join([str(music.rating), ','.join(sorted(music.keywords)), formatted_seconds_to_human(music.length), bytes_to_human(music.size)]),
-                '\n'.join(sorted(music.links(playlist_options))),
+                "\n".join([f"{music.track} - {music.title}", music.artist, music.album, music.genre]),
+                "\n".join([str(music.rating), ",".join(sorted(music.keywords)), formatted_seconds_to_human(music.length), bytes_to_human(music.size)]),
+                "\n".join(sorted(music.links(playlist_options))),
             ]
             if music.title == current_title and music.album == current_album and music.artist == current_artist:
                 colored_row = [Text(elem, style="green") for elem in raw_row]
@@ -122,17 +108,17 @@ class Playlist(MusicbotObject):
         caption = f"Songs: {len(musics)} | Total length: {precise_seconds_to_human(total_length)} | Total size: {bytes_to_human(total_size)}"
         table.caption = caption
 
-        if not musics and output != 'json':
+        if not musics and output != "json":
             pass
-        elif output == 'm3u':
-            p = '#EXTM3U\n'
-            p += ('#EXTREM:' + self.name + '\n')
-            p += '\n'.join(self.links(playlist_options))
+        elif output == "m3u":
+            p = "#EXTM3U\n"
+            p += "#EXTREM:" + self.name + "\n"
+            p += "\n".join(self.links(playlist_options))
             print(p, file=file)
             self.success(caption)
-        elif output == 'table':
+        elif output == "table":
             self.print_table(table, file=file)
-        elif output == 'json':
+        elif output == "json":
             self.print_json(asdict(self, recurse=True), file=file)
             self.success(caption)
         else:
@@ -142,8 +128,8 @@ class Playlist(MusicbotObject):
         self_dict = asdict(self, recurse=True)
         if (representation := self.dumps_json(self_dict)) is not None:
             return representation
-        self.err(f'Unable to convert to json : {self_dict}')
-        return '{}'
+        self.err(f"Unable to convert to json : {self_dict}")
+        return "{}"
 
     @property
     def genres(self) -> frozenset[str]:
@@ -181,56 +167,59 @@ class Playlist(MusicbotObject):
         from prompt_toolkit.layout.containers import HSplit, Window
         from prompt_toolkit.layout.controls import FormattedTextControl
         from prompt_toolkit.layout.layout import Layout
+
         playlist_options = playlist_options if playlist_options is not None else PlaylistOptions()
         if not self.musics:
-            self.warn('Empty playlist')
+            self.warn("Empty playlist")
             return
 
         try:
-            if platform.system() == 'Windows':
-                vlc_path = r'C:\Program Files\VideoLAN\VLC'
+            if platform.system() == "Windows":
+                vlc_path = r"C:\Program Files\VideoLAN\VLC"
                 logger.debug(f"Adding DLL folder {vlc_path}")
                 os.add_dll_directory(vlc_path)  # type: ignore
             import vlc  # type: ignore
+
             instance = vlc.Instance(vlc_params)
             if not instance:
-                logger.critical('Unable to start VLC instance')
+                logger.critical("Unable to start VLC instance")
                 return
 
             if not instance.audio_output_enumerate_devices():
-                logger.warning('maybe no audio output detected...')
+                logger.warning("maybe no audio output detected...")
 
             if not (player := instance.media_list_player_new()):
-                logger.critical('Unable to create VLC player')
+                logger.critical("Unable to create VLC player")
                 return
 
             if not (media_list := instance.media_list_new(self.links(playlist_options))):
-                logger.critical('Unable to create VLC media list')
+                logger.critical("Unable to create VLC media list")
                 return
 
             player.set_media_list(media_list)
             bindings = KeyBindings()
 
             def print_help() -> None:
-                print_formatted_text(HTML('<violet>Bindings: q = quit | p = play | s = pause/continue | right = next song | left = previous song | l = playlist</violet>'))
+                print_formatted_text(HTML("<violet>Bindings: q = quit | p = play | s = pause/continue | right = next song | left = previous song | l = playlist</violet>"))
 
-            @bindings.add('p')
+            @bindings.add("p")
             def _play_binding(event: Any) -> None:  # pylint: disable=unused-argument
                 def play() -> None:
                     """Play song"""
                     player.play()
+
                 _ = run_in_terminal(play)
 
-            @bindings.add('q')
+            @bindings.add("q")
             def _quit_binding(event: Any) -> None:
                 player.pause()
                 event.app.exit()
 
-            @bindings.add('s')
+            @bindings.add("s")
             def _pause_binding(event: Any) -> None:  # pylint: disable=unused-argument
                 player.pause()
 
-            @bindings.add('l')
+            @bindings.add("l")
             def _playlist_binding(event: Any) -> None:  # pylint: disable=unused-argument
                 def playlist() -> None:
                     """List songs"""
@@ -241,26 +230,28 @@ class Playlist(MusicbotObject):
                     current_album = media.get_meta(vlc.Meta.Album)
                     current_title = media.get_meta(vlc.Meta.Title)
                     self.print(
-                        output='table',
+                        output="table",
                         current_artist=current_artist,
                         current_album=current_album,
                         current_title=current_title,
                         playlist_options=playlist_options,
                     )
+
                 _ = run_in_terminal(playlist)
 
-            @bindings.add('right')
+            @bindings.add("right")
             def _next_binding(event: Any) -> None:  # pylint: disable=unused-argument
                 player.next()
 
-            @bindings.add('left')
+            @bindings.add("left")
             def _previous_binding(event: Any) -> None:  # pylint: disable=unused-argument
                 player.previous()
 
-            @bindings.add('h')
+            @bindings.add("h")
             def _help(event: Any) -> None:  # pylint: disable=unused-argument
                 def _print_help() -> None:
                     print_help()
+
                 _ = run_in_terminal(_print_help)
                 get_app().invalidate()
 
@@ -273,16 +264,14 @@ class Playlist(MusicbotObject):
                 artist = media.get_meta(vlc.Meta.Artist)
                 album = media.get_meta(vlc.Meta.Album)
                 title = media.get_meta(vlc.Meta.Title)
-                current = f'({media_time} / {media_length}) {artist} - {album} - {title}'
+                current = f"({media_time} / {media_length}) {artist} - {album} - {title}"
                 get_app().invalidate()
-                return HTML(f'Current song: {current}')
+                return HTML(f"Current song: {current}")
 
             print_help()
             player.play()
 
-            root_container = HSplit(
-                [Window(FormattedTextControl(lambda: bottom_toolbar, style='class:bottom-toolbar.text'), style='class:bottom-toolbar')]
-            )
+            root_container = HSplit([Window(FormattedTextControl(lambda: bottom_toolbar, style="class:bottom-toolbar.text"), style="class:bottom-toolbar")])
             layout = Layout(root_container)
             app: Any = Application(layout=layout, key_bindings=bindings)
             app.run()

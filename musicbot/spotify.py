@@ -8,10 +8,7 @@ from attr import asdict, define
 from natsort import natsorted
 from spotipy.oauth2 import CacheFileHandler  # type: ignore
 
-from musicbot.defaults import (
-    DEFAULT_SPOTIFY_DOWNLOAD_PLAYLIST,
-    DEFAULT_SPOTIFY_TIMEOUT
-)
+from musicbot.defaults import DEFAULT_SPOTIFY_DOWNLOAD_PLAYLIST, DEFAULT_SPOTIFY_TIMEOUT
 from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
@@ -30,9 +27,9 @@ class Spotify(MusicbotObject):
     @cache
     def _auth_manager(self) -> spotipy.oauth2.SpotifyOAuth:
         auth_params = asdict(self)
-        del auth_params['token']
-        del auth_params['cache_path']
-        del auth_params['username']
+        del auth_params["token"]
+        del auth_params["cache_path"]
+        del auth_params["username"]
         return spotipy.oauth2.SpotifyOAuth(**auth_params, cache_handler=self.cache_handler)
 
     @property
@@ -70,7 +67,7 @@ class Spotify(MusicbotObject):
     def refresh_token(self) -> Any:
         if not (token := self.cached_token()):
             return None
-        return self.auth_manager.refresh_access_token(token['refresh_token'])
+        return self.auth_manager.refresh_access_token(token["refresh_token"])
 
     def get_download_playlist(self, name: str = DEFAULT_SPOTIFY_DOWNLOAD_PLAYLIST) -> dict[Any, Any] | None:
         if download_playlist := self.playlist(name):
@@ -86,22 +83,22 @@ class Spotify(MusicbotObject):
             self.err("Cannot get download playlist, so we can't update it")
             return
 
-        track_ids = [track['track']['id'] for track in tracks]
+        track_ids = [track["track"]["id"] for track in tracks]
 
         # erase playlist first
-        self.api.user_playlist_replace_tracks(self.username, download_playlist['id'], [])
+        self.api.user_playlist_replace_tracks(self.username, download_playlist["id"], [])
 
         # add tracks 100 by 100 (API limit)
         for i in range(0, len(track_ids), 100):
-            self.api.user_playlist_add_tracks(self.username, download_playlist['id'], track_ids[i:i + 100])
+            self.api.user_playlist_add_tracks(self.username, download_playlist["id"], track_ids[i : i + 100])
 
     def playlists(self) -> list[Any]:
         offset = 0
         limit = 50
         objects = []
         while new_objects := self.api.current_user_playlists(limit=limit, offset=offset):
-            length = len(new_objects['items'])
-            objects.append(new_objects['items'])
+            length = len(new_objects["items"])
+            objects.append(new_objects["items"])
             offset += length
             if length < limit:
                 break
@@ -109,7 +106,7 @@ class Spotify(MusicbotObject):
 
     def playlist(self, name: str) -> Any | None:
         for playlist in self.playlists():
-            if playlist['name'] == name:
+            if playlist["name"] == name:
                 return playlist
         return None
 
@@ -119,23 +116,23 @@ class Spotify(MusicbotObject):
         objects = []
         while True:
             new_objects = self.api.current_user_saved_tracks(limit=limit, offset=offset)
-            length = len(new_objects['items'])
-            objects.append(new_objects['items'])
+            length = len(new_objects["items"])
+            objects.append(new_objects["items"])
             offset += length
             if length < limit:
                 break
-        return list(natsorted(itertools.chain(*objects), lambda st: st['track']['artists'][0]['name']))
+        return list(natsorted(itertools.chain(*objects), lambda st: st["track"]["artists"][0]["name"]))
 
     def playlist_tracks(self, name: str) -> list[Any]:
         playlists = self.playlists()
         for p in playlists:
-            if p['name'] == name:
+            if p["name"] == name:
                 tracks = []
-                results = self.api.playlist(p['id'], fields="tracks,next")
-                new_tracks = results['tracks']
-                tracks.append(new_tracks['items'])
-                while new_tracks['next']:
+                results = self.api.playlist(p["id"], fields="tracks,next")
+                new_tracks = results["tracks"]
+                tracks.append(new_tracks["items"])
+                while new_tracks["next"]:
                     new_tracks = self.api.next(new_tracks)
-                    tracks.append(new_tracks['items'])
+                    tracks.append(new_tracks["items"])
                 return list(itertools.chain(*tracks))
         return []

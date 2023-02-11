@@ -10,25 +10,5 @@ youtube_url = "https://www.youtube.com/watch?v=rIlLqmI_VkE"
 one_flac = folder_flac / "Buckethead" / "1994 - Giant Robot" / "02 - Welcome To Bucketheadland.flac"
 one_mp3 = folder_mp3 / "1995" / "La Source" / "La Flemme.mp3"
 
-teststats = {
-    'id': 1,
-    'musics': 5,
-    'links': 10,
-    'genres': 2,
-    'albums': 2,
-    'duration': 262,
-    'artists': 2,
-    'keywords': 9,
-    'size': 7305444
-}
-filtered_teststats = {
-    'id': 1,
-    'musics': 2,
-    'links': 4,
-    'genres': 1,
-    'albums': 1,
-    'duration': 2,
-    'artists': 1,
-    'keywords': 3,
-    'size': 120219
-}
+teststats = {"id": 1, "musics": 5, "links": 10, "genres": 2, "albums": 2, "duration": 262, "artists": 2, "keywords": 9, "size": 7305444}
+filtered_teststats = {"id": 1, "musics": 2, "links": 4, "genres": 1, "albums": 1, "duration": 2, "artists": 1, "keywords": 3, "size": 120219}

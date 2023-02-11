@@ -31,7 +31,7 @@ from musicbot.queries import (
     REMOVE_PATH_QUERY,
     SEARCH_QUERY,
     SOFT_CLEAN_QUERY,
-    UPSERT_QUERY
+    UPSERT_QUERY,
 )
 
 logger = logging.getLogger(__name__)
@@ -45,11 +45,9 @@ class MusicDb(MusicbotObject):
     graphql: str | None = None
 
     def __attrs_post_init__(self) -> None:
-        self.client = self.client.with_retry_options(
-            RetryOptions(attempts=10)
-        )
+        self.client = self.client.with_retry_options(RetryOptions(attempts=10))
         if self.graphql is None:
-            parsed = urlparse(self.client._impl._connect_args['dsn'])
+            parsed = urlparse(self.client._impl._connect_args["dsn"])
             self.graphql = f"http://{parsed.hostname}:{parsed.port}/db/edgedb/graphql"
 
     def __repr__(self) -> str:
@@ -57,10 +55,8 @@ class MusicDb(MusicbotObject):
 
     @beartype
     def set_readonly(self, readonly: bool = True) -> None:
-        '''set client to read only mode'''
-        self.client = self.client.with_transaction_options(
-            TransactionOptions(readonly=readonly)
-        )
+        """set client to read only mode"""
+        self.client = self.client.with_transaction_options(TransactionOptions(readonly=readonly))
 
     @classmethod
     def from_dsn(
@@ -69,12 +65,8 @@ class MusicDb(MusicbotObject):
         graphql: str | None = None,
     ) -> "MusicDb":
         if not cls.is_prod():
-            os.environ['EDGEDB_CLIENT_SECURITY'] = 'insecure_dev_mode'
-        return cls(
-            client=create_async_client(dsn=dsn),
-            dsn=dsn,
-            graphql=graphql
-        )
+            os.environ["EDGEDB_CLIENT_SECURITY"] = "insecure_dev_mode"
+        return cls(client=create_async_client(dsn=dsn), dsn=dsn, graphql=graphql)
 
     @beartype
     def sync_query(self, query: str) -> Any:
@@ -85,9 +77,7 @@ class MusicDb(MusicbotObject):
     def graphql_query(self, query: str) -> Response | None:
         if not self.graphql:
             return None
-        operation = {
-            'query': query
-        }
+        operation = {"query": query}
         response = self.session.post(
             self.graphql,
             json=operation,
@@ -167,9 +157,7 @@ class MusicDb(MusicbotObject):
         music_filters: frozenset[MusicFilter] = frozenset(),
     ) -> Playlist:
         self.sync_ensure_connected()
-        return async_run(self.make_playlist(
-            music_filters=music_filters
-        ))
+        return async_run(self.make_playlist(music_filters=music_filters))
 
     @beartype
     async def clean_musics(self) -> Any:
@@ -284,6 +272,7 @@ class MusicDb(MusicbotObject):
 
         max_value = len(folders.folders_and_paths)
         with self.progressbar(desc="Loading and inserting musics", max_value=max_value) as pbar:
+
             async def upsert_worker(folder_and_path: tuple[Path, Path]) -> None:
                 async with sem:
                     try:

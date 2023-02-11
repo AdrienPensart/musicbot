@@ -4,7 +4,7 @@ from musicbot.defaults import (
     DEFAULT_INTERLEAVE,
     DEFAULT_KINDS,
     DEFAULT_RELATIVE,
-    DEFAULT_SHUFFLE
+    DEFAULT_SHUFFLE,
 )
 
 

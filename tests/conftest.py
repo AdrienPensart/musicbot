@@ -25,7 +25,7 @@ def wait_for_service(service, timeout=60):
         except OSError as e:
             time.sleep(0.01)
             if time.perf_counter() - start_time >= timeout:
-                raise TimeoutError(f'Waited too long for the port {service.host_port} on host {service.hostname} to start accepting connections.') from e
+                raise TimeoutError(f"Waited too long for the port {service.host_port} on host {service.hostname} to start accepting connections.") from e
 
 
 @pytest.fixture(scope="session")

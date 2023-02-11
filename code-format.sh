@@ -5,4 +5,5 @@ export SETUPTOOLS_USE_DISTUTILS=stdlib
 set -e
 
 poetry run isort musicbot tests
+poetry run black musicbot tests
 
