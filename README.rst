@@ -272,6 +272,7 @@ musicbot local
     clean (clean-db,erase)  Clean all musics in DB
     execute (fetch,query)   EdgeDB raw query
     explore                 Explore with GraphiQL
+    folders                 List folders and some stats
     graphql                 GraphQL query
     help                    Print help
     player (play)           Music player
@@ -369,6 +370,20 @@ musicbot local explore
   Usage: musicbot local explore [OPTIONS]
 
     Explore with GraphiQL
+
+  Options:
+    MusicDB options: 
+      --dsn TEXT       DSN to MusicBot EdgeDB
+      --graphql TEXT   DSN to MusicBot GrapQL
+    -h, --help         Show this message and exit.
+
+musicbot local folders
+**********************
+.. code-block::
+
+  Usage: musicbot local folders [OPTIONS]
+
+    List folders and some stats
 
   Options:
     MusicDB options: 

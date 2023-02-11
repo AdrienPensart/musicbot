@@ -70,6 +70,15 @@ def graphql(musicdb: MusicDb, query: str) -> None:
         MusicbotObject.print_json(response.json())
 
 
+@cli.command(help='List folders and some stats')
+@musicdb_options
+@beartype
+def folders(musicdb: MusicDb) -> None:
+    response = musicdb.sync_folders()
+    if response is not None:
+        MusicbotObject.print_json([asdict(folder) for folder in response])
+
+
 @cli.command(help='Explore with GraphiQL')
 @musicdb_options
 @beartype

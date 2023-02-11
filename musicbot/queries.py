@@ -6,6 +6,15 @@ class CustomStringTemplate(string.Template):
     delimiter = "#"
 
 
+FOLDER_QUERY: Final[str] = """
+select Folder {
+    name,
+    user,
+    ipv4,
+    music_count := count(.musics)
+}
+"""
+
 MUSIC_FIELDS = """
 name,
 size,

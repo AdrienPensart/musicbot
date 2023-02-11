@@ -26,6 +26,7 @@ from musicbot.playlist import Playlist
 from musicbot.queries import (
     ARTISTS_QUERY,
     BESTS_QUERY,
+    FOLDER_QUERY,
     PLAYLIST_QUERY,
     REMOVE_PATH_QUERY,
     SEARCH_QUERY,
@@ -93,6 +94,17 @@ class MusicDb(MusicbotObject):
         )
         logger.debug(response)
         return response
+
+    @beartype
+    async def folders(self) -> list[Folder]:
+        results = await self.client.query(FOLDER_QUERY)
+        folders = [Folder(path=folder.name, name=folder.name, ipv4=folder.ipv4, user=folder.user) for folder in results]
+        return folders
+
+    @cache
+    def sync_folders(self) -> list[Folder]:
+        self.sync_ensure_connected()
+        return async_run(self.folders())
 
     @beartype
     async def artists(self) -> list[Artist]:
