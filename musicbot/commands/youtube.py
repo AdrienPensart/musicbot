@@ -1,5 +1,4 @@
 import logging
-import os
 from pathlib import Path
 from typing import Any
 
@@ -73,12 +72,14 @@ def search(artist: str, title: str) -> None:
 @click.argument("title")
 @click.option("--path", default=None)
 @beartype
-def download(artist: str, title: str, path: str) -> None:
+def download(artist: str, title: str, path: str | None) -> None:
     import yt_dlp
 
     try:
-        if not path:
-            path = f"{artist} - {title}.mp3"
+        if path:
+            final_filepath = Path(path).stem
+        else:
+            final_filepath = f"{artist} - {title}"
         ydl_opts = {
             "format": "ba",
             "cachedir": False,
@@ -91,7 +92,7 @@ def download(artist: str, title: str, path: str) -> None:
                     "preferredquality": "192",
                 }
             ],
-            "outtmpl": path,
+            "outtmpl": final_filepath + ".%(ext)s",
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.extract_info(f"ytsearch1:'{artist} {title}'", download=True)
@@ -106,7 +107,13 @@ def download(artist: str, title: str, path: str) -> None:
 def find(file: File, acoustid_api_key: str) -> None:
     import yt_dlp
 
-    yt_path = f"{file.artist} - {file.title}.mp3"
+    filename = f"{file.artist} - {file.title}"
+    final_path = Path(f"{filename}.mp3")
+    try:
+        final_path.unlink()
+    except FileNotFoundError:
+        pass
+
     ydl_opts = {
         "format": "ba",
         "quiet": True,
@@ -121,7 +128,7 @@ def find(file: File, acoustid_api_key: str) -> None:
                 "preferredquality": "192",
             }
         ],
-        "outtmpl": yt_path,
+        "outtmpl": filename + ".%(ext)s",
     }
     try:
         file_id = file.fingerprint(acoustid_api_key)
@@ -133,7 +140,7 @@ def find(file: File, acoustid_api_key: str) -> None:
                 url = entry["webpage_url"]
                 break
 
-            yt_ids = acoustid.match(acoustid_api_key, yt_path)
+            yt_ids = acoustid.match(acoustid_api_key, str(final_path))
             yt_id = None
             for _, recording_id, _, _ in yt_ids:
                 yt_id = recording_id
@@ -149,10 +156,9 @@ def find(file: File, acoustid_api_key: str) -> None:
         logger.error(e)
     finally:
         try:
-            if yt_path:
-                os.remove(yt_path)
-        except OSError:
-            logger.warning(f"File not found: {yt_path}")
+            final_path.unlink()
+        except FileNotFoundError:
+            pass
 
 
 @cli.command(help="Fingerprint a youtube video")
@@ -162,7 +168,13 @@ def find(file: File, acoustid_api_key: str) -> None:
 def fingerprint(url: str, acoustid_api_key: str) -> None:
     import yt_dlp
 
-    yt_path = Path("intermediate.mp3")
+    name = "intermediate"
+    final_path = Path(f"{name}.mp3")
+    try:
+        final_path.unlink()
+    except FileNotFoundError:
+        pass
+
     ydl_opts = {
         "format": "ba",
         "logger": YoutubeLogger(),
@@ -174,12 +186,12 @@ def fingerprint(url: str, acoustid_api_key: str) -> None:
                 "preferredquality": "192",
             }
         ],
-        "outtmpl": str(yt_path),
+        "outtmpl": f"{name}.%(ext)s",
     }
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
-            yt_ids = acoustid.match(acoustid_api_key, str(yt_path))
+            yt_ids = acoustid.match(acoustid_api_key, str(final_path))
             for _, recording_id, _, _ in yt_ids:
                 print(recording_id)
                 break
@@ -189,6 +201,6 @@ def fingerprint(url: str, acoustid_api_key: str) -> None:
         logger.error(e)
     finally:
         try:
-            yt_path.unlink()
+            final_path.unlink()
         except FileNotFoundError:
             pass

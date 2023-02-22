@@ -70,7 +70,7 @@ def test_youtube_find(cli_runner):
             "--quiet",
             "youtube",
             "find",
-            str(fixtures.folder_flac),
+            str(fixtures.folder_mp3),
             str(fixtures.one_mp3),
         ],
     )
