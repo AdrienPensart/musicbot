@@ -1,3 +1,4 @@
+import asyncio
 import concurrent.futures as cf
 import io
 import logging
@@ -5,9 +6,10 @@ import os
 import signal
 import sys
 import threading
+from collections.abc import Callable, Collection, Iterable
 from datetime import datetime
 from functools import cache
-from typing import IO, Any, Callable, NoReturn, Sequence
+from typing import IO, Any, NoReturn, Sequence
 
 import click
 import orjson
@@ -62,6 +64,12 @@ class MusicbotObject:
 
     def __repr__(self) -> str:
         return "[DRY]" if self.dry else "[DOING]"
+
+    @staticmethod
+    def async_run(task: Any) -> Any:
+        """Run an async task"""
+        with asyncio.Runner() as runner:
+            return runner.run(task)
 
     @classmethod
     def public_ip(cls) -> str | None:
@@ -234,56 +242,53 @@ class MusicbotObject:
                     cls.fast_kill()
         return results[:limit]
 
-    #     @classmethod
-    #     def async_gather(
-    #         cls,
-    #         worker: Callable,
-    #         items: Collection[Any],
-    #         quiet: bool = False,
-    #         desc: str | None = None,
-    #         limit: int | None = None,
-    #         merge: bool = False,
-    #         return_exceptions: bool = False,
-    #         timeout: int | None = None,
-    #         **kwargs: Any,
-    #     ) -> List[Any]:
-    #         """
-    #         A version of asyncio.gather that runs on the internal event loop
-    #         """
-    #         quiet = len(items) <= 1 or quiet
-    #         with cls.progressbar(max_value=len(items), quiet=quiet, desc=desc, **kwargs) as pbar:
-    #             try:
-    #                 async def _worker(worker_item: Any) -> Any:
-    #                     try:
-    #                         return await worker(worker_item)
-    #                     finally:
-    #                         pbar.value += 1
-    #                         pbar.update()
-    #                 futures = []
-    #                 for future_item in items:
-    #                     future = _worker(future_item)
-    #                     futures.append(future)
-    #                 async def _gather() -> List[Any]:
-    #                     return await asyncio.gather(  # pylint: disable=deprecated-argument
-    #                         *futures,
-    #                         loop=_LOOP,
-    #                         return_exceptions=return_exceptions
-    #                     )
-    #
-    #                 results = cls.async_run(_gather(), timeout=timeout)
-    #                 results = [result for result in results if result is not None]
-    #                 if not merge:
-    #                     return results[:limit]
-    #
-    #                 final_results = []
-    #                 for sublist in results:
-    #                     if isinstance(sublist, Iterable):
-    #                         final_results.extend([item for item in sublist if item is not None])
-    #             except KeyboardInterrupt as e:
-    #                 if cls.is_test():
-    #                     raise e
-    #                 cls.fast_kill()
-    #         return final_results[:limit]
+    @classmethod
+    async def async_gather(
+        cls,
+        worker: Callable,
+        items: Collection[Any],
+        quiet: bool = False,
+        desc: str | None = None,
+        limit: int | None = None,
+        merge: bool = False,
+        return_exceptions: bool = False,
+        **kwargs: Any,
+    ) -> list[Any]:
+        """
+        A version of asyncio.gather that runs on the internal event loop
+        """
+        quiet = len(items) <= 1 or quiet
+        if desc:
+            desc += " (async)"
+        with cls.progressbar(max_value=len(items), quiet=quiet, desc=desc, **kwargs) as pbar:
+            try:
+
+                async def _worker(worker_item: Any) -> Any:
+                    try:
+                        return await worker(worker_item)
+                    finally:
+                        pbar.value += 1
+                        pbar.update()
+
+                futures = []
+                for future_item in items:
+                    future = _worker(future_item)
+                    futures.append(future)
+
+                results = await asyncio.gather(*futures, return_exceptions=return_exceptions)
+                results = [result for result in results if result is not None]
+                if not merge:
+                    return results[:limit]
+
+                final_results = []
+                for sublist in results:
+                    if isinstance(sublist, Iterable):
+                        final_results.extend([item for item in sublist if item is not None])
+            except KeyboardInterrupt as e:
+                if cls.is_test():
+                    raise e
+                cls.fast_kill()
+        return final_results[:limit]
 
     @classmethod
     def fast_kill(cls) -> NoReturn:  # pylint: disable=unused-argument

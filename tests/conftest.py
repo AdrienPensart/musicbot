@@ -1,4 +1,5 @@
 # type: ignore
+import asyncio
 import logging
 import socket
 import time
@@ -38,10 +39,12 @@ def edgedb(session_scoped_container_getter):
 
 @pytest.fixture(scope="session", autouse=True)
 def testmusics(edgedb):
-    musicdb = MusicDb.from_dsn(edgedb)
-    musicdb.sync_clean_musics()
-    folders = Folders([Path(folder) for folder in fixtures.folders])
-    files = musicdb.sync_upsert_folders(folders=folders)
-    assert files, "Empty music db"
-    yield files
-    musicdb.sync_clean_musics()
+    with asyncio.Runner() as runner:
+        musicdb = MusicDb.from_dsn(edgedb)
+        runner.run(musicdb.clean_musics())
+
+        folders = Folders([Path(folder) for folder in fixtures.folders])
+        files = runner.run(musicdb.upsert_folders(folders=folders))
+        assert files, "Empty music db"
+        yield files
+        runner.run(musicdb.clean_musics())

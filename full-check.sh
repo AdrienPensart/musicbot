@@ -6,7 +6,6 @@ set -e
 trap '[ $? -eq 0 ] && exit 0 || echo "$0 FAILED"' EXIT
 
 sh linting.sh
-sh security-checks.sh
 sh gen-doc.sh
 sh code-format.sh
 

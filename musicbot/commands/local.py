@@ -1,9 +1,8 @@
+import asyncio
 import codecs
 import io
 import logging
 import shutil
-import threading
-import time
 import webbrowser
 from pathlib import Path
 from typing import Any
@@ -14,7 +13,7 @@ from attr import asdict
 from beartype import beartype
 from click_skeleton import AdvancedGroup
 from rich.table import Table
-from watchdog.observers import Observer
+from watchfiles import Change, DefaultFilter, awatch
 
 from musicbot.cli.file import flat_option
 from musicbot.cli.folder import destination_argument, folder_argument, folders_argument
@@ -37,7 +36,8 @@ from musicbot.music_filter import MusicFilter
 from musicbot.musicdb import MusicDb
 from musicbot.object import MusicbotObject
 from musicbot.playlist_options import PlaylistOptions
-from musicbot.watcher import MusicWatcherHandler
+
+# from musicbot.watcher import MusicWatcherHandler
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,7 @@ def cli() -> None:
 @musicdb_options
 @beartype
 def execute(musicdb: MusicDb, query: str) -> None:
-    print(musicdb.sync_query(query))
+    print(MusicbotObject.async_run(musicdb.query_json(query)))
 
 
 @cli.command(help="GraphQL query")
@@ -70,7 +70,7 @@ def graphql(musicdb: MusicDb, query: str) -> None:
 @musicdb_options
 @beartype
 def folders(musicdb: MusicDb) -> None:
-    response = musicdb.sync_folders()
+    response = MusicbotObject.async_run(musicdb.folders())
     if response is not None:
         MusicbotObject.print_json([asdict(folder) for folder in response])
 
@@ -101,14 +101,19 @@ def scan(
     output: str,
     coroutines: int,
 ) -> None:
-    if clean:
-        musicdb.sync_clean_musics()
+    async def runner() -> list[File]:
+        if clean:
+            await musicdb.clean_musics()
 
-    files = musicdb.sync_upsert_folders(
-        folders=folders,
-        coroutines=coroutines,
-    )
-    musicdb.sync_soft_clean()
+        files = await musicdb.upsert_folders(
+            folders=folders,
+            coroutines=coroutines,
+        )
+        await musicdb.soft_clean()
+        return files
+
+    files = MusicbotObject.async_run(runner())
+
     if output == "json":
         MusicbotObject.print_json([asdict(file.music) for file in files if file.music is not None])
 
@@ -129,26 +134,44 @@ def watch(
     sleep: int,
     timeout: int | None,
 ) -> None:
-    def soft_clean_periodically() -> None:
+    async def soft_clean_periodically() -> None:
         try:
             while True:
-                cleaned = musicdb.sync_soft_clean()
+                cleaned = await musicdb.soft_clean()
                 MusicbotObject.success(cleaned)
                 MusicbotObject.success(f"DB cleaned, waiting {sleep} seconds.")
-                time.sleep(sleep)
-        except KeyboardInterrupt:
+                await asyncio.sleep(sleep)
+        except (asyncio.CancelledError, KeyboardInterrupt):
             pass
 
-    periodic_soft_clean = threading.Thread(target=soft_clean_periodically, daemon=True)
-    periodic_soft_clean.start()
+    class MusicFilter(DefaultFilter):
+        def __call__(self, change: Change, path: str) -> bool:
+            return super().__call__(change, path) and path.endswith(tuple(folders.extensions))
 
-    event_handler = MusicWatcherHandler(musicdb=musicdb, folders=folders)
-    observer = Observer()
-    for directory in folders.directories:
-        watcher = observer.schedule(event_handler, directory, recursive=True)
-        MusicbotObject.success(f"{directory} : watching {watcher}")
-    observer.start()
-    observer.join(timeout=timeout)
+    async def update_music(path: str) -> None:
+        for directory in folders.directories:
+            if path.startswith(str(directory)):
+                _ = await musicdb.upsert_path((directory, Path(path)))
+
+    async def watcher() -> None:
+        try:
+            async for changes in awatch(*folders.directories, watch_filter=MusicFilter(), debug=MusicbotObject.config.debug):
+                for change_path in changes:
+                    change, path = change_path
+                    if change in (Change.added, Change.modified):
+                        await update_music(path)
+                    elif change == Change.deleted:
+                        await musicdb.remove_music_path(path)
+        except (asyncio.CancelledError, KeyboardInterrupt):
+            pass
+
+    async def runner() -> None:
+        try:
+            _ = await asyncio.wait_for(asyncio.gather(soft_clean_periodically(), watcher()), timeout=timeout)
+        except (TimeoutError, asyncio.CancelledError, KeyboardInterrupt):
+            pass
+
+    MusicbotObject.async_run(runner())
 
 
 @cli.command(help="Clean all musics in DB", aliases=["clean-db", "erase"])
@@ -156,14 +179,14 @@ def watch(
 @yes_option
 @beartype
 def clean(musicdb: MusicDb) -> None:
-    musicdb.sync_clean_musics()
+    MusicbotObject.async_run(musicdb.clean_musics())
 
 
 @cli.command(help="Clean entities without musics associated")
 @musicdb_options
 @beartype
 def soft_clean(musicdb: MusicDb) -> None:
-    musicdb.sync_soft_clean()
+    MusicbotObject.async_run(musicdb.soft_clean())
 
 
 @cli.command(help="Search musics by full-text search")
@@ -178,7 +201,7 @@ def search(
     pattern: str,
     playlist_options: PlaylistOptions,
 ) -> None:
-    p = musicdb.sync_search(pattern)
+    p = MusicbotObject.async_run(musicdb.search(pattern))
     p.print(
         output=output,
         playlist_options=playlist_options,
@@ -200,8 +223,10 @@ def playlist(
     out: Any,
 ) -> None:
     musicdb.set_readonly()
-    p = musicdb.sync_make_playlist(
-        music_filters=frozenset(music_filters),
+    p = MusicbotObject.async_run(
+        musicdb.make_playlist(
+            music_filters=frozenset(music_filters),
+        )
     )
     p.print(
         output=output,
@@ -219,7 +244,7 @@ def artists(
     musicdb: MusicDb,
 ) -> None:
     musicdb.set_readonly()
-    all_artists = musicdb.sync_artists()
+    all_artists = MusicbotObject.async_run(musicdb.artists())
     table = Table(
         "Name",
         "Rating",
@@ -268,8 +293,10 @@ def bests(
     playlist_options: PlaylistOptions,
 ) -> None:
     musicdb.set_readonly()
-    bests = musicdb.sync_make_bests(
-        music_filters=frozenset(music_filters),
+    bests = MusicbotObject.async_run(
+        musicdb.make_bests(
+            music_filters=frozenset(music_filters),
+        )
     )
     for best in bests:
         if len(best.musics) < min_playlist_size or not best.name:
@@ -309,7 +336,11 @@ def player(
     if not MusicbotObject.config.quiet or not MusicbotObject.is_test():
         progressbar.streams.unwrap(stderr=True, stdout=True)
     try:
-        playlist = musicdb.sync_make_playlist(music_filters=frozenset(music_filters))
+        playlist = MusicbotObject.async_run(
+            musicdb.make_playlist(
+                music_filters=frozenset(music_filters),
+            )
+        )
         playlist.play(
             vlc_params=vlc_params,
             playlist_options=playlist_options,
@@ -337,7 +368,11 @@ def sync(
 ) -> None:
     musicdb.set_readonly()
     logger.info(f"Destination: {destination}")
-    playlist = musicdb.sync_make_playlist(music_filters=frozenset(music_filters))
+    playlist = MusicbotObject.async_run(
+        musicdb.make_playlist(
+            music_filters=frozenset(music_filters),
+        )
+    )
     if not playlist.musics:
         click.secho("no result for filter, nothing to sync")
         return

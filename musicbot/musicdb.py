@@ -1,12 +1,12 @@
 import asyncio
 import logging
 import os
-from functools import cache
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
 import edgedb
+from async_lru import alru_cache
 from attr import asdict, define
 from beartype import beartype
 from edgedb.asyncio_client import AsyncIOClient, create_async_client
@@ -18,7 +18,6 @@ from musicbot.defaults import DEFAULT_COROUTINES
 from musicbot.exceptions import MusicbotError
 from musicbot.file import File, Issue
 from musicbot.folders import Folders
-from musicbot.helpers import async_gather, async_run
 from musicbot.music import Folder, Music
 from musicbot.music_filter import MusicFilter
 from musicbot.object import MusicbotObject
@@ -69,9 +68,8 @@ class MusicDb(MusicbotObject):
         return cls(client=create_async_client(dsn=dsn), dsn=dsn, graphql=graphql)
 
     @beartype
-    def sync_query(self, query: str) -> Any:
-        future = self.client.query_json(query)
-        return async_run(future)
+    async def query_json(self, query: str) -> Any:
+        return await self.client.query_json(query)
 
     @beartype
     def graphql_query(self, query: str) -> Response | None:
@@ -85,16 +83,11 @@ class MusicDb(MusicbotObject):
         logger.debug(response)
         return response
 
-    @beartype
+    @alru_cache
     async def folders(self) -> list[Folder]:
         results = await self.client.query(FOLDER_QUERY)
         folders = [Folder(path=folder.name, name=folder.name, ipv4=folder.ipv4, user=folder.user) for folder in results]
         return folders
-
-    @cache
-    def sync_folders(self) -> list[Folder]:
-        self.sync_ensure_connected()
-        return async_run(self.folders())
 
     @beartype
     async def artists(self) -> list[Artist]:
@@ -114,11 +107,6 @@ class MusicDb(MusicbotObject):
             )
             artists_list.append(artist)
         return artists_list
-
-    @cache
-    def sync_artists(self) -> list[Artist]:
-        self.sync_ensure_connected()
-        return async_run(self.artists())
 
     @beartype
     async def execute_music_filters(
@@ -151,14 +139,6 @@ class MusicDb(MusicbotObject):
             results=results,
         )
 
-    @cache
-    def sync_make_playlist(
-        self,
-        music_filters: frozenset[MusicFilter] = frozenset(),
-    ) -> Playlist:
-        self.sync_ensure_connected()
-        return async_run(self.make_playlist(music_filters=music_filters))
-
     @beartype
     async def clean_musics(self) -> Any:
         query = """delete Artist;"""
@@ -167,36 +147,21 @@ class MusicDb(MusicbotObject):
         return await self.client.query(query)
 
     @beartype
-    def sync_clean_musics(self) -> Any:
-        self.sync_ensure_connected()
-        return async_run(self.clean_musics())
-
-    @beartype
     async def soft_clean(self) -> Any:
         self.success("cleaning orphan musics, artists, albums, genres, keywords")
         if self.dry:
             return None
         return await self.client.query_single(SOFT_CLEAN_QUERY)
 
-    @beartype
-    def sync_soft_clean(self) -> Any:
-        self.sync_ensure_connected()
-        return async_run(self.soft_clean())
-
-    @beartype
-    def sync_ensure_connected(self) -> None:
-        async_run(self.client.ensure_connected())
+    async def ensure_connected(self) -> AsyncIOClient:
+        return await self.client.ensure_connected()
 
     @beartype
     async def remove_music_path(self, path: str) -> Any:
+        logger.debug(f"{self} : removed {path}")
         if self.dry:
             return None
         return await self.client.query(REMOVE_PATH_QUERY, path=path)
-
-    @beartype
-    def sync_remove_music_path(self, path: str) -> Any:
-        self.sync_ensure_connected()
-        return async_run(self.remove_music_path(path))
 
     @beartype
     async def upsert_path(
@@ -240,6 +205,7 @@ class MusicDb(MusicbotObject):
                 rating=result.rating,
                 folders=frozenset(folders),
             )
+            self.success(f"{self} : updated {path}")
             logger.debug(output_music)
 
             return file
@@ -252,20 +218,11 @@ class MusicDb(MusicbotObject):
         return None
 
     @beartype
-    def sync_upsert_path(
-        self,
-        folder_and_path: tuple[Path, Path],
-    ) -> File | None:
-        self.sync_ensure_connected()
-        return async_run(self.upsert_path(folder_and_path=folder_and_path))
-
-    @beartype
-    def sync_upsert_folders(
+    async def upsert_folders(
         self,
         folders: Folders,
         coroutines: int = DEFAULT_COROUTINES,
     ) -> list[File]:
-        self.sync_ensure_connected()
         files = []
         failed_files: set[tuple[Path, Path]] = set()
         sem = asyncio.Semaphore(coroutines)
@@ -287,7 +244,7 @@ class MusicDb(MusicbotObject):
                         pbar.value += 1
                         pbar.update()
 
-            async_gather(upsert_worker, folders.folders_and_paths)
+            _ = await self.async_gather(upsert_worker, folders.folders_and_paths)
         if failed_files:
             self.warn(f"Unable to insert {len(failed_files)} files")
         return files
@@ -333,14 +290,6 @@ class MusicDb(MusicbotObject):
         return playlists
 
     @beartype
-    def sync_make_bests(
-        self,
-        music_filters: frozenset[MusicFilter] = frozenset(),
-    ) -> list[Playlist]:
-        self.sync_ensure_connected()
-        return async_run(self.make_bests(music_filters=music_filters))
-
-    @beartype
     async def search(
         self,
         pattern: str,
@@ -350,11 +299,3 @@ class MusicDb(MusicbotObject):
             name=pattern,
             results=results,
         )
-
-    @beartype
-    def sync_search(
-        self,
-        pattern: str,
-    ) -> Playlist:
-        self.sync_ensure_connected()
-        return async_run(self.search(pattern=pattern))

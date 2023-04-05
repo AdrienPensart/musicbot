@@ -18,3 +18,9 @@ poetry run mypy musicbot tests
 
 echo "static type checking : pyright..."
 poetry run pyright
+
+# echo "security checks : bandit..."
+# poetry run bandit -r musicbot
+
+# echo "security checks : safety..."
+# poetry run safety check

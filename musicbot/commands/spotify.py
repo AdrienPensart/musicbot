@@ -98,7 +98,7 @@ def artist_diff(musicdb: MusicDb, spotify: Spotify) -> None:
         spotify_artist_slug = slugify(spotify_track["track"]["artists"][0]["name"])
         spotify_tracks_by_artist[spotify_artist_slug].append(spotify_track["track"])
 
-    local_playlist = musicdb.sync_make_playlist()
+    local_playlist = MusicbotObject.async_run(musicdb.make_playlist())
     local_tracks_by_artist = PrettyDefaultDict(list)
     for local_track in local_playlist.musics:
         local_artist_slug = slugify(local_track.artist)
@@ -124,7 +124,7 @@ def track_diff(musicdb: MusicDb, download_playlist: bool, spotify: Spotify, outp
     spotify_tracks = spotify.liked_tracks()
     spotify_tracks_by_slug = {slugify(f"""{t['track']['artists'][0]['name']}-{t['track']['name']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS): t for t in spotify_tracks}
 
-    local = musicdb.sync_make_playlist()
+    local = MusicbotObject.async_run(musicdb.make_playlist())
     local_music_by_slug = {music.slug: music for music in local.musics}
 
     spotify_differences = set(spotify_tracks_by_slug.keys()).difference(set(local_music_by_slug.keys()))
