@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 import click
+import edgedb
 import progressbar  # type: ignore
 from attr import asdict
 from beartype import beartype
@@ -137,10 +138,13 @@ def watch(
     async def soft_clean_periodically() -> None:
         try:
             while True:
-                cleaned = await musicdb.soft_clean()
-                MusicbotObject.success(cleaned)
-                MusicbotObject.success(f"DB cleaned, waiting {sleep} seconds.")
-                await asyncio.sleep(sleep)
+                try:
+                    cleaned = await musicdb.soft_clean()
+                    MusicbotObject.success(cleaned)
+                    MusicbotObject.success(f"DB cleaned, waiting {sleep} seconds.")
+                    await asyncio.sleep(sleep)
+                except edgedb.ClientConnectionFailedTemporarilyError as e:
+                    MusicbotObject.err(f"{musicdb} : unable to clean musics : {e}")
         except (asyncio.CancelledError, KeyboardInterrupt):
             pass
 
@@ -156,12 +160,15 @@ def watch(
     async def watcher() -> None:
         try:
             async for changes in awatch(*folders.directories, watch_filter=MusicFilter(), debug=MusicbotObject.config.debug):
-                for change_path in changes:
-                    change, path = change_path
-                    if change in (Change.added, Change.modified):
-                        await update_music(path)
-                    elif change == Change.deleted:
-                        await musicdb.remove_music_path(path)
+                try:
+                    for change_path in changes:
+                        change, path = change_path
+                        if change in (Change.added, Change.modified):
+                            await update_music(path)
+                        elif change == Change.deleted:
+                            await musicdb.remove_music_path(path)
+                except edgedb.ClientConnectionFailedTemporarilyError as e:
+                    MusicbotObject.err(f"{musicdb} : unable to clean musics : {e}")
         except (asyncio.CancelledError, KeyboardInterrupt):
             pass
 
