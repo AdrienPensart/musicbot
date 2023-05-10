@@ -33,8 +33,8 @@ logger = logging.getLogger(__name__)
 
 def default_encoder(data: Any) -> Any:
     """Encode in json structure which cannot"""
-    # if isinstance(data, (frozenset, set)):
-    #     return list(data)
+    if isinstance(data, (frozenset, set)):
+        return list(data)
     if dataclasses.is_dataclass(data):
         return dataclasses.asdict(data)
     if isinstance(data, CaseInsensitiveDict):
