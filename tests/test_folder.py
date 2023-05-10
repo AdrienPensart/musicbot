@@ -1,5 +1,6 @@
-# type: ignore
 import pytest
+from beartype import beartype
+from click.testing import CliRunner
 from click_skeleton.helpers import mysplit
 from click_skeleton.testing import run_cli
 
@@ -9,7 +10,8 @@ from . import fixtures
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_folder_find(cli_runner):
+@beartype
+def test_folder_find(cli_runner: CliRunner) -> None:
     musics = run_cli(
         cli_runner,
         cli,
@@ -24,7 +26,8 @@ def test_folder_find(cli_runner):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_folder_flac2mp3(cli_runner):
+@beartype
+def test_folder_flac2mp3(cli_runner: CliRunner) -> None:
     run_cli(
         cli_runner,
         cli,
@@ -39,7 +42,8 @@ def test_folder_flac2mp3(cli_runner):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_folder_playlist(cli_runner):
+@beartype
+def test_folder_playlist(cli_runner: CliRunner) -> None:
     run_cli(
         cli_runner,
         cli,
@@ -53,7 +57,8 @@ def test_folder_playlist(cli_runner):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_folder_issues(cli_runner):
+@beartype
+def test_folder_issues(cli_runner: CliRunner) -> None:
     run_cli(
         cli_runner,
         cli,

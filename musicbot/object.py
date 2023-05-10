@@ -33,24 +33,25 @@ logger = logging.getLogger(__name__)
 
 def default_encoder(data: Any) -> Any:
     """Encode in json structure which cannot"""
-    if isinstance(data, (frozenset, set)):
-        return list(data)
+    # if isinstance(data, (frozenset, set)):
+    #     return list(data)
     if dataclasses.is_dataclass(data):
         return dataclasses.asdict(data)
     if isinstance(data, CaseInsensitiveDict):
         return dict(data)
     if attr.has(data.__class__):
         return attr.asdict(data)
-    raise TypeError
+    raise TypeError(f"Unable to encode {data}")
 
 
 @cache
 @beartype
-def public_ip() -> str | None:
+def public_ip(timeout: int = 5) -> str | None:
     try:
-        return requests.get("https://api.ipify.org", timeout=5).text
-    except Exception as e:  # pylint: disable=broad-except
-        MusicbotObject.err(f"Unable to detect Public IP : {e}")
+        # return requests.get("https://api.ipify.org", timeout=timeout).text
+        return requests.head('https://www.wikipedia.org', timeout=timeout).headers['X-Client-IP']
+    except Exception as error:
+        MusicbotObject.err("Unable to detect Public IP", error=error)
     return None
 
 
@@ -383,8 +384,8 @@ class MusicbotObject:
         """dumps json using global library"""
         try:
             return orjson.dumps(data, option=option, default=default, **kwargs).decode("utf-8")  # pylint: disable=maybe-no-member
-        except orjson.JSONEncodeError as e:  # pylint: disable=maybe-no-member
-            cls.err(f"unable to encode json : {e}")
+        except orjson.JSONEncodeError as error:  # pylint: disable=maybe-no-member
+            cls.err("Unable to encode json", error=error)
             logger.debug(data)
         return None
 
@@ -393,7 +394,7 @@ class MusicbotObject:
         """loads json using global library"""
         try:
             return orjson.loads(data)  # pylint: disable=maybe-no-member
-        except orjson.JSONDecodeError as e:  # pylint: disable=maybe-no-member
-            cls.err(f"unable to decode json : {e}")
+        except orjson.JSONDecodeError as error:  # pylint: disable=maybe-no-member
+            cls.err("Unable to decode json", error=error)
             logger.debug(data)
         return None

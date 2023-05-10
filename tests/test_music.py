@@ -1,5 +1,6 @@
-# type: ignore
 import pytest
+from beartype import beartype
+from click.testing import CliRunner
 from click_skeleton.testing import run_cli
 
 from musicbot.main import cli
@@ -8,7 +9,8 @@ from . import fixtures
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_music_flac2mp3(cli_runner):
+@beartype
+def test_music_flac2mp3(cli_runner: CliRunner) -> None:
     run_cli(
         cli_runner,
         cli,
@@ -24,7 +26,8 @@ def test_music_flac2mp3(cli_runner):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_music_tags(cli_runner):
+@beartype
+def test_music_tags(cli_runner: CliRunner) -> None:
     run_cli(
         cli_runner,
         cli,
@@ -50,7 +53,8 @@ def test_music_tags(cli_runner):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_music_set_tags(cli_runner):
+@beartype
+def test_music_set_tags(cli_runner: CliRunner) -> None:
     run_cli(
         cli_runner,
         cli,
@@ -80,7 +84,8 @@ def test_music_set_tags(cli_runner):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_music_issues(cli_runner):
+@beartype
+def test_music_issues(cli_runner: CliRunner) -> None:
     run_cli(
         cli_runner,
         cli,
@@ -106,7 +111,8 @@ def test_music_issues(cli_runner):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_music_add_keywords(cli_runner):
+@beartype
+def test_music_add_keywords(cli_runner: CliRunner) -> None:
     run_cli(
         cli_runner,
         cli,
@@ -136,7 +142,8 @@ def test_music_add_keywords(cli_runner):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_music_delete_keywords(cli_runner):
+@beartype
+def test_music_delete_keywords(cli_runner: CliRunner) -> None:
     run_cli(
         cli_runner,
         cli,

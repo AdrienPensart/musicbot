@@ -53,8 +53,8 @@ class File(MusicbotObject):
 
         try:
             return cls(folder=folder.resolve(), handle=mutagen.File(path.resolve()))
-        except mutagen.MutagenError as e:
-            cls.err(f"{path} : {e}")
+        except mutagen.MutagenError as error:
+            cls.err(f"Unable to instanciate {path}", error=error)
         return None
 
     def __repr__(self) -> str:
@@ -532,6 +532,6 @@ class File(MusicbotObject):
                 return True
             self.handle.save()
             return True
-        except mutagen.MutagenError as e:
-            self.err(e)
+        except mutagen.MutagenError as error:
+            self.err(f"{self} : unable to save", error=error)
         return False

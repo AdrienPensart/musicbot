@@ -1,7 +1,8 @@
-# type: ignore
 import os
 
 import pytest
+from beartype import beartype
+from click.testing import CliRunner
 from click_skeleton.testing import run_cli
 
 from musicbot.main import cli
@@ -10,7 +11,8 @@ from . import fixtures
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_youtube_search(cli_runner):
+@beartype
+def test_youtube_search(cli_runner: CliRunner) -> None:
     run_cli(
         cli_runner,
         cli,
@@ -25,7 +27,8 @@ def test_youtube_search(cli_runner):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_youtube_download(cli_runner):
+@beartype
+def test_youtube_download(cli_runner: CliRunner) -> None:
     try:
         run_cli(
             cli_runner,
@@ -48,7 +51,8 @@ def test_youtube_download(cli_runner):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_youtube_fingerprint(cli_runner):
+@beartype
+def test_youtube_fingerprint(cli_runner: CliRunner) -> None:
     run_cli(
         cli_runner,
         cli,
@@ -62,7 +66,8 @@ def test_youtube_fingerprint(cli_runner):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_youtube_find(cli_runner):
+@beartype
+def test_youtube_find(cli_runner: CliRunner) -> None:
     run_cli(
         cli_runner,
         cli,

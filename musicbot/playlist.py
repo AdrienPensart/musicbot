@@ -278,5 +278,5 @@ class Playlist(MusicbotObject):
             layout = Layout(root_container)
             app: Any = Application(layout=layout, key_bindings=bindings)
             app.run()
-        except Exception as e:  # pylint:disable=broad-except
+        except Exception as e:
             logger.exception(e)

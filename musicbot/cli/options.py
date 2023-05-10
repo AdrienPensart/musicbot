@@ -210,7 +210,7 @@ def config_list(ctx: click.Context, param: click.Parameter, value: Any) -> Any:
             for v in mysplit(config_value, ","):
                 try:
                     list_value.append(param.type(v))
-                except Exception as e:  # pylint: disable=broad-except
+                except Exception as e:
                     logger.warning(e)
         logger.info(f"{param.name} : try list loading with config key : {list_value}")
 

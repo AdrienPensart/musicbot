@@ -64,8 +64,8 @@ def search(artist: str, title: str) -> None:
             print(type(infos))
             for entry in infos["entries"]:
                 print(entry["webpage_url"])
-    except Exception as e:  # pylint: disable=broad-except
-        logger.error(e)
+    except Exception as error:
+        MusicbotObject.err(f"Unable to search for {artist=} and {title=}", error=error)
 
 
 @cli.command(help="Download a youtube link with artist and title")

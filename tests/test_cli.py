@@ -1,7 +1,8 @@
-# type: ignore
 import logging
 
 import pytest
+from beartype import beartype
+from click.testing import CliRunner
 from click_skeleton.helpers import strip_colors
 from click_skeleton.testing import run_cli
 
@@ -12,12 +13,14 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_cli(cli_runner):
+@beartype
+def test_cli(cli_runner: CliRunner) -> None:
     run_cli(cli_runner, cli)
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_cli_version(cli_runner):
+@beartype
+def test_cli_version(cli_runner: CliRunner) -> None:
     output1 = strip_colors(run_cli(cli_runner, cli, ["--quiet", "-V"]))
     output2 = strip_colors(run_cli(cli_runner, cli, ["--quiet", "--version"]))
     output3 = strip_colors(run_cli(cli_runner, cli, ["--quiet", "version"]))
@@ -26,7 +29,8 @@ def test_cli_version(cli_runner):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_cli_help(cli_runner):
+@beartype
+def test_cli_help(cli_runner: CliRunner) -> None:
     output1 = strip_colors(run_cli(cli_runner, cli, ["--quiet", "-h"]))
     output2 = strip_colors(run_cli(cli_runner, cli, ["--quiet", "--help"]))
     output3 = strip_colors(run_cli(cli_runner, cli, ["--quiet", "help"]))
@@ -34,5 +38,6 @@ def test_cli_help(cli_runner):
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
-def test_completion_show(cli_runner):
+@beartype
+def test_completion_show(cli_runner: CliRunner) -> None:
     run_cli(cli_runner, cli, ["--quiet", "completion", "show", "zsh"])

@@ -101,7 +101,7 @@ class Folders(MusicbotObject):
             try:
                 if file := File.from_path(folder=folder, path=path):
                     return file.to_mp3(flat=flat, destination=destination)
-            except Exception as error:  # pylint: disable=broad-except
+            except Exception as error:
                 self.err(f"{path} : unable to convert to mp3", error=error)
             return None
 

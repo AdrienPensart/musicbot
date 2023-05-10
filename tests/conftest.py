@@ -1,10 +1,11 @@
-# type: ignore
 import logging
 import socket
 import time
 from pathlib import Path
+from typing import Any
 
 import pytest
+from beartype import beartype
 
 from musicbot.object import MusicbotObject
 from musicbot.folders import Folders
@@ -18,7 +19,8 @@ logger = logging.getLogger(__name__)
 pytest_plugins = ["docker_compose"]
 
 
-def wait_for_service(hostname, port, timeout=60) -> None:
+@beartype
+def wait_for_service(hostname: str, port: str, timeout: int = 60) -> None:
     start_time = time.perf_counter()
     while True:
         try:
@@ -32,7 +34,8 @@ def wait_for_service(hostname, port, timeout=60) -> None:
 
 
 @pytest.fixture(scope="session")
-def edgedb(session_scoped_container_getter) -> str:
+@beartype
+def edgedb(session_scoped_container_getter: Any) -> str:
     service = session_scoped_container_getter.get("edgedb").network_info[0]
     dsn = f"""edgedb://edgedb:musicbot@{service.hostname}:{service.host_port}"""
     wait_for_service(service.hostname, service.host_port)
@@ -40,7 +43,8 @@ def edgedb(session_scoped_container_getter) -> str:
 
 
 @pytest.fixture(scope="session", autouse=True)
-def testmusics(edgedb):
+@beartype
+def testmusics(edgedb: str) -> list[File]:
     async def runner() -> list[File]:
         musicdb = MusicDb.from_dsn(edgedb)
         await musicdb.clean_musics()

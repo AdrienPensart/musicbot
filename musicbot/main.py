@@ -66,8 +66,11 @@ def cli(
 def console() -> None:
     """Starts an embedded ipython interpreter"""
     import IPython
-
-    IPython.start_ipython(argv=[], user_ns=dict(musicbot=musicbot))
+    user_ns = dict(
+        musicbot=musicbot,
+        MusicbotObject=MusicbotObject,
+    )
+    IPython.start_ipython(argv=[], user_ns=user_ns)
 
 
 @cli.command(short_help="Generates a README.rst", aliases=["doc"])

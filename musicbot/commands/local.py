@@ -143,8 +143,8 @@ def watch(
                     MusicbotObject.success(cleaned)
                     MusicbotObject.success(f"DB cleaned, waiting {sleep} seconds.")
                     await asyncio.sleep(sleep)
-                except edgedb.ClientConnectionFailedTemporarilyError as e:
-                    MusicbotObject.err(f"{musicdb} : unable to clean musics : {e}")
+                except edgedb.ClientConnectionFailedTemporarilyError as error:
+                    MusicbotObject.err(f"{musicdb} : unable to clean musics", error=error)
         except (asyncio.CancelledError, KeyboardInterrupt):
             pass
 
@@ -167,8 +167,8 @@ def watch(
                             await update_music(path)
                         elif change == Change.deleted:
                             await musicdb.remove_music_path(path)
-                except edgedb.ClientConnectionFailedTemporarilyError as e:
-                    MusicbotObject.err(f"{musicdb} : unable to clean musics : {e}")
+                except edgedb.ClientConnectionFailedTemporarilyError as error:
+                    MusicbotObject.err(f"{musicdb} : unable to clean musics", error=error)
         except (asyncio.CancelledError, KeyboardInterrupt):
             pass
 

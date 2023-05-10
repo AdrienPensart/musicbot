@@ -1,6 +1,6 @@
-# type: ignore
 import logging
 
+from beartype import beartype
 from musicbot.file import File
 
 from . import fixtures
@@ -8,8 +8,10 @@ from . import fixtures
 logger = logging.getLogger(__name__)
 
 
+@beartype
 def test_flac_tags() -> None:
     m = File.from_path(folder=fixtures.folder_flac, path=fixtures.one_flac)
+    assert m
     assert m.artist == "Buckethead"
     assert m.title == "Welcome To Bucketheadland"
     assert m.album == "Giant Robot"
@@ -21,8 +23,10 @@ def test_flac_tags() -> None:
     assert m.length == 1
 
 
+@beartype
 def test_mp3_tags() -> None:
     m = File.from_path(folder=fixtures.folder_mp3, path=fixtures.one_mp3)
+    assert m
     assert m.artist == "1995"
     assert m.title == "La Flemme"
     assert m.album == "La Source"
