@@ -28,7 +28,7 @@ def test_folder_find(cli_runner: CliRunner) -> None:
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_folder_flac2mp3(cli_runner: CliRunner) -> None:
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
@@ -44,7 +44,7 @@ def test_folder_flac2mp3(cli_runner: CliRunner) -> None:
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_folder_playlist(cli_runner: CliRunner) -> None:
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
@@ -59,7 +59,7 @@ def test_folder_playlist(cli_runner: CliRunner) -> None:
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_folder_issues(cli_runner: CliRunner) -> None:
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [

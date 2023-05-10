@@ -24,7 +24,7 @@ class OneWayBool:
         if test_name:
             test_name = f" in test {test_name}"
         if force:
-            logger.info(f"SETTING {self.name} MODE TO {mode} (forced)")
+            logger.info(f"SETTING {self.name} MODE TO {mode} (forced){test_name}")
             self.mode = mode
             return
         if self.mode is None:
@@ -34,9 +34,9 @@ class OneWayBool:
             self.mode = mode
             if self.mode:
                 self.first_set_trace = traceback.format_stack()
-                logger.info(f"SETTING {self.name} MODE TO {self.mode}")
+                logger.info(f"SETTING {self.name} MODE TO {self.mode}{test_name}")
         elif self.mode == mode:
-            logger.warning(f"{self.name} has already been initialized once with same value {self.mode}")
+            logger.warning(f"{self.name} has already been initialized once with same value {self.mode}{test_name}")
         else:
             trace = "".join(self.first_set_trace or [])
             logger.critical(f"{self.name} has already been initialized once to value {self.mode}, cannot change to {mode}{test_name}\n{trace}")

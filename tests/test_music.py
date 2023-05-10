@@ -11,7 +11,7 @@ from . import fixtures
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_music_flac2mp3(cli_runner: CliRunner) -> None:
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
@@ -28,7 +28,7 @@ def test_music_flac2mp3(cli_runner: CliRunner) -> None:
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_music_tags(cli_runner: CliRunner) -> None:
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
@@ -39,7 +39,7 @@ def test_music_tags(cli_runner: CliRunner) -> None:
             str(fixtures.one_flac),
         ],
     )
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
@@ -55,7 +55,7 @@ def test_music_tags(cli_runner: CliRunner) -> None:
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_music_set_tags(cli_runner: CliRunner) -> None:
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
@@ -68,7 +68,7 @@ def test_music_set_tags(cli_runner: CliRunner) -> None:
             "--dry",
         ],
     )
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
@@ -86,7 +86,7 @@ def test_music_set_tags(cli_runner: CliRunner) -> None:
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_music_issues(cli_runner: CliRunner) -> None:
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
@@ -97,7 +97,7 @@ def test_music_issues(cli_runner: CliRunner) -> None:
             str(fixtures.one_flac),
         ],
     )
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
@@ -113,7 +113,7 @@ def test_music_issues(cli_runner: CliRunner) -> None:
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_music_add_keywords(cli_runner: CliRunner) -> None:
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
@@ -126,7 +126,7 @@ def test_music_add_keywords(cli_runner: CliRunner) -> None:
             "--dry",
         ],
     )
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
@@ -144,7 +144,7 @@ def test_music_add_keywords(cli_runner: CliRunner) -> None:
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_music_delete_keywords(cli_runner: CliRunner) -> None:
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
@@ -157,7 +157,7 @@ def test_music_delete_keywords(cli_runner: CliRunner) -> None:
             "--dry",
         ],
     )
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [

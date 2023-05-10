@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_cli(cli_runner: CliRunner) -> None:
-    run_cli(cli_runner, cli)
+    _ = run_cli(cli_runner, cli)
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
@@ -40,4 +40,4 @@ def test_cli_help(cli_runner: CliRunner) -> None:
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_completion_show(cli_runner: CliRunner) -> None:
-    run_cli(cli_runner, cli, ["--quiet", "completion", "show", "zsh"])
+    _ = run_cli(cli_runner, cli, ["--quiet", "completion", "show", "zsh"])

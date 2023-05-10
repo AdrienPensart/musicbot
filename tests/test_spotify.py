@@ -14,25 +14,25 @@ logger = logging.getLogger(__name__)
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_spotify_cached_token(cli_runner: CliRunner) -> None:
-    run_cli(cli_runner, cli, ["--quiet", "spotify", "cached-token"])
+    _ = run_cli(cli_runner, cli, ["--quiet", "spotify", "cached-token"])
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_spotify_playlists(cli_runner: CliRunner) -> None:
-    run_cli(cli_runner, cli, ["--quiet", "spotify", "playlists"])
+    _ = run_cli(cli_runner, cli, ["--quiet", "spotify", "playlists"])
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_spotify_tracks(cli_runner: CliRunner) -> None:
-    run_cli(cli_runner, cli, ["--quiet", "spotify", "tracks"])
+    _ = run_cli(cli_runner, cli, ["--quiet", "spotify", "tracks"])
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_spotify_artist_diff(cli_runner: CliRunner, edgedb: str) -> None:
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
@@ -63,4 +63,4 @@ def test_spotify_track_diff(cli_runner: CliRunner, edgedb: str) -> None:
             "json",
         ],
     )
-    _ = MusicbotObject.loads_json(output)
+    assert MusicbotObject.loads_json(output) is not None

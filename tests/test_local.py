@@ -10,7 +10,7 @@ from musicbot.object import MusicbotObject
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_local_query(cli_runner: CliRunner, edgedb: str) -> None:
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
@@ -27,7 +27,7 @@ def test_local_query(cli_runner: CliRunner, edgedb: str) -> None:
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_local_folders(cli_runner: CliRunner, edgedb: str) -> None:
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
@@ -43,7 +43,7 @@ def test_local_folders(cli_runner: CliRunner, edgedb: str) -> None:
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_local_search(cli_runner: CliRunner, edgedb: str) -> None:
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
@@ -60,7 +60,7 @@ def test_local_search(cli_runner: CliRunner, edgedb: str) -> None:
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_local_watch(cli_runner: CliRunner, edgedb: str) -> None:
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
@@ -91,13 +91,13 @@ def test_local_artists(cli_runner: CliRunner, edgedb: str) -> None:
             "json",
         ],
     )
-    _ = MusicbotObject.loads_json(output)
+    assert MusicbotObject.loads_json(output) is not None
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_local_soft_clean(cli_runner: CliRunner, edgedb: str) -> None:
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
@@ -114,7 +114,7 @@ def test_local_soft_clean(cli_runner: CliRunner, edgedb: str) -> None:
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_local_sync(cli_runner: CliRunner, edgedb: str) -> None:
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
@@ -147,13 +147,13 @@ def test_local_playlist(cli_runner: CliRunner, edgedb: str) -> None:
             "json",
         ],
     )
-    _ = MusicbotObject.loads_json(output)
+    assert MusicbotObject.loads_json(output) is not None
 
 
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_local_bests(cli_runner: CliRunner, edgedb: str) -> None:
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
@@ -171,7 +171,7 @@ def test_local_bests(cli_runner: CliRunner, edgedb: str) -> None:
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_local_player(cli_runner: CliRunner, edgedb: str) -> None:
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [

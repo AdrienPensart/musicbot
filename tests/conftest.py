@@ -20,7 +20,7 @@ pytest_plugins = ["docker_compose"]
 
 
 @beartype
-def wait_for_service(hostname: str, port: str, timeout: int = 60) -> None:
+def wait_for_service(hostname: str, port: int, timeout: int = 60) -> None:
     start_time = time.perf_counter()
     while True:
         try:
@@ -38,7 +38,7 @@ def wait_for_service(hostname: str, port: str, timeout: int = 60) -> None:
 def edgedb(session_scoped_container_getter: Any) -> str:
     service = session_scoped_container_getter.get("edgedb").network_info[0]
     dsn = f"""edgedb://edgedb:musicbot@{service.hostname}:{service.host_port}"""
-    wait_for_service(service.hostname, service.host_port)
+    wait_for_service(service.hostname, int(service.host_port))
     return dsn
 
 

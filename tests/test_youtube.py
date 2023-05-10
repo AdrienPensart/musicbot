@@ -13,7 +13,7 @@ from . import fixtures
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_youtube_search(cli_runner: CliRunner) -> None:
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
@@ -30,7 +30,7 @@ def test_youtube_search(cli_runner: CliRunner) -> None:
 @beartype
 def test_youtube_download(cli_runner: CliRunner) -> None:
     try:
-        run_cli(
+        _ = run_cli(
             cli_runner,
             cli,
             [
@@ -53,7 +53,7 @@ def test_youtube_download(cli_runner: CliRunner) -> None:
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_youtube_fingerprint(cli_runner: CliRunner) -> None:
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
@@ -68,7 +68,7 @@ def test_youtube_fingerprint(cli_runner: CliRunner) -> None:
 @pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_youtube_find(cli_runner: CliRunner) -> None:
-    run_cli(
+    _ = run_cli(
         cli_runner,
         cli,
         [
