@@ -19,7 +19,6 @@ from musicbot import Config, MusicbotObject, version
 # from musicbot.helpers import async_run
 from musicbot.cli.config import config_options
 from musicbot.cli.options import dry_option
-from musicbot.exceptions import MusicbotError
 
 PROG_NAME: Final[str] = "musicbot"
 logger = logging.getLogger(__name__)
@@ -55,18 +54,6 @@ def cli(
         critical=critical,
         config=config,
     )
-
-    use_uvloop: bool = helpers.str2bool(os.environ.get("MB_USE_UVLOOP", True))
-    if use_uvloop:
-        import uvloop
-
-        uvloop.install()
-
-    disable_gc: bool = helpers.str2bool(os.environ.get("MB_DISABLE_GC", False))
-    if disable_gc:
-        import gc
-
-        gc.disable()
 
     if not helpers.raise_limits():
         MusicbotObject.err("unable to raise ulimit")
@@ -105,12 +92,8 @@ def main() -> None:
         pass
     except click.ClickException as e:
         e.show()
-    except MusicbotError as e:
-        MusicbotObject.err(e)
-    except (mutagen.MutagenError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError, edgedb.errors.AuthenticationError) as e:
-        logger.error(e)
-        if MusicbotObject.config and MusicbotObject.config.debug:
-            logger.exception(e)
+    except (mutagen.MutagenError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError, edgedb.errors.AuthenticationError) as error:
+        MusicbotObject.err("Internal Error", error=error)
     finally:
         version_check.print()
 

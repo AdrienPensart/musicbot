@@ -1,13 +1,11 @@
 import configparser
 import logging
+from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 from typing import Final
 
 import colorlog
-from attr import frozen
-
-from musicbot.exceptions import MusicbotError
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +29,7 @@ VERBOSITIES = {
 }
 
 
-@frozen(hash=True)
+@dataclass(unsafe_hash=True)
 class Config:
     log: str | None = DEFAULT_LOG
     color: bool = DEFAULT_COLOR
@@ -44,7 +42,7 @@ class Config:
     config: str = DEFAULT_CONFIG
     level: int = VERBOSITIES[DEFAULT_VERBOSITY]
 
-    def __attrs_post_init__(self) -> None:
+    def __post_init__(self) -> None:
         verbosity = "warning"
         if self.debug:
             verbosity = "debug"
@@ -82,7 +80,7 @@ class Config:
                 file_handler = logging.FileHandler(log_path)
                 root_logger.handlers.append(file_handler)
             except PermissionError as e:
-                raise MusicbotError(f"Unable to write log file {log_path}") from e
+                logger.warning(f"Unable to write log file {log_path} : {e}")
         root_logger.handlers.append(stream_handler)
 
     @cache

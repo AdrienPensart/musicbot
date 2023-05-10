@@ -3,9 +3,9 @@ import logging
 import os
 import platform
 import random
-from typing import Any
+from dataclasses import asdict, dataclass
+from typing import Any, Self
 
-from attr import asdict, frozen
 from beartype import beartype
 from click_skeleton.helpers import PrettyDefaultDict
 from click_skeleton.helpers import seconds_to_human as formatted_seconds_to_human
@@ -24,7 +24,7 @@ logging.getLogger("vlc").setLevel(logging.NOTSET)
 logger = logging.getLogger(__name__)
 
 
-@frozen(repr=False)
+@dataclass(frozen=True)
 class Playlist(MusicbotObject):
     name: str
     musics: list[Music]
@@ -34,15 +34,16 @@ class Playlist(MusicbotObject):
         cls,
         files: list[File],
         name: str,
-    ) -> "Playlist":
-        return cls(name=name, musics=[file.music for file in files if file.music is not None])
+    ) -> Self:
+        musics = [file.music for file in files if file.music is not None]
+        return cls(name=name, musics=musics)
 
     @classmethod
     def from_edgedb(
         cls,
         name: str,
         results: Any,
-    ) -> "Playlist":
+    ) -> Self:
         musics = []
         for result in results:
             keywords = frozenset(keyword.name for keyword in result.keywords)
@@ -119,13 +120,15 @@ class Playlist(MusicbotObject):
         elif output == "table":
             self.print_table(table, file=file)
         elif output == "json":
-            self.print_json(asdict(self, recurse=True), file=file)
+            # self.print_json(asdict(self, recurse=True), file=file)
+            self.print_json(asdict(self), file=file)
             self.success(caption)
         else:
             self.err(f"unknown output type : {output}")
 
     def __repr__(self) -> str:
-        self_dict = asdict(self, recurse=True)
+        # self_dict = asdict(self, recurse=True)
+        self_dict = asdict(self)
         if (representation := self.dumps_json(self_dict)) is not None:
             return representation
         self.err(f"Unable to convert to json : {self_dict}")

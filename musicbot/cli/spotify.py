@@ -2,10 +2,10 @@ import logging
 import shutil
 import sys
 import textwrap
+from dataclasses import fields
 from typing import Any
 
 import click
-from attr import fields_dict
 from beartype import beartype
 from click_option_group import optgroup
 from click_skeleton import ExpandedPath, add_options
@@ -131,10 +131,8 @@ def sane_spotify(ctx: click.Context, param: click.Parameter, value: str | None) 
     if param.name:
         ctx.params[param.name] = value
     spotify_params = {}
-    for field in fields_dict(Spotify):
-        # spotify_params[field] = ctx.params['spotify_' + field]
-        # ctx.params.pop('spotify_' + field)
-        spotify_params[field] = ctx.params.pop("spotify_" + field)
+    for field in fields(Spotify):
+        spotify_params[field.name] = ctx.params.pop("spotify_" + field.name)
     spotify = Spotify(**spotify_params)
     ctx.params["spotify"] = spotify
     return spotify

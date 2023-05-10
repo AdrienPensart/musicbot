@@ -1,13 +1,13 @@
 import logging
 import shutil
+from dataclasses import asdict, dataclass
 from enum import Enum, unique
 from functools import cached_property
 from pathlib import Path, PurePath
-from typing import Any, Optional
+from typing import Any, Self
 
 import acoustid  # type: ignore
 import mutagen
-from attr import asdict, define
 from beartype import beartype
 from click_skeleton.helpers import mysplit
 from pydub import AudioSegment  # type: ignore
@@ -19,7 +19,6 @@ from musicbot.defaults import (
     RATING_CHOICES,
     STORED_RATING_CHOICES,
 )
-from musicbot.exceptions import MusicbotError
 from musicbot.helpers import current_user
 from musicbot.music import Folder, Music
 from musicbot.object import MusicbotObject
@@ -40,13 +39,14 @@ class Issue(str, Enum):
     INVALID_PATH = "invalid-path"
 
 
-@define(repr=False)
+@dataclass
+@beartype
 class File(MusicbotObject):
     folder: Path
     handle: Any
 
     @classmethod
-    def from_path(cls, folder: Path, path: Path) -> Optional["File"]:
+    def from_path(cls, folder: Path, path: Path) -> Self | None:
         if not str(path).endswith(tuple(DEFAULT_EXTENSIONS)):
             cls.err(f"{path} : not supported ({DEFAULT_EXTENSIONS})")
             return None
@@ -120,13 +120,14 @@ class File(MusicbotObject):
             return None
 
         folders = data.pop("folders")
-        data["ipv4"] = folders[0]["ipv4"]
-        data["user"] = folders[0]["user"]
-        data["folder"] = folders[0]["name"]
-        data["path"] = folders[0]["path"]
+        folder = next(iter(folders))
+        data["keywords"] = list(data["keywords"])
+        data["ipv4"] = folder.ipv4
+        data["user"] = folder.user
+        data["folder"] = folder.name
+        data["path"] = folder.path
         return data
 
-    @beartype
     def set_tags(
         self,
         title: str | None = None,
@@ -382,21 +383,18 @@ class File(MusicbotObject):
         else:
             self.err(f"{self} : unknown extension {self.extension}")
 
-    @beartype
     def add_keywords(self, keywords: set[str]) -> bool:
         self.keywords = self.keywords.union(keywords)
         logger.info(f"{self} : adding {keywords}, new keywords {self.keywords}")
         return self.save()
 
-    @beartype
     def delete_keywords(self, keywords: set[str]) -> bool:
         new_keywords = self.keywords - set(keywords)
         logger.info(f"{self} : deleting {keywords}, new keywords {new_keywords}")
         self.keywords = new_keywords
         return self.save()
 
-    @beartype
-    def to_mp3(self, destination: Path, flat: bool = False) -> Optional["File"]:
+    def to_mp3(self, destination: Path, flat: bool = False) -> Self | None:
         if not flat and Issue.INVALID_PATH in self.issues:
             self.err(f"{self} does not have a canonic path like : {self.canonic_artist_album_filename}")
             return None
@@ -408,7 +406,7 @@ class File(MusicbotObject):
 
         if mp3_path.exists():
             logger.info(f"{mp3_path} already exists, overwriting only tags")
-            mp3_file = File.from_path(folder=destination, path=mp3_path)
+            mp3_file = self.from_path(folder=destination, path=mp3_path)
             if not mp3_file:
                 self.err("unable to load existing mp3 file")
                 return None
@@ -429,7 +427,7 @@ class File(MusicbotObject):
             _ = shutil.copyfile(self.path, str(mp3_path))
             if self.dry:
                 return None
-            mp3_file = File.from_path(folder=destination, path=mp3_path)
+            mp3_file = self.from_path(folder=destination, path=mp3_path)
             return mp3_file
 
         logger.debug(f"{self} convert destination : {mp3_path}")
@@ -444,7 +442,7 @@ class File(MusicbotObject):
                 bitrate="256k",
             )
             mp3_export.close()
-            if not (mp3_file := File.from_path(folder=destination, path=mp3_path)):
+            if not (mp3_file := self.from_path(folder=destination, path=mp3_path)):
                 self.err("unable to load freshly converted mp3 file")
                 return None
 
@@ -460,12 +458,11 @@ class File(MusicbotObject):
             mp3_file.keywords = self.keywords
             if mp3_file.save():
                 return mp3_file
-        except Exception as e:
+        except Exception as error:
             mp3_path.unlink()
-            raise MusicbotError(f"{self} : unable to convert to mp3") from e
+            self.err(f"{self} : unable to convert to mp3", error=error)
         return None
 
-    @beartype
     def fingerprint(self, api_key: str) -> str | None:
         ids = acoustid.match(api_key, self.path)
         for score, recording_id, title, artist in ids:
@@ -474,7 +471,6 @@ class File(MusicbotObject):
         logger.info(f"{self} : fingerprint cannot be detected")
         return None
 
-    @beartype
     def fix(self) -> bool:
         for issue in self.issues:
             match issue:  # noqa
@@ -530,7 +526,6 @@ class File(MusicbotObject):
                         self.handle = mutagen.File(self.canonic_path)
         return self.save()
 
-    @beartype
     def save(self) -> bool:
         try:
             if self.dry:

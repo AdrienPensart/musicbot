@@ -1,15 +1,14 @@
 import logging
 import os
+from dataclasses import dataclass
 from functools import cached_property
 from itertools import islice
 from pathlib import Path
 from typing import Any, Callable, Iterator
 
-from attr import define
 from natsort import os_sorted
 
 from musicbot.defaults import DEFAULT_EXTENSIONS, EXCEPT_DIRECTORIES
-from musicbot.exceptions import MusicbotError
 from musicbot.file import File
 from musicbot.music import Music
 from musicbot.object import MusicbotObject
@@ -17,15 +16,14 @@ from musicbot.object import MusicbotObject
 logger = logging.getLogger(__name__)
 
 
-@define(repr=False, hash=True)
+@dataclass(unsafe_hash=True)
 class Folders(MusicbotObject):
     directories: list[Path]
-    extensions: set[str] = set(DEFAULT_EXTENSIONS)
+    extensions: frozenset[str] = DEFAULT_EXTENSIONS
     except_directories: frozenset[str] = EXCEPT_DIRECTORIES
-    other_files: set[Path] = set()
     limit: int | None = None
 
-    def __attrs_post_init__(self) -> None:
+    def __post_init__(self) -> None:
         self.directories = [directory.resolve() for directory in self.directories]
 
     def apply(self, worker: Callable, **kwargs: Any) -> Any:
@@ -64,9 +62,7 @@ class Folders(MusicbotObject):
                     continue
                 for basename in basenames:
                     path = Path(folder) / root / basename
-                    if not basename.endswith(tuple(self.extensions)):
-                        self.other_files.add(path)
-                    else:
+                    if basename.endswith(tuple(self.extensions)):
                         _files.add((folder, path))
         return set(islice(_files, self.limit))
 
@@ -105,10 +101,8 @@ class Folders(MusicbotObject):
             try:
                 if file := File.from_path(folder=folder, path=path):
                     return file.to_mp3(flat=flat, destination=destination)
-            except MusicbotError as e:
-                self.err(e)
-            except Exception as e:  # pylint: disable=broad-except
-                logger.error(f"{path} : unable to convert to mp3 : {e}")
+            except Exception as error:  # pylint: disable=broad-except
+                self.err(f"{path} : unable to convert to mp3", error=error)
             return None
 
         return self.apply(

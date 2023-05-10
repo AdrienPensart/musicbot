@@ -60,7 +60,8 @@ def search(artist: str, title: str) -> None:
     }
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            infos = ydl.extract_info(f"ytsearch1:'{artist} {title}'", download=False)
+            infos: dict = ydl.extract_info(f"ytsearch1:'{artist} {title}'", download=False)
+            print(type(infos))
             for entry in infos["entries"]:
                 print(entry["webpage_url"])
     except Exception as e:  # pylint: disable=broad-except
@@ -95,7 +96,7 @@ def download(artist: str, title: str, path: str | None) -> None:
             "outtmpl": final_filepath + ".%(ext)s",
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.extract_info(f"ytsearch1:'{artist} {title}'", download=True)
+            _ = ydl.extract_info(f"ytsearch1:'{artist} {title}'", download=True)
     except yt_dlp.utils.DownloadError as e:
         logger.error(e)
 
@@ -134,7 +135,7 @@ def find(file: File, acoustid_api_key: str) -> None:
         file_id = file.fingerprint(acoustid_api_key)
         print(f"Searching for artist {file.artist} and title {file.title} and duration {seconds_to_human(file.length)}")
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            infos = ydl.extract_info(f"ytsearch1:'{file.artist} {file.title}'", download=True)
+            infos: dict = ydl.extract_info(f"ytsearch1:'{file.artist} {file.title}'", download=True)
             url = None
             for entry in infos["entries"]:
                 url = entry["webpage_url"]
@@ -190,7 +191,7 @@ def fingerprint(url: str, acoustid_api_key: str) -> None:
     }
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
+            _ = ydl.download([url])
             yt_ids = acoustid.match(acoustid_api_key, str(final_path))
             for _, recording_id, _, _ in yt_ids:
                 print(recording_id)

@@ -2,10 +2,10 @@ import itertools
 import logging
 import os
 import sys
+from dataclasses import asdict, dataclass
 from typing import Any
 
 import yaml
-from attr import asdict, define
 from beartype import beartype
 from slugify import slugify
 
@@ -17,7 +17,7 @@ from musicbot.playlist_options import PlaylistOptions
 logger = logging.getLogger(__name__)
 
 
-@define(frozen=True)
+@dataclass(frozen=True)
 class Folder(MusicbotObject):
     name: str
     ipv4: str
@@ -60,7 +60,7 @@ class Folder(MusicbotObject):
         return frozenset(paths)
 
 
-@define(frozen=True)
+@dataclass(frozen=True)
 class Music(MusicbotObject):
     title: str
     album: str

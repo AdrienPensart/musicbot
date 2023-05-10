@@ -1,25 +1,30 @@
 """Helper module to secure dry mode"""
+import logging
+import os
+import sys
 import traceback
-from typing import Any, List, Optional, Union
+from dataclasses import dataclass
+from typing import Any, Self
 
-from musicbot.exceptions import MusicbotError
+logger = logging.getLogger(__name__)
 
 
+@dataclass
 class OneWayBool:
     """A bool value that go from False=>True or True=>False but only once"""
 
-    def __init__(self, name: str, default: bool):
-        self.name: str = name
-        self.mode: Optional[bool] = None
-        self.default: bool = default
-        self.first_set_trace: List[Any] = []
+    name: str
+    default: bool
+    mode: bool | None = None
+    first_set_trace: list[Any] | None = None
 
-    def set_mode(self, mode: bool, force: Union["OneWayBool", bool] = False) -> None:
+    def set_mode(self, mode: bool, force: Self | bool = False) -> None:
         """Will set a value only once, or many times to same value, else raise error"""
-        from musicbot.object import MusicbotObject
-
+        test_name = os.environ.get("PYTEST_CURRENT_TEST", "")
+        if test_name:
+            test_name = f" in test {test_name}"
         if force:
-            MusicbotObject.success(f"SETTING {self.name} MODE TO {mode} (forced)")
+            logger.info(f"SETTING {self.name} MODE TO {mode} (forced)")
             self.mode = mode
             return
         if self.mode is None:
@@ -29,12 +34,13 @@ class OneWayBool:
             self.mode = mode
             if self.mode:
                 self.first_set_trace = traceback.format_stack()
-                MusicbotObject.success(f"SETTING {self.name} MODE TO {self.mode}")
+                logger.info(f"SETTING {self.name} MODE TO {self.mode}")
         elif self.mode == mode:
-            MusicbotObject.warn(f"{self.name} has already been initialized once with same value {self.mode}")
+            logger.warning(f"{self.name} has already been initialized once with same value {self.mode}")
         else:
-            trace = "".join(self.first_set_trace)
-            raise MusicbotError(f"{self.name} has already been initialized once to value {self.mode}, cannot change to {mode}\n{trace}")
+            trace = "".join(self.first_set_trace or [])
+            logger.critical(f"{self.name} has already been initialized once to value {self.mode}, cannot change to {mode}{test_name}\n{trace}")
+            sys.exit(-1)
 
     def __repr__(self) -> str:
         return f"Mode {self.name} is {self.mode} | default = {self.default}"

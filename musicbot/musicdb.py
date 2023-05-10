@@ -1,13 +1,14 @@
 import asyncio
 import logging
 import os
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Self
 from urllib.parse import urlparse
 
 import edgedb
+from attr import asdict
 from async_lru import alru_cache
-from attr import asdict, define
 from beartype import beartype
 from edgedb.asyncio_client import AsyncIOClient, create_async_client
 from edgedb.options import RetryOptions, TransactionOptions
@@ -15,7 +16,6 @@ from requests import Response, Session
 
 from musicbot.artist import Artist
 from musicbot.defaults import DEFAULT_COROUTINES
-from musicbot.exceptions import MusicbotError
 from musicbot.file import File, Issue
 from musicbot.folders import Folders
 from musicbot.music import Folder, Music
@@ -36,14 +36,15 @@ from musicbot.queries import (
 logger = logging.getLogger(__name__)
 
 
-@define(repr=False, hash=True)
+@dataclass(unsafe_hash=True)
+@beartype
 class MusicDb(MusicbotObject):
     client: AsyncIOClient
     dsn: str
     session: Session = Session()
     graphql: str | None = None
 
-    def __attrs_post_init__(self) -> None:
+    def __post_init__(self) -> None:
         self.client = self.client.with_retry_options(RetryOptions(attempts=10))
         if self.graphql is None:
             parsed = urlparse(self.client._impl._connect_args["dsn"])
@@ -52,7 +53,6 @@ class MusicDb(MusicbotObject):
     def __repr__(self) -> str:
         return self.dsn
 
-    @beartype
     def set_readonly(self, readonly: bool = True) -> None:
         """set client to read only mode"""
         self.client = self.client.with_transaction_options(TransactionOptions(readonly=readonly))
@@ -62,16 +62,14 @@ class MusicDb(MusicbotObject):
         cls,
         dsn: str,
         graphql: str | None = None,
-    ) -> "MusicDb":
+    ) -> Self:
         if not cls.is_prod():
             os.environ["EDGEDB_CLIENT_SECURITY"] = "insecure_dev_mode"
         return cls(client=create_async_client(dsn=dsn), dsn=dsn, graphql=graphql)
 
-    @beartype
     async def query_json(self, query: str) -> Any:
         return await self.client.query_json(query)
 
-    @beartype
     def graphql_query(self, query: str) -> Response | None:
         if not self.graphql:
             return None
@@ -89,7 +87,6 @@ class MusicDb(MusicbotObject):
         folders = [Folder(path=folder.name, name=folder.name, ipv4=folder.ipv4, user=folder.user) for folder in results]
         return folders
 
-    @beartype
     async def artists(self) -> list[Artist]:
         results = await self.client.query(ARTISTS_QUERY)
         artists_list = []
@@ -108,7 +105,6 @@ class MusicDb(MusicbotObject):
             artists_list.append(artist)
         return artists_list
 
-    @beartype
     async def execute_music_filters(
         self,
         query: str,
@@ -128,7 +124,6 @@ class MusicDb(MusicbotObject):
         logger.debug(f"{len(results)} results")
         return results
 
-    @beartype
     async def make_playlist(
         self,
         music_filters: frozenset[MusicFilter] = frozenset(),
@@ -139,14 +134,12 @@ class MusicDb(MusicbotObject):
             results=results,
         )
 
-    @beartype
     async def clean_musics(self) -> Any:
         query = """delete Artist;"""
         if self.dry:
             return None
         return await self.client.query(query)
 
-    @beartype
     async def soft_clean(self) -> Any:
         self.success("cleaning orphan musics, artists, albums, genres, keywords")
         if self.dry:
@@ -156,14 +149,12 @@ class MusicDb(MusicbotObject):
     async def ensure_connected(self) -> AsyncIOClient:
         return await self.client.ensure_connected()
 
-    @beartype
     async def remove_music_path(self, path: str) -> Any:
         logger.debug(f"{self} : removed {path}")
         if self.dry:
             return None
         return await self.client.query(REMOVE_PATH_QUERY, path=path)
 
-    @beartype
     async def upsert_path(
         self,
         folder_and_path: tuple[Path, Path],
@@ -207,17 +198,15 @@ class MusicDb(MusicbotObject):
             )
             self.success(f"{self} : updated {path}")
             logger.debug(output_music)
-
             return file
-        except edgedb.errors.TransactionSerializationError as e:
-            raise MusicbotError(f"{path} : transaction error : {e}") from e
-        except edgedb.errors.NoDataError as e:
-            raise MusicbotError(f"{path} : no data result for query : {e}") from e
-        except OSError as e:
-            logger.error(e)
+        except edgedb.errors.TransactionSerializationError as error:
+            self.err(f"{path} : transaction error", error=error)
+        except edgedb.errors.NoDataError as error:
+            self.err(f"{path} : no data result for query", error=error)
+        except OSError as error:
+            self.err("Unable to upsert", error=error)
         return None
 
-    @beartype
     async def upsert_folders(
         self,
         folders: Folders,
@@ -235,21 +224,18 @@ class MusicDb(MusicbotObject):
                     try:
                         if not (file := await self.upsert_path(folder_and_path=folder_and_path)):
                             self.err(f"{self} : unable to insert {folder_and_path}")
+                            failed_files.add(folder_and_path)
                         else:
                             files.append(file)
-                    except MusicbotError as e:
-                        self.err(e)
-                        failed_files.add(folder_and_path)
                     finally:
                         pbar.value += 1
-                        pbar.update()
+                        _ = pbar.update()
 
             _ = await self.async_gather(upsert_worker, folders.folders_and_paths)
         if failed_files:
             self.warn(f"Unable to insert {len(failed_files)} files")
         return files
 
-    @beartype
     async def make_bests(
         self,
         music_filters: frozenset[MusicFilter] = frozenset(),
@@ -289,7 +275,6 @@ class MusicDb(MusicbotObject):
                 playlists.append(playlist)
         return playlists
 
-    @beartype
     async def search(
         self,
         pattern: str,

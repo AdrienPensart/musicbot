@@ -4,13 +4,13 @@ import io
 import logging
 import shutil
 import webbrowser
+from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
 import click
 import edgedb
 import progressbar  # type: ignore
-from attr import asdict
 from beartype import beartype
 from click_skeleton import AdvancedGroup
 from rich.table import Table
@@ -54,7 +54,7 @@ def cli() -> None:
 @musicdb_options
 @beartype
 def execute(musicdb: MusicDb, query: str) -> None:
-    print(MusicbotObject.async_run(musicdb.query_json(query)))
+    print(MusicbotObject.syncify(musicdb.query_json)(query))
 
 
 @cli.command(help="GraphQL query")
@@ -71,7 +71,7 @@ def graphql(musicdb: MusicDb, query: str) -> None:
 @musicdb_options
 @beartype
 def folders(musicdb: MusicDb) -> None:
-    response = MusicbotObject.async_run(musicdb.folders())
+    response = MusicbotObject.syncify(musicdb.folders)()
     if response is not None:
         MusicbotObject.print_json([asdict(folder) for folder in response])
 
@@ -113,7 +113,7 @@ def scan(
         await musicdb.soft_clean()
         return files
 
-    files = MusicbotObject.async_run(runner())
+    files = MusicbotObject.syncify(runner)()
 
     if output == "json":
         MusicbotObject.print_json([asdict(file.music) for file in files if file.music is not None])
@@ -178,7 +178,7 @@ def watch(
         except (TimeoutError, asyncio.CancelledError, KeyboardInterrupt):
             pass
 
-    MusicbotObject.async_run(runner())
+    MusicbotObject.syncify(runner)()
 
 
 @cli.command(help="Clean all musics in DB", aliases=["clean-db", "erase"])
@@ -186,14 +186,14 @@ def watch(
 @yes_option
 @beartype
 def clean(musicdb: MusicDb) -> None:
-    MusicbotObject.async_run(musicdb.clean_musics())
+    MusicbotObject.syncify(musicdb.clean_musics)()
 
 
 @cli.command(help="Clean entities without musics associated")
 @musicdb_options
 @beartype
 def soft_clean(musicdb: MusicDb) -> None:
-    MusicbotObject.async_run(musicdb.soft_clean())
+    MusicbotObject.syncify(musicdb.soft_clean)()
 
 
 @cli.command(help="Search musics by full-text search")
@@ -208,7 +208,7 @@ def search(
     pattern: str,
     playlist_options: PlaylistOptions,
 ) -> None:
-    p = MusicbotObject.async_run(musicdb.search(pattern))
+    p = MusicbotObject.syncify(musicdb.search)(pattern)
     p.print(
         output=output,
         playlist_options=playlist_options,
@@ -230,10 +230,8 @@ def playlist(
     out: Any,
 ) -> None:
     musicdb.set_readonly()
-    p = MusicbotObject.async_run(
-        musicdb.make_playlist(
-            music_filters=frozenset(music_filters),
-        )
+    p = MusicbotObject.syncify(musicdb.make_playlist)(
+        music_filters=frozenset(music_filters),
     )
     p.print(
         output=output,
@@ -251,7 +249,7 @@ def artists(
     musicdb: MusicDb,
 ) -> None:
     musicdb.set_readonly()
-    all_artists = MusicbotObject.async_run(musicdb.artists())
+    all_artists = MusicbotObject.syncify(musicdb.artists)()
     table = Table(
         "Name",
         "Rating",
@@ -300,10 +298,8 @@ def bests(
     playlist_options: PlaylistOptions,
 ) -> None:
     musicdb.set_readonly()
-    bests = MusicbotObject.async_run(
-        musicdb.make_bests(
-            music_filters=frozenset(music_filters),
-        )
+    bests = MusicbotObject.syncify(musicdb.make_bests)(
+        music_filters=frozenset(music_filters),
     )
     for best in bests:
         if len(best.musics) < min_playlist_size or not best.name:
@@ -343,10 +339,8 @@ def player(
     if not MusicbotObject.config.quiet or not MusicbotObject.is_test():
         progressbar.streams.unwrap(stderr=True, stdout=True)
     try:
-        playlist = MusicbotObject.async_run(
-            musicdb.make_playlist(
-                music_filters=frozenset(music_filters),
-            )
+        playlist = MusicbotObject.syncify(musicdb.make_playlist)(
+            music_filters=frozenset(music_filters),
         )
         playlist.play(
             vlc_params=vlc_params,
@@ -375,16 +369,14 @@ def sync(
 ) -> None:
     musicdb.set_readonly()
     logger.info(f"Destination: {destination}")
-    playlist = MusicbotObject.async_run(
-        musicdb.make_playlist(
-            music_filters=frozenset(music_filters),
-        )
+    playlist = MusicbotObject.syncify(musicdb.make_playlist)(
+        music_filters=frozenset(music_filters),
     )
     if not playlist.musics:
         click.secho("no result for filter, nothing to sync")
         return
 
-    folders = Folders(directories=[destination], extensions=set())
+    folders = Folders(directories=[destination], extensions=frozenset())
     logger.info(f"Files : {len(folders.files)}")
     if not folders.files:
         logger.warning("no files found in destination")
@@ -427,7 +419,7 @@ def sync(
                         logger.error(e)
                 finally:
                     pbar.value += 1
-                    pbar.update()
+                    _ = pbar.update()
 
     to_copy = set(sources.keys()) - set(destinations.keys())
     with MusicbotObject.progressbar(max_value=len(to_copy)) as pbar:
@@ -453,7 +445,7 @@ def sync(
                 raise
             finally:
                 pbar.value += 1
-                pbar.update()
+                _ = pbar.update()
 
     for d in folders.flush_empty_directories():
         if any(e in d for e in folders.except_directories):

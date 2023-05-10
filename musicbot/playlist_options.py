@@ -1,4 +1,4 @@
-from attr import frozen
+from dataclasses import dataclass
 
 from musicbot.defaults import (
     DEFAULT_INTERLEAVE,
@@ -8,7 +8,7 @@ from musicbot.defaults import (
 )
 
 
-@frozen
+@dataclass(frozen=True)
 class PlaylistOptions:
     relative: bool = DEFAULT_RELATIVE
     shuffle: bool = DEFAULT_SHUFFLE

@@ -24,20 +24,19 @@ requests = "^2.24.0"
 spotipy = "^2.16.0"
 pydub = "^0.25.1"
 fuzzywuzzy = "^0.18.0"
-python-Levenshtein = "^0.20.5"
-attrs = "^22.2.0"
+python-Levenshtein = "^0.21.0"
+attrs = "^23.1.0"
 types-requests = "^2.25.0"
 colorlog = "^6.4.1"
 progressbar2 = "^4.0.0"
 rich = "^13.0.0"
-click-skeleton = "^0.26"
-beartype = "^0.12.0"
+click-skeleton = "^0.28.1"
+beartype = "^0.14.0"
 humanize = "^4.0.0"
 python-slugify = "^8.0.0"
 edgedb = "^1.0.0"
 Pygments = "^2.11.2"
 types-PyYAML = "^6.0.8"
-uvloop = "^0.17.0"
 types-python-slugify = "^8.0.0"
 more-itertools = "^9.0.0"
 yt-dlp = "^2023.1.2"
@@ -48,7 +47,7 @@ orjson = "^3.8.0"
 ipython = "^8.7.0"
 async-lru = "^2.0.2"
 watchfiles = "^0.19.0"
-textual = {extras = ["dev"], version = "^0.18.0"}
+textual = {extras = ["dev"], version = "^0.24.1"}
 
 [tool.isort]
 profile = 'black'
@@ -95,7 +94,7 @@ log_cli = true
 jobs = 4
 [tool.pylint.messages_control]
 disable = """
-method-cache-max-size-none,too-few-public-methods,logging-format-interpolation,line-too-long,too-many-arguments,protected-access,missing-docstring,invalid-name,too-many-public-methods,too-many-instance-attributes,duplicate-code,too-many-nested-blocks,too-many-branches,too-many-return-statements,too-many-statements,too-many-locals,too-many-ancestors,abstract-method,anomalous-backslash-in-string,import-outside-toplevel,redefined-outer-name,unnecessary-lambda,c-extension-no-member,logging-fstring-interpolation,too-many-boolean-expressions,use-dict-literal
+method-cache-max-size-none,too-few-public-methods,logging-format-interpolation,line-too-long,too-many-arguments,protected-access,missing-docstring,invalid-name,too-many-public-methods,too-many-instance-attributes,duplicate-code,too-many-nested-blocks,too-many-branches,too-many-return-statements,too-many-statements,too-many-locals,too-many-ancestors,abstract-method,anomalous-backslash-in-string,import-outside-toplevel,redefined-outer-name,unnecessary-lambda,c-extension-no-member,logging-fstring-interpolation,too-many-boolean-expressions,use-dict-literal,broad-except
 """
 
 [tool.mypy]

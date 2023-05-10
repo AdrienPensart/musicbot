@@ -1,16 +1,19 @@
 import asyncio
 import concurrent.futures as cf
+import dataclasses
 import io
 import logging
 import os
 import signal
 import sys
 import threading
-from collections.abc import Callable, Collection, Iterable
+import traceback
+from collections.abc import Callable, Collection, Coroutine, Iterable
 from datetime import datetime
-from functools import cache
-from typing import IO, Any, NoReturn, Sequence
+from functools import cache, partial, wraps
+from typing import IO, Any, NoReturn, Sequence, ParamSpec, TypeVar
 
+import attr
 import click
 import orjson
 import requests
@@ -30,11 +33,14 @@ logger = logging.getLogger(__name__)
 
 def default_encoder(data: Any) -> Any:
     """Encode in json structure which cannot"""
-    if isinstance(data, set):
+    if isinstance(data, (frozenset, set)):
         return list(data)
-    # if isinstance(data, (frozendict, CaseInsensitiveDict)):
+    if dataclasses.is_dataclass(data):
+        return dataclasses.asdict(data)
     if isinstance(data, CaseInsensitiveDict):
         return dict(data)
+    if attr.has(data.__class__):
+        return attr.asdict(data)
     raise TypeError
 
 
@@ -46,6 +52,11 @@ def public_ip() -> str | None:
     except Exception as e:  # pylint: disable=broad-except
         MusicbotObject.err(f"Unable to detect Public IP : {e}")
     return None
+
+
+T_Retval = TypeVar("T_Retval")
+T_ParamSpec = ParamSpec("T_ParamSpec")
+T = TypeVar("T")
 
 
 class MusicbotObject:
@@ -65,11 +76,20 @@ class MusicbotObject:
     def __repr__(self) -> str:
         return "[DRY]" if self.dry else "[DOING]"
 
-    @staticmethod
-    def async_run(task: Any) -> Any:
+    @classmethod
+    def syncify(
+        cls,
+        async_function: Callable[T_ParamSpec, Coroutine[Any, Any, T_Retval]],
+    ) -> Callable[T_ParamSpec, T_Retval]:
         """Run an async task"""
-        with asyncio.Runner() as runner:
-            return runner.run(task)
+
+        @wraps(async_function)
+        def wrapper(*args: T_ParamSpec.args, **kwargs: T_ParamSpec.kwargs) -> T_Retval:
+            partial_f = partial(async_function, *args, **kwargs)
+            with asyncio.Runner() as runner:
+                return runner.run(partial_f())
+
+        return wrapper
 
     @classmethod
     def public_ip(cls) -> str | None:
@@ -93,10 +113,24 @@ class MusicbotObject:
         return not cls.is_dev() and not cls.is_test()
 
     @classmethod
-    def err(cls, message: Any, **options: Any) -> None:
+    def err(
+        cls,
+        message: Any,
+        file: IO | None = None,
+        error: Exception | None = None,
+        **options: Any,
+    ) -> None:
         """Print error to the user"""
+        file = file if file is not None else sys.stderr
+        if error is not None:
+            final_message = f"{message} : {error}"
+        else:
+            final_message = message
+        if error is not None and not cls.is_prod():
+            traceback.print_stack(file=file)
+            logger.exception(error)
         if cls.show_err:
-            cls.echo(message, fg="red", **options)
+            cls.echo(final_message, fg="red", **options)
 
     @classmethod
     def warn(cls, message: Any, **options: Any) -> None:
@@ -204,7 +238,7 @@ class MusicbotObject:
                             results.append(result)
                     finally:
                         pbar.value += 1
-                        pbar.update()
+                        _ = pbar.update()
         else:
             with (
                 cls.progressbar(
@@ -222,7 +256,7 @@ class MusicbotObject:
                     def update_pbar(_: Any) -> None:
                         try:
                             pbar.value += 1
-                            pbar.update()
+                            _ = pbar.update()
                         except KeyboardInterrupt as e:
                             logger.error(f"interrupted : {e}")
                             while True:
@@ -268,7 +302,7 @@ class MusicbotObject:
                         return await worker(worker_item)
                     finally:
                         pbar.value += 1
-                        pbar.update()
+                        _ = pbar.update()
 
                 futures = []
                 for future_item in items:

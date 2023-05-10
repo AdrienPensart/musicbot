@@ -1,8 +1,8 @@
 import logging
+from dataclasses import asdict
 from pathlib import Path
 
 import click
-from attr import asdict
 from beartype import beartype
 from click_skeleton import AdvancedGroup
 from mutagen import MutagenError

@@ -1,10 +1,11 @@
 import itertools
 import logging
+from dataclasses import asdict, dataclass
 from functools import cache
 from typing import Any
 
 import spotipy  # type: ignore
-from attr import asdict, define
+from beartype import beartype
 from natsort import natsorted
 from spotipy.oauth2 import CacheFileHandler  # type: ignore
 
@@ -14,7 +15,8 @@ from musicbot.object import MusicbotObject
 logger = logging.getLogger(__name__)
 
 
-@define(frozen=True)
+@dataclass(frozen=True)
+@beartype
 class Spotify(MusicbotObject):
     username: str
     client_id: str
@@ -56,7 +58,8 @@ class Spotify(MusicbotObject):
     def cached_token(self) -> Any:
         if not (token := self.cache_handler.get_cached_token()):
             logger.warning("no cached token")
-        self.auth_manager.validate_token(token)
+        result = self.auth_manager.validate_token(token)
+        logger.debug(result)
         return token
 
     def is_token_expired(self) -> bool:
@@ -86,11 +89,14 @@ class Spotify(MusicbotObject):
         track_ids = [track["track"]["id"] for track in tracks]
 
         # erase playlist first
-        self.api.user_playlist_replace_tracks(self.username, download_playlist["id"], [])
+        result = self.api.user_playlist_replace_tracks(self.username, download_playlist["id"], [])
+        logger.debug(result)
 
         # add tracks 100 by 100 (API limit)
         for i in range(0, len(track_ids), 100):
-            self.api.user_playlist_add_tracks(self.username, download_playlist["id"], track_ids[i : i + 100])
+            j = i + 100
+            result = self.api.user_playlist_add_tracks(self.username, download_playlist["id"], track_ids[i:j])
+            logger.debug(result)
 
     def playlists(self) -> list[Any]:
         offset = 0
@@ -115,7 +121,7 @@ class Spotify(MusicbotObject):
         limit = 50
         objects = []
         while True:
-            new_objects = self.api.current_user_saved_tracks(limit=limit, offset=offset)
+            new_objects: dict = self.api.current_user_saved_tracks(limit=limit, offset=offset)
             length = len(new_objects["items"])
             objects.append(new_objects["items"])
             offset += length
@@ -128,8 +134,8 @@ class Spotify(MusicbotObject):
         for p in playlists:
             if p["name"] == name:
                 tracks = []
-                results = self.api.playlist(p["id"], fields="tracks,next")
-                new_tracks = results["tracks"]
+                results: dict = self.api.playlist(p["id"], fields="tracks,next")
+                new_tracks: dict = results["tracks"]
                 tracks.append(new_tracks["items"])
                 while new_tracks["next"]:
                     new_tracks = self.api.next(new_tracks)
