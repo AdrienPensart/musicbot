@@ -194,16 +194,19 @@ class MusicbotObject:
         term_width: int | None = 150,
         **kwargs: Any,
     ) -> NullBar | ProgressBar:
-        pbar = NullBar if (quiet or cls.config.quiet) else ProgressBar
         if desc:
             desc += " : "
-        return pbar(
+        pbar = NullBar if (quiet or cls.config.quiet) else ProgressBar
+        new_bar = pbar(
             prefix=desc,
             redirect_stderr=redirect_stderr,
             redirect_stdout=redirect_stdout,
             term_width=term_width,
             **kwargs,
         )
+        if cls.is_prod():
+            _ = new_bar.update()
+        return new_bar
 
     @classmethod
     def parallel_gather(
