@@ -1,6 +1,5 @@
 import logging
 
-import pytest
 from beartype import beartype
 from click.testing import CliRunner
 from click_skeleton.helpers import strip_colors
@@ -12,13 +11,11 @@ from musicbot.version import __version__
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_cli(cli_runner: CliRunner) -> None:
     _ = run_cli(cli_runner, cli)
 
 
-@pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_cli_version(cli_runner: CliRunner) -> None:
     output1 = strip_colors(run_cli(cli_runner, cli, ["--quiet", "-V"]))
@@ -28,7 +25,6 @@ def test_cli_version(cli_runner: CliRunner) -> None:
     assert __version__ in output1
 
 
-@pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_cli_help(cli_runner: CliRunner) -> None:
     output1 = strip_colors(run_cli(cli_runner, cli, ["--quiet", "-h"]))
@@ -37,7 +33,6 @@ def test_cli_help(cli_runner: CliRunner) -> None:
     assert output1 == output2 == output3
 
 
-@pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_completion_show(cli_runner: CliRunner) -> None:
     _ = run_cli(cli_runner, cli, ["--quiet", "completion", "show", "zsh"])

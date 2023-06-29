@@ -102,6 +102,20 @@ def scan(
     output: str,
     coroutines: int,
 ) -> None:
+    # MusicbotObject.success(f"Opening EdgeDB on {MusicbotObject.public_ip()}")
+    # _ = subprocess.run(
+    #     [
+    #         "edgedb",
+    #         "configure",
+    #         "set",
+    #         "listen_addresses",
+    #         "127.0.0.1",
+    #         "::1",
+    #         MusicbotObject.public_ip(),
+    #     ],
+    #     check=False,
+    # )
+
     async def runner() -> list[File]:
         if clean:
             await musicdb.clean_musics()
@@ -159,7 +173,11 @@ def watch(
 
     async def watcher() -> None:
         try:
-            async for changes in awatch(*folders.directories, watch_filter=MusicFilter(), debug=MusicbotObject.config.debug):
+            async for changes in awatch(
+                *folders.directories,
+                watch_filter=MusicFilter(),
+                debug=MusicbotObject.config.debug,
+            ):
                 try:
                     for change_path in changes:
                         change, path = change_path
@@ -174,7 +192,11 @@ def watch(
 
     async def runner() -> None:
         try:
-            _ = await asyncio.wait_for(asyncio.gather(soft_clean_periodically(), watcher()), timeout=timeout)
+            future = asyncio.gather(
+                soft_clean_periodically(),
+                watcher(),
+            )
+            _ = await asyncio.wait_for(future, timeout=timeout)
         except (TimeoutError, asyncio.CancelledError, KeyboardInterrupt):
             pass
 

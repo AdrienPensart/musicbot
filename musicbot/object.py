@@ -8,10 +8,10 @@ import signal
 import sys
 import threading
 import traceback
-from collections.abc import Callable, Collection, Coroutine, Iterable
+from collections.abc import Callable, Collection, Coroutine, Iterable, Sequence
 from datetime import datetime
-from functools import cache, partial, wraps
-from typing import IO, Any, NoReturn, Sequence, ParamSpec, TypeVar
+from functools import partial, wraps
+from typing import IO, Any, NoReturn, ParamSpec, TypeVar
 
 import attr
 import click
@@ -19,6 +19,7 @@ import orjson
 import requests
 import rich
 from beartype import beartype
+from methodtools import lru_cache
 from progressbar import NullBar, ProgressBar  # type: ignore
 from requests.structures import CaseInsensitiveDict
 from rich.console import Console
@@ -44,22 +45,12 @@ def default_encoder(data: Any) -> Any:
     raise TypeError(f"Unable to encode {data}")
 
 
-@cache
-@beartype
-def public_ip(timeout: int = 5) -> str | None:
-    try:
-        # return requests.get("https://api.ipify.org", timeout=timeout).text
-        return requests.head('https://www.wikipedia.org', timeout=timeout).headers['X-Client-IP']
-    except Exception as error:
-        MusicbotObject.err("Unable to detect Public IP", error=error)
-    return None
-
-
 T_Retval = TypeVar("T_Retval")
 T_ParamSpec = ParamSpec("T_ParamSpec")
 T = TypeVar("T")
 
 
+@beartype
 class MusicbotObject:
     print_lock = threading.Lock()
     is_tty = sys.stderr.isatty()
@@ -72,10 +63,20 @@ class MusicbotObject:
     already_printed: list[str] = []
     config = Config(quiet=False)
     dry = OneWayBool("dry", default=False)
-    _public_ip: str | None = None
 
     def __repr__(self) -> str:
         return "[DRY]" if self.dry else "[DOING]"
+
+    @lru_cache()
+    @staticmethod
+    def public_ip(timeout: int = 5) -> str | None:
+        try:
+            response = requests.head("https://www.wikipedia.org", timeout=timeout)
+            logger.info(response.headers)
+            return response.headers["X-Client-IP"]
+        except Exception as error:
+            MusicbotObject.err("Unable to detect Public IP", error=error)
+        return None
 
     @classmethod
     def syncify(
@@ -91,10 +92,6 @@ class MusicbotObject:
                 return runner.run(partial_f())
 
         return wrapper
-
-    @classmethod
-    def public_ip(cls) -> str | None:
-        return public_ip()
 
     @staticmethod
     def is_dev() -> bool:

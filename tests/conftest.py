@@ -6,17 +6,24 @@ from typing import Any
 
 import pytest
 from beartype import beartype
+from click.testing import CliRunner
 
-from musicbot.object import MusicbotObject
-from musicbot.folders import Folders
 from musicbot.file import File
+from musicbot.folders import Folders
 from musicbot.musicdb import MusicDb
+from musicbot.object import MusicbotObject
 
 from . import fixtures
 
 logger = logging.getLogger(__name__)
 
 pytest_plugins = ["docker_compose"]
+
+
+@pytest.fixture
+def cli_runner() -> CliRunner:
+    """Instance of `click.testing.CliRunner` with mix_stderr=False"""
+    return CliRunner(mix_stderr=False)
 
 
 @beartype

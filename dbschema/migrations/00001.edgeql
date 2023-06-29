@@ -1,29 +1,42 @@
-CREATE MIGRATION m1flc2pfe5xahy324s7lsau5oqv5wo74w3iiiplkekpnhuxyp2axaq
+CREATE MIGRATION m1xu2nzycwhds2djl4kku3twf5e2yiuzsstvpqjsvosq4tbqovojyq
     ONTO initial
 {
   CREATE EXTENSION edgeql_http VERSION '1.0';
   CREATE EXTENSION graphql VERSION '1.0';
-  CREATE ABSTRACT TYPE default::Entity {
-      CREATE REQUIRED PROPERTY created_at -> std::datetime {
+  CREATE TYPE default::Album {
+      CREATE REQUIRED PROPERTY name: std::str;
+      CREATE REQUIRED PROPERTY created_at: std::datetime {
           SET default := (std::datetime_current());
           SET readonly := true;
       };
-      CREATE REQUIRED PROPERTY name -> std::str;
-      CREATE REQUIRED PROPERTY updated_at -> std::datetime {
-          SET default := (std::datetime_current());
+      CREATE REQUIRED PROPERTY updated_at: std::datetime {
+          CREATE REWRITE
+              INSERT 
+              USING (std::datetime_of_statement());
+          CREATE REWRITE
+              UPDATE 
+              USING (std::datetime_of_statement());
       };
   };
-  CREATE TYPE default::Album EXTENDING default::Entity;
-  CREATE TYPE default::Artist EXTENDING default::Entity {
-      ALTER PROPERTY name {
-          SET OWNED;
-          SET REQUIRED;
-          SET TYPE std::str;
+  CREATE TYPE default::Artist {
+      CREATE REQUIRED PROPERTY created_at: std::datetime {
+          SET default := (std::datetime_current());
+          SET readonly := true;
+      };
+      CREATE REQUIRED PROPERTY name: std::str {
           CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE REQUIRED PROPERTY updated_at: std::datetime {
+          CREATE REWRITE
+              INSERT 
+              USING (std::datetime_of_statement());
+          CREATE REWRITE
+              UPDATE 
+              USING (std::datetime_of_statement());
       };
   };
   ALTER TYPE default::Album {
-      CREATE REQUIRED LINK artist -> default::Artist {
+      CREATE REQUIRED LINK artist: default::Artist {
           ON TARGET DELETE DELETE SOURCE;
       };
       CREATE CONSTRAINT std::exclusive ON ((.name, .artist));
@@ -40,23 +53,36 @@ CREATE MIGRATION m1flc2pfe5xahy324s7lsau5oqv5wo74w3iiiplkekpnhuxyp2axaq
   CREATE SCALAR TYPE default::Size EXTENDING std::int64 {
       CREATE CONSTRAINT std::min_value(0);
   };
-  CREATE TYPE default::Music EXTENDING default::Entity {
-      CREATE REQUIRED LINK album -> default::Album {
+  CREATE TYPE default::Music {
+      CREATE REQUIRED LINK album: default::Album {
           ON TARGET DELETE DELETE SOURCE;
       };
       CREATE LINK artist := (SELECT
           .album.artist
       );
-      CREATE REQUIRED PROPERTY rating -> default::Rating {
+      CREATE REQUIRED PROPERTY length: default::Length;
+      CREATE REQUIRED PROPERTY rating: default::Rating {
           SET default := 0.0;
       };
-      CREATE REQUIRED PROPERTY length -> default::Length;
+      CREATE REQUIRED PROPERTY size: default::Size;
+      CREATE REQUIRED PROPERTY name: std::str;
       CREATE CONSTRAINT std::exclusive ON ((.name, .album));
+      CREATE REQUIRED PROPERTY created_at: std::datetime {
+          SET default := (std::datetime_current());
+          SET readonly := true;
+      };
       CREATE PROPERTY duration := (SELECT
           std::to_duration(seconds := <std::float64>.length)
       );
-      CREATE REQUIRED PROPERTY size -> default::Size;
-      CREATE PROPERTY track -> std::int16;
+      CREATE PROPERTY track: std::int16;
+      CREATE REQUIRED PROPERTY updated_at: std::datetime {
+          CREATE REWRITE
+              INSERT 
+              USING (std::datetime_of_statement());
+          CREATE REWRITE
+              UPDATE 
+              USING (std::datetime_of_statement());
+      };
   };
   ALTER TYPE default::Album {
       CREATE MULTI LINK musics := (.<album[IS default::Music]);
@@ -66,16 +92,52 @@ CREATE MIGRATION m1flc2pfe5xahy324s7lsau5oqv5wo74w3iiiplkekpnhuxyp2axaq
           .albums.musics
       );
   };
-  CREATE TYPE default::Keyword EXTENDING default::Entity {
-      ALTER PROPERTY name {
-          SET OWNED;
-          SET REQUIRED;
-          SET TYPE std::str;
+  CREATE TYPE default::Genre {
+      CREATE REQUIRED PROPERTY created_at: std::datetime {
+          SET default := (std::datetime_current());
+          SET readonly := true;
+      };
+      CREATE REQUIRED PROPERTY name: std::str {
           CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE REQUIRED PROPERTY updated_at: std::datetime {
+          CREATE REWRITE
+              INSERT 
+              USING (std::datetime_of_statement());
+          CREATE REWRITE
+              UPDATE 
+              USING (std::datetime_of_statement());
       };
   };
   ALTER TYPE default::Music {
-      CREATE MULTI LINK keywords -> default::Keyword;
+      CREATE REQUIRED LINK genre: default::Genre {
+          ON TARGET DELETE DELETE SOURCE;
+      };
+  };
+  ALTER TYPE default::Artist {
+      CREATE LINK genres := (SELECT
+          .musics.genre
+      );
+  };
+  CREATE TYPE default::Keyword {
+      CREATE REQUIRED PROPERTY created_at: std::datetime {
+          SET default := (std::datetime_current());
+          SET readonly := true;
+      };
+      CREATE REQUIRED PROPERTY name: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE REQUIRED PROPERTY updated_at: std::datetime {
+          CREATE REWRITE
+              INSERT 
+              USING (std::datetime_of_statement());
+          CREATE REWRITE
+              UPDATE 
+              USING (std::datetime_of_statement());
+      };
+  };
+  ALTER TYPE default::Music {
+      CREATE MULTI LINK keywords: default::Keyword;
   };
   ALTER TYPE default::Artist {
       CREATE LINK keywords := (SELECT
@@ -89,6 +151,9 @@ CREATE MIGRATION m1flc2pfe5xahy324s7lsau5oqv5wo74w3iiiplkekpnhuxyp2axaq
       );
       CREATE PROPERTY rating := (SELECT
           <std::float64>std::round(<std::decimal>math::mean(.musics.rating), 2)
+      );
+      CREATE PROPERTY size := (SELECT
+          std::sum(.musics.size)
       );
   };
   ALTER TYPE default::Album {
@@ -104,27 +169,35 @@ CREATE MIGRATION m1flc2pfe5xahy324s7lsau5oqv5wo74w3iiiplkekpnhuxyp2axaq
       CREATE PROPERTY rating := (SELECT
           <std::float64>std::round(<std::decimal>math::mean(.musics.rating), 2)
       );
+      CREATE PROPERTY size := (SELECT
+          std::sum(.musics.size)
+      );
   };
-  CREATE TYPE default::Folder EXTENDING default::Entity {
-      CREATE REQUIRED PROPERTY ipv4 -> std::str;
+  CREATE TYPE default::Folder {
+      CREATE REQUIRED PROPERTY ipv4: std::str;
+      CREATE REQUIRED PROPERTY name: std::str;
       CREATE CONSTRAINT std::exclusive ON ((.name, .ipv4));
-      CREATE REQUIRED PROPERTY user -> std::str;
-  };
-  CREATE TYPE default::Genre EXTENDING default::Entity {
-      ALTER PROPERTY name {
-          SET OWNED;
-          SET REQUIRED;
-          SET TYPE std::str;
-          CREATE CONSTRAINT std::exclusive;
+      CREATE REQUIRED PROPERTY created_at: std::datetime {
+          SET default := (std::datetime_current());
+          SET readonly := true;
       };
+      CREATE REQUIRED PROPERTY updated_at: std::datetime {
+          CREATE REWRITE
+              INSERT 
+              USING (std::datetime_of_statement());
+          CREATE REWRITE
+              UPDATE 
+              USING (std::datetime_of_statement());
+      };
+      CREATE REQUIRED PROPERTY user: std::str;
   };
   ALTER TYPE default::Music {
-      CREATE MULTI LINK folders -> default::Folder {
-          CREATE PROPERTY path -> std::str;
+      CREATE MULTI LINK folders: default::Folder {
+          CREATE PROPERTY path: std::str;
       };
-      CREATE REQUIRED LINK genre -> default::Genre {
-          ON TARGET DELETE DELETE SOURCE;
-      };
+      CREATE PROPERTY paths := (SELECT
+          .folders@path
+      );
   };
   ALTER TYPE default::Folder {
       CREATE MULTI LINK musics := (.<folders[IS default::Music]);
@@ -149,5 +222,8 @@ CREATE MIGRATION m1flc2pfe5xahy324s7lsau5oqv5wo74w3iiiplkekpnhuxyp2axaq
       CREATE PROPERTY rating := (SELECT
           <std::float64>std::round(<std::decimal>math::mean(.musics.rating), 2)
       );
+  };
+  CREATE SCALAR TYPE default::`Limit` EXTENDING std::int64 {
+      CREATE CONSTRAINT std::min_value(0);
   };
 };

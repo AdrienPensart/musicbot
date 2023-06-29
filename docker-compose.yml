@@ -2,7 +2,7 @@
 version: '3'
 services:
   edgedb:
-    image: "edgedb/edgedb:latest"
+    image: "edgedb/edgedb:3"
     restart: always
     ports:
       - 127.0.0.1:15656:5656

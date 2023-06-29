@@ -7,9 +7,10 @@ from pathlib import Path, PurePath
 from typing import Any, Self
 
 import acoustid  # type: ignore
-import mutagen
 from beartype import beartype
 from click_skeleton.helpers import mysplit
+from mutagen import File as MutagenFile
+from mutagen import MutagenError, id3
 from pydub import AudioSegment  # type: ignore
 
 from musicbot.defaults import (
@@ -52,8 +53,8 @@ class File(MusicbotObject):
             return None
 
         try:
-            return cls(folder=folder.resolve(), handle=mutagen.File(path.resolve()))
-        except mutagen.MutagenError as error:
+            return cls(folder=folder.resolve(), handle=MutagenFile(path.resolve()))
+        except MutagenError as error:
             cls.err(f"Unable to instanciate {path}", error=error)
         return None
 
@@ -224,7 +225,7 @@ class File(MusicbotObject):
         if self.extension == ".flac":
             self.handle.tags["title"] = title
         else:
-            self.handle.tags.add(mutagen.id3.TIT2(text=title))
+            self.handle.tags.add(id3.TIT2(text=title))
 
     @property
     def canonic_title(self) -> str:
@@ -244,7 +245,7 @@ class File(MusicbotObject):
         if self.extension == ".flac":
             self.handle.tags["album"] = album
         else:
-            self.handle.tags.add(mutagen.id3.TALB(text=album))
+            self.handle.tags.add(id3.TALB(text=album))
 
     @property
     def artist(self) -> str:
@@ -257,7 +258,7 @@ class File(MusicbotObject):
         if self.extension == ".flac":
             self.handle.tags["artist"] = artist
         else:
-            self.handle.tags.add(mutagen.id3.TPE1(text=artist))
+            self.handle.tags.add(id3.TPE1(text=artist))
 
     @property
     def genre(self) -> str:
@@ -274,7 +275,7 @@ class File(MusicbotObject):
         if self.extension == ".flac":
             self.handle.tags["genre"] = genre
         else:
-            self.handle.tags.add(mutagen.id3.TCON(text=genre))
+            self.handle.tags.add(id3.TCON(text=genre))
 
     @property
     def rating(self) -> float:
@@ -310,7 +311,7 @@ class File(MusicbotObject):
         if self.extension == ".flac":
             self.handle["fmps_rating"] = str(rating)
         else:
-            txxx = mutagen.id3.TXXX(desc="FMPS_Rating", text=str(rating))
+            txxx = id3.TXXX(desc="FMPS_Rating", text=str(rating))
             self.handle.tags.add(txxx)
 
     @property
@@ -323,7 +324,7 @@ class File(MusicbotObject):
     @_comment.setter
     def _comment(self, comment: str) -> None:
         self.handle.tags.delall("COMM")
-        comm = mutagen.id3.COMM(desc="ID3v1 Comment", lang="eng", text=comment)
+        comm = id3.COMM(desc="ID3v1 Comment", lang="eng", text=comment)
         self.handle.tags.add(comm)
 
     @property
@@ -358,7 +359,7 @@ class File(MusicbotObject):
             self.handle.tags["tracknumber"] = str(number)
         else:
             self.handle.tags.delall("TRCK")
-            trck = mutagen.id3.TRCK(text=str(number))
+            trck = id3.TRCK(text=str(number))
             self.handle.tags.add(trck)
 
     @property
@@ -523,7 +524,7 @@ class File(MusicbotObject):
                     if not self.dry:
                         self.canonic_path.parent.mkdir(parents=True, exist_ok=True)
                         shutil.move(self.path, self.canonic_path)
-                        self.handle = mutagen.File(self.canonic_path)
+                        self.handle = MutagenFile(self.canonic_path)
         return self.save()
 
     def save(self) -> bool:
@@ -532,6 +533,6 @@ class File(MusicbotObject):
                 return True
             self.handle.save()
             return True
-        except mutagen.MutagenError as error:
+        except MutagenError as error:
             self.err(f"{self} : unable to save", error=error)
         return False

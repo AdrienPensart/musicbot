@@ -1,6 +1,7 @@
 import logging
 
 from beartype import beartype
+
 from musicbot.file import File
 
 from . import fixtures

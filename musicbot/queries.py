@@ -163,8 +163,7 @@ with
                     select upsert_folder {
                         @path := <str>$path
                     }
-                ),
-                updated_at := std::datetime_current()
+                )
             }
         )
     ) {

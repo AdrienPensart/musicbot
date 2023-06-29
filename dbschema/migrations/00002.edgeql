@@ -1,9 +1,13 @@
-CREATE MIGRATION m14iygpbnrtfjgjehmzpcjmnze5ejamjdcnsepj5atcke5ru2la2tq
-    ONTO m1flc2pfe5xahy324s7lsau5oqv5wo74w3iiiplkekpnhuxyp2axaq
+CREATE MIGRATION m1gghkh44p76fbqu4e4y236xq7afr567dlmcyzbppgmerkwrnmcwuq
+    ONTO m1xu2nzycwhds2djl4kku3twf5e2yiuzsstvpqjsvosq4tbqovojyq
 {
+  ALTER TYPE default::Album {
+      CREATE INDEX ON ((.name, .artist));
+  };
+  ALTER TYPE default::Folder {
+      CREATE INDEX ON ((.name, .ipv4));
+  };
   ALTER TYPE default::Music {
-      CREATE PROPERTY paths := (SELECT
-          .folders@path
-      );
+      CREATE INDEX ON ((.name, .album));
   };
 };

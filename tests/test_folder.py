@@ -1,4 +1,3 @@
-import pytest
 from beartype import beartype
 from click.testing import CliRunner
 from click_skeleton.helpers import mysplit
@@ -9,7 +8,6 @@ from musicbot.main import cli
 from . import fixtures
 
 
-@pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_folder_find(cli_runner: CliRunner) -> None:
     musics = run_cli(
@@ -25,7 +23,6 @@ def test_folder_find(cli_runner: CliRunner) -> None:
     assert len(mysplit(musics, "\n")) == 5
 
 
-@pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_folder_flac2mp3(cli_runner: CliRunner) -> None:
     _ = run_cli(
@@ -41,7 +38,6 @@ def test_folder_flac2mp3(cli_runner: CliRunner) -> None:
     )
 
 
-@pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_folder_playlist(cli_runner: CliRunner) -> None:
     _ = run_cli(
@@ -56,7 +52,6 @@ def test_folder_playlist(cli_runner: CliRunner) -> None:
     )
 
 
-@pytest.mark.runner_setup(mix_stderr=False)
 @beartype
 def test_folder_issues(cli_runner: CliRunner) -> None:
     _ = run_cli(

@@ -7,8 +7,8 @@ from typing import Any, Self
 from urllib.parse import urlparse
 
 import edgedb
-from attr import asdict
 from async_lru import alru_cache
+from attr import asdict
 from beartype import beartype
 from edgedb.asyncio_client import AsyncIOClient, create_async_client
 from edgedb.options import RetryOptions, TransactionOptions

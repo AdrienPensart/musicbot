@@ -66,6 +66,7 @@ def cli(
 def console() -> None:
     """Starts an embedded ipython interpreter"""
     import IPython
+
     user_ns = dict(
         musicbot=musicbot,
         MusicbotObject=MusicbotObject,
