@@ -4,9 +4,9 @@ import time
 from pathlib import Path
 from typing import Any
 
-import pytest
 from beartype import beartype
 from click.testing import CliRunner
+from pytest import fixture
 
 from musicbot.file import File
 from musicbot.folders import Folders
@@ -20,7 +20,8 @@ logger = logging.getLogger(__name__)
 pytest_plugins = ["docker_compose"]
 
 
-@pytest.fixture
+@fixture
+@beartype
 def cli_runner() -> CliRunner:
     """Instance of `click.testing.CliRunner` with mix_stderr=False"""
     return CliRunner(mix_stderr=False)
@@ -40,7 +41,7 @@ def wait_for_service(hostname: str, port: int, timeout: int = 60) -> None:
                 raise TimeoutError(msg) from e
 
 
-@pytest.fixture(scope="session")
+@fixture(scope="session")
 @beartype
 def edgedb(session_scoped_container_getter: Any) -> str:
     service = session_scoped_container_getter.get("edgedb").network_info[0]
@@ -49,7 +50,7 @@ def edgedb(session_scoped_container_getter: Any) -> str:
     return dsn
 
 
-@pytest.fixture(scope="session", autouse=True)
+@fixture(scope="session", autouse=True)
 @beartype
 def testmusics(edgedb: str) -> list[File]:
     async def runner() -> list[File]:
