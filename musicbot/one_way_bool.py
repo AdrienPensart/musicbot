@@ -6,9 +6,12 @@ import traceback
 from dataclasses import dataclass
 from typing import Any, Self
 
+from beartype import beartype
+
 logger = logging.getLogger(__name__)
 
 
+@beartype
 @dataclass
 class OneWayBool:
     """A bool value that go from False=>True or True=>False but only once"""

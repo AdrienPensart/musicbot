@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from beartype import beartype
+
 from musicbot.defaults import (
     DEFAULT_INTERLEAVE,
     DEFAULT_KINDS,
@@ -8,6 +10,7 @@ from musicbot.defaults import (
 )
 
 
+@beartype
 @dataclass(frozen=True)
 class PlaylistOptions:
     relative: bool = DEFAULT_RELATIVE

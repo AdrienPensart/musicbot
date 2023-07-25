@@ -24,6 +24,7 @@ logging.getLogger("vlc").setLevel(logging.NOTSET)
 logger = logging.getLogger(__name__)
 
 
+@beartype
 @dataclass(frozen=True)
 class Playlist(MusicbotObject):
     name: str
@@ -67,7 +68,6 @@ class Playlist(MusicbotObject):
             musics=musics,
         )
 
-    @beartype
     def print(
         self,
         output: str,
@@ -154,11 +154,9 @@ class Playlist(MusicbotObject):
     def ratings(self) -> frozenset[float]:
         return frozenset(set(music.rating for music in self.musics))
 
-    @beartype
     def links(self, playlist_options: PlaylistOptions) -> list[str]:
         return list(itertools.chain(*[music.links(playlist_options) for music in self.musics]))
 
-    @beartype
     def play(
         self,
         playlist_options: PlaylistOptions | None = None,

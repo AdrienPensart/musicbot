@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Final
 
 import colorlog
+from beartype import beartype
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +30,7 @@ VERBOSITIES = {
 }
 
 
+@beartype
 @dataclass(unsafe_hash=True)
 class Config:
     log: str | None = DEFAULT_LOG

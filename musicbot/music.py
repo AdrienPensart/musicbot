@@ -17,6 +17,7 @@ from musicbot.playlist_options import PlaylistOptions
 logger = logging.getLogger(__name__)
 
 
+@beartype
 @dataclass(frozen=True)
 class Folder(MusicbotObject):
     name: str
@@ -60,6 +61,7 @@ class Folder(MusicbotObject):
         return frozenset(paths)
 
 
+@beartype
 @dataclass(frozen=True)
 class Music(MusicbotObject):
     title: str
@@ -75,7 +77,6 @@ class Music(MusicbotObject):
     # youtube: str | None
     # spotify: str | None
 
-    @beartype
     def human_repr(self) -> str:
         data: dict[str, Any] = asdict(self)
         data["size"] = bytes_to_human(data["size"])

@@ -1,8 +1,11 @@
 from dataclasses import dataclass, fields
 
+from beartype import beartype
+
 from musicbot.object import MusicbotObject
 
 
+@beartype
 @dataclass(frozen=True)
 class Artist(MusicbotObject):
     name: str

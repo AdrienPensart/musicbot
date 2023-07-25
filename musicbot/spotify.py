@@ -15,8 +15,8 @@ from musicbot.object import MusicbotObject
 logger = logging.getLogger(__name__)
 
 
-@dataclass(frozen=True)
 @beartype
+@dataclass(frozen=True)
 class Spotify(MusicbotObject):
     username: str
     client_id: str
@@ -24,7 +24,7 @@ class Spotify(MusicbotObject):
     cache_path: str
     scope: str
     redirect_uri: str
-    token: str
+    token: str | None = None
 
     @cache
     def _auth_manager(self) -> spotipy.oauth2.SpotifyOAuth:

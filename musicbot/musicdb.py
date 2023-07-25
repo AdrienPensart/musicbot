@@ -36,8 +36,8 @@ from musicbot.queries import (
 logger = logging.getLogger(__name__)
 
 
-@dataclass(unsafe_hash=True)
 @beartype
+@dataclass(unsafe_hash=True)
 class MusicDb(MusicbotObject):
     client: AsyncIOClient
     dsn: str
@@ -92,6 +92,7 @@ class MusicDb(MusicbotObject):
         artists_list = []
         for result in results:
             keywords = frozenset(result.all_keywords)
+            genres = frozenset(result.all_genres)
             artist = Artist(
                 name=result.name,
                 length=result.length,
@@ -100,7 +101,7 @@ class MusicDb(MusicbotObject):
                 rating=result.rating,
                 albums=result.n_albums,
                 musics=result.n_musics,
-                genres=result.all_genres,
+                genres=genres,
             )
             artists_list.append(artist)
         return artists_list

@@ -40,8 +40,8 @@ class Issue(str, Enum):
     INVALID_PATH = "invalid-path"
 
 
-@dataclass
 @beartype
+@dataclass
 class File(MusicbotObject):
     folder: Path
     handle: Any

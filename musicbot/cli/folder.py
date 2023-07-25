@@ -5,9 +5,8 @@ import click
 from beartype import beartype
 from click_option_group import optgroup
 from click_skeleton import add_options
-from click_skeleton.helpers import split_arguments
 
-from musicbot.cli.options import config_list, dry_option
+from musicbot.cli.options import config_list, dry_option, sane_frozenset
 from musicbot.defaults import DEFAULT_EXTENSIONS
 from musicbot.folders import Folders
 
@@ -56,7 +55,7 @@ folders_argument = add_options(
         help="Supported formats",
         default=sorted(DEFAULT_EXTENSIONS),
         multiple=True,
-        callback=split_arguments,
+        callback=sane_frozenset,
         show_default=True,
         is_eager=True,
     ),

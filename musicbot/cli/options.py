@@ -2,7 +2,8 @@ import logging
 from typing import Any
 
 import click
-from click_skeleton.helpers import mysplit, split_arguments
+from beartype import beartype
+from click_skeleton.helpers import mysplit
 
 from musicbot.defaults import (
     DEFAULT_CLEAN,
@@ -18,6 +19,7 @@ from musicbot.object import MusicbotObject
 logger = logging.getLogger(__name__)
 
 
+@beartype
 def sane_dry(ctx: click.Context, param: click.Parameter, value: bool) -> None:  # pylint: disable=unused-argument
     """Overwrite global dry mode"""
     if not param.name:
@@ -42,6 +44,7 @@ true_values = ("enabled", "y", "yes", "t", "true", "on", "1")
 false_values = ("", "none", "disabled", "n", "no", "f", "false", "off", "0")
 
 
+@beartype
 def sane_rating(ctx: click.Context, param: click.Parameter, value: float | None) -> float | None:
     if not param.name:
         logger.error("no param name set")
@@ -55,6 +58,7 @@ def sane_rating(ctx: click.Context, param: click.Parameter, value: float | None)
     return value
 
 
+@beartype
 def str2bool(val: Any) -> bool:
     """Converts any value to string and detects if it looks like a known bool value"""
     val = str(val).lower()
@@ -65,6 +69,7 @@ def str2bool(val: Any) -> bool:
     raise ValueError(f"invalid truth value {val}")
 
 
+@beartype
 def yes_or_no(question: str, default: str | None = "no") -> bool:
     """Re-implement click.confirm but do not ask confirmation if we are in a script"""
     if not MusicbotObject.is_tty:
@@ -91,28 +96,55 @@ def yes_or_no(question: str, default: str | None = "no") -> bool:
             print("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
 
 
+@beartype
 def sane_list(ctx: click.Context, param: click.Parameter, value: Any) -> list[Any]:
-    """Convert Tuple when multiple=True to a list"""
+    """Convert Tuple when multiple=True to a List"""
     if not param.name:
-        logger.error("no param name set")
+        logger.error("no option name")
         raise click.Abort()
-    logger.debug(f"{param} : {value}")
-    value = split_arguments(ctx, param, value)
-    ctx.params[param.name] = list(value)
+    final_values = []
+    for one_value in value:
+        if isinstance(one_value, str):
+            final_values.extend(mysplit(one_value))
+        else:
+            final_values.append(one_value)
+    ctx.params[param.name] = final_values
     return ctx.params[param.name]
 
 
-def sane_set(ctx: click.Context, param: click.Parameter, value: Any) -> list[Any]:
-    """Convert Tuple when multiple=True to a list"""
+@beartype
+def sane_frozenset(ctx: click.Context, param: click.Parameter, value: Any) -> frozenset[Any]:
+    """Convert Tuple when multiple=True to a Set"""
     if not param.name:
-        logger.error("no param name set")
+        logger.error("no option name")
         raise click.Abort()
-    logger.debug(f"{param} : {value}")
-    value = split_arguments(ctx, param, value)
-    ctx.params[param.name] = set(value)
+    final_values = set()
+    for one_value in value:
+        if isinstance(one_value, str):
+            final_values.update(mysplit(one_value))
+        else:
+            final_values.add(one_value)
+    ctx.params[param.name] = frozenset(final_values)
     return ctx.params[param.name]
 
 
+@beartype
+def sane_set(ctx: click.Context, param: click.Parameter, value: Any) -> set[Any]:
+    """Convert Tuple when multiple=True to a Set"""
+    if not param.name:
+        logger.error("no option name")
+        raise click.Abort()
+    final_values = set()
+    for one_value in value:
+        if isinstance(one_value, str):
+            final_values.update(mysplit(one_value))
+        else:
+            final_values.add(one_value)
+    ctx.params[param.name] = set(final_values)
+    return ctx.params[param.name]
+
+
+@beartype
 def confirm(ctx: click.Context, param: Any, value: bool) -> None:  # pylint: disable=unused-argument
     """Callback to confirm action of user"""
     if not (value or MusicbotObject.dry or yes_or_no("Do you REALLY want to confirm ?")):
@@ -170,6 +202,7 @@ output_option = click.option(
 )
 
 
+@beartype
 def config_string(ctx: click.Context, param: click.Parameter, value: str | None) -> Any:
     arg_value = value
     logger.info(f"{param.name} : try string loading with arg value : {arg_value}")
@@ -198,6 +231,7 @@ def config_string(ctx: click.Context, param: click.Parameter, value: str | None)
     return value
 
 
+@beartype
 def config_list(ctx: click.Context, param: click.Parameter, value: Any) -> Any:
     value = sane_list(ctx, param, value)
     arg_value = value

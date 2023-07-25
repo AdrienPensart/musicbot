@@ -3,10 +3,11 @@ from dataclasses import fields
 from typing import Any
 
 import click
+from beartype import beartype
 from click_option_group import MutuallyExclusiveOptionGroup, optgroup
 from click_skeleton import add_options
-from click_skeleton.helpers import split_arguments
 
+from musicbot.cli.options import sane_frozenset
 from musicbot.defaults import (
     DEFAULT_INTERLEAVE,
     DEFAULT_KINDS,
@@ -31,6 +32,7 @@ bests_options = add_options(
 )
 
 
+@beartype
 def sane_playlist_options(ctx: click.Context, param: click.Parameter, value: str | None) -> PlaylistOptions:  # pylint: disable=unused-argument
     if not param.name:
         logger.error("no param name set")
@@ -57,7 +59,7 @@ playlist_options = add_options(
         default=list(sorted(DEFAULT_KINDS)),
         show_default=True,
         type=click.Choice(list(sorted(KINDS_CHOICES))),
-        callback=split_arguments,
+        callback=sane_frozenset,
     ),
     optgroup.option(
         "--relative/--no-relative",
