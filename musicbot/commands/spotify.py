@@ -17,6 +17,7 @@ from musicbot.cli.spotify import (
     spotify_options,
 )
 from musicbot.defaults import DEFAULT_SPOTIFY_DOWNLOAD_PLAYLIST, REPLACEMENTS, STOPWORDS
+from musicbot.helpers import syncify
 from musicbot.musicdb import MusicDb
 from musicbot.object import MusicbotObject
 from musicbot.spotify import Spotify
@@ -90,15 +91,16 @@ def tracks(spotify: Spotify, output: str) -> None:
 @cli.command(help="Artists diff between local and spotify")
 @spotify_options
 @musicdb_options
+@syncify
 @beartype
-def artist_diff(musicdb: MusicDb, spotify: Spotify) -> None:
+async def artist_diff(musicdb: MusicDb, spotify: Spotify) -> None:
     spotify_tracks = spotify.liked_tracks()
     spotify_tracks_by_artist = PrettyDefaultDict(list)
     for spotify_track in spotify_tracks:
         spotify_artist_slug = slugify(spotify_track["track"]["artists"][0]["name"])
         spotify_tracks_by_artist[spotify_artist_slug].append(spotify_track["track"])
 
-    local_playlist = MusicbotObject.syncify(musicdb.make_playlist)()
+    local_playlist = await musicdb.make_playlist()
     local_tracks_by_artist = PrettyDefaultDict(list)
     for local_track in local_playlist.musics:
         local_artist_slug = slugify(local_track.artist)
@@ -119,12 +121,13 @@ def artist_diff(musicdb: MusicDb, spotify: Spotify) -> None:
 @click.option("--download-playlist", help="Create the download playlist", is_flag=True)
 @click.option("--min-threshold", help="Minimum distance threshold", type=click.FloatRange(0, 100), default=90, show_default=True)
 @click.option("--max-threshold", help="Maximum distance threshold", type=click.FloatRange(0, 100), default=100, show_default=True)
+@syncify
 @beartype
-def track_diff(musicdb: MusicDb, download_playlist: bool, spotify: Spotify, output: str, min_threshold: float, max_threshold: float) -> None:
+async def track_diff(musicdb: MusicDb, download_playlist: bool, spotify: Spotify, output: str, min_threshold: float, max_threshold: float) -> None:
     spotify_tracks = spotify.liked_tracks()
     spotify_tracks_by_slug = {slugify(f"""{t['track']['artists'][0]['name']}-{t['track']['name']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS): t for t in spotify_tracks}
 
-    local = MusicbotObject.syncify(musicdb.make_playlist)()
+    local = await musicdb.make_playlist()
     local_music_by_slug = {music.slug: music for music in local.musics}
 
     spotify_differences = set(spotify_tracks_by_slug.keys()).difference(set(local_music_by_slug.keys()))

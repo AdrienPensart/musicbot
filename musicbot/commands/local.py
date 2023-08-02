@@ -32,7 +32,7 @@ from musicbot.cli.playlist import bests_options, playlist_options
 from musicbot.defaults import DEFAULT_VLC_PARAMS
 from musicbot.file import File
 from musicbot.folders import Folders
-from musicbot.helpers import bytes_to_human, precise_seconds_to_human
+from musicbot.helpers import bytes_to_human, precise_seconds_to_human, syncify
 from musicbot.music_filter import MusicFilter
 from musicbot.musicdb import MusicDb
 from musicbot.object import MusicbotObject
@@ -52,9 +52,10 @@ def cli() -> None:
 @cli.command(help="EdgeDB raw query", aliases=["query", "fetch"])
 @click.argument("query")
 @musicdb_options
+@syncify
 @beartype
-def execute(musicdb: MusicDb, query: str) -> None:
-    print(MusicbotObject.syncify(musicdb.query_json)(query))
+async def execute(musicdb: MusicDb, query: str) -> None:
+    print(await musicdb.query_json(query))
 
 
 @cli.command(help="GraphQL query")
@@ -69,9 +70,10 @@ def graphql(musicdb: MusicDb, query: str) -> None:
 
 @cli.command(help="List folders and some stats")
 @musicdb_options
+@syncify
 @beartype
-def folders(musicdb: MusicDb) -> None:
-    response = MusicbotObject.syncify(musicdb.folders)()
+async def folders(musicdb: MusicDb) -> None:
+    response = await musicdb.folders()
     if response is not None:
         MusicbotObject.print_json([asdict(folder) for folder in response])
 
@@ -93,8 +95,9 @@ def explore(musicdb: MusicDb) -> None:
 @output_option
 @clean_option
 @click.option("--coroutines", help="Limit number of coroutines", default=64, show_default=True)
+@syncify
 @beartype
-def scan(
+async def scan(
     musicdb: MusicDb,
     folders: Folders,
     clean: bool,
@@ -115,19 +118,14 @@ def scan(
     #     ],
     #     check=False,
     # )
+    if clean:
+        await musicdb.clean_musics()
 
-    async def runner() -> list[File]:
-        if clean:
-            await musicdb.clean_musics()
-
-        files = await musicdb.upsert_folders(
-            folders=folders,
-            coroutines=coroutines,
-        )
-        await musicdb.soft_clean()
-        return files
-
-    files = MusicbotObject.syncify(runner)()
+    files = await musicdb.upsert_folders(
+        folders=folders,
+        coroutines=coroutines,
+    )
+    await musicdb.soft_clean()
 
     if output == "json":
         MusicbotObject.print_json([asdict(file.music) for file in files if file.music is not None])
@@ -142,8 +140,9 @@ def scan(
 @musicdb_options
 @click.option("--sleep", help="Clean music every X seconds", type=int, default=1800, show_default=True)
 @click.option("--timeout", help="How many seconds until we terminate", type=int, show_default=True)
+@syncify
 @beartype
-def watch(
+async def watch(
     musicdb: MusicDb,
     folders: Folders,
     sleep: int,
@@ -190,32 +189,31 @@ def watch(
         except (asyncio.CancelledError, KeyboardInterrupt):
             pass
 
-    async def runner() -> None:
-        try:
-            future = asyncio.gather(
-                soft_clean_periodically(),
-                watcher(),
-            )
-            _ = await asyncio.wait_for(future, timeout=timeout)
-        except (TimeoutError, asyncio.CancelledError, KeyboardInterrupt):
-            pass
-
-    MusicbotObject.syncify(runner)()
+    try:
+        future = asyncio.gather(
+            soft_clean_periodically(),
+            watcher(),
+        )
+        _ = await asyncio.wait_for(future, timeout=timeout)
+    except (TimeoutError, asyncio.CancelledError, KeyboardInterrupt):
+        pass
 
 
 @cli.command(help="Clean all musics in DB", aliases=["clean-db", "erase"])
 @musicdb_options
 @yes_option
+@syncify
 @beartype
-def clean(musicdb: MusicDb) -> None:
-    MusicbotObject.syncify(musicdb.clean_musics)()
+async def clean(musicdb: MusicDb) -> None:
+    await musicdb.clean_musics()
 
 
 @cli.command(help="Clean entities without musics associated")
 @musicdb_options
+@syncify
 @beartype
-def soft_clean(musicdb: MusicDb) -> None:
-    MusicbotObject.syncify(musicdb.soft_clean)()
+async def soft_clean(musicdb: MusicDb) -> None:
+    await musicdb.soft_clean()
 
 
 @cli.command(help="Search musics by full-text search")
@@ -223,14 +221,15 @@ def soft_clean(musicdb: MusicDb) -> None:
 @output_option
 @playlist_options
 @click.argument("pattern")
+@syncify
 @beartype
-def search(
+async def search(
     musicdb: MusicDb,
     output: str,
     pattern: str,
     playlist_options: PlaylistOptions,
 ) -> None:
-    p = MusicbotObject.syncify(musicdb.search)(pattern)
+    p = await musicdb.search(pattern)
     p.print(
         output=output,
         playlist_options=playlist_options,
@@ -243,8 +242,9 @@ def search(
 @music_filters_options
 @playlist_options
 @click.argument("out", type=click.File("w", lazy=True), default="-")
+@syncify
 @beartype
-def playlist(
+async def playlist(
     output: str,
     music_filters: list[MusicFilter],
     playlist_options: PlaylistOptions,
@@ -252,10 +252,10 @@ def playlist(
     out: Any,
 ) -> None:
     musicdb.set_readonly()
-    p = MusicbotObject.syncify(musicdb.make_playlist)(
+    new_playlist = await musicdb.make_playlist(
         music_filters=frozenset(music_filters),
     )
-    p.print(
+    new_playlist.print(
         output=output,
         file=out,
         playlist_options=playlist_options,
@@ -265,13 +265,14 @@ def playlist(
 @cli.command(short_help="Artists descriptions")
 @musicdb_options
 @output_option
+@syncify
 @beartype
-def artists(
+async def artists(
     output: str,
     musicdb: MusicDb,
 ) -> None:
     musicdb.set_readonly()
-    all_artists = MusicbotObject.syncify(musicdb.artists)()
+    all_artists = await musicdb.artists()
     table = Table(
         "Name",
         "Rating",
@@ -311,8 +312,9 @@ def artists(
 @dry_option
 @playlist_options
 @bests_options
+@syncify
 @beartype
-def bests(
+async def bests(
     musicdb: MusicDb,
     music_filters: list[MusicFilter],
     folder: Path,
@@ -320,7 +322,7 @@ def bests(
     playlist_options: PlaylistOptions,
 ) -> None:
     musicdb.set_readonly()
-    bests = MusicbotObject.syncify(musicdb.make_bests)(
+    bests = await musicdb.make_bests(
         music_filters=frozenset(music_filters),
     )
     for best in bests:
@@ -350,8 +352,9 @@ def bests(
 @music_filters_options
 @playlist_options
 @click.option("--vlc-params", help="VLC params", default=DEFAULT_VLC_PARAMS, show_default=True)
+@syncify
 @beartype
-def player(
+async def player(
     music_filters: list[MusicFilter],
     musicdb: MusicDb,
     vlc_params: str,
@@ -361,10 +364,10 @@ def player(
     if not MusicbotObject.config.quiet or not MusicbotObject.is_test():
         progressbar.streams.unwrap(stderr=True, stdout=True)
     try:
-        playlist = MusicbotObject.syncify(musicdb.make_playlist)(
+        new_playlist = await musicdb.make_playlist(
             music_filters=frozenset(music_filters),
         )
-        playlist.play(
+        new_playlist.play(
             vlc_params=vlc_params,
             playlist_options=playlist_options,
         )
@@ -380,8 +383,9 @@ def player(
 @music_filters_options
 @flat_option
 @click.option("--delete", help="Delete files on destination if not present in library", is_flag=True)
+@syncify
 @beartype
-def sync(
+async def sync(
     musicdb: MusicDb,
     music_filters: list[MusicFilter],
     delete: bool,
@@ -391,10 +395,10 @@ def sync(
 ) -> None:
     musicdb.set_readonly()
     logger.info(f"Destination: {destination}")
-    playlist = MusicbotObject.syncify(musicdb.make_playlist)(
+    sync_playlist = await musicdb.make_playlist(
         music_filters=frozenset(music_filters),
     )
-    if not playlist.musics:
+    if not sync_playlist.musics:
         click.secho("no result for filter, nothing to sync")
         return
 
@@ -406,7 +410,7 @@ def sync(
     destinations = {str(path)[len(str(destination)) + 1 :]: path for path in folders.paths}
 
     musics: list[File] = []
-    for music in playlist.musics:
+    for music in sync_playlist.musics:
         for link in music.links():
             try:
                 path = Path(link)

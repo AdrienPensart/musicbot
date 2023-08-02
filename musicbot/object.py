@@ -8,9 +8,8 @@ import signal
 import sys
 import threading
 import traceback
-from collections.abc import Callable, Collection, Coroutine, Iterable, Sequence
+from collections.abc import Callable, Collection, Iterable, Sequence
 from datetime import datetime
-from functools import partial, wraps
 from typing import IO, Any, NoReturn, ParamSpec, TypeVar
 
 import attr
@@ -77,21 +76,6 @@ class MusicbotObject:
         except Exception as error:
             MusicbotObject.err("Unable to detect Public IP", error=error)
         return None
-
-    @classmethod
-    def syncify(
-        cls,
-        async_function: Callable[T_ParamSpec, Coroutine[Any, Any, T_Retval]],
-    ) -> Callable[T_ParamSpec, T_Retval]:
-        """Run an async task"""
-
-        @wraps(async_function)
-        def wrapper(*args: T_ParamSpec.args, **kwargs: T_ParamSpec.kwargs) -> T_Retval:
-            partial_f = partial(async_function, *args, **kwargs)
-            with asyncio.Runner() as runner:
-                return runner.run(partial_f())
-
-        return wrapper
 
     @staticmethod
     def is_dev() -> bool:

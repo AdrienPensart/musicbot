@@ -10,8 +10,8 @@ from pytest import fixture
 
 from musicbot.file import File
 from musicbot.folders import Folders
+from musicbot.helpers import syncify
 from musicbot.musicdb import MusicDb
-from musicbot.object import MusicbotObject
 
 from . import fixtures
 
@@ -51,15 +51,13 @@ def edgedb(session_scoped_container_getter: Any) -> str:
 
 
 @fixture(scope="session", autouse=True)
+@syncify
 @beartype
-def testmusics(edgedb: str) -> list[File]:
-    async def runner() -> list[File]:
-        musicdb = MusicDb.from_dsn(edgedb)
-        await musicdb.clean_musics()
+async def testmusics(edgedb: str) -> list[File]:
+    musicdb = MusicDb.from_dsn(edgedb)
+    await musicdb.clean_musics()
 
-        folders = Folders([Path(folder) for folder in fixtures.folders])
-        files = await musicdb.upsert_folders(folders=folders)
-        assert files, "Empty music db"
-        return files
-
-    return MusicbotObject.syncify(runner)()
+    folders = Folders([Path(folder) for folder in fixtures.folders])
+    files = await musicdb.upsert_folders(folders=folders)
+    assert files, "Empty music db"
+    return files
