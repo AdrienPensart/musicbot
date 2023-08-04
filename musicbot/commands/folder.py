@@ -7,9 +7,9 @@ from beartype import beartype
 from click_skeleton import AdvancedGroup
 from rich.table import Table
 
-from musicbot.cli.file import file_options, flat_option, keywords_arguments
+from musicbot.cli.file import file_options, flat_option, keywords_option
 from musicbot.cli.folder import destination_argument, folders_argument
-from musicbot.cli.options import dry_option, output_option, threads_option
+from musicbot.cli.options import output_option, threads_option
 from musicbot.file import File
 from musicbot.folders import Folders
 from musicbot.object import MusicbotObject
@@ -117,12 +117,12 @@ def manual_fix(
             continue
         _manual_fix(file)
         MusicbotObject.tip("Wait for Enter...")
-        _ = input("")
+        if MusicbotObject.is_tty:
+            _ = input("")
 
 
 @cli.command(help="Set music title", aliases=["set-tag"])
 @folders_argument
-@dry_option
 @file_options
 @beartype
 def set_tags(
@@ -149,9 +149,8 @@ def set_tags(
 
 
 @cli.command(help="Add keywords to music")
+@keywords_option
 @folders_argument
-@keywords_arguments
-@dry_option
 @beartype
 def add_keywords(
     folders: Folders,
@@ -163,9 +162,8 @@ def add_keywords(
 
 
 @cli.command(help="Delete keywords to music")
+@keywords_option
 @folders_argument
-@keywords_arguments
-@dry_option
 @beartype
 def delete_keywords(
     folders: Folders,

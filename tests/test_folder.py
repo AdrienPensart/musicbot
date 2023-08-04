@@ -64,3 +64,67 @@ def test_folder_issues(cli_runner: CliRunner) -> None:
             *fixtures.folders,
         ],
     )
+
+
+@beartype
+def test_folder_manual_fix(cli_runner: CliRunner) -> None:
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "folder",
+            "manual-fix",
+            *fixtures.folders,
+            "--dry",
+        ],
+    )
+
+
+@beartype
+def test_folder_set_tags(cli_runner: CliRunner) -> None:
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "folder",
+            "set-tags",
+            *fixtures.folders,
+            "--dry",
+        ],
+    )
+
+
+@beartype
+def test_folder_add_keywords(cli_runner: CliRunner) -> None:
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "folder",
+            "add-keywords",
+            *fixtures.folders,
+            "--keywords",
+            "test",
+            "--dry",
+        ],
+    )
+
+
+@beartype
+def test_folder_delete_keywords(cli_runner: CliRunner) -> None:
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "folder",
+            "delete-keywords",
+            *fixtures.folders,
+            "--keywords",
+            "test",
+            "--dry",
+        ],
+    )

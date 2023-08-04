@@ -11,6 +11,34 @@ logger = logging.getLogger(__name__)
 
 
 @beartype
+def test_spotify_new_token(cli_runner: CliRunner) -> None:
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "spotify",
+            "new-token",
+            "--dry",
+        ],
+    )
+
+
+@beartype
+def test_spotify_refresh_token(cli_runner: CliRunner) -> None:
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "spotify",
+            "new-token",
+            "--dry",
+        ],
+    )
+
+
+@beartype
 def test_spotify_cached_token(cli_runner: CliRunner) -> None:
     _ = run_cli(cli_runner, cli, ["--quiet", "spotify", "cached-token"])
 
@@ -18,6 +46,33 @@ def test_spotify_cached_token(cli_runner: CliRunner) -> None:
 @beartype
 def test_spotify_playlists(cli_runner: CliRunner) -> None:
     _ = run_cli(cli_runner, cli, ["--quiet", "spotify", "playlists"])
+
+
+@beartype
+def test_spotify_playlist(cli_runner: CliRunner) -> None:
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "spotify",
+            "playlist",
+            "test",
+        ],
+    )
+
+
+@beartype
+def test_spotify_to_download(cli_runner: CliRunner) -> None:
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "spotify",
+            "to-download",
+        ],
+    )
 
 
 @beartype

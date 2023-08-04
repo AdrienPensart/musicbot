@@ -53,6 +53,8 @@ class Spotify(MusicbotObject):
         return self._api()
 
     def new_token(self) -> Any:
+        if self.dry:
+            return None
         return self.auth_manager.get_access_token(check_cache=False)
 
     def cached_token(self) -> Any:
@@ -69,6 +71,8 @@ class Spotify(MusicbotObject):
 
     def refresh_token(self) -> Any:
         if not (token := self.cached_token()):
+            return None
+        if self.dry:
             return None
         return self.auth_manager.refresh_access_token(token["refresh_token"])
 

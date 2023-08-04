@@ -80,7 +80,8 @@ filter
 .genre.name ilike <str>$pattern or
 .album.name ilike <str>$pattern or
 .artist.name ilike <str>$pattern or
-.keywords.name ilike <str>$pattern
+.keywords.name ilike <str>$pattern or
+.paths ilike "%" ++ <str>$pattern ++ "%"
 """
 ).substitute(music_fields=MUSIC_FIELDS)
 

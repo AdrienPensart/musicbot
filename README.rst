@@ -113,32 +113,32 @@ musicbot folder add-keywords
 ****************************
 .. code-block::
 
-  Usage: musicbot folder add-keywords [OPTIONS] [FOLDERS]... [KEYWORDS]...
+  Usage: musicbot folder add-keywords [OPTIONS] [FOLDERS]...
 
     Add keywords to music
 
   Options:
+    --keywords TEXT     Keywords
     --dry / --no-dry    Do not launch real action  [default: no-dry]
     Folders options: 
       --limit INTEGER   Limit number of music files
       --extension TEXT  Supported formats  [default: flac, mp3]
-    --dry / --no-dry    Do not launch real action  [default: no-dry]
     -h, --help          Show this message and exit.
 
 musicbot folder delete-keywords
 *******************************
 .. code-block::
 
-  Usage: musicbot folder delete-keywords [OPTIONS] [FOLDERS]... [KEYWORDS]...
+  Usage: musicbot folder delete-keywords [OPTIONS] [FOLDERS]...
 
     Delete keywords to music
 
   Options:
+    --keywords TEXT     Keywords
     --dry / --no-dry    Do not launch real action  [default: no-dry]
     Folders options: 
       --limit INTEGER   Limit number of music files
       --extension TEXT  Supported formats  [default: flac, mp3]
-    --dry / --no-dry    Do not launch real action  [default: no-dry]
     -h, --help          Show this message and exit.
 
 musicbot folder find
@@ -233,7 +233,6 @@ musicbot folder set-tags
     Folders options: 
       --limit INTEGER       Limit number of music files
       --extension TEXT      Supported formats  [default: flac, mp3]
-    --dry / --no-dry        Do not launch real action  [default: no-dry]
     Music options: 
       --keywords TEXT       Keywords
       --artist TEXT         Artist
@@ -661,6 +660,7 @@ musicbot music flac2mp3
 
   Options:
     --dry / --no-dry  Do not launch real action  [default: no-dry]
+    --dry / --no-dry  Do not launch real action  [default: no-dry]
     -h, --help        Show this message and exit.
 
 musicbot music issues
@@ -684,6 +684,7 @@ musicbot music manual-fix
     Fix music file
 
   Options:
+    --dry / --no-dry  Do not launch real action  [default: no-dry]
     --dry / --no-dry  Do not launch real action  [default: no-dry]
     -h, --help        Show this message and exit.
 
@@ -819,6 +820,7 @@ musicbot spotify cached-token
       --spotify-scope TEXT          Spotify OAuth scopes, comma separated
       --spotify-redirect-uri TEXT   Spotify redirect URI
       --spotify-token TEXT          Spotify token
+    --dry / --no-dry                Do not launch real action  [default: no-dry]
     -h, --help                      Show this message and exit.
 
 musicbot spotify new-token
@@ -838,6 +840,7 @@ musicbot spotify new-token
       --spotify-scope TEXT          Spotify OAuth scopes, comma separated
       --spotify-redirect-uri TEXT   Spotify redirect URI
       --spotify-token TEXT          Spotify token
+    --dry / --no-dry                Do not launch real action  [default: no-dry]
     -h, --help                      Show this message and exit.
 
 musicbot spotify playlist

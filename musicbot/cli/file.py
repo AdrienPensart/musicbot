@@ -21,23 +21,11 @@ from musicbot.file import File
 
 logger = logging.getLogger(__name__)
 
-music_options_group = optgroup("Music options")
-keywords_option = optgroup.option(
+keywords_option = click.option(
     "--keywords",
     help="Keywords",
     multiple=True,
-    callback=split_arguments,
-)
-artist_option = optgroup.option("--artist", help="Artist")
-album_option = optgroup.option("--album", help="Album")
-title_option = optgroup.option("--title", help="Title")
-genre_option = optgroup.option("--genre", help="Genre")
-track_option = optgroup.option("--track", help="Track number")
-rating_option = optgroup.option(
-    "--rating",
-    help="Rating",
-    type=click.FloatRange(DEFAULT_MIN_RATING, DEFAULT_MAX_RATING, clamp=True),
-    callback=sane_rating,
+    callback=sane_set,
 )
 
 keywords_arguments = click.argument(
@@ -55,14 +43,24 @@ flat_option = click.option(
 )
 
 file_options = add_options(
-    music_options_group,
-    keywords_option,
-    artist_option,
-    album_option,
-    title_option,
-    genre_option,
-    track_option,
-    rating_option,
+    optgroup("Music options"),
+    optgroup.option(
+        "--keywords",
+        help="Keywords",
+        multiple=True,
+        callback=split_arguments,
+    ),
+    optgroup.option("--artist", help="Artist"),
+    optgroup.option("--album", help="Album"),
+    optgroup.option("--title", help="Title"),
+    optgroup.option("--genre", help="Genre"),
+    optgroup.option("--track", help="Track number"),
+    optgroup.option(
+        "--rating",
+        help="Rating",
+        type=click.FloatRange(DEFAULT_MIN_RATING, DEFAULT_MAX_RATING, clamp=True),
+        callback=sane_rating,
+    ),
 )
 
 

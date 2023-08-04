@@ -61,6 +61,7 @@ def show(
 @cli.command(help="Convert flac music to mp3", aliases=["flac-to-mp3"])
 @file_argument
 @destination_argument
+@dry_option
 @beartype
 def flac2mp3(file: File, destination: Path) -> None:
     if not file.to_mp3(destination):
@@ -72,7 +73,9 @@ def flac2mp3(file: File, destination: Path) -> None:
 @acoustid_api_key_option
 @beartype
 def fingerprint(file: File, acoustid_api_key: str) -> None:
-    print(file.fingerprint(acoustid_api_key))
+    if (file_fingerprint := file.fingerprint(acoustid_api_key)) is None:
+        return
+    print(file_fingerprint)
 
 
 @cli.command(help="Print music tags", aliases=["tag"])
@@ -110,6 +113,7 @@ def issues(
 
 @cli.command(help="Fix music file")
 @file_argument
+@dry_option
 @beartype
 def manual_fix(
     file: File,

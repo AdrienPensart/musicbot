@@ -5,17 +5,35 @@ from click_skeleton.testing import run_cli
 from musicbot.main import cli
 from musicbot.object import MusicbotObject
 
+from . import fixtures
+
 
 @beartype
-def test_local_query(cli_runner: CliRunner, edgedb: str) -> None:
+def test_local_execute(cli_runner: CliRunner, edgedb: str) -> None:
     _ = run_cli(
         cli_runner,
         cli,
         [
             "--quiet",
             "local",
-            "query",
+            "execute",
             "select Music;",
+            "--dsn",
+            edgedb,
+        ],
+    )
+
+
+@beartype
+def test_local_graphql(cli_runner: CliRunner, edgedb: str) -> None:
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "local",
+            "graphql",
+            "test",
             "--dsn",
             edgedb,
         ],
@@ -47,6 +65,21 @@ def test_local_search(cli_runner: CliRunner, edgedb: str) -> None:
             "local",
             "search",
             "1995",
+            "--dsn",
+            edgedb,
+        ],
+    )
+
+
+@beartype
+def test_local_explore(cli_runner: CliRunner, edgedb: str) -> None:
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "local",
+            "explore",
             "--dsn",
             edgedb,
         ],
@@ -86,6 +119,22 @@ def test_local_artists(cli_runner: CliRunner, edgedb: str) -> None:
         ],
     )
     assert MusicbotObject.loads_json(output) is not None
+
+
+@beartype
+def test_local_clean(cli_runner: CliRunner, edgedb: str) -> None:
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "local",
+            "clean",
+            "--dsn",
+            edgedb,
+            "--yes",
+        ],
+    )
 
 
 @beartype
@@ -171,5 +220,21 @@ def test_local_player(cli_runner: CliRunner, edgedb: str) -> None:
             "--vout=dummy --aout=dummy",
             "--dsn",
             edgedb,
+        ],
+    )
+
+
+@beartype
+def test_local_scan(cli_runner: CliRunner, edgedb: str) -> None:
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "local",
+            "scan",
+            "--dsn",
+            edgedb,
+            *fixtures.folders,
         ],
     )

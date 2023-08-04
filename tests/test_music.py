@@ -24,6 +24,75 @@ def test_music_flac2mp3(cli_runner: CliRunner) -> None:
 
 
 @beartype
+def test_music_show(cli_runner: CliRunner) -> None:
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "music",
+            "show",
+            str(fixtures.folder_flac),
+            str(fixtures.one_flac),
+        ],
+    )
+
+
+@beartype
+def test_music_fingerprint(cli_runner: CliRunner) -> None:
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "music",
+            "fingerprint",
+            str(fixtures.folder_flac),
+            str(fixtures.one_flac),
+        ],
+    )
+
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "music",
+            "fingerprint",
+            str(fixtures.folder_mp3),
+            str(fixtures.one_mp3),
+        ],
+    )
+
+
+@beartype
+def test_music_manual_fix(cli_runner: CliRunner) -> None:
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "music",
+            "manual-fix",
+            str(fixtures.folder_flac),
+            str(fixtures.one_flac),
+        ],
+    )
+
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "music",
+            "manual-fix",
+            str(fixtures.folder_mp3),
+            str(fixtures.one_mp3),
+        ],
+    )
+
+
+@beartype
 def test_music_tags(cli_runner: CliRunner) -> None:
     _ = run_cli(
         cli_runner,
@@ -74,6 +143,24 @@ def test_music_set_tags(cli_runner: CliRunner) -> None:
             str(fixtures.one_mp3),
             "--rating",
             0,
+            "--dry",
+        ],
+    )
+
+
+@beartype
+def test_music_replace_keyword(cli_runner: CliRunner) -> None:
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "music",
+            "replace-keyword",
+            str(fixtures.folder_flac),
+            str(fixtures.one_flac),
+            "to-replace",
+            "replaced",
             "--dry",
         ],
     )

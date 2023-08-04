@@ -465,11 +465,13 @@ class File(MusicbotObject):
         return None
 
     def fingerprint(self, api_key: str) -> str | None:
-        ids = acoustid.match(api_key, self.path)
-        for score, recording_id, title, artist in ids:
-            logger.info(f"{self} score : {score} | recording_id : {recording_id} | title : {title} | artist : {artist}")
-            return str(recording_id)
-        logger.info(f"{self} : fingerprint cannot be detected")
+        try:
+            ids = acoustid.match(api_key, self.path)
+            for score, recording_id, title, artist in ids:
+                logger.info(f"{self} score : {score} | recording_id : {recording_id} | title : {title} | artist : {artist}")
+                return str(recording_id)
+        except acoustid.WebServiceError:
+            self.err(f"{self} : unable to get fingerprint")
         return None
 
     def fix(self) -> bool:

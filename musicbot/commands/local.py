@@ -85,7 +85,8 @@ def explore(musicdb: MusicDb) -> None:
     if musicdb.graphql:
         url = f"{musicdb.graphql}/explore"
         MusicbotObject.success(url)
-        _ = webbrowser.open(url)
+        if not MusicbotObject.dry:
+            _ = webbrowser.open(url)
 
 
 @cli.command(help="Load musics")

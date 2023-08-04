@@ -9,7 +9,7 @@ from fuzzywuzzy import fuzz  # type: ignore
 from slugify import slugify
 
 from musicbot.cli.musicdb import musicdb_options
-from musicbot.cli.options import output_option
+from musicbot.cli.options import dry_option, output_option
 from musicbot.cli.spotify import (
     output_tracks,
     print_distances,
@@ -33,6 +33,7 @@ def cli() -> None:
 
 @cli.command(help="Generate a new token", aliases=["auth"])
 @spotify_options
+@dry_option
 @beartype
 def new_token(spotify: Spotify) -> None:
     print(spotify.new_token())
@@ -40,6 +41,7 @@ def new_token(spotify: Spotify) -> None:
 
 @cli.command(help="Token informations")
 @spotify_options
+@dry_option
 @beartype
 def cached_token(spotify: Spotify) -> None:
     MusicbotObject.print_json(spotify.cached_token())

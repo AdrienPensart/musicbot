@@ -4,6 +4,7 @@ import logging
 import os
 from typing import Any, Final
 
+import acoustid  # type: ignore
 import click
 import edgedb
 import mutagen
@@ -15,8 +16,6 @@ from click_skeleton import backtrace, doc, helpers, skeleton, version_checker
 import musicbot
 import musicbot.commands
 from musicbot import Config, MusicbotObject, version
-
-# from musicbot.helpers import async_run
 from musicbot.cli.config import config_options
 from musicbot.cli.options import dry_option
 
@@ -96,7 +95,7 @@ def main() -> None:
         pass
     except click.ClickException as e:
         e.show()
-    except (mutagen.MutagenError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError, edgedb.errors.AuthenticationError) as error:
+    except (mutagen.MutagenError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError, edgedb.errors.AuthenticationError, acoustid.WebServiceError) as error:
         MusicbotObject.err("Internal Error", error=error)
     finally:
         version_check.print()

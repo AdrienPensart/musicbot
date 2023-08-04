@@ -1,15 +1,4 @@
 module default {
-    # abstract type Entity {
-    #     required name: str;
-    #     required created_at: datetime {
-    #         default := std::datetime_current();
-    #         readonly := true;
-    #     }
-    #     required updated_at: datetime {
-    #         rewrite insert, update using (datetime_of_statement())
-    #     }
-    # }
-
     scalar type Rating extending float32 {
         constraint one_of (0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0);
     }
@@ -26,7 +15,6 @@ module default {
         constraint min_value(0);
     }
 
-    # type Artist extending Entity {
     type Artist {
         required name: str {
             constraint exclusive;
@@ -38,9 +26,6 @@ module default {
         required updated_at: datetime {
             rewrite insert, update using (datetime_of_statement())
         }
-        # overloaded required name: str {
-        #     constraint exclusive;
-        # }
         multi link albums := .<artist[is Album];
         link musics := (select .albums.musics);
         link keywords := (select .musics.keywords);
@@ -51,7 +36,6 @@ module default {
         property duration := (select to_duration(seconds := <float64>.length));
     }
 
-    # type Album extending Entity {
     type Album {
         required name: str;
         required created_at: datetime {
@@ -76,7 +60,6 @@ module default {
         index on ((.name, .artist));
     }
 
-    # type Folder extending Entity {
     type Folder {
         required name: str;
         required created_at: datetime {
@@ -96,7 +79,6 @@ module default {
     }
 
     # define a local music
-    # type Music extending Entity {
     type Music {
         required name: str;
         required created_at: datetime {
@@ -137,7 +119,6 @@ module default {
         index on ((.name, .album));
     }
 
-    # type Keyword extending Entity {
     type Keyword {
         required name: str {
             constraint exclusive;
@@ -150,14 +131,10 @@ module default {
             rewrite insert, update using (datetime_of_statement())
         }
 
-        # overloaded required name: str {
-        #     constraint exclusive;
-        # }
         multi link musics := .<keywords[is Music];
         property rating := (select <float64>round(<decimal>math::mean(.musics.rating), 2));
     }
 
-    # type Genre extending Entity {
     type Genre {
         required name: str {
             constraint exclusive;
@@ -169,9 +146,6 @@ module default {
         required updated_at: datetime {
             rewrite insert, update using (datetime_of_statement())
         }
-        # overloaded required name: str {
-        #     constraint exclusive;
-        # }
 
         multi link musics := .<genre[is Music];
         property rating := (select <float64>round(<decimal>math::mean(.musics.rating), 2));
