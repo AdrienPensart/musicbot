@@ -1,14 +1,11 @@
 import string
-from typing import Final
 
 
 class CustomStringTemplate(string.Template):
     delimiter = "#"
 
 
-FOLDER_QUERY: Final[
-    str
-] = """
+FOLDER_QUERY: str = """
 select Folder {
     name,
     user,
@@ -35,7 +32,7 @@ folders: {
 }
 """
 
-PLAYLIST_QUERY: Final[str] = CustomStringTemplate(
+PLAYLIST_QUERY: str = CustomStringTemplate(
     """
     select Music {
         #music_fields
@@ -58,9 +55,7 @@ PLAYLIST_QUERY: Final[str] = CustomStringTemplate(
 """
 ).substitute(music_fields=MUSIC_FIELDS)
 
-SOFT_CLEAN_QUERY: Final[
-    str
-] = """
+SOFT_CLEAN_QUERY: str = """
 select {
     musics_deleted := count((delete Music filter not exists .folders)),
     albums_deleted := count((delete Album filter not exists .musics)),
@@ -70,7 +65,7 @@ select {
 };
 """
 
-SEARCH_QUERY: Final[str] = CustomStringTemplate(
+SEARCH_QUERY: str = CustomStringTemplate(
     """
 select Music {
     #music_fields
@@ -85,15 +80,13 @@ filter
 """
 ).substitute(music_fields=MUSIC_FIELDS)
 
-REMOVE_PATH_QUERY: Final[
-    str
-] = """
+REMOVE_PATH_QUERY: str = """
 update Music
 filter contains(.paths, <str>$path)
 set {folders := (select .folders filter @path != <str>$path)};
 """
 
-UPSERT_QUERY: Final[str] = CustomStringTemplate(
+UPSERT_QUERY: str = CustomStringTemplate(
     """
 with
     upsert_artist := (
@@ -173,9 +166,7 @@ with
 """
 ).substitute(music_fields=MUSIC_FIELDS)
 
-ARTISTS_QUERY: Final[
-    str
-] = """
+ARTISTS_QUERY: str = """
 select Artist {
     name,
     rating,
@@ -190,7 +181,7 @@ select Artist {
 order by .name
 """
 
-BESTS_QUERY: Final[str] = CustomStringTemplate(
+BESTS_QUERY: str = CustomStringTemplate(
     """
 with
     musics := (#filtered_playlist),

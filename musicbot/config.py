@@ -3,23 +3,22 @@ import logging
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
-from typing import Final
 
 import colorlog
 from beartype import beartype
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_CONFIG: Final[str] = "~/musicbot.ini"
-DEFAULT_LOG: Final[str | None] = None
-DEFAULT_COLOR: Final[bool] = True
-DEFAULT_DEBUG: Final[bool] = False
-DEFAULT_INFO: Final[bool] = False
-DEFAULT_WARNING: Final[bool] = False
-DEFAULT_ERROR: Final[bool] = False
-DEFAULT_CRITICAL: Final[bool] = False
-DEFAULT_VERBOSITY: Final[str] = "warning"
-DEFAULT_QUIET: Final[bool] = False
+DEFAULT_CONFIG: str = "~/musicbot.ini"
+DEFAULT_LOG: str | None = None
+DEFAULT_COLOR: bool = True
+DEFAULT_DEBUG: bool = False
+DEFAULT_INFO: bool = False
+DEFAULT_WARNING: bool = False
+DEFAULT_ERROR: bool = False
+DEFAULT_CRITICAL: bool = False
+DEFAULT_VERBOSITY: str = "warning"
+DEFAULT_QUIET: bool = False
 
 VERBOSITIES = {
     "debug": logging.DEBUG,

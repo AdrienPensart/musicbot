@@ -2,7 +2,7 @@
 """Main module, import commands and start CLI"""
 import logging
 import os
-from typing import Any, Final
+from typing import Any
 
 import acoustid  # type: ignore
 import click
@@ -19,7 +19,7 @@ from musicbot import Config, MusicbotObject, version
 from musicbot.cli.config import config_options
 from musicbot.cli.options import dry_option
 
-PROG_NAME: Final[str] = "musicbot"
+PROG_NAME: str = "musicbot"
 logger = logging.getLogger(__name__)
 
 
