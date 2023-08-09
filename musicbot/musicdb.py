@@ -7,12 +7,12 @@ from typing import Any, Self
 from urllib.parse import urlparse
 
 import edgedb
+import httpx
 from async_lru import alru_cache
 from attr import asdict
 from beartype import beartype
 from edgedb.asyncio_client import AsyncIOClient, create_async_client
 from edgedb.options import RetryOptions, TransactionOptions
-from requests import Response, Session
 
 from musicbot.artist import Artist
 from musicbot.defaults import DEFAULT_COROUTINES
@@ -40,46 +40,54 @@ logger = logging.getLogger(__name__)
 @dataclass(unsafe_hash=True)
 class MusicDb(MusicbotObject):
     client: AsyncIOClient
-    dsn: str
-    session: Session = Session()
-    graphql: str | None = None
-
-    def __post_init__(self) -> None:
-        self.client = self.client.with_retry_options(RetryOptions(attempts=10))
-        if self.graphql is None:
-            parsed = urlparse(self.client._impl._connect_args["dsn"])
-            self.graphql = f"http://{parsed.hostname}:{parsed.port}/db/edgedb/graphql"
+    graphql: str
 
     def __repr__(self) -> str:
         return self.dsn
 
     def set_readonly(self, readonly: bool = True) -> None:
         """set client to read only mode"""
-        self.client = self.client.with_transaction_options(TransactionOptions(readonly=readonly))
+        options = TransactionOptions(readonly=readonly)
+        self.client = self.client.with_transaction_options(options)
+
+    @property
+    def dsn(self) -> str:
+        return self.client._impl._connect_args["dsn"]
 
     @classmethod
     def from_dsn(
         cls,
         dsn: str,
         graphql: str | None = None,
+        attempts: int = 10,
     ) -> Self:
         if not cls.is_prod():
             os.environ["EDGEDB_CLIENT_SECURITY"] = "insecure_dev_mode"
-        return cls(client=create_async_client(dsn=dsn), dsn=dsn, graphql=graphql)
+        client = create_async_client(dsn=dsn)
+        options = RetryOptions(attempts=attempts)
+        client = client.with_retry_options(options)
+
+        if graphql is None:
+            parsed = urlparse(dsn)
+            graphql = f"http://{parsed.hostname}:{parsed.port}/db/edgedb/graphql"
+        return cls(client=client, graphql=graphql)
 
     async def query_json(self, query: str) -> Any:
         return await self.client.query_json(query)
 
-    def graphql_query(self, query: str) -> Response | None:
-        if not self.graphql:
-            return None
+    async def graphql_query(self, query: str) -> httpx.Response | None:
         operation = {"query": query}
-        response = self.session.post(
-            self.graphql,
-            json=operation,
-        )
-        logger.debug(response)
-        return response
+        try:
+            async with httpx.AsyncClient(timeout=60) as client:
+                response = await client.post(
+                    url=self.graphql,
+                    json=operation,
+                )
+                response.raise_for_status()
+                return response
+        except httpx.HTTPError as error:
+            self.err(f"{self} : unable to query graphql", error=error)
+        return None
 
     @alru_cache
     async def folders(self) -> list[Folder]:

@@ -3,7 +3,6 @@ import codecs
 import io
 import logging
 import shutil
-import webbrowser
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any
@@ -26,7 +25,6 @@ from musicbot.cli.options import (
     lazy_yes_option,
     output_option,
     save_option,
-    yes_option,
 )
 from musicbot.cli.playlist import bests_options, playlist_options
 from musicbot.defaults import DEFAULT_VLC_PARAMS
@@ -38,8 +36,6 @@ from musicbot.musicdb import MusicDb
 from musicbot.object import MusicbotObject
 from musicbot.playlist_options import PlaylistOptions
 
-# from musicbot.watcher import MusicWatcherHandler
-
 logger = logging.getLogger(__name__)
 
 
@@ -47,25 +43,6 @@ logger = logging.getLogger(__name__)
 @beartype
 def cli() -> None:
     pass
-
-
-@cli.command(help="EdgeDB raw query", aliases=["query", "fetch"])
-@click.argument("query")
-@musicdb_options
-@syncify
-@beartype
-async def execute(musicdb: MusicDb, query: str) -> None:
-    print(await musicdb.query_json(query))
-
-
-@cli.command(help="GraphQL query")
-@click.argument("query")
-@musicdb_options
-@beartype
-def graphql(musicdb: MusicDb, query: str) -> None:
-    response = musicdb.graphql_query(query)
-    if response is not None:
-        MusicbotObject.print_json(response.json())
 
 
 @cli.command(help="List folders and some stats")
@@ -76,17 +53,6 @@ async def folders(musicdb: MusicDb) -> None:
     response = await musicdb.folders()
     if response is not None:
         MusicbotObject.print_json([asdict(folder) for folder in response])
-
-
-@cli.command(help="Explore with GraphiQL")
-@musicdb_options
-@beartype
-def explore(musicdb: MusicDb) -> None:
-    if musicdb.graphql:
-        url = f"{musicdb.graphql}/explore"
-        MusicbotObject.success(url)
-        if not MusicbotObject.dry:
-            _ = webbrowser.open(url)
 
 
 @cli.command(help="Load musics")
@@ -198,23 +164,6 @@ async def watch(
         _ = await asyncio.wait_for(future, timeout=timeout)
     except (TimeoutError, asyncio.CancelledError, KeyboardInterrupt):
         pass
-
-
-@cli.command(help="Clean all musics in DB", aliases=["clean-db", "erase"])
-@musicdb_options
-@yes_option
-@syncify
-@beartype
-async def clean(musicdb: MusicDb) -> None:
-    await musicdb.clean_musics()
-
-
-@cli.command(help="Clean entities without musics associated")
-@musicdb_options
-@syncify
-@beartype
-async def soft_clean(musicdb: MusicDb) -> None:
-    await musicdb.soft_clean()
 
 
 @cli.command(help="Search musics by full-text search")

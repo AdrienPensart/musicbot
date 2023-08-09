@@ -24,16 +24,17 @@ Commands
     -h, --help                       Show this message and exit.
 
   Commands:
-    completion    Shell completion
-    console       Starts interpreter
-    folder        Manage folders
-    help          Print help
-    local         Local music management
-    music (file)  Music file
-    readme (doc)  Generates a README.rst
-    spotify       Spotify tool
-    version       Print version
-    youtube       Youtube tool
+    completion     Shell completion
+    console        Starts interpreter
+    database (db)  DB management
+    folder         Manage folders
+    help           Print help
+    local          Local music management
+    music (file)   Music file
+    readme (doc)   Generates a README.rst
+    spotify        Spotify tool
+    version        Print version
+    youtube        Youtube tool
 
 musicbot completion
 *******************
@@ -86,6 +87,111 @@ musicbot console
 
   Options:
     -h, --help  Show this message and exit.
+
+musicbot database
+*****************
+.. code-block::
+
+  Usage: musicbot database [OPTIONS] COMMAND [ARGS]...
+
+    DB management
+
+  Options:
+    -h, --help  Show this message and exit.
+
+  Commands:
+    clean (clean-db,erase)  Clean all musics in DB
+    execute (fetch,query)   EdgeDB raw query
+    graphql                 GraphQL query
+    help                    Print help
+    pgcli                   Connect with PgCLI
+    soft-clean              Clean entities without musics associated
+    ui (explore)            Explore with GraphiQL
+
+musicbot database clean
+***********************
+.. code-block::
+
+  Usage: musicbot database clean [OPTIONS]
+
+    Clean all musics in DB
+
+  Options:
+    MusicDB options: 
+      --dsn TEXT       DSN to MusicBot EdgeDB
+      --graphql TEXT   DSN to MusicBot GrapQL
+    -y, --yes          Confirm action
+    -h, --help         Show this message and exit.
+
+musicbot database execute
+*************************
+.. code-block::
+
+  Usage: musicbot database execute [OPTIONS] QUERY
+
+    EdgeDB raw query
+
+  Options:
+    MusicDB options: 
+      --dsn TEXT       DSN to MusicBot EdgeDB
+      --graphql TEXT   DSN to MusicBot GrapQL
+    -h, --help         Show this message and exit.
+
+musicbot database graphql
+*************************
+.. code-block::
+
+  Usage: musicbot database graphql [OPTIONS] QUERY
+
+    GraphQL query
+
+  Options:
+    MusicDB options: 
+      --dsn TEXT       DSN to MusicBot EdgeDB
+      --graphql TEXT   DSN to MusicBot GrapQL
+    -h, --help         Show this message and exit.
+
+musicbot database pgcli
+***********************
+.. code-block::
+
+  Usage: musicbot database pgcli [OPTIONS] [PGCLI_ARGS]...
+
+    Connect with PgCLI
+
+  Options:
+    MusicDB options: 
+      --dsn TEXT       DSN to MusicBot EdgeDB
+      --graphql TEXT   DSN to MusicBot GrapQL
+    -h, --help         Show this message and exit.
+
+musicbot database soft-clean
+****************************
+.. code-block::
+
+  Usage: musicbot database soft-clean [OPTIONS]
+
+    Clean entities without musics associated
+
+  Options:
+    MusicDB options: 
+      --dsn TEXT       DSN to MusicBot EdgeDB
+      --graphql TEXT   DSN to MusicBot GrapQL
+    -h, --help         Show this message and exit.
+
+musicbot database ui
+********************
+.. code-block::
+
+  Usage: musicbot database ui [OPTIONS]
+
+    Explore with GraphiQL
+
+  Options:
+    MusicDB options: 
+      --dsn TEXT       DSN to MusicBot EdgeDB
+      --graphql TEXT   DSN to MusicBot GrapQL
+    -h, --help         Show this message and exit.
 
 musicbot folder
 ***************
@@ -266,21 +372,16 @@ musicbot local
     -h, --help  Show this message and exit.
 
   Commands:
-    artists                 Artists descriptions
-    bests                   Generate bests playlists with some rules
-    clean (clean-db,erase)  Clean all musics in DB
-    execute (fetch,query)   EdgeDB raw query
-    explore                 Explore with GraphiQL
-    folders                 List folders and some stats
-    graphql                 GraphQL query
-    help                    Print help
-    player (play)           Music player
-    playlist                Generate a new playlist
-    scan                    Load musics
-    search                  Search musics by full-text search
-    soft-clean              Clean entities without musics associated
-    sync                    Copy selected musics with filters to destination folder
-    watch (watcher)         Watch files changes in folders
+    artists          Artists descriptions
+    bests            Generate bests playlists with some rules
+    folders          List folders and some stats
+    help             Print help
+    player (play)    Music player
+    playlist         Generate a new playlist
+    scan             Load musics
+    search           Search musics by full-text search
+    sync             Copy selected musics with filters to destination folder
+    watch (watcher)  Watch files changes in folders
 
 musicbot local artists
 **********************
@@ -333,49 +434,6 @@ musicbot local bests
       --min-playlist-size INTEGER                       Minimum size of playlist to write  [default: 1]
     -h, --help                                          Show this message and exit.
 
-musicbot local clean
-********************
-.. code-block::
-
-  Usage: musicbot local clean [OPTIONS]
-
-    Clean all musics in DB
-
-  Options:
-    MusicDB options: 
-      --dsn TEXT       DSN to MusicBot EdgeDB
-      --graphql TEXT   DSN to MusicBot GrapQL
-    -y, --yes          Confirm action
-    -h, --help         Show this message and exit.
-
-musicbot local execute
-**********************
-.. code-block::
-
-  Usage: musicbot local execute [OPTIONS] QUERY
-
-    EdgeDB raw query
-
-  Options:
-    MusicDB options: 
-      --dsn TEXT       DSN to MusicBot EdgeDB
-      --graphql TEXT   DSN to MusicBot GrapQL
-    -h, --help         Show this message and exit.
-
-musicbot local explore
-**********************
-.. code-block::
-
-  Usage: musicbot local explore [OPTIONS]
-
-    Explore with GraphiQL
-
-  Options:
-    MusicDB options: 
-      --dsn TEXT       DSN to MusicBot EdgeDB
-      --graphql TEXT   DSN to MusicBot GrapQL
-    -h, --help         Show this message and exit.
-
 musicbot local folders
 **********************
 .. code-block::
@@ -383,20 +441,6 @@ musicbot local folders
   Usage: musicbot local folders [OPTIONS]
 
     List folders and some stats
-
-  Options:
-    MusicDB options: 
-      --dsn TEXT       DSN to MusicBot EdgeDB
-      --graphql TEXT   DSN to MusicBot GrapQL
-    -h, --help         Show this message and exit.
-
-musicbot local graphql
-**********************
-.. code-block::
-
-  Usage: musicbot local graphql [OPTIONS] QUERY
-
-    GraphQL query
 
   Options:
     MusicDB options: 
@@ -519,20 +563,6 @@ musicbot local search
       --shuffle / --no-shuffle                          Randomize selection  [default: no-shuffle]
       --interleave / --no-interleave                    Interleave tracks by artist  [default: no-interleave]
     -h, --help                                          Show this message and exit.
-
-musicbot local soft-clean
-*************************
-.. code-block::
-
-  Usage: musicbot local soft-clean [OPTIONS]
-
-    Clean entities without musics associated
-
-  Options:
-    MusicDB options: 
-      --dsn TEXT       DSN to MusicBot EdgeDB
-      --graphql TEXT   DSN to MusicBot GrapQL
-    -h, --help         Show this message and exit.
 
 musicbot local sync
 *******************
