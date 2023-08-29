@@ -1,4 +1,5 @@
 import logging
+import subprocess
 import webbrowser
 
 import click
@@ -18,12 +19,12 @@ def cli() -> None:
     pass
 
 
-@cli.command(help="EdgeDB raw query", aliases=["query", "fetch"])
+@cli.command(help="EdgeDB raw query", aliases=["query", "fetch", "execute"])
 @click.argument("query")
 @musicdb_options
 @syncify
 @beartype
-async def execute(musicdb: MusicDb, query: str) -> None:
+async def edgeql(musicdb: MusicDb, query: str) -> None:
     print(await musicdb.query_json(query))
 
 
@@ -56,15 +57,21 @@ def pgcli(ctx: click.Context, musicdb: MusicDb, pgcli_args: tuple[str, ...]) -> 
     pg_cli.main(prog_name="pgcli", args=args)
 
 
-@cli.command(help="Explore with GraphiQL", aliases=["explore"])
+@cli.command(help="Explore with GraphiQL")
 @musicdb_options
 @beartype
-def ui(musicdb: MusicDb) -> None:
+def graphiql(musicdb: MusicDb) -> None:
     if musicdb.graphql:
         url = f"{musicdb.graphql}/explore"
         MusicbotObject.success(url)
         if not MusicbotObject.dry:
             _ = webbrowser.open(url)
+
+
+@cli.command(help="Explore with EdgeDB UI")
+@beartype
+def ui() -> None:
+    _ = subprocess.run(["edgedb", "ui", "--print-url", "--no-server-check"], check=True)
 
 
 @cli.command(help="Clean all musics in DB", aliases=["clean-db", "erase"])

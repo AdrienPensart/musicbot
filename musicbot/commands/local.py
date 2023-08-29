@@ -128,20 +128,20 @@ async def watch(
         except (asyncio.CancelledError, KeyboardInterrupt):
             pass
 
-    class MusicFilter(DefaultFilter):
-        def __call__(self, change: Change, path: str) -> bool:
-            return super().__call__(change, path) and path.endswith(tuple(folders.extensions))
-
     async def update_music(path: str) -> None:
         for directory in folders.directories:
             if path.startswith(str(directory)):
                 _ = await musicdb.upsert_path((directory, Path(path)))
 
     async def watcher() -> None:
+        class MusicWatchFilter(DefaultFilter):
+            def __call__(self, change: Change, path: str) -> bool:
+                return super().__call__(change, path) and path.endswith(tuple(folders.extensions))
+
         try:
             async for changes in awatch(
                 *folders.directories,
-                watch_filter=MusicFilter(),
+                watch_filter=MusicWatchFilter(),
                 debug=MusicbotObject.config.debug,
             ):
                 try:

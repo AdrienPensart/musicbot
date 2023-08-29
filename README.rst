@@ -100,13 +100,14 @@ musicbot database
     -h, --help  Show this message and exit.
 
   Commands:
-    clean (clean-db,erase)  Clean all musics in DB
-    execute (fetch,query)   EdgeDB raw query
-    graphql                 GraphQL query
-    help                    Print help
-    pgcli                   Connect with PgCLI
-    soft-clean              Clean entities without musics associated
-    ui (explore)            Explore with GraphiQL
+    clean (clean-db,erase)        Clean all musics in DB
+    edgeql (execute,fetch,query)  EdgeDB raw query
+    graphiql                      Explore with GraphiQL
+    graphql                       GraphQL query
+    help                          Print help
+    pgcli                         Connect with PgCLI
+    soft-clean                    Clean entities without musics associated
+    ui                            Explore with EdgeDB UI
 
 musicbot database clean
 ***********************
@@ -123,13 +124,27 @@ musicbot database clean
     -y, --yes          Confirm action
     -h, --help         Show this message and exit.
 
-musicbot database execute
-*************************
+musicbot database edgeql
+************************
 .. code-block::
 
-  Usage: musicbot database execute [OPTIONS] QUERY
+  Usage: musicbot database edgeql [OPTIONS] QUERY
 
     EdgeDB raw query
+
+  Options:
+    MusicDB options: 
+      --dsn TEXT       DSN to MusicBot EdgeDB
+      --graphql TEXT   DSN to MusicBot GrapQL
+    -h, --help         Show this message and exit.
+
+musicbot database graphiql
+**************************
+.. code-block::
+
+  Usage: musicbot database graphiql [OPTIONS]
+
+    Explore with GraphiQL
 
   Options:
     MusicDB options: 
@@ -185,13 +200,10 @@ musicbot database ui
 
   Usage: musicbot database ui [OPTIONS]
 
-    Explore with GraphiQL
+    Explore with EdgeDB UI
 
   Options:
-    MusicDB options: 
-      --dsn TEXT       DSN to MusicBot EdgeDB
-      --graphql TEXT   DSN to MusicBot GrapQL
-    -h, --help         Show this message and exit.
+    -h, --help  Show this message and exit.
 
 musicbot folder
 ***************

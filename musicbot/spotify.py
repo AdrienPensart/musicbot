@@ -7,7 +7,7 @@ from typing import Any
 import spotipy  # type: ignore
 from beartype import beartype
 from natsort import natsorted
-from spotipy.oauth2 import CacheFileHandler  # type: ignore
+from spotipy.oauth2 import CacheFileHandler, SpotifyOauthError  # type: ignore
 
 from musicbot.defaults import DEFAULT_SPOTIFY_DOWNLOAD_PLAYLIST, DEFAULT_SPOTIFY_TIMEOUT
 from musicbot.object import MusicbotObject
@@ -59,14 +59,15 @@ class Spotify(MusicbotObject):
 
     def cached_token(self) -> Any:
         if not (token := self.cache_handler.get_cached_token()):
-            logger.warning("no cached token")
-        result = self.auth_manager.validate_token(token)
-        logger.debug(result)
+            self.warn("no cached token")
+        try:
+            result = self.auth_manager.validate_token(token)
+            logger.debug(result)
+        except SpotifyOauthError:
+            self.warn("invalid token")
         return token
 
-    def is_token_expired(self) -> bool:
-        if not (token := self.cached_token()):
-            return True
+    def is_token_expired(self, token: Any) -> bool:
         return self.auth_manager.is_token_expired(token)
 
     def refresh_token(self) -> Any:

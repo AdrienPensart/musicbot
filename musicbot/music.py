@@ -1,16 +1,14 @@
 import itertools
 import logging
 import os
-import sys
 from dataclasses import asdict, dataclass
 from typing import Any
 
-import yaml
 from beartype import beartype
 from slugify import slugify
 
 from musicbot.defaults import REPLACEMENTS, STOPWORDS
-from musicbot.helpers import bytes_to_human, precise_seconds_to_human
+from musicbot.helpers import bytes_to_human, precise_seconds_to_human, yaml_dump
 from musicbot.object import MusicbotObject
 from musicbot.playlist_options import PlaylistOptions
 
@@ -81,7 +79,9 @@ class Music(MusicbotObject):
         data: dict[str, Any] = asdict(self)
         data["size"] = bytes_to_human(data["size"])
         data["length"] = precise_seconds_to_human(data["length"])
-        return yaml.dump(data, sort_keys=False, width=sys.maxsize)
+        data["folders"] = list(asdict(folder) for folder in data["folders"])
+        data["keywords"] = list(data["keywords"])
+        return yaml_dump(data)
 
     def links(self, playlist_options: PlaylistOptions | None = None) -> frozenset[str]:
         playlist_options = playlist_options if playlist_options is not None else PlaylistOptions()

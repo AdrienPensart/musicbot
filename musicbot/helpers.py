@@ -8,11 +8,14 @@ from typing import Any, ParamSpec, TypeVar
 
 import humanize
 from beartype import beartype
+from ruamel.yaml import YAML
+from ruamel.yaml.compat import StringIO
 
 logger = logging.getLogger(__name__)
 T_Retval = TypeVar("T_Retval")
 T_ParamSpec = ParamSpec("T_ParamSpec")
 T = TypeVar("T")
+yaml = YAML(typ="safe")
 
 
 @beartype
@@ -44,3 +47,10 @@ def syncify(
             return runner.run(partial_f())
 
     return wrapper
+
+
+@beartype
+def yaml_dump(data: Any, **kw: Any) -> str:
+    stream = StringIO()
+    yaml.dump(data, stream, **kw)
+    return stream.getvalue()

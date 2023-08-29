@@ -44,8 +44,9 @@ def new_token(spotify: Spotify) -> None:
 @dry_option
 @beartype
 def cached_token(spotify: Spotify) -> None:
-    MusicbotObject.print_json(spotify.cached_token())
-    MusicbotObject.success(f"Expired : {spotify.is_token_expired()}")
+    token = spotify.cached_token()
+    MusicbotObject.print_json(token)
+    MusicbotObject.success(f"Expired : {spotify.is_token_expired(token)}")
 
 
 @cli.command(help="Get a new token")

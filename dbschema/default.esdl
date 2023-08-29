@@ -1,4 +1,15 @@
 module default {
+    function bytes_to_human(size: int64, k: int64 = 1000, decimals: int64 = 2, units: array<str> = [' B', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB']) -> str {
+        using (
+            select '0' ++ units[0] if size = 0
+            else (
+                with i := <int64>math::floor(math::ln(math::abs(size)) / math::ln(k))
+                select to_str(std::round(<decimal>(size / k ^ i), decimals)) ++ units[i]
+            )
+        );
+        annotation title := "Convert a byte size to human readable string";
+    };
+
     scalar type Rating extending float32 {
         constraint one_of (0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0);
     }

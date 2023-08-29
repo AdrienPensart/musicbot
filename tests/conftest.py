@@ -2,7 +2,6 @@ import logging
 import socket
 import time
 from pathlib import Path
-from typing import Any
 
 from beartype import beartype
 from click.testing import CliRunner
@@ -16,8 +15,6 @@ from musicbot.musicdb import MusicDb
 from . import fixtures
 
 logger = logging.getLogger(__name__)
-
-pytest_plugins = ["docker_compose"]
 
 
 @fixture
@@ -43,10 +40,11 @@ def wait_for_service(hostname: str, port: int, timeout: int = 60) -> None:
 
 @fixture(scope="session")
 @beartype
-def edgedb(session_scoped_container_getter: Any) -> str:
-    service = session_scoped_container_getter.get("edgedb").network_info[0]
-    dsn = f"""edgedb://edgedb:musicbot@{service.hostname}:{service.host_port}"""
-    wait_for_service(service.hostname, int(service.host_port))
+def edgedb() -> str:
+    hostname = "127.0.0.1"
+    port = 15656
+    dsn = f"""edgedb://edgedb:musicbot@{hostname}:{port}"""
+    wait_for_service(hostname, port)
     return dsn
 
 

@@ -1,4 +1,5 @@
-from dataclasses import dataclass, fields
+# from dataclasses import dataclass, fields
+from dataclasses import dataclass
 
 from beartype import beartype
 
@@ -17,9 +18,9 @@ class Artist(MusicbotObject):
     keywords: frozenset[str]
     genres: frozenset[str]
 
-    @classmethod
-    def columns(cls) -> list[str]:
-        columns = []
-        for field_attribute in fields(cls):  # pylint: disable=not-an-iterable
-            columns.append(field_attribute.name.capitalize())
-        return columns
+    # @classmethod
+    # def columns(cls) -> list[str]:
+    #     columns = []
+    #     for field_attribute in fields(cls):  # pylint: disable=not-an-iterable
+    #         columns.append(field_attribute.name.capitalize())
+    #     return columns
