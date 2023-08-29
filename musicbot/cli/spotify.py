@@ -132,7 +132,8 @@ def sane_spotify(ctx: click.Context, param: click.Parameter, value: str | None) 
         ctx.params[param.name] = value
     spotify_params = {}
     for field in fields(Spotify):
-        spotify_params[field.name] = ctx.params.pop("spotify_" + field.name)
+        spotify_field_name = "spotify_" + field.name
+        spotify_params[field.name] = ctx.params.pop(spotify_field_name, None)
     spotify = Spotify(**spotify_params)
     ctx.params["spotify"] = spotify
     return spotify
@@ -191,8 +192,14 @@ spotify_token_option = optgroup.option(
     "--spotify-token",
     help="Spotify token",
     envvar="MB_SPOTIFY_TOKEN",
-    expose_value=False,
     default=DEFAULT_SPOTIFY_TOKEN,
+)
+
+spotify_option = optgroup.option(
+    "--spotify",
+    help="Spotify client",
+    expose_value=False,
+    hidden=True,
     callback=sane_spotify,
 )
 
@@ -205,4 +212,5 @@ spotify_options = add_options(
     spotify_scope_option,
     spotify_redirect_uri_option,
     spotify_token_option,
+    spotify_option,
 )

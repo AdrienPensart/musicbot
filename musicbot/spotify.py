@@ -1,7 +1,7 @@
 import itertools
 import logging
 from dataclasses import asdict, dataclass
-from functools import cache
+from functools import cached_property
 from typing import Any
 
 import spotipy  # type: ignore
@@ -26,8 +26,8 @@ class Spotify(MusicbotObject):
     redirect_uri: str
     token: str | None = None
 
-    @cache
-    def _auth_manager(self) -> spotipy.oauth2.SpotifyOAuth:
+    @cached_property
+    def auth_manager(self) -> spotipy.oauth2.SpotifyOAuth:
         auth_params = asdict(self)
         del auth_params["token"]
         del auth_params["cache_path"]
@@ -35,22 +35,14 @@ class Spotify(MusicbotObject):
         return spotipy.oauth2.SpotifyOAuth(**auth_params, cache_handler=self.cache_handler)
 
     @property
-    def auth_manager(self) -> spotipy.oauth2.SpotifyOAuth:
-        return self._auth_manager()
-
-    @property
     def cache_handler(self) -> CacheFileHandler:
         return CacheFileHandler(cache_path=self.cache_path, username=self.username)
 
-    @cache
-    def _api(self, requests_timeout: int = DEFAULT_SPOTIFY_TIMEOUT) -> spotipy.Spotify:
-        if self.token:
-            return spotipy.Spotify(auth=self.token, requests_timeout=requests_timeout)
-        return spotipy.Spotify(auth_manager=self.auth_manager, requests_timeout=requests_timeout)
-
-    @property
+    @cached_property
     def api(self) -> spotipy.Spotify:
-        return self._api()
+        if self.token:
+            return spotipy.Spotify(auth=self.token, requests_timeout=DEFAULT_SPOTIFY_TIMEOUT)
+        return spotipy.Spotify(auth_manager=self.auth_manager, requests_timeout=DEFAULT_SPOTIFY_TIMEOUT)
 
     def new_token(self) -> Any:
         if self.dry:
