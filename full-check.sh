@@ -10,15 +10,9 @@ sh gen-doc.sh
 sh code-format.sh
 sh tests-check.sh
 
-kernel=`uname -r`
-case "$kernel" in
-*microsoft*) echo "No unit testing because docker not available" ;;
-*       )
-    echo "Running unit tests"
-    poetry run pytest
-    poetry run coverage-badge -f -o doc/coverage.svg
-    git add doc/coverage.svg
-    ;;
-esac
+echo "Running unit tests"
+poetry run pytest
+poetry run coverage-badge -f -o doc/coverage.svg
+git add doc/coverage.svg
 
 exit 0

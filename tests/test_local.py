@@ -52,6 +52,7 @@ def test_local_watch(cli_runner: CliRunner, edgedb: str) -> None:
             edgedb,
             "--timeout",
             5,
+            str(fixtures.folder_flac),
         ],
     )
 

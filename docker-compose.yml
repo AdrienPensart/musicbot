@@ -2,12 +2,13 @@
 version: '3'
 services:
   edgedb:
-    image: "edgedb/edgedb:3"
+    image: "edgedb/edgedb:3.2"
     restart: always
     ports:
       - 127.0.0.1:15656:5656
     environment:
       EDGEDB_SERVER_SECURITY: insecure_dev_mode
+      EDGEDB_SERVER_ADMIN_UI: enabled
     volumes:
       - "./dbschema:/dbschema"
       - "./credentials:/root/.config/edgedb/credentials"

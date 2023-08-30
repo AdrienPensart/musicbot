@@ -71,7 +71,15 @@ def graphiql(musicdb: MusicDb) -> None:
 @cli.command(help="Explore with EdgeDB UI")
 @beartype
 def ui() -> None:
-    _ = subprocess.run(["edgedb", "ui", "--print-url", "--no-server-check"], check=True)
+    args = ["edgedb", "ui", "--print-url", "--no-server-check"]
+    try:
+        _ = subprocess.run(args, check=True)
+    except FileNotFoundError:
+        MusicbotObject.err("Unable to locate edgedb CLI, please install it first with")
+        MusicbotObject.tip("curl --proto '=https' --tlsv1.2 -sSf https://sh.edgedb.com | sh")
+    except subprocess.CalledProcessError as error:
+        joined_args = " ".join(args)
+        MusicbotObject.err(f"Failed to run : {joined_args}", error=error)
 
 
 @cli.command(help="Clean all musics in DB", aliases=["clean-db", "erase"])
