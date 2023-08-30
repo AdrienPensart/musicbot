@@ -12,6 +12,7 @@ from click_skeleton.helpers import mysplit
 from mutagen import File as MutagenFile
 from mutagen import MutagenError, id3
 from pydub import AudioSegment  # type: ignore
+from shazamio import Shazam  # type: ignore
 
 from musicbot.defaults import (
     DEFAULT_EXTENSIONS,
@@ -463,6 +464,10 @@ class File(MusicbotObject):
             mp3_path.unlink()
             self.err(f"{self} : unable to convert to mp3", error=error)
         return None
+
+    async def shazam(self) -> Any:
+        shazam = Shazam()
+        return await shazam.recognize_song(self.path)
 
     def fingerprint(self, api_key: str) -> str | None:
         try:

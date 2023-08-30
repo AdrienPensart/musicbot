@@ -95,6 +95,8 @@ def main() -> None:
         pass
     except click.ClickException as e:
         e.show()
+    except spotipy.oauth2.SpotifyOauthError as error:
+        MusicbotObject.err("Authentication error", error=error)
     except (mutagen.MutagenError, spotipy.client.SpotifyException, requests.exceptions.ConnectionError, edgedb.errors.AuthenticationError, acoustid.WebServiceError) as error:
         MusicbotObject.err("Internal Error", error=error)
     finally:

@@ -19,6 +19,7 @@ from musicbot.cli.file import (
 from musicbot.cli.folder import destination_argument
 from musicbot.cli.options import dry_option, output_option
 from musicbot.file import File
+from musicbot.helpers import syncify
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +69,7 @@ def flac2mp3(file: File, destination: Path) -> None:
         MusicbotObject.err(f"{file} : unable to convert to MP3")
 
 
-@cli.command(help="Print music fingerprint")
+@cli.command(help="Print music AcoustID fingerprint")
 @file_argument
 @acoustid_api_key_option
 @beartype
@@ -76,6 +77,15 @@ def fingerprint(file: File, acoustid_api_key: str) -> None:
     if (file_fingerprint := file.fingerprint(acoustid_api_key)) is None:
         return
     print(file_fingerprint)
+
+
+@cli.command(help="Recognize music using Shazam", aliases=["recognize"])
+@file_argument
+@syncify
+@beartype
+async def shazam(file: File) -> None:
+    out = await file.shazam()
+    MusicbotObject.print_json(out)
 
 
 @cli.command(help="Print music tags", aliases=["tag"])

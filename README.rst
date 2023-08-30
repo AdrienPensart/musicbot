@@ -643,13 +643,14 @@ musicbot music
     add-keywords                                        Add keywords to music
     delete-keywords (delete-keyword,remove-keyword,remove-keywords)
                                                         Delete keywords to music
-    fingerprint                                         Print music fingerprint
+    fingerprint                                         Print music AcoustID fingerprint
     flac2mp3 (flac-to-mp3)                              Convert flac music to mp3
     help                                                Print help
     issues                                              Check music consistency
     manual-fix                                          Fix music file
     replace-keyword                                     Replace one keyword in music
     set-tags (set-tag)                                  Set music title
+    shazam (recognize)                                  Recognize music using Shazam
     show                                                Show music
     tags (tag)                                          Print music tags
 
@@ -685,7 +686,7 @@ musicbot music fingerprint
 
   Usage: musicbot music fingerprint [OPTIONS] FOLDER FILE
 
-    Print music fingerprint
+    Print music AcoustID fingerprint
 
   Options:
     --dry / --no-dry         Do not launch real action  [default: no-dry]
@@ -762,6 +763,18 @@ musicbot music set-tags
       --track TEXT          Track number
       --rating FLOAT RANGE  Rating  [0.0<=x<=5.0]
     -h, --help              Show this message and exit.
+
+musicbot music shazam
+*********************
+.. code-block::
+
+  Usage: musicbot music shazam [OPTIONS] FOLDER FILE
+
+    Recognize music using Shazam
+
+  Options:
+    --dry / --no-dry  Do not launch real action  [default: no-dry]
+    -h, --help        Show this message and exit.
 
 musicbot music show
 *******************
@@ -941,6 +954,7 @@ musicbot spotify refresh-token
       --spotify-scope TEXT          Spotify OAuth scopes, comma separated
       --spotify-redirect-uri TEXT   Spotify redirect URI
       --spotify-token TEXT          Spotify token
+    --dry / --no-dry                Do not launch real action  [default: no-dry]
     -h, --help                      Show this message and exit.
 
 musicbot spotify to-download

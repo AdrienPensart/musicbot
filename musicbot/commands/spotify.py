@@ -51,6 +51,7 @@ def cached_token(spotify: Spotify) -> None:
 
 @cli.command(help="Get a new token")
 @spotify_options
+@dry_option
 @beartype
 def refresh_token(spotify: Spotify) -> None:
     print(spotify.refresh_token())
@@ -60,7 +61,9 @@ def refresh_token(spotify: Spotify) -> None:
 @spotify_options
 @beartype
 def playlists(spotify: Spotify) -> None:
-    print_playlists_table(spotify.playlists())
+    if (playlists := spotify.playlists()) is None:
+        return
+    print_playlists_table(playlists)
 
 
 @cli.command(help="Show playlist")
@@ -69,7 +72,8 @@ def playlists(spotify: Spotify) -> None:
 @click.argument("name")
 @beartype
 def playlist(name: str, spotify: Spotify, output: str) -> None:
-    tracks = spotify.playlist_tracks(name)
+    if (tracks := spotify.playlist_tracks(name)) is None:
+        return
     output_tracks(output, tracks)
 
 
@@ -78,7 +82,8 @@ def playlist(name: str, spotify: Spotify, output: str) -> None:
 @output_option
 @beartype
 def to_download(spotify: Spotify, output: str) -> None:
-    tracks = spotify.playlist_tracks(DEFAULT_SPOTIFY_DOWNLOAD_PLAYLIST)
+    if (tracks := spotify.playlist_tracks(DEFAULT_SPOTIFY_DOWNLOAD_PLAYLIST)) is None:
+        return
     output_tracks(output, tracks)
 
 
@@ -87,7 +92,8 @@ def to_download(spotify: Spotify, output: str) -> None:
 @output_option
 @beartype
 def tracks(spotify: Spotify, output: str) -> None:
-    tracks = spotify.liked_tracks()
+    if (tracks := spotify.liked_tracks()) is None:
+        return
     output_tracks(output, tracks)
 
 
@@ -97,7 +103,8 @@ def tracks(spotify: Spotify, output: str) -> None:
 @syncify
 @beartype
 async def artist_diff(musicdb: MusicDb, spotify: Spotify) -> None:
-    spotify_tracks = spotify.liked_tracks()
+    if (spotify_tracks := spotify.liked_tracks()) is None:
+        return
     spotify_tracks_by_artist = PrettyDefaultDict(list)
     for spotify_track in spotify_tracks:
         spotify_artist_slug = slugify(spotify_track["track"]["artists"][0]["name"])
@@ -127,7 +134,8 @@ async def artist_diff(musicdb: MusicDb, spotify: Spotify) -> None:
 @syncify
 @beartype
 async def track_diff(musicdb: MusicDb, download_playlist: bool, spotify: Spotify, output: str, min_threshold: float, max_threshold: float) -> None:
-    spotify_tracks = spotify.liked_tracks()
+    if (spotify_tracks := spotify.liked_tracks()) is None:
+        return
     spotify_tracks_by_slug = {slugify(f"""{t['track']['artists'][0]['name']}-{t['track']['name']}""", stopwords=STOPWORDS, replacements=REPLACEMENTS): t for t in spotify_tracks}
 
     local = await musicdb.make_playlist()

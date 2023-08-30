@@ -62,7 +62,7 @@ class Spotify(MusicbotObject):
     def is_token_expired(self, token: Any) -> bool:
         return self.auth_manager.is_token_expired(token)
 
-    def refresh_token(self) -> Any:
+    def refresh_token(self) -> str | None:
         if not (token := self.cached_token()):
             return None
         if self.dry:
@@ -72,8 +72,12 @@ class Spotify(MusicbotObject):
     def get_download_playlist(self, name: str = DEFAULT_SPOTIFY_DOWNLOAD_PLAYLIST) -> dict[Any, Any] | None:
         if download_playlist := self.playlist(name):
             return download_playlist
-        result = self.api.user_playlist_create(self.username, name, public=False)
-        logger.debug(result)
+        try:
+            result = self.api.user_playlist_create(self.username, name, public=False)
+            logger.debug(result)
+        except SpotifyOauthError as error:
+            self.err(f"{self} : unable to get download playlist", error=error)
+            return None
         if download_playlist := self.playlist(name):
             return download_playlist
         return None
@@ -85,57 +89,75 @@ class Spotify(MusicbotObject):
 
         track_ids = [track["track"]["id"] for track in tracks]
 
-        # erase playlist first
-        result = self.api.user_playlist_replace_tracks(self.username, download_playlist["id"], [])
-        logger.debug(result)
-
-        # add tracks 100 by 100 (API limit)
-        for i in range(0, len(track_ids), 100):
-            j = i + 100
-            result = self.api.user_playlist_add_tracks(self.username, download_playlist["id"], track_ids[i:j])
+        try:
+            # erase playlist first
+            result = self.api.user_playlist_replace_tracks(self.username, download_playlist["id"], [])
             logger.debug(result)
 
-    def playlists(self) -> list[Any]:
+            # add tracks 100 by 100 (API limit)
+            for i in range(0, len(track_ids), 100):
+                j = i + 100
+                result = self.api.user_playlist_add_tracks(self.username, download_playlist["id"], track_ids[i:j])
+                logger.debug(result)
+        except SpotifyOauthError as error:
+            self.err(f"{self} : unable to set download playlist", error=error)
+
+    def playlists(self) -> list[Any] | None:
         offset = 0
         limit = 50
         objects = []
-        while new_objects := self.api.current_user_playlists(limit=limit, offset=offset):
-            length = len(new_objects["items"])
-            objects.append(new_objects["items"])
-            offset += length
-            if length < limit:
-                break
+        try:
+            while new_objects := self.api.current_user_playlists(limit=limit, offset=offset):
+                length = len(new_objects["items"])
+                objects.append(new_objects["items"])
+                offset += length
+                if length < limit:
+                    break
+        except SpotifyOauthError as error:
+            self.err(f"{self} : unable to get playlists", error=error)
+            return None
         return list(itertools.chain(*objects))
 
     def playlist(self, name: str) -> Any | None:
-        for playlist in self.playlists():
+        if (playlists := self.playlists()) is None:
+            return None
+        for playlist in playlists:
             if playlist["name"] == name:
                 return playlist
         return None
 
-    def liked_tracks(self) -> list[Any]:
+    def liked_tracks(self) -> list[Any] | None:
         offset = 0
         limit = 50
         objects = []
-        while True:
-            new_objects: dict = self.api.current_user_saved_tracks(limit=limit, offset=offset)
-            length = len(new_objects["items"])
-            objects.append(new_objects["items"])
-            offset += length
-            if length < limit:
-                break
+        try:
+            while True:
+                new_objects: dict = self.api.current_user_saved_tracks(limit=limit, offset=offset)
+                length = len(new_objects["items"])
+                objects.append(new_objects["items"])
+                offset += length
+                if length < limit:
+                    break
+        except SpotifyOauthError as error:
+            self.err(f"{self} : unable to get liked tracks", error=error)
+            return None
         return list(natsorted(itertools.chain(*objects), lambda st: st["track"]["artists"][0]["name"]))
 
-    def playlist_tracks(self, name: str) -> list[Any]:
-        playlists = self.playlists()
-        for p in playlists:
-            if p["name"] == name:
-                tracks = []
-                results: dict = self.api.playlist(p["id"], fields="tracks,next")
-                new_tracks: dict = results["tracks"]
-                tracks.append(new_tracks["items"])
-                while new_tracks["next"]:
-                    new_tracks = self.api.next(new_tracks)
+    def playlist_tracks(self, name: str) -> list[Any] | None:
+        if (playlists := self.playlists()) is None:
+            return None
+        try:
+            for p in playlists:
+                if p["name"] == name:
+                    tracks = []
+                    results: dict = self.api.playlist(p["id"], fields="tracks,next")
+                    new_tracks: dict = results["tracks"]
                     tracks.append(new_tracks["items"])
-                return list(itertools.chain(*tracks))
+                    while new_tracks["next"]:
+                        new_tracks = self.api.next(new_tracks)
+                        tracks.append(new_tracks["items"])
+                    return list(itertools.chain(*tracks))
+        except SpotifyOauthError as error:
+            self.err(f"{self} : {name} : unable to get playlist tracks", error=error)
+            return None
         return []

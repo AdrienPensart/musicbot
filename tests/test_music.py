@@ -39,6 +39,33 @@ def test_music_show(cli_runner: CliRunner) -> None:
 
 
 @beartype
+def test_music_shazam(cli_runner: CliRunner) -> None:
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "music",
+            "shazam",
+            str(fixtures.folder_flac),
+            str(fixtures.one_flac),
+        ],
+    )
+
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "music",
+            "shazam",
+            str(fixtures.folder_mp3),
+            str(fixtures.one_mp3),
+        ],
+    )
+
+
+@beartype
 def test_music_fingerprint(cli_runner: CliRunner) -> None:
     _ = run_cli(
         cli_runner,

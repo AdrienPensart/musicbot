@@ -8,6 +8,7 @@ trap '[ $? -eq 0 ] && exit 0 || echo "$0 FAILED"' EXIT
 sh linting.sh
 sh gen-doc.sh
 sh code-format.sh
+sh tests-check.sh
 
 kernel=`uname -r`
 case "$kernel" in
