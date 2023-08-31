@@ -2502,16 +2502,6 @@ files = [
 plugins = ["importlib-metadata"]
 
 [[package]]
-name = "pyicu"
-version = "2.11"
-description = "Python extension wrapping the ICU C++ API"
-optional = false
-python-versions = "*"
-files = [
-    {file = "PyICU-2.11.tar.gz", hash = "sha256:3ab531264cfe9132b3d2ac5d708da9a4649d25f6e6813730ac88cf040a08a844"},
-]
-
-[[package]]
 name = "pylint"
 version = "2.17.5"
 description = "python code static checker"
@@ -2537,13 +2527,13 @@ testutils = ["gitpython (>3)"]
 
 [[package]]
 name = "pyright"
-version = "1.1.324"
+version = "1.1.325"
 description = "Command line wrapper for pyright"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyright-1.1.324-py3-none-any.whl", hash = "sha256:0edb712afbbad474e347de12ca1bd9368aa85d3365a1c7b795012e48e6a65111"},
-    {file = "pyright-1.1.324.tar.gz", hash = "sha256:0c48e3bca3d081bba0dddd0c1f075aaa965c59bba691f7b9bd9d73a98e44e0cf"},
+    {file = "pyright-1.1.325-py3-none-any.whl", hash = "sha256:8f3ab88ba4843f053ab5b5c886d676161aba6f446776bfb57cc0434ed4d88672"},
+    {file = "pyright-1.1.325.tar.gz", hash = "sha256:879a3f66944ffd59d3facd54872fed814830fed64daf3e8eb71b146ddd83bb67"},
 ]
 
 [package.dependencies]
@@ -3748,4 +3738,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<4.0"
-content-hash = "a10d0648087ddb81573616ca843d0d1cbe601df7d3abff0290e24212f3bf7757"
+content-hash = "40c7744db2018bb0667530cc7c5a22868c878e7accf325a143686f610602a989"
