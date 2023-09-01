@@ -45,6 +45,12 @@ module default {
         property rating := (select <float64>round(<decimal>math::mean(.musics.rating), 2));
         property length := (select sum(.musics.length));
         property duration := (select to_duration(seconds := <float64>.length));
+        property human_size := (select bytes_to_human(.size));
+        property human_duration := (select to_str(.duration, "HH24:MI:SS"));
+        property all_keywords := (select to_str(array_agg((select Artist.keywords.name order by Artist.keywords.name)), " "));
+        property all_genres := (select to_str(array_agg(.musics.genre.name), " "));
+        property n_albums := (select count(.albums));
+        property n_musics := (select count(.musics));
     }
 
     type Album {
@@ -164,6 +170,17 @@ module default {
         property length := (select sum(.musics.length));
         property duration := (select to_duration(seconds := <float64>.length));
     }
+    alias artists := (
+        select Artist {
+            *,
+            human_size,
+            human_duration,
+            all_keywords,
+            all_genres,
+            n_albums,
+            n_musics
+        } order by .name
+    );
 }
 
 using extension graphql;

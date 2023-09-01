@@ -1,8 +1,8 @@
-CREATE MIGRATION m1icg2vz6wsdi67vmfm5rcuozgonrldiyjvzghwuxqdnsbqpzm7d6q
+CREATE MIGRATION m1rbl4jmjaopmijcojwjlxpqrecj74rapsx3voxcfyx6gmjpuadl3a
     ONTO initial
 {
-  CREATE EXTENSION graphql VERSION '1.0';
   CREATE EXTENSION edgeql_http VERSION '1.0';
+  CREATE EXTENSION graphql VERSION '1.0';
   CREATE FUNCTION default::bytes_to_human(size: std::int64, k: std::int64 = 1000, decimals: std::int64 = 2, units: array<std::str> = [' B', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB']) ->  std::str {
       CREATE ANNOTATION std::title := 'Convert a byte size to human readable string';
       USING (SELECT
@@ -50,11 +50,6 @@ CREATE MIGRATION m1icg2vz6wsdi67vmfm5rcuozgonrldiyjvzghwuxqdnsbqpzm7d6q
       CREATE REQUIRED LINK artist: default::Artist {
           ON TARGET DELETE DELETE SOURCE;
       };
-      CREATE CONSTRAINT std::exclusive ON ((.name, .artist));
-      CREATE INDEX ON ((.name, .artist));
-  };
-  ALTER TYPE default::Artist {
-      CREATE MULTI LINK albums := (.<artist[IS default::Album]);
   };
   CREATE SCALAR TYPE default::Length EXTENDING std::int64 {
       CREATE CONSTRAINT std::min_value(0);
@@ -69,6 +64,7 @@ CREATE MIGRATION m1icg2vz6wsdi67vmfm5rcuozgonrldiyjvzghwuxqdnsbqpzm7d6q
       CREATE REQUIRED LINK album: default::Album {
           ON TARGET DELETE DELETE SOURCE;
       };
+      CREATE REQUIRED PROPERTY size: default::Size;
       CREATE LINK artist := (SELECT
           .album.artist
       );
@@ -76,7 +72,6 @@ CREATE MIGRATION m1icg2vz6wsdi67vmfm5rcuozgonrldiyjvzghwuxqdnsbqpzm7d6q
       CREATE REQUIRED PROPERTY rating: default::Rating {
           SET default := 0.0;
       };
-      CREATE REQUIRED PROPERTY size: default::Size;
       CREATE REQUIRED PROPERTY name: std::str;
       CREATE CONSTRAINT std::exclusive ON ((.name, .album));
       CREATE INDEX ON ((.name, .album));
@@ -99,19 +94,28 @@ CREATE MIGRATION m1icg2vz6wsdi67vmfm5rcuozgonrldiyjvzghwuxqdnsbqpzm7d6q
   };
   ALTER TYPE default::Album {
       CREATE MULTI LINK musics := (.<album[IS default::Music]);
+      CREATE CONSTRAINT std::exclusive ON ((.name, .artist));
+      CREATE INDEX ON ((.name, .artist));
   };
   ALTER TYPE default::Artist {
+      CREATE MULTI LINK albums := (.<artist[IS default::Album]);
       CREATE LINK musics := (SELECT
           .albums.musics
       );
+      CREATE PROPERTY size := (SELECT
+          std::sum(.musics.size)
+      );
+      CREATE PROPERTY human_size := (SELECT
+          default::bytes_to_human(.size)
+      );
   };
   CREATE TYPE default::Genre {
+      CREATE REQUIRED PROPERTY name: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
       CREATE REQUIRED PROPERTY created_at: std::datetime {
           SET default := (std::datetime_current());
           SET readonly := true;
-      };
-      CREATE REQUIRED PROPERTY name: std::str {
-          CREATE CONSTRAINT std::exclusive;
       };
       CREATE REQUIRED PROPERTY updated_at: std::datetime {
           CREATE REWRITE
@@ -133,12 +137,12 @@ CREATE MIGRATION m1icg2vz6wsdi67vmfm5rcuozgonrldiyjvzghwuxqdnsbqpzm7d6q
       );
   };
   CREATE TYPE default::Keyword {
+      CREATE REQUIRED PROPERTY name: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
       CREATE REQUIRED PROPERTY created_at: std::datetime {
           SET default := (std::datetime_current());
           SET readonly := true;
-      };
-      CREATE REQUIRED PROPERTY name: std::str {
-          CREATE CONSTRAINT std::exclusive;
       };
       CREATE REQUIRED PROPERTY updated_at: std::datetime {
           CREATE REWRITE
@@ -156,17 +160,33 @@ CREATE MIGRATION m1icg2vz6wsdi67vmfm5rcuozgonrldiyjvzghwuxqdnsbqpzm7d6q
       CREATE LINK keywords := (SELECT
           .musics.keywords
       );
+      CREATE PROPERTY all_genres := (SELECT
+          std::to_str(std::array_agg(.musics.genre.name), ' ')
+      );
+      CREATE PROPERTY all_keywords := (SELECT
+          std::to_str(std::array_agg((SELECT
+              default::Artist.keywords.name
+          ORDER BY
+              default::Artist.keywords.name ASC
+          )), ' ')
+      );
       CREATE PROPERTY length := (SELECT
           std::sum(.musics.length)
       );
       CREATE PROPERTY duration := (SELECT
           std::to_duration(seconds := <std::float64>.length)
       );
+      CREATE PROPERTY human_duration := (SELECT
+          std::to_str(.duration, 'HH24:MI:SS')
+      );
+      CREATE PROPERTY n_albums := (SELECT
+          std::count(.albums)
+      );
+      CREATE PROPERTY n_musics := (SELECT
+          std::count(.musics)
+      );
       CREATE PROPERTY rating := (SELECT
           <std::float64>std::round(<std::decimal>math::mean(.musics.rating), 2)
-      );
-      CREATE PROPERTY size := (SELECT
-          std::sum(.musics.size)
       );
   };
   ALTER TYPE default::Album {
