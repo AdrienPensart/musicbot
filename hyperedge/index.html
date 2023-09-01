@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+    <title>HyperEdge</title>
+    <script src="https://unpkg.com/htmx.org@latest"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+    <script src="https://unpkg.com/hyperscript.org@latest"></script>
+    <link rel="stylesheet" href="https://unpkg.com/tabulator-tables/dist/css/tabulator.min.css">
+    <script type="text/javascript" src="https://unpkg.com/tabulator-tables/dist/js/tabulator.min.js"></script>
+    <script>
+        htmx.defineExtension('tabulator-output', {
+            transformResponse : function(text, xhr, elt) {
+                var data = JSON.parse(text).data;
+                var tabulator_output_name = htmx.closest(elt, "[tabulator-output]");
+                var table = new Tabulator(tabulator_output_name, {
+                    layout: "fitDataStretch",
+                    pagination: true,
+                    paginationSize: 50,
+                    columns:[
+                        {title: "Name", field: "name"},
+                        {title: "Rating", titleFormatter: "star", field: "rating", formatter: "star"},
+                        {title: "Rating", field: "rating"},
+                        {title: "Duration", field: "human_duration"},
+                        {title: "Size", field: "human_size"},
+                        {title: "Genres", field: "all_genres", formatter: "textarea"},
+                        {title: "Albums", field: "n_albums"},
+                        {title: "Musics", field: "n_musics"},
+                        {title: "Keywords", field: "all_keywords", formatter: "textarea"},
+                    ],
+                    data: data,
+                });
+                return text;
+            }
+        });
+    </script>
+</head>
+    <body>
+        <div
+            hx-trigger='load'
+            hx-post="http://51.79.24.206:10701/db/edgedb/edgeql"
+            hx-vals='{"query": "select artists {*}"}'
+            hx-ext='tabulator-output,json-enc'
+            hx-swap='none'
+            tabulator-output='#artists_output'
+        >
+            <div id="artists_output" />
+        </div>
+    </body>
+</html>

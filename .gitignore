@@ -25,3 +25,4 @@ pip-wheel-metadata
 *.part
 !tests/fixtures/*.mp3
 .tool-versions
+.DS_Store
