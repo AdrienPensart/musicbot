@@ -386,10 +386,12 @@ musicbot local
   Commands:
     artists          Artists descriptions
     bests            Generate bests playlists with some rules
+    clean (wipe)     Clean all musics
     folders          List folders and some stats
     help             Print help
     player (play)    Music player
     playlist         Generate a new playlist
+    remove (delete)  Remove one or more music
     scan             Load musics
     search           Search musics by full-text search
     sync             Copy selected musics with filters to destination folder
@@ -445,6 +447,20 @@ musicbot local bests
     Bests options: 
       --min-playlist-size INTEGER                       Minimum size of playlist to write  [default: 1]
     -h, --help                                          Show this message and exit.
+
+musicbot local clean
+********************
+.. code-block::
+
+  Usage: musicbot local clean [OPTIONS]
+
+    Clean all musics
+
+  Options:
+    MusicDB options: 
+      --dsn TEXT       DSN to MusicBot EdgeDB
+      --graphql TEXT   DSN to MusicBot GrapQL
+    -h, --help         Show this message and exit.
 
 musicbot local folders
 **********************
@@ -531,6 +547,20 @@ musicbot local playlist
       --shuffle / --no-shuffle                          Randomize selection  [default: no-shuffle]
       --interleave / --no-interleave                    Interleave tracks by artist  [default: no-interleave]
     -h, --help                                          Show this message and exit.
+
+musicbot local remove
+*********************
+.. code-block::
+
+  Usage: musicbot local remove [OPTIONS] [FILES]...
+
+    Remove one or more music
+
+  Options:
+    MusicDB options: 
+      --dsn TEXT       DSN to MusicBot EdgeDB
+      --graphql TEXT   DSN to MusicBot GrapQL
+    -h, --help         Show this message and exit.
 
 musicbot local scan
 *******************

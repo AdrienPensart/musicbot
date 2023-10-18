@@ -10,7 +10,7 @@ module default {
         annotation title := "Convert a byte size to human readable string";
     };
 
-    scalar type Rating extending float32 {
+    scalar type Rating extending float64 {
         constraint one_of (0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0);
     }
 
@@ -21,6 +21,8 @@ module default {
     scalar type Length extending int64 {
         constraint min_value(0);
     }
+
+    scalar type Track extending int64;
 
     scalar type `Limit` extending int64 {
         constraint min_value(0);
@@ -112,7 +114,7 @@ module default {
         required length: Length;
         property duration := (select to_duration(seconds := <float64>.length));
         required size: Size;
-        track: int16;
+        track: Track;
 
         required link album: Album {
             on target delete delete source;

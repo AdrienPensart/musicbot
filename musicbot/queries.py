@@ -134,7 +134,7 @@ with
             genre := upsert_genre,
             album := upsert_album,
             keywords := upsert_keywords,
-            track := <int16>$track,
+            track := <Track>$track,
             rating := <Rating>$rating,
             folders := (
                 select upsert_folder {
@@ -151,7 +151,7 @@ with
                 album := upsert_album,
                 keywords := upsert_keywords,
                 length := <Length>$length,
-                track := <int16>$track,
+                track := <Track>$track,
                 rating := <Rating>$rating,
                 folders += (
                     select upsert_folder {
@@ -173,10 +173,10 @@ select Artist {
     length,
     duration,
     size,
-    all_keywords := array_agg(.keywords.name),
-    all_genres := array_agg(.musics.genre.name),
-    n_albums := count(.albums),
-    n_musics := count(.musics)
+    all_keywords,
+    all_genres,
+    n_albums,
+    n_musics
 }
 order by .name
 """

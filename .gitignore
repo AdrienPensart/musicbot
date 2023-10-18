@@ -26,3 +26,5 @@ pip-wheel-metadata
 !tests/fixtures/*.mp3
 .tool-versions
 .DS_Store
+target
+.vscode

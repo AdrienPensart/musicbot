@@ -3,17 +3,22 @@
 <head>
     <title>HyperEdge</title>
     <script src="https://unpkg.com/htmx.org@latest"></script>
-    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
-    <script src="https://unpkg.com/hyperscript.org@latest"></script>
     <link rel="stylesheet" href="https://unpkg.com/tabulator-tables/dist/css/tabulator.min.css">
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables/dist/js/tabulator.min.js"></script>
     <script>
-        htmx.defineExtension('tabulator-output', {
+        // var edgeql_data = function(url, params, response){return response.data;}
+        htmx.defineExtension('tabulator-output-artists', {
             transformResponse : function(text, xhr, elt) {
                 var data = JSON.parse(text).data;
+                // var data = JSON.parse(text);
                 var tabulator_output_name = htmx.closest(elt, "[tabulator-output]");
                 var table = new Tabulator(tabulator_output_name, {
                     layout: "fitDataStretch",
+                    // ajaxURL: "/artists",
+                    // ajaxConfig: "GET",
+                    // ajaxContentType: "json",
+                    // ajaxParams: {"query": "select artists {*}"},
+                    // ajaxResponse: edgeql_data,
                     pagination: true,
                     paginationSize: 50,
                     columns:[
@@ -37,9 +42,8 @@
     <body>
         <div
             hx-trigger='load'
-            hx-post="http://51.79.24.206:10701/db/edgedb/edgeql"
-            hx-vals='{"query": "select artists {*}"}'
-            hx-ext='tabulator-output,json-enc'
+            hx-get="/artists"
+            hx-ext='tabulator-output-artists'
             hx-swap='none'
             tabulator-output='#artists_output'
         >

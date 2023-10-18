@@ -1,0 +1,21 @@
+:80 {
+    log {
+        output stderr
+    }
+    file_server browse
+    root * hyperedge
+
+    # handle /artists {
+    #     method POST
+    #     request_body {
+    #         replace `{"query": "select artists {*}"}`
+    #     }
+    #     request_header Content-Type application/json
+    #     rewrite * /db/edgedb/edgeql
+    #     reverse_proxy http://localhost:10701
+    # }
+
+    handle /artists {
+        reverse_proxy http://localhost:8081
+    }
+}

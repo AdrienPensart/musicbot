@@ -55,6 +55,29 @@ async def folders(musicdb: MusicDb) -> None:
         MusicbotObject.print_json([asdict(folder) for folder in response])
 
 
+@cli.command(help="Remove one or more music", aliases=["delete"])
+@click.argument("files", nargs=-1)
+@musicdb_options
+@syncify
+@beartype
+async def remove(
+    files: tuple[str, ...],
+    musicdb: MusicDb,
+) -> None:
+    for file in files:
+        await musicdb.remove_music_path(file)
+
+
+@cli.command(help="Clean all musics", aliases=["wipe"])
+@musicdb_options
+@syncify
+@beartype
+async def clean(
+    musicdb: MusicDb,
+) -> None:
+    await musicdb.clean_musics()
+
+
 @cli.command(help="Load musics")
 @folders_argument
 @musicdb_options

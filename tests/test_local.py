@@ -40,6 +40,38 @@ def test_local_search(cli_runner: CliRunner, edgedb: str) -> None:
 
 
 @beartype
+def test_local_remove(cli_runner: CliRunner, edgedb: str) -> None:
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "local",
+            "remove",
+            str(fixtures.one_flac),
+            str(fixtures.one_mp3),
+            "--dsn",
+            edgedb,
+        ],
+    )
+
+
+@beartype
+def test_local_clean(cli_runner: CliRunner, edgedb: str) -> None:
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "local",
+            "clean",
+            "--dsn",
+            edgedb,
+        ],
+    )
+
+
+@beartype
 def test_local_watch(cli_runner: CliRunner, edgedb: str) -> None:
     _ = run_cli(
         cli_runner,

@@ -11,6 +11,7 @@ import httpx
 from async_lru import alru_cache
 from attr import asdict
 from beartype import beartype
+from click_skeleton.helpers import mysplit
 from edgedb.asyncio_client import AsyncIOClient, create_async_client
 from edgedb.options import RetryOptions, TransactionOptions
 
@@ -83,8 +84,7 @@ class MusicDb(MusicbotObject):
                     url=self.graphql,
                     json=operation,
                 )
-                response.raise_for_status()
-                return response
+                return response.raise_for_status()
         except httpx.HTTPError as error:
             self.err(f"{self} : unable to query graphql", error=error)
         return None
@@ -99,8 +99,8 @@ class MusicDb(MusicbotObject):
         results = await self.client.query(ARTISTS_QUERY)
         artists_list = []
         for result in results:
-            keywords = frozenset(result.all_keywords)
-            genres = frozenset(result.all_genres)
+            keywords = frozenset(mysplit(result.all_keywords, " "))
+            genres = frozenset(mysplit(result.all_genres, " "))
             artist = Artist(
                 name=result.name,
                 length=result.length,
