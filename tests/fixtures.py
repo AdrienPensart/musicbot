@@ -4,7 +4,7 @@ my_dir = Path(__file__).resolve().parent
 
 folder_flac = my_dir / "fixtures" / "folder1"
 folder_mp3 = my_dir / "fixtures" / "folder2"
-folders = [str(folder_flac), str(folder_mp3)]
+scan_folders = [str(folder_flac), str(folder_mp3)]
 youtube_url = "https://www.youtube.com/watch?v=rIlLqmI_VkE"
 
 one_flac = folder_flac / "Buckethead" / "1994 - Giant Robot" / "02 - Welcome To Bucketheadland.flac"

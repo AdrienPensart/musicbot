@@ -40,19 +40,32 @@ module default {
             rewrite insert, update using (datetime_of_statement())
         }
         multi link albums := .<artist[is Album];
-        link musics := (select .albums.musics);
-        link keywords := (select .musics.keywords);
-        link genres := (select .musics.genre);
-        property size := (select sum(.musics.size));
-        property rating := (select <float64>round(<decimal>math::mean(.musics.rating), 2));
-        property length := (select sum(.musics.length));
-        property duration := (select to_duration(seconds := <float64>.length));
-        property human_size := (select bytes_to_human(.size));
-        property human_duration := (select to_str(.duration, "HH24:MI:SS"));
-        property all_keywords := (select to_str(array_agg((select Artist.keywords.name order by Artist.keywords.name)), " "));
-        property all_genres := (select to_str(array_agg(.musics.genre.name), " "));
         property n_albums := (select count(.albums));
+
+        link musics := (select .albums.musics);
         property n_musics := (select count(.musics));
+        property length := (select sum(.musics.length));
+        property rating := (select <float64>round(<decimal>math::mean(.musics.rating ?? {0.0}), 2));
+        property all_genres := (select to_str(array_agg(.musics.genre.name), " "));
+
+        link keywords := (select .musics.keywords);
+        property all_keywords := (select to_str(array_agg((select Artist.keywords.name order by Artist.keywords.name)), " "));
+
+        link genres := (select .musics.genre);
+        property n_genres := (select count(.genres));
+
+        property size := (select sum(.musics.size));
+        property human_size := (select bytes_to_human(.size));
+
+        property duration := (select to_duration(seconds := <float64>.length));
+        property human_duration := (select to_str(.duration, "HH24:MI:SS"));
+
+        index fts::index on (
+           fts::with_options(
+              .name,
+              language := fts::Language.eng,
+           )
+        );
     }
 
     type Album {
@@ -68,15 +81,34 @@ module default {
         required link artist: Artist {
             on target delete delete source;
         }
+
         multi link musics := .<album[is Music];
+        property n_musics := (select count(.musics));
+        property rating := (select <float64>round(<decimal>math::mean(.musics.rating ?? {0.0}), 2));
         property length := (select sum(.musics.length));
-        property size := (select sum(.musics.size));
+
         property duration := (select to_duration(seconds := <float64>.length));
-        property rating := (select <float64>round(<decimal>math::mean(.musics.rating), 2));
+        property human_duration := (select to_str(.duration, "HH24:MI:SS"));
+
+        property size := (select sum(.musics.size));
+        property human_size := (select bytes_to_human(.size));
+
         link keywords := (select .musics.keywords);
+        property all_keywords := (select to_str(array_agg((select Artist.keywords.name order by Artist.keywords.name)), " "));
+
+        link genres := (select .musics.genre);
+        property n_genres := (select count(.genres));
+        property all_genres := (select to_str(array_agg(.musics.genre.name), " "));
 
         constraint exclusive on ((.name, .artist));
         index on ((.name, .artist));
+
+        index fts::index on (
+           fts::with_options(
+              .name,
+              language := fts::Language.eng,
+           )
+        );
     }
 
     type Folder {
@@ -91,10 +123,41 @@ module default {
 
         required user: str;
         required ipv4: str;
+
         multi link musics := .<folders[is Music];
+        property n_musics := (select count(.musics));
+        property length := (select sum(.musics.length));
+
+        link keywords := (select .musics.keywords);
+        property n_keywords := (select count(.keywords));
+        property all_keywords := (select to_str(array_agg((select Artist.keywords.name order by Artist.keywords.name)), " "));
+
+        property duration := (select to_duration(seconds := <float64>.length));
+        property human_duration := (select to_str(.duration, "HH24:MI:SS"));
+
+        property size := (select sum(.musics.size));
+        property human_size := (select bytes_to_human(.size));
+
+        link artists := (select .musics.artist);
+        property n_artists := (select count(.artists));
+        property all_artists := (select to_str(array_agg(.musics.artist.name), " "));
+
+        link albums := (select .musics.album);
+        property n_albums := (select count(.albums));
+
+        link genres := (select .musics.genre);
+        property n_genres := (select count(.genres));
+        property all_genres := (select to_str(array_agg(.musics.genre.name), " "));
 
         constraint exclusive on ((.name, .ipv4));
         index on ((.name, .ipv4));
+
+        index fts::index on (
+           fts::with_options(
+              .name,
+              language := fts::Language.eng,
+           )
+        );
     }
 
     # define a local music
@@ -112,9 +175,13 @@ module default {
             default := 0.0
         }
         required length: Length;
-        property duration := (select to_duration(seconds := <float64>.length));
-        required size: Size;
         track: Track;
+
+        property duration := (select to_duration(seconds := <float64>.length));
+        property human_duration := (select to_str(.duration, "HH24:MI:SS"));
+
+        required size: Size;
+        property human_size := (select bytes_to_human(.size));
 
         required link album: Album {
             on target delete delete source;
@@ -136,6 +203,13 @@ module default {
 
         constraint exclusive on ((.name, .album));
         index on ((.name, .album));
+
+        index fts::index on (
+           fts::with_options(
+              .name,
+              language := fts::Language.eng,
+           )
+        );
     }
 
     type Keyword {
@@ -151,7 +225,29 @@ module default {
         }
 
         multi link musics := .<keywords[is Music];
-        property rating := (select <float64>round(<decimal>math::mean(.musics.rating), 2));
+        property n_musics := (select count(.musics));
+        property length := (select sum(.musics.length));
+        property rating := (select <float64>round(<decimal>math::mean(.musics.rating ?? {0.0}), 2));
+
+        link artists := (select .musics.artist);
+        property n_artists := (select count(.artists));
+        property all_artists := (select to_str(array_agg(.musics.artist.name), " "));
+
+        link albums := (select .musics.album);
+        property n_albums := (select count(.albums));
+
+        property duration := (select to_duration(seconds := <float64>.length));
+        property human_duration := (select to_str(.duration, "HH24:MI:SS"));
+
+        property size := (select sum(.musics.size));
+        property human_size := (select bytes_to_human(.size));
+
+        index fts::index on (
+           fts::with_options(
+              .name,
+              language := fts::Language.eng,
+           )
+        );
     }
 
     type Genre {
@@ -167,22 +263,32 @@ module default {
         }
 
         multi link musics := .<genre[is Music];
-        property rating := (select <float64>round(<decimal>math::mean(.musics.rating), 2));
+        property n_musics := (select count(.musics));
+        property rating := (select <float64>round(<decimal>math::mean(.musics.rating ?? {0.0}), 2));
+
+        link artists := (select .musics.artist);
+        property n_artists := (select count(.artists));
+        property all_artists := (select to_str(array_agg(.musics.artist.name), " "));
+
+        link albums := (select .musics.album);
+        property n_albums := (select count(.albums));
+
         link keywords := (select .musics.keywords);
         property length := (select sum(.musics.length));
+
         property duration := (select to_duration(seconds := <float64>.length));
+        property human_duration := (select to_str(.duration, "HH24:MI:SS"));
+
+        property size := (select sum(.musics.size));
+        property human_size := (select bytes_to_human(.size));
+
+        index fts::index on (
+           fts::with_options(
+              .name,
+              language := fts::Language.eng,
+           )
+        );
     }
-    alias artists := (
-        select Artist {
-            *,
-            human_size,
-            human_duration,
-            all_keywords,
-            all_genres,
-            n_albums,
-            n_musics
-        } order by .name
-    );
 }
 
 using extension graphql;

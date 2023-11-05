@@ -231,7 +231,7 @@ musicbot folder add-keywords
 ****************************
 .. code-block::
 
-  Usage: musicbot folder add-keywords [OPTIONS] [FOLDERS]...
+  Usage: musicbot folder add-keywords [OPTIONS] [SCAN_FOLDERS]...
 
     Add keywords to music
 
@@ -247,7 +247,7 @@ musicbot folder delete-keywords
 *******************************
 .. code-block::
 
-  Usage: musicbot folder delete-keywords [OPTIONS] [FOLDERS]...
+  Usage: musicbot folder delete-keywords [OPTIONS] [SCAN_FOLDERS]...
 
     Delete keywords to music
 
@@ -263,7 +263,7 @@ musicbot folder find
 ********************
 .. code-block::
 
-  Usage: musicbot folder find [OPTIONS] [FOLDERS]...
+  Usage: musicbot folder find [OPTIONS] [SCAN_FOLDERS]...
 
     Just list music files
 
@@ -278,7 +278,7 @@ musicbot folder flac2mp3
 ************************
 .. code-block::
 
-  Usage: musicbot folder flac2mp3 [OPTIONS] DESTINATION [FOLDERS]...
+  Usage: musicbot folder flac2mp3 [OPTIONS] DESTINATION [SCAN_FOLDERS]...
 
     Convert all files in folders to mp3
 
@@ -296,7 +296,7 @@ musicbot folder issues
 **********************
 .. code-block::
 
-  Usage: musicbot folder issues [OPTIONS] [FOLDERS]...
+  Usage: musicbot folder issues [OPTIONS] [SCAN_FOLDERS]...
 
     Show music files issues in folders
 
@@ -311,7 +311,7 @@ musicbot folder manual-fix
 **************************
 .. code-block::
 
-  Usage: musicbot folder manual-fix [OPTIONS] [FOLDERS]...
+  Usage: musicbot folder manual-fix [OPTIONS] [SCAN_FOLDERS]...
 
     Fix music files in folders
 
@@ -326,7 +326,7 @@ musicbot folder playlist
 ************************
 .. code-block::
 
-  Usage: musicbot folder playlist [OPTIONS] [FOLDERS]...
+  Usage: musicbot folder playlist [OPTIONS] [SCAN_FOLDERS]...
 
     Generates a playlist
 
@@ -342,7 +342,7 @@ musicbot folder set-tags
 ************************
 .. code-block::
 
-  Usage: musicbot folder set-tags [OPTIONS] [FOLDERS]...
+  Usage: musicbot folder set-tags [OPTIONS] [SCAN_FOLDERS]...
 
     Set music title
 
@@ -393,7 +393,7 @@ musicbot local
     playlist         Generate a new playlist
     remove (delete)  Remove one or more music
     scan             Load musics
-    search           Search musics by full-text search
+    search (find)    Search musics by full-text search
     sync             Copy selected musics with filters to destination folder
     watch (watcher)  Watch files changes in folders
 
@@ -414,7 +414,7 @@ musicbot local bests
 ********************
 .. code-block::
 
-  Usage: musicbot local bests [OPTIONS] FOLDER
+  Usage: musicbot local bests [OPTIONS] SCAN_FOLDER
 
     to-fix: keyword=(tofix|todo|spotify-error)
     no-artist: artist=^$
@@ -472,9 +472,10 @@ musicbot local folders
 
   Options:
     MusicDB options: 
-      --dsn TEXT       DSN to MusicBot EdgeDB
-      --graphql TEXT   DSN to MusicBot GrapQL
-    -h, --help         Show this message and exit.
+      --dsn TEXT               DSN to MusicBot EdgeDB
+      --graphql TEXT           DSN to MusicBot GrapQL
+    --output [json|table|m3u]  Output format  [default: table]
+    -h, --help                 Show this message and exit.
 
 musicbot local player
 *********************
@@ -566,7 +567,7 @@ musicbot local scan
 *******************
 .. code-block::
 
-  Usage: musicbot local scan [OPTIONS] [FOLDERS]...
+  Usage: musicbot local scan [OPTIONS] [SCAN_FOLDERS]...
 
     Load musics
 
@@ -642,7 +643,7 @@ musicbot local watch
 ********************
 .. code-block::
 
-  Usage: musicbot local watch [OPTIONS] [FOLDERS]...
+  Usage: musicbot local watch [OPTIONS] [SCAN_FOLDERS]...
 
     Watch files changes in folders
 
@@ -688,7 +689,7 @@ musicbot music add-keywords
 ***************************
 .. code-block::
 
-  Usage: musicbot music add-keywords [OPTIONS] FOLDER FILE [KEYWORDS]...
+  Usage: musicbot music add-keywords [OPTIONS] SCAN_FOLDER FILE [KEYWORDS]...
 
     Add keywords to music
 
@@ -701,7 +702,7 @@ musicbot music delete-keywords
 ******************************
 .. code-block::
 
-  Usage: musicbot music delete-keywords [OPTIONS] FOLDER FILE [KEYWORDS]...
+  Usage: musicbot music delete-keywords [OPTIONS] SCAN_FOLDER FILE [KEYWORDS]...
 
     Delete keywords to music
 
@@ -714,7 +715,7 @@ musicbot music fingerprint
 **************************
 .. code-block::
 
-  Usage: musicbot music fingerprint [OPTIONS] FOLDER FILE
+  Usage: musicbot music fingerprint [OPTIONS] SCAN_FOLDER FILE
 
     Print music AcoustID fingerprint
 
@@ -727,7 +728,7 @@ musicbot music flac2mp3
 ***********************
 .. code-block::
 
-  Usage: musicbot music flac2mp3 [OPTIONS] FOLDER FILE DESTINATION
+  Usage: musicbot music flac2mp3 [OPTIONS] SCAN_FOLDER FILE DESTINATION
 
     Convert flac music to mp3
 
@@ -740,7 +741,7 @@ musicbot music issues
 *********************
 .. code-block::
 
-  Usage: musicbot music issues [OPTIONS] FOLDER FILE
+  Usage: musicbot music issues [OPTIONS] SCAN_FOLDER FILE
 
     Check music consistency
 
@@ -752,7 +753,7 @@ musicbot music manual-fix
 *************************
 .. code-block::
 
-  Usage: musicbot music manual-fix [OPTIONS] FOLDER FILE
+  Usage: musicbot music manual-fix [OPTIONS] SCAN_FOLDER FILE
 
     Fix music file
 
@@ -765,7 +766,7 @@ musicbot music replace-keyword
 ******************************
 .. code-block::
 
-  Usage: musicbot music replace-keyword [OPTIONS] FOLDER FILE OLD_KEYWORD NEW_KEYWORD
+  Usage: musicbot music replace-keyword [OPTIONS] SCAN_FOLDER FILE OLD_KEYWORD NEW_KEYWORD
 
     Replace one keyword in music
 
@@ -798,7 +799,7 @@ musicbot music shazam
 *********************
 .. code-block::
 
-  Usage: musicbot music shazam [OPTIONS] FOLDER FILE
+  Usage: musicbot music shazam [OPTIONS] SCAN_FOLDER FILE
 
     Recognize music using Shazam
 
@@ -810,7 +811,7 @@ musicbot music show
 *******************
 .. code-block::
 
-  Usage: musicbot music show [OPTIONS] FOLDER FILE
+  Usage: musicbot music show [OPTIONS] SCAN_FOLDER FILE
 
     Show music
 
@@ -822,7 +823,7 @@ musicbot music tags
 *******************
 .. code-block::
 
-  Usage: musicbot music tags [OPTIONS] FOLDER FILE
+  Usage: musicbot music tags [OPTIONS] SCAN_FOLDER FILE
 
     Print music tags
 
@@ -855,16 +856,16 @@ musicbot spotify
     -h, --help  Show this message and exit.
 
   Commands:
-    artist-diff       Artists diff between local and spotify
-    cached-token      Token informations
-    help              Print help
-    new-token (auth)  Generate a new token
-    playlist          Show playlist
-    playlists         List playlists
-    refresh-token     Get a new token
-    to-download       Show download playlist
-    track-diff        Diff between local and spotify
-    tracks (liked)    Show liked tracks
+    artist-diff             Artists diff between local and spotify
+    cached-token            Token informations
+    help                    Print help
+    new-token (auth,login)  Generate a new token
+    playlist                Show playlist
+    playlists               List playlists
+    refresh-token           Get a new token
+    to-download             Show download playlist
+    track-diff              Diff between local and spotify
+    tracks (liked)          Show liked tracks
 
 musicbot spotify artist-diff
 ****************************
@@ -1098,7 +1099,7 @@ musicbot youtube find
 *********************
 .. code-block::
 
-  Usage: musicbot youtube find [OPTIONS] FOLDER FILE
+  Usage: musicbot youtube find [OPTIONS] SCAN_FOLDER FILE
 
     Search a youtube link with artist and title
 

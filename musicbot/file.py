@@ -21,8 +21,9 @@ from musicbot.defaults import (
     RATING_CHOICES,
     STORED_RATING_CHOICES,
 )
+from musicbot.folder import Folder
 from musicbot.helpers import current_user
-from musicbot.music import Folder, Music
+from musicbot.music import Music
 from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)

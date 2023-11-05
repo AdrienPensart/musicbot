@@ -15,8 +15,9 @@ from rich.text import Text
 
 from musicbot.defaults import DEFAULT_VLC_PARAMS
 from musicbot.file import File
+from musicbot.folder import Folder
 from musicbot.helpers import bytes_to_human, precise_seconds_to_human
-from musicbot.music import Folder, Music
+from musicbot.music import Music
 from musicbot.object import MusicbotObject
 from musicbot.playlist_options import PlaylistOptions
 
@@ -48,7 +49,7 @@ class Playlist(MusicbotObject):
         musics = []
         for result in results:
             keywords = frozenset(keyword.name for keyword in result.keywords)
-            folders = frozenset(Folder(path=folder.path, name=folder.name, ipv4=folder.ipv4, user=folder.user) for folder in result.folders)
+            folders = frozenset(Folder(path=folder["@path"], name=folder.name, ipv4=folder.ipv4, user=folder.user) for folder in result.folders)
             music = Music(
                 title=result.name,
                 artist=result.artist.name,

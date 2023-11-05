@@ -8,9 +8,9 @@ from click.testing import CliRunner
 from pytest import fixture, skip
 
 from musicbot.file import File
-from musicbot.folders import Folders
 from musicbot.helpers import syncify
 from musicbot.musicdb import MusicDb
+from musicbot.scan_folders import ScanFolders
 
 from . import fixtures
 
@@ -41,8 +41,8 @@ def wait_for_service(hostname: str, port: int, timeout: int = 60) -> bool:
 @beartype
 def edgedb() -> str:
     hostname = "127.0.0.1"
-    port = 15656
-    dsn = f"""edgedb://edgedb:musicbot@{hostname}:{port}"""
+    port = 5657
+    dsn = f"""edgedb://testuser:testpass@{hostname}:{port}"""
     if not wait_for_service(hostname, port):
         _ = skip(f"Timeout during wait for {dsn}")
     return dsn
@@ -55,7 +55,7 @@ async def testmusics(edgedb: str) -> list[File]:
     musicdb = MusicDb.from_dsn(edgedb)
     await musicdb.clean_musics()
 
-    folders = Folders([Path(folder) for folder in fixtures.folders])
-    files = await musicdb.upsert_folders(folders=folders)
+    scan_folders = ScanFolders([Path(folder) for folder in fixtures.scan_folders])
+    files = await musicdb.upsert_folders(scan_folders=scan_folders)
     assert files, "Empty music db"
     return files

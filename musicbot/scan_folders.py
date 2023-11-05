@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 @beartype
 @dataclass(unsafe_hash=True)
-class Folders(MusicbotObject):
+class ScanFolders(MusicbotObject):
     directories: list[Path]
     extensions: frozenset[str] = DEFAULT_EXTENSIONS
     except_directories: frozenset[str] = EXCEPT_DIRECTORIES

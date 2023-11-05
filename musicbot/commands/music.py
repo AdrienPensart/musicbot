@@ -16,8 +16,8 @@ from musicbot.cli.file import (
     keywords_arguments,
     paths_arguments,
 )
-from musicbot.cli.folder import destination_argument
 from musicbot.cli.options import dry_option, output_option
+from musicbot.cli.scan_folders import destination_argument
 from musicbot.file import File
 from musicbot.helpers import syncify
 

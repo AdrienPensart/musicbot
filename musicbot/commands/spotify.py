@@ -31,7 +31,7 @@ def cli() -> None:
     pass
 
 
-@cli.command(help="Generate a new token", aliases=["auth"])
+@cli.command(help="Generate a new token", aliases=["login", "auth"])
 @spotify_options
 @dry_option
 @beartype

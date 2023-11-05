@@ -10,7 +10,7 @@ from . import fixtures
 
 @beartype
 def test_local_folders(cli_runner: CliRunner, edgedb: str) -> None:
-    _ = run_cli(
+    output = run_cli(
         cli_runner,
         cli,
         [
@@ -19,13 +19,16 @@ def test_local_folders(cli_runner: CliRunner, edgedb: str) -> None:
             "folders",
             "--dsn",
             edgedb,
+            "--output",
+            "json",
         ],
     )
+    assert MusicbotObject.loads_json(output) is not None
 
 
 @beartype
 def test_local_search(cli_runner: CliRunner, edgedb: str) -> None:
-    _ = run_cli(
+    output = run_cli(
         cli_runner,
         cli,
         [
@@ -35,8 +38,11 @@ def test_local_search(cli_runner: CliRunner, edgedb: str) -> None:
             "1995",
             "--dsn",
             edgedb,
+            "--output",
+            "json",
         ],
     )
+    assert MusicbotObject.loads_json(output) is not None
 
 
 @beartype
@@ -189,6 +195,6 @@ def test_local_scan(cli_runner: CliRunner, edgedb: str) -> None:
             "scan",
             "--dsn",
             edgedb,
-            *fixtures.folders,
+            *fixtures.scan_folders,
         ],
     )

@@ -9,8 +9,8 @@ from click_option_group import optgroup
 from click_skeleton import add_options
 from click_skeleton.helpers import split_arguments
 
-from musicbot.cli.folder import folder_argument
 from musicbot.cli.options import config_string, dry_option, sane_rating, sane_set
+from musicbot.cli.scan_folders import scan_folder_argument
 from musicbot.defaults import (
     DEFAULT_ACOUSTID_API_KEY,
     DEFAULT_FLAT,
@@ -68,7 +68,7 @@ file_options = add_options(
 def file_argument(func: Any) -> Any:
     """Generates a valid list of Instance objects"""
 
-    @folder_argument
+    @scan_folder_argument
     @click.argument(
         "file",
         type=click.Path(
@@ -79,8 +79,8 @@ def file_argument(func: Any) -> Any:
     )
     @dry_option
     @functools.wraps(func)
-    def wrapper(folder: Path, file: Path, *args: Any, **kwargs: Any) -> Any:
-        if music_file := File.from_path(folder=folder, path=file):
+    def wrapper(scan_folder: Path, file: Path, *args: Any, **kwargs: Any) -> Any:
+        if music_file := File.from_path(folder=scan_folder, path=file):
             return func(file=music_file, *args, **kwargs)
         raise click.Abort()
 

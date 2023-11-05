@@ -5,14 +5,8 @@ class CustomStringTemplate(string.Template):
     delimiter = "#"
 
 
-FOLDER_QUERY: str = """
-select Folder {
-    name,
-    user,
-    ipv4,
-    music_count := count(.musics)
-}
-"""
+FOLDERS_QUERY: str = "select Folder {*} order by .name"
+ARTISTS_QUERY: str = """select Artist {*} order by .name"""
 
 MUSIC_FIELDS = """
 name,
@@ -65,20 +59,11 @@ select {
 };
 """
 
-SEARCH_QUERY: str = CustomStringTemplate(
-    """
-select Music {
-    #music_fields
-}
-filter
-.name ilike <str>$pattern or
-.genre.name ilike <str>$pattern or
-.album.name ilike <str>$pattern or
-.artist.name ilike <str>$pattern or
-.keywords.name ilike <str>$pattern or
-.paths ilike "%" ++ <str>$pattern ++ "%"
+SEARCH_QUERY: str = """
+with res := (select fts::search(Music, <str>$pattern))
+select res.object {**}
+order by res.score desc;
 """
-).substitute(music_fields=MUSIC_FIELDS)
 
 REMOVE_PATH_QUERY: str = """
 update Music
@@ -165,21 +150,6 @@ with
     }
 """
 ).substitute(music_fields=MUSIC_FIELDS)
-
-ARTISTS_QUERY: str = """
-select Artist {
-    name,
-    rating,
-    length,
-    duration,
-    size,
-    all_keywords,
-    all_genres,
-    n_albums,
-    n_musics
-}
-order by .name
-"""
 
 BESTS_QUERY: str = CustomStringTemplate(
     """

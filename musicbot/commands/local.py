@@ -16,7 +16,6 @@ from rich.table import Table
 from watchfiles import Change, DefaultFilter, awatch
 
 from musicbot.cli.file import flat_option
-from musicbot.cli.folder import destination_argument, folder_argument, folders_argument
 from musicbot.cli.music_filter import filters_reprs, music_filters_options
 from musicbot.cli.musicdb import musicdb_options
 from musicbot.cli.options import (
@@ -27,14 +26,19 @@ from musicbot.cli.options import (
     save_option,
 )
 from musicbot.cli.playlist import bests_options, playlist_options
+from musicbot.cli.scan_folders import (
+    destination_argument,
+    scan_folder_argument,
+    scan_folders_argument,
+)
 from musicbot.defaults import DEFAULT_VLC_PARAMS
 from musicbot.file import File
-from musicbot.folders import Folders
 from musicbot.helpers import bytes_to_human, precise_seconds_to_human, syncify
 from musicbot.music_filter import MusicFilter
 from musicbot.musicdb import MusicDb
 from musicbot.object import MusicbotObject
 from musicbot.playlist_options import PlaylistOptions
+from musicbot.scan_folders import ScanFolders
 
 logger = logging.getLogger(__name__)
 
@@ -47,12 +51,42 @@ def cli() -> None:
 
 @cli.command(help="List folders and some stats")
 @musicdb_options
+@output_option
 @syncify
 @beartype
-async def folders(musicdb: MusicDb) -> None:
-    response = await musicdb.folders()
-    if response is not None:
-        MusicbotObject.print_json([asdict(folder) for folder in response])
+async def folders(musicdb: MusicDb, output: str) -> None:
+    all_folders = await musicdb.folders()
+
+    table = Table(
+        "Name",
+        "IPv4",
+        "Size",
+        "Length",
+        "Genres",
+        "Artists",
+        "Albums",
+        "Musics",
+        "Keywords",
+        title="Folders",
+    )
+    for folder in all_folders:
+        table.add_row(
+            folder.name,
+            folder.ipv4,
+            folder.human_size,
+            folder.human_duration,
+            str(folder.n_genres),
+            str(folder.n_artists),
+            str(folder.n_albums),
+            str(folder.n_musics),
+            str(folder.n_keywords),
+        )
+    table.caption = f"{len(all_folders)} listed"
+
+    if output == "table":
+        MusicbotObject.print_table(table)
+    elif output == "json":
+        MusicbotObject.print_json([asdict(folder) for folder in all_folders])
 
 
 @cli.command(help="Remove one or more music", aliases=["delete"])
@@ -79,7 +113,7 @@ async def clean(
 
 
 @cli.command(help="Load musics")
-@folders_argument
+@scan_folders_argument
 @musicdb_options
 @save_option
 @output_option
@@ -89,7 +123,7 @@ async def clean(
 @beartype
 async def scan(
     musicdb: MusicDb,
-    folders: Folders,
+    scan_folders: ScanFolders,
     clean: bool,
     save: bool,
     output: str,
@@ -112,7 +146,7 @@ async def scan(
         await musicdb.clean_musics()
 
     files = await musicdb.upsert_folders(
-        folders=folders,
+        scan_folders=scan_folders,
         coroutines=coroutines,
     )
     await musicdb.soft_clean()
@@ -126,7 +160,7 @@ async def scan(
 
 
 @cli.command(help="Watch files changes in folders", aliases=["watcher"])
-@folders_argument
+@scan_folders_argument
 @musicdb_options
 @click.option("--sleep", help="Clean music every X seconds", type=int, default=1800, show_default=True)
 @click.option("--timeout", help="How many seconds until we terminate", type=int, show_default=True)
@@ -134,7 +168,7 @@ async def scan(
 @beartype
 async def watch(
     musicdb: MusicDb,
-    folders: Folders,
+    scan_folders: ScanFolders,
     sleep: int,
     timeout: int | None,
 ) -> None:
@@ -152,18 +186,18 @@ async def watch(
             pass
 
     async def update_music(path: str) -> None:
-        for directory in folders.directories:
+        for directory in scan_folders.directories:
             if path.startswith(str(directory)):
                 _ = await musicdb.upsert_path((directory, Path(path)))
 
     async def watcher() -> None:
         class MusicWatchFilter(DefaultFilter):
             def __call__(self, change: Change, path: str) -> bool:
-                return super().__call__(change, path) and path.endswith(tuple(folders.extensions))
+                return super().__call__(change, path) and path.endswith(tuple(scan_folders.extensions))
 
         try:
             async for changes in awatch(
-                *folders.directories,
+                *scan_folders.directories,
                 watch_filter=MusicWatchFilter(),
                 debug=MusicbotObject.config.debug,
             ):
@@ -189,7 +223,7 @@ async def watch(
         pass
 
 
-@cli.command(help="Search musics by full-text search")
+@cli.command(help="Search musics by full-text search", aliases=["find"])
 @musicdb_options
 @output_option
 @playlist_options
@@ -279,7 +313,7 @@ async def artists(
 
 
 @cli.command(short_help="Generate bests playlists with some rules", help=filters_reprs)
-@folder_argument
+@scan_folder_argument
 @music_filters_options
 @musicdb_options
 @dry_option
@@ -290,7 +324,7 @@ async def artists(
 async def bests(
     musicdb: MusicDb,
     music_filters: list[MusicFilter],
-    folder: Path,
+    scan_folder: Path,
     min_playlist_size: int,
     playlist_options: PlaylistOptions,
 ) -> None:
@@ -302,7 +336,7 @@ async def bests(
         if len(best.musics) < min_playlist_size or not best.name:
             MusicbotObject.warn(f"{best.name} : size < {min_playlist_size}")
             continue
-        filepath = Path(folder) / (best.name + ".m3u")
+        filepath = Path(scan_folder) / (best.name + ".m3u")
         if MusicbotObject.dry:
             MusicbotObject.success(f"DRY RUN: Writing playlist {best.name} to {filepath}")
             continue
@@ -375,12 +409,12 @@ async def sync(
         click.secho("no result for filter, nothing to sync")
         return
 
-    folders = Folders(directories=[destination], extensions=frozenset())
-    logger.info(f"Files : {len(folders.files)}")
-    if not folders.files:
+    scan_folders = ScanFolders(directories=[destination], extensions=frozenset())
+    logger.info(f"Files : {len(scan_folders.files)}")
+    if not scan_folders.files:
         logger.warning("no files found in destination")
 
-    destinations = {str(path)[len(str(destination)) + 1 :]: path for path in folders.paths}
+    destinations = {str(path)[len(str(destination)) + 1 :]: path for path in scan_folders.paths}
 
     musics: list[File] = []
     for music in sync_playlist.musics:
@@ -446,8 +480,8 @@ async def sync(
                 pbar.value += 1
                 _ = pbar.update()
 
-    for d in folders.flush_empty_directories():
-        if any(e in d for e in folders.except_directories):
+    for d in scan_folders.flush_empty_directories():
+        if any(e in d for e in scan_folders.except_directories):
             logger.debug(f"Invalid path {d}")
             continue
         if not MusicbotObject.dry:

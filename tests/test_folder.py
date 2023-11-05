@@ -17,7 +17,7 @@ def test_folder_find(cli_runner: CliRunner) -> None:
             "--quiet",
             "folder",
             "find",
-            *fixtures.folders,
+            *fixtures.scan_folders,
         ],
     )
     assert len(mysplit(musics, "\n")) == 5
@@ -33,7 +33,7 @@ def test_folder_flac2mp3(cli_runner: CliRunner) -> None:
             "folder",
             "flac2mp3",
             "--dry",
-            *fixtures.folders,
+            *fixtures.scan_folders,
         ],
     )
 
@@ -47,7 +47,7 @@ def test_folder_playlist(cli_runner: CliRunner) -> None:
             "--quiet",
             "folder",
             "playlist",
-            *fixtures.folders,
+            *fixtures.scan_folders,
         ],
     )
 
@@ -61,7 +61,7 @@ def test_folder_issues(cli_runner: CliRunner) -> None:
             "--quiet",
             "folder",
             "issues",
-            *fixtures.folders,
+            *fixtures.scan_folders,
         ],
     )
 
@@ -75,7 +75,7 @@ def test_folder_manual_fix(cli_runner: CliRunner) -> None:
             "--quiet",
             "folder",
             "manual-fix",
-            *fixtures.folders,
+            *fixtures.scan_folders,
             "--dry",
         ],
     )
@@ -90,7 +90,7 @@ def test_folder_set_tags(cli_runner: CliRunner) -> None:
             "--quiet",
             "folder",
             "set-tags",
-            *fixtures.folders,
+            *fixtures.scan_folders,
             "--dry",
         ],
     )
@@ -105,7 +105,7 @@ def test_folder_add_keywords(cli_runner: CliRunner) -> None:
             "--quiet",
             "folder",
             "add-keywords",
-            *fixtures.folders,
+            *fixtures.scan_folders,
             "--keywords",
             "test",
             "--dry",
@@ -122,7 +122,7 @@ def test_folder_delete_keywords(cli_runner: CliRunner) -> None:
             "--quiet",
             "folder",
             "delete-keywords",
-            *fixtures.folders,
+            *fixtures.scan_folders,
             "--keywords",
             "test",
             "--dry",
