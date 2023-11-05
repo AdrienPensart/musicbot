@@ -33,7 +33,7 @@ from musicbot.cli.scan_folders import (
 )
 from musicbot.defaults import DEFAULT_VLC_PARAMS
 from musicbot.file import File
-from musicbot.helpers import bytes_to_human, precise_seconds_to_human, syncify
+from musicbot.helpers import syncify
 from musicbot.music_filter import MusicFilter
 from musicbot.musicdb import MusicDb
 from musicbot.object import MusicbotObject
@@ -292,17 +292,15 @@ async def artists(
         title="Artists",
     )
     for artist in all_artists:
-        size = bytes_to_human(artist.size)
-        length = precise_seconds_to_human(artist.length)
         table.add_row(
             artist.name,
             str(artist.rating),
-            size,
-            length,
-            str(artist.albums),
-            str(artist.musics),
-            ", ".join(artist.keywords),
-            ", ".join(artist.genres),
+            artist.human_size,
+            artist.human_duration,
+            str(artist.n_albums),
+            str(artist.n_musics),
+            artist.all_keywords,
+            artist.all_genres,
         )
     table.caption = f"{len(all_artists)} listed"
 

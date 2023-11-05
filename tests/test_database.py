@@ -97,6 +97,23 @@ def test_database_clean(cli_runner: CliRunner, edgedb: str) -> None:
 
 
 @beartype
+def test_database_drop(cli_runner: CliRunner, edgedb: str) -> None:
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "--dry",
+            "database",
+            "drop",
+            "--dsn",
+            edgedb,
+            "--yes",
+        ],
+    )
+
+
+@beartype
 def test_database_soft_clean(cli_runner: CliRunner, edgedb: str) -> None:
     _ = run_cli(
         cli_runner,

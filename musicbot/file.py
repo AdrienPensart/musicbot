@@ -97,7 +97,7 @@ class File(MusicbotObject):
         folder = Folder(
             name=str(self.folder),
             path=str(self.path),
-            user=current_user(),
+            username=current_user(),
             ipv4=public_ip,
         )
         return Music(
@@ -126,7 +126,7 @@ class File(MusicbotObject):
         folder = next(iter(folders))
         data["keywords"] = list(data["keywords"])
         data["ipv4"] = folder.ipv4
-        data["user"] = folder.user
+        data["username"] = folder.username
         data["folder"] = folder.name
         data["path"] = folder.path
         return data

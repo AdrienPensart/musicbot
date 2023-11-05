@@ -12,7 +12,7 @@ from musicbot.playlist_options import PlaylistOptions
 class Folder(MusicbotObject):
     name: str
     ipv4: str
-    user: str
+    username: str
     path: str
 
     n_genres: int = 0
@@ -30,7 +30,7 @@ class Folder(MusicbotObject):
     human_duration: str = ""
 
     def __repr__(self) -> str:
-        return f"{self.name} {self.ipv4} {self.user}"
+        return f"{self.name} {self.ipv4} {self.username}"
 
     def effective_path(self, relative: bool = False) -> str:
         if relative:
@@ -41,7 +41,7 @@ class Folder(MusicbotObject):
         return f"http://{self.ipv4}/{self.effective_path(relative)}"
 
     def ssh_link(self) -> str:
-        return f"{self.user}@{self.ipv4}:{self.path}"
+        return f"{self.username}@{self.ipv4}:{self.path}"
 
     def links(self, playlist_options: PlaylistOptions) -> frozenset[str]:
         paths = []

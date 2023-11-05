@@ -11,11 +11,9 @@ import httpx
 from async_lru import alru_cache
 from attr import asdict
 from beartype import beartype
-from click_skeleton.helpers import mysplit
 from edgedb.asyncio_client import AsyncIOClient, create_async_client
 from edgedb.options import RetryOptions, TransactionOptions
 
-from musicbot.artist import Artist
 from musicbot.defaults import DEFAULT_COROUTINES
 from musicbot.file import File, Issue
 from musicbot.folder import Folder
@@ -100,7 +98,7 @@ class MusicDb(MusicbotObject):
                 path=result.name,
                 name=result.name,
                 ipv4=result.ipv4,
-                user=result.user,
+                username=result.username,
                 n_artists=result.n_artists,
                 all_artists=result.all_artists,
                 n_albums=result.n_albums,
@@ -115,24 +113,8 @@ class MusicDb(MusicbotObject):
             folders.append(folder)
         return folders
 
-    async def artists(self) -> list[Artist]:
-        results = await self.client.query(ARTISTS_QUERY)
-        artists_list = []
-        for result in results:
-            keywords = frozenset(mysplit(result.all_keywords, " "))
-            genres = frozenset(mysplit(result.all_genres, " "))
-            artist = Artist(
-                name=result.name,
-                length=result.length,
-                size=result.size,
-                keywords=keywords,
-                rating=result.rating,
-                albums=result.n_albums,
-                musics=result.n_musics,
-                genres=genres,
-            )
-            artists_list.append(artist)
-        return artists_list
+    async def artists(self) -> list[edgedb.Object]:
+        return await self.client.query(ARTISTS_QUERY)
 
     async def execute_music_filters(
         self,
@@ -165,6 +147,12 @@ class MusicDb(MusicbotObject):
 
     async def clean_musics(self) -> Any:
         query = """delete Artist;"""
+        if self.dry:
+            return None
+        return await self.client.query(query)
+
+    async def drop(self) -> Any:
+        query = """reset schema to initial;"""
         if self.dry:
             return None
         return await self.client.query(query)
@@ -215,7 +203,7 @@ class MusicDb(MusicbotObject):
 
                 result = await self.client.query_required_single(**params)
                 keywords = frozenset(keyword.name for keyword in result.keywords)
-                folders = [Folder(path=folder.path, name=folder.name, ipv4=folder.ipv4, user=folder.user) for folder in result.folders]
+                folders = [Folder(path=folder.path, name=folder.name, ipv4=folder.ipv4, username=folder.username) for folder in result.folders]
                 output_music = Music(
                     title=result.name,
                     artist=result.artist.name,
@@ -320,8 +308,11 @@ class MusicDb(MusicbotObject):
         self,
         pattern: str,
     ) -> Playlist:
+        # results = await self.client.query_single(query=SEARCH_QUERY, pattern=pattern)
         results = await self.client.query(query=SEARCH_QUERY, pattern=pattern)
-        return Playlist.from_edgedb(
+        playlist = Playlist.from_edgedb(
             name=pattern,
+            # results=results.musics,
             results=results,
         )
+        return playlist

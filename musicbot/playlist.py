@@ -49,7 +49,7 @@ class Playlist(MusicbotObject):
         musics = []
         for result in results:
             keywords = frozenset(keyword.name for keyword in result.keywords)
-            folders = frozenset(Folder(path=folder["@path"], name=folder.name, ipv4=folder.ipv4, user=folder.user) for folder in result.folders)
+            folders = frozenset(Folder(path=folder["@path"], name=folder.name, ipv4=folder.ipv4, username=folder.username) for folder in result.folders)
             music = Music(
                 title=result.name,
                 artist=result.artist.name,

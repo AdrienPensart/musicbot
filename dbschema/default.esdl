@@ -1,4 +1,16 @@
 module default {
+    # global current_user := (
+    #     assert_single((
+    #         select User { id, name }
+    #         filter .identity = global ext::auth::ClientTokenIdentity
+    #     ))
+    # );
+
+    # type User {
+    #     required name: str;
+    #     required identity: ext::auth::Identity;
+    # }
+
     function bytes_to_human(size: int64, k: int64 = 1000, decimals: int64 = 2, units: array<str> = [' B', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB']) -> str {
         using (
             select '0' ++ units[0] if size = 0
@@ -29,9 +41,8 @@ module default {
     }
 
     type Artist {
-        required name: str {
-            constraint exclusive;
-        }
+        # required user: User;
+        required name: str;
         required created_at: datetime {
             default := std::datetime_current();
             readonly := true;
@@ -60,15 +71,19 @@ module default {
         property duration := (select to_duration(seconds := <float64>.length));
         property human_duration := (select to_str(.duration, "HH24:MI:SS"));
 
+        constraint exclusive on ((.name));
+
         index fts::index on (
            fts::with_options(
               .name,
               language := fts::Language.eng,
            )
         );
+
     }
 
     type Album {
+        # required user: User;
         required name: str;
         required created_at: datetime {
             default := std::datetime_current();
@@ -101,18 +116,19 @@ module default {
         property all_genres := (select to_str(array_agg(.musics.genre.name), " "));
 
         constraint exclusive on ((.name, .artist));
-        index on ((.name, .artist));
 
         index fts::index on (
            fts::with_options(
               .name,
-              language := fts::Language.eng,
+              language := fts::Language.eng
            )
         );
     }
 
     type Folder {
+        # required user: User;
         required name: str;
+        required username: str;
         required created_at: datetime {
             default := std::datetime_current();
             readonly := true;
@@ -121,7 +137,6 @@ module default {
             rewrite insert, update using (datetime_of_statement())
         }
 
-        required user: str;
         required ipv4: str;
 
         multi link musics := .<folders[is Music];
@@ -149,8 +164,7 @@ module default {
         property n_genres := (select count(.genres));
         property all_genres := (select to_str(array_agg(.musics.genre.name), " "));
 
-        constraint exclusive on ((.name, .ipv4));
-        index on ((.name, .ipv4));
+        constraint exclusive on ((.name, .username, .ipv4));
 
         index fts::index on (
            fts::with_options(
@@ -162,6 +176,7 @@ module default {
 
     # define a local music
     type Music {
+        # required user: User;
         required name: str;
         required created_at: datetime {
             default := std::datetime_current();
@@ -202,7 +217,6 @@ module default {
         property paths := (select .folders@path);
 
         constraint exclusive on ((.name, .album));
-        index on ((.name, .album));
 
         index fts::index on (
            fts::with_options(
@@ -213,9 +227,8 @@ module default {
     }
 
     type Keyword {
-        required name: str {
-            constraint exclusive;
-        }
+        # required user: User;
+        required name: str;
         required created_at: datetime {
             default := std::datetime_current();
             readonly := true;
@@ -242,6 +255,8 @@ module default {
         property size := (select sum(.musics.size));
         property human_size := (select bytes_to_human(.size));
 
+        constraint exclusive on ((.name));
+
         index fts::index on (
            fts::with_options(
               .name,
@@ -251,9 +266,8 @@ module default {
     }
 
     type Genre {
-        required name: str {
-            constraint exclusive;
-        }
+        # required user: User;
+        required name: str;
         required created_at: datetime {
             default := std::datetime_current();
             readonly := true;
@@ -282,6 +296,8 @@ module default {
         property size := (select sum(.musics.size));
         property human_size := (select bytes_to_human(.size));
 
+        constraint exclusive on ((.name));
+
         index fts::index on (
            fts::with_options(
               .name,
@@ -293,3 +309,4 @@ module default {
 
 using extension graphql;
 using extension edgeql_http;
+# using extension auth;

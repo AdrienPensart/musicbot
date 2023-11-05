@@ -101,6 +101,7 @@ musicbot database
 
   Commands:
     clean (clean-db,erase)        Clean all musics in DB
+    drop                          Drop entire schema from DB
     edgeql (execute,fetch,query)  EdgeDB raw query
     graphiql                      Explore with GraphiQL
     graphql                       GraphQL query
@@ -116,6 +117,21 @@ musicbot database clean
   Usage: musicbot database clean [OPTIONS]
 
     Clean all musics in DB
+
+  Options:
+    MusicDB options: 
+      --dsn TEXT       DSN to MusicBot EdgeDB
+      --graphql TEXT   DSN to MusicBot GrapQL
+    -y, --yes          Confirm action
+    -h, --help         Show this message and exit.
+
+musicbot database drop
+**********************
+.. code-block::
+
+  Usage: musicbot database drop [OPTIONS]
+
+    Drop entire schema from DB
 
   Options:
     MusicDB options: 
@@ -198,12 +214,15 @@ musicbot database ui
 ********************
 .. code-block::
 
-  Usage: musicbot database ui [OPTIONS]
+  Usage: musicbot database ui [OPTIONS] [EDGEDB_ARGS]...
 
     Explore with EdgeDB UI
 
   Options:
-    -h, --help  Show this message and exit.
+    MusicDB options: 
+      --dsn TEXT       DSN to MusicBot EdgeDB
+      --graphql TEXT   DSN to MusicBot GrapQL
+    -h, --help         Show this message and exit.
 
 musicbot folder
 ***************

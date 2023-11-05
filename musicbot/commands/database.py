@@ -40,9 +40,9 @@ async def graphql(musicdb: MusicDb, query: str) -> None:
 
 
 @cli.command(help="Connect with PgCLI", context_settings=dict(ignore_unknown_options=True, help_option_names=[]))
+@click.pass_context
 @click.argument("pgcli_args", nargs=-1, type=click.UNPROCESSED)
 @musicdb_options
-@click.pass_context
 @beartype
 def pgcli(ctx: click.Context, musicdb: MusicDb, pgcli_args: tuple[str, ...]) -> None:
     if "--help" in pgcli_args:
@@ -70,10 +70,17 @@ def graphiql(musicdb: MusicDb) -> None:
             _ = webbrowser.open(url)
 
 
-@cli.command(help="Explore with EdgeDB UI")
+@cli.command(help="Explore with EdgeDB UI", context_settings=dict(ignore_unknown_options=True, help_option_names=[]))
+@click.pass_context
+@click.argument("edgedb_args", nargs=-1, type=click.UNPROCESSED)
+@musicdb_options
 @beartype
-def ui() -> None:
-    args = ["edgedb", "ui", "--print-url", "--no-server-check"]
+def ui(ctx: click.Context, musicdb: MusicDb, edgedb_args: tuple[str, ...]) -> None:
+    if "--help" in edgedb_args:
+        MusicbotObject.echo(ctx.get_help())
+        MusicbotObject.echo("\n")
+
+    args = ["edgedb", "ui", "--print-url", "--no-server-check", "--dsn", musicdb.dsn] + list(edgedb_args)
     try:
         _ = subprocess.run(args, check=True)
     except FileNotFoundError:
@@ -91,6 +98,15 @@ def ui() -> None:
 @beartype
 async def clean(musicdb: MusicDb) -> None:
     await musicdb.clean_musics()
+
+
+@cli.command(help="Drop entire schema from DB")
+@musicdb_options
+@yes_option
+@syncify
+@beartype
+async def drop(musicdb: MusicDb) -> None:
+    await musicdb.drop()
 
 
 @cli.command(help="Clean entities without musics associated")

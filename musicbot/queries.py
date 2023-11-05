@@ -21,7 +21,7 @@ rating,
 folders: {
     name,
     ipv4,
-    user,
+    username,
     path := @path
 }
 """
@@ -59,11 +59,35 @@ select {
 };
 """
 
-SEARCH_QUERY: str = """
-with res := (select fts::search(Music, <str>$pattern))
-select res.object {**}
-order by res.score desc;
+# SEARCH_QUERY: str = """
+# with
+#     musics_res := (select fts::search(Music, <str>$pattern, weights := [0.1, 0.1, 0.1, 0.1], language := 'eng') order by .score desc),
+#     artists_res := (select fts::search(Artist, <str>$pattern) order by .score desc),
+#     albums_res := (select fts::search(Album, <str>$pattern) order by .score desc),
+#     genres_res := (select fts::search(Genre, <str>$pattern) order by .score desc),
+#     keywords_res := (select fts::search(Keyword, <str>$pattern) order by .score desc)
+# select {
+#     musics := (select distinct musics_res.object {**}),
+#     artists := (select distinct artists_res.object {name}),
+#     albums := (select distinct albums_res.object {name}),
+#     genres := (select distinct genres_res.object {name}),
+#     keywords := (select distinct keywords_res.object {name})
+# }
+# """
+SEARCH_QUERY: str = CustomStringTemplate(
+    """
+select Music {
+    #music_fields
+}
+filter
+.name ilike <str>$pattern or
+.genre.name ilike <str>$pattern or
+.album.name ilike <str>$pattern or
+.artist.name ilike <str>$pattern or
+.keywords.name ilike <str>$pattern or
+.paths ilike "%" ++ <str>$pattern ++ "%"
 """
+).substitute(music_fields=MUSIC_FIELDS)
 
 REMOVE_PATH_QUERY: str = """
 update Music
@@ -78,7 +102,7 @@ with
         insert Artist {
             name := <str>$artist
         }
-        unless conflict on .name else (select Artist)
+        unless conflict on (.name) else (select Artist)
     ),
     upsert_album := (
         insert Album {
@@ -91,7 +115,7 @@ with
         insert Genre {
             name := <str>$genre
         }
-        unless conflict on .name else (select Genre)
+        unless conflict on (.name) else (select Genre)
     ),
     upsert_keywords := (
         for keyword in { array_unpack(<array<str>>$keywords) }
@@ -99,17 +123,17 @@ with
             insert Keyword {
                 name := keyword
             }
-            unless conflict on .name
+            unless conflict on (.name)
             else (select Keyword)
         )
     ),
     upsert_folder := (
         insert Folder {
             name := <str>$folder,
-            user := <str>$user,
+            username := <str>$username,
             ipv4 := <str>$ipv4
         }
-        unless conflict on (.name, .ipv4) else (select Folder)
+        unless conflict on (.name, .username, .ipv4) else (select Folder)
     )
     select (
         insert Music {
