@@ -85,6 +85,7 @@ module default {
     type Album {
         # required user: User;
         required name: str;
+        property title := (select .artist.name ++ " - " ++ .name);
         required created_at: datetime {
             default := std::datetime_current();
             readonly := true;
@@ -178,6 +179,7 @@ module default {
     type Music {
         # required user: User;
         required name: str;
+        property title := (select .album.title ++ " - " ++ .name);
         required created_at: datetime {
             default := std::datetime_current();
             readonly := true;
@@ -309,4 +311,5 @@ module default {
 
 using extension graphql;
 using extension edgeql_http;
+using extension pg_trgm;
 # using extension auth;

@@ -190,6 +190,13 @@ class File(MusicbotObject):
         return self.path.name
 
     @property
+    def canonic_title(self) -> str:
+        prefix = f"{str(self.track).zfill(2)} - "
+        if not self.title.startswith(prefix):
+            return f"{prefix}{self.title}"
+        return self.title
+
+    @property
     def canonic_filename(self) -> str:
         return f"{self.canonic_title}{self.extension}"
 
@@ -228,13 +235,6 @@ class File(MusicbotObject):
             self.handle.tags["title"] = title
         else:
             self.handle.tags.add(id3.TIT2(text=title))
-
-    @property
-    def canonic_title(self) -> str:
-        prefix = f"{str(self.track).zfill(2)} - "
-        if not self.title.startswith(prefix):
-            return f"{prefix}{self.title}"
-        return self.title
 
     @property
     def album(self) -> str:

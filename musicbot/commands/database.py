@@ -97,7 +97,7 @@ def ui(ctx: click.Context, musicdb: MusicDb, edgedb_args: tuple[str, ...]) -> No
 @syncify
 @beartype
 async def clean(musicdb: MusicDb) -> None:
-    await musicdb.clean_musics()
+    _ = await musicdb.clean_musics()
 
 
 @cli.command(help="Drop entire schema from DB")
@@ -106,7 +106,7 @@ async def clean(musicdb: MusicDb) -> None:
 @syncify
 @beartype
 async def drop(musicdb: MusicDb) -> None:
-    await musicdb.drop()
+    _ = await musicdb.drop()
 
 
 @cli.command(help="Clean entities without musics associated")
@@ -114,4 +114,4 @@ async def drop(musicdb: MusicDb) -> None:
 @syncify
 @beartype
 async def soft_clean(musicdb: MusicDb) -> None:
-    await musicdb.soft_clean()
+    _ = await musicdb.soft_clean()

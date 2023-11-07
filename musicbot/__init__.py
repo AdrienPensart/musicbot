@@ -8,7 +8,9 @@ from musicbot.music_filter import MusicFilter
 from musicbot.musicdb import MusicDb
 from musicbot.object import MusicbotObject
 from musicbot.playlist import Playlist
+from musicbot.playlist_options import PlaylistOptions
 from musicbot.scan_folders import ScanFolders
+from musicbot.search_results import SearchResults
 
 filterwarnings(action="ignore", module=".*vlc.*", category=DeprecationWarning)
 
@@ -19,7 +21,9 @@ __all__ = [
     "Music",
     "MusicFilter",
     "Playlist",
+    "PlaylistOptions",
     "MusicDb",
     "Folder",
     "ScanFolders",
+    "SearchResults",
 ]

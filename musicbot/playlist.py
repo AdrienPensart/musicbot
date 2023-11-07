@@ -6,6 +6,7 @@ import random
 from dataclasses import asdict, dataclass
 from typing import Any, Self
 
+import edgedb
 from beartype import beartype
 from click_skeleton.helpers import PrettyDefaultDict
 from click_skeleton.helpers import seconds_to_human as formatted_seconds_to_human
@@ -44,12 +45,13 @@ class Playlist(MusicbotObject):
     def from_edgedb(
         cls,
         name: str,
-        results: Any,
+        results: list[edgedb.Object],
     ) -> Self:
         musics = []
         for result in results:
             keywords = frozenset(keyword.name for keyword in result.keywords)
-            folders = frozenset(Folder(path=folder["@path"], name=folder.name, ipv4=folder.ipv4, username=folder.username) for folder in result.folders)
+            # folders = frozenset(Folder(path=folder["@path"], name=folder.name, ipv4=folder.ipv4, username=folder.username) for folder in result.folders)
+            folders = frozenset(Folder(path=folder.path, name=folder.name, ipv4=folder.ipv4, username=folder.username) for folder in result.folders)
             music = Music(
                 title=result.name,
                 artist=result.artist.name,

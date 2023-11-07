@@ -53,7 +53,7 @@ def edgedb() -> str:
 @beartype
 async def testmusics(edgedb: str) -> list[File]:
     musicdb = MusicDb.from_dsn(edgedb)
-    await musicdb.clean_musics()
+    _ = await musicdb.clean_musics()
 
     scan_folders = ScanFolders([Path(folder) for folder in fixtures.scan_folders])
     files = await musicdb.upsert_folders(scan_folders=scan_folders)

@@ -74,18 +74,31 @@ select {
 #     keywords := (select distinct keywords_res.object {name})
 # }
 # """
+
+# SEARCH_QUERY: str = CustomStringTemplate(
+#     """
+# select Music {
+#     #music_fields
+# }
+# filter
+# .name ilike <str>$pattern or
+# .genre.name ilike <str>$pattern or
+# .album.name ilike <str>$pattern or
+# .artist.name ilike <str>$pattern or
+# .keywords.name ilike <str>$pattern or
+# .paths ilike "%" ++ <str>$pattern ++ "%"
+# """
+# ).substitute(music_fields=MUSIC_FIELDS)
+
 SEARCH_QUERY: str = CustomStringTemplate(
     """
-select Music {
-    #music_fields
-}
-filter
-.name ilike <str>$pattern or
-.genre.name ilike <str>$pattern or
-.album.name ilike <str>$pattern or
-.artist.name ilike <str>$pattern or
-.keywords.name ilike <str>$pattern or
-.paths ilike "%" ++ <str>$pattern ++ "%"
+select {
+    musics := (select Music{#music_fields} filter ext::pg_trgm::word_similar(<str>$pattern, Music.title)),
+    albums := (select Album{*} filter ext::pg_trgm::word_similar(<str>$pattern, Album.title)),
+    artists := (select Artist{*} filter ext::pg_trgm::word_similar(<str>$pattern, Artist.name)),
+    genres := (select Genre{*} filter ext::pg_trgm::word_similar(<str>$pattern, Genre.name)),
+    keywords := (select Keyword{*} filter ext::pg_trgm::word_similar(<str>$pattern, Keyword.name)),
+};
 """
 ).substitute(music_fields=MUSIC_FIELDS)
 

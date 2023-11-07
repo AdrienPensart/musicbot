@@ -15,6 +15,15 @@ from click_skeleton import AdvancedGroup
 from rich.table import Table
 from watchfiles import Change, DefaultFilter, awatch
 
+from musicbot import (
+    File,
+    MusicbotObject,
+    MusicDb,
+    MusicFilter,
+    Playlist,
+    PlaylistOptions,
+    ScanFolders,
+)
 from musicbot.cli.file import flat_option
 from musicbot.cli.music_filter import filters_reprs, music_filters_options
 from musicbot.cli.musicdb import musicdb_options
@@ -32,13 +41,7 @@ from musicbot.cli.scan_folders import (
     scan_folders_argument,
 )
 from musicbot.defaults import DEFAULT_VLC_PARAMS
-from musicbot.file import File
 from musicbot.helpers import syncify
-from musicbot.music_filter import MusicFilter
-from musicbot.musicdb import MusicDb
-from musicbot.object import MusicbotObject
-from musicbot.playlist_options import PlaylistOptions
-from musicbot.scan_folders import ScanFolders
 
 logger = logging.getLogger(__name__)
 
@@ -99,7 +102,7 @@ async def remove(
     musicdb: MusicDb,
 ) -> None:
     for file in files:
-        await musicdb.remove_music_path(file)
+        _ = await musicdb.remove_music_path(file)
 
 
 @cli.command(help="Clean all musics", aliases=["wipe"])
@@ -109,7 +112,7 @@ async def remove(
 async def clean(
     musicdb: MusicDb,
 ) -> None:
-    await musicdb.clean_musics()
+    _ = await musicdb.clean_musics()
 
 
 @cli.command(help="Load musics")
@@ -143,13 +146,13 @@ async def scan(
     #     check=False,
     # )
     if clean:
-        await musicdb.clean_musics()
+        _ = await musicdb.clean_musics()
 
     files = await musicdb.upsert_folders(
         scan_folders=scan_folders,
         coroutines=coroutines,
     )
-    await musicdb.soft_clean()
+    _ = await musicdb.soft_clean()
 
     if output == "json":
         MusicbotObject.print_json([asdict(file.music) for file in files if file.music is not None])
@@ -207,7 +210,7 @@ async def watch(
                         if change in (Change.added, Change.modified):
                             await update_music(path)
                         elif change == Change.deleted:
-                            await musicdb.remove_music_path(path)
+                            _ = await musicdb.remove_music_path(path)
                 except edgedb.ClientConnectionFailedTemporarilyError as error:
                     MusicbotObject.err(f"{musicdb} : unable to clean musics", error=error)
         except (asyncio.CancelledError, KeyboardInterrupt):
@@ -236,11 +239,27 @@ async def search(
     pattern: str,
     playlist_options: PlaylistOptions,
 ) -> None:
-    p = await musicdb.search(pattern)
+    search_results = await musicdb.search(pattern)
+    p = Playlist.from_edgedb(
+        name=pattern,
+        results=search_results.musics,
+    )
     p.print(
         output=output,
         playlist_options=playlist_options,
     )
+
+    artists = [artist.name for artist in search_results.artists]
+    MusicbotObject.success(f"Artists found: {artists}")
+
+    albums = [album.name for album in search_results.albums]
+    MusicbotObject.success(f"Albums found: {albums}")
+
+    genres = [genre.name for genre in search_results.genres]
+    MusicbotObject.success(f"Genres found: {genres}")
+
+    keywords = [keyword.name for keyword in search_results.keywords]
+    MusicbotObject.success(f"Keywords found: {keywords}")
 
 
 @cli.command(short_help="Generate a new playlist", help=filters_reprs)

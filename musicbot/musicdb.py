@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 import edgedb
 import httpx
 from async_lru import alru_cache
-from attr import asdict
+from attr import asdict as attr_asdict
 from beartype import beartype
 from edgedb.asyncio_client import AsyncIOClient, create_async_client
 from edgedb.options import RetryOptions, TransactionOptions
@@ -32,6 +32,7 @@ from musicbot.queries import (
     UPSERT_QUERY,
 )
 from musicbot.scan_folders import ScanFolders
+from musicbot.search_results import SearchResults
 
 logger = logging.getLogger(__name__)
 
@@ -120,7 +121,7 @@ class MusicDb(MusicbotObject):
         self,
         query: str,
         music_filters: frozenset[MusicFilter] = frozenset(),
-    ) -> set[Any]:
+    ) -> set[edgedb.Object]:
         logger.debug(query)
         results = set()
         if not music_filters:
@@ -128,7 +129,7 @@ class MusicDb(MusicbotObject):
         for music_filter in music_filters:
             intermediate_results = await self.client.query(
                 query,
-                **asdict(music_filter),
+                **attr_asdict(music_filter),
             )
             logger.debug(f"{len(intermediate_results)} intermediate results for {music_filter}")
             results.update(intermediate_results)
@@ -142,22 +143,22 @@ class MusicDb(MusicbotObject):
         results = await self.execute_music_filters(PLAYLIST_QUERY, music_filters)
         return Playlist.from_edgedb(
             name=" | ".join([music_filter.help_repr() for music_filter in music_filters]),
-            results=results,
+            results=list(results),
         )
 
-    async def clean_musics(self) -> Any:
+    async def clean_musics(self) -> None | list[edgedb.Object]:
         query = """delete Artist;"""
         if self.dry:
             return None
         return await self.client.query(query)
 
-    async def drop(self) -> Any:
+    async def drop(self) -> None | list[edgedb.Object]:
         query = """reset schema to initial;"""
         if self.dry:
             return None
         return await self.client.query(query)
 
-    async def soft_clean(self) -> Any:
+    async def soft_clean(self) -> None | edgedb.Object:
         self.success("cleaning orphan musics, artists, albums, genres, keywords")
         if self.dry:
             return None
@@ -166,7 +167,7 @@ class MusicDb(MusicbotObject):
     async def ensure_connected(self) -> AsyncIOClient:
         return await self.client.ensure_connected()
 
-    async def remove_music_path(self, path: str) -> Any:
+    async def remove_music_path(self, path: str) -> None | edgedb.Object:
         logger.debug(f"{self} : removed {path}")
         if self.dry:
             return None
@@ -307,12 +308,13 @@ class MusicDb(MusicbotObject):
     async def search(
         self,
         pattern: str,
-    ) -> Playlist:
-        # results = await self.client.query_single(query=SEARCH_QUERY, pattern=pattern)
-        results = await self.client.query(query=SEARCH_QUERY, pattern=pattern)
-        playlist = Playlist.from_edgedb(
-            name=pattern,
-            # results=results.musics,
-            results=results,
+    ) -> SearchResults:
+        result = await self.client.query_single(query=SEARCH_QUERY, pattern=pattern)
+        search_results = SearchResults(
+            musics=result.musics,
+            artists=result.artists,
+            albums=result.albums,
+            genres=result.genres,
+            keywords=result.keywords,
         )
-        return playlist
+        return search_results
