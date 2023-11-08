@@ -10,10 +10,12 @@ from rich.table import Table
 from musicbot.cli.file import file_options, flat_option, keywords_option
 from musicbot.cli.options import output_option, threads_option
 from musicbot.cli.scan_folders import destination_argument, scan_folders_argument
-from musicbot.file import File
-from musicbot.object import MusicbotObject
-from musicbot.playlist import Playlist
-from musicbot.scan_folders import ScanFolders
+from musicbot import (
+    File,
+    MusicbotObject,
+    Playlist,
+    ScanFolders
+)
 
 logger = logging.getLogger(__name__)
 

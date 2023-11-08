@@ -8,9 +8,11 @@ from click_skeleton import AdvancedGroup
 
 from musicbot.cli.musicdb import musicdb_options
 from musicbot.cli.options import yes_option
-from musicbot.helpers import syncify
-from musicbot.musicdb import MusicDb
-from musicbot.object import MusicbotObject
+from musicbot import (
+    MusicDb,
+    MusicbotObject,
+    syncify
+)
 
 
 @click.group(help="DB management", cls=AdvancedGroup, aliases=["db"])

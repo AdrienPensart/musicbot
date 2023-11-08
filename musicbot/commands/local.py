@@ -23,6 +23,7 @@ from musicbot import (
     Playlist,
     PlaylistOptions,
     ScanFolders,
+    syncify,
 )
 from musicbot.cli.file import flat_option
 from musicbot.cli.music_filter import filters_reprs, music_filters_options
@@ -41,7 +42,6 @@ from musicbot.cli.scan_folders import (
     scan_folders_argument,
 )
 from musicbot.defaults import DEFAULT_VLC_PARAMS
-from musicbot.helpers import syncify
 
 logger = logging.getLogger(__name__)
 

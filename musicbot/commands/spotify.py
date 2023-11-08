@@ -8,6 +8,12 @@ from click_skeleton.helpers import PrettyDefaultDict
 from fuzzywuzzy import fuzz  # type: ignore
 from slugify import slugify
 
+from musicbot import (
+    MusicDb,
+    MusicbotObject,
+    Spotify,
+    syncify,
+)
 from musicbot.cli.musicdb import musicdb_options
 from musicbot.cli.options import dry_option, output_option
 from musicbot.cli.spotify import (
@@ -17,10 +23,6 @@ from musicbot.cli.spotify import (
     spotify_options,
 )
 from musicbot.defaults import DEFAULT_SPOTIFY_DOWNLOAD_PLAYLIST, REPLACEMENTS, STOPWORDS
-from musicbot.helpers import syncify
-from musicbot.musicdb import MusicDb
-from musicbot.object import MusicbotObject
-from musicbot.spotify import Spotify
 
 logger = logging.getLogger(__name__)
 

@@ -8,7 +8,11 @@ from click_skeleton import AdvancedGroup
 from mutagen import MutagenError
 from rich.table import Table
 
-from musicbot import MusicbotObject
+from musicbot import (
+    File,
+    MusicbotObject,
+    syncify,
+)
 from musicbot.cli.file import (
     acoustid_api_key_option,
     file_argument,
@@ -18,8 +22,6 @@ from musicbot.cli.file import (
 )
 from musicbot.cli.options import dry_option, output_option
 from musicbot.cli.scan_folders import destination_argument
-from musicbot.file import File
-from musicbot.helpers import syncify
 
 logger = logging.getLogger(__name__)
 
