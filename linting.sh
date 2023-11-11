@@ -4,6 +4,8 @@ export SETUPTOOLS_USE_DISTUTILS=stdlib
 
 set -e
 
+sh code-format.sh
+
 echo "linting : ruff..."
 poetry run ruff musicbot tests
 

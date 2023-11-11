@@ -8,11 +8,7 @@ from click_skeleton import AdvancedGroup
 from mutagen import MutagenError
 from rich.table import Table
 
-from musicbot import (
-    File,
-    MusicbotObject,
-    syncify,
-)
+from musicbot import File, MusicbotObject, syncify
 from musicbot.cli.file import (
     acoustid_api_key_option,
     file_argument,

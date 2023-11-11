@@ -20,7 +20,6 @@ from musicbot import (
     MusicbotObject,
     MusicDb,
     MusicFilter,
-    Playlist,
     PlaylistOptions,
     ScanFolders,
     syncify,
@@ -224,42 +223,6 @@ async def watch(
         _ = await asyncio.wait_for(future, timeout=timeout)
     except (TimeoutError, asyncio.CancelledError, KeyboardInterrupt):
         pass
-
-
-@cli.command(help="Search musics by full-text search", aliases=["find"])
-@musicdb_options
-@output_option
-@playlist_options
-@click.argument("pattern")
-@syncify
-@beartype
-async def search(
-    musicdb: MusicDb,
-    output: str,
-    pattern: str,
-    playlist_options: PlaylistOptions,
-) -> None:
-    search_results = await musicdb.search(pattern)
-    p = Playlist.from_edgedb(
-        name=pattern,
-        results=search_results.musics,
-    )
-    p.print(
-        output=output,
-        playlist_options=playlist_options,
-    )
-
-    artists = [artist.name for artist in search_results.artists]
-    MusicbotObject.success(f"Artists found: {artists}")
-
-    albums = [album.name for album in search_results.albums]
-    MusicbotObject.success(f"Albums found: {albums}")
-
-    genres = [genre.name for genre in search_results.genres]
-    MusicbotObject.success(f"Genres found: {genres}")
-
-    keywords = [keyword.name for keyword in search_results.keywords]
-    MusicbotObject.success(f"Keywords found: {keywords}")
 
 
 @cli.command(short_help="Generate a new playlist", help=filters_reprs)

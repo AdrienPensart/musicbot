@@ -1,10 +1,9 @@
-CREATE MIGRATION m1n46zkg4ec75ff6drbbztljf3svo4hvnmby2h5u2akmqnmhtpzjiq
+CREATE MIGRATION m1oy3zaoi4vykcutcfrianlcvpose52w7fdmesc6vcv3l73mlb5p4a
     ONTO initial
 {
-  CREATE EXTENSION pgcrypto VERSION '1.3';
-  CREATE EXTENSION auth VERSION '1.0';
   CREATE EXTENSION edgeql_http VERSION '1.0';
   CREATE EXTENSION graphql VERSION '1.0';
+  CREATE EXTENSION pg_trgm VERSION '1.6';
   CREATE FUNCTION default::bytes_to_human(size: std::int64, k: std::int64 = 1000, decimals: std::int64 = 2, units: array<std::str> = [' B', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB']) ->  std::str {
       CREATE ANNOTATION std::title := 'Convert a byte size to human readable string';
       USING (SELECT
@@ -16,12 +15,7 @@ CREATE MIGRATION m1n46zkg4ec75ff6drbbztljf3svo4hvnmby2h5u2akmqnmhtpzjiq
           ))
       )
   ;};
-  CREATE TYPE default::User {
-      CREATE REQUIRED LINK identity: ext::auth::Identity;
-      CREATE REQUIRED PROPERTY name: std::str;
-  };
   CREATE TYPE default::Album {
-      CREATE REQUIRED LINK user: default::User;
       CREATE REQUIRED PROPERTY name: std::str;
       CREATE INDEX fts::index ON (fts::with_options(.name, language := fts::Language.eng));
       CREATE REQUIRED PROPERTY created_at: std::datetime {
@@ -59,9 +53,9 @@ CREATE MIGRATION m1n46zkg4ec75ff6drbbztljf3svo4hvnmby2h5u2akmqnmhtpzjiq
       CREATE PROPERTY human_size := (SELECT
           default::bytes_to_human(.size)
       );
-      CREATE REQUIRED LINK user: default::User;
       CREATE REQUIRED PROPERTY name: std::str;
-      CREATE CONSTRAINT std::exclusive ON ((.name, .user, .album));
+      CREATE PROPERTY track: default::Track;
+      CREATE CONSTRAINT std::exclusive ON ((.name, .album));
       CREATE INDEX fts::index ON (fts::with_options(.name, language := fts::Language.eng));
       CREATE REQUIRED PROPERTY created_at: std::datetime {
           SET default := (std::datetime_current());
@@ -73,7 +67,6 @@ CREATE MIGRATION m1n46zkg4ec75ff6drbbztljf3svo4hvnmby2h5u2akmqnmhtpzjiq
       CREATE PROPERTY human_duration := (SELECT
           std::to_str(.duration, 'HH24:MI:SS')
       );
-      CREATE PROPERTY track: default::Track;
       CREATE REQUIRED PROPERTY updated_at: std::datetime {
           CREATE REWRITE
               INSERT 
@@ -94,8 +87,7 @@ CREATE MIGRATION m1n46zkg4ec75ff6drbbztljf3svo4hvnmby2h5u2akmqnmhtpzjiq
   };
   CREATE TYPE default::Artist {
       CREATE REQUIRED PROPERTY name: std::str;
-      CREATE REQUIRED LINK user: default::User;
-      CREATE CONSTRAINT std::exclusive ON ((.name, .user));
+      CREATE CONSTRAINT std::exclusive ON (.name);
       CREATE INDEX fts::index ON (fts::with_options(.name, language := fts::Language.eng));
       CREATE REQUIRED PROPERTY created_at: std::datetime {
           SET default := (std::datetime_current());
@@ -114,7 +106,10 @@ CREATE MIGRATION m1n46zkg4ec75ff6drbbztljf3svo4hvnmby2h5u2akmqnmhtpzjiq
       CREATE REQUIRED LINK artist: default::Artist {
           ON TARGET DELETE DELETE SOURCE;
       };
-      CREATE CONSTRAINT std::exclusive ON ((.name, .user, .artist));
+      CREATE PROPERTY title := (SELECT
+          ((.artist.name ++ ' - ') ++ .name)
+      );
+      CREATE CONSTRAINT std::exclusive ON ((.name, .artist));
   };
   ALTER TYPE default::Artist {
       CREATE MULTI LINK albums := (.<artist[IS default::Album]);
@@ -134,11 +129,10 @@ CREATE MIGRATION m1n46zkg4ec75ff6drbbztljf3svo4hvnmby2h5u2akmqnmhtpzjiq
       );
   };
   CREATE TYPE default::Folder {
-      CREATE REQUIRED LINK user: default::User;
       CREATE REQUIRED PROPERTY ipv4: std::str;
       CREATE REQUIRED PROPERTY name: std::str;
       CREATE REQUIRED PROPERTY username: std::str;
-      CREATE CONSTRAINT std::exclusive ON ((.name, .user, .username, .ipv4));
+      CREATE CONSTRAINT std::exclusive ON ((.name, .username, .ipv4));
       CREATE INDEX fts::index ON (fts::with_options(.name, language := fts::Language.eng));
       CREATE REQUIRED PROPERTY created_at: std::datetime {
           SET default := (std::datetime_current());
@@ -175,8 +169,7 @@ CREATE MIGRATION m1n46zkg4ec75ff6drbbztljf3svo4hvnmby2h5u2akmqnmhtpzjiq
   };
   CREATE TYPE default::Genre {
       CREATE REQUIRED PROPERTY name: std::str;
-      CREATE REQUIRED LINK user: default::User;
-      CREATE CONSTRAINT std::exclusive ON ((.name, .user));
+      CREATE CONSTRAINT std::exclusive ON (.name);
       CREATE INDEX fts::index ON (fts::with_options(.name, language := fts::Language.eng));
       CREATE REQUIRED PROPERTY created_at: std::datetime {
           SET default := (std::datetime_current());
@@ -222,8 +215,7 @@ CREATE MIGRATION m1n46zkg4ec75ff6drbbztljf3svo4hvnmby2h5u2akmqnmhtpzjiq
   };
   CREATE TYPE default::Keyword {
       CREATE REQUIRED PROPERTY name: std::str;
-      CREATE REQUIRED LINK user: default::User;
-      CREATE CONSTRAINT std::exclusive ON ((.name, .user));
+      CREATE CONSTRAINT std::exclusive ON (.name);
       CREATE INDEX fts::index ON (fts::with_options(.name, language := fts::Language.eng));
       CREATE REQUIRED PROPERTY created_at: std::datetime {
           SET default := (std::datetime_current());
@@ -240,6 +232,9 @@ CREATE MIGRATION m1n46zkg4ec75ff6drbbztljf3svo4hvnmby2h5u2akmqnmhtpzjiq
   };
   ALTER TYPE default::Music {
       CREATE MULTI LINK keywords: default::Keyword;
+      CREATE PROPERTY title := (SELECT
+          ((.album.title ++ ' - ') ++ .name)
+      );
       CREATE PROPERTY paths := (SELECT
           .folders@path
       );
@@ -283,14 +278,25 @@ CREATE MIGRATION m1n46zkg4ec75ff6drbbztljf3svo4hvnmby2h5u2akmqnmhtpzjiq
           <std::float64>std::round(<std::decimal>math::mean((.musics.rating ?? {0.0})), 2)
       );
   };
-  CREATE GLOBAL default::current_user := (std::assert_single((SELECT
-      default::User {
-          id,
-          name
-      }
-  FILTER
-      (.identity = GLOBAL ext::auth::ClientTokenIdentity)
-  )));
+  CREATE SCALAR TYPE default::`Limit` EXTENDING std::int64 {
+      CREATE CONSTRAINT std::min_value(0);
+  };
+  CREATE FUNCTION default::gen_playlist(NAMED ONLY min_length: default::Length = 0, NAMED ONLY max_length: default::Length = 2147483647, NAMED ONLY min_size: default::Size = 0, NAMED ONLY max_size: default::Size = 2147483647, NAMED ONLY min_rating: default::Rating = 0.0, NAMED ONLY max_rating: default::Rating = 5.0, NAMED ONLY artist: std::str = '(.*?)', NAMED ONLY album: std::str = '(.*?)', NAMED ONLY genre: std::str = '(.*?)', NAMED ONLY title: std::str = '(.*?)', NAMED ONLY keyword: std::str = '(.*?)', NAMED ONLY `limit`: default::`Limit` = 2147483647, NAMED ONLY pattern: std::str = '') -> SET OF default::Music {
+      CREATE ANNOTATION std::title := 'Generate a playlist from parameters';
+      USING (SELECT
+          default::Music FILTER
+              ((((((((((((.length >= min_length) AND (.length <= max_length)) AND (.size >= min_size)) AND (.size <= max_size)) AND (.rating >= min_rating)) AND (.rating <= max_rating)) AND std::re_test(artist, .artist.name)) AND std::re_test(album, .album.name)) AND std::re_test(genre, .genre.name)) AND std::re_test(title, .name)) AND std::re_test(keyword, std::array_join(std::array_agg((SELECT
+                  .keywords.name
+              )), ' '))) AND ((pattern = '') OR ext::pg_trgm::word_similar(pattern, .title)))
+          ORDER BY
+              .artist.name ASC THEN
+              .album.name ASC THEN
+              .track ASC THEN
+              .name ASC
+      LIMIT
+          `limit`
+      )
+  ;};
   ALTER TYPE default::Artist {
       CREATE LINK genres := (SELECT
           .musics.genre
@@ -430,8 +436,5 @@ CREATE MIGRATION m1n46zkg4ec75ff6drbbztljf3svo4hvnmby2h5u2akmqnmhtpzjiq
       CREATE PROPERTY rating := (SELECT
           <std::float64>std::round(<std::decimal>math::mean((.musics.rating ?? {0.0})), 2)
       );
-  };
-  CREATE SCALAR TYPE default::`Limit` EXTENDING std::int64 {
-      CREATE CONSTRAINT std::min_value(0);
   };
 };

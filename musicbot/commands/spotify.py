@@ -8,12 +8,7 @@ from click_skeleton.helpers import PrettyDefaultDict
 from fuzzywuzzy import fuzz  # type: ignore
 from slugify import slugify
 
-from musicbot import (
-    MusicDb,
-    MusicbotObject,
-    Spotify,
-    syncify,
-)
+from musicbot import MusicbotObject, MusicDb, Spotify, syncify
 from musicbot.cli.musicdb import musicdb_options
 from musicbot.cli.options import dry_option, output_option
 from musicbot.cli.spotify import (

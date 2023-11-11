@@ -7,15 +7,10 @@ from beartype import beartype
 from click_skeleton import AdvancedGroup
 from rich.table import Table
 
+from musicbot import File, MusicbotObject, Playlist, ScanFolders
 from musicbot.cli.file import file_options, flat_option, keywords_option
 from musicbot.cli.options import output_option, threads_option
 from musicbot.cli.scan_folders import destination_argument, scan_folders_argument
-from musicbot import (
-    File,
-    MusicbotObject,
-    Playlist,
-    ScanFolders
-)
 
 logger = logging.getLogger(__name__)
 

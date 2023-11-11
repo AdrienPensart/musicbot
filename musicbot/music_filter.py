@@ -26,6 +26,7 @@ class MusicFilter(MusicbotObject):
     artist: str = field(default=MATCH_ALL)
     title: str = field(default=MATCH_ALL)
     album: str = field(default=MATCH_ALL)
+    pattern: str = field(default="")
 
     min_size = field(converter=int, default=DEFAULT_MIN_SIZE)
     max_size = field(converter=int, default=DEFAULT_MAX_SIZE)

@@ -8,11 +8,8 @@ from beartype import beartype
 from click_skeleton import AdvancedGroup
 from click_skeleton.helpers import seconds_to_human
 
+from musicbot import File, MusicbotObject
 from musicbot.cli.file import acoustid_api_key_option, file_argument
-from musicbot import (
-    File,
-    MusicbotObject,
-)
 
 logger = logging.getLogger(__name__)
 

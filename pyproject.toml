@@ -84,6 +84,7 @@ include = [
     "musicbot",
     "tests"
 ]
+exclude = ["musicbot/queries"]
 reportGeneralTypeIssues = false
 reportPrivateImportUsage = false
 reportUnusedCallResult = true
@@ -95,12 +96,14 @@ log_cli = true
 
 [tool.pylint.master]
 jobs = 4
+ignore-paths = "musicbot/queries"
 [tool.pylint.messages_control]
 disable = """
 method-cache-max-size-none,too-few-public-methods,logging-format-interpolation,line-too-long,too-many-arguments,protected-access,missing-docstring,invalid-name,too-many-public-methods,too-many-instance-attributes,duplicate-code,too-many-nested-blocks,too-many-branches,too-many-return-statements,too-many-statements,too-many-locals,too-many-ancestors,abstract-method,anomalous-backslash-in-string,import-outside-toplevel,redefined-outer-name,unnecessary-lambda,c-extension-no-member,logging-fstring-interpolation,too-many-boolean-expressions,use-dict-literal,broad-except
 """
 
 [tool.mypy]
+exclude = "musicbot/queries"
 allow_redefinition = false
 disallow_untyped_defs = true
 ignore_errors = false

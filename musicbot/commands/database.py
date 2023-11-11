@@ -6,13 +6,9 @@ import click
 from beartype import beartype
 from click_skeleton import AdvancedGroup
 
+from musicbot import MusicbotObject, MusicDb, syncify
 from musicbot.cli.musicdb import musicdb_options
 from musicbot.cli.options import yes_option
-from musicbot import (
-    MusicDb,
-    MusicbotObject,
-    syncify
-)
 
 
 @click.group(help="DB management", cls=AdvancedGroup, aliases=["db"])

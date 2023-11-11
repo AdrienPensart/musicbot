@@ -21,18 +21,12 @@ from musicbot.music import Music
 from musicbot.music_filter import MusicFilter
 from musicbot.object import MusicbotObject
 from musicbot.playlist import Playlist
-from musicbot.queries import (
-    ARTISTS_QUERY,
-    BESTS_QUERY,
-    FOLDERS_QUERY,
-    PLAYLIST_QUERY,
-    REMOVE_PATH_QUERY,
-    SEARCH_QUERY,
-    SOFT_CLEAN_QUERY,
-    UPSERT_QUERY,
-)
+from musicbot.queries.gen_bests_async_edgeql import GenBestsResult, gen_bests
+from musicbot.queries.gen_playlist_async_edgeql import GenPlaylistResult, gen_playlist
+from musicbot.queries.remove_async_edgeql import remove
+from musicbot.queries.soft_clean_async_edgeql import soft_clean
+from musicbot.queries.upsert_async_edgeql import upsert
 from musicbot.scan_folders import ScanFolders
-from musicbot.search_results import SearchResults
 
 logger = logging.getLogger(__name__)
 
@@ -91,7 +85,7 @@ class MusicDb(MusicbotObject):
 
     @alru_cache
     async def folders(self) -> list[Folder]:
-        results = await self.client.query(FOLDERS_QUERY)
+        results = await self.client.query("select Folder {*} order by .name")
         folders = []
         for result in results:
             logger.error(result)
@@ -115,32 +109,22 @@ class MusicDb(MusicbotObject):
         return folders
 
     async def artists(self) -> list[edgedb.Object]:
-        return await self.client.query(ARTISTS_QUERY)
-
-    async def execute_music_filters(
-        self,
-        query: str,
-        music_filters: frozenset[MusicFilter] = frozenset(),
-    ) -> set[edgedb.Object]:
-        logger.debug(query)
-        results = set()
-        if not music_filters:
-            music_filters = frozenset([MusicFilter()])
-        for music_filter in music_filters:
-            intermediate_results = await self.client.query(
-                query,
-                **attr_asdict(music_filter),
-            )
-            logger.debug(f"{len(intermediate_results)} intermediate results for {music_filter}")
-            results.update(intermediate_results)
-        logger.debug(f"{len(results)} results")
-        return results
+        return await self.client.query("select Artist {*} order by .name")
 
     async def make_playlist(
         self,
         music_filters: frozenset[MusicFilter] = frozenset(),
     ) -> Playlist:
-        results = await self.execute_music_filters(PLAYLIST_QUERY, music_filters)
+        if not music_filters:
+            music_filters = frozenset([MusicFilter()])
+
+        results = set()
+        for music_filter in music_filters:
+            intermediate_results: list[GenPlaylistResult] = await gen_playlist(
+                self.client,
+                **attr_asdict(music_filter),
+            )
+            results.update(intermediate_results)
         return Playlist.from_edgedb(
             name=" | ".join([music_filter.help_repr() for music_filter in music_filters]),
             results=list(results),
@@ -162,7 +146,7 @@ class MusicDb(MusicbotObject):
         self.success("cleaning orphan musics, artists, albums, genres, keywords")
         if self.dry:
             return None
-        return await self.client.query_single(SOFT_CLEAN_QUERY)
+        return await soft_clean(self.client)
 
     async def ensure_connected(self) -> AsyncIOClient:
         return await self.client.ensure_connected()
@@ -171,7 +155,7 @@ class MusicDb(MusicbotObject):
         logger.debug(f"{self} : removed {path}")
         if self.dry:
             return None
-        return await self.client.query(REMOVE_PATH_QUERY, path=path)
+        return await remove(self.client, path=path)
 
     async def upsert_path(
         self,
@@ -194,17 +178,13 @@ class MusicDb(MusicbotObject):
                     self.err(f"{file} : cannot upsert music without physical folder !")
                     return None
 
-                params = dict(
-                    query=UPSERT_QUERY,
-                    **input_music,
-                )
-
                 if self.dry:
                     return file
 
-                result = await self.client.query_required_single(**params)
+                result = await upsert(self.client, **input_music)
+
                 keywords = frozenset(keyword.name for keyword in result.keywords)
-                folders = [Folder(path=folder.path, name=folder.name, ipv4=folder.ipv4, username=folder.username) for folder in result.folders]
+                folders = [Folder(path=folder.path, name=folder.name, ipv4=folder.ipv4, username=folder.username) for folder in result.folders if folder.path is not None]
                 output_music = Music(
                     title=result.name,
                     artist=result.artist.name,
@@ -229,7 +209,7 @@ class MusicDb(MusicbotObject):
                 self.err(f"{path} : no data result for query", error=error)
             except OSError as error:
                 self.warn(f"{path} : unknown error", error=error)
-            break
+            return None
         self.err(f"{self} : too many transaction failures", errpr=last_error)
         return None
 
@@ -270,7 +250,17 @@ class MusicDb(MusicbotObject):
         self,
         music_filters: frozenset[MusicFilter] = frozenset(),
     ) -> list[Playlist]:
-        results = await self.execute_music_filters(BESTS_QUERY, music_filters)
+        if not music_filters:
+            music_filters = frozenset([MusicFilter()])
+
+        results: list[GenBestsResult] = []
+        for music_filter in music_filters:
+            intermediate_result: GenBestsResult = await gen_bests(
+                self.client,
+                **attr_asdict(music_filter),
+            )
+            results.append(intermediate_result)
+
         playlists = []
         for result in results:
             for genre in result.genres:
@@ -290,31 +280,17 @@ class MusicDb(MusicbotObject):
                 playlists.append(playlist)
             for artist in result.keywords_for_artist:
                 artist_name = artist.artist
-                for keyword in artist.keywords:
-                    keyword_name = keyword.keyword
-                    artist_keyword = f"{artist_name}{os.sep}keyword_{keyword_name.lower()}"
-                    self.success(f"Keyword by artist {artist_keyword} : {len(keyword.musics)}")
-                    playlist = Playlist.from_edgedb(name=artist_keyword, results=keyword.musics)
+                for artist_keyword in artist.keywords:
+                    keyword_name = artist_keyword.keyword
+                    final_artist_keyword = f"{artist_name}{os.sep}keyword_{keyword_name.lower()}"
+                    self.success(f"Keyword by artist {final_artist_keyword} : {len(artist_keyword.musics)}")
+                    playlist = Playlist.from_edgedb(name=final_artist_keyword, results=artist_keyword.musics)
                     playlists.append(playlist)
             for ratings_for_artist in result.ratings_for_artist:
                 artist_name = ratings_for_artist.key.artist.name
-                rating_name = ratings_for_artist.key.rating
+                rating_name = str(ratings_for_artist.key.rating)
                 artist_rating = f"{artist_name}{os.sep}rating_{rating_name}"
                 self.success(f"Rating by artist {artist_rating} : {len(ratings_for_artist.elements)}")
                 playlist = Playlist.from_edgedb(name=artist_rating, results=ratings_for_artist.elements)
                 playlists.append(playlist)
         return playlists
-
-    async def search(
-        self,
-        pattern: str,
-    ) -> SearchResults:
-        result = await self.client.query_single(query=SEARCH_QUERY, pattern=pattern)
-        search_results = SearchResults(
-            musics=result.musics,
-            artists=result.artists,
-            albums=result.albums,
-            genres=result.genres,
-            keywords=result.keywords,
-        )
-        return search_results

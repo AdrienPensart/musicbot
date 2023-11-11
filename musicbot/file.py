@@ -339,7 +339,7 @@ class File(MusicbotObject):
         self.handle.tags["comment"] = description
 
     @property
-    def track(self) -> int:
+    def track(self) -> None | int:
         track_tag = "tracknumber" if self.extension == ".flac" else "TRCK"
         track = self._get_first(track_tag)
         try:
@@ -350,10 +350,10 @@ class File(MusicbotObject):
                 return -1
             if n > 2**31 - 1:
                 logger.warning(f"{self} : invalid track number {n}")
-                return 0
+                return None
             return n
         except ValueError:
-            return -1
+            return None
 
     @track.setter
     def track(self, number: int) -> None:

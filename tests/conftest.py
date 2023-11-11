@@ -7,12 +7,7 @@ from beartype import beartype
 from click.testing import CliRunner
 from pytest import fixture, skip
 
-from musicbot import (
-    File,
-    MusicDb,
-    ScanFolders,
-    syncify,
-)
+from musicbot import File, MusicDb, ScanFolders, syncify
 
 from . import fixtures
 

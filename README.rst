@@ -412,7 +412,6 @@ musicbot local
     playlist         Generate a new playlist
     remove (delete)  Remove one or more music
     scan             Load musics
-    search (find)    Search musics by full-text search
     sync             Copy selected musics with filters to destination folder
     watch (watcher)  Watch files changes in folders
 
@@ -450,8 +449,8 @@ musicbot local bests
     Filter options: 
       --prefilter [bests-4.0|bests-4.5|bests-5.0|no-album|no-artist|no-genre|no-keyword|no-rating|no-title|to-fix]
                                                         Music pre filters (repeatable)
-      --filter TEXT                                     Music filters (repeatable), fields: genre,keyword,artist,title,album,min_size,max_size
-                                                        ,min_length,max_length,min_rating,max_rating,limit
+      --filter TEXT                                     Music filters (repeatable), fields: genre,keyword,artist,title,album,pattern,min_size,
+                                                        max_size,min_length,max_length,min_rating,max_rating,limit
     MusicDB options: 
       --dsn TEXT                                        DSN to MusicBot EdgeDB
       --graphql TEXT                                    DSN to MusicBot GrapQL
@@ -520,8 +519,8 @@ musicbot local player
     Filter options: 
       --prefilter [bests-4.0|bests-4.5|bests-5.0|no-album|no-artist|no-genre|no-keyword|no-rating|no-title|to-fix]
                                                         Music pre filters (repeatable)
-      --filter TEXT                                     Music filters (repeatable), fields: genre,keyword,artist,title,album,min_size,max_size
-                                                        ,min_length,max_length,min_rating,max_rating,limit
+      --filter TEXT                                     Music filters (repeatable), fields: genre,keyword,artist,title,album,pattern,min_size,
+                                                        max_size,min_length,max_length,min_rating,max_rating,limit
     Links options: 
       --kind, --kinds [all|local|local-http|local-ssh|remote|remote-http|remote-ssh]
                                                         Generate musics paths of types  [default: local]
@@ -557,8 +556,8 @@ musicbot local playlist
     Filter options: 
       --prefilter [bests-4.0|bests-4.5|bests-5.0|no-album|no-artist|no-genre|no-keyword|no-rating|no-title|to-fix]
                                                         Music pre filters (repeatable)
-      --filter TEXT                                     Music filters (repeatable), fields: genre,keyword,artist,title,album,min_size,max_size
-                                                        ,min_length,max_length,min_rating,max_rating,limit
+      --filter TEXT                                     Music filters (repeatable), fields: genre,keyword,artist,title,album,pattern,min_size,
+                                                        max_size,min_length,max_length,min_rating,max_rating,limit
     Links options: 
       --kind, --kinds [all|local|local-http|local-ssh|remote|remote-http|remote-ssh]
                                                         Generate musics paths of types  [default: local]
@@ -604,28 +603,6 @@ musicbot local scan
     --coroutines INTEGER       Limit number of coroutines  [default: 64]
     -h, --help                 Show this message and exit.
 
-musicbot local search
-*********************
-.. code-block::
-
-  Usage: musicbot local search [OPTIONS] PATTERN
-
-    Search musics by full-text search
-
-  Options:
-    MusicDB options: 
-      --dsn TEXT                                        DSN to MusicBot EdgeDB
-      --graphql TEXT                                    DSN to MusicBot GrapQL
-    --output [json|table|m3u]                           Output format  [default: table]
-    Links options: 
-      --kind, --kinds [all|local|local-http|local-ssh|remote|remote-http|remote-ssh]
-                                                        Generate musics paths of types  [default: local]
-      --relative / --no-relative                        Generate relative links  [default: no-relative]
-    Ordering options: [mutually_exclusive]
-      --shuffle / --no-shuffle                          Randomize selection  [default: no-shuffle]
-      --interleave / --no-interleave                    Interleave tracks by artist  [default: no-interleave]
-    -h, --help                                          Show this message and exit.
-
 musicbot local sync
 *******************
 .. code-block::
@@ -652,8 +629,8 @@ musicbot local sync
     Filter options: 
       --prefilter [bests-4.0|bests-4.5|bests-5.0|no-album|no-artist|no-genre|no-keyword|no-rating|no-title|to-fix]
                                                         Music pre filters (repeatable)
-      --filter TEXT                                     Music filters (repeatable), fields: genre,keyword,artist,title,album,min_size,max_size
-                                                        ,min_length,max_length,min_rating,max_rating,limit
+      --filter TEXT                                     Music filters (repeatable), fields: genre,keyword,artist,title,album,pattern,min_size,
+                                                        max_size,min_length,max_length,min_rating,max_rating,limit
     --flat                                              Do not create subfolders
     --delete                                            Delete files on destination if not present in library
     -h, --help                                          Show this message and exit.

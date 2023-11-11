@@ -22,14 +22,14 @@ class Music(MusicbotObject):
     album: str
     artist: str
     genre: str
-    track: int
     size: int
     rating: float
     length: int
     keywords: frozenset[str]
     folders: frozenset[Folder]
-    # youtube: str | None
-    # spotify: str | None
+    track: int | None = None
+    # youtube: str | None = None
+    # spotify: str | None = None
 
     def human_repr(self) -> str:
         data: dict[str, Any] = asdict(self)

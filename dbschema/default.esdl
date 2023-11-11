@@ -11,7 +11,14 @@ module default {
     #     required identity: ext::auth::Identity;
     # }
 
-    function bytes_to_human(size: int64, k: int64 = 1000, decimals: int64 = 2, units: array<str> = [' B', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB']) -> str {
+    # alias MATCH_ALL := "(.*?)";
+
+    function bytes_to_human(
+        size: int64,
+        k: int64 = 1000,
+        decimals: int64 = 2,
+        units: array<str> = [' B', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB'],
+    ) -> str {
         using (
             select '0' ++ units[0] if size = 0
             else (
@@ -307,6 +314,43 @@ module default {
            )
         );
     }
+
+    function gen_playlist(
+        named only min_length: Length = 0,
+        named only max_length: Length = 2147483647,
+        named only min_size: Size = 0,
+        named only max_size: Size = 2147483647,
+        named only min_rating: Rating = 0.0,
+        named only max_rating: Rating = 5.0,
+        named only artist: str = "(.*?)",
+        named only album: str = "(.*?)",
+        named only genre: str = "(.*?)",
+        named only title: str = "(.*?)",
+        named only keyword: str = "(.*?)",
+        named only `limit`: `Limit` = 2147483647,
+        named only pattern: str = "",
+    ) -> set of Music {
+        using (
+            select Music
+            filter
+                .length >= min_length and .length <= max_length
+                and .size >= min_size and .size <= max_size
+                and .rating >= min_rating and .rating <= max_rating
+                and re_test(artist, .artist.name)
+                and re_test(album, .album.name)
+                and re_test(genre, .genre.name)
+                and re_test(title, .name)
+                and re_test(keyword, array_join(array_agg((select .keywords.name)), " "))
+                and (pattern = "" or ext::pg_trgm::word_similar(pattern, .title))
+            order by
+                .artist.name then
+                .album.name then
+                .track then
+                .name
+            limit `limit`
+        );
+        annotation title := "Generate a playlist from parameters";
+    };
 }
 
 using extension graphql;
