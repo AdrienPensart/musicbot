@@ -12,6 +12,13 @@ from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
 
+FIELDS_NAMES = [field.name for field in fields(MusicFilter)]
+JOINED_FIELDS_NAMES = ",".join(FIELDS_NAMES)  # pylint: disable=not-an-iterable
+FILTERS_REPRS = """\b
+""" + "\n".join(
+    [f"{k}: {v.help_repr()}" for k, v in DEFAULT_PREFILTERS.items()]
+)
+
 
 def sane_music_filters(ctx: click.Context, param: click.Parameter, value: Any) -> list[MusicFilter]:
     """Convert a list of <key>=<value> to a dict"""
@@ -40,8 +47,15 @@ def sane_music_filters(ctx: click.Context, param: click.Parameter, value: Any) -
             if len(split_val) != 2:
                 MusicbotObject.err(f"Error with a property, splitted value should be of length 2 : {split_val}")
                 raise click.Abort()
+            property_key = split_val[0]
+            property_value = split_val[1]
 
-            properties[split_val[0]] = split_val[1]
+            if property_key not in FIELDS_NAMES:
+                MusicbotObject.err(f"Error : unknown property {property_key} for value {property_value}")
+                raise click.Abort()
+
+            properties[property_key] = property_value
+
         mf = MusicFilter(**properties)
         and_filters.append(mf)
 
@@ -50,12 +64,6 @@ def sane_music_filters(ctx: click.Context, param: click.Parameter, value: Any) -
     ctx.params[param.name] = and_filters
     return ctx.params[param.name]
 
-
-fields_names = ",".join([field.name for field in fields(MusicFilter)])  # pylint: disable=not-an-iterable
-filters_reprs = """\b
-""" + "\n".join(
-    [f"{k}: {v.help_repr()}" for k, v in DEFAULT_PREFILTERS.items()]
-)
 
 music_filters_options = add_options(
     optgroup("Filter options"),
@@ -71,7 +79,7 @@ music_filters_options = add_options(
     optgroup.option(
         "--filter",
         "music_filters",
-        help=f"Music filters (repeatable), fields: {fields_names}",
+        help=f"Music filters (repeatable), fields: {JOINED_FIELDS_NAMES}",
         multiple=True,
         callback=sane_music_filters,
     ),

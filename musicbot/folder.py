@@ -40,22 +40,31 @@ class Folder(MusicbotObject):
     def http_link(self, relative: bool = False) -> str:
         return f"http://{self.ipv4}/{self.effective_path(relative)}"
 
-    def ssh_link(self) -> str:
+    def local_ssh_link(self) -> str:
+        return f"{self.username}@localhost:{self.path}"
+
+    def remote_ssh_link(self) -> str:
         return f"{self.username}@{self.ipv4}:{self.path}"
 
     def links(self, playlist_options: PlaylistOptions) -> frozenset[str]:
         paths = []
         if "all" in playlist_options.kinds:
-            return frozenset({self.ssh_link(), self.http_link(playlist_options.relative), self.effective_path(playlist_options.relative)})
+            return frozenset({self.local_ssh_link(), self.remote_ssh_link(), self.http_link(playlist_options.relative), self.effective_path(playlist_options.relative)})
 
-        if "local-ssh" in playlist_options.kinds and self.ipv4 == self.public_ip():
-            paths.append(self.ssh_link())
-        if "remote-ssh" in playlist_options.kinds and self.ipv4 != self.public_ip():
-            paths.append(self.ssh_link())
+        # if "local-ssh" in playlist_options.kinds and self.ipv4 == self.public_ip():
+        if "local-ssh" in playlist_options.kinds:
+            paths.append(self.local_ssh_link())
 
-        if "local-http" in playlist_options.kinds and self.ipv4 == self.public_ip():
+        # if "remote-ssh" in playlist_options.kinds and self.ipv4 != self.public_ip():
+        if "remote-ssh" in playlist_options.kinds:
+            paths.append(self.remote_ssh_link())
+
+        # if "local-http" in playlist_options.kinds and self.ipv4 == self.public_ip():
+        if "local-http" in playlist_options.kinds:
             paths.append(self.http_link(playlist_options.relative))
-        if "remote-http" in playlist_options.kinds and self.ipv4 != self.public_ip():
+
+        # if "remote-http" in playlist_options.kinds and self.ipv4 != self.public_ip():
+        if "remote-http" in playlist_options.kinds:
             paths.append(self.http_link(playlist_options.relative))
 
         if "local" in playlist_options.kinds and os.path.isfile(self.path):

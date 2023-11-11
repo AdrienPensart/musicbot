@@ -5,11 +5,12 @@ import logging
 import shutil
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any
+from typing import TextIO
 
 import click
 import edgedb
-import progressbar  # type: ignore
+
+# import progressbar  # type: ignore
 from beartype import beartype
 from click_skeleton import AdvancedGroup
 from rich.table import Table
@@ -25,7 +26,7 @@ from musicbot import (
     syncify,
 )
 from musicbot.cli.file import flat_option
-from musicbot.cli.music_filter import filters_reprs, music_filters_options
+from musicbot.cli.music_filter import FILTERS_REPRS, music_filters_options
 from musicbot.cli.musicdb import musicdb_options
 from musicbot.cli.options import (
     clean_option,
@@ -40,7 +41,8 @@ from musicbot.cli.scan_folders import (
     scan_folder_argument,
     scan_folders_argument,
 )
-from musicbot.defaults import DEFAULT_VLC_PARAMS
+
+# from musicbot.defaults import DEFAULT_VLC_PARAMS
 
 logger = logging.getLogger(__name__)
 
@@ -225,7 +227,7 @@ async def watch(
         pass
 
 
-@cli.command(short_help="Generate a new playlist", help=filters_reprs)
+@cli.command(short_help="Generate a new playlist", help=FILTERS_REPRS)
 @musicdb_options
 @output_option
 @music_filters_options
@@ -238,8 +240,11 @@ async def playlist(
     music_filters: list[MusicFilter],
     playlist_options: PlaylistOptions,
     musicdb: MusicDb,
-    out: Any,
+    out: click.utils.LazyFile,
 ) -> None:
+    if out.name.endswith(".m3u"):
+        output = "m3u"
+
     musicdb.set_readonly()
     new_playlist = await musicdb.make_playlist(
         music_filters=frozenset(music_filters),
@@ -292,7 +297,7 @@ async def artists(
         MusicbotObject.print_json([asdict(artist) for artist in all_artists])
 
 
-@cli.command(short_help="Generate bests playlists with some rules", help=filters_reprs)
+@cli.command(short_help="Generate bests playlists with some rules", help=FILTERS_REPRS)
 @scan_folder_argument
 @music_filters_options
 @musicdb_options
@@ -334,35 +339,35 @@ async def bests(
     MusicbotObject.success(f"Playlists: {len(bests)}")
 
 
-@cli.command(aliases=["play"], short_help="Music player", help=filters_reprs)
-@musicdb_options
-@music_filters_options
-@playlist_options
-@click.option("--vlc-params", help="VLC params", default=DEFAULT_VLC_PARAMS, show_default=True)
-@syncify
-@beartype
-async def player(
-    music_filters: list[MusicFilter],
-    musicdb: MusicDb,
-    vlc_params: str,
-    playlist_options: PlaylistOptions,
-) -> None:
-    musicdb.set_readonly()
-    if not MusicbotObject.config.quiet or not MusicbotObject.is_test():
-        progressbar.streams.unwrap(stderr=True, stdout=True)
-    try:
-        new_playlist = await musicdb.make_playlist(
-            music_filters=frozenset(music_filters),
-        )
-        new_playlist.play(
-            vlc_params=vlc_params,
-            playlist_options=playlist_options,
-        )
-    except io.UnsupportedOperation:
-        logger.critical("Unable to load UI")
+# @cli.command(aliases=["play"], short_help="Music player", help=FILTERS_REPRS)
+# @musicdb_options
+# @music_filters_options
+# @playlist_options
+# @click.option("--vlc-params", help="VLC params", default=DEFAULT_VLC_PARAMS, show_default=True)
+# @syncify
+# @beartype
+# async def player(
+#     music_filters: list[MusicFilter],
+#     musicdb: MusicDb,
+#     vlc_params: str,
+#     playlist_options: PlaylistOptions,
+# ) -> None:
+#     musicdb.set_readonly()
+#     if not MusicbotObject.config.quiet or not MusicbotObject.is_test():
+#         progressbar.streams.unwrap(stderr=True, stdout=True)
+#     try:
+#         new_playlist = await musicdb.make_playlist(
+#             music_filters=frozenset(music_filters),
+#         )
+#         new_playlist.play(
+#             vlc_params=vlc_params,
+#             playlist_options=playlist_options,
+#         )
+#     except io.UnsupportedOperation:
+#         logger.critical("Unable to load UI")
 
 
-@cli.command(short_help="Copy selected musics with filters to destination folder", help=filters_reprs)
+@cli.command(short_help="Copy selected musics with filters to destination folder", help=FILTERS_REPRS)
 @destination_argument
 @musicdb_options
 @lazy_yes_option

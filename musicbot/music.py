@@ -1,4 +1,3 @@
-import itertools
 import logging
 from dataclasses import asdict, dataclass
 from typing import Any
@@ -41,7 +40,10 @@ class Music(MusicbotObject):
 
     def links(self, playlist_options: PlaylistOptions | None = None) -> frozenset[str]:
         playlist_options = playlist_options if playlist_options is not None else PlaylistOptions()
-        return frozenset(itertools.chain(*[folder.links(playlist_options) for folder in self.folders]))
+        folder_links = []
+        for folder in self.folders:
+            folder_links.extend(folder.links(playlist_options))
+        return frozenset(folder_links)
 
     @property
     def slug(self) -> str:
