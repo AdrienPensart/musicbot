@@ -1,11 +1,9 @@
 import itertools
 import logging
 import random
-
-# import os
-# import platform
+from codecs import StreamReaderWriter
 from dataclasses import asdict, dataclass
-from typing import Any, Self
+from typing import Self
 
 import click
 import edgedb
@@ -16,7 +14,6 @@ from more_itertools import interleave_evenly
 from rich.table import Column, Table
 from rich.text import Text
 
-# from musicbot.defaults import DEFAULT_VLC_PARAMS
 from musicbot.file import File
 from musicbot.folder import Folder
 from musicbot.helpers import bytes_to_human, precise_seconds_to_human
@@ -37,8 +34,8 @@ class Playlist(MusicbotObject):
     @classmethod
     def from_files(
         cls,
-        files: list[File],
         name: str,
+        files: list[File],
     ) -> Self:
         musics = [file.music for file in files if file.music is not None]
         return cls(name=name, musics=musics)
@@ -79,7 +76,7 @@ class Playlist(MusicbotObject):
         current_title: str | None = None,
         current_album: str | None = None,
         current_artist: str | None = None,
-        file: click.utils.LazyFile = None,
+        file: click.utils.LazyFile | StreamReaderWriter | None = None,
         playlist_options: PlaylistOptions | None = None,
     ) -> None:
         playlist_options = playlist_options if playlist_options is not None else PlaylistOptions()
@@ -93,7 +90,13 @@ class Playlist(MusicbotObject):
         if playlist_options.shuffle:
             random.shuffle(musics)
 
-        table = Table(Column("Music", vertical="middle"), Column("Infos", vertical="middle"), Column("Links", no_wrap=True), show_lines=True, title=f"Playlist: {self.name}")
+        table = Table(
+            Column("Music", vertical="middle"),
+            Column("Infos", vertical="middle"),
+            Column("Links", no_wrap=True),
+            show_lines=True,
+            title=f"Playlist: {self.name}",
+        )
         total_length = 0
         total_size = 0
         for music in musics:
@@ -161,125 +164,3 @@ class Playlist(MusicbotObject):
 
     def links(self, playlist_options: PlaylistOptions) -> list[str]:
         return list(itertools.chain(*[music.links(playlist_options) for music in self.musics]))
-
-    # def play(
-    #     self,
-    #     playlist_options: PlaylistOptions | None = None,
-    #     vlc_params: str = DEFAULT_VLC_PARAMS,
-    # ) -> None:
-    #     from prompt_toolkit import HTML, Application, print_formatted_text
-    #     from prompt_toolkit.application import get_app, run_in_terminal
-    #     from prompt_toolkit.key_binding import KeyBindings
-    #     from prompt_toolkit.layout.containers import HSplit, Window
-    #     from prompt_toolkit.layout.controls import FormattedTextControl
-    #     from prompt_toolkit.layout.layout import Layout
-
-    #     playlist_options = playlist_options if playlist_options is not None else PlaylistOptions()
-    #     if not self.musics:
-    #         self.warn("Empty playlist")
-    #         return
-
-    #     try:
-    #         if platform.system() == "Windows":
-    #             vlc_path = r"C:\Program Files\VideoLAN\VLC"
-    #             logger.debug(f"Adding DLL folder {vlc_path}")
-    #             os.add_dll_directory(vlc_path)  # type: ignore
-    #         import vlc  # type: ignore
-
-    #         instance = vlc.Instance(vlc_params)
-    #         if not instance:
-    #             logger.critical("Unable to start VLC instance")
-    #             return
-
-    #         if not instance.audio_output_enumerate_devices():
-    #             logger.warning("maybe no audio output detected...")
-
-    #         if not (player := instance.media_list_player_new()):
-    #             logger.critical("Unable to create VLC player")
-    #             return
-
-    #         if not (media_list := instance.media_list_new(self.links(playlist_options))):
-    #             logger.critical("Unable to create VLC media list")
-    #             return
-
-    #         player.set_media_list(media_list)
-    #         bindings = KeyBindings()
-
-    #         def print_help() -> None:
-    #             print_formatted_text(HTML("<violet>Bindings: q = quit | p = play | s = pause/continue | right = next song | left = previous song | l = playlist</violet>"))
-
-    #         @bindings.add("p")
-    #         def _play_binding(event: Any) -> None:  # pylint: disable=unused-argument
-    #             def play() -> None:
-    #                 """Play song"""
-    #                 player.play()
-
-    #             _ = run_in_terminal(play)
-
-    #         @bindings.add("q")
-    #         def _quit_binding(event: Any) -> None:
-    #             player.pause()
-    #             event.app.exit()
-
-    #         @bindings.add("s")
-    #         def _pause_binding(event: Any) -> None:  # pylint: disable=unused-argument
-    #             player.pause()
-
-    #         @bindings.add("l")
-    #         def _playlist_binding(event: Any) -> None:  # pylint: disable=unused-argument
-    #             def playlist() -> None:
-    #                 """List songs"""
-    #                 media_player = player.get_media_player()
-    #                 media = media_player.get_media()
-    #                 media.parse()
-    #                 current_artist = media.get_meta(vlc.Meta.Artist)
-    #                 current_album = media.get_meta(vlc.Meta.Album)
-    #                 current_title = media.get_meta(vlc.Meta.Title)
-    #                 self.print(
-    #                     output="table",
-    #                     current_artist=current_artist,
-    #                     current_album=current_album,
-    #                     current_title=current_title,
-    #                     playlist_options=playlist_options,
-    #                 )
-
-    #             _ = run_in_terminal(playlist)
-
-    #         @bindings.add("right")
-    #         def _next_binding(event: Any) -> None:  # pylint: disable=unused-argument
-    #             player.next()
-
-    #         @bindings.add("left")
-    #         def _previous_binding(event: Any) -> None:  # pylint: disable=unused-argument
-    #             player.previous()
-
-    #         @bindings.add("h")
-    #         def _help(event: Any) -> None:  # pylint: disable=unused-argument
-    #             def _print_help() -> None:
-    #                 print_help()
-
-    #             _ = run_in_terminal(_print_help)
-    #             get_app().invalidate()
-
-    #         def bottom_toolbar() -> Any:
-    #             media_player = player.get_media_player()
-    #             media = media_player.get_media()
-    #             media.parse()
-    #             media_time = formatted_seconds_to_human(round(media_player.get_time() / 1000))
-    #             media_length = formatted_seconds_to_human(round(media_player.get_length() / 1000))
-    #             artist = media.get_meta(vlc.Meta.Artist)
-    #             album = media.get_meta(vlc.Meta.Album)
-    #             title = media.get_meta(vlc.Meta.Title)
-    #             current = f"({media_time} / {media_length}) {artist} - {album} - {title}"
-    #             get_app().invalidate()
-    #             return HTML(f"Current song: {current}")
-
-    #         print_help()
-    #         player.play()
-
-    #         root_container = HSplit([Window(FormattedTextControl(lambda: bottom_toolbar, style="class:bottom-toolbar.text"), style="class:bottom-toolbar")])
-    #         layout = Layout(root_container)
-    #         app: Any = Application(layout=layout, key_bindings=bindings)
-    #         app.run()
-    #     except Exception as error:
-    #         self.err("Unable to load VLC", error=error)

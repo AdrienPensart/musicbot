@@ -1,16 +1,12 @@
 import asyncio
 import codecs
-import io
 import logging
 import shutil
 from dataclasses import asdict
 from pathlib import Path
-from typing import TextIO
 
 import click
 import edgedb
-
-# import progressbar  # type: ignore
 from beartype import beartype
 from click_skeleton import AdvancedGroup
 from rich.table import Table
@@ -41,8 +37,6 @@ from musicbot.cli.scan_folders import (
     scan_folder_argument,
     scan_folders_argument,
 )
-
-# from musicbot.defaults import DEFAULT_VLC_PARAMS
 
 logger = logging.getLogger(__name__)
 
@@ -337,34 +331,6 @@ async def bests(
             logger.warning(f"Unable to write playlist {best.name} to {filepath} because of {e}")
 
     MusicbotObject.success(f"Playlists: {len(bests)}")
-
-
-# @cli.command(aliases=["play"], short_help="Music player", help=FILTERS_REPRS)
-# @musicdb_options
-# @music_filters_options
-# @playlist_options
-# @click.option("--vlc-params", help="VLC params", default=DEFAULT_VLC_PARAMS, show_default=True)
-# @syncify
-# @beartype
-# async def player(
-#     music_filters: list[MusicFilter],
-#     musicdb: MusicDb,
-#     vlc_params: str,
-#     playlist_options: PlaylistOptions,
-# ) -> None:
-#     musicdb.set_readonly()
-#     if not MusicbotObject.config.quiet or not MusicbotObject.is_test():
-#         progressbar.streams.unwrap(stderr=True, stdout=True)
-#     try:
-#         new_playlist = await musicdb.make_playlist(
-#             music_filters=frozenset(music_filters),
-#         )
-#         new_playlist.play(
-#             vlc_params=vlc_params,
-#             playlist_options=playlist_options,
-#         )
-#     except io.UnsupportedOperation:
-#         logger.critical("Unable to load UI")
 
 
 @cli.command(short_help="Copy selected musics with filters to destination folder", help=FILTERS_REPRS)

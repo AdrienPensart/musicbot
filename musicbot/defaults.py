@@ -2,8 +2,6 @@ MATCH_ALL = "(.*?)"
 MIN_INT: int = 0
 MAX_INT: int = 2147483647
 
-# DEFAULT_VLC_PARAMS: str = "--vout=dummy --aout=pulse"
-
 KINDS_CHOICES: frozenset[str] = frozenset(["local", "remote", "remote-ssh", "local-ssh", "local-http", "remote-http", "all"])
 DEFAULT_KINDS: frozenset[str] = frozenset(["local"])
 

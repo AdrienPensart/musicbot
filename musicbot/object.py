@@ -322,7 +322,7 @@ class MusicbotObject:
             os.killpg(os.getpid(), signal.SIGKILL)
 
     @classmethod
-    def print_table(cls, table: Table, file: IO | None = None) -> None:
+    def print_table(cls, table: Table, file: IO | click.utils.LazyFile | None = None) -> None:
         """Print rich table"""
         if file is not None:
             console = Console(file=io.StringIO(), width=300)
@@ -339,7 +339,7 @@ class MusicbotObject:
     def print_json(
         cls,
         data: Any,
-        file: IO | None = None,
+        file: IO | click.utils.LazyFile | None = None,
         option: int | None = orjson.OPT_INDENT_2 | orjson.OPT_SORT_KEYS | orjson.OPT_NON_STR_KEYS,  # pylint: disable=maybe-no-member
         default: Callable | None = default_encoder,
     ) -> None:

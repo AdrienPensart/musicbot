@@ -8,7 +8,7 @@ from typing import Any
 import click
 from beartype import beartype
 from click_option_group import optgroup
-from click_skeleton import ExpandedPath, add_options
+from click_skeleton import add_options
 from rich.table import Table
 from rich.text import Text
 
@@ -142,7 +142,7 @@ def sane_spotify(ctx: click.Context, param: click.Parameter, value: str | None) 
 spotify_cache_path_option = optgroup.option(
     "--spotify-cache-path",
     help="Spotify cache path",
-    type=ExpandedPath(writable=True, readable=True, dir_okay=False),
+    type=click.Path(writable=True, readable=True, dir_okay=False),
     envvar="MB_SPOTIFY_CACHE_PATH",
     default=DEFAULT_SPOTIFY_CACHE_PATH,
     callback=config_string,

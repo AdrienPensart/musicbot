@@ -17,8 +17,6 @@ pgcli = 'pgcli.main:cli'
 
 [tool.poetry.dependencies]
 python = ">=3.11,<4.0"
-pyacoustid = "^1.1"
-python-vlc = "^3.0"
 prompt_toolkit = "^3.0.2"
 mutagen = "^1.44.0"
 requests = "^2.24.0"
@@ -51,6 +49,7 @@ pgcli = "^4.0.0"
 ruamel-yaml = "^0.18.0"
 shazamio = "^0.4.0.1"
 psycopg = {extras = ["binary", "pool"], version = "^3.1.10"}
+pyacoustid = "^1.3.0"
 
 [tool.isort]
 profile = 'black'
@@ -111,7 +110,6 @@ implicit_reexport = false
 local_partial_types = true
 strict_optional = true
 strict_equality = true
-no_implicit_optional = true
 warn_unused_ignores = true
 warn_redundant_casts = true
 warn_unused_configs = true

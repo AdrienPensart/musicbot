@@ -24,17 +24,17 @@ Commands
     -h, --help                       Show this message and exit.
 
   Commands:
-    completion     Shell completion
-    console        Starts interpreter
-    database (db)  DB management
-    folder         Manage folders
-    help           Print help
-    local          Local music management
-    music (file)   Music file
-    readme (doc)   Generates a README.rst
-    spotify        Spotify tool
-    version        Print version
-    youtube        Youtube tool
+    completion            Shell completion
+    console               Starts interpreter
+    database (db,edgedb)  DB management
+    folder                Manage folders
+    help                  Print help
+    local                 Local music management
+    music (file)          Music file
+    readme (doc)          Generates a README.rst
+    spotify               Spotify tool
+    version               Print version
+    youtube               Youtube tool
 
 musicbot completion
 *******************
@@ -164,9 +164,10 @@ musicbot database graphiql
 
   Options:
     MusicDB options: 
-      --dsn TEXT       DSN to MusicBot EdgeDB
-      --graphql TEXT   DSN to MusicBot GrapQL
-    -h, --help         Show this message and exit.
+      --dsn TEXT        DSN to MusicBot EdgeDB
+      --graphql TEXT    DSN to MusicBot GrapQL
+    --open / --no-open  [default: open]
+    -h, --help          Show this message and exit.
 
 musicbot database graphql
 *************************
@@ -219,10 +220,11 @@ musicbot database ui
     Explore with EdgeDB UI
 
   Options:
+    --open / --no-open  [default: open]
     MusicDB options: 
-      --dsn TEXT       DSN to MusicBot EdgeDB
-      --graphql TEXT   DSN to MusicBot GrapQL
-    -h, --help         Show this message and exit.
+      --dsn TEXT        DSN to MusicBot EdgeDB
+      --graphql TEXT    DSN to MusicBot GrapQL
+    -h, --help          Show this message and exit.
 
 musicbot folder
 ***************
@@ -408,7 +410,6 @@ musicbot local
     clean (wipe)     Clean all musics
     folders          List folders and some stats
     help             Print help
-    player (play)    Music player
     playlist         Generate a new playlist
     remove (delete)  Remove one or more music
     scan             Load musics
@@ -494,42 +495,6 @@ musicbot local folders
       --graphql TEXT           DSN to MusicBot GrapQL
     --output [json|table|m3u]  Output format  [default: table]
     -h, --help                 Show this message and exit.
-
-musicbot local player
-*********************
-.. code-block::
-
-  Usage: musicbot local player [OPTIONS]
-
-    to-fix: keyword=(tofix|todo|spotify-error)
-    no-artist: artist=^$
-    no-album: album=^$
-    no-title: title=^$
-    no-genre: genre=^$
-    no-keyword: keyword=^$
-    no-rating: max_rating=0.0
-    bests-4.0: keyword=^((?!cutoff|bad|demo|intro).)$,min_rating=4.0
-    bests-4.5: keyword=^((?!cutoff|bad|demo|intro).)$,min_rating=4.5
-    bests-5.0: keyword=^((?!cutoff|bad|demo|intro).)$,min_rating=5.0
-
-  Options:
-    MusicDB options: 
-      --dsn TEXT                                        DSN to MusicBot EdgeDB
-      --graphql TEXT                                    DSN to MusicBot GrapQL
-    Filter options: 
-      --prefilter [bests-4.0|bests-4.5|bests-5.0|no-album|no-artist|no-genre|no-keyword|no-rating|no-title|to-fix]
-                                                        Music pre filters (repeatable)
-      --filter TEXT                                     Music filters (repeatable), fields: genre,keyword,artist,title,album,pattern,min_size,
-                                                        max_size,min_length,max_length,min_rating,max_rating,limit
-    Links options: 
-      --kind, --kinds [all|local|local-http|local-ssh|remote|remote-http|remote-ssh]
-                                                        Generate musics paths of types  [default: local]
-      --relative / --no-relative                        Generate relative links  [default: no-relative]
-    Ordering options: [mutually_exclusive]
-      --shuffle / --no-shuffle                          Randomize selection  [default: no-shuffle]
-      --interleave / --no-interleave                    Interleave tracks by artist  [default: no-interleave]
-    --vlc-params TEXT                                   VLC params  [default: --vout=dummy --aout=pulse]
-    -h, --help                                          Show this message and exit.
 
 musicbot local playlist
 ***********************

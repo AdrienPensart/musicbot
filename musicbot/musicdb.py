@@ -125,8 +125,9 @@ class MusicDb(MusicbotObject):
                 **attr_asdict(music_filter),
             )
             results.update(intermediate_results)
+        name = " | ".join([music_filter.help_repr() for music_filter in music_filters])
         return Playlist.from_edgedb(
-            name=" | ".join([music_filter.help_repr() for music_filter in music_filters]),
+            name=name,
             results=list(results),
         )
 

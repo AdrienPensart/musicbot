@@ -148,23 +148,6 @@ def test_local_bests(cli_runner: CliRunner, edgedb: str) -> None:
     )
 
 
-# @beartype
-# def test_local_player(cli_runner: CliRunner, edgedb: str) -> None:
-#     _ = run_cli(
-#         cli_runner,
-#         cli,
-#         [
-#             "--quiet",
-#             "local",
-#             "player",
-#             "--vlc-params",
-#             "--vout=dummy --aout=dummy",
-#             "--dsn",
-#             edgedb,
-#         ],
-#     )
-
-
 @beartype
 def test_local_scan(cli_runner: CliRunner, edgedb: str) -> None:
     _ = run_cli(

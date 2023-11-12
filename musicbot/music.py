@@ -40,7 +40,7 @@ class Music(MusicbotObject):
 
     def links(self, playlist_options: PlaylistOptions | None = None) -> frozenset[str]:
         playlist_options = playlist_options if playlist_options is not None else PlaylistOptions()
-        folder_links = []
+        folder_links: list[str] = []
         for folder in self.folders:
             folder_links.extend(folder.links(playlist_options))
         return frozenset(folder_links)

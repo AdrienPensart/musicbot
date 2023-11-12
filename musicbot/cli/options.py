@@ -162,6 +162,14 @@ yes_option = click.option(
     callback=confirm,
 )
 
+open_option = click.option(
+    "--open/--no-open",
+    "_open",
+    is_flag=True,
+    default=True,
+    show_default=True,
+)
+
 lazy_yes_option = click.option(
     "--yes",
     "-y",

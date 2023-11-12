@@ -1,5 +1,6 @@
 import itertools
 import logging
+import os
 from dataclasses import asdict, dataclass
 from functools import cached_property
 from typing import Any
@@ -34,9 +35,10 @@ class Spotify(MusicbotObject):
         del auth_params["username"]
         return spotipy.oauth2.SpotifyOAuth(**auth_params, cache_handler=self.cache_handler)
 
-    @property
+    @cached_property
     def cache_handler(self) -> CacheFileHandler:
-        return CacheFileHandler(cache_path=self.cache_path, username=self.username)
+        cache_path = os.path.expanduser(self.cache_path)
+        return CacheFileHandler(cache_path=cache_path, username=self.username)
 
     @cached_property
     def api(self) -> spotipy.Spotify:

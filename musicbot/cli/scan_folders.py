@@ -21,7 +21,7 @@ def sane_scan_folders(ctx: click.Context, param: click.Parameter, value: tuple[s
     value = config_list(ctx, param, value)
     limit = ctx.params.pop("limit", None)
     extensions = ctx.params.pop("extensions", DEFAULT_EXTENSIONS)
-    paths = [Path(path) for path in value]
+    paths = [Path(path).expanduser() for path in value]
     folders = ScanFolders(
         directories=paths,
         limit=limit,

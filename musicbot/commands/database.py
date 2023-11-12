@@ -8,10 +8,10 @@ from click_skeleton import AdvancedGroup
 
 from musicbot import MusicbotObject, MusicDb, syncify
 from musicbot.cli.musicdb import musicdb_options
-from musicbot.cli.options import yes_option
+from musicbot.cli.options import open_option, yes_option
 
 
-@click.group(help="DB management", cls=AdvancedGroup, aliases=["db"])
+@click.group(help="DB management", cls=AdvancedGroup, aliases=["db", "edgedb"])
 @beartype
 def cli() -> None:
     pass
@@ -59,28 +59,44 @@ def pgcli(ctx: click.Context, musicdb: MusicDb, pgcli_args: tuple[str, ...]) -> 
 
 @cli.command(help="Explore with GraphiQL")
 @musicdb_options
+@open_option
 @beartype
-def graphiql(musicdb: MusicDb) -> None:
+def graphiql(musicdb: MusicDb, _open: bool) -> None:
     if musicdb.graphql:
         url = f"{musicdb.graphql}/explore"
-        MusicbotObject.success(url)
-        if not MusicbotObject.dry:
+        print(url)
+        if _open and not MusicbotObject.dry:
             _ = webbrowser.open(url)
 
 
 @cli.command(help="Explore with EdgeDB UI", context_settings=dict(ignore_unknown_options=True, help_option_names=[]))
 @click.pass_context
 @click.argument("edgedb_args", nargs=-1, type=click.UNPROCESSED)
+@open_option
 @musicdb_options
 @beartype
-def ui(ctx: click.Context, musicdb: MusicDb, edgedb_args: tuple[str, ...]) -> None:
+def ui(
+    ctx: click.Context,
+    musicdb: MusicDb,
+    _open: bool,
+    edgedb_args: tuple[str, ...],
+) -> None:
     if "--help" in edgedb_args:
         MusicbotObject.echo(ctx.get_help())
         MusicbotObject.echo("\n")
 
     args = ["edgedb", "ui", "--print-url", "--no-server-check", "--dsn", musicdb.dsn] + list(edgedb_args)
     try:
-        _ = subprocess.run(args, check=True)
+        # _ = subprocess.run(args, check=True)
+        url = subprocess.check_output(
+            " ".join(args),
+            stderr=subprocess.STDOUT,
+            shell=True,
+            text=True,
+        ).strip()
+        print(url)
+        if _open and not MusicbotObject.dry:
+            _ = webbrowser.open(url)
     except FileNotFoundError:
         MusicbotObject.err("Unable to locate edgedb CLI, please install it first with")
         MusicbotObject.tip("curl --proto '=https' --tlsv1.2 -sSf https://sh.edgedb.com | sh")

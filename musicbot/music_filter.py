@@ -78,7 +78,7 @@ class MusicFilter(MusicbotObject):
         return "{}"
 
     def help_repr(self) -> str:
-        return ",".join([f"{k}={v}" for k, v in self._short_repr().items()])
+        return ",".join([f"{k}={v}" for k, v in self._short_repr().items()]) or "default"
 
 
 NO_KEYWORD = "^((?!cutoff|bad|demo|intro).)$"

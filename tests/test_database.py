@@ -1,8 +1,10 @@
+import httpx
 from beartype import beartype
 from click.testing import CliRunner
 from click_skeleton.testing import run_cli
 
 from musicbot.main import cli
+from musicbot.object import MusicbotObject
 
 
 @beartype
@@ -38,7 +40,7 @@ def test_database_edgeql(cli_runner: CliRunner, edgedb: str) -> None:
 
 @beartype
 def test_database_graphql(cli_runner: CliRunner, edgedb: str) -> None:
-    _ = run_cli(
+    output = run_cli(
         cli_runner,
         cli,
         [
@@ -50,11 +52,12 @@ def test_database_graphql(cli_runner: CliRunner, edgedb: str) -> None:
             edgedb,
         ],
     )
+    assert MusicbotObject.loads_json(output) is not None
 
 
 @beartype
 def test_database_graphiql(cli_runner: CliRunner, edgedb: str) -> None:
-    _ = run_cli(
+    url = run_cli(
         cli_runner,
         cli,
         [
@@ -63,12 +66,14 @@ def test_database_graphiql(cli_runner: CliRunner, edgedb: str) -> None:
             "graphiql",
             "--dsn",
             edgedb,
+            "--no-open",
         ],
     )
+    _ = httpx.head(url, timeout=5)
 
 
 @beartype
-def test_database_ui(cli_runner: CliRunner) -> None:
+def test_database_ui(cli_runner: CliRunner, edgedb: str) -> None:
     _ = run_cli(
         cli_runner,
         cli,
@@ -76,6 +81,9 @@ def test_database_ui(cli_runner: CliRunner) -> None:
             "--quiet",
             "database",
             "ui",
+            "--dsn",
+            edgedb,
+            "--no-open",
         ],
     )
 
