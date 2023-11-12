@@ -8,7 +8,7 @@ from click_skeleton import AdvancedGroup
 
 from musicbot import MusicbotObject, MusicDb, syncify
 from musicbot.cli.musicdb import musicdb_options
-from musicbot.cli.options import open_option, yes_option
+from musicbot.cli.options import open_option, output_option, yes_option
 
 
 @click.group(help="DB management", cls=AdvancedGroup, aliases=["db", "edgedb"])
@@ -20,10 +20,17 @@ def cli() -> None:
 @cli.command(help="EdgeDB raw query", aliases=["query", "fetch", "execute"])
 @click.argument("query")
 @musicdb_options
+@output_option
 @syncify
 @beartype
-async def edgeql(musicdb: MusicDb, query: str) -> None:
-    print(await musicdb.query_json(query))
+async def edgeql(musicdb: MusicDb, output: str, query: str) -> None:
+    result = await musicdb.query_json(query)
+    if output == "json":
+        intermediate_json = MusicbotObject.loads_json(result)
+        if intermediate_json is not None:
+            MusicbotObject.print_json(intermediate_json)
+    else:
+        print(result)
 
 
 @cli.command(help="GraphQL query")
@@ -63,10 +70,9 @@ def pgcli(ctx: click.Context, musicdb: MusicDb, pgcli_args: tuple[str, ...]) -> 
 @beartype
 def graphiql(musicdb: MusicDb, _open: bool) -> None:
     if musicdb.graphql:
-        url = f"{musicdb.graphql}/explore"
-        print(url)
+        print(musicdb.graphiql)
         if _open and not MusicbotObject.dry:
-            _ = webbrowser.open(url)
+            _ = webbrowser.open(musicdb.graphiql)
 
 
 @cli.command(help="Explore with EdgeDB UI", context_settings=dict(ignore_unknown_options=True, help_option_names=[]))
@@ -87,7 +93,6 @@ def ui(
 
     args = ["edgedb", "ui", "--print-url", "--no-server-check", "--dsn", musicdb.dsn] + list(edgedb_args)
     try:
-        # _ = subprocess.run(args, check=True)
         url = subprocess.check_output(
             " ".join(args),
             stderr=subprocess.STDOUT,

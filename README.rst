@@ -150,9 +150,10 @@ musicbot database edgeql
 
   Options:
     MusicDB options: 
-      --dsn TEXT       DSN to MusicBot EdgeDB
-      --graphql TEXT   DSN to MusicBot GrapQL
-    -h, --help         Show this message and exit.
+      --dsn TEXT               DSN to MusicBot EdgeDB
+      --graphql TEXT           DSN to MusicBot GrapQL
+    --output [json|table|m3u]  Output format  [default: table]
+    -h, --help                 Show this message and exit.
 
 musicbot database graphiql
 **************************
