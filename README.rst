@@ -9,19 +9,19 @@ Commands
 
   Options:
     Global options: 
-      -c, --config FILE              Config file path  [default: ~/musicbot.ini]
-      -l, --log FILE                 Log file path
-      -q, --quiet / --no-quiet       Disable progress bars  [default: no-quiet]
-      --color / --no-color           Enable or disable color in output  [default: color]
+      -c, --config FILE             Config file path  [default: ~/musicbot.ini]
+      -l, --log FILE                Log file path
+      -q, --quiet / --no-quiet      Disable progress bars  [default: no-quiet]
+      --color / --no-color          Enable or disable color in output  [default: color]
     Verbosity: [mutually_exclusive]
-      --debug                        Debug verbosity
-      --info                         Info verbosity
-      --warning                      Warning verbosity
-      --error                        Error verbosity
-      --critical                     Critical verbosity
-    --dry / --no-dry                 Do not launch real action  [default: no-dry]
-    -V, --version                    Show the version and exit.
-    -h, --help                       Show this message and exit.
+      --debug                       Debug verbosity
+      --info                        Info verbosity
+      --warning                     Warning verbosity
+      --error                       Error verbosity
+      --critical                    Critical verbosity
+    --dry / --no-dry                Do not launch real action  [default: no-dry]
+    -V, --version                   Show the version and exit.
+    -h, --help                      Show this message and exit.
 
   Commands:
     completion            Shell completion
@@ -450,23 +450,24 @@ musicbot local bests
   Options:
     Filter options: 
       --prefilter [bests-4.0|bests-4.5|bests-5.0|no-album|no-artist|no-genre|no-keyword|no-rating|no-title|to-fix]
-                                                        Music pre filters (repeatable)
-      --filter TEXT                                     Music filters (repeatable), fields: genre,keyword,artist,title,album,pattern,min_size,
-                                                        max_size,min_length,max_length,min_rating,max_rating,limit
+                                    Music pre filters (repeatable)
+      --filter TEXT                 Music filters (repeatable), fields: genre,keyword,artist,title,album,pattern,min_size,max_size,min_length,
+                                    max_length,min_rating,max_rating,limit
     MusicDB options: 
-      --dsn TEXT                                        DSN to MusicBot EdgeDB
-      --graphql TEXT                                    DSN to MusicBot GrapQL
-    --dry / --no-dry                                    Do not launch real action  [default: no-dry]
+      --dsn TEXT                    DSN to MusicBot EdgeDB
+      --graphql TEXT                DSN to MusicBot GrapQL
+    --dry / --no-dry                Do not launch real action  [default: no-dry]
     Links options: 
       --kind, --kinds [all|local|local-http|local-ssh|remote|remote-http|remote-ssh]
-                                                        Generate musics paths of types  [default: local]
-      --relative / --no-relative                        Generate relative links  [default: no-relative]
+                                    Generate musics paths of types  [default: local]
+      --relative / --no-relative    Generate relative links  [default: no-relative]
     Ordering options: [mutually_exclusive]
-      --shuffle / --no-shuffle                          Randomize selection  [default: no-shuffle]
-      --interleave / --no-interleave                    Interleave tracks by artist  [default: no-interleave]
+      --shuffle / --no-shuffle      Randomize selection  [default: no-shuffle]
+      --interleave / --no-interleave
+                                    Interleave tracks by artist  [default: no-interleave]
     Bests options: 
-      --min-playlist-size INTEGER                       Minimum size of playlist to write  [default: 1]
-    -h, --help                                          Show this message and exit.
+      --min-playlist-size INTEGER   Minimum size of playlist to write  [default: 1]
+    -h, --help                      Show this message and exit.
 
 musicbot local clean
 ********************
@@ -516,22 +517,23 @@ musicbot local playlist
 
   Options:
     MusicDB options: 
-      --dsn TEXT                                        DSN to MusicBot EdgeDB
-      --graphql TEXT                                    DSN to MusicBot GrapQL
-    --output [json|table|m3u]                           Output format  [default: table]
+      --dsn TEXT                    DSN to MusicBot EdgeDB
+      --graphql TEXT                DSN to MusicBot GrapQL
+    --output [json|table|m3u]       Output format  [default: table]
     Filter options: 
       --prefilter [bests-4.0|bests-4.5|bests-5.0|no-album|no-artist|no-genre|no-keyword|no-rating|no-title|to-fix]
-                                                        Music pre filters (repeatable)
-      --filter TEXT                                     Music filters (repeatable), fields: genre,keyword,artist,title,album,pattern,min_size,
-                                                        max_size,min_length,max_length,min_rating,max_rating,limit
+                                    Music pre filters (repeatable)
+      --filter TEXT                 Music filters (repeatable), fields: genre,keyword,artist,title,album,pattern,min_size,max_size,min_length,
+                                    max_length,min_rating,max_rating,limit
     Links options: 
       --kind, --kinds [all|local|local-http|local-ssh|remote|remote-http|remote-ssh]
-                                                        Generate musics paths of types  [default: local]
-      --relative / --no-relative                        Generate relative links  [default: no-relative]
+                                    Generate musics paths of types  [default: local]
+      --relative / --no-relative    Generate relative links  [default: no-relative]
     Ordering options: [mutually_exclusive]
-      --shuffle / --no-shuffle                          Randomize selection  [default: no-shuffle]
-      --interleave / --no-interleave                    Interleave tracks by artist  [default: no-interleave]
-    -h, --help                                          Show this message and exit.
+      --shuffle / --no-shuffle      Randomize selection  [default: no-shuffle]
+      --interleave / --no-interleave
+                                    Interleave tracks by artist  [default: no-interleave]
+    -h, --help                      Show this message and exit.
 
 musicbot local remove
 *********************
@@ -588,18 +590,18 @@ musicbot local sync
 
   Options:
     MusicDB options: 
-      --dsn TEXT                                        DSN to MusicBot EdgeDB
-      --graphql TEXT                                    DSN to MusicBot GrapQL
-    -y, --yes                                           Confirm action
-    --dry / --no-dry                                    Do not launch real action  [default: no-dry]
+      --dsn TEXT                    DSN to MusicBot EdgeDB
+      --graphql TEXT                DSN to MusicBot GrapQL
+    -y, --yes                       Confirm action
+    --dry / --no-dry                Do not launch real action  [default: no-dry]
     Filter options: 
       --prefilter [bests-4.0|bests-4.5|bests-5.0|no-album|no-artist|no-genre|no-keyword|no-rating|no-title|to-fix]
-                                                        Music pre filters (repeatable)
-      --filter TEXT                                     Music filters (repeatable), fields: genre,keyword,artist,title,album,pattern,min_size,
-                                                        max_size,min_length,max_length,min_rating,max_rating,limit
-    --flat                                              Do not create subfolders
-    --delete                                            Delete files on destination if not present in library
-    -h, --help                                          Show this message and exit.
+                                    Music pre filters (repeatable)
+      --filter TEXT                 Music filters (repeatable), fields: genre,keyword,artist,title,album,pattern,min_size,max_size,min_length,
+                                    max_length,min_rating,max_rating,limit
+    --flat                          Do not create subfolders
+    --delete                        Delete files on destination if not present in library
+    -h, --help                      Show this message and exit.
 
 musicbot local watch
 ********************
@@ -633,19 +635,19 @@ musicbot music
     -h, --help  Show this message and exit.
 
   Commands:
-    add-keywords                                        Add keywords to music
+    add-keywords                    Add keywords to music
     delete-keywords (delete-keyword,remove-keyword,remove-keywords)
-                                                        Delete keywords to music
-    fingerprint                                         Print music AcoustID fingerprint
-    flac2mp3 (flac-to-mp3)                              Convert flac music to mp3
-    help                                                Print help
-    issues                                              Check music consistency
-    manual-fix                                          Fix music file
-    replace-keyword                                     Replace one keyword in music
-    set-tags (set-tag)                                  Set music title
-    shazam (recognize)                                  Recognize music using Shazam
-    show                                                Show music
-    tags (tag)                                          Print music tags
+                                    Delete keywords to music
+    fingerprint                     Print music AcoustID fingerprint
+    flac2mp3 (flac-to-mp3)          Convert flac music to mp3
+    help                            Print help
+    issues                          Check music consistency
+    manual-fix                      Fix music file
+    replace-keyword                 Replace one keyword in music
+    set-tags (set-tag)              Set music title
+    shazam (recognize)              Recognize music using Shazam
+    show                            Show music
+    tags (tag)                      Print music tags
 
 musicbot music add-keywords
 ***************************

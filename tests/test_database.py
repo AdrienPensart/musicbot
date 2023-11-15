@@ -38,7 +38,7 @@ def test_database_edgeql(cli_runner: CliRunner, edgedb: str) -> None:
             "json",
         ],
     )
-    assert MusicbotObject.loads_json(output) is not None
+    assert MusicbotObject.loads_json(output) is not None, output
 
 
 @beartype
@@ -55,7 +55,7 @@ def test_database_graphql(cli_runner: CliRunner, edgedb: str) -> None:
             edgedb,
         ],
     )
-    assert MusicbotObject.loads_json(output) is not None
+    assert MusicbotObject.loads_json(output) is not None, output
 
 
 @beartype
@@ -72,7 +72,7 @@ def test_database_graphiql(cli_runner: CliRunner, edgedb: str) -> None:
             "--no-open",
         ],
     )
-    _ = httpx.head(url, timeout=5)
+    _ = httpx.get(url, timeout=5, verify=False)
 
 
 @beartype
@@ -89,7 +89,7 @@ def test_database_ui(cli_runner: CliRunner, edgedb: str) -> None:
             "--no-open",
         ],
     )
-    _ = httpx.head(url, timeout=5)
+    _ = httpx.get(url, timeout=5, verify=False)
 
 
 @beartype

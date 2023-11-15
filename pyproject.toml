@@ -17,7 +17,6 @@ pgcli = 'pgcli.main:cli'
 
 [tool.poetry.dependencies]
 python = ">=3.11,<4.0"
-prompt_toolkit = "^3.0.2"
 mutagen = "^1.44.0"
 requests = "^2.24.0"
 spotipy = "^2.16.0"
@@ -32,6 +31,7 @@ click-skeleton = "^0.28.1"
 beartype = "^0.16.0"
 humanize = "^4.0.0"
 python-slugify = "^8.0.0"
+types-python-slugify = "^8.0.0"
 edgedb = "^1.0.0"
 Pygments = "^2.11.2"
 more-itertools = "^10.0.0"
@@ -75,8 +75,6 @@ vulture = "^2.3"
 ruff = "<1.0"
 black = "^23.1.0"
 textual-dev = "^1.1.0"
-types-requests = "^2.25.0"
-types-python-slugify = "^8.0.0"
 
 [tool.pyright]
 include = [

@@ -37,12 +37,12 @@ def wait_for_service(hostname: str, port: int, timeout: int = 60) -> bool:
 @fixture(scope="session")
 @beartype
 def edgedb() -> str:
-    # hostname = "127.0.0.1"
-    # port = 5657
-    # dsn = f"""edgedb://testuser:testpass@{hostname}:{port}"""
-    hostname = "localhost"
-    port = 10700
-    dsn = "edgedb://edgedb:oB1IZfMVuSgzySmIYLobxt30@localhost:10700"
+    hostname = "127.0.0.1"
+    port = 5657
+    dsn = f"""edgedb://testuser:testpass@{hostname}:{port}"""
+    # hostname = "localhost"
+    # port = 10700
+    # dsn = "edgedb://edgedb:oB1IZfMVuSgzySmIYLobxt30@localhost:10700"
     if not wait_for_service(hostname, port):
         _ = skip(f"Timeout during wait for {dsn}")
     return dsn

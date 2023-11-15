@@ -64,7 +64,7 @@ class MusicDb(MusicbotObject):
 
         if graphql is None:
             parsed = urlparse(dsn)
-            graphql = f"http://{parsed.hostname}:{parsed.port}/db/edgedb/graphql"
+            graphql = f"https://{parsed.hostname}:{parsed.port}/db/edgedb/graphql"
         return cls(client=client, graphql=graphql)
 
     @property
@@ -77,7 +77,7 @@ class MusicDb(MusicbotObject):
     async def graphql_query(self, query: str) -> httpx.Response | None:
         operation = {"query": query}
         try:
-            async with httpx.AsyncClient(timeout=60) as client:
+            async with httpx.AsyncClient(timeout=60, verify=False) as client:
                 response = await client.post(
                     url=self.graphql,
                     json=operation,
