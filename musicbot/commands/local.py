@@ -153,7 +153,7 @@ async def scan(
         MusicbotObject.print_json([asdict(file.music) for file in files if file.music is not None])
 
     if save:
-        MusicbotObject.config.configfile["musicbot"]["folders"] = folders.unique_directories
+        MusicbotObject.config.configfile["musicbot"]["folders"] = scan_folders.unique_directories
         MusicbotObject.config.write()
 
 
