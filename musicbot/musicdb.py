@@ -92,7 +92,6 @@ class MusicDb(MusicbotObject):
         results = await self.client.query("select Folder {*} order by .name")
         folders = []
         for result in results:
-            logger.error(result)
             folder = Folder(
                 path=result.name,
                 name=result.name,
