@@ -96,7 +96,7 @@ class File(MusicbotObject):
             return None
         folder = Folder(
             name=str(self.folder),
-            path=str(self.path),
+            path=self.path,
             username=current_user(),
             ipv4=public_ip,
         )

@@ -3,6 +3,7 @@ import logging
 import random
 from codecs import StreamReaderWriter
 from dataclasses import asdict, dataclass
+from pathlib import Path
 from typing import Self
 
 import click
@@ -49,8 +50,8 @@ class Playlist(MusicbotObject):
         musics = []
         for result in results:
             keywords = frozenset(keyword.name for keyword in result.keywords)
-            # folders = frozenset(Folder(path=folder["@path"], name=folder.name, ipv4=folder.ipv4, username=folder.username) for folder in result.folders)
-            folders = frozenset(Folder(path=folder.path, name=folder.name, ipv4=folder.ipv4, username=folder.username) for folder in result.folders)
+            # folders = frozenset(Folder(path=Path(folder["@path"]), name=folder.name, ipv4=folder.ipv4, username=folder.username) for folder in result.folders)
+            folders = frozenset(Folder(path=Path(folder.path), name=folder.name, ipv4=folder.ipv4, username=folder.username) for folder in result.folders)
             music = Music(
                 title=result.name,
                 artist=result.artist.name,

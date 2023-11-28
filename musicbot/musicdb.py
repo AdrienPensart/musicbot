@@ -188,7 +188,7 @@ class MusicDb(MusicbotObject):
                 result = await upsert(self.client, **input_music)
 
                 keywords = frozenset(keyword.name for keyword in result.keywords)
-                folders = [Folder(path=folder.path, name=folder.name, ipv4=folder.ipv4, username=folder.username) for folder in result.folders if folder.path is not None]
+                folders = [Folder(path=Path(folder.path), name=folder.name, ipv4=folder.ipv4, username=folder.username) for folder in result.folders if folder.path is not None]
                 output_music = Music(
                     title=result.name,
                     artist=result.artist.name,

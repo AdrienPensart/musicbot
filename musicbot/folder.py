@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 from dataclasses import dataclass
 
 from beartype import beartype
@@ -13,7 +13,7 @@ class Folder(MusicbotObject):
     name: str
     ipv4: str
     username: str
-    path: str
+    path: Path
 
     n_genres: int = 0
     all_genres: str = ""
@@ -33,9 +33,10 @@ class Folder(MusicbotObject):
         return f"{self.name} {self.ipv4} {self.username}"
 
     def effective_path(self, relative: bool = False) -> str:
+        path = str(self.path)
         if relative:
-            return self.path[len(self.name) + 1 :]
-        return self.path
+            path = str(self.path.relative_to(self.name))
+        return path.replace(" ", "\ ")
 
     def http_link(self, relative: bool = False) -> str:
         return f"http://{self.ipv4}/{self.effective_path(relative)}"
@@ -48,27 +49,27 @@ class Folder(MusicbotObject):
 
     def links(self, playlist_options: PlaylistOptions) -> frozenset[str]:
         paths = []
-        if "all" in playlist_options.kinds:
-            return frozenset({self.local_ssh_link(), self.remote_ssh_link(), self.http_link(playlist_options.relative), self.effective_path(playlist_options.relative)})
 
         # if "local-ssh" in playlist_options.kinds and self.ipv4 == self.public_ip():
-        if "local-ssh" in playlist_options.kinds:
+        if "all" in playlist_options.kinds or "local-ssh" in playlist_options.kinds:
             paths.append(self.local_ssh_link())
 
         # if "remote-ssh" in playlist_options.kinds and self.ipv4 != self.public_ip():
-        if "remote-ssh" in playlist_options.kinds:
+        if "all" in playlist_options.kinds or "remote-ssh" in playlist_options.kinds:
             paths.append(self.remote_ssh_link())
 
         # if "local-http" in playlist_options.kinds and self.ipv4 == self.public_ip():
-        if "local-http" in playlist_options.kinds:
+        if "all" in playlist_options.kinds or "local-http" in playlist_options.kinds:
             paths.append(self.http_link(playlist_options.relative))
 
         # if "remote-http" in playlist_options.kinds and self.ipv4 != self.public_ip():
-        if "remote-http" in playlist_options.kinds:
+        if "all" in playlist_options.kinds or "remote-http" in playlist_options.kinds:
             paths.append(self.http_link(playlist_options.relative))
 
-        if "local" in playlist_options.kinds and os.path.isfile(self.path):
+        if "all" in playlist_options.kinds or "local" in playlist_options.kinds and self.path.is_file():
             paths.append(self.effective_path(playlist_options.relative))
-        if "remote" in playlist_options.kinds and not os.path.isfile(self.path):
+
+        if "all" in playlist_options.kinds or "remote" in playlist_options.kinds and not self.path.is_file():
             paths.append(self.effective_path(playlist_options.relative))
+
         return frozenset(paths)
