@@ -10,6 +10,7 @@ import threading
 import traceback
 from collections.abc import Callable, Collection, Iterable, Sequence
 from datetime import datetime
+from pathlib import Path
 from typing import IO, Any, NoReturn, ParamSpec, TypeVar
 
 import attr
@@ -36,6 +37,8 @@ def default_encoder(data: Any) -> Any:
     """Encode in json structure which cannot"""
     if isinstance(data, (frozenset, set)):
         return list(data)
+    if isinstance(data, Path):
+        return str(data)
     if dataclasses.is_dataclass(data):
         return dataclasses.asdict(data)
     # if isinstance(data, CaseInsensitiveDict):

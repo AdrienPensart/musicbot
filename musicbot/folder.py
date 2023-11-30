@@ -1,5 +1,5 @@
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from dataclasses import dataclass
 
 from beartype import beartype
 
@@ -32,11 +32,16 @@ class Folder(MusicbotObject):
     def __repr__(self) -> str:
         return f"{self.name} {self.ipv4} {self.username}"
 
+    def to_dict(self) -> dict:
+        data = asdict(self)
+        data["path"] = str(data["path"])
+        return data
+
     def effective_path(self, relative: bool = False) -> str:
         path = str(self.path)
         if relative:
             path = str(self.path.relative_to(self.name))
-        return path.replace(" ", "\ ")
+        return path.replace(" ", "\\ ")
 
     def http_link(self, relative: bool = False) -> str:
         return f"http://{self.ipv4}/{self.effective_path(relative)}"

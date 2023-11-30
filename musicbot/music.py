@@ -34,7 +34,7 @@ class Music(MusicbotObject):
         data: dict[str, Any] = asdict(self)
         data["size"] = bytes_to_human(data["size"])
         data["length"] = precise_seconds_to_human(data["length"])
-        data["folders"] = list(asdict(folder) for folder in data["folders"])
+        data["folders"] = list(folder.to_dict() for folder in data["folders"])
         data["keywords"] = list(data["keywords"])
         return yaml_dump(data)
 

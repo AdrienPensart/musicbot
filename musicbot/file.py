@@ -128,7 +128,7 @@ class File(MusicbotObject):
         data["ipv4"] = folder.ipv4
         data["username"] = folder.username
         data["folder"] = folder.name
-        data["path"] = folder.path
+        data["path"] = str(folder.path)
         return data
 
     def set_tags(

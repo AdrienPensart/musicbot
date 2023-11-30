@@ -93,7 +93,7 @@ class MusicDb(MusicbotObject):
         folders = []
         for result in results:
             folder = Folder(
-                path=result.name,
+                path=Path(result.name),
                 name=result.name,
                 ipv4=result.ipv4,
                 username=result.username,
