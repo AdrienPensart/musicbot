@@ -14,9 +14,9 @@ services:
       EDGEDB_SERVER_PASSWORD: musicbot
       EDGEDB_DOCKER_LOG_LEVEL: warning
     volumes:
-      - "./dbschema:/dbschema"
-      - "./credentials:/root/.config/edgedb/credentials"
-      - "./data:/var/lib/edgedb/data"
+      - ./dbschema:/dbschema
+      - ./credentials:/root/.config/edgedb/credentials
+      - musicbot-prod-data:/var/lib/edgedb/data
   musicbot_db_test:
     container_name: musicbot-db-test
     image: "edgedb/edgedb:4"
@@ -30,4 +30,7 @@ services:
       EDGEDB_SERVER_PASSWORD: testpass
       EDGEDB_SERVER_TLS_CERT_MODE: generate_self_signed
     volumes:
-      - "./dbschema:/dbschema"
+      - ./dbschema:/dbschema
+
+volumes:
+  musicbot-prod-data:

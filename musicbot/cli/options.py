@@ -209,6 +209,13 @@ output_option = click.option(
     type=click.Choice(["json", "table", "m3u"]),
 )
 
+coroutines_option = click.option(
+    "--coroutines",
+    help="Limit number of coroutines",
+    default=64,
+    show_default=True,
+)
+
 
 @beartype
 def config_string(ctx: click.Context, param: click.Parameter, value: str | None) -> Any:

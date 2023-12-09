@@ -406,16 +406,17 @@ musicbot local
     -h, --help  Show this message and exit.
 
   Commands:
-    artists          Artists descriptions
-    bests            Generate bests playlists with some rules
-    clean (wipe)     Clean all musics
-    folders          List folders and some stats
-    help             Print help
-    playlist         Generate a new playlist
-    remove (delete)  Remove one or more music
-    scan             Load musics
-    sync             Copy selected musics with filters to destination folder
-    watch (watcher)  Watch files changes in folders
+    artists           Artists descriptions
+    bests             Generate bests playlists with some rules
+    clean (wipe)      Clean all musics
+    custom-playlists  Generate custom playlists inside music folders (and for Buckethead)
+    folders           List folders and some stats
+    help              Print help
+    playlist          Generate a new playlist
+    remove (delete)   Remove one or more music
+    scan              Load musics
+    sync              Copy selected musics with filters to destination folder
+    watch (watcher)   Watch files changes in folders
 
 musicbot local artists
 **********************
@@ -481,7 +482,33 @@ musicbot local clean
     MusicDB options: 
       --dsn TEXT       DSN to MusicBot EdgeDB
       --graphql TEXT   DSN to MusicBot GrapQL
+    -y, --yes          Confirm action
     -h, --help         Show this message and exit.
+
+musicbot local custom-playlists
+*******************************
+.. code-block::
+
+  Usage: musicbot local custom-playlists [OPTIONS] SCAN_FOLDER
+
+  Options:
+    MusicDB options: 
+      --dsn TEXT                    DSN to MusicBot EdgeDB
+      --graphql TEXT                DSN to MusicBot GrapQL
+    Links options: 
+      --kind, --kinds [all|local|local-http|local-ssh|remote|remote-http|remote-ssh]
+                                    Generate musics paths of types  [default: local]
+      --relative / --no-relative    Generate relative links  [default: no-relative]
+    Ordering options: [mutually_exclusive]
+      --shuffle / --no-shuffle      Randomize selection  [default: no-shuffle]
+      --interleave / --no-interleave
+                                    Interleave tracks by artist  [default: no-interleave]
+    Bests options: 
+      --min-playlist-size INTEGER   Minimum size of playlist to write  [default: 1]
+    --coroutines INTEGER            Limit number of coroutines  [default: 64]
+    --dry / --no-dry                Do not launch real action  [default: no-dry]
+    --fast / --no-fast              [default: no-fast]
+    -h, --help                      Show this message and exit.
 
 musicbot local folders
 **********************

@@ -3,7 +3,7 @@ import logging
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Self
+from typing import Any, Self
 from urllib.parse import urlparse
 
 import edgedb
@@ -64,7 +64,7 @@ class MusicDb(MusicbotObject):
 
         if graphql is None:
             parsed = urlparse(dsn)
-            graphql = f"https://{parsed.hostname}:{parsed.port}/db/edgedb/graphql"
+            graphql = f"https://{parsed.username}:{parsed.password}@{parsed.hostname}:{parsed.port}/db/edgedb/graphql"
         return cls(client=client, graphql=graphql)
 
     @property
@@ -73,6 +73,9 @@ class MusicDb(MusicbotObject):
 
     async def query_json(self, query: str) -> str:
         return await self.client.query_json(query)
+
+    async def query(self, query: str) -> Any:
+        return await self.client.query(query)
 
     async def graphql_query(self, query: str) -> httpx.Response | None:
         operation = {"query": query}

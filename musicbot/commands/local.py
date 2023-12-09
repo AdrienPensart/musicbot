@@ -1,7 +1,5 @@
 import asyncio
-import codecs
 import logging
-import shutil
 from dataclasses import asdict
 from pathlib import Path
 
@@ -13,12 +11,12 @@ from rich.table import Table
 from watchfiles import Change, DefaultFilter, awatch
 
 from musicbot import (
-    File,
     MusicbotObject,
     MusicDb,
     MusicFilter,
     PlaylistOptions,
     ScanFolders,
+    local,
     syncify,
 )
 from musicbot.cli.file import flat_option
@@ -26,10 +24,12 @@ from musicbot.cli.music_filter import FILTERS_REPRS, music_filters_options
 from musicbot.cli.musicdb import musicdb_options
 from musicbot.cli.options import (
     clean_option,
+    coroutines_option,
     dry_option,
     lazy_yes_option,
     output_option,
     save_option,
+    yes_option,
 )
 from musicbot.cli.playlist import bests_options, playlist_options
 from musicbot.cli.scan_folders import (
@@ -102,6 +102,7 @@ async def remove(
 
 @cli.command(help="Clean all musics", aliases=["wipe"])
 @musicdb_options
+@yes_option
 @syncify
 @beartype
 async def clean(
@@ -116,7 +117,7 @@ async def clean(
 @save_option
 @output_option
 @clean_option
-@click.option("--coroutines", help="Limit number of coroutines", default=64, show_default=True)
+@coroutines_option
 @syncify
 @beartype
 async def scan(
@@ -127,34 +128,14 @@ async def scan(
     output: str,
     coroutines: int,
 ) -> None:
-    # MusicbotObject.success(f"Opening EdgeDB on {MusicbotObject.public_ip()}")
-    # _ = subprocess.run(
-    #     [
-    #         "edgedb",
-    #         "configure",
-    #         "set",
-    #         "listen_addresses",
-    #         "127.0.0.1",
-    #         "::1",
-    #         MusicbotObject.public_ip(),
-    #     ],
-    #     check=False,
-    # )
-    if clean:
-        _ = await musicdb.clean_musics()
-
-    files = await musicdb.upsert_folders(
+    await local.scan(
+        musicdb=musicdb,
         scan_folders=scan_folders,
+        clean=clean,
+        save=save,
+        output=output,
         coroutines=coroutines,
     )
-    _ = await musicdb.soft_clean()
-
-    if output == "json":
-        MusicbotObject.print_json([asdict(file.music) for file in files if file.music is not None])
-
-    if save:
-        MusicbotObject.config.configfile["musicbot"]["folders"] = scan_folders.unique_directories
-        MusicbotObject.config.write()
 
 
 @cli.command(help="Watch files changes in folders", aliases=["watcher"])
@@ -236,17 +217,13 @@ async def playlist(
     musicdb: MusicDb,
     out: click.utils.LazyFile,
 ) -> None:
-    if out.name.endswith(".m3u"):
-        output = "m3u"
-
     musicdb.set_readonly()
-    new_playlist = await musicdb.make_playlist(
-        music_filters=frozenset(music_filters),
-    )
-    new_playlist.print(
+    await local.playlist(
         output=output,
-        file=out,
+        music_filters=music_filters,
         playlist_options=playlist_options,
+        musicdb=musicdb,
+        out=out,
     )
 
 
@@ -308,29 +285,13 @@ async def bests(
     playlist_options: PlaylistOptions,
 ) -> None:
     musicdb.set_readonly()
-    bests = await musicdb.make_bests(
-        music_filters=frozenset(music_filters),
+    await local.bests(
+        musicdb=musicdb,
+        music_filters=music_filters,
+        scan_folder=scan_folder,
+        min_playlist_size=min_playlist_size,
+        playlist_options=playlist_options,
     )
-    for best in bests:
-        if len(best.musics) < min_playlist_size or not best.name:
-            MusicbotObject.warn(f"{best.name} : size < {min_playlist_size}")
-            continue
-        filepath = Path(scan_folder) / (best.name + ".m3u")
-        if MusicbotObject.dry:
-            MusicbotObject.success(f"DRY RUN: Writing playlist {best.name} to {filepath}")
-            continue
-        try:
-            filepath.parent.mkdir(parents=True, exist_ok=True)
-            with codecs.open(str(filepath), "w", "utf-8-sig") as playlist_file:
-                best.print(
-                    output="m3u",
-                    file=playlist_file,
-                    playlist_options=playlist_options,
-                )
-        except (OSError, LookupError, ValueError, UnicodeError) as e:
-            logger.warning(f"Unable to write playlist {best.name} to {filepath} because of {e}")
-
-    MusicbotObject.success(f"Playlists: {len(bests)}")
 
 
 @cli.command(short_help="Copy selected musics with filters to destination folder", help=FILTERS_REPRS)
@@ -352,89 +313,102 @@ async def sync(
     flat: bool,
 ) -> None:
     musicdb.set_readonly()
-    logger.info(f"Destination: {destination}")
-    sync_playlist = await musicdb.make_playlist(
-        music_filters=frozenset(music_filters),
+    await local.sync(
+        musicdb=musicdb,
+        music_filters=music_filters,
+        delete=delete,
+        destination=destination,
+        yes=yes,
+        flat=flat,
     )
-    if not sync_playlist.musics:
-        click.secho("no result for filter, nothing to sync")
-        return
 
-    scan_folders = ScanFolders(directories=[destination], extensions=frozenset())
-    logger.info(f"Files : {len(scan_folders.files)}")
-    if not scan_folders.files:
-        logger.warning("no files found in destination")
 
-    destinations = {str(path)[len(str(destination)) + 1 :]: path for path in scan_folders.paths}
+@cli.command(short_help="Generate custom playlists inside music folders (and for Buckethead)")
+@musicdb_options
+@scan_folder_argument
+@playlist_options
+@bests_options
+@coroutines_option
+@dry_option
+@click.option("--fast/--no-fast", is_flag=True, default=False, show_default=True)
+@syncify
+@beartype
+async def custom_playlists(
+    musicdb: MusicDb,
+    scan_folder: Path,
+    coroutines: int,
+    min_playlist_size: int,
+    playlist_options: PlaylistOptions,
+    fast: bool,
+) -> None:
+    scan_folders = ScanFolders(directories=[scan_folder])
+    if not fast:
+        await local.scan(
+            musicdb=musicdb,
+            scan_folders=scan_folders,
+            clean=True,
+            save=False,
+            output="table",
+            coroutines=coroutines,
+        )
 
-    musics: list[File] = []
-    for music in sync_playlist.musics:
-        for link in music.links():
-            try:
-                path = Path(link)
-                music_to_sync = File.from_path(folder=path.parent, path=path)
-                if not music_to_sync:
-                    continue
-                musics.append(music_to_sync)
-            except OSError as e:
-                logger.error(e)
+    musicdb.set_readonly()
 
-    logger.info(f"Destinations : {len(destinations)}")
-    if flat:
-        sources = {music.flat_filename: music.path for music in musics}
-    else:
-        sources = {str(music.canonic_artist_album_filename): music.path for music in musics}
+    MusicbotObject.success(f"{scan_folders} : flushing old m3u")
+    scan_folders.flush_m3u()
 
-    logger.info(f"Sources : {len(sources)}")
-    paths_to_delete = set(destinations.keys()) - set(sources.keys())
-    if delete and (yes or click.confirm(f"Do you really want to delete {len(paths_to_delete)} files and playlists ?")):
-        with MusicbotObject.progressbar(max_value=len(paths_to_delete)) as pbar:
-            for path_to_delete in paths_to_delete:
-                try:
-                    final_path_to_delete = Path(destinations[path_to_delete])
-                    pbar.desc = f"Deleting musics and playlists: {final_path_to_delete.name}"
-                    if MusicbotObject.dry:
-                        MusicbotObject.success(f"[DRY-RUN] Deleting {final_path_to_delete}")
-                        continue
-                    try:
-                        MusicbotObject.success(f"Deleting {final_path_to_delete}")
-                        final_path_to_delete.unlink()
-                    except OSError as e:
-                        logger.error(e)
-                finally:
-                    pbar.value += 1
-                    _ = pbar.update()
+    bests_music_filter = MusicFilter(
+        min_rating=4.0,
+        keyword="^((?!cutoff|bad|demo|intro).)",
+    )
+    await local.bests(
+        musicdb=musicdb,
+        music_filters=[bests_music_filter],
+        scan_folder=scan_folder,
+        min_playlist_size=min_playlist_size,
+        playlist_options=playlist_options,
+    )
 
-    to_copy = set(sources.keys()) - set(destinations.keys())
-    with MusicbotObject.progressbar(max_value=len(to_copy)) as pbar:
-        logger.info(f"To copy: {len(to_copy)}")
-        for c in sorted(to_copy):
-            final_destination = destination / c
-            try:
-                path_to_copy = Path(sources[c])
-                pbar.desc = f"Copying {path_to_copy.name} to {destination}"
-                if MusicbotObject.dry:
-                    MusicbotObject.success(f"[DRY-RUN] Copying {path_to_copy.name} to {final_destination}")
-                    continue
+    pike_keywords = await musicdb.query(
+        "for keyword in (select Keyword {name} filter contains(array_agg(.musics.keywords.name), 'pike') and .musics.rating >= 4.0 and .musics.album.artist.name = 'Buckethead') union (keyword.name) except {'pike'}"
+    )
 
-                MusicbotObject.success(f"Copying {path_to_copy.name} to {final_destination}")
-                Path(final_destination).parent.mkdir(exist_ok=True)
-                _ = shutil.copyfile(path_to_copy, final_destination)
-            except KeyboardInterrupt:
-                logger.debug(f"Cleanup {final_destination}")
-                try:
-                    final_destination.unlink()
-                except OSError:
-                    pass
-                raise
-            finally:
-                pbar.value += 1
-                _ = pbar.update()
+    for pike_keyword in pike_keywords:
+        MusicbotObject.success(f"Generating pike playlists for keyword {pike_keyword}")
+        for rating in [4, 4.5, 5]:
+            MusicbotObject.success(f"Generating playlist for {pike_keyword}_{rating}")
+            pike_music_filter = MusicFilter(
+                artist="Buckethead",
+                min_rating=rating,
+                keyword=rf"^(?=.*pike)(?=.*{pike_keyword}).*$",
+            )
+            out = click.utils.LazyFile(
+                filename=f"{scan_folder}/Buckethead/Pikes/{pike_keyword}_{rating}.m3u",
+                mode="w",
+            )
+            await local.playlist(
+                musicdb=musicdb,
+                output="m3u",
+                music_filters=[pike_music_filter],
+                playlist_options=playlist_options,
+                out=out,
+            )
 
-    for d in scan_folders.flush_empty_directories():
-        if any(e in d for e in scan_folders.except_directories):
-            logger.debug(f"Invalid path {d}")
-            continue
-        if not MusicbotObject.dry:
-            shutil.rmtree(d)
-        MusicbotObject.success(f"[DRY-RUN] Removing empty dir {d}")
+    for rating in [4, 4.5, 5]:
+        MusicbotObject.success(f"Generating playlist rating for Pikes {rating}")
+        rating_music_filter = MusicFilter(
+            artist="Buckethead",
+            min_rating=rating,
+            keyword="pike",
+        )
+        out = click.utils.LazyFile(
+            filename=f"{scan_folder}/Buckethead/Pikes/rating_{rating}.m3u",
+            mode="w",
+        )
+        await local.playlist(
+            musicdb=musicdb,
+            output="m3u",
+            music_filters=[rating_music_filter],
+            playlist_options=playlist_options,
+            out=out,
+        )

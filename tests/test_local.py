@@ -162,3 +162,19 @@ def test_local_scan(cli_runner: CliRunner, edgedb: str) -> None:
             *fixtures.scan_folders,
         ],
     )
+
+
+@beartype
+def test_custom_playlists(cli_runner: CliRunner, edgedb: str) -> None:
+    _ = run_cli(
+        cli_runner,
+        cli,
+        [
+            "--quiet",
+            "local",
+            "custom-playlists",
+            "--dsn",
+            edgedb,
+            "/tmp",
+        ],
+    )

@@ -113,3 +113,11 @@ class ScanFolders(MusicbotObject):
             desc="Converting flac to mp3",
             threads=threads,
         )
+
+    def flush_m3u(self) -> None:
+        for directory in self.directories:
+            for filename in directory.glob("*.m3u"):
+                if self.dry:
+                    self.success(f"{self} : removing {filename}")
+                else:
+                    filename.unlink()
