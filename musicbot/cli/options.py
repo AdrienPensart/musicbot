@@ -7,6 +7,7 @@ from click_skeleton.helpers import mysplit
 
 from musicbot.defaults import (
     DEFAULT_CLEAN,
+    DEFAULT_COROUTINES,
     DEFAULT_DRY,
     DEFAULT_OUTPUT,
     DEFAULT_SAVE,
@@ -37,6 +38,25 @@ dry_option = click.option(
     default=DEFAULT_DRY,
     show_default=True,
     callback=sane_dry,
+    expose_value=False,
+)
+
+
+@beartype
+def sane_coroutines(ctx: click.Context, param: click.Parameter, value: int) -> None:  # pylint: disable=unused-argument
+    """Overwrite global concurrency"""
+    if not param.name:
+        logger.error("no param name set")
+        raise click.Abort()
+    MusicbotObject.coroutines = value
+
+
+coroutines_option = click.option(
+    "--coroutines",
+    help="Limit number of coroutines",
+    default=DEFAULT_COROUTINES,
+    callback=sane_coroutines,
+    show_default=True,
     expose_value=False,
 )
 
@@ -207,13 +227,6 @@ output_option = click.option(
     default=DEFAULT_OUTPUT,
     show_default=True,
     type=click.Choice(["json", "table", "m3u"]),
-)
-
-coroutines_option = click.option(
-    "--coroutines",
-    help="Limit number of coroutines",
-    default=64,
-    show_default=True,
 )
 
 

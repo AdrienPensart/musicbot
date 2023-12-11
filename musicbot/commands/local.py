@@ -11,6 +11,7 @@ from rich.table import Table
 from watchfiles import Change, DefaultFilter, awatch
 
 from musicbot import (
+    File,
     MusicbotObject,
     MusicDb,
     MusicFilter,
@@ -126,16 +127,25 @@ async def scan(
     clean: bool,
     save: bool,
     output: str,
-    coroutines: int,
 ) -> None:
-    await local.scan(
+    music_inputs = await local.scan(
         musicdb=musicdb,
         scan_folders=scan_folders,
-        clean=clean,
-        save=save,
-        output=output,
-        coroutines=coroutines,
     )
+    if clean:
+        _ = await musicdb.clean_musics()
+    music_outputs = await local.upsert_musics(
+        musicdb=musicdb,
+        music_inputs=music_inputs,
+    )
+    _ = await musicdb.soft_clean()
+
+    if output == "json":
+        MusicbotObject.print_json([asdict(mo) for mo in music_outputs])
+
+    if save:
+        MusicbotObject.config.configfile["musicbot"]["folders"] = scan_folders.unique_directories
+        MusicbotObject.config.write()
 
 
 @cli.command(help="Watch files changes in folders", aliases=["watcher"])
@@ -164,10 +174,16 @@ async def watch(
         except (asyncio.CancelledError, KeyboardInterrupt):
             pass
 
-    async def update_music(path: str) -> None:
+    async def update_music(path: Path) -> None:
         for directory in scan_folders.directories:
-            if path.startswith(str(directory)):
-                _ = await musicdb.upsert_path((directory, Path(path)))
+            if str(path).startswith(str(directory)):
+                if (file := File.from_path(folder=directory, path=path)) is None:
+                    continue
+
+                if (music_input := file.music_input) is None:
+                    continue
+
+                _ = await musicdb.upsert_music(music_input)
 
     async def watcher() -> None:
         class MusicWatchFilter(DefaultFilter):
@@ -184,7 +200,7 @@ async def watch(
                     for change_path in changes:
                         change, path = change_path
                         if change in (Change.added, Change.modified):
-                            await update_music(path)
+                            await update_music(Path(path))
                         elif change == Change.deleted:
                             _ = await musicdb.remove_music_path(path)
                 except edgedb.ClientConnectionFailedTemporarilyError as error:
@@ -336,20 +352,20 @@ async def sync(
 async def custom_playlists(
     musicdb: MusicDb,
     scan_folder: Path,
-    coroutines: int,
     min_playlist_size: int,
     playlist_options: PlaylistOptions,
     fast: bool,
 ) -> None:
     scan_folders = ScanFolders(directories=[scan_folder])
     if not fast:
-        await local.scan(
+        music_inputs = await local.scan(
             musicdb=musicdb,
             scan_folders=scan_folders,
-            clean=True,
-            save=False,
-            output="table",
-            coroutines=coroutines,
+        )
+        _ = await musicdb.clean_musics()
+        _ = await local.upsert_musics(
+            musicdb=musicdb,
+            music_inputs=music_inputs,
         )
 
     musicdb.set_readonly()

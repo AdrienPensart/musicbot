@@ -27,7 +27,7 @@ from rich.console import Console
 from rich.table import Table
 
 from musicbot.config import DEFAULT_QUIET, Config
-from musicbot.defaults import DEFAULT_THREADS
+from musicbot.defaults import DEFAULT_COROUTINES, DEFAULT_THREADS
 from musicbot.one_way_bool import OneWayBool
 
 logger = logging.getLogger(__name__)
@@ -66,6 +66,7 @@ class MusicbotObject:
     already_printed: list[str] = []
     config = Config(quiet=False)
     dry = OneWayBool("dry", default=False)
+    coroutines: int = DEFAULT_COROUTINES
 
     def __repr__(self) -> str:
         return "[DRY]" if self.dry else "[DOING]"

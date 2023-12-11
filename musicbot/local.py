@@ -1,16 +1,19 @@
+import asyncio
 import codecs
 import logging
 import shutil
-from dataclasses import asdict
 from pathlib import Path
 
 import click
 
 from musicbot import (
     File,
+    Issue,
+    Music,
     MusicbotObject,
     MusicDb,
     MusicFilter,
+    MusicInput,
     PlaylistOptions,
     ScanFolders,
 )
@@ -74,26 +77,64 @@ async def bests(
 async def scan(
     musicdb: MusicDb,
     scan_folders: ScanFolders,
-    clean: bool,
-    save: bool,
-    output: str,
-    coroutines: int,
-) -> None:
-    if clean:
-        _ = await musicdb.clean_musics()
+) -> list[MusicInput]:
+    max_value = len(scan_folders.folders_and_paths)
+    if not max_value:
+        MusicbotObject.warn(f"No music folder or paths discovered from directories {scan_folders.directories}")
+        return []
 
-    files = await musicdb.upsert_folders(
-        scan_folders=scan_folders,
-        coroutines=coroutines,
-    )
-    _ = await musicdb.soft_clean()
+    MusicbotObject.echo(f"{musicdb} : loading {max_value} files")
+    music_inputs = []
+    with MusicbotObject.progressbar(desc="Loading files", max_value=max_value) as pbar:
+        for folder_and_path in scan_folders.folders_and_paths:
+            try:
+                folder, path = folder_and_path
+                if not (file := File.from_path(folder=folder, path=path)):
+                    continue
 
-    if output == "json":
-        MusicbotObject.print_json([asdict(file.music) for file in files if file.music is not None])
+                issues = file.issues
+                if Issue.NO_TITLE in issues or Issue.NO_ARTIST in issues or Issue.NO_ALBUM in issues:
+                    MusicbotObject.warn(f"{file} : missing mandatory fields title/album/artist : {issues}")
+                    continue
+                if not (music_input := file.music_input):
+                    MusicbotObject.err(f"{file} : cannot upsert music without physical folder !")
+                    continue
 
-    if save:
-        MusicbotObject.config.configfile["musicbot"]["folders"] = scan_folders.unique_directories
-        MusicbotObject.config.write()
+                music_inputs.append(music_input)
+            finally:
+                pbar.value += 1
+                _ = pbar.update()
+
+    return music_inputs
+
+
+async def upsert_musics(
+    musicdb: MusicDb,
+    music_inputs: list[MusicInput],
+) -> list[Music]:
+    failed_inputs = []
+    music_outputs = []
+
+    with MusicbotObject.progressbar(desc="Inserting musics", max_value=len(music_inputs)) as pbar:
+
+        async def upsert_worker(music_input: MusicInput) -> None:
+            try:
+                if (music_output := await musicdb.upsert_music(music_input)) is None:
+                    MusicbotObject.err(f"{music_input} : unable to insert")
+                    failed_inputs.append(music_input)
+                else:
+                    music_outputs.append(music_output)
+            finally:
+                pbar.value += 1
+                _ = pbar.update()
+
+        async with asyncio.TaskGroup() as tg:
+            for music_input in music_inputs:
+                _ = tg.create_task(upsert_worker(music_input))
+
+    if failed_inputs:
+        MusicbotObject.warn(f"Unable to insert {len(failed_inputs)} files")
+    return music_outputs
 
 
 async def sync(

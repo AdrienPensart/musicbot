@@ -1,10 +1,10 @@
 from warnings import filterwarnings
 
 from musicbot.config import Config
-from musicbot.file import File
+from musicbot.file import File, Issue
 from musicbot.folder import Folder
 from musicbot.helpers import syncify
-from musicbot.music import Music
+from musicbot.music import Music, MusicInput
 from musicbot.music_filter import MusicFilter
 from musicbot.musicdb import MusicDb
 from musicbot.object import MusicbotObject
@@ -17,9 +17,11 @@ filterwarnings(action="ignore", module=".*vlc.*", category=DeprecationWarning)
 
 __all__ = [
     "MusicbotObject",
+    "Issue",
     "Config",
     "File",
     "Music",
+    "MusicInput",
     "MusicFilter",
     "Playlist",
     "PlaylistOptions",

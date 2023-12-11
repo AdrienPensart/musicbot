@@ -23,7 +23,7 @@ from musicbot.defaults import (
 )
 from musicbot.folder import Folder
 from musicbot.helpers import current_user
-from musicbot.music import Music
+from musicbot.music import Music, MusicInput
 from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
@@ -114,13 +114,14 @@ class File(MusicbotObject):
         )
 
     @property
-    def music_input(self) -> dict[str, Any] | None:
-        if self.music is None:
+    def music_input(self) -> MusicInput | None:
+        if (music := self.music) is None:
             return None
-        data = asdict(self.music)
-        if not data["folders"]:
+        if not music.folders:
             self.err(f"{self} : no folder set")
             return None
+
+        data = asdict(music)
 
         folders = data.pop("folders")
         folder = next(iter(folders))
@@ -129,7 +130,7 @@ class File(MusicbotObject):
         data["username"] = folder.username
         data["folder"] = folder.name
         data["path"] = str(folder.path)
-        return data
+        return MusicInput(**data)
 
     def set_tags(
         self,

@@ -53,3 +53,21 @@ class Music(MusicbotObject):
             stopwords=STOPWORDS,
             replacements=REPLACEMENTS,
         )
+
+
+@beartype
+@dataclass
+class MusicInput(MusicbotObject):
+    title: str
+    album: str
+    artist: str
+    genre: str
+    size: int
+    rating: float
+    length: int
+    keywords: list[str]
+    ipv4: str
+    username: str
+    folder: str
+    path: str
+    track: int | None = None

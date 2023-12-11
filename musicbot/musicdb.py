@@ -1,7 +1,6 @@
-import asyncio
 import logging
 import os
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Self
 from urllib.parse import urlparse
@@ -14,10 +13,8 @@ from beartype import beartype
 from edgedb.asyncio_client import AsyncIOClient, create_async_client
 from edgedb.options import RetryOptions, TransactionOptions
 
-from musicbot.defaults import DEFAULT_COROUTINES
-from musicbot.file import File, Issue
 from musicbot.folder import Folder
-from musicbot.music import Music
+from musicbot.music import Music, MusicInput
 from musicbot.music_filter import MusicFilter
 from musicbot.object import MusicbotObject
 from musicbot.playlist import Playlist
@@ -26,7 +23,6 @@ from musicbot.queries.gen_playlist_async_edgeql import GenPlaylistResult, gen_pl
 from musicbot.queries.remove_async_edgeql import remove
 from musicbot.queries.soft_clean_async_edgeql import soft_clean
 from musicbot.queries.upsert_async_edgeql import upsert
-from musicbot.scan_folders import ScanFolders
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +54,7 @@ class MusicDb(MusicbotObject):
     ) -> Self:
         if not cls.is_prod():
             os.environ["EDGEDB_CLIENT_SECURITY"] = "insecure_dev_mode"
-        client = create_async_client(dsn=dsn)
+        client = create_async_client(dsn=dsn, max_concurrency=MusicbotObject.coroutines)
         options = RetryOptions(attempts=attempts)
         client = client.with_retry_options(options)
 
@@ -164,35 +160,18 @@ class MusicDb(MusicbotObject):
             return None
         return await remove(self.client, path=path)
 
-    async def upsert_path(
-        self,
-        folder_and_path: tuple[Path, Path],
-    ) -> File | None:
-        folder, path = folder_and_path
+    async def upsert_music(self, music_input: MusicInput) -> Music | None:
+        if self.dry:
+            return None
+
         retries = 3
         last_error = None
         while retries > 0:
             try:
-                if not (file := File.from_path(folder=folder, path=path)):
-                    return None
-
-                issues = file.issues
-                if Issue.NO_TITLE in issues or Issue.NO_ARTIST in issues or Issue.NO_ALBUM in issues:
-                    self.warn(f"{file} : missing mandatory fields title/album/artist : {issues}")
-                    return None
-
-                if not (input_music := file.music_input):
-                    self.err(f"{file} : cannot upsert music without physical folder !")
-                    return None
-
-                if self.dry:
-                    return file
-
-                result = await upsert(self.client, **input_music)
-
+                result = await upsert(self.client, **asdict(music_input))
                 keywords = frozenset(keyword.name for keyword in result.keywords)
                 folders = [Folder(path=Path(folder.path), name=folder.name, ipv4=folder.ipv4, username=folder.username) for folder in result.folders if folder.path is not None]
-                output_music = Music(
+                music = Music(
                     title=result.name,
                     artist=result.artist.name,
                     album=result.album.name,
@@ -204,54 +183,21 @@ class MusicDb(MusicbotObject):
                     rating=result.rating,
                     folders=frozenset(folders),
                 )
-                self.success(f"{self} : updated {path}")
-                logger.debug(output_music)
-                return file
+                # output_music = file.music
+                self.success(f"{self} : updated {music_input}")
+                return music
             except edgedb.errors.TransactionSerializationError as error:
                 retries -= 1
-                self.warn(f"{path} : transaction error, {retries} retries left")
+                self.warn(f"{music_input} : transaction error, {retries} retries left")
                 last_error = error
                 continue
             except edgedb.errors.NoDataError as error:
-                self.err(f"{path} : no data result for query", error=error)
+                self.err(f"{music_input} : no data result for query", error=error)
             except OSError as error:
-                self.warn(f"{path} : unknown error", error=error)
+                self.warn(f"{music_input} : unknown error", error=error)
             return None
         self.err(f"{self} : too many transaction failures", errpr=last_error)
         return None
-
-    async def upsert_folders(
-        self,
-        scan_folders: ScanFolders,
-        coroutines: int = DEFAULT_COROUTINES,
-    ) -> list[File]:
-        failed_files: set[tuple[Path, Path]] = set()
-        sem = asyncio.Semaphore(coroutines)
-
-        max_value = len(scan_folders.folders_and_paths)
-        if not max_value:
-            self.warn(f"No music folder or paths discovered from directories {scan_folders.directories}")
-            return []
-
-        files = []
-        with self.progressbar(desc="Loading and inserting musics", max_value=max_value) as pbar:
-
-            async def upsert_worker(folder_and_path: tuple[Path, Path]) -> None:
-                async with sem:
-                    try:
-                        if not (file := await self.upsert_path(folder_and_path=folder_and_path)):
-                            self.err(f"{self} : unable to insert {folder_and_path}")
-                            failed_files.add(folder_and_path)
-                        else:
-                            files.append(file)
-                    finally:
-                        pbar.value += 1
-                        _ = pbar.update()
-
-            _ = await self.async_gather(upsert_worker, scan_folders.folders_and_paths)
-        if failed_files:
-            self.warn(f"Unable to insert {len(failed_files)} files")
-        return files
 
     async def make_bests(
         self,
