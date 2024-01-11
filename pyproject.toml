@@ -25,9 +25,8 @@ fuzzywuzzy = "^0.18.0"
 python-levenshtein = "^0.23.0"
 attrs = "^23.1.0"
 colorlog = "^6.4.1"
-progressbar2 = "^4.0.0"
 rich = "^13.0.0"
-click-skeleton = "^0.28.1"
+click-skeleton = "^0.29.0"
 beartype = "^0.16.0"
 humanize = "^4.0.0"
 python-slugify = "^8.0.0"
@@ -44,12 +43,15 @@ watchfiles = "^0.21.0"
 textual = "<1.0"
 methodtools = "^0.4.7"
 click = "^8.1.6"
-httpx = "^0.25.0"
+httpx = "^0.26.0"
 pgcli = "^4.0.0"
 ruamel-yaml = "^0.18.0"
 shazamio = "^0.4.0.1"
 psycopg = {extras = ["binary", "pool"], version = "^3.1.10"}
 pyacoustid = "^1.3.0"
+progressbar3 = "^4.3.4"
+# progressbar2 = "^4.0.0"
+# progressbar2 = { git = "https://github.com/AdrienPensart/python-progressbar.git" }
 
 [tool.isort]
 profile = 'black'
@@ -68,7 +70,7 @@ bump2version = "^1.0.0"
 pylint = "^3.0.0"
 pytest-cov = "^4.0.0"
 pytest-timeout = "^2.0.1"
-flake8 = "^6.0.0"
+flake8 = "^7.0.0"
 mypy = "^1.0"
 isort = "^5.10.1"
 vulture = "^2.3"
@@ -113,7 +115,6 @@ warn_redundant_casts = true
 warn_unused_configs = true
 warn_unreachable = true
 warn_no_return = true
-no_incremental = true
 
 [[tool.mypy.overrides]]
 module = [

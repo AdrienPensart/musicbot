@@ -4,9 +4,9 @@ import os
 import sys
 import traceback
 from dataclasses import dataclass
-from typing import Any, Self
 
 from beartype import beartype
+from beartype.typing import Any, Self
 
 logger = logging.getLogger(__name__)
 

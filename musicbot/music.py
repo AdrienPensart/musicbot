@@ -1,8 +1,8 @@
 import logging
 from dataclasses import asdict, dataclass
-from typing import Any
 
 from beartype import beartype
+from beartype.typing import Any
 from slugify import slugify
 
 from musicbot.defaults import REPLACEMENTS, STOPWORDS

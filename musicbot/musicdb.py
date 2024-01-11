@@ -2,7 +2,6 @@ import logging
 import os
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Self
 from urllib.parse import urlparse
 
 import edgedb
@@ -10,6 +9,7 @@ import httpx
 from async_lru import alru_cache
 from attr import asdict as attr_asdict
 from beartype import beartype
+from beartype.typing import Any, Self
 from edgedb.asyncio_client import AsyncIOClient, create_async_client
 from edgedb.options import RetryOptions, TransactionOptions
 

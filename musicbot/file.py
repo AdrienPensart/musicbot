@@ -4,10 +4,10 @@ from dataclasses import asdict, dataclass
 from enum import Enum, unique
 from functools import cached_property
 from pathlib import Path, PurePath
-from typing import Any, Self
 
 import acoustid  # type: ignore
 from beartype import beartype
+from beartype.typing import Any, Self
 from click_skeleton.helpers import mysplit
 from mutagen import File as MutagenFile
 from mutagen import MutagenError, id3

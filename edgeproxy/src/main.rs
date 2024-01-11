@@ -1,112 +1,46 @@
-use std::time::Duration;
+use auth::create_basic_auth_handler;
+use clap::Parser;
+use salvo::catcher::Catcher;
 use salvo::prelude::*;
-use salvo::logging::Logger;
-use salvo::proxy::Proxy;
-use salvo::http::Method;
-use salvo::cache::{Cache, MokaStore, RequestIssuer};
-use salvo::basic_auth::{BasicAuth, BasicAuthValidator};
-use salvo::core::http::header::{HeaderValue, CONTENT_TYPE, CONTENT_LENGTH};
-use salvo::core::http::ResBody;
 use salvo::serve_static::StaticDir;
-use bytes::BytesMut;
-use futures_util::stream::StreamExt;
 
-pub struct Edgify {
-    path: String,
-    query: String,
-    cache_duration: Option<Duration>,
-}
-
-impl Edgify {
-    pub fn new(path: &str, query: &str, cache_duration: Option<Duration>) -> Self {
-        let query = format!(r#"{{"query": "{}"}}"#, query);
-        Self {
-            path: path.into(),
-            query,
-            cache_duration,
-        }
-    }
-    pub fn router(self) -> Router {
-        let mut router = Router::with_path(self.path.clone());
-
-        if let Some(cache_duration) = self.cache_duration {
-            let cache = Cache::new(
-                MokaStore::builder()
-                    .time_to_live(cache_duration)
-                    .build(),
-                RequestIssuer::default(),
-            );
-            router = router.hoop(cache);
-        };
-        router
-            .hoop(self)
-            .hoop(Logger::new())
-    }
-}
-
-#[async_trait]
-impl Handler for Edgify {
-    async fn handle(&self, req: &mut Request, depot: &mut Depot, res: &mut Response, ctrl: &mut FlowCtrl) {
-        *req.method_mut() = Method::POST;
-        *req.body_mut() = self.query.clone().into();
-        req.headers_mut().insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
-
-        ctrl.call_next(req, depot, res).await;
-
-        if let ResBody::Stream(mut stream) = res.take_body() {
-            let mut result = BytesMut::new();
-            while let Some(Ok(data)) = stream.next().await {
-                result.extend_from_slice(&data)
-            }
-            let length = result.len();
-            res.write_body(result).ok();
-            res.headers_mut().insert(CONTENT_LENGTH, HeaderValue::from(length));
-        }
-    }
-}
-
-struct Validator
-{
-    username: String,
-    password: String,
-}
-
-#[async_trait]
-impl BasicAuthValidator for Validator {
-    async fn validate(&self, username: &str, password: &str, _depot: &mut Depot) -> bool {
-        username == self.username && password == self.password
-    }
-}
+mod auth;
+mod cli;
+mod edgify;
+mod errors;
+mod proxy;
 
 #[tokio::main]
 async fn main() {
-    tracing_subscriber::fmt().init();
-    let upstream = ["http://localhost:10701/db/edgedb/edgeql"];
+    let _ = start().await.map_err(|err| eprintln!("{err}"));
+}
 
-    let proxy = Proxy::new(upstream);
-    let acceptor = TcpListener::new("0.0.0.0:8081").bind().await;
-    let artists = Edgify::new(
-        "artists",
-        "select artists {*}",
-        Some(Duration::from_secs(60)),
+async fn start() -> Result<(), crate::errors::EdgeProxyError> {
+    tracing_subscriber::fmt().init();
+    let opts = crate::cli::Opts::parse();
+    let proxy = crate::proxy::create_proxy(opts.upstreams, opts.insecure)?;
+
+    let router = match (opts.username, opts.password) {
+        (None, None) => Router::new(),
+        (Some(username), Some(password)) => {
+            let auth_handler = create_basic_auth_handler(username.as_str(), password.as_str());
+            Router::with_hoop(auth_handler)
+        }
+        _ => return Err(crate::errors::EdgeProxyError::BasicAuthError),
+    }
+    .hoop(Logger::new());
+
+    let artists = crate::edgify::Edgify::new("artists", "select Artist {*}", opts.cache_duration);
+    let index = Router::with_path("<**path>").get(
+        StaticDir::new(["static"])
+            .defaults("index.html")
+            .auto_list(false),
     );
-    let validator = Validator {
-        username: "crunch".into(),
-        password: "musicbot".into(),
-    };
-    let auth_handler = BasicAuth::new(validator);
-    let router = Router::with_hoop(auth_handler)
-        .push(
-            artists.router().get(proxy)
-        )
-        .push(
-            Router::with_path("<**path>").get(
-                StaticDir::new([
-                    "static",
-                ])
-                .defaults("index.html")
-                .listing(false),
-            )
-        );
-    Server::new(acceptor).serve(router).await;
+
+    let mut routes = vec![artists.router().get(proxy), index];
+    let edgeproxy = router.append(&mut routes);
+    let service = Service::new(edgeproxy).catcher(Catcher::default());
+    let acceptor = TcpListener::new(opts.bind).bind().await;
+    Server::new(acceptor).serve(service).await;
+    Ok(())
 }

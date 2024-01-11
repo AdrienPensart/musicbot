@@ -1,21 +1,28 @@
-:80 {
-    log {
-        output stderr
-    }
-    file_server browse
-    root * hyperedge
+:8081 {
+	log {
+		output stderr
+	}
+	file_server browse
+	root * edgeproxy/static
 
-    # handle /artists {
-    #     method POST
-    #     request_body {
-    #         replace `{"query": "select artists {*}"}`
-    #     }
-    #     request_header Content-Type application/json
-    #     rewrite * /db/edgedb/edgeql
-    #     reverse_proxy http://localhost:10701
-    # }
+	handle /artists {
+		method POST
+		request_body {
+			replace `{"query": "select artists {*}"}`
+		}
+		request_header Content-Type application/json
+		# header_up Host {upstream_hostport}
+		rewrite * /db/edgedb/edgeql
+		reverse_proxy https://localhost:5656 {
+			header_up Host {upstream_hostport}
+			transport http {
+				tls
+				tls_insecure_skip_verify
+			}
+		}
+	}
 
-    handle /artists {
-        reverse_proxy http://localhost:8081
-    }
+	# handle /artists {
+	#     reverse_proxy http://localhost:8081
+	# }
 }

@@ -1,8 +1,8 @@
 import logging
-from typing import Any
 
 import click
 from beartype import beartype
+from beartype.typing import Any
 from click_skeleton.helpers import mysplit
 
 from musicbot.defaults import (

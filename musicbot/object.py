@@ -20,7 +20,7 @@ import orjson
 import rich
 from beartype import beartype
 from methodtools import lru_cache
-from progressbar import NullBar, ProgressBar  # type: ignore
+from progressbar import NullBar, ProgressBar
 
 # from requests.structures import CaseInsensitiveDict
 from rich.console import Console

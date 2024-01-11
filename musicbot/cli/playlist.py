@@ -1,9 +1,9 @@
 import logging
 from dataclasses import fields
-from typing import Any
 
 import click
 from beartype import beartype
+from beartype.typing import Any
 from click_option_group import MutuallyExclusiveOptionGroup, optgroup
 from click_skeleton import add_options
 

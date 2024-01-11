@@ -1,16 +1,22 @@
 [package]
 name = "edgeproxy"
-version = "0.1.0"
+version = "0.1.0"        
+description = "reverse proxy for edgedb queries"
+authors = ["Adrien Pensart <crunchengine@gmail.com>"]
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-bytes = "1.4.0"
 tokio = { version = "1", features = ["macros"] }
-salvo = { version = "0.53", features = ["proxy", "logging", "cache", "serve-static", "basic-auth"] }
+salvo = { version = "0.63", features = ["proxy", "logging", "cache", "serve-static", "basic-auth"] }
 serde_json = "1.0"
 tracing = "0.1"
 tracing-subscriber = "0.3"
-futures = "0.3"
-futures-util = { version = "0.3", default-features = false }
+hyper-util = { version = "0.1.2", features = ["full"] }
+hyper-tls = "0.6.0"
+native-tls = "0.2.11"
+hyper = "1.0.1"
+http-body-util = "0.1.0"
+tokio-native-tls = "0.3.1"
+thiserror = "1.0.53"
+clap = { version = "4.4.12", features = ["derive"] }
+humantime = "2.1.0"

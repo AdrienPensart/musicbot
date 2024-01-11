@@ -1,8 +1,8 @@
 import logging
-from typing import Any
 
 import click
 from attr import fields
+from beartype.typing import Any
 from click_option_group import optgroup
 from click_skeleton import add_options
 from click_skeleton.helpers import mysplit

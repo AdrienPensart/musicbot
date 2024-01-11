@@ -1,10 +1,10 @@
 import functools
 import logging
 from pathlib import Path
-from typing import Any
 
 import click
 from beartype import beartype
+from beartype.typing import Any
 from click_option_group import optgroup
 from click_skeleton import add_options
 from click_skeleton.helpers import split_arguments

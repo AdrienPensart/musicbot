@@ -4,11 +4,11 @@ import random
 from codecs import StreamReaderWriter
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Self
 
 import click
 import edgedb
 from beartype import beartype
+from beartype.typing import Self
 from click_skeleton.helpers import PrettyDefaultDict
 from click_skeleton.helpers import seconds_to_human as formatted_seconds_to_human
 from more_itertools import interleave_evenly

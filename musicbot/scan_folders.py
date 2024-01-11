@@ -1,13 +1,12 @@
 import logging
 import os
-from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from functools import cached_property
 from itertools import islice
 from pathlib import Path
-from typing import Any
 
 from beartype import beartype
+from beartype.typing import Any, Callable, Iterator
 from natsort import os_sorted
 
 from musicbot.defaults import DEFAULT_EXTENSIONS, EXCEPT_DIRECTORIES

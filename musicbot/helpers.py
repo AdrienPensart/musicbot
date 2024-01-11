@@ -2,12 +2,11 @@ import asyncio
 import datetime as dt
 import getpass
 import logging
-from collections.abc import Callable, Coroutine
 from functools import cache, partial, wraps
-from typing import Any, ParamSpec, TypeVar
 
 import humanize
 from beartype import beartype
+from beartype.typing import Any, Callable, Coroutine, ParamSpec, TypeVar
 from ruamel.yaml import YAML
 from ruamel.yaml.compat import StringIO
 

@@ -1,10 +1,10 @@
 import logging
 from pathlib import Path
-from typing import Any
 
 import acoustid  # type: ignore
 import click
 from beartype import beartype
+from beartype.typing import Any
 from click_skeleton import AdvancedGroup
 from click_skeleton.helpers import seconds_to_human
 

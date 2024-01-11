@@ -3,10 +3,10 @@ import logging
 import os
 from dataclasses import asdict, dataclass
 from functools import cached_property
-from typing import Any
 
 import spotipy  # type: ignore
 from beartype import beartype
+from beartype.typing import Any
 from natsort import natsorted
 from spotipy.oauth2 import CacheFileHandler, SpotifyOauthError  # type: ignore
 
@@ -153,11 +153,13 @@ class Spotify(MusicbotObject):
                 if p["name"] == name:
                     tracks = []
                     results: dict = self.api.playlist(p["id"], fields="tracks,next")
-                    new_tracks: dict = results["tracks"]
-                    tracks.append(new_tracks["items"])
+                    new_tracks: dict = results.get("tracks", {})
+                    new_items: dict = new_tracks.get("items", {})
+                    tracks.append(new_items)
                     while new_tracks["next"]:
                         new_tracks = self.api.next(new_tracks)
-                        tracks.append(new_tracks["items"])
+                        new_items = new_tracks.get("items", {})
+                        tracks.append(new_items)
                     return list(itertools.chain(*tracks))
         except SpotifyOauthError as error:
             self.err(f"{self} : {name} : unable to get playlist tracks", error=error)

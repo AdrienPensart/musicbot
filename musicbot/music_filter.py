@@ -1,7 +1,7 @@
 import logging
-from typing import Any
 
 from attr import asdict, define, field, fields
+from beartype.typing import Any
 
 from musicbot.defaults import (
     DEFAULT_LIMIT,
