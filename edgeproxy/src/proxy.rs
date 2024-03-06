@@ -3,14 +3,18 @@ use hyper_tls::HttpsConnector;
 use hyper_util::client::legacy::connect::HttpConnector;
 use hyper_util::client::legacy::Client as HyperUtilClient;
 use salvo::proxy::{HyperClient, Proxy};
+use std::fmt::Debug;
+use tracing::{info, instrument};
 
+#[instrument]
 pub fn create_proxy<U>(
     upstreams: U,
     insecure: bool,
 ) -> Result<Proxy<U, HyperClient>, EdgeProxyError>
 where
-    U: salvo::proxy::Upstreams,
+    U: salvo::proxy::Upstreams + Debug,
 {
+    info!("registered");
     if !insecure {
         return Ok(Proxy::default_hyper_client(upstreams));
     }

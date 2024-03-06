@@ -1,5 +1,6 @@
 use salvo::basic_auth::{BasicAuth, BasicAuthValidator};
 use salvo::prelude::*;
+use tracing::{info, instrument};
 
 pub struct Validator {
     username: String,
@@ -13,7 +14,9 @@ impl BasicAuthValidator for Validator {
     }
 }
 
+#[instrument]
 pub fn create_basic_auth_handler(username: &str, password: &str) -> BasicAuth<Validator> {
+    info!("registered");
     let validator = Validator {
         username: username.into(),
         password: password.into(),

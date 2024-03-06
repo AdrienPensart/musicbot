@@ -415,7 +415,8 @@ class File(MusicbotObject):
                 self.err("unable to load existing mp3 file")
                 return None
 
-            mp3_file.track = self.track
+            if self.track is not None:
+                mp3_file.track = self.track
             mp3_file.album = self.album
             mp3_file.title = self.title
             mp3_file.artist = self.artist
@@ -450,10 +451,9 @@ class File(MusicbotObject):
                 self.err("unable to load freshly converted mp3 file")
                 return None
 
-            mp3_file.track = self.track
-
             # rewrite some metadatas
-            mp3_file.track = self.track
+            if self.track is not None:
+                mp3_file.track = self.track
             mp3_file.album = self.album
             mp3_file.title = self.title
             mp3_file.genre = self.genre
@@ -469,7 +469,7 @@ class File(MusicbotObject):
 
     async def shazam(self) -> Any:
         shazam = Shazam()
-        return await shazam.recognize_song(self.path)
+        return await shazam.recognize(self.path)
 
     def fingerprint(self, api_key: str) -> str | None:
         try:

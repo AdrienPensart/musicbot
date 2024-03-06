@@ -10,6 +10,7 @@ import threading
 import traceback
 from collections.abc import Callable, Collection, Iterable, Sequence
 from datetime import datetime
+from functools import lru_cache
 from pathlib import Path
 from typing import IO, Any, NoReturn, ParamSpec, TypeVar
 
@@ -19,7 +20,8 @@ import httpx
 import orjson
 import rich
 from beartype import beartype
-from methodtools import lru_cache
+
+# from methodtools import lru_cache
 from progressbar import NullBar, ProgressBar
 
 # from requests.structures import CaseInsensitiveDict
@@ -53,6 +55,17 @@ T_ParamSpec = ParamSpec("T_ParamSpec")
 T = TypeVar("T")
 
 
+@lru_cache(maxsize=None)
+def _public_ip(timeout: int = 5) -> str | None:
+    try:
+        response = httpx.head("https://www.wikipedia.org", timeout=timeout)
+        logger.info(response.headers)
+        return response.headers["X-Client-IP"]
+    except Exception as error:
+        MusicbotObject.err("Unable to detect Public IP", error=error)
+    return None
+
+
 @beartype
 class MusicbotObject:
     print_lock = threading.Lock()
@@ -71,16 +84,9 @@ class MusicbotObject:
     def __repr__(self) -> str:
         return "[DRY]" if self.dry else "[DOING]"
 
-    @lru_cache()
     @staticmethod
     def public_ip(timeout: int = 5) -> str | None:
-        try:
-            response = httpx.head("https://www.wikipedia.org", timeout=timeout)
-            logger.info(response.headers)
-            return response.headers["X-Client-IP"]
-        except Exception as error:
-            MusicbotObject.err("Unable to detect Public IP", error=error)
-        return None
+        return _public_ip(timeout=timeout)
 
     @staticmethod
     def is_dev() -> bool:

@@ -1,7 +1,7 @@
 import logging
+from dataclasses import fields, replace
 
 import click
-from attr import fields
 from beartype.typing import Any
 from click_option_group import optgroup
 from click_skeleton import add_options
@@ -12,8 +12,8 @@ from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
 
-FIELDS_NAMES = [field.name for field in fields(MusicFilter)]
-JOINED_FIELDS_NAMES = ",".join(FIELDS_NAMES)  # pylint: disable=not-an-iterable
+NAME_TO_FIELD = {field.name: field for field in fields(MusicFilter)}
+JOINED_FIELDS_NAMES = ",".join(NAME_TO_FIELD.keys())  # pylint: disable=not-an-iterable
 FILTERS_REPRS = """\b
 """ + "\n".join(
     [f"{k}: {v.help_repr()}" for k, v in DEFAULT_PREFILTERS.items()]
@@ -38,7 +38,7 @@ def sane_music_filters(ctx: click.Context, param: click.Parameter, value: Any) -
             raise click.Abort()
 
     for val in value:
-        properties = {}
+        mf = MusicFilter()
         for comma_separated in mysplit(val, ","):
             if "=" not in comma_separated:
                 MusicbotObject.err('Error with a property, there is no "=" between key and value (<key>=<value>)')
@@ -47,16 +47,17 @@ def sane_music_filters(ctx: click.Context, param: click.Parameter, value: Any) -
             if len(split_val) != 2:
                 MusicbotObject.err(f"Error with a property, splitted value should be of length 2 : {split_val}")
                 raise click.Abort()
-            property_key = split_val[0]
-            property_value = split_val[1]
 
-            if property_key not in FIELDS_NAMES:
+            property_key = split_val[0]
+            property_value: str | int | float = split_val[1]
+
+            field = NAME_TO_FIELD.get(property_key, None)
+            if field is None:
                 MusicbotObject.err(f"Error : unknown property {property_key} for value {property_value}")
                 raise click.Abort()
 
-            properties[property_key] = property_value
+            mf = replace(mf, **{field.name: field.type(property_value)})
 
-        mf = MusicFilter(**properties)
         and_filters.append(mf)
 
     if not and_filters:

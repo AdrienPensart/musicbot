@@ -7,7 +7,6 @@ from urllib.parse import urlparse
 import edgedb
 import httpx
 from async_lru import alru_cache
-from attr import asdict as attr_asdict
 from beartype import beartype
 from beartype.typing import Any, Self
 from edgedb.asyncio_client import AsyncIOClient, create_async_client
@@ -124,7 +123,7 @@ class MusicDb(MusicbotObject):
         for music_filter in music_filters:
             intermediate_results: list[GenPlaylistResult] = await gen_playlist(
                 self.client,
-                **attr_asdict(music_filter),
+                **asdict(music_filter),
             )
             results.update(intermediate_results)
         name = " | ".join([music_filter.help_repr() for music_filter in music_filters])
@@ -210,7 +209,7 @@ class MusicDb(MusicbotObject):
         for music_filter in music_filters:
             intermediate_result: GenBestsResult = await gen_bests(
                 self.client,
-                **attr_asdict(music_filter),
+                **asdict(music_filter),
             )
             results.append(intermediate_result)
 

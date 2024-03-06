@@ -39,7 +39,8 @@ async fn start() -> Result<(), crate::errors::EdgeProxyError> {
 
     let mut routes = vec![artists.router().get(proxy), index];
     let edgeproxy = router.append(&mut routes);
-    let service = Service::new(edgeproxy).catcher(Catcher::default());
+    let catcher = Catcher::default();
+    let service = Service::new(edgeproxy).catcher(catcher);
     let acceptor = TcpListener::new(opts.bind).bind().await;
     Server::new(acceptor).serve(service).await;
     Ok(())

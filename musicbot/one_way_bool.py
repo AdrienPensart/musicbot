@@ -1,4 +1,5 @@
 """Helper module to secure dry mode"""
+
 import logging
 import os
 import sys

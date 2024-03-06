@@ -391,7 +391,7 @@ async def custom_playlists(
 
     for pike_keyword in pike_keywords:
         MusicbotObject.success(f"Generating pike playlists for keyword {pike_keyword}")
-        for rating in [4, 4.5, 5]:
+        for rating in [4.0, 4.5, 5.0]:
             MusicbotObject.success(f"Generating playlist for {pike_keyword}_{rating}")
             pike_music_filter = MusicFilter(
                 artist="Buckethead",
@@ -410,7 +410,7 @@ async def custom_playlists(
                 out=out,
             )
 
-    for rating in [4, 4.5, 5]:
+    for rating in [4.0, 4.5, 5.0]:
         MusicbotObject.success(f"Generating playlist rating for Pikes {rating}")
         rating_music_filter = MusicFilter(
             artist="Buckethead",

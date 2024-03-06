@@ -5,7 +5,9 @@ use salvo::http::Method;
 // use salvo::logging::Logger;
 use salvo::prelude::*;
 use std::time::Duration;
+use tracing::{debug, info, warn};
 
+#[derive(Debug)]
 pub struct Edgify {
     path: String,
     query: String,
@@ -21,6 +23,7 @@ impl Edgify {
             cache_duration,
         }
     }
+
     pub fn router(self) -> Router {
         let mut router = Router::with_path(self.path.clone());
         if let Some(cache_duration) = self.cache_duration {
@@ -30,6 +33,7 @@ impl Edgify {
             );
             router = router.hoop(cache);
         };
+        info!("{self:?} registered");
         // router.hoop(self).hoop(Logger::new())
         router.hoop(self)
     }
@@ -44,7 +48,7 @@ impl Handler for Edgify {
         res: &mut Response,
         ctrl: &mut FlowCtrl,
     ) {
-        eprintln!("incoming request: {:?}", req);
+        debug!("incoming request: {:?}", req);
         let query = self.query.clone();
         *req.method_mut() = Method::POST;
         *req.body_mut() = query.into();
@@ -53,9 +57,9 @@ impl Handler for Edgify {
         req.headers_mut()
             .insert(CONTENT_LENGTH, HeaderValue::from(self.query.len()));
 
-        eprintln!("outgoing request: {:?}", req);
+        debug!("outgoing request: {:?}", req);
         ctrl.call_next(req, depot, res).await;
-        eprintln!("incoming response: {:?}", res);
+        debug!("incoming response: {:?}", res);
 
         if self.cache_duration.is_some() {
             match res.take_body() {
@@ -65,10 +69,10 @@ impl Handler for Edgify {
                     res.replace_body(salvo::http::ResBody::Once(body.to_bytes()));
                 }
                 _ => {
-                    println!("Unknown body");
+                    warn!("{req:?} has uncachable body");
                 }
             }
         }
-        eprintln!("outgoing response: {:?}", res);
+        debug!("outgoing response: {:?}", res);
     }
 }

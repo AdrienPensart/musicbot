@@ -1,7 +1,7 @@
 import logging
+from dataclasses import asdict, dataclass, fields
 
-from attr import asdict, define, field, fields
-from beartype.typing import Any
+from beartype import beartype
 
 from musicbot.defaults import (
     DEFAULT_LIMIT,
@@ -19,48 +19,39 @@ from musicbot.object import MusicbotObject
 logger = logging.getLogger(__name__)
 
 
-@define(frozen=True)
+@beartype
+@dataclass(frozen=True)
 class MusicFilter(MusicbotObject):
-    genre: str = field(default=MATCH_ALL)
-    keyword: str = field(default=MATCH_ALL)
-    artist: str = field(default=MATCH_ALL)
-    title: str = field(default=MATCH_ALL)
-    album: str = field(default=MATCH_ALL)
-    pattern: str = field(default="")
+    genre: str = MATCH_ALL
+    keyword: str = MATCH_ALL
+    artist: str = MATCH_ALL
+    title: str = MATCH_ALL
+    album: str = MATCH_ALL
+    pattern: str = ""
 
-    min_size = field(converter=int, default=DEFAULT_MIN_SIZE)
-    max_size = field(converter=int, default=DEFAULT_MAX_SIZE)
-    min_length = field(converter=int, default=DEFAULT_MIN_LENGTH)
-    max_length = field(converter=int, default=DEFAULT_MAX_LENGTH)
-    min_rating = field(converter=float, default=DEFAULT_MIN_RATING)
-    max_rating = field(converter=float, default=DEFAULT_MAX_RATING)
-    limit = field(converter=int, default=DEFAULT_LIMIT)
+    min_size: int = DEFAULT_MIN_SIZE
+    max_size: int = DEFAULT_MAX_SIZE
+    min_length: int = DEFAULT_MIN_LENGTH
+    max_length: int = DEFAULT_MAX_LENGTH
+    min_rating: float = DEFAULT_MIN_RATING
+    max_rating: float = DEFAULT_MAX_RATING
+    limit: int = DEFAULT_LIMIT
 
-    @min_rating.validator
-    def _check_min_rating(self, attribute: Any, value: float) -> None:  # pylint: disable=unused-argument
-        """min rating validator"""
-        if value not in RATING_CHOICES:
+    def __post_init__(self) -> None:
+        """Check values"""
+        if self.min_rating not in RATING_CHOICES:
             raise ValueError(f"Invalid minimum rating {self.min_rating}, it should be one of {RATING_CHOICES}")
 
-    @max_rating.validator
-    def _check_max_rating(self, attribute: Any, value: float) -> None:  # pylint: disable=unused-argument
-        """max rating validator"""
-        if value not in RATING_CHOICES:
+        if self.max_rating not in RATING_CHOICES:
             raise ValueError(f"Invalid maximum rating {self.max_rating}, it should be one of {RATING_CHOICES}")
 
-        if self.min_rating > value:
+        if self.min_rating > self.max_rating:
             raise ValueError(f"Invalid minimum ({self.min_rating}) or maximum ({self.max_rating}) rating")
 
-    @max_length.validator
-    def _check_max_length(self, attribute: Any, value: int) -> None:  # pylint: disable=unused-argument
-        """max length validator"""
-        if self.min_length > value:
+        if self.min_length > self.max_length:
             raise ValueError(f"Invalid minimum ({self.min_length}) or maximum ({self.max_length}) length")
 
-    @max_size.validator
-    def _check_max_size(self, attribute: Any, value: int) -> None:  # pylint: disable=unused-argument
-        """max size validator"""
-        if self.min_size > value:
+        if self.min_size > self.max_size:
             raise ValueError(f"Invalid minimum ({self.min_size}) or maximum ({self.max_size}) size")
 
     def _short_repr(self) -> dict[str, str]:

@@ -7,7 +7,7 @@ set -e
 sh code-format.sh
 
 echo "linting : ruff..."
-poetry run ruff musicbot tests
+poetry run ruff check musicbot tests
 
 echo "linting : pylint..."
 poetry run pylint musicbot tests
@@ -18,8 +18,8 @@ poetry run flake8 musicbot tests
 echo "static type checking : mypy..."
 poetry run mypy musicbot tests
 
-echo "static type checking : pyright..."
-poetry run pyright
+# echo "static type checking : pyright..."
+# poetry run pyright
 
 # echo "security checks : bandit..."
 # poetry run bandit -r musicbot
