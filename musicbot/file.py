@@ -469,7 +469,7 @@ class File(MusicbotObject):
 
     async def shazam(self) -> Any:
         shazam = Shazam()
-        return await shazam.recognize(self.path)
+        return await shazam.recognize(str(self.path))
 
     def fingerprint(self, api_key: str) -> str | None:
         try:
