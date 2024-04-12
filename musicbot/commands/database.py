@@ -56,7 +56,7 @@ def pgcli(ctx: click.Context, musicdb: MusicDb, pgcli_args: tuple[str, ...]) -> 
     from pgcli.main import cli as pg_cli
 
     dsn = musicdb.dsn.replace("edgedb://", "postgresql://")
-    dsn += "/edgedb"
+    dsn += "/main"
     args = [dsn] + list(pgcli_args)
     pgcli_logger = logging.getLogger("pgcli.main")
     pgcli_logger.setLevel(logging.ERROR)

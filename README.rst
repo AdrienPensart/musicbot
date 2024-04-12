@@ -24,7 +24,6 @@ Commands
     -h, --help                      Show this message and exit.
 
   Commands:
-    completion            Shell completion
     console               Starts interpreter
     database (db,edgedb)  DB management
     folder                Manage folders
@@ -35,47 +34,6 @@ Commands
     spotify               Spotify tool
     version               Print version
     youtube               Youtube tool
-
-musicbot completion
-*******************
-.. code-block::
-
-  Usage: musicbot completion [OPTIONS] COMMAND [ARGS]...
-
-    Shell completion subcommand
-
-  Options:
-    -h, --help  Show this message and exit.
-
-  Commands:
-    help                   Print help
-    install                Install the click-completion-command completion
-    show (generate,print)  Show the click-completion-command completion code
-
-musicbot completion install
-***************************
-.. code-block::
-
-  Usage: musicbot completion install [OPTIONS] [[bash|fish|zsh|powershell]] [PATH]
-
-    Auto install shell completion code in your rc file
-
-  Options:
-    -i, --case-insensitive  Case insensitive completion
-    --append / --overwrite  Append the completion code to the file
-    -h, --help              Show this message and exit.
-
-musicbot completion show
-************************
-.. code-block::
-
-  Usage: musicbot completion show [OPTIONS] [[bash|fish|zsh|powershell]]
-
-    Generate shell code to enable completion
-
-  Options:
-    -i, --case-insensitive  Case insensitive completion
-    -h, --help              Show this message and exit.
 
 musicbot console
 ****************

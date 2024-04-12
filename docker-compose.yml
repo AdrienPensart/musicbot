@@ -3,7 +3,7 @@ version: '3'
 services:
   musicbot_db_prod:
     container_name: musicbot-db-prod
-    image: "edgedb/edgedb:4"
+    image: "edgedb/edgedb:5.0-beta.2"
     restart: always
     ports:
       - 5656:5656
@@ -13,6 +13,7 @@ services:
       EDGEDB_SERVER_TLS_CERT_MODE: generate_self_signed
       EDGEDB_SERVER_SECURITY: insecure_dev_mode
       EDGEDB_SERVER_HTTP_ENDPOINT_SECURITY: optional
+      EDGEDB_SERVER_BINARY_ENDPOINT_SECURITY: optional
       EDGEDB_SERVER_USER: musicbot
       EDGEDB_SERVER_PASSWORD: musicbot
     volumes:
@@ -21,7 +22,7 @@ services:
       - musicbot-prod-data:/var/lib/edgedb/data
   musicbot_db_test:
     container_name: musicbot-db-test
-    image: "edgedb/edgedb:4"
+    image: "edgedb/edgedb:5.0-beta.2"
     restart: always
     ports:
       - 5657:5656
@@ -32,7 +33,8 @@ services:
       EDGEDB_SERVER_ADMIN_UI: enabled
       EDGEDB_SERVER_USER: testuser
       EDGEDB_SERVER_PASSWORD: testpass
-      # EDGEDB_SERVER_HTTP_ENDPOINT_SECURITY: optional
+      EDGEDB_SERVER_HTTP_ENDPOINT_SECURITY: optional
+      EDGEDB_SERVER_BINARY_ENDPOINT_SECURITY: optional
     volumes:
       - ./dbschema:/dbschema
 

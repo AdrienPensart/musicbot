@@ -54,7 +54,7 @@ class MusicFilter(MusicbotObject):
         if self.min_size > self.max_size:
             raise ValueError(f"Invalid minimum ({self.min_size}) or maximum ({self.max_size}) size")
 
-    def _short_repr(self) -> dict[str, str]:
+    def _short_repr(self) -> dict[str, int | str | float]:
         self_dict = asdict(self)
         for field_attribute in fields(MusicFilter):  # pylint: disable=not-an-iterable
             if self_dict[field_attribute.name] == field_attribute.default:

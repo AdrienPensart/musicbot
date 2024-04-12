@@ -31,8 +31,3 @@ def test_cli_help(cli_runner: CliRunner) -> None:
     output2 = strip_colors(run_cli(cli_runner, cli, ["--quiet", "--help"]))
     output3 = strip_colors(run_cli(cli_runner, cli, ["--quiet", "help"]))
     assert output1 == output2 == output3
-
-
-@beartype
-def test_completion_show(cli_runner: CliRunner) -> None:
-    _ = run_cli(cli_runner, cli, ["--quiet", "completion", "show", "zsh"])

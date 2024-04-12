@@ -2,8 +2,8 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum EdgeProxyError {
-    #[error("TLS error")]
-    TlsError(#[from] native_tls::Error),
+    #[error{"EdgeDB error"}]
+    Edgedb(#[from] edgedb_tokio::Error),
     #[error("Missing basic auth username or password")]
-    BasicAuthError,
+    BasicAuth,
 }
