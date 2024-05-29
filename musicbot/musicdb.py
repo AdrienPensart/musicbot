@@ -1,8 +1,9 @@
 import logging
 import os
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from urllib.parse import urlparse
+from uuid import UUID
 
 import edgedb
 import httpx
@@ -21,9 +22,28 @@ from musicbot.queries.gen_bests_async_edgeql import GenBestsResult, gen_bests
 from musicbot.queries.gen_playlist_async_edgeql import GenPlaylistResult, gen_playlist
 from musicbot.queries.remove_async_edgeql import remove
 from musicbot.queries.soft_clean_async_edgeql import soft_clean
-from musicbot.queries.upsert_async_edgeql import upsert
+from musicbot.queries.upsert_album_async_edgeql import upsert_album
+from musicbot.queries.upsert_artist_async_edgeql import upsert_artist
+from musicbot.queries.upsert_folder_async_edgeql import upsert_folder
+from musicbot.queries.upsert_genre_async_edgeql import upsert_genre
+from musicbot.queries.upsert_keyword_async_edgeql import upsert_keyword
+from musicbot.queries.upsert_music_async_edgeql import upsert_music
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class ArtistAlbums:
+    id: UUID
+    albums: dict[str, UUID] = field(default_factory=dict)
+
+
+@dataclass
+class UpsertCache:
+    folders: dict[str, UUID] = field(default_factory=dict)
+    artists_and_albums: dict[str, ArtistAlbums] = field(default_factory=dict)
+    genres: dict[str, UUID] = field(default_factory=dict)
+    keywords: dict[str, UUID] = field(default_factory=dict)
 
 
 @beartype
@@ -31,13 +51,14 @@ logger = logging.getLogger(__name__)
 class MusicDb(MusicbotObject):
     client: AsyncIOClient
     graphql: str
+    upsert_cache: UpsertCache = field(default_factory=UpsertCache, hash=False)
 
     def __repr__(self) -> str:
         return self.dsn
 
     def set_readonly(self, readonly: bool = True) -> None:
         """set client to read only mode"""
-        options = TransactionOptions(readonly=readonly)
+        options = TransactionOptions(readonly=readonly, deferrable=True)
         self.client = self.client.with_transaction_options(options)
 
     @property
@@ -165,9 +186,60 @@ class MusicDb(MusicbotObject):
 
         retries = 3
         last_error = None
+
         while retries > 0:
             try:
-                result = await upsert(self.client, **asdict(music_input))
+                if music_input.artist not in self.upsert_cache.artists_and_albums:
+                    artist_result = await upsert_artist(self.client, artist=music_input.artist)
+                    artist_id = artist_result.id
+                    self.upsert_cache.artists_and_albums[music_input.artist] = ArtistAlbums(id=artist_id)
+                else:
+                    artist_id = self.upsert_cache.artists_and_albums[music_input.artist].id
+
+                if music_input.folder not in self.upsert_cache.folders:
+                    folder_result = await upsert_folder(self.client, username=music_input.username, ipv4=music_input.ipv4, folder=music_input.folder)
+                    folder_id = folder_result.id
+                    self.upsert_cache.folders[music_input.folder] = folder_id
+                else:
+                    folder_id = self.upsert_cache.folders[music_input.folder]
+
+                if music_input.genre not in self.upsert_cache.genres:
+                    genre_result = await upsert_genre(self.client, genre=music_input.genre)
+                    genre_id = genre_result.id
+                    self.upsert_cache.genres[music_input.genre] = genre_id
+                else:
+                    genre_id = self.upsert_cache.genres[music_input.genre]
+
+                keyword_ids = []
+                for keyword in music_input.keywords:
+                    if keyword not in self.upsert_cache.keywords:
+                        keyword_result = await upsert_keyword(self.client, keyword=keyword)
+                        keyword_id = keyword_result.id
+                        self.upsert_cache.keywords[keyword] = keyword_id
+                    else:
+                        keyword_id = self.upsert_cache.keywords[keyword]
+                    keyword_ids.append(keyword_id)
+
+                if music_input.album not in self.upsert_cache.artists_and_albums[music_input.artist].albums:
+                    album_result = await upsert_album(self.client, album=music_input.album, artist=artist_id)
+                    album_id = album_result.id
+                    self.upsert_cache.artists_and_albums[music_input.artist].albums[music_input.album] = album_id
+                else:
+                    album_id = self.upsert_cache.artists_and_albums[music_input.artist].albums[music_input.album]
+
+                result = await upsert_music(
+                    self.client,
+                    title=music_input.title,
+                    folder=folder_id,
+                    path=music_input.path,
+                    size=music_input.size,
+                    length=music_input.length,
+                    rating=music_input.rating,
+                    keywords=keyword_ids,
+                    album=album_id,
+                    genre=genre_id,
+                    track=music_input.track,
+                )
                 keywords = frozenset(keyword.name for keyword in result.keywords)
                 folders = [Folder(path=Path(folder.path), name=folder.name, ipv4=folder.ipv4, username=folder.username) for folder in result.folders if folder.path is not None]
                 music = Music(
@@ -182,7 +254,6 @@ class MusicDb(MusicbotObject):
                     rating=result.rating,
                     folders=frozenset(folders),
                 )
-                # output_music = file.music
                 self.success(f"{self} : updated {music_input}")
                 return music
             except edgedb.errors.TransactionSerializationError as error:
@@ -195,7 +266,7 @@ class MusicDb(MusicbotObject):
             except OSError as error:
                 self.warn(f"{music_input} : unknown error", error=error)
             return None
-        self.err(f"{self} : too many transaction failures", errpr=last_error)
+        self.err(f"{self} : too many transaction failures", error=last_error)
         return None
 
     async def make_bests(

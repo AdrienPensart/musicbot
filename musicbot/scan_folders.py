@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 from dataclasses import dataclass
@@ -8,10 +9,12 @@ from pathlib import Path
 from beartype import beartype
 from beartype.typing import Any, Callable, Iterator
 from natsort import os_sorted
+from yaspin import yaspin
 
 from musicbot.defaults import DEFAULT_EXTENSIONS, EXCEPT_DIRECTORIES
-from musicbot.file import File
+from musicbot.file import File, Issue
 from musicbot.music import Music
+from musicbot.musicdb import MusicDb
 from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
@@ -58,14 +61,18 @@ class ScanFolders(MusicbotObject):
     @cached_property
     def folders_and_paths(self) -> set[tuple[Path, Path]]:
         _files = set()
-        for folder in self.directories:
-            for root, _, basenames in os.walk(folder):
-                if any(e in root for e in self.except_directories):
-                    continue
-                for basename in basenames:
-                    path = Path(folder) / root / basename
-                    if basename.endswith(tuple(self.extensions)):
-                        _files.add((folder, path))
+        n = 0
+        with yaspin(text=f"Loading {n} files", color="yellow") as spinner:
+            for folder in self.directories:
+                for root, _, basenames in os.walk(folder):
+                    if any(e in root for e in self.except_directories):
+                        continue
+                    for basename in basenames:
+                        path = Path(folder) / root / basename
+                        if basename.endswith(tuple(self.extensions)):
+                            _files.add((folder, path))
+                            n += 1
+                            spinner.text = f"Loading {n} files"
         return set(islice(_files, self.limit))
 
     @cached_property
@@ -120,3 +127,41 @@ class ScanFolders(MusicbotObject):
                     self.success(f"{self} : removing {filename}")
                 else:
                     filename.unlink()
+
+    async def scan(self, musicdb: MusicDb) -> list[Music]:
+        max_value = len(self.folders_and_paths)
+        if not max_value:
+            self.warn(f"No music folder or paths discovered from directories {self.directories}")
+            return []
+
+        failed_inputs = []
+        music_outputs = []
+        files = self.files
+        with self.progressbar(desc="Upserting musics", max_value=max_value) as pbar:
+
+            async def upsert_worker(file: File) -> None:
+                try:
+                    issues = file.issues
+                    if Issue.NO_TITLE in issues or Issue.NO_ARTIST in issues or Issue.NO_ALBUM in issues:
+                        self.warn(f"{file} : missing mandatory fields title/album/artist : {issues}")
+                        return
+                    if not (music_input := file.music_input):
+                        self.err(f"{file} : cannot upsert music without physical folder !")
+                        return
+
+                    if (music_output := await musicdb.upsert_music(music_input)) is None:
+                        self.err(f"{music_input} : unable to insert")
+                        failed_inputs.append(file.music_input)
+                    else:
+                        music_outputs.append(music_output)
+                finally:
+                    pbar.value += 1
+                    _ = pbar.update()
+
+            async with asyncio.TaskGroup() as tg:
+                for file in files:
+                    _ = tg.create_task(upsert_worker(file))
+
+        if failed_inputs:
+            self.warn(f"Unable to insert {len(failed_inputs)} files")
+        return music_outputs

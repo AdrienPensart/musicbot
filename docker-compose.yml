@@ -1,9 +1,8 @@
 ---
-version: '3'
 services:
   musicbot_db_prod:
     container_name: musicbot-db-prod
-    image: "edgedb/edgedb:5.0-beta.2"
+    image: "edgedb/edgedb:5"
     restart: always
     ports:
       - 5656:5656
@@ -22,7 +21,7 @@ services:
       - musicbot-prod-data:/var/lib/edgedb/data
   musicbot_db_test:
     container_name: musicbot-db-test
-    image: "edgedb/edgedb:5.0-beta.2"
+    image: "edgedb/edgedb:5"
     restart: always
     ports:
       - 5657:5656

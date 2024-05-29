@@ -7,7 +7,7 @@ from beartype import beartype
 from click.testing import CliRunner
 from pytest import fixture, skip
 
-from musicbot import Music, MusicDb, ScanFolders, local, syncify
+from musicbot import Music, MusicDb, ScanFolders, syncify
 
 from . import fixtures
 
@@ -54,15 +54,8 @@ def edgedb() -> str:
 async def testmusics(edgedb: str) -> list[Music]:
     musicdb = MusicDb.from_dsn(edgedb)
 
-    scan_folders = ScanFolders([Path(folder) for folder in fixtures.scan_folders])
-    music_inputs = await local.scan(
-        musicdb=musicdb,
-        scan_folders=scan_folders,
-    )
     _ = await musicdb.clean_musics()
-    music_outputs = await local.upsert_musics(
-        musicdb=musicdb,
-        music_inputs=music_inputs,
-    )
+    scan_folders = ScanFolders([Path(folder) for folder in fixtures.scan_folders])
+    music_outputs = await scan_folders.scan(musicdb=musicdb)
     assert music_outputs, "Empty music db"
     return music_outputs

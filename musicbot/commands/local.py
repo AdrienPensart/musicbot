@@ -128,16 +128,11 @@ async def scan(
     save: bool,
     output: str,
 ) -> None:
-    music_inputs = await local.scan(
-        musicdb=musicdb,
-        scan_folders=scan_folders,
-    )
     if clean:
         _ = await musicdb.clean_musics()
-    music_outputs = await local.upsert_musics(
-        musicdb=musicdb,
-        music_inputs=music_inputs,
-    )
+
+    music_outputs = await scan_folders.scan(musicdb=musicdb)
+
     _ = await musicdb.soft_clean()
 
     if output == "json":
@@ -358,15 +353,8 @@ async def custom_playlists(
 ) -> None:
     scan_folders = ScanFolders(directories=[scan_folder])
     if not fast:
-        music_inputs = await local.scan(
-            musicdb=musicdb,
-            scan_folders=scan_folders,
-        )
         _ = await musicdb.clean_musics()
-        _ = await local.upsert_musics(
-            musicdb=musicdb,
-            music_inputs=music_inputs,
-        )
+        _ = await scan_folders.scan(musicdb=musicdb)
 
     musicdb.set_readonly()
 

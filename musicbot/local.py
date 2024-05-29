@@ -8,7 +8,6 @@ import click
 
 from musicbot import (
     File,
-    Issue,
     Music,
     MusicbotObject,
     MusicDb,
@@ -72,40 +71,6 @@ async def bests(
             logger.warning(f"Unable to write playlist {best.name} to {filepath} because of {e}")
 
     MusicbotObject.success(f"Playlists: {len(bests)}")
-
-
-async def scan(
-    musicdb: MusicDb,
-    scan_folders: ScanFolders,
-) -> list[MusicInput]:
-    max_value = len(scan_folders.folders_and_paths)
-    if not max_value:
-        MusicbotObject.warn(f"No music folder or paths discovered from directories {scan_folders.directories}")
-        return []
-
-    MusicbotObject.echo(f"{musicdb} : loading {max_value} files")
-    music_inputs = []
-    with MusicbotObject.progressbar(desc="Loading files", max_value=max_value) as pbar:
-        for folder_and_path in scan_folders.folders_and_paths:
-            try:
-                folder, path = folder_and_path
-                if not (file := File.from_path(folder=folder, path=path)):
-                    continue
-
-                issues = file.issues
-                if Issue.NO_TITLE in issues or Issue.NO_ARTIST in issues or Issue.NO_ALBUM in issues:
-                    MusicbotObject.warn(f"{file} : missing mandatory fields title/album/artist : {issues}")
-                    continue
-                if not (music_input := file.music_input):
-                    MusicbotObject.err(f"{file} : cannot upsert music without physical folder !")
-                    continue
-
-                music_inputs.append(music_input)
-            finally:
-                pbar.value += 1
-                _ = pbar.update()
-
-    return music_inputs
 
 
 async def upsert_musics(
