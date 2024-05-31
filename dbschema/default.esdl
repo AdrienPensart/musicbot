@@ -212,9 +212,7 @@ module default {
         }
         link artist := (select .album.artist);
 
-        required link genre: Genre {
-            on target delete delete source;
-        }
+        required link genre: Genre;
 
         # youtube: str;
         # spotify: str;

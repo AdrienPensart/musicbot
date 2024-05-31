@@ -8,7 +8,7 @@
 	handle /artists {
 		method POST
 		request_body {
-			replace `{"query": "select artists {*}"}`
+			replace `{"query": "select Artist {*}"}`
 		}
 		request_header Content-Type application/json
 		# header_up Host {upstream_hostport}
@@ -21,8 +21,4 @@
 			}
 		}
 	}
-
-	# handle /artists {
-	#     reverse_proxy http://localhost:8081
-	# }
 }

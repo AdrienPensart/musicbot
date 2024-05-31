@@ -39,7 +39,7 @@ def wait_for_service(hostname: str, port: int, timeout: int = 60) -> bool:
 def edgedb() -> str:
     hostname = "127.0.0.1"
     port = 5657
-    dsn = f"""edgedb://testuser:testpass@{hostname}:{port}"""
+    dsn = f"""edgedb://testuser:testpass@{hostname}:{port}/main"""
     # hostname = "localhost"
     # port = 10700
     # dsn = "edgedb://edgedb:oB1IZfMVuSgzySmIYLobxt30@localhost:10700"
@@ -54,7 +54,7 @@ def edgedb() -> str:
 async def testmusics(edgedb: str) -> list[Music]:
     musicdb = MusicDb.from_dsn(edgedb)
 
-    _ = await musicdb.clean_musics()
+    await musicdb.clean_musics()
     scan_folders = ScanFolders([Path(folder) for folder in fixtures.scan_folders])
     music_outputs = await scan_folders.scan(musicdb=musicdb)
     assert music_outputs, "Empty music db"

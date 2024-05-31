@@ -1,4 +1,4 @@
-CREATE MIGRATION m1oy3zaoi4vykcutcfrianlcvpose52w7fdmesc6vcv3l73mlb5p4a
+CREATE MIGRATION m14r34ka5fo7fpp3z7et6ib6dgb2hpkzepiekod4bt3waybknnylyq
     ONTO initial
 {
   CREATE EXTENSION edgeql_http VERSION '1.0';
@@ -185,9 +185,7 @@ CREATE MIGRATION m1oy3zaoi4vykcutcfrianlcvpose52w7fdmesc6vcv3l73mlb5p4a
       };
   };
   ALTER TYPE default::Music {
-      CREATE REQUIRED LINK genre: default::Genre {
-          ON TARGET DELETE DELETE SOURCE;
-      };
+      CREATE REQUIRED LINK genre: default::Genre;
   };
   ALTER TYPE default::Genre {
       CREATE MULTI LINK musics := (.<genre[IS default::Music]);

@@ -1,6 +1,6 @@
 import logging
 import os
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from pathlib import Path
 from urllib.parse import urlparse
 from uuid import UUID
@@ -9,7 +9,7 @@ import edgedb
 import httpx
 from async_lru import alru_cache
 from beartype import beartype
-from beartype.typing import Any, Self
+from beartype.typing import Self
 from edgedb.asyncio_client import AsyncIOClient, create_async_client
 from edgedb.options import RetryOptions, TransactionOptions
 
@@ -18,9 +18,14 @@ from musicbot.music import Music, MusicInput
 from musicbot.music_filter import MusicFilter
 from musicbot.object import MusicbotObject
 from musicbot.playlist import Playlist
-from musicbot.queries.gen_bests_async_edgeql import GenBestsResult, gen_bests
-from musicbot.queries.gen_playlist_async_edgeql import GenPlaylistResult, gen_playlist
+from musicbot.queries.delete_musics_async_edgeql import delete_musics
+from musicbot.queries.drop_schema_async_edgeql import drop_schema
+from musicbot.queries.gen_bests_async_edgeql import gen_bests
+from musicbot.queries.gen_playlist_async_edgeql import gen_playlist
+from musicbot.queries.pike_keywords_async_edgeql import pike_keywords
 from musicbot.queries.remove_async_edgeql import remove
+from musicbot.queries.select_artists_async_edgeql import select_artists
+from musicbot.queries.select_folder_async_edgeql import select_folder
 from musicbot.queries.soft_clean_async_edgeql import soft_clean
 from musicbot.queries.upsert_album_async_edgeql import upsert_album
 from musicbot.queries.upsert_artist_async_edgeql import upsert_artist
@@ -90,9 +95,6 @@ class MusicDb(MusicbotObject):
     async def query_json(self, query: str) -> str:
         return await self.client.query_json(query)
 
-    async def query(self, query: str) -> Any:
-        return await self.client.query(query)
-
     async def graphql_query(self, query: str) -> httpx.Response | None:
         operation = {"query": query}
         try:
@@ -108,30 +110,15 @@ class MusicDb(MusicbotObject):
 
     @alru_cache
     async def folders(self) -> list[Folder]:
-        results = await self.client.query("select Folder {*} order by .name")
+        results = await select_folder(self.client)
         folders = []
         for result in results:
-            folder = Folder(
-                path=Path(result.name),
-                name=result.name,
-                ipv4=result.ipv4,
-                username=result.username,
-                n_artists=result.n_artists,
-                all_artists=result.all_artists,
-                n_albums=result.n_albums,
-                n_musics=result.n_musics,
-                n_keywords=result.n_keywords,
-                all_keywords=result.all_keywords,
-                n_genres=result.n_genres,
-                all_genres=result.all_genres,
-                human_size=result.human_size,
-                human_duration=result.human_duration,
-            )
+            folder = Folder.from_edgedb(folder=result)
             folders.append(folder)
         return folders
 
     async def artists(self) -> list[edgedb.Object]:
-        return await self.client.query("select Artist {*} order by .name")
+        return await select_artists(self.client)
 
     async def make_playlist(
         self,
@@ -142,9 +129,21 @@ class MusicDb(MusicbotObject):
 
         results = set()
         for music_filter in music_filters:
-            intermediate_results: list[GenPlaylistResult] = await gen_playlist(
+            intermediate_results = await gen_playlist(
                 self.client,
-                **asdict(music_filter),
+                min_length=music_filter.min_length,
+                max_length=music_filter.max_length,
+                min_size=music_filter.min_size,
+                max_size=music_filter.max_size,
+                min_rating=music_filter.min_rating,
+                max_rating=music_filter.max_rating,
+                artist=music_filter.artist,
+                album=music_filter.album,
+                genre=music_filter.genre,
+                title=music_filter.title,
+                keyword=music_filter.keyword,
+                pattern=music_filter.pattern,
+                limit=music_filter.limit,
             )
             results.update(intermediate_results)
         name = " | ".join([music_filter.help_repr() for music_filter in music_filters])
@@ -153,26 +152,25 @@ class MusicDb(MusicbotObject):
             results=list(results),
         )
 
-    async def clean_musics(self) -> None | list[edgedb.Object]:
-        query = """delete Artist;"""
-        if self.dry:
-            return None
-        return await self.client.query(query)
+    async def clean_musics(self) -> None:
+        if not self.dry:
+            _ = await delete_musics(self.client)
 
-    async def drop(self) -> None | list[edgedb.Object]:
-        query = """reset schema to initial;"""
-        if self.dry:
-            return None
-        return await self.client.query(query)
+    async def pike_keywords(self) -> list[str]:
+        return await pike_keywords(self.client)
 
-    async def soft_clean(self) -> None | edgedb.Object:
-        self.success("cleaning orphan musics, artists, albums, genres, keywords")
-        if self.dry:
-            return None
-        return await soft_clean(self.client)
+    async def drop(self) -> None:
+        if not self.dry:
+            await drop_schema(self.client)
 
-    async def ensure_connected(self) -> AsyncIOClient:
-        return await self.client.ensure_connected()
+    async def soft_clean(self) -> None:
+        if not self.dry:
+            cleaned = await soft_clean(self.client)
+            self.success(f"cleaned {cleaned.musics_deleted} musics")
+            self.success(f"cleaned {cleaned.artists_deleted} artists")
+            self.success(f"cleaned {cleaned.albums_deleted} albums")
+            self.success(f"cleaned {cleaned.genres_deleted} genres")
+            self.success(f"clceaned {cleaned.keywords_deleted} keywords")
 
     async def remove_music_path(self, path: str) -> None | edgedb.Object:
         logger.debug(f"{self} : removed {path}")
@@ -276,11 +274,23 @@ class MusicDb(MusicbotObject):
         if not music_filters:
             music_filters = frozenset([MusicFilter()])
 
-        results: list[GenBestsResult] = []
+        results = []
         for music_filter in music_filters:
-            intermediate_result: GenBestsResult = await gen_bests(
+            intermediate_result = await gen_bests(
                 self.client,
-                **asdict(music_filter),
+                min_length=music_filter.min_length,
+                max_length=music_filter.max_length,
+                min_size=music_filter.min_size,
+                max_size=music_filter.max_size,
+                min_rating=music_filter.min_rating,
+                max_rating=music_filter.max_rating,
+                artist=music_filter.artist,
+                album=music_filter.album,
+                genre=music_filter.genre,
+                title=music_filter.title,
+                keyword=music_filter.keyword,
+                pattern=music_filter.pattern,
+                limit=music_filter.limit,
             )
             results.append(intermediate_result)
 

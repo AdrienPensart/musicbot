@@ -145,7 +145,7 @@ class ScanFolders(MusicbotObject):
                     if Issue.NO_TITLE in issues or Issue.NO_ARTIST in issues or Issue.NO_ALBUM in issues:
                         self.warn(f"{file} : missing mandatory fields title/album/artist : {issues}")
                         return
-                    if not (music_input := file.music_input):
+                    if (music_input := file.music_input) is None:
                         self.err(f"{file} : cannot upsert music without physical folder !")
                         return
 

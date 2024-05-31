@@ -3,6 +3,9 @@
 set -e
 trap '[ $? -eq 0 ] && exit 0 || echo "$0 FAILED"' EXIT
 
-docker compose rm musicbot_db_test -s -f -v
-docker compose create musicbot_db_test
-docker compose start musicbot_db_test
+NAME=musicbot_test
+docker compose down $NAME
+docker compose create $NAME
+docker compose start $NAME
+
+# edgedb instance link --trust-tls-cert --non-interactive --overwrite --dsn edgedb://testuser:testpass@127.0.0.1:5657/main musicbot-test

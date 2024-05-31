@@ -109,7 +109,7 @@ async def remove(
 async def clean(
     musicdb: MusicDb,
 ) -> None:
-    _ = await musicdb.clean_musics()
+    await musicdb.clean_musics()
 
 
 @cli.command(help="Load musics")
@@ -129,11 +129,11 @@ async def scan(
     output: str,
 ) -> None:
     if clean:
-        _ = await musicdb.clean_musics()
+        await musicdb.clean_musics()
 
     music_outputs = await scan_folders.scan(musicdb=musicdb)
 
-    _ = await musicdb.soft_clean()
+    await musicdb.soft_clean()
 
     if output == "json":
         MusicbotObject.print_json([asdict(mo) for mo in music_outputs])
@@ -160,8 +160,7 @@ async def watch(
         try:
             while True:
                 try:
-                    cleaned = await musicdb.soft_clean()
-                    MusicbotObject.success(cleaned)
+                    await musicdb.soft_clean()
                     MusicbotObject.success(f"DB cleaned, waiting {sleep} seconds.")
                     await asyncio.sleep(sleep)
                 except edgedb.ClientConnectionFailedTemporarilyError as error:
@@ -353,7 +352,7 @@ async def custom_playlists(
 ) -> None:
     scan_folders = ScanFolders(directories=[scan_folder])
     if not fast:
-        _ = await musicdb.clean_musics()
+        await musicdb.clean_musics()
         _ = await scan_folders.scan(musicdb=musicdb)
 
     musicdb.set_readonly()
@@ -373,9 +372,7 @@ async def custom_playlists(
         playlist_options=playlist_options,
     )
 
-    pike_keywords = await musicdb.query(
-        "for keyword in (select Keyword {name} filter contains(array_agg(.musics.keywords.name), 'pike') and .musics.rating >= 4.0 and .musics.album.artist.name = 'Buckethead') union (keyword.name) except {'pike'}"
-    )
+    pike_keywords = await musicdb.pike_keywords()
 
     for pike_keyword in pike_keywords:
         MusicbotObject.success(f"Generating pike playlists for keyword {pike_keyword}")

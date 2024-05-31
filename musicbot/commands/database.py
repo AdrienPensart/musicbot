@@ -56,7 +56,6 @@ def pgcli(ctx: click.Context, musicdb: MusicDb, pgcli_args: tuple[str, ...]) -> 
     from pgcli.main import cli as pg_cli
 
     dsn = musicdb.dsn.replace("edgedb://", "postgresql://")
-    dsn += "/main"
     args = [dsn] + list(pgcli_args)
     pgcli_logger = logging.getLogger("pgcli.main")
     pgcli_logger.setLevel(logging.ERROR)
@@ -116,7 +115,7 @@ def ui(
 @syncify
 @beartype
 async def clean(musicdb: MusicDb) -> None:
-    _ = await musicdb.clean_musics()
+    await musicdb.clean_musics()
 
 
 @cli.command(help="Drop entire schema from DB")
@@ -125,7 +124,7 @@ async def clean(musicdb: MusicDb) -> None:
 @syncify
 @beartype
 async def drop(musicdb: MusicDb) -> None:
-    _ = await musicdb.drop()
+    await musicdb.drop()
 
 
 @cli.command(help="Clean entities without musics associated")
@@ -133,4 +132,4 @@ async def drop(musicdb: MusicDb) -> None:
 @syncify
 @beartype
 async def soft_clean(musicdb: MusicDb) -> None:
-    _ = await musicdb.soft_clean()
+    await musicdb.soft_clean()

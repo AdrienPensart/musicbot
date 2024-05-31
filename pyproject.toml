@@ -51,6 +51,7 @@ progressbar3 = "^4.3.4"
 # progressbar2 = "^4.0.0"
 # progressbar2 = { git = "https://github.com/AdrienPensart/python-progressbar.git" }
 yaspin = "^3.0.2"
+pydantic-core = "^2.18.3"
 
 [tool.isort]
 profile = 'black'

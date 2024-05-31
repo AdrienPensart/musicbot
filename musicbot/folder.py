@@ -1,7 +1,9 @@
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
+import edgedb
 from beartype import beartype
+from beartype.typing import Self
 
 from musicbot.object import MusicbotObject
 from musicbot.playlist_options import PlaylistOptions
@@ -28,6 +30,28 @@ class Folder(MusicbotObject):
     n_musics: int = 0
     human_size: str = ""
     human_duration: str = ""
+
+    @classmethod
+    def from_edgedb(
+        cls,
+        folder: edgedb.Object,
+    ) -> Self:
+        return cls(
+            path=Path(folder.name),
+            name=folder.name,
+            ipv4=folder.ipv4,
+            username=folder.username,
+            n_artists=folder.n_artists,
+            all_artists=folder.all_artists,
+            n_albums=folder.n_albums,
+            n_musics=folder.n_musics,
+            n_keywords=folder.n_keywords,
+            all_keywords=folder.all_keywords,
+            n_genres=folder.n_genres,
+            all_genres=folder.all_genres,
+            human_size=folder.human_size,
+            human_duration=folder.human_duration,
+        )
 
     def __repr__(self) -> str:
         return f"{self.name} {self.ipv4} {self.username}"

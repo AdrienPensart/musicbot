@@ -1,7 +1,7 @@
 ---
 services:
-  musicbot_db_prod:
-    container_name: musicbot-db-prod
+  musicbot_prod:
+    container_name: musicbot-prod
     image: "edgedb/edgedb:5"
     restart: always
     ports:
@@ -19,14 +19,14 @@ services:
       - ./dbschema:/dbschema
       - ./credentials:/root/.config/edgedb/credentials
       - musicbot-prod-data:/var/lib/edgedb/data
-  musicbot_db_test:
-    container_name: musicbot-db-test
+  musicbot_test:
+    container_name: musicbot-test
     image: "edgedb/edgedb:5"
     restart: always
     ports:
       - 5657:5656
     environment:
-      EDGEDB_DOCKER_LOG_LEVEL: info
+      EDGEDB_DOCKER_LOG_LEVEL: debug
       EDGEDB_SERVER_SECURITY: insecure_dev_mode
       EDGEDB_SERVER_TLS_CERT_MODE: generate_self_signed
       EDGEDB_SERVER_ADMIN_UI: enabled
