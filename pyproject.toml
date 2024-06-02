@@ -48,8 +48,6 @@ shazamio = "^0.6"
 psycopg = {extras = ["binary", "pool"], version = "^3.1.10"}
 pyacoustid = "^1.3.0"
 progressbar3 = "^4.3.4"
-# progressbar2 = "^4.0.0"
-# progressbar2 = { git = "https://github.com/AdrienPensart/python-progressbar.git" }
 yaspin = "^3.0.2"
 pydantic-core = "^2.18.3"
 
@@ -77,6 +75,7 @@ vulture = "^2.3"
 ruff = "<1.0"
 black = "^24.0.0"
 textual-dev = "^1.1.0"
+setuptools = "^70.0.0"
 
 [tool.pyright]
 include = [

@@ -14,17 +14,12 @@ from functools import lru_cache
 from pathlib import Path
 from typing import IO, Any, NoReturn, ParamSpec, TypeVar
 
-import attr
 import click
 import httpx
 import orjson
 import rich
 from beartype import beartype
-
-# from methodtools import lru_cache
 from progressbar import NullBar, ProgressBar
-
-# from requests.structures import CaseInsensitiveDict
 from rich.console import Console
 from rich.table import Table
 
@@ -43,10 +38,6 @@ def default_encoder(data: Any) -> Any:
         return str(data)
     if dataclasses.is_dataclass(data):
         return dataclasses.asdict(data)
-    # if isinstance(data, CaseInsensitiveDict):
-    #     return dict(data)
-    if attr.has(data.__class__):
-        return attr.asdict(data)
     raise TypeError(f"Unable to encode {data}")
 
 

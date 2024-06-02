@@ -282,6 +282,7 @@ class File(MusicbotObject):
 
     @property
     def rating(self) -> float:
+        print(f"{self}")
         if self.extension == ".flac":
             rating_str = self._get_first("fmps_rating")
         else:
