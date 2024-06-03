@@ -22,7 +22,6 @@ from musicbot.music import Music
 from musicbot.object import MusicbotObject
 from musicbot.playlist_options import PlaylistOptions
 
-logging.getLogger("vlc").setLevel(logging.NOTSET)
 logger = logging.getLogger(__name__)
 
 

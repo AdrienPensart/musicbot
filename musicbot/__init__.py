@@ -1,5 +1,3 @@
-from warnings import filterwarnings
-
 from musicbot.config import Config
 from musicbot.file import File, Issue
 from musicbot.folder import Folder
@@ -12,8 +10,6 @@ from musicbot.playlist import Playlist
 from musicbot.playlist_options import PlaylistOptions
 from musicbot.scan_folders import ScanFolders
 from musicbot.spotify import Spotify
-
-filterwarnings(action="ignore", module=".*vlc.*", category=DeprecationWarning)
 
 __all__ = [
     "MusicbotObject",
