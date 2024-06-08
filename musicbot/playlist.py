@@ -49,7 +49,6 @@ class Playlist(MusicbotObject):
         musics = []
         for result in results:
             keywords = frozenset(keyword.name for keyword in result.keywords)
-            # folders = frozenset(Folder(path=Path(folder["@path"]), name=folder.name, ipv4=folder.ipv4, username=folder.username) for folder in result.folders)
             folders = frozenset(Folder(path=Path(folder.path), name=folder.name, ipv4=folder.ipv4, username=folder.username) for folder in result.folders)
             music = Music(
                 title=result.name,
@@ -128,14 +127,12 @@ class Playlist(MusicbotObject):
         elif output == "table":
             self.print_table(table, file=file)
         elif output == "json":
-            # self.print_json(asdict(self, recurse=True), file=file)
             self.print_json(asdict(self), file=file)
             self.success(caption)
         else:
             self.err(f"unknown output type : {output}")
 
     def __repr__(self) -> str:
-        # self_dict = asdict(self, recurse=True)
         self_dict = asdict(self)
         if (representation := self.dumps_json(self_dict)) is not None:
             return representation
