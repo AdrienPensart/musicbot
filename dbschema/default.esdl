@@ -218,7 +218,7 @@ module default {
         # spotify: str;
 
         multi keywords: Keyword;
-        multi folders: Folder {
+        required multi folders: Folder {
             path: str;
         }
         property paths := (select .folders@path);
