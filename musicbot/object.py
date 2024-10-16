@@ -37,7 +37,7 @@ def default_encoder(data: Any) -> Any:
     if isinstance(data, Path):
         return str(data)
     if dataclasses.is_dataclass(data):
-        return dataclasses.asdict(data)
+        return dataclasses.asdict(data)  # type: ignore
     raise TypeError(f"Unable to encode {data}")
 
 

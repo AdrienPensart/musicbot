@@ -55,7 +55,11 @@ class File(MusicbotObject):
             return None
 
         try:
-            return cls(folder=folder.resolve(), handle=MutagenFile(path.resolve()))
+            handle = MutagenFile(path.resolve())
+            file = cls(folder=folder.resolve(), handle=handle)
+            if file.handle.tags is None:
+                file.handle.add_tags()
+            return file
         except MutagenError as error:
             cls.err(f"Unable to instanciate {path}", error=error)
         return None
@@ -282,7 +286,6 @@ class File(MusicbotObject):
 
     @property
     def rating(self) -> float:
-        print(f"{self}")
         if self.extension == ".flac":
             rating_str = self._get_first("fmps_rating")
         else:

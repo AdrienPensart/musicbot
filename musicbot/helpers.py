@@ -43,7 +43,7 @@ def syncify(
     def wrapper(*args: T_ParamSpec.args, **kwargs: T_ParamSpec.kwargs) -> T_Retval:
         partial_f = partial(async_function, *args, **kwargs)
         with asyncio.Runner() as runner:
-            return runner.run(partial_f())
+            return runner.run(partial_f())  # type: ignore
 
     return wrapper
 

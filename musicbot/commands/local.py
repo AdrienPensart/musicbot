@@ -298,7 +298,7 @@ async def bests(
     await local.bests(
         musicdb=musicdb,
         music_filters=music_filters,
-        scan_folder=scan_folder,
+        path=scan_folder,
         min_playlist_size=min_playlist_size,
         playlist_options=playlist_options,
     )
@@ -367,7 +367,7 @@ async def custom_playlists(
     await local.bests(
         musicdb=musicdb,
         music_filters=[bests_music_filter],
-        scan_folder=scan_folder,
+        path=scan_folder,
         min_playlist_size=min_playlist_size,
         playlist_options=playlist_options,
     )

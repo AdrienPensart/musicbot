@@ -313,6 +313,18 @@ module default {
         );
     }
 
+    type Playlist {
+        required name: str;
+        multi musics: Music;
+
+        index fts::index on (
+           fts::with_options(
+              .name,
+              language := fts::Language.eng,
+           )
+        );
+    }
+
     function gen_playlist(
         named only min_length: Length = 0,
         named only max_length: Length = 2147483647,

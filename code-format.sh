@@ -1,9 +1,7 @@
 #!/bin/sh
 
-export SETUPTOOLS_USE_DISTUTILS=stdlib
-
 set -e
 
-poetry run isort musicbot tests
-poetry run black musicbot tests
+uv run isort musicbot tests
+uv run black musicbot tests
 

@@ -56,7 +56,7 @@ def sane_music_filters(ctx: click.Context, param: click.Parameter, value: Any) -
                 MusicbotObject.err(f"Error : unknown property {property_key} for value {property_value}")
                 raise click.Abort()
 
-            mf = replace(mf, **{field.name: field.type(property_value)})
+            mf = replace(mf, **{field.name: field.type(property_value)})  # type: ignore
 
         and_filters.append(mf)
 

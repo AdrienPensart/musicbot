@@ -43,7 +43,7 @@ async def playlist(
 async def bests(
     musicdb: MusicDb,
     music_filters: list[MusicFilter],
-    scan_folder: Path,
+    path: Path,
     min_playlist_size: int,
     playlist_options: PlaylistOptions,
 ) -> None:
@@ -55,7 +55,7 @@ async def bests(
         if len(best.musics) < min_playlist_size or not best.name:
             MusicbotObject.warn(f"{best.name} : size < {min_playlist_size}")
             continue
-        filepath = Path(scan_folder) / (best.name + ".m3u")
+        filepath = path / (best.name + ".m3u")
         if MusicbotObject.dry:
             MusicbotObject.success(f"DRY RUN: Writing playlist {best.name} to {filepath}")
             continue
