@@ -2,7 +2,7 @@
 services:
   musicbot_prod:
     container_name: musicbot-prod
-    image: "edgedb/edgedb:5"
+    image: "edgedb/edgedb:5.7"
     restart: always
     ports:
       - 5656:5656
@@ -21,7 +21,7 @@ services:
       - musicbot-prod-data:/var/lib/edgedb/data
   musicbot_test:
     container_name: musicbot-test
-    image: "edgedb/edgedb:5"
+    image: "edgedb/edgedb:5.7"
     restart: always
     ports:
       - 5657:5656
@@ -36,6 +36,8 @@ services:
       EDGEDB_SERVER_BINARY_ENDPOINT_SECURITY: optional
     volumes:
       - ./dbschema:/dbschema
+      - musicbot-test-data:/var/lib/edgedb/data
 
 volumes:
   musicbot-prod-data:
+  musicbot-test-data:
