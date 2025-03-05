@@ -1,15 +1,28 @@
-CREATE MIGRATION m14r34ka5fo7fpp3z7et6ib6dgb2hpkzepiekod4bt3waybknnylyq
+CREATE MIGRATION m1wq5r6pwwkezb7yik6eac6q3skmefzypiiysdk6ot5umxjid26pbq
     ONTO initial
 {
   CREATE EXTENSION edgeql_http VERSION '1.0';
   CREATE EXTENSION graphql VERSION '1.0';
   CREATE EXTENSION pg_trgm VERSION '1.6';
+  CREATE SCALAR TYPE default::Length EXTENDING std::int64 {
+      CREATE CONSTRAINT std::min_value(0);
+  };
+  CREATE SCALAR TYPE default::`Limit` EXTENDING std::int64 {
+      CREATE CONSTRAINT std::min_value(0);
+  };
+  CREATE SCALAR TYPE default::Rating EXTENDING std::float64 {
+      CREATE CONSTRAINT std::one_of(0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0);
+  };
+  CREATE SCALAR TYPE default::Size EXTENDING std::int64 {
+      CREATE CONSTRAINT std::min_value(0);
+  };
+  CREATE SCALAR TYPE default::Track EXTENDING std::int64;
   CREATE FUNCTION default::bytes_to_human(size: std::int64, k: std::int64 = 1000, decimals: std::int64 = 2, units: array<std::str> = [' B', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB', ' ZB', ' YB']) ->  std::str {
       CREATE ANNOTATION std::title := 'Convert a byte size to human readable string';
       USING (SELECT
           (('0' ++ (units)[0]) IF (size = 0) ELSE (WITH
               i := 
-                  <std::int64>math::floor((math::ln(math::abs(size)) / math::ln(k)))
+                  <std::int64>std::math::floor((std::math::ln(std::math::abs(size)) / std::math::ln(k)))
           SELECT
               (std::to_str(std::round(<std::decimal>(size / (k ^ i)), decimals)) ++ (units)[i])
           ))
@@ -17,7 +30,7 @@ CREATE MIGRATION m14r34ka5fo7fpp3z7et6ib6dgb2hpkzepiekod4bt3waybknnylyq
   ;};
   CREATE TYPE default::Album {
       CREATE REQUIRED PROPERTY name: std::str;
-      CREATE INDEX fts::index ON (fts::with_options(.name, language := fts::Language.eng));
+      CREATE INDEX fts::index ON (std::fts::with_options(.name, language := std::fts::Language.eng));
       CREATE REQUIRED PROPERTY created_at: std::datetime {
           SET default := (std::datetime_current());
           SET readonly := true;
@@ -31,16 +44,6 @@ CREATE MIGRATION m14r34ka5fo7fpp3z7et6ib6dgb2hpkzepiekod4bt3waybknnylyq
               USING (std::datetime_of_statement());
       };
   };
-  CREATE SCALAR TYPE default::Length EXTENDING std::int64 {
-      CREATE CONSTRAINT std::min_value(0);
-  };
-  CREATE SCALAR TYPE default::Rating EXTENDING std::float64 {
-      CREATE CONSTRAINT std::one_of(0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0);
-  };
-  CREATE SCALAR TYPE default::Size EXTENDING std::int64 {
-      CREATE CONSTRAINT std::min_value(0);
-  };
-  CREATE SCALAR TYPE default::Track EXTENDING std::int64;
   CREATE TYPE default::Music {
       CREATE REQUIRED LINK album: default::Album {
           ON TARGET DELETE DELETE SOURCE;
@@ -56,7 +59,7 @@ CREATE MIGRATION m14r34ka5fo7fpp3z7et6ib6dgb2hpkzepiekod4bt3waybknnylyq
       CREATE REQUIRED PROPERTY name: std::str;
       CREATE PROPERTY track: default::Track;
       CREATE CONSTRAINT std::exclusive ON ((.name, .album));
-      CREATE INDEX fts::index ON (fts::with_options(.name, language := fts::Language.eng));
+      CREATE INDEX fts::index ON (std::fts::with_options(.name, language := std::fts::Language.eng));
       CREATE REQUIRED PROPERTY created_at: std::datetime {
           SET default := (std::datetime_current());
           SET readonly := true;
@@ -88,7 +91,7 @@ CREATE MIGRATION m14r34ka5fo7fpp3z7et6ib6dgb2hpkzepiekod4bt3waybknnylyq
   CREATE TYPE default::Artist {
       CREATE REQUIRED PROPERTY name: std::str;
       CREATE CONSTRAINT std::exclusive ON (.name);
-      CREATE INDEX fts::index ON (fts::with_options(.name, language := fts::Language.eng));
+      CREATE INDEX fts::index ON (std::fts::with_options(.name, language := std::fts::Language.eng));
       CREATE REQUIRED PROPERTY created_at: std::datetime {
           SET default := (std::datetime_current());
           SET readonly := true;
@@ -133,7 +136,7 @@ CREATE MIGRATION m14r34ka5fo7fpp3z7et6ib6dgb2hpkzepiekod4bt3waybknnylyq
       CREATE REQUIRED PROPERTY name: std::str;
       CREATE REQUIRED PROPERTY username: std::str;
       CREATE CONSTRAINT std::exclusive ON ((.name, .username, .ipv4));
-      CREATE INDEX fts::index ON (fts::with_options(.name, language := fts::Language.eng));
+      CREATE INDEX fts::index ON (std::fts::with_options(.name, language := std::fts::Language.eng));
       CREATE REQUIRED PROPERTY created_at: std::datetime {
           SET default := (std::datetime_current());
           SET readonly := true;
@@ -148,7 +151,7 @@ CREATE MIGRATION m14r34ka5fo7fpp3z7et6ib6dgb2hpkzepiekod4bt3waybknnylyq
       };
   };
   ALTER TYPE default::Music {
-      CREATE MULTI LINK folders: default::Folder {
+      CREATE REQUIRED MULTI LINK folders: default::Folder {
           CREATE PROPERTY path: std::str;
       };
   };
@@ -170,7 +173,7 @@ CREATE MIGRATION m14r34ka5fo7fpp3z7et6ib6dgb2hpkzepiekod4bt3waybknnylyq
   CREATE TYPE default::Genre {
       CREATE REQUIRED PROPERTY name: std::str;
       CREATE CONSTRAINT std::exclusive ON (.name);
-      CREATE INDEX fts::index ON (fts::with_options(.name, language := fts::Language.eng));
+      CREATE INDEX fts::index ON (std::fts::with_options(.name, language := std::fts::Language.eng));
       CREATE REQUIRED PROPERTY created_at: std::datetime {
           SET default := (std::datetime_current());
           SET readonly := true;
@@ -214,7 +217,7 @@ CREATE MIGRATION m14r34ka5fo7fpp3z7et6ib6dgb2hpkzepiekod4bt3waybknnylyq
   CREATE TYPE default::Keyword {
       CREATE REQUIRED PROPERTY name: std::str;
       CREATE CONSTRAINT std::exclusive ON (.name);
-      CREATE INDEX fts::index ON (fts::with_options(.name, language := fts::Language.eng));
+      CREATE INDEX fts::index ON (std::fts::with_options(.name, language := std::fts::Language.eng));
       CREATE REQUIRED PROPERTY created_at: std::datetime {
           SET default := (std::datetime_current());
           SET readonly := true;
@@ -273,11 +276,8 @@ CREATE MIGRATION m14r34ka5fo7fpp3z7et6ib6dgb2hpkzepiekod4bt3waybknnylyq
           std::count(.musics)
       );
       CREATE PROPERTY rating := (SELECT
-          <std::float64>std::round(<std::decimal>math::mean((.musics.rating ?? {0.0})), 2)
+          <std::float64>std::round(<std::decimal>std::math::mean((.musics.rating ?? {0.0})), 2)
       );
-  };
-  CREATE SCALAR TYPE default::`Limit` EXTENDING std::int64 {
-      CREATE CONSTRAINT std::min_value(0);
   };
   CREATE FUNCTION default::gen_playlist(NAMED ONLY min_length: default::Length = 0, NAMED ONLY max_length: default::Length = 2147483647, NAMED ONLY min_size: default::Size = 0, NAMED ONLY max_size: default::Size = 2147483647, NAMED ONLY min_rating: default::Rating = 0.0, NAMED ONLY max_rating: default::Rating = 5.0, NAMED ONLY artist: std::str = '(.*?)', NAMED ONLY album: std::str = '(.*?)', NAMED ONLY genre: std::str = '(.*?)', NAMED ONLY title: std::str = '(.*?)', NAMED ONLY keyword: std::str = '(.*?)', NAMED ONLY `limit`: default::`Limit` = 2147483647, NAMED ONLY pattern: std::str = '') -> SET OF default::Music {
       CREATE ANNOTATION std::title := 'Generate a playlist from parameters';
@@ -331,7 +331,7 @@ CREATE MIGRATION m14r34ka5fo7fpp3z7et6ib6dgb2hpkzepiekod4bt3waybknnylyq
           std::count(.musics)
       );
       CREATE PROPERTY rating := (SELECT
-          <std::float64>std::round(<std::decimal>math::mean((.musics.rating ?? {0.0})), 2)
+          <std::float64>std::round(<std::decimal>std::math::mean((.musics.rating ?? {0.0})), 2)
       );
   };
   ALTER TYPE default::Album {
@@ -367,7 +367,7 @@ CREATE MIGRATION m14r34ka5fo7fpp3z7et6ib6dgb2hpkzepiekod4bt3waybknnylyq
           std::count(.musics)
       );
       CREATE PROPERTY rating := (SELECT
-          <std::float64>std::round(<std::decimal>math::mean((.musics.rating ?? {0.0})), 2)
+          <std::float64>std::round(<std::decimal>std::math::mean((.musics.rating ?? {0.0})), 2)
       );
   };
   ALTER TYPE default::Folder {
@@ -432,7 +432,12 @@ CREATE MIGRATION m14r34ka5fo7fpp3z7et6ib6dgb2hpkzepiekod4bt3waybknnylyq
           std::count(.musics)
       );
       CREATE PROPERTY rating := (SELECT
-          <std::float64>std::round(<std::decimal>math::mean((.musics.rating ?? {0.0})), 2)
+          <std::float64>std::round(<std::decimal>std::math::mean((.musics.rating ?? {0.0})), 2)
       );
+  };
+  CREATE TYPE default::Playlist {
+      CREATE MULTI LINK musics: default::Music;
+      CREATE REQUIRED PROPERTY name: std::str;
+      CREATE INDEX fts::index ON (std::fts::with_options(.name, language := std::fts::Language.eng));
   };
 };

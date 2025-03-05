@@ -8,7 +8,7 @@ from musicbot.object import MusicbotObject
 
 
 @beartype
-def test_database_pgcli(cli_runner: CliRunner, edgedb: str) -> None:
+def test_database_pgcli(cli_runner: CliRunner, dsn: str) -> None:
     _ = run_cli(
         cli_runner,
         cli,
@@ -17,13 +17,13 @@ def test_database_pgcli(cli_runner: CliRunner, edgedb: str) -> None:
             "database",
             "pgcli",
             "--dsn",
-            edgedb,
+            dsn,
         ],
     )
 
 
 @beartype
-def test_database_edgeql(cli_runner: CliRunner, edgedb: str) -> None:
+def test_database_edgeql(cli_runner: CliRunner, dsn: str) -> None:
     output = run_cli(
         cli_runner,
         cli,
@@ -33,7 +33,7 @@ def test_database_edgeql(cli_runner: CliRunner, edgedb: str) -> None:
             "execute",
             "select Music;",
             "--dsn",
-            edgedb,
+            dsn,
             "--output",
             "json",
         ],
@@ -42,7 +42,7 @@ def test_database_edgeql(cli_runner: CliRunner, edgedb: str) -> None:
 
 
 @beartype
-def test_database_graphql(cli_runner: CliRunner, edgedb: str) -> None:
+def test_database_graphql(cli_runner: CliRunner, dsn: str) -> None:
     output = run_cli(
         cli_runner,
         cli,
@@ -52,14 +52,14 @@ def test_database_graphql(cli_runner: CliRunner, edgedb: str) -> None:
             "graphql",
             "test",
             "--dsn",
-            edgedb,
+            dsn,
         ],
     )
     assert MusicbotObject.loads_json(output) is not None, output
 
 
 @beartype
-def test_database_graphiql(cli_runner: CliRunner, edgedb: str) -> None:
+def test_database_graphiql(cli_runner: CliRunner, dsn: str) -> None:
     url = run_cli(
         cli_runner,
         cli,
@@ -68,7 +68,7 @@ def test_database_graphiql(cli_runner: CliRunner, edgedb: str) -> None:
             "database",
             "graphiql",
             "--dsn",
-            edgedb,
+            dsn,
             "--no-open",
         ],
     )
@@ -76,7 +76,7 @@ def test_database_graphiql(cli_runner: CliRunner, edgedb: str) -> None:
 
 
 @beartype
-def test_database_ui(cli_runner: CliRunner, edgedb: str) -> None:
+def test_database_ui(cli_runner: CliRunner, dsn: str) -> None:
     url = run_cli(
         cli_runner,
         cli,
@@ -85,7 +85,7 @@ def test_database_ui(cli_runner: CliRunner, edgedb: str) -> None:
             "database",
             "ui",
             "--dsn",
-            edgedb,
+            dsn,
             "--no-open",
         ],
     )
@@ -93,7 +93,7 @@ def test_database_ui(cli_runner: CliRunner, edgedb: str) -> None:
 
 
 @beartype
-def test_database_clean(cli_runner: CliRunner, edgedb: str) -> None:
+def test_database_clean(cli_runner: CliRunner, dsn: str) -> None:
     _ = run_cli(
         cli_runner,
         cli,
@@ -102,14 +102,14 @@ def test_database_clean(cli_runner: CliRunner, edgedb: str) -> None:
             "database",
             "clean",
             "--dsn",
-            edgedb,
+            dsn,
             "--yes",
         ],
     )
 
 
 @beartype
-def test_database_drop(cli_runner: CliRunner, edgedb: str) -> None:
+def test_database_drop(cli_runner: CliRunner, dsn: str) -> None:
     _ = run_cli(
         cli_runner,
         cli,
@@ -119,14 +119,14 @@ def test_database_drop(cli_runner: CliRunner, edgedb: str) -> None:
             "database",
             "drop",
             "--dsn",
-            edgedb,
+            dsn,
             "--yes",
         ],
     )
 
 
 @beartype
-def test_database_soft_clean(cli_runner: CliRunner, edgedb: str) -> None:
+def test_database_soft_clean(cli_runner: CliRunner, dsn: str) -> None:
     _ = run_cli(
         cli_runner,
         cli,
@@ -135,6 +135,6 @@ def test_database_soft_clean(cli_runner: CliRunner, edgedb: str) -> None:
             "database",
             "soft-clean",
             "--dsn",
-            edgedb,
+            dsn,
         ],
     )

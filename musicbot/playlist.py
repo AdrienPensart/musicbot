@@ -6,7 +6,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 import click
-import edgedb
+import gel
 from beartype import beartype
 from beartype.typing import Self
 from click_skeleton.helpers import PrettyDefaultDict
@@ -41,10 +41,10 @@ class Playlist(MusicbotObject):
         return cls(name=name, musics=musics)
 
     @classmethod
-    def from_edgedb(
+    def from_gel(
         cls,
         name: str,
-        results: list[edgedb.Object],
+        results: list[gel.Object],
     ) -> Self:
         musics = []
         for result in results:

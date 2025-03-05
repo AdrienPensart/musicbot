@@ -36,23 +36,23 @@ def wait_for_service(hostname: str, port: int, timeout: int = 60) -> bool:
 
 @fixture(scope="session")
 @beartype
-def edgedb() -> str:
+def dsn() -> str:
     hostname = "127.0.0.1"
     port = 5657
-    dsn = f"""edgedb://testuser:testpass@{hostname}:{port}/main"""
+    edgedb_dsn = f"""edgedb://testuser:testpass@{hostname}:{port}/main"""
     # hostname = "localhost"
     # port = 10700
     # dsn = "edgedb://edgedb:oB1IZfMVuSgzySmIYLobxt30@localhost:10700"
     if not wait_for_service(hostname, port):
         _ = skip(f"Timeout during wait for {dsn}")
-    return dsn
+    return edgedb_dsn
 
 
 @fixture(scope="session", autouse=True)
 @syncify
 @beartype
-async def testmusics(edgedb: str) -> list[Music]:
-    musicdb = MusicDb.from_dsn(edgedb)
+async def testmusics(dsn: str) -> list[Music]:
+    musicdb = MusicDb.from_dsn(dsn)
 
     await musicdb.clean_musics()
     scan_folders = ScanFolders([Path(folder) for folder in fixtures.scan_folders])

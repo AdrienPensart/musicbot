@@ -1,7 +1,7 @@
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-import edgedb
+import gel
 from beartype import beartype
 from beartype.typing import Self
 
@@ -32,9 +32,9 @@ class Folder(MusicbotObject):
     human_duration: str = ""
 
     @classmethod
-    def from_edgedb(
+    def from_gel(
         cls,
-        folder: edgedb.Object,
+        folder: gel.Object,
     ) -> Self:
         return cls(
             path=Path(folder.name),

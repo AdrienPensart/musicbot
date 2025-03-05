@@ -11,13 +11,13 @@ from musicbot.cli.musicdb import musicdb_options
 from musicbot.cli.options import open_option, output_option, yes_option
 
 
-@click.group(help="DB management", cls=AdvancedGroup, aliases=["db", "edgedb"])
+@click.group(help="DB management", cls=AdvancedGroup, aliases=["db", "edgedb", "gel"])
 @beartype
 def cli() -> None:
     pass
 
 
-@cli.command(help="EdgeDB raw query", aliases=["query", "fetch", "execute"])
+@cli.command(help="GEL raw query", aliases=["query", "fetch", "execute"])
 @click.argument("query")
 @musicdb_options
 @output_option
@@ -74,9 +74,9 @@ def graphiql(musicdb: MusicDb, _open: bool) -> None:
             _ = webbrowser.open(musicdb.graphiql)
 
 
-@cli.command(help="Explore with EdgeDB UI", context_settings=dict(ignore_unknown_options=True, help_option_names=[]))
+@cli.command(help="Explore with GEL UI", context_settings=dict(ignore_unknown_options=True, help_option_names=[]))
 @click.pass_context
-@click.argument("edgedb_args", nargs=-1, type=click.UNPROCESSED)
+@click.argument("gel_args", nargs=-1, type=click.UNPROCESSED)
 @open_option
 @musicdb_options
 @beartype
@@ -84,13 +84,13 @@ def ui(
     ctx: click.Context,
     musicdb: MusicDb,
     _open: bool,
-    edgedb_args: tuple[str, ...],
+    gel_args: tuple[str, ...],
 ) -> None:
-    if "--help" in edgedb_args:
+    if "--help" in gel_args:
         MusicbotObject.echo(ctx.get_help())
         MusicbotObject.echo("\n")
 
-    args = ["edgedb", "ui", "--print-url", "--no-server-check", "--dsn", musicdb.dsn] + list(edgedb_args)
+    args = ["gel", "ui", "--print-url", "--no-server-check", "--dsn", musicdb.dsn] + list(gel_args)
     try:
         url = subprocess.check_output(
             " ".join(args),
@@ -102,7 +102,7 @@ def ui(
         if _open and not MusicbotObject.dry:
             _ = webbrowser.open(url)
     except FileNotFoundError:
-        MusicbotObject.err("Unable to locate edgedb CLI, please install it first with")
+        MusicbotObject.err("Unable to locate GEL CLI, please install it first with")
         MusicbotObject.tip("curl --proto '=https' --tlsv1.2 -sSf https://sh.edgedb.com | sh")
     except subprocess.CalledProcessError as error:
         joined_args = " ".join(args)

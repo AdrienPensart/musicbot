@@ -81,9 +81,9 @@ class MusicbotObject:
 
     @staticmethod
     def is_dev() -> bool:
-        """Do we execute Unity from a dev folder?"""
-        if "poetry" in os.environ.get("VIRTUAL_ENV", ""):
-            return True
+        """Do we execute from a dev folder?"""
+        # if "poetry" in os.environ.get("VIRTUAL_ENV", ""):
+        # return True
         return bool(sys.flags.dev_mode) or "main.py" in sys.argv[0]
 
     @staticmethod

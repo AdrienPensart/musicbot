@@ -4,7 +4,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 import click
-import edgedb
+import gel
 from beartype import beartype
 from click_skeleton import AdvancedGroup
 from rich.table import Table
@@ -163,7 +163,7 @@ async def watch(
                     await musicdb.soft_clean()
                     MusicbotObject.success(f"DB cleaned, waiting {sleep} seconds.")
                     await asyncio.sleep(sleep)
-                except edgedb.ClientConnectionFailedTemporarilyError as error:
+                except gel.ClientConnectionFailedTemporarilyError as error:
                     MusicbotObject.err(f"{musicdb} : unable to clean musics", error=error)
         except (asyncio.CancelledError, KeyboardInterrupt):
             pass
@@ -197,7 +197,7 @@ async def watch(
                             await update_music(Path(path))
                         elif change == Change.deleted:
                             _ = await musicdb.remove_music_path(path)
-                except edgedb.ClientConnectionFailedTemporarilyError as error:
+                except gel.ClientConnectionFailedTemporarilyError as error:
                     MusicbotObject.err(f"{musicdb} : unable to clean musics", error=error)
         except (asyncio.CancelledError, KeyboardInterrupt):
             pass

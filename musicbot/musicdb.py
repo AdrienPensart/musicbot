@@ -5,13 +5,13 @@ from pathlib import Path
 from urllib.parse import urlparse
 from uuid import UUID
 
-import edgedb
+import gel
 import httpx
 from async_lru import alru_cache
 from beartype import beartype
 from beartype.typing import Self
-from edgedb.asyncio_client import AsyncIOClient, create_async_client
-from edgedb.options import RetryOptions, TransactionOptions
+from gel.asyncio_client import AsyncIOClient, create_async_client
+from gel.options import RetryOptions, TransactionOptions
 
 from musicbot.folder import Folder
 from musicbot.music import Music, MusicInput
@@ -78,7 +78,7 @@ class MusicDb(MusicbotObject):
         attempts: int = 10,
     ) -> Self:
         if not cls.is_prod():
-            os.environ["EDGEDB_CLIENT_SECURITY"] = "insecure_dev_mode"
+            os.environ["GEL_CLIENT_SECURITY"] = "insecure_dev_mode"
         client = create_async_client(dsn=dsn, max_concurrency=MusicbotObject.coroutines)
         options = RetryOptions(attempts=attempts)
         client = client.with_retry_options(options)
@@ -113,11 +113,11 @@ class MusicDb(MusicbotObject):
         results = await select_folder(self.client)
         folders = []
         for result in results:
-            folder = Folder.from_edgedb(folder=result)
+            folder = Folder.from_gel(folder=result)
             folders.append(folder)
         return folders
 
-    async def artists(self) -> list[edgedb.Object]:
+    async def artists(self) -> list[gel.Object]:
         return await select_artists(self.client)
 
     async def make_playlist(
@@ -147,7 +147,7 @@ class MusicDb(MusicbotObject):
             )
             results.update(intermediate_results)
         name = " | ".join([music_filter.help_repr() for music_filter in music_filters])
-        return Playlist.from_edgedb(
+        return Playlist.from_gel(
             name=name,
             results=list(results),
         )
@@ -172,7 +172,7 @@ class MusicDb(MusicbotObject):
             self.success(f"cleaned {cleaned.genres_deleted} genres")
             self.success(f"clceaned {cleaned.keywords_deleted} keywords")
 
-    async def remove_music_path(self, path: str) -> None | edgedb.Object:
+    async def remove_music_path(self, path: str) -> None | gel.Object:
         logger.debug(f"{self} : removed {path}")
         if self.dry:
             return None
@@ -254,12 +254,12 @@ class MusicDb(MusicbotObject):
                 )
                 self.success(f"{self} : updated {music_input}")
                 return music
-            except edgedb.errors.TransactionSerializationError as error:
+            except gel.errors.TransactionSerializationError as error:
                 retries -= 1
                 self.warn(f"{music_input} : transaction error, {retries} retries left")
                 last_error = error
                 continue
-            except edgedb.errors.NoDataError as error:
+            except gel.errors.NoDataError as error:
                 self.err(f"{music_input} : no data result for query", error=error)
             except OSError as error:
                 self.warn(f"{music_input} : unknown error", error=error)
@@ -299,17 +299,17 @@ class MusicDb(MusicbotObject):
             for genre in result.genres:
                 genre_name = f"genre_{genre.key.genre.name.lower()}"
                 self.success(f"Genre {genre_name} : {len(genre.elements)}")
-                playlist = Playlist.from_edgedb(name=genre_name, results=genre.elements)
+                playlist = Playlist.from_gel(name=genre_name, results=genre.elements)
                 playlists.append(playlist)
             for keyword in result.keywords:
                 keyword_name = f"keyword_{keyword.name.lower()}"
                 self.success(f"Keyword {keyword_name} : {len(keyword.musics)}")
-                playlist = Playlist.from_edgedb(name=keyword_name, results=keyword.musics)
+                playlist = Playlist.from_gel(name=keyword_name, results=keyword.musics)
                 playlists.append(playlist)
             for rating in result.ratings:
                 rating_name = f"rating_{rating.key.rating}"
                 self.success(f"Rating {rating_name} : {len(rating.elements)}")
-                playlist = Playlist.from_edgedb(name=rating_name, results=rating.elements)
+                playlist = Playlist.from_gel(name=rating_name, results=rating.elements)
                 playlists.append(playlist)
             for artist in result.keywords_for_artist:
                 artist_name = artist.artist
@@ -317,13 +317,13 @@ class MusicDb(MusicbotObject):
                     keyword_name = artist_keyword.keyword
                     final_artist_keyword = f"{artist_name}{os.sep}keyword_{keyword_name.lower()}"
                     self.success(f"Keyword by artist {final_artist_keyword} : {len(artist_keyword.musics)}")
-                    playlist = Playlist.from_edgedb(name=final_artist_keyword, results=artist_keyword.musics)
+                    playlist = Playlist.from_gel(name=final_artist_keyword, results=artist_keyword.musics)
                     playlists.append(playlist)
             for ratings_for_artist in result.ratings_for_artist:
                 artist_name = ratings_for_artist.key.artist.name
                 rating_name = str(ratings_for_artist.key.rating)
                 artist_rating = f"{artist_name}{os.sep}rating_{rating_name}"
                 self.success(f"Rating by artist {artist_rating} : {len(ratings_for_artist.elements)}")
-                playlist = Playlist.from_edgedb(name=artist_rating, results=ratings_for_artist.elements)
+                playlist = Playlist.from_gel(name=artist_rating, results=ratings_for_artist.elements)
                 playlists.append(playlist)
         return playlists

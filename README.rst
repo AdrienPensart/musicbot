@@ -24,16 +24,16 @@ Commands
     -h, --help                      Show this message and exit.
 
   Commands:
-    console               Starts interpreter
-    database (db,edgedb)  DB management
-    folder                Manage folders
-    help                  Print help
-    local                 Local music management
-    music (file)          Music file
-    readme (doc)          Generates a README.rst
-    spotify               Spotify tool
-    version               Print version
-    youtube               Youtube tool
+    console                   Starts interpreter
+    database (db,edgedb,gel)  DB management
+    folder                    Manage folders
+    help                      Print help
+    local                     Local music management
+    music (file)              Music file
+    readme (doc)              Generates a README.rst
+    spotify                   Spotify tool
+    version                   Print version
+    youtube                   Youtube tool
 
 musicbot console
 ****************
@@ -60,13 +60,13 @@ musicbot database
   Commands:
     clean (clean-db,erase)        Clean all musics in DB
     drop                          Drop entire schema from DB
-    edgeql (execute,fetch,query)  EdgeDB raw query
+    edgeql (execute,fetch,query)  GEL raw query
     graphiql                      Explore with GraphiQL
     graphql                       GraphQL query
     help                          Print help
     pgcli                         Connect with PgCLI
     soft-clean                    Clean entities without musics associated
-    ui                            Explore with EdgeDB UI
+    ui                            Explore with GEL UI
 
 musicbot database clean
 ***********************
@@ -104,7 +104,7 @@ musicbot database edgeql
 
   Usage: musicbot database edgeql [OPTIONS] QUERY
 
-    EdgeDB raw query
+    GEL raw query
 
   Options:
     MusicDB options: 
@@ -174,9 +174,9 @@ musicbot database ui
 ********************
 .. code-block::
 
-  Usage: musicbot database ui [OPTIONS] [EDGEDB_ARGS]...
+  Usage: musicbot database ui [OPTIONS] [GEL_ARGS]...
 
-    Explore with EdgeDB UI
+    Explore with GEL UI
 
   Options:
     --open / --no-open  [default: open]
