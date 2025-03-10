@@ -1,5 +1,6 @@
 import logging
 import shutil
+import warnings
 from dataclasses import asdict, dataclass
 from enum import Enum, unique
 from functools import cached_property
@@ -11,8 +12,6 @@ from beartype.typing import Any, Self
 from click_skeleton.helpers import mysplit
 from mutagen import File as MutagenFile
 from mutagen import MutagenError, id3
-from pydub import AudioSegment  # type: ignore
-from shazamio import Shazam  # type: ignore
 
 from musicbot.defaults import (
     DEFAULT_EXTENSIONS,
@@ -27,6 +26,8 @@ from musicbot.music import Music, MusicInput
 from musicbot.object import MusicbotObject
 
 logger = logging.getLogger(__name__)
+# for pydub
+warnings.filterwarnings("ignore", category=SyntaxWarning)
 
 
 @unique
@@ -444,6 +445,8 @@ class File(MusicbotObject):
             return None
         mp3_path.parent.mkdir(parents=True, exist_ok=True)
         try:
+            from pydub import AudioSegment  # type: ignore
+
             flac_audio = AudioSegment.from_file(self.path, "flac")
             mp3_export = flac_audio.export(
                 mp3_path,
@@ -472,6 +475,8 @@ class File(MusicbotObject):
         return None
 
     async def shazam(self) -> Any:
+        from shazamio import Shazam  # type: ignore
+
         shazam = Shazam()
         return await shazam.recognize(str(self.path))
 

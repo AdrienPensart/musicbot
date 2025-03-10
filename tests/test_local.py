@@ -9,7 +9,7 @@ from . import fixtures
 
 
 @beartype
-def test_local_folders(cli_runner: CliRunner, edgedb: str) -> None:
+def test_local_folders(cli_runner: CliRunner, dsn: str) -> None:
     output = run_cli(
         cli_runner,
         cli,
@@ -18,7 +18,7 @@ def test_local_folders(cli_runner: CliRunner, edgedb: str) -> None:
             "local",
             "folders",
             "--dsn",
-            edgedb,
+            dsn,
             "--output",
             "json",
         ],
@@ -27,7 +27,7 @@ def test_local_folders(cli_runner: CliRunner, edgedb: str) -> None:
 
 
 @beartype
-def test_local_remove(cli_runner: CliRunner, edgedb: str) -> None:
+def test_local_remove(cli_runner: CliRunner, dsn: str) -> None:
     _ = run_cli(
         cli_runner,
         cli,
@@ -38,13 +38,13 @@ def test_local_remove(cli_runner: CliRunner, edgedb: str) -> None:
             str(fixtures.one_flac),
             str(fixtures.one_mp3),
             "--dsn",
-            edgedb,
+            dsn,
         ],
     )
 
 
 @beartype
-def test_local_clean(cli_runner: CliRunner, edgedb: str) -> None:
+def test_local_clean(cli_runner: CliRunner, dsn: str) -> None:
     _ = run_cli(
         cli_runner,
         cli,
@@ -53,13 +53,13 @@ def test_local_clean(cli_runner: CliRunner, edgedb: str) -> None:
             "local",
             "clean",
             "--dsn",
-            edgedb,
+            dsn,
         ],
     )
 
 
 @beartype
-def test_local_watch(cli_runner: CliRunner, edgedb: str) -> None:
+def test_local_watch(cli_runner: CliRunner, dsn: str) -> None:
     _ = run_cli(
         cli_runner,
         cli,
@@ -68,7 +68,7 @@ def test_local_watch(cli_runner: CliRunner, edgedb: str) -> None:
             "local",
             "watch",
             "--dsn",
-            edgedb,
+            dsn,
             "--timeout",
             5,
             str(fixtures.folder_flac),
@@ -77,7 +77,7 @@ def test_local_watch(cli_runner: CliRunner, edgedb: str) -> None:
 
 
 @beartype
-def test_local_artists(cli_runner: CliRunner, edgedb: str) -> None:
+def test_local_artists(cli_runner: CliRunner, dsn: str) -> None:
     output = run_cli(
         cli_runner,
         cli,
@@ -86,7 +86,7 @@ def test_local_artists(cli_runner: CliRunner, edgedb: str) -> None:
             "local",
             "artists",
             "--dsn",
-            edgedb,
+            dsn,
             "--output",
             "json",
         ],
@@ -95,7 +95,7 @@ def test_local_artists(cli_runner: CliRunner, edgedb: str) -> None:
 
 
 @beartype
-def test_local_sync(cli_runner: CliRunner, edgedb: str) -> None:
+def test_local_sync(cli_runner: CliRunner, dsn: str) -> None:
     _ = run_cli(
         cli_runner,
         cli,
@@ -104,7 +104,7 @@ def test_local_sync(cli_runner: CliRunner, edgedb: str) -> None:
             "local",
             "sync",
             "--dsn",
-            edgedb,
+            dsn,
             "--delete",
             "--yes",
             "/tmp",
@@ -114,7 +114,7 @@ def test_local_sync(cli_runner: CliRunner, edgedb: str) -> None:
 
 
 @beartype
-def test_local_playlist(cli_runner: CliRunner, edgedb: str) -> None:
+def test_local_playlist(cli_runner: CliRunner, dsn: str) -> None:
     output = run_cli(
         cli_runner,
         cli,
@@ -123,7 +123,7 @@ def test_local_playlist(cli_runner: CliRunner, edgedb: str) -> None:
             "local",
             "playlist",
             "--dsn",
-            edgedb,
+            dsn,
             "--output",
             "json",
         ],
@@ -132,7 +132,7 @@ def test_local_playlist(cli_runner: CliRunner, edgedb: str) -> None:
 
 
 @beartype
-def test_local_bests(cli_runner: CliRunner, edgedb: str) -> None:
+def test_local_bests(cli_runner: CliRunner, dsn: str) -> None:
     _ = run_cli(
         cli_runner,
         cli,
@@ -141,7 +141,7 @@ def test_local_bests(cli_runner: CliRunner, edgedb: str) -> None:
             "local",
             "bests",
             "--dsn",
-            edgedb,
+            dsn,
             "/tmp",
             "--dry",
         ],
@@ -149,7 +149,7 @@ def test_local_bests(cli_runner: CliRunner, edgedb: str) -> None:
 
 
 @beartype
-def test_local_scan(cli_runner: CliRunner, edgedb: str) -> None:
+def test_local_scan(cli_runner: CliRunner, dsn: str) -> None:
     _ = run_cli(
         cli_runner,
         cli,
@@ -158,14 +158,14 @@ def test_local_scan(cli_runner: CliRunner, edgedb: str) -> None:
             "local",
             "scan",
             "--dsn",
-            edgedb,
+            dsn,
             *fixtures.scan_folders,
         ],
     )
 
 
 @beartype
-def test_custom_playlists(cli_runner: CliRunner, edgedb: str) -> None:
+def test_custom_playlists(cli_runner: CliRunner, dsn: str) -> None:
     _ = run_cli(
         cli_runner,
         cli,
@@ -174,7 +174,7 @@ def test_custom_playlists(cli_runner: CliRunner, edgedb: str) -> None:
             "local",
             "custom-playlists",
             "--dsn",
-            edgedb,
+            dsn,
             "/tmp",
         ],
     )

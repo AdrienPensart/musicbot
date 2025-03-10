@@ -59,7 +59,7 @@ def search(artist: str, title: str) -> None:
     }
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            infos: dict = ydl.extract_info(f"ytsearch1:'{artist} {title}'", download=False)
+            infos = ydl.extract_info(f"ytsearch1:'{artist} {title}'", download=False)
             print(type(infos))
             for entry in infos["entries"]:
                 print(entry["webpage_url"])
@@ -134,7 +134,7 @@ def find(file: File, acoustid_api_key: str) -> None:
         file_id = file.fingerprint(acoustid_api_key)
         print(f"Searching for artist {file.artist} and title {file.title} and duration {seconds_to_human(file.length)}")
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            infos: dict = ydl.extract_info(f"ytsearch1:'{file.artist} {file.title}'", download=True)
+            infos = ydl.extract_info(f"ytsearch1:'{file.artist} {file.title}'", download=True)
             url = None
             for entry in infos["entries"]:
                 url = entry["webpage_url"]

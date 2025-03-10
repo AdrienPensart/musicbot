@@ -80,7 +80,7 @@ def test_spotify_tracks(cli_runner: CliRunner) -> None:
 
 
 @beartype
-def test_spotify_artist_diff(cli_runner: CliRunner, edgedb: str) -> None:
+def test_spotify_artist_diff(cli_runner: CliRunner, dsn: str) -> None:
     _ = run_cli(
         cli_runner,
         cli,
@@ -89,13 +89,13 @@ def test_spotify_artist_diff(cli_runner: CliRunner, edgedb: str) -> None:
             "spotify",
             "artist-diff",
             "--dsn",
-            edgedb,
+            dsn,
         ],
     )
 
 
 @beartype
-def test_spotify_track_diff(cli_runner: CliRunner, edgedb: str) -> None:
+def test_spotify_track_diff(cli_runner: CliRunner, dsn: str) -> None:
     _ = run_cli(
         cli_runner,
         cli,
@@ -104,7 +104,7 @@ def test_spotify_track_diff(cli_runner: CliRunner, edgedb: str) -> None:
             "spotify",
             "track-diff",
             "--dsn",
-            edgedb,
+            dsn,
             "--min-threshold",
             50,
             "--output",
