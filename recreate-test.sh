@@ -5,6 +5,8 @@ trap '[ $? -eq 0 ] && exit 0 || echo "$0 FAILED"' EXIT
 
 NAME=musicbot_test
 docker compose down $NAME
+docker volume rm musicbot_musicbot-test-data
+
 docker compose create $NAME
 docker compose start $NAME
 

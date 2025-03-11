@@ -1,8 +1,9 @@
 import logging
 from dataclasses import asdict, dataclass
+from pathlib import Path
 
 from beartype import beartype
-from beartype.typing import Any
+from beartype.typing import Any, Self
 from slugify import slugify
 
 from musicbot.defaults import REPLACEMENTS, STOPWORDS
@@ -29,6 +30,21 @@ class Music(MusicbotObject):
     track: int | None = None
     # youtube: str | None = None
     # spotify: str | None = None
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Self:
+        return cls(
+            title=data["name"],
+            album=data["album"]["name"],
+            artist=data["artist"]["name"],
+            genre=data["genre"]["name"],
+            size=data["size"],
+            rating=float(data["rating"]),
+            length=data["length"],
+            keywords=frozenset(keyword["name"] for keyword in data["keywords"]),
+            folders=frozenset(Folder(name=folder["name"], ipv4=folder["ipv4"], username=folder["username"], path=Path(folder["path"])) for folder in data["folders"]),
+            track=data["track"],
+        )
 
     def human_repr(self) -> str:
         data: dict[str, Any] = asdict(self)

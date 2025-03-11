@@ -1,3 +1,3 @@
-update Music
-filter contains(.paths, <str>$path)
-set {folders := (select .folders filter @path != <str>$path)};
+select remove_musics_path(
+    path := <str>$path
+)

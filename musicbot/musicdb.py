@@ -23,7 +23,7 @@ from musicbot.queries.drop_schema_async_edgeql import drop_schema
 from musicbot.queries.gen_bests_async_edgeql import gen_bests
 from musicbot.queries.gen_playlist_async_edgeql import gen_playlist
 from musicbot.queries.pike_keywords_async_edgeql import pike_keywords
-from musicbot.queries.remove_async_edgeql import remove
+from musicbot.queries.remove_async_edgeql import RemoveResult, remove
 from musicbot.queries.select_artists_async_edgeql import select_artists
 from musicbot.queries.select_folder_async_edgeql import select_folder
 from musicbot.queries.soft_clean_async_edgeql import soft_clean
@@ -172,7 +172,7 @@ class MusicDb(MusicbotObject):
             self.success(f"cleaned {cleaned.genres_deleted} genres")
             self.success(f"clceaned {cleaned.keywords_deleted} keywords")
 
-    async def remove_music_path(self, path: str) -> None | gel.Object:
+    async def remove_music_path(self, path: str) -> None | list[RemoveResult]:
         logger.debug(f"{self} : removed {path}")
         if self.dry:
             return None
@@ -188,22 +188,19 @@ class MusicDb(MusicbotObject):
         while retries > 0:
             try:
                 if music_input.artist not in self.upsert_cache.artists_and_albums:
-                    artist_result = await upsert_artist(self.client, artist=music_input.artist)
-                    artist_id = artist_result.id
+                    artist_id = await upsert_artist(self.client, artist=music_input.artist)
                     self.upsert_cache.artists_and_albums[music_input.artist] = ArtistAlbums(id=artist_id)
                 else:
                     artist_id = self.upsert_cache.artists_and_albums[music_input.artist].id
 
                 if music_input.folder not in self.upsert_cache.folders:
-                    folder_result = await upsert_folder(self.client, username=music_input.username, ipv4=music_input.ipv4, folder=music_input.folder)
-                    folder_id = folder_result.id
+                    folder_id = await upsert_folder(self.client, username=music_input.username, ipv4=music_input.ipv4, folder=music_input.folder)
                     self.upsert_cache.folders[music_input.folder] = folder_id
                 else:
                     folder_id = self.upsert_cache.folders[music_input.folder]
 
                 if music_input.genre not in self.upsert_cache.genres:
-                    genre_result = await upsert_genre(self.client, genre=music_input.genre)
-                    genre_id = genre_result.id
+                    genre_id = await upsert_genre(self.client, genre=music_input.genre)
                     self.upsert_cache.genres[music_input.genre] = genre_id
                 else:
                     genre_id = self.upsert_cache.genres[music_input.genre]
@@ -211,16 +208,14 @@ class MusicDb(MusicbotObject):
                 keyword_ids = []
                 for keyword in music_input.keywords:
                     if keyword not in self.upsert_cache.keywords:
-                        keyword_result = await upsert_keyword(self.client, keyword=keyword)
-                        keyword_id = keyword_result.id
+                        keyword_id = await upsert_keyword(self.client, keyword=keyword)
                         self.upsert_cache.keywords[keyword] = keyword_id
                     else:
                         keyword_id = self.upsert_cache.keywords[keyword]
                     keyword_ids.append(keyword_id)
 
                 if music_input.album not in self.upsert_cache.artists_and_albums[music_input.artist].albums:
-                    album_result = await upsert_album(self.client, album=music_input.album, artist=artist_id)
-                    album_id = album_result.id
+                    album_id = await upsert_album(self.client, album=music_input.album, artist=artist_id)
                     self.upsert_cache.artists_and_albums[music_input.artist].albums[music_input.album] = album_id
                 else:
                     album_id = self.upsert_cache.artists_and_albums[music_input.artist].albums[music_input.album]
@@ -292,38 +287,39 @@ class MusicDb(MusicbotObject):
                 pattern=music_filter.pattern,
                 limit=music_filter.limit,
             )
-            results.append(intermediate_result)
+            results.append(self.loads_json(intermediate_result))
 
         playlists = []
         for result in results:
-            for genre in result.genres:
-                genre_name = f"genre_{genre.key.genre.name.lower()}"
-                self.success(f"Genre {genre_name} : {len(genre.elements)}")
-                playlist = Playlist.from_gel(name=genre_name, results=genre.elements)
+            for genre in result["genres"]:  # type: ignore[index]
+                genre_name = f"genre_{genre['key']['genre']['name'].lower()}"
+                self.success(f"Genre {genre_name} : {len(genre['elements'])}")
+                print(genre["elements"])
+                playlist = Playlist.from_dict(name=genre_name, data=genre["elements"])
                 playlists.append(playlist)
-            for keyword in result.keywords:
-                keyword_name = f"keyword_{keyword.name.lower()}"
-                self.success(f"Keyword {keyword_name} : {len(keyword.musics)}")
-                playlist = Playlist.from_gel(name=keyword_name, results=keyword.musics)
+            for keyword in result["keywords"]:  # type: ignore[index]
+                keyword_name = f"keyword_{keyword['name'].lower()}"
+                self.success(f"Keyword {keyword_name} : {len(keyword['musics'])}")
+                playlist = Playlist.from_dict(name=keyword_name, data=keyword["musics"])
                 playlists.append(playlist)
-            for rating in result.ratings:
-                rating_name = f"rating_{rating.key.rating}"
-                self.success(f"Rating {rating_name} : {len(rating.elements)}")
-                playlist = Playlist.from_gel(name=rating_name, results=rating.elements)
+            for rating in result["ratings"]:  # type: ignore[index]
+                rating_name = f"rating_{rating['key']['rating']}"
+                self.success(f"Rating {rating_name} : {len(rating['elements'])}")
+                playlist = Playlist.from_dict(name=rating_name, data=rating["elements"])
                 playlists.append(playlist)
-            for artist in result.keywords_for_artist:
-                artist_name = artist.artist
-                for artist_keyword in artist.keywords:
-                    keyword_name = artist_keyword.keyword
+            for artist in result["keywords_for_artist"]:  # type: ignore[index]
+                artist_name = artist["artist"]
+                for artist_keyword in artist["keywords"]:
+                    keyword_name = artist_keyword["keyword"]
                     final_artist_keyword = f"{artist_name}{os.sep}keyword_{keyword_name.lower()}"
-                    self.success(f"Keyword by artist {final_artist_keyword} : {len(artist_keyword.musics)}")
-                    playlist = Playlist.from_gel(name=final_artist_keyword, results=artist_keyword.musics)
+                    self.success(f"Keyword by artist {final_artist_keyword} : {len(artist_keyword['musics'])}")
+                    playlist = Playlist.from_dict(name=final_artist_keyword, data=artist_keyword["musics"])
                     playlists.append(playlist)
-            for ratings_for_artist in result.ratings_for_artist:
-                artist_name = ratings_for_artist.key.artist.name
-                rating_name = str(ratings_for_artist.key.rating)
+            for ratings_for_artist in result["ratings_for_artist"]:  # type: ignore[index]
+                artist_name = ratings_for_artist["key"]["artist"]["name"]
+                rating_name = str(ratings_for_artist["key"]["rating"])
                 artist_rating = f"{artist_name}{os.sep}rating_{rating_name}"
-                self.success(f"Rating by artist {artist_rating} : {len(ratings_for_artist.elements)}")
-                playlist = Playlist.from_gel(name=artist_rating, results=ratings_for_artist.elements)
+                self.success(f"Rating by artist {artist_rating} : {len(ratings_for_artist['elements'])}")
+                playlist = Playlist.from_dict(name=artist_rating, data=ratings_for_artist["elements"])
                 playlists.append(playlist)
         return playlists

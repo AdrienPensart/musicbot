@@ -8,7 +8,7 @@ from pathlib import Path
 import click
 import gel
 from beartype import beartype
-from beartype.typing import Self
+from beartype.typing import Any, Self
 from click_skeleton.helpers import PrettyDefaultDict
 from click_skeleton.helpers import seconds_to_human as formatted_seconds_to_human
 from more_itertools import interleave_evenly
@@ -30,6 +30,14 @@ logger = logging.getLogger(__name__)
 class Playlist(MusicbotObject):
     name: str
     musics: list[Music]
+
+    @classmethod
+    def from_dict(
+        cls,
+        name: str,
+        data: list[dict[str, Any]],
+    ) -> Self:
+        return cls(name=name, musics=[Music.from_dict(music) for music in data])
 
     @classmethod
     def from_files(

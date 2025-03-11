@@ -361,6 +361,310 @@ module default {
         );
         annotation title := "Generate a playlist from parameters";
     };
+    
+    function upsert_folder(
+        named only folder: str,
+        named only username: str,
+        named only ipv4: str,
+    ) -> Folder {
+        using (
+            select (
+                insert Folder {
+                    name := folder,
+                    username := username,
+                    ipv4 := ipv4
+                }
+                unless conflict on (.name, .username, .ipv4) else (select Folder)
+            )
+        );
+        annotation title := "Create a new folder";
+    };
+
+    function upsert_genre(
+        named only genre: str
+    ) -> Genre {
+        using (
+            select (
+                insert Genre {
+                    name := genre
+                }
+                unless conflict on (.name) else (select Genre)
+            )
+        );
+        annotation title := "Create a new genre";
+    };
+
+    function upsert_artist(
+        named only artist: str
+    ) -> Artist {
+        using (
+            select (
+                insert Artist {
+                    name := artist
+                }
+                unless conflict on (.name) else (select Artist)
+            )
+        );
+        annotation title := "Create a new artist";
+    };
+
+    function remove_musics_path(
+        named only path: str
+    ) -> set of Music {
+        using (
+            update Music
+            filter contains(.paths, path)
+            set {folders := (select .folders filter @path != path)}
+        );
+        annotation title := "Remove path from musics";
+    };
+
+    function upsert_album(
+        named only artist: Artist,
+        named only album: str
+    ) -> Album {
+        using (
+            select (
+                insert Album {
+                    name := album,
+                    artist := artist
+                }
+                unless conflict on (.name, .artist) else (select Album)
+            )
+        );
+        annotation title := "Create a new album";
+    };
+
+    function upsert_keyword(
+        named only keyword: str
+    ) -> Keyword {
+        using (
+            select (
+                insert Keyword {
+                    name := keyword
+                }
+                unless conflict on (.name) else (select Keyword)
+            )
+        );
+        annotation title := "Create a new keyword";
+    };
+
+    function upsert_music(
+        named only title: str,
+        named only size: Size,
+        named only length: Length,
+        named only genre: Genre,
+        named only album: Album,
+        named only keywords: array<uuid>,
+        named only track: optional Track,
+        named only rating: Rating,
+        named only folder: Folder,
+        named only path: str
+    ) -> Music {
+        using (
+            select (
+                insert Music {
+                    name := title,
+                    size := size,
+                    length := length,
+                    genre := genre,
+                    album := album,
+                    keywords := assert_distinct((select array_unpack(<array<Keyword>>keywords))),
+                    track := track,
+                    rating := rating,
+                    folders := (
+                        select folder {
+                            @path := path
+                        }
+                    )
+                }
+                unless conflict on (.name, .album) else (
+                    update Music
+                    set {
+                        size := size,
+                        genre := genre,
+                        album := album,
+                        keywords := assert_distinct((select array_unpack(<array<Keyword>>keywords))),
+                        length := length,
+                        track := track,
+                        rating := rating,
+                        folders += (
+                            select folder {
+                                @path := path
+                            }
+                        )
+                    }
+                )
+            )
+        );
+        annotation title := "Create a new music";
+    };
+
+    function gen_bests(
+        named only min_length: Length = 0,
+        named only max_length: Length = 2147483647,
+        named only min_size: Size = 0,
+        named only max_size: Size = 2147483647,
+        named only min_rating: Rating = 0.0,
+        named only max_rating: Rating = 5.0,
+        named only artist: str = "(.*?)",
+        named only album: str = "(.*?)",
+        named only genre: str = "(.*?)",
+        named only title: str = "(.*?)",
+        named only keyword: str = "(.*?)",
+        named only `limit`: `Limit` = 2147483647,
+        named only pattern: str = "",
+    ) -> json {
+        using (
+            with
+                musics := (select gen_playlist(
+                    min_length := min_length,
+                    max_length := max_length,
+                    min_size := min_size,
+                    max_size := max_size,
+                    min_rating := min_rating,
+                    max_rating := max_rating,
+                    artist := artist,
+                    album := album,
+                    genre := genre,
+                    title := title,
+                    keyword := keyword,
+                    pattern := pattern,
+                    `limit` := `limit`,
+                )),
+                unique_keywords := (select distinct (for music in musics union (music.keywords)))
+            select <json>{
+                genres := (
+                    group musics {
+                        name,
+                        size,
+                        genre: {name},
+                        album: {name},
+                        artist: {name},
+                        keywords: {name},
+                        length,
+                        track,
+                        rating,
+                        folders: {
+                            name,
+                            ipv4,
+                            username,
+                            path := @path
+                        }
+                    }
+                    by .genre
+                ),
+                keywords := (
+                    for unique_keyword in unique_keywords
+                    union (
+                        select Keyword {
+                            name,
+                            musics := (
+                                select distinct musics {
+                                    name,
+                                    size,
+                                    genre: {name},
+                                    album: {name},
+                                    artist: {name},
+                                    keywords: {name},
+                                    length,
+                                    track,
+                                    rating,
+                                    folders: {
+                                        name,
+                                        ipv4,
+                                        username,
+                                        path := @path
+                                    }
+                                }
+                                filter unique_keyword.name in .keywords.name
+                            )
+                        }
+                        filter .name = unique_keyword.name
+                    )
+                ),
+                ratings := (
+                    group musics {
+                        name,
+                        size,
+                        genre: {name},
+                        album: {name},
+                        artist: {name},
+                        keywords: {name},
+                        length,
+                        track,
+                        rating,
+                        folders: {
+                            name,
+                            ipv4,
+                            username,
+                            path := @path
+                        }
+                    }
+                    by .rating
+                ),
+                keywords_for_artist := (
+                    for artist in (select distinct musics.artist)
+                    union (
+                        select {
+                            artist := artist.name,
+                            keywords := (
+                                with
+                                artist_musics := (select musics filter .artist = artist),
+                                artist_keywords := (select distinct (for music in artist_musics union (music.keywords)))
+                                for artist_keyword in (select artist_keywords)
+                                union (
+                                    select {
+                                        keyword := artist_keyword.name,
+                                        musics := (
+                                            select distinct artist_musics {
+                                                name,
+                                                size,
+                                                genre: {name},
+                                                album: {name},
+                                                artist: {name},
+                                                keywords: {name},
+                                                length,
+                                                track,
+                                                rating,
+                                                folders: {
+                                                    name,
+                                                    ipv4,
+                                                    username,
+                                                    path := @path
+                                                }
+                                            }
+                                            filter artist_keyword in .keywords
+                                        )
+                                    }
+                                )
+                            )
+                        }
+                    )
+                ),
+                ratings_for_artist := (
+                    group musics {
+                        name,
+                        size,
+                        genre: {name},
+                        album: {name},
+                        artist: {name},
+                        keywords: {name},
+                        length,
+                        track,
+                        rating,
+                        folders: {
+                            name,
+                            ipv4,
+                            username,
+                            path := @path
+                        }
+                    }
+                    by .artist, .rating
+                )
+    });
+        annotation title := "Generate a playlist from parameters";
+    };
 }
 
 using extension graphql;
