@@ -233,6 +233,23 @@ class MusicDb(MusicbotObject):
                     genre=genre_id,
                     track=music_input.track,
                 )
+
+                # result = await upsert_music(
+                #     self.client,
+                #     title=music_input.title,
+                #     folder=music_input.folder,
+                #     username=music_input.username,
+                #     ipv4=music_input.ipv4,
+                #     path=music_input.path,
+                #     size=music_input.size,
+                #     length=music_input.length,
+                #     rating=music_input.rating,
+                #     keywords=music_input.keywords,
+                #     artist=music_input.artist,
+                #     album=music_input.album,
+                #     genre=music_input.genre,
+                #     track=music_input.track,
+                # )
                 keywords = frozenset(keyword.name for keyword in result.keywords)
                 folders = [Folder(path=Path(folder.path), name=folder.name, ipv4=folder.ipv4, username=folder.username) for folder in result.folders if folder.path is not None]
                 music = Music(

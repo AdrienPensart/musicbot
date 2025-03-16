@@ -74,7 +74,7 @@ reportUnusedCallResult = true
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--ignore=data --timeout 600 --cov-report term-missing --durations=0 --cov musicbot "
+addopts = ["--ignore=data --timeout 600 --cov-report term-missing --durations=0 --cov musicbot "]
 log_cli = true
 
 [tool.pylint.master]

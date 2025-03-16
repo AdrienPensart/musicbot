@@ -662,9 +662,121 @@ module default {
                     }
                     by .artist, .rating
                 )
-    });
+            }
+        );
         annotation title := "Generate a playlist from parameters";
     };
+
+    function search(named only pattern: str) -> set of Music {
+         using (
+            select Music 
+            filter
+                .name ilike pattern or
+                .genre.name ilike pattern or
+                .album.name ilike pattern or
+                .artist.name ilike pattern or
+                .keywords.name ilike pattern
+            order by 
+                .artist.name then
+                .album.name then
+                .track then
+                .name
+         );
+         annotation title := "Search musics";
+    }
+
+#     function upsert_music(
+#         named only title: str,
+#         named only size: Size,
+#         named only length: Length,
+#         named only artist: str,
+#         named only genre: str,
+#         named only album: str,
+#         named only keywords: array<str>,
+#         named only track: optional Track,
+#         named only rating: Rating,
+#         named only path: str,
+#         named only folder: str,
+#         named only username: str,
+#         named only ipv4: str,
+#     ) -> Music {
+# using (
+# with
+#     upsert_artist := (
+#         insert Artist {
+#             name := <str>artist
+#         }
+#         unless conflict on (.name) else (select Artist)
+#     ),
+#     upsert_album := (
+#         insert Album {
+#             name := <str>album,
+#             artist := assert_single(upsert_artist)
+#         }
+#         unless conflict on (.name, .artist) else (select Album)
+#     ),
+#     upsert_genre := (
+#         insert Genre {
+#             name := <str>genre
+#         }
+#         unless conflict on (.name) else (select Genre)
+#     ),
+#     upsert_keywords := (
+#         for keyword in { array_unpack(keywords) }
+#         union (
+#             insert Keyword {
+#                 name := keyword
+#             }
+#             unless conflict on (.name)
+#             else (select Keyword)
+#         )
+#     ),
+#     upsert_folder := (
+#         insert Folder {
+#             name := folder,
+#             username := username,
+#             ipv4 := ipv4
+#         }
+#         unless conflict on (.name, .username, .ipv4) else (select Folder)
+#     )
+#     select (
+#         insert Music {
+#             name := title,
+#             size := size,
+#             length := length,
+#             genre := assert_single(upsert_genre),
+#             album := assert_single(upsert_album),
+#             keywords := upsert_keywords,
+#             track := track,
+#             rating := rating,
+#             folders := (
+#                 select upsert_folder {
+#                     @path := path
+#                 }
+#             )
+#         }
+#         unless conflict on (.name, .album)
+#         else (
+#             update Music
+#             set {
+#                 size := size,
+#                 genre := assert_single(upsert_genre),
+#                 album := assert_single(upsert_album),
+#                 keywords := upsert_keywords,
+#                 length := length,
+#                 track := track,
+#                 rating := rating,
+#                 folders += (
+#                     select upsert_folder {
+#                         @path := path
+#                     }
+#                 )
+#             }
+#         )
+#     ) 
+#         );
+#         annotation title := "Create a new music";
+#     };
 }
 
 using extension graphql;

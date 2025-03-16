@@ -32,11 +32,11 @@ class NoPydanticValidation:
 @dataclasses.dataclass
 class SelectFolderResult(NoPydanticValidation):
     id: uuid.UUID
-    created_at: datetime.datetime
     ipv4: str
     name: str
-    updated_at: datetime.datetime
     username: str
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
     size: int
     human_size: str
     all_artists: str
